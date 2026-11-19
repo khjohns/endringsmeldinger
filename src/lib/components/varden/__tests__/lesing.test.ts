@@ -19,6 +19,7 @@ import {
 } from '#lib/components/varden/lesing.ts';
 import {
   FRISTEN,
+  VEDERLAGET,
   leselinjene,
   SKJEMA,
   standpunkttekst,
@@ -220,11 +221,36 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
     const svar = u.spor.vederlag.svar[0];
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const linjer = standpunktene(svar, u);
-    expect(leselinjene(linjer, p1!)).toEqual([
+    expect(leselinjene(linjer, p1!, VEDERLAGET.lagetVilkaar)).toEqual([
       'Godkjenner fast sum (punkt\u00a034.2.1)',
       `${kroner(100000)}, godkjent som krevd`,
     ]);
-    expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt\u00a034.4)']);
+    expect(leselinjene(linjer, p2!, VEDERLAGET.lagetVilkaar)).toEqual([
+      'Mener regningsarbeid (punkt\u00a034.4)',
+    ]);
+  });
+});
+
+describe('vilkåret i den lukkede kravposten (#2182, svar 4B)', () => {
+  it('står én gang over standpunktene i samme lag', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      brevet(forholdet('avslaatt'), {
+        spor: 'vederlag',
+        navn: 'S-v1',
+        kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+      }),
+    ]);
+    const [p1] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const linjene = leselinjene(
+      standpunktene(u.spor.vederlag.svar[0]!, u),
+      p1!,
+      VEDERLAGET.lagetVilkaar
+    );
+    expect(linjene.filter((l) => l.startsWith('Hvis '))).toHaveLength(1);
+    expect(linjene[0]).toMatch(/^Hvis /);
+    expect(linjene).toHaveLength(3);
   });
 });
 

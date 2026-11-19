@@ -5,9 +5,10 @@
   panelet med egen tittel (BF-05, F-1).
 -->
 <script lang="ts">
+  import type { Innsigelsen } from './svarlagene';
   import type { Snippet } from 'svelte';
   import type { Skjemapunkt } from './svarskjema';
-  import { HOVEDLINJER } from './tekster';
+  import { HOVEDLINJER, VEDERLAGET } from './tekster';
 
   let {
     linjer,
@@ -17,7 +18,7 @@
     tom = HOVEDLINJER.tom,
     punkter,
   }: {
-    linjer: { tekst: string; lag: string | null }[];
+    linjer: { tekst: string; lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean }[];
     /** Svaret har beløp i mer enn ett lag. */
     alternativer: boolean;
     /** Primærhandlingen. Uten den har panelet ingen bunn. */
@@ -35,8 +36,14 @@
     tekst.split(BELOEP).map((del, i) => ({ del, beloep: i % 2 === 1 }));
 </script>
 
-{#snippet standpunkt(l: { tekst: string; lag: string | null })}
-  {#if l.lag}<span class="lag">{l.lag}</span>{/if}
+{#snippet standpunkt(
+  l: { tekst: string; lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean },
+  forrige?: { vilkaar?: Innsigelsen[] }
+)}
+  <!-- Vilkåret står én gang for standpunktene i samme lag (#2182). -->
+  {#if l.vilkaar?.length && l.vilkaar !== forrige?.vilkaar}<span class="lag"
+      >{VEDERLAGET.lagetVilkaar(l.vilkaar, l.heller)}</span
+    >{/if}
   <span
     >{#each deler(l.tekst) as d, j (j)}{#if d.beloep}<span class="num">{d.del}</span
         >{:else}{d.del}{/if}{/each}</span
@@ -52,7 +59,7 @@
           <li class:aktiv={p.aktiv} aria-current={p.aktiv ? 'step' : undefined}>
             <strong>{p.navn}</strong>
             {#each p.linjer ?? [] as l, i (i)}
-              <span class="punktstatus">{@render standpunkt(l)}</span>
+              <span class="punktstatus">{@render standpunkt(l, p.linjer?.[i - 1])}</span>
             {/each}
           </li>
         {/each}
@@ -62,7 +69,7 @@
       <ul>
         {#each linjer as l, i (i)}
           <li>
-            {@render standpunkt(l)}
+            {@render standpunkt(l, linjer[i - 1])}
           </li>
         {/each}
       </ul>
@@ -122,8 +129,6 @@
     color: var(--ink-3);
     font-size: 12px;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .merknad {
     color: var(--ink-3);

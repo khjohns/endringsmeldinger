@@ -56,6 +56,7 @@
     grunntekst,
     innsigelsenOmVarselet,
     leselinjene,
+    VEDERLAGET,
     standpunkttekst,
   } from './tekster';
 
@@ -184,13 +185,15 @@
                 post && flere ? post.betegnelse : undefined
               ),
         lag: l.lag,
+        vilkaar: l.vilkaar,
+        heller: l.heller,
       };
     })
   );
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = leselinjene(nyeStandpunkter, p);
+    const fra = leselinjene(nyeStandpunkter, p, VEDERLAGET.lagetVilkaar);
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);

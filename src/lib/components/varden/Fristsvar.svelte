@@ -48,6 +48,7 @@
     BREVKONTROLL,
     VIRKNING,
     BREVSTEG,
+    FRISTEN,
     FRISTSVAR,
     SKJEMA,
     SVARSKJEMA,
@@ -209,24 +210,29 @@
                   )
                 : ''),
         lag: l.lag,
+        vilkaar: l.vilkaar,
+        heller: l.heller,
       };
     })
   );
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {
-    const medLag = (t: string, lag: string | null) =>
-      lag ? `${stor(lag)}: ${t[0]!.toLowerCase()}${t.slice(1)}` : t;
+    const medVilkaar = (
+      t: string,
+      vilkaar: Parameters<typeof FRISTEN.vilkaar>[0] = [],
+      heller?: boolean
+    ) => (vilkaar.length ? [FRISTEN.vilkaar(vilkaar, heller), t] : [t]);
     // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godtar.
     const fra = nyeStandpunkter.flatMap((l) => {
       if (!('standpunkt' in l)) return [];
       const s = l.standpunkt;
       if (s.art === 'spesifisering') {
         const m = s.maatteForstaa?.find((x) => x.frist === f.id);
-        return m ? [medLag(FRISTSVAR.maatteForstaaLinje(m.dager), l.lag)] : [];
+        return m ? medVilkaar(FRISTSVAR.maatteForstaaLinje(m.dager), l.vilkaar, l.heller) : [];
       }
       if (s.art !== 'dager' || s.gjelder !== f.id) return [];
-      return [medLag(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.lag)];
+      return medVilkaar(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.vilkaar, l.heller);
     });
     if (fra.length) return fra;
     const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
@@ -303,14 +309,9 @@
         ],
         ['hindring', valg.hindret, FRISTSVAR.heleKravetIkkeHindret],
       ] as const
-    ).flatMap(([innsigelse, svar, t]) => {
+    ).flatMap(([, svar, t]) => {
       if (svar !== false) return [];
-      const lag = lagene?.standpunkter.find((x) =>
-        innsigelse === 'hindring'
-          ? x.art === 'hindring'
-          : x.art === 'rettidighet' && x.hjemmel === innsigelse
-      )?.etikett;
-      return [lag ? `${stor(lag)}: ${t}` : stor(t)];
+      return [stor(t)];
     })
   );
 

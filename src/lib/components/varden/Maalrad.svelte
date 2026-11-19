@@ -67,14 +67,16 @@
   } = $props();
 </script>
 
-<div class="lagrad" class:kompakt class:dempet>
-  <span class="navn">{navn}</span>
-  {#if verdi !== null}
-    <span class="verdi"
-      ><b>{verdi}</b>{#if etter}<span class="etter">&nbsp;· {etter}</span>{/if}</span
-    >
-  {/if}
-</div>
+{#if navn || verdi !== null}
+  <div class="lagrad" class:kompakt class:dempet>
+    <span class="navn">{navn}</span>
+    {#if verdi !== null}
+      <span class="verdi"
+        ><b>{verdi}</b>{#if etter}<span class="etter">&nbsp;· {etter}</span>{/if}</span
+      >
+    {/if}
+  </div>
+{/if}
 {#if andel !== null}
   <div class="maal" class:aapen class:dempet aria-hidden="true">
     {#if aapen}<i class="ramme" style:width={andel}></i>{:else}<i style:width={andel}></i>{/if}

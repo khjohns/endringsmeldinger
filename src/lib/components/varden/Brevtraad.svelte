@@ -10,13 +10,12 @@
 <script lang="ts">
   import { File } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, LEGG_TIL, TRAADEN, kortDatoMedAar } from './tekster';
+  import { FORHOLDET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -166,7 +165,9 @@
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
                 {#each i.standpunkter as l, j (l.standpunkt.id)}
                   <li class:under={j > 0 && l.lag !== i.standpunkter[0]?.lag}>
-                    {#if l.lag}<b>{stor(l.lag)}</b>{/if}
+                    {#if l.vilkaar?.length && l.vilkaar !== i.standpunkter[j - 1]?.vilkaar}<b
+                        >{VEDERLAGET.lagetVilkaar(l.vilkaar, l.heller)}</b
+                      >{/if}
                     <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</span>
                   </li>
                 {/each}
@@ -419,8 +420,7 @@
   }
   .lagene li {
     display: grid;
-    grid-template-columns: 7rem minmax(0, 1fr);
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-1);
   }
   .lagene b {
     font-weight: 600;

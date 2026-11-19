@@ -7,7 +7,6 @@
 <script lang="ts">
   import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '#kjerne/frosset/tekst.ts';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
@@ -75,26 +74,30 @@
           navn={VEDERLAGET.krever}
           verdi={kroner(k.krevd)}
           andel={andel(k.krevd)}
-          aapen
+          aapen={k.kravbrev.avsender === 'TE'}
           trinn={k.lagene.length ? [] : trinn}
           {ende}
         />
       </div>
       {#if k.lagene.length}
-        <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
+        <!-- Hvert lag sier «Byggherren godkjenner» ved beløpet, så navnet på lista er for skjermleseren. -->
+        <p class="visually-hidden" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
         <ul class="lagene" aria-labelledby={`${uid}-lag`}>
           {#each k.lagene as l, i (l.lag)}
-            {@const tekst = VEDERLAGET.laget(l)}
             <li>
+              {#if l.vilkaar.length}<p class:dempet={i > 0}>
+                  {VEDERLAGET.lagetVilkaar(l.vilkaar, l.heller)}
+                </p>{/if}
+              {#each VEDERLAGET.laget(l) as tekst, j (j)}<p class:dempet={i > 0}>{tekst}</p>{/each}
               <Maalrad
-                navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
+                navn={l.beloep === null ? '' : VEDERLAGET.godkjenner}
                 verdi={l.beloep === null ? null : kroner(l.beloep)}
                 andel={l.beloep === null ? null : andel(l.beloep)}
+                aapen={k.svarbrev?.avsender === 'TE'}
                 dempet={i > 0}
                 trinn={i === k.lagene.length - 1 ? trinn : []}
                 {ende}
               />
-              {#if tekst}<p class:dempet={i > 0}>{tekst}</p>{/if}
             </li>
           {/each}
         </ul>
@@ -197,13 +200,9 @@
     gap: var(--spacing-4);
     margin-top: var(--spacing-1);
   }
-  .lagtittel {
+  .lagene {
     padding-top: var(--spacing-3);
     border-top: var(--rule-subtle);
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .lagene {
     display: grid;
     gap: var(--spacing-4);
   }

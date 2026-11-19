@@ -223,18 +223,30 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       alle.getByText(
-        'Hvis innsigelsen om varselet ikke fører frem: Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+        'Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
       )
     ).toBeTruthy();
+    expect(
+      alle.getByText(
+        'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem'
+      )
+    ).toBeVisible();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
     expect(
       per
         .getAllByRole('listitem')
         .slice(0, 2)
-        .map((l) => l.textContent?.replace(/\s+/g, ' ').trim())
+        .map((l) =>
+          [...l.children]
+            .map((e) => e.textContent)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+        )
     ).toEqual([
-      'Subsidiært, hvis innsigelsen om varselet ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.',
-      'Videre subsidiært, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.',
+      'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
+      // Det tredje laget: «heller ikke», som brevets «Videre subsidiært» (LV-U4 punkt 4).
+      'Hvis heller ikke innsigelsen om spesifiseringen fører frem Dagene byggherren godkjenner.',
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
@@ -245,13 +257,20 @@ describe('Siden for fristforlengelsen', () => {
     expect(overtakelse.getByRole('link', { name: 'KOE-9' }).getAttribute('href')).toBe('/p/annen');
     expect(overtakelse.getByText(/ny frist 15\. september 2027/)).toBeTruthy();
     expect(overtakelse.getByText(/ny frist 9\. september 2027/)).toBeTruthy();
+    // Radene per frist heter etter vilkåret i kortform (svar 2 B 19.11 i
+    // docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md).
+    expect(
+      within(overtakelse.getByRole('list', { name: 'Overtakelse' }))
+        .getAllByRole('listitem')
+        .map((l) => l.textContent!.match(/^\s*(\D+?)\s*\d/)?.[1])
+    ).toEqual(['Krevd', 'Hvis varselet kom i tide', 'Hvis også spesifiseringen kom i tide']);
     const mekanisk = within(per.getByRole('region', { name: /^Frist 3\s+Mekanisk/ }));
     expect(
       mekanisk.getByText('Gjeldende frist er 1. juni 2027. Det er datoen i kontrakten.')
     ).toBeTruthy();
     expect(
       mekanisk.getByText(
-        'Videre subsidiært avslår byggherren dagene for fristen: Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
+        'Byggherren avslår dagene for fristen. Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
       )
     ).toBeTruthy();
     const utomhus = within(per.getByRole('region', { name: /^Frist 8\s+Overtakelse av/ }));

@@ -1,3 +1,5 @@
+import { lageneISvaret, type Innsigelsen } from './svarlagene';
+
 /**
  * Det Varden viser av saken, lest av kjernens utledning (#1331): brevene med sporene de
  * hører til, datoene partene har oppgitt, og standpunktene i et svar med laget kjernen
@@ -367,7 +369,7 @@ export function datoopplysningene(u: Utledning): Datoopplysningen[] {
  * fra svaret på forholdet brevet hadde foran seg, med brevet det står i, eller et standpunkt i
  * svaret.
  */
-export type Standpunktet = { lag: string | null } & (
+export type Standpunktet = { lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean } & (
   | { grunn: Subsidiaergrunn; brev: Brevref }
   | { standpunkt: Standpunkt }
 );
@@ -384,16 +386,25 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
+  const lagene = lageneISvaret(u, svar, brevene(u), 0, 'dager');
+  const vilkaarFor = (lag: number | null) => {
+    const laget = lag === null ? undefined : lagene[lag - 1];
+    return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};
+  };
   return [
     ...grunner.map((grunn, i) => ({
       grunn,
       brev: ref(brevet(u, g!.dokument)!),
       lag: plass.grunn(i).etikett,
+      ...vilkaarFor(plass.grunn(i).lag),
     })),
     // KA-U72: standpunktet til beløpet uten beløp, når tilbudet ikke er akseptert, vises ikke.
     ...svar.standpunkter
       .filter((s) => !(s.art === 'beloep' && s.godkjent === undefined))
-      .map((s) => ({ standpunkt: s, lag: plass.standpunkt(s.id).etikett })),
+      .map((s) => {
+        const p = plass.standpunkt(s.id);
+        return { standpunkt: s, lag: p.etikett, ...vilkaarFor(p.lag) };
+      }),
   ];
 }
 
@@ -532,6 +543,8 @@ export interface Innlegget {
     lag: string | null;
     brev: Brevref | null;
     ordene: Forholdsordene;
+    vilkaar?: Innsigelsen[];
+    heller?: boolean;
   }[];
 }
 
@@ -603,7 +616,15 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
         if (!('standpunkt' in l)) return [];
         const g = 'gjelder' in l.standpunkt ? l.standpunkt.gjelder : undefined;
         const b = g ? kravbrev.get(g) : undefined;
-        return [{ standpunkt: l.standpunkt, lag: l.lag, brev: b ? ref(b) : null, ordene }];
+        return [
+          {
+            standpunkt: l.standpunkt,
+            lag: l.lag,
+            brev: b ? ref(b) : null,
+            ordene,
+            ...(l.vilkaar ? { vilkaar: l.vilkaar, heller: l.heller } : {}),
+          },
+        ];
       }),
     });
   }
