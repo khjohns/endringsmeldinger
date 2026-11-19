@@ -289,7 +289,7 @@
         : v
     );
   }
-  function fjernSkjemautkast(s: Spor, n: Utkastnavn) {
+  function fjernSkjemautkast(s: Spor, n: Utkastnavn & Skjemaarbeid['art']) {
     if (n === 'korrigering') {
       for (const spor of ['forhold', 'vederlag', 'frist'] as const) fjernUtkast(spor, n);
     } else fjernUtkast(s, n);
