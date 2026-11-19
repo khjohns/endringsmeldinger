@@ -282,7 +282,7 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
     // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt.
     const igjen = await sendKommando(server.url, o, taperen, { versjon: 1 });
     expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
-    const numre = await Promise.all(saker.map(async (s) => (await kodenTil(s))?.loepenummer));
+    const numre = await Promise.all(saker.map(async (s) => (await kodenTil(s))!.loepenummer));
     expect(numre.sort((a, b) => a - b)).toEqual([neste, neste + 1]);
     const rekke = (await koder()).filter((k) => k.kode === 'koe').map((k) => k.loepenummer);
     expect(rekke).toEqual(rekke.map((_, i) => i + 1));
