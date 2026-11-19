@@ -227,6 +227,7 @@ function kravetMedFristene(kravet: Krav | null | undefined, frister: string[]): 
 
 export const LINJEN_I_FRISTEN = {
   grunner: (svar, paaberopelse, kravet) => {
+    const hindring = standpunktet(svar, 'hindring');
     const spesifisert = standpunktet(svar, 'spesifisering');
     const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager > 0) ?? [];
     const krav = () =>
@@ -236,13 +237,17 @@ export const LINJEN_I_FRISTEN = {
       );
     return {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
-      hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt ${hindringenEtter(paaberopelse)})`,
+      hindring: hindring?.oppfylt
+        ? `fremdriften er hindret av forholdet (punkt ${hindringenEtter(paaberopelse)})`
+        : `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt ${hindringenEtter(paaberopelse)})`,
       // Bare fristene med dager, med fristens betegnelse som i brevteksten (#1931).
-      spesifisering: medDager.length
-        ? `godkjent med ${opplistet(
-            medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))
-          )} (punkt 33.6.1)`
-        : 'avslått (punkt 33.6.1)',
+      spesifisering: spesifisert?.iTide
+        ? 'ingen innsigelse om at kravet ble spesifisert for sent (punkt 33.6.1)'
+        : medDager.length
+          ? `godkjent med ${opplistet(
+              medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))
+            )} (punkt 33.6.1)`
+          : 'avslått (punkt 33.6.1)',
     };
   },
   egetLedd: () => undefined,

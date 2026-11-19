@@ -74,11 +74,8 @@ export const FRISTEN = haerdet({
       : sist
         ? 'dagene byggherren godkjenner.'
         : '',
-  /** Et standpunkt uten eget lag, med vilkåret foran (U-3, OV-U42). */
-  utenLag: (s: Standpunkt, vilkaar: Innsigelsen[]) =>
-    vilkaar.length
-      ? `${VEDERLAGET.vilkaar(vilkaar.map(FRISTEN.innsigelsen), false)}, ${standpunkttekst(s, false, undefined, undefined, true)}.`
-      : `${standpunkttekst(s, false)}.`,
+  /** Et standpunkt brevet ga uten eget lag (U-3, OV-U42). */
+  utenLag: (s: Standpunkt) => `${standpunkttekst(s, false)}.`,
   /**
    * Avslaget av dagene for én frist, med laget først og begrunnelsen slik den står i brevet (U-13,
    * MM-U50).

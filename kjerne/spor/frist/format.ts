@@ -285,15 +285,20 @@ function kontrollerUtregningenIFristen(
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.frister: ${hva}`);
   const dagene = ut.filter((s) => s.art === 'dager');
   const virkning = new Map(virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const standpunktetI = (lag: number) =>
-    ut.find((s) => s.art !== 'dager' && virkning.get(s.id) === lag);
+  const innsigelsenI = (lag: number) =>
+    ut.find(
+      (s) =>
+        virkning.get(s.id) === lag &&
+        ((s.art === 'hindring' && !s.oppfylt) ||
+          ((s.art === 'spesifisering' || s.art === 'rettidighet') && !s.iTide))
+    );
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
     // OV-U100.
     if (virkning.get(d.id) === 'upaavirket')
       throw feil(`rad ${i + 1} har dagene upåvirket, men hver påberopelse i fristen rammer dem`);
     r.lag.forEach((l, n) => {
-      const s = standpunktetI(n + 1);
+      const s = innsigelsenI(n + 1);
       const dager =
         s?.art === 'spesifisering'
           ? s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager

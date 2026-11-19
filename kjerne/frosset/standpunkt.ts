@@ -152,8 +152,10 @@ function avvisesPrinsipalt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean
     const s = svar.standpunkter.find((x) => x.id === p.standpunkt);
     // Innsigelsene etter § 34.3.3 og § 34.4 rammer bare kravposten (KA-U64, VS-U56).
     return (
-      s?.art === 'hindring' ||
-      (s?.art === 'rettidighet' && (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))
+      (s?.art === 'hindring' && !s.oppfylt) ||
+      (s?.art === 'rettidighet' &&
+        !s.iTide &&
+        (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))
     );
   });
 }

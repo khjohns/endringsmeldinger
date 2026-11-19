@@ -51,7 +51,11 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   // Arbeidsvalget i #479: en påberopelse etter § 33.6.1 i et lag gir aldri sammenfall. Leses av
   // standpunktene.
   const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
+  if (
+    spesifisering &&
+    !spesifisering.iTide &&
+    v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning))
+  )
     return false;
   // GR-U7, GR-U38: hele kravet er godkjent når hver frist har fått alle dagene.
   return utregningIFristen(svar.utregning).frister.every((r) => r.resultat === 'godkjent');
@@ -162,6 +166,10 @@ function regnUtFristen(
   // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
   const dager = [
     ...(prekludert ? [0] : []),
+    // KA-U84: innsigelsen mot svaret på forespørselen har eget lag etter § 33.4.
+    ...(v.frist_varsel_ok === false && foresporsel !== null && v.foresporsel_svar_ok === false
+      ? [0]
+      : []),
     ...(v.vilkar_oppfylt === true ? [] : [0]),
     ...(maatteForstaa === null ? [] : [maatteForstaa]),
     f.dager as number,
