@@ -271,6 +271,22 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(neste).not.toBeInTheDocument();
   });
 
+  it('feilen for «Delvis» fra «Ferdig» vises ikke igjen før et nytt forsøk når byggherren har valgt et annet svar imellom (review av #2229)', async () => {
+    await svarskjemaet(medFristkrav);
+    await svarPaaHeleKravet('Spesifisert i tide');
+    await radio('Delvis');
+    await ferdig();
+    expect(screen.getByRole('textbox', { name: 'Godkjente dager' })).toHaveAttribute(
+      'aria-invalid',
+      'true'
+    );
+    await radio('Avslått');
+    await radio('Delvis');
+    expect(screen.getByRole('textbox', { name: 'Godkjente dager' })).not.toHaveAttribute(
+      'aria-invalid'
+    );
+  });
+
   it('en feil fra «Ferdig» vises ikke igjen før et nytt forsøk når spesifiseringen er byttet (review av #2204)', async () => {
     await svarskjemaet(medFristkrav);
     await svarPaaHeleKravet('Spesifisert for sent');

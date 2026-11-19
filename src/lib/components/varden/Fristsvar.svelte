@@ -257,6 +257,11 @@
   const maatteForstaaId = (f: Fristpost) => `${uid}-maatte-${f.id}`;
   const deldagerId = (f: Fristpost) => `${uid}-deldager-${f.id}`;
   const fristerMedDeldagerfeil = new SvelteSet<string>();
+  // Feilen fra «Ferdig» gjelder «Delvis»; velger byggherren et annet svar, gjelder den ikke lenger.
+  $effect(() => {
+    for (const id of fristerMedDeldagerfeil)
+      if (valg.frister[id]?.dager !== 'deler') untrack(() => fristerMedDeldagerfeil.delete(id));
+  });
   function kontrollerVedFerdig(f: Fristpost) {
     if (maatteForstaaFeil(f)) {
       fristerMedFeltfeil.add(f.id);
