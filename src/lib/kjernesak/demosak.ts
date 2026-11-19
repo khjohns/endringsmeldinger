@@ -137,6 +137,9 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     return {
       versjon: rader.at(-1)!.versjon,
       part: demosak.part,
+      sakskode: DEMOMERKING.sakskode,
+      kontraktsforkortelse: DEMOMERKING.kontraktsforkortelse,
+      kan_foreslaa_sakskode: false,
       visning: {} as Awaited<ReturnType<typeof hentKjernesakMedMerking>>['visning'],
       journal: rader.map(linje),
       leveringsoppdrag: [],

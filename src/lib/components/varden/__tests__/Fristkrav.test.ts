@@ -58,6 +58,9 @@ async function kravskjemaet(
       journal: journal.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
+      sakskode: null,
+      kontraktsforkortelse: null,
+      kan_foreslaa_sakskode: false,
       merking: {
         ...MERKING,
         kontraktsfrister: fristtabell ?? undefined,
