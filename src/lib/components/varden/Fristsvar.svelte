@@ -10,13 +10,16 @@
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
-  import { fristpunktForSpoersmaal, fristspoersmaalForPunkt } from '#kjerne/spor/frist/kommando.ts';
   import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
   import { dager, FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { BREVTEKSTEN_I_FRISTEN } from '#kjerne/spor/frist/tekst.ts';
-  import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
+  import {
+    foresporselenISvaret,
+    fristpunktForSpoersmaal,
+    fristspoersmaalForPunkt,
+  } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';

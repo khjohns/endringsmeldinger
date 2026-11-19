@@ -56,10 +56,7 @@ describe('den ventende opprettelsen etter et forsøk som feilet (#2188)', () => 
   });
 
   it('leser et eldre lagret forsøk med skjemaet i begge feltene (#2234)', () => {
-    sessionStorage.setItem(
-      'nysak:ventende:bruker-a:p1',
-      JSON.stringify({ ...ventende, utkast })
-    );
+    sessionStorage.setItem('nysak:ventende:bruker-a:p1', JSON.stringify({ ...ventende, utkast }));
     expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
   });
 

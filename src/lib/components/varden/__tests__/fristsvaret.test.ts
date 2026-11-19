@@ -140,7 +140,8 @@ describe('dagene i feltene', () => {
     ['0', 'avslaatt', 0],
     ['12', 'deler', 12],
     ['30', 'deler', 30],
-    ['x', 'deler', undefined],
+    // Et tall som ikke kan leses, går til kjernen, som avviser det (`ugyldig`, #2234).
+    ['x', 'deler', NaN],
     ['', null, undefined],
   ] as const)('«%s» i «Godkjente dager» velger %s', (tekst, valget, dagene) => {
     const f = tomFrist();
