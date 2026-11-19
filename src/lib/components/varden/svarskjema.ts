@@ -77,6 +77,7 @@ export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
 export interface Skjemapunkt {
   punkt: string;
   navn: string;
+  beholdNavn?: boolean;
   linjer?: readonly {
     tekst: string;
     lag: string | null;
@@ -109,7 +110,7 @@ export function panelpunktene(
   return [
     ...[...overskrifter].flatMap(([punkt, navn]) => {
       const p = punkter.find((q) => q.punkt === punkt);
-      if (navn) return [{ ...p, punkt, navn }];
+      if (navn) return [{ ...p, punkt, navn: p?.beholdNavn ? `${navn} · ${p.navn}` : navn }];
       return p ? [p] : [];
     }),
     ...punkter.filter((p) => !overskrifter.has(p.punkt)),

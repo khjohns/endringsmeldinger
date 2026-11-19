@@ -286,6 +286,7 @@
 {/snippet}
 
 <Svarskjema
+  lagfeil={lagene === null}
   {kjernesak}
   {u}
   spor="forhold"

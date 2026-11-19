@@ -10,13 +10,16 @@
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
-  import type { Fristspoersmaal } from '#kjerne/regler/frist.ts';
   import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
   import { dager, FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { BREVTEKSTEN_I_FRISTEN } from '#kjerne/spor/frist/tekst.ts';
-  import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
+  import {
+    foresporselenISvaret,
+    fristpunktForSpoersmaal,
+    fristspoersmaalForPunkt,
+  } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -129,22 +132,15 @@
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
-  const spoersmaalForPunkt = new Map<string, Fristspoersmaal>([
-    ['33.4', 'frist_varsel_ok'],
-    ['33.6.2', 'foresporsel_svar_ok'],
-    ['hindring', 'vilkar_oppfylt'],
-    ['spesifisering', 'spesifisert_krav_ok'],
-  ]);
   const foerstePunkt = $derived(
-    lagene?.ubesvart[0]?.gjelder ??
-      [...spoersmaalForPunkt].find(([, felt]) => felt === foersteSporsmaal)?.[0]
+    lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
   );
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(
       BREVTEKSTEN_I_FRISTEN.temaer(krav).filter((tema) => tema.punkt !== FORHOLDET),
       (punkt) => {
         if (!lagene) return false;
-        const spoersmaal = spoersmaalForPunkt.get(punkt);
+        const spoersmaal = fristspoersmaalForPunkt(punkt);
         if (spoersmaal)
           return (
             stilt(lagene, spoersmaal) &&
@@ -235,7 +231,7 @@
       return medVilkaar(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.vilkaar, l.heller);
     });
     if (fra.length) return fra;
-    const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    const d = visteDager(f);
     return d === undefined ? [] : [FRISTSVAR.leselinjeDager(d, f.dager)];
   };
   const punktstatus = (punkt: string): string[] => {
@@ -278,7 +274,7 @@
       : []),
     ...begrunnelserISkjemaet
       .filter((p) => {
-        const felt = spoersmaalForPunkt.get(p.punkt);
+        const felt = fristspoersmaalForPunkt(p.punkt);
         return !felt || stilt(lagene, felt);
       })
       .map((p) => {
@@ -321,11 +317,17 @@
     const v = valg.frister[f.id];
     if (v?.dager !== 'deler') return null;
     if (ubesvart(lagene, 'dager', f.id)) return FRISTSVAR.manglerDeldager;
-    const d = heleDager(v.deldager);
-    return d !== undefined && (d <= 0 || d >= f.dager) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+    // «0,0» og «20,0» er tall kjernen godtar, men ikke et helt antall dager under «Delvis».
+    if (heleDager(v.deldager) === undefined) return FRISTSVAR.ugyldigeDeldager;
+    return ugyldig(lagene, 'dager', f.id) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+  };
+  /** Dagene byggherren godkjenner, når det er et helt antall dager panelet kan vise. */
+  const visteDager = (f: Fristpost) => {
+    const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    return d !== undefined && Number.isInteger(d) && d >= 0 ? d : undefined;
   };
   const grenseForMaatteForstaa = (f: Fristpost) => {
-    const godkjent = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    const godkjent = visteDager(f);
     return godkjent !== undefined && godkjent <= f.dager ? godkjent : undefined;
   };
 
@@ -446,6 +448,7 @@
 {/snippet}
 
 <Svarskjema
+  lagfeil={lagene === null}
   {kjernesak}
   {u}
   spor="frist"

@@ -98,9 +98,10 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
     expect(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).not.toBeChecked();
   });
 
-  it.each([400, 409])('%i beholder dagens avvisningsgrunn', async (status) => {
+  it.each([400, 409])('%i viser avvisningsgrunnen under tittelen (#2234)', async (status) => {
     const { melding } = await sendeforsok(new ApiError(status, 'Begrunnelsen fra serveren.'));
-    expect(melding).toHaveTextContent('Brevet ble ikke sendt. Begrunnelsen fra serveren.');
+    expect(melding.querySelector('strong')).toHaveTextContent('Brevet ble ikke sendt');
+    expect(within(melding).getByText('Begrunnelsen fra serveren.')).toBeVisible();
     expect(within(melding).queryByRole('link', { name: /Logg inn/ })).toBeNull();
   });
 
