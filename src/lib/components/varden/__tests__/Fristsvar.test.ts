@@ -175,7 +175,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     ]);
   });
 
-  it('«Godkjente dager» står tomt fra start, og tallet velger «Som krevd», «Delvis» eller «Avslått» (U-14)', async () => {
+  it('«Godkjente dager» står tomt fra start, og tallet velger «Alle <n> dagene», «Delvis» eller «Avslått» (U-14)', async () => {
     await svarskjemaet(medFristkrav);
     const felt = screen.getByLabelText('Godkjente dager');
     expect(felt).toHaveValue('');
@@ -187,7 +187,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(felt).toHaveValue('0');
   });
 
-  it('fristens tre valg står under hverandre med «Som krevd» først (#2183)', async () => {
+  it('fristens tre valg står under hverandre med «Alle <n> dagene» først (#2183)', async () => {
     await svarskjemaet(medFristkrav);
     const dager = screen.getByRole('group', { name: 'Hvor mange av dagene godkjenner du?' });
     const valg = within(dager).getAllByRole('radio');

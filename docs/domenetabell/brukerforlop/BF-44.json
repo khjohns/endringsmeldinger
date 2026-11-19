@@ -188,9 +188,10 @@
           ]
         },
         {
-          "tekst": "TE ser at «Revider krav» avslår tilbudet i svaret, og at «Godta svaret» viser brevet og virkningen før det sendes. Aksepten gjelder hele svaret, også at varselet kom for sent, og binder begge parter.",
+          "tekst": "TE ser «Oppdater kravet», som etter sendingen hindrer at svaret godtas her, og at «Godta svaret» viser brevet og virkningen før det sendes. Aksepten gjelder hele svaret, også at varselet kom for sent, og binder begge parter.",
           "kilde": [
             "OV-U54",
+            "MM-U34",
             "KA-U1",
             "GR-U7",
             "GR-U8",
@@ -320,6 +321,11 @@
       "dato": "2026-11-15",
       "forhold": "#1998",
       "hva": "Forløpet kjøres i saksruta. Skriptet setter akseptfristen til den første hverdagen fra og med 14 dager etter dagens dato, fordi saksruta sender svaret med dagens klokke (HF-U23 punkt 2), og laster opp vedlegget til det registrerte brevet før det sendes. Forløpsfila og kjøringen i minnet beholder den faste datoen."
+    },
+    {
+      "dato": "2026-11-19",
+      "forhold": "#2186",
+      "hva": "Handlingen heter «Oppdater kravet» og står uten hjelpetekst, og forløpet sier ikke lenger at det nye kravet avslår tilbudet (MM-U34 punkt 1). Vilkåret i U-2 har skjemaets ord om innsigelsen (#2210)."
     }
   ],
   "prototype": {

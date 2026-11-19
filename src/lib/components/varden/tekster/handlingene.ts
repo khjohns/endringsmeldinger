@@ -55,9 +55,12 @@ export const HANDLINGENE = haerdet({
             ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
-    /** Et nytt krav i vederlaget avslår tilbudet i svaret (OV-U54, D-6 i BF-44). */
-    avslaarTilbudet: (krav: Brevref) =>
-      `Det nye brevet oppdaterer kravet i ${brevref(krav)}. Det avslår tilbudet i svaret. Svaret kan da ikke godtas.`,
+    /**
+     * Et nytt krav etter svaret: svaret kan ikke godtas her etterpå, og løsningen sier ikke hva
+     * det nye kravet betyr for svaret (MM-U34 punkt 1, D-6 i BF-44).
+     */
+    oppdatererKravet: (krav: Brevref) =>
+      `Det nye brevet oppdaterer kravet i ${brevref(krav)}. Når du sender det, kan du ikke godta svaret her.`,
     /**
      * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
      * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,

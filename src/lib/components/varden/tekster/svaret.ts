@@ -175,7 +175,7 @@ export const FRISTSVAR = haerdet({
   dagerSpoersmaalITide: 'Dagene du godkjenner hvis kravet ble spesifisert i tide',
   maatteForstaaLinje: (n: number) => `${dager(n)} du måtte forstå`,
   maatteForstaaPerFrist: (linjer: string[]) => `: ${opplistet(linjer)}`,
-  alle: (krevd: number) => (krevd === 1 ? 'Hele dagen' : `Alle ${krevd} dagene`),
+  alle: (krevd: number) => (krevd === 1 ? 'Den ene dagen' : `Alle ${krevd} dagene`),
   deler: 'Delvis',
   avslaatt: 'Avslått',
   deldagerEtikett: 'Godkjente dager',

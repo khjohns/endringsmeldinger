@@ -327,6 +327,11 @@
       "dato": "2026-11-18",
       "forhold": "#2183",
       "hva": "U-14 angir oppstillingen og rekkefølgen for de tre dagvalgene."
+    },
+    {
+      "dato": "2026-11-19",
+      "forhold": "#2186",
+      "hva": "Ordene i U-6, U-13, U-14 og F-3 følger skjemaet: «Gis i dette brevet.», «Varselet er gitt før», «Legg til et varsel du har sendt før» og «Alle <n> dagene» (#2210)."
     }
   ]
 }

@@ -81,6 +81,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.getByText('Brev 3 til byggherren')).toBeTruthy();
     expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/synlig for teamet/i);
+    // Brevet oppdaterer påberopelsen, ikke et krav, og byggherrens svar er ikke et tilbud
+    // (språkfila, «Brev, ikke versjon»; MM-U34 punkt 1 gjelder kravene).
+    expect(
+      skjema.getByText(/^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\.$/)
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/Oppdaterer kravet|tilbud/);
     expect(skjema.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
     // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst.
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');

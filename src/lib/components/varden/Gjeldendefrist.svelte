@@ -28,7 +28,7 @@
 {#if g?.art === 'kjent' && g.forlengelser.length}
   <p class="gjeldende" {id}>
     {FRISTEN.forlenget(g.dato, g.iKontrakten)}
-    {#each g.forlengelser as f (f.sakId)}
+    {#each g.forlengelser as f, i (i)}
       {FRISTEN.sak}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
       {#if sakslenke}<a href={sakslenke(f.sakId)}>{sakensNavn(f)}</a>{:else}{sakensNavn(f)}{/if}

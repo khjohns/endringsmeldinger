@@ -114,7 +114,7 @@
   {#snippet hoved()}
     <Utkastkort id={id('emne')} {...hode} avsender="TE" novalidate onsubmit={tilForhaandsvisningen}>
       {#snippet referanse()}
-        {#if kravbrev}<span>{KRAVSKJEMA.folgerOpp(kravbrev, svarbrevet)}</span>{/if}
+        {#if kravbrev}<span>{KRAVSKJEMA.folgerOppPaaberopelsen(kravbrev, svarbrevet)}</span>{/if}
       {/snippet}
       <div class="begrunnelse">
         <Tekstomraade

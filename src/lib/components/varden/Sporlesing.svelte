@@ -185,7 +185,7 @@
           return HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u));
         if (!krav) return HANDLINGENE.virkning.reviderKrav;
         return (
-          HANDLINGENE.virkning.avslaarTilbudet(krav) +
+          HANDLINGENE.virkning.oppdatererKravet(krav) +
           (spor === 'frist' ? ` ${FRISTEN.endreEllerTaUt}` : '')
         );
       },

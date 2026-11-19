@@ -665,7 +665,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
   });
 
-  it('etter svaret på vederlagskravet er primærhandlingen for TE «Oppdater kravet», som sier at det nye kravet avslår tilbudet (oppdragsgiver 06.11, #1631, U-6 og D-6 i BF-44, OV-U54)', async () => {
+  it('etter svaret på vederlagskravet er primærhandlingen for TE «Oppdater kravet», og skjemaet sier at svaret ikke kan godtas her etter sendingen, uten å si at tilbudet avslås (oppdragsgiver 06.11, #1631, U-6 og D-6 i BF-44, MM-U34 punkt 1)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -684,6 +684,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
     await fireEvent.click(primaer);
     expect(screen.getByText(/Når du sender brevet, kan du ikke godta det svaret her/)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/avslår tilbudet/);
   });
 
   /** BF-04 etter svaret, der kjernen ikke gir noe brev for aksepten. Resten av saken er den ekte. */

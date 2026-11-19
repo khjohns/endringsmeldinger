@@ -476,7 +476,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   fristen, til sidene for kravene får oppsett B (#1906, #1900). Alle handlingene står synlige,
   uten panel (#1631). Det har høyst én primærhandling, med en linje om hva
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
-  byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
+  byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Oppdater kravet»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (#1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
   Varden, sier den at den ikke er bygget (#1636). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
   Innsigelsen om at et brev kom for sent står ikke i kortet: den hører hjemme i svaret på

@@ -86,7 +86,7 @@ export const FRISTEN = haerdet({
   avslag: (etikett: string | null, begrunnelse: string | null) =>
     `${etikett ? `${stor(etikett)} avslår byggherren` : 'Byggherren avslår'} dagene for fristen` +
     (begrunnelse ? `: ${begrunnelse}` : '.'),
-  /** Linja under «Revider krav» (U-6, svar 4 A). */
+  /** Linja under «Oppdater kravet» (U-6, svar 4 A). */
   endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
   /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */
   svarPaaForesporsel: 'Svar på forespørselen',
