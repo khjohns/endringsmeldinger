@@ -152,7 +152,18 @@
   });
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
+  let sendeknapp = $state<HTMLDivElement | null>(null);
   let sendeknappensHoeyde = $state(0);
+  $effect(() => {
+    if (!sendeknapp) return;
+    const element = sendeknapp;
+    const maal = () => (sendeknappensHoeyde = element.offsetHeight);
+    maal();
+    if (typeof ResizeObserver !== 'function') return;
+    const observatoer = new ResizeObserver(maal);
+    observatoer.observe(element);
+    return () => observatoer.disconnect();
+  });
   let stegviseren = $state<HTMLOListElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
@@ -252,7 +263,7 @@
       {#if manglerKontroll && !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="feilmelding">
           {BREVKONTROLL.hvorforIkke}
         </p>{/if}
-      <div class="sendeknapp" bind:offsetHeight={sendeknappensHoeyde}>
+      <div class="sendeknapp" bind:this={sendeknapp}>
         <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
           <Send size={16} aria-hidden="true" />
           {kjernesak.sender
