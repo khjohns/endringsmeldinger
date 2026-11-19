@@ -200,26 +200,26 @@ export function virkningerIForholdetOgFristen(
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
   let lag = 1;
-  let etterFristvarselet = false;
+  let etterInnsigelseOmTap = false;
   const iLaget = () => lag;
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
-      const virkning = virker || etterFristvarselet ? iLaget() : 'uten_virkning';
+      const virkning = virker || etterInnsigelseOmTap ? iLaget() : 'uten_virkning';
       if (virker) lag++;
-      // KA-U84: alle de øvrige standpunktene til fristkravet følger etter § 33.4.
-      if (virker && s.hjemmel === '33.4') etterFristvarselet = true;
+      // KA-U84, KA-U86: de øvrige standpunktene til fristkravet følger etter § 33.4 og § 33.6.2.
+      if (virker && (s.hjemmel === '33.4' || s.hjemmel === '33.6.2')) etterInnsigelseOmTap = true;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'oppgjoersform' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
       // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
-      const virkning = s.iTide && !etterFristvarselet ? 'uten_virkning' : iLaget();
+      const virkning = s.iTide && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();
       if (!s.iTide) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt && !etterFristvarselet ? 'uten_virkning' : iLaget();
+      const virkning = s.oppfylt && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();
       if (!s.oppfylt) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (

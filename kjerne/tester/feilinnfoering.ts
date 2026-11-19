@@ -1545,7 +1545,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
-        "const virkning = s.iTide && !etterFristvarselet ? 'uten_virkning' : iLaget();",
+        "const virkning = s.iTide && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();",
         'const virkning = iLaget();',
       ],
     ],
@@ -6465,7 +6465,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
-        "      const virkning = s.oppfylt && !etterFristvarselet ? 'uten_virkning' : iLaget();",
+        "      const virkning = s.oppfylt && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();",
         "      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();",
       ],
     ],
@@ -6473,15 +6473,28 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F755',
-    feilklasse: 'innsigelsen etter § 33.6.2 får samme lag som innsigelsen etter § 33.4 (KA-U84)',
+    feilklasse: 'innsigelsen etter § 33.6.2 får samme lag som innsigelsen etter § 33.4 (KA-U85)',
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
-        "      const virkning = virker || etterFristvarselet ? iLaget() : 'uten_virkning';",
-        "      const virkning = virker ? 1 : etterFristvarselet ? iLaget() : 'uten_virkning';",
+        "      const virkning = virker || etterInnsigelseOmTap ? iLaget() : 'uten_virkning';",
+        "      const virkning = virker ? 1 : etterInnsigelseOmTap ? iLaget() : 'uten_virkning';",
       ],
+      ['      if (virker) lag++;', '      if (virker) lag = 2;'],
     ],
     mal: ['KA-U84: innsigelsen etter § 33.6.2 følger etter'],
+  },
+  {
+    id: 'F756',
+    feilklasse: 'en bekreftet hindring står uten vilkår etter innsigelsen etter § 33.6.2 (KA-U86)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "if (virker && (s.hjemmel === '33.4' || s.hjemmel === '33.6.2')) etterInnsigelseOmTap = true;",
+        "if (virker && s.hjemmel === '33.4') etterInnsigelseOmTap = true;",
+      ],
+    ],
+    mal: ['KA-U86: etter innsigelsen etter § 33.6.2 alene', 'VG-A-01: beslutningslinja sier'],
   },
 ];
 interface Testresultat {
