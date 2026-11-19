@@ -4876,6 +4876,31 @@ tekst = '''
 Totalentreprenøren kan trekke den siste kravposten uten at det er et avkall. Vederlagskravet står uten kravposter til en ny kravversjon, og byggherren svarer ikke på det. Forhold: snevrer inn KA-U22 for et krav der postene er trukket én etter én.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U84"
+dato = 2026-11-19
+hvem = "oppdragsgiver"
+kilde = ["#2218", "#2182", "#2163"]
+klasse = "vedtak"
+sporsmal = '''
+Hindringen i byggherrens svar på kravet om fristforlengelse (#2218, BF-45 U-3, KA-U78). Etter punkt 33.1 må fremdriften være hindret, og hindringen må skyldes forholdet. Etter punkt 33.4 tapes kravet hvis varselet ikke kommer i tide. Påberoper byggherren at varselet etter punkt 33.4 kom for sent, og er ellers enig i at fremdriften er hindret og at hindringen skyldes forholdet, sier brevet i BF-45 standpunktet om hindringen uten vilkår, fordi kjernen bare gir hindringen et eget lag når byggherren bestrider den (KA-U78). Oversikten legger selv til vilkåret. Skal standpunktet om hindringen gjelde bare hvis innsigelsen om varselet ikke fører frem?'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 19.11, ordrett: «Usikker på om noen er riktig. Les kontraktsbestemmelsen i khjohns/kontrakt. Vurderingen er jo typisk - er varsler fremsatt i tide? Er det vist til en i) hindring som ii) er forårsaket av forholdet (som er påberopt under "forhold/kontraktsforhold") - altså kravet om årsakssammenheng. Og deretter godkjente eller subsidiært godkjente dager. Alt dette er vilkår for fristforlengelse. Hvis byggherren mener varsel etter 33.4 er fremsatt for sent, gjelder en eventuell enighet om årsakssammenheng (i og ii) og ytterligere vilkår om fristforlengelse kun under forutsetning at det blir etablert enighet om at 33.4 er fremsatt i tide. Spørsmålet er hvordan man formulerer dette på en presis, men naturlig måte». Deretter: «2A.» og «Er det ikke vedtatt at all ordlyd er design og vedtak skal kun angi budskapet, ikke den konkrete ordlyden?». Vedtaksteksten i budskapsform ble lagt fram, og oppdragsgiver svarte «Ja til vedtaksteksten». Valgt: A.'''
+forhold = [{ art = "presiserer", vedtak = "ka-u78" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Påberoper byggherren at varselet etter punkt 33.4 kom for sent, gjelder byggherrens øvrige standpunkter til kravet om fristforlengelse bare hvis den innsigelsen ikke fører frem. Det gjelder også når byggherren er enig i at fremdriften er hindret, og at hindringen skyldes forholdet. Brevet og visningen sier at disse standpunktene er subsidiære.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Standpunktet om at fremdriften er hindret og at hindringen skyldes forholdet, gjelder uten vilkår.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
