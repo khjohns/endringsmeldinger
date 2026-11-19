@@ -116,7 +116,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await kjernesak.last();
     render(Vardensak, { kjernesak });
     await bhSvarerIVarden();
-    await sendBrevet('Send svaret til totalentreprenøren');
+    await sendBrevet('Send til totalentreprenøren');
     expect(kjernesak.sender).toBe(true);
 
     await fireEvent.click(screen.getByRole('button', { name: /^Fristforlengelse/ }));
