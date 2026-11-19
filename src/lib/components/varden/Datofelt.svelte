@@ -33,6 +33,8 @@
 <Felt {id} {etikett} {hjelp} {feil}>
   <input
     {id}
+    class="feltramme"
+    data-feltfeil={feil ? '' : undefined}
     type="date"
     max={maks}
     bind:value={verdi}
@@ -53,11 +55,12 @@
     padding: 0 var(--spacing-3);
     border: var(--control-border);
     border-radius: var(--r-felt);
+    box-shadow: var(--felt-feilskygge, none);
     font: 16px var(--font-sans);
     color: var(--ink);
     background: var(--surface);
   }
-  input:hover {
+  input:hover:where(:enabled) {
     border-color: var(--ink-3);
   }
   input:disabled {
@@ -68,9 +71,5 @@
   input:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
-  }
-  input[aria-invalid='true'] {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
   }
 </style>

@@ -51,8 +51,8 @@
 
 <Felt {id} {etikett} {hjelp} {feil} {valgfri} under={children}>
   <span
-    class="inndata"
-    class:ugyldig={feil}
+    class="inndata feltramme"
+    data-feltfeil={feil ? '' : undefined}
     class:tall={bredde === 'tall'}
     class:kort={bredde === 'kort'}
   >
@@ -89,7 +89,7 @@
   .inndata.kort {
     width: 140px;
   }
-  .inndata:hover {
+  .inndata:hover:has(:where(input:enabled)) {
     border-color: var(--ink-3);
   }
   .inndata:has(input:disabled) {
@@ -127,17 +127,14 @@
     background: var(--surface-inset);
     color: var(--ink-3);
   }
-  .inndata.ugyldig {
-    border-color: var(--danger);
-  }
   /* Den indre linja står over feltet, så en bakgrunn i feltet ikke dekker den, som ved
      autofyll i Chrome (#2150). */
-  .inndata.ugyldig::after {
+  .inndata[data-feltfeil]::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: calc(var(--r-felt) - 1px);
-    box-shadow: inset 0 0 0 1px var(--danger);
+    box-shadow: var(--felt-feilskygge);
     pointer-events: none;
   }
 </style>

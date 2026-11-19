@@ -85,6 +85,8 @@
 <Felt {id} {etikett} {hjelp} {feil} {valgfri} {underordnet}>
   <textarea
     {id}
+    class="feltramme"
+    data-feltfeil={feil ? '' : undefined}
     rows={rader}
     class:vokser
     bind:value={verdi}
@@ -104,6 +106,7 @@
     padding: var(--spacing-3);
     border: var(--control-border);
     border-radius: var(--r-felt);
+    box-shadow: var(--felt-feilskygge, none);
     font: 16px/1.6 var(--font-sans);
     color: var(--ink);
     background: var(--surface);
@@ -114,7 +117,7 @@
     resize: none;
     overflow: hidden;
   }
-  textarea:hover {
+  textarea:hover:where(:enabled) {
     border-color: var(--ink-3);
   }
   textarea:disabled {
@@ -125,9 +128,5 @@
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
-  }
-  textarea[aria-invalid='true'] {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
   }
 </style>

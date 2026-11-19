@@ -64,6 +64,15 @@
     flex-direction: column;
     gap: var(--spacing-2);
   }
+  .felt :global(.feltramme[data-feltfeil]) {
+    --felt-feilskygge: inset 0 0 0 1px var(--danger);
+    border-color: var(--danger);
+  }
+  @media (forced-colors: active) {
+    .felt :global(.feltramme[data-feltfeil]) {
+      border: 2px solid CanvasText;
+    }
+  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
