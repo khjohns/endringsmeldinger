@@ -54,14 +54,13 @@ async function sendeforsok(feil: ApiError, nyMerking?: string) {
 }
 
 describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
-  it('403 viser beklagelse og innlogging tilbake til saken uten rå servertekst', async () => {
+  it('403 viser beklagelse og innlogging tilbake til saken i en ny fane, så utkastet står, uten rå servertekst', async () => {
     const { kjernesak, melding } = await sendeforsok(new ApiError(403, 'INTERN TILGANGSFEIL'));
     expect(melding).toHaveTextContent('Brevet ble ikke sendt');
     expect(melding).toHaveTextContent('Beklager, du har ikke tilgang til å sende brev i saken nå.');
-    expect(within(melding).getByRole('link', { name: 'Logg inn på nytt' })).toHaveAttribute(
-      'href',
-      '/login?return_to=%2Fp-1%2Fs-1%3Fspor%3Dvederlag'
-    );
+    const lenke = within(melding).getByRole('link', { name: 'Logg inn på nytt i en ny fane' });
+    expect(lenke).toHaveAttribute('href', '/login?return_to=%2Fp-1%2Fs-1%3Fspor%3Dvederlag');
+    expect(lenke).toHaveAttribute('target', '_blank');
     expect(melding).not.toHaveTextContent('INTERN TILGANGSFEIL');
     expect(kjernesak.sendeavvisning).toEqual({ status: 403 });
     kjernesak.fjernFeil();
@@ -99,7 +98,7 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
   it.each([400, 409])('%i beholder dagens avvisningsgrunn', async (status) => {
     const { melding } = await sendeforsok(new ApiError(status, 'Begrunnelsen fra serveren.'));
     expect(melding).toHaveTextContent('Brevet ble ikke sendt. Begrunnelsen fra serveren.');
-    expect(within(melding).queryByRole('link', { name: 'Logg inn på nytt' })).toBeNull();
+    expect(within(melding).queryByRole('link', { name: /Logg inn/ })).toBeNull();
   });
 
   it.each([

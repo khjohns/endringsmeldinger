@@ -241,7 +241,7 @@ export const BREVKONTROLL = haerdet({
 export const SENDEFEIL = haerdet({
   tittel: 'Brevet ble ikke sendt',
   ingenTilgang: 'Beklager, du har ikke tilgang til å sende brev i saken nå.',
-  loggInn: 'Logg inn på nytt',
+  loggInn: 'Logg inn på nytt i en ny fane',
   serverfeil: 'Beklager, det oppstod en feil hos oss. Utkastet er som før.',
   proevSenere: 'Prøv igjen om litt.',
   seOverBrevet: 'Se over brevet',
