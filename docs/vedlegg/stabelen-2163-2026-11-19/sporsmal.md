@@ -93,3 +93,10 @@ totalentreprenøren svarer med dager. Forbeholdet kan derfor bare gjelde varsele
 - **C.** Ingen endring.
 
 Svaret styrer LV-U18 og brevteksten for forespørselen. Det bygges ikke i stabelen.
+
+## Svarene på oppfølgingsspørsmålene og spørsmål 2–4
+
+Oppdragsgiver 19.11, ordrett: «1a ja, 1b C, 5 A. 2 B, 3 A, 4 A». Svar 2 kom etter skissen av B, og svar 3 etter
+eksemplene på B. 1a er ført som [KA-U85](../../plans/vedtak.md#ka-u85), 1b som
+[KA-U86](../../plans/vedtak.md#ka-u86) og 5 som [LV-U76](../../plans/vedtak.md#lv-u76) (#2247). 5 bygges i #2246.
+Svar 2, 3 og 4 gjelder visningen og føres i BF-45, systemfila og #2239 og #2240.

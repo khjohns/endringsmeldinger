@@ -166,7 +166,7 @@ function regnUtFristen(
   // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
   const dager = [
     ...(prekludert ? [0] : []),
-    // KA-U84: innsigelsen mot svaret på forespørselen har eget lag etter § 33.4.
+    // KA-U85: innsigelsen mot svaret på forespørselen har eget lag etter § 33.4.
     ...(v.frist_varsel_ok === false && foresporsel !== null && v.foresporsel_svar_ok === false
       ? [0]
       : []),
