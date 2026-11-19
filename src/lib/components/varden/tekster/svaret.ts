@@ -172,7 +172,7 @@ export const FRISTSVAR = haerdet({
       : `Høyst ${dager(grense)}. Det er dagene du godkjenner.`,
   dagerSpoersmaal: 'Hvor mange av dagene godkjenner du?',
   // U-14: når du gjør gjeldende at kravet ble spesifisert for sent.
-  dagerSpoersmaalITide: 'Dagene du godtar hvis kravet ble spesifisert i tide',
+  dagerSpoersmaalITide: 'Dagene du godkjenner hvis kravet ble spesifisert i tide',
   maatteForstaaLinje: (n: number) => `${dager(n)} du måtte forstå`,
   maatteForstaaPerFrist: (linjer: string[]) => `: ${opplistet(linjer)}`,
   alle: (krevd: number) => `Som krevd, ${dager(krevd)}`,

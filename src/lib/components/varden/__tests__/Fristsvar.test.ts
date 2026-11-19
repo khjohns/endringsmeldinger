@@ -165,7 +165,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/15 dager du måtte forstå/)).toBeInTheDocument();
     expect(
-      screen.getByRole('group', { name: 'Dagene du godtar hvis kravet ble spesifisert i tide' })
+      screen.getByRole('group', { name: 'Dagene du godkjenner hvis kravet ble spesifisert i tide' })
     ).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(1);
