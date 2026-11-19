@@ -154,18 +154,24 @@ const kontraktsfristerI = (prosjektId: string): Promise<Fristtabellsvar | null> 
     headers: prosjekthode(prosjektId),
   }).catch(() => null);
 
-/** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
+/** Merkingen for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
 export const hentSaksmerkingForNySak = (prosjektId: string) =>
   apiFetch<Sakskodesvar>('/api/kjerne/sakskode', { headers: prosjekthode(prosjektId) }).then(
     somMerking
   );
 
-/** Saken med merkingen brevteksten lages med, `null` når leseren ikke har kontraktsside. */
+/**
+ * Saken med merkingen brevteksten lages med. `null` når saken ikke har fått kode, og leseren
+ * ikke kan få et forslag til koden.
+ */
 export interface LastetKjernesak extends Kjernesak {
   merking: Saksmerking | null;
 }
 
-/** Saken, og merkingen når leseren har en kontraktsside og kan sende brev i den. */
+/**
+ * Saken, med den tildelte koden fra sakens leseinngang. Før første brev hentes forslaget til
+ * koden bare når serveren sier at leseren kan få det (`kan_foreslaa_sakskode`).
+ */
 export async function hentKjernesakMedMerking(
   sakId: string,
   prosjektId: string
