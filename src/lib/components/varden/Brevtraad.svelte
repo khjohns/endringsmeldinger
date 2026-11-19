@@ -250,6 +250,7 @@
   .traadhode {
     display: flex;
     flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-4);
     justify-content: space-between;
     align-items: baseline;
     padding: var(--spacing-4) var(--spacing-5) 0;
