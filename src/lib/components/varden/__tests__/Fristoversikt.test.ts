@@ -94,6 +94,7 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
     // VS-U20: påberopelsen av at varselet kom for sent, gjelder varselet og dermed alle fristene.
     expect(k.felles.map((l) => [l.etikett, l.dager, l.standpunkter[0]?.standpunkt.art])).toEqual([
       ['prinsipalt', 0, 'rettidighet'],
+      ['subsidiært', null, 'hindring'],
     ]);
     expect(k.perFrist.map((l) => l.etikett)).toEqual(['subsidiært', 'videre subsidiært']);
     expect(k.frister.map((f) => f.lagene.map((l) => l.dager))).toEqual([
@@ -104,12 +105,11 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
     expect(k.forbehold).toBe(true);
   });
 
-  it('at fremdriften er hindret, står uten eget lag, og avslaget for én frist står med laget og begrunnelsen i brevet (U-3, U-13, D-3, KA-U80, OV-U42)', async () => {
+  it('hindringen leses fra det fryste laget og avslaget fra laget og begrunnelsen i brevet (U-3, U-13, D-3, KA-U80, KA-U84)', async () => {
     const u = await utledning(BF45.steg);
     const k = kravetOgSvaretIFristen(u, brevene(u))!;
-    expect(k.utenLag.map((s) => [s.standpunkt.art, s.vilkaar])).toEqual([
-      ['hindring', [{ art: 'varsel', hjemmel: '33.4' }]],
-    ]);
+    expect(k.utenLag).toEqual([]);
+    expect(k.felles[1]?.vilkaar).toEqual([{ art: 'varsel', hjemmel: '33.4' }]);
     expect(k.frister.map((f) => f.avslag)).toEqual([
       {
         etikett: 'videre subsidiært',
@@ -223,7 +223,7 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       alle.getByText(
-        'Hvis innsigelsen om varselet ikke fører frem, legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+        'Hvis innsigelsen om varselet ikke fører frem: Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
       )
     ).toBeTruthy();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));

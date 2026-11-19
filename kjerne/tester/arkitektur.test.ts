@@ -2821,7 +2821,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
-  ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],
+  ['Linjeledd', 'brevtekst', 'tekst', ['frosset/linje.ts']],
+  [
+    'frosset/linje.ts:beslutningslinje(grunntekst)',
+    'brevtekst',
+    'forhold beloep oppgjoersform justering hindring spesifisering dager',
+    ['frosset/linje.ts:beslutningslinje'],
+  ],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],
   // OV-U32: leddene i samme lag under én etikett, i linjen og brevteksten.
   ['frosset/tekst.ts:iLagene', 'brevtekst', 'k l', ['frosset/tekst.ts']],

@@ -446,10 +446,10 @@ describe('Brevene lest én gang per utledning (#2000)', () => {
 });
 
 describe('Standpunktet etter en leddsetning (#2000)', () => {
-  it('verbet står foran «byggherren», også når standpunktet er nektende (FRISTEN.utenLag, OV-U42)', () => {
+  it('et standpunkt uten lag vises uten et vilkår fra visningen (BF-45 U-3, OV-U42)', () => {
     const hindring: Standpunkt = { id: 'h', art: 'hindring', oppfylt: false };
-    expect(FRISTEN.utenLag(hindring, [{ art: 'varsel', hjemmel: '33.4' }])).toBe(
-      'Hvis innsigelsen om varselet ikke fører frem, legger byggherren ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.'
+    expect(FRISTEN.utenLag(hindring)).toBe(
+      'Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.'
     );
     expect(standpunkttekst(hindring, false)).toBe(
       'Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet'

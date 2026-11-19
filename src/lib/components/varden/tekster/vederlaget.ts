@@ -53,7 +53,7 @@ export const VEDERLAGET = haerdet({
           : '')
       : standpunkttekst(s, false),
   /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
-  laget: (l: Svarlaget): string => {
+  laget: (l: Svarlaget, innsigelsen = VEDERLAGET.innsigelsen): string => {
     const grunnlag = [
       ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
       ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
@@ -61,7 +61,7 @@ export const VEDERLAGET = haerdet({
       .map((t, i) => (i ? liten(t) : t))
       .join(', og ');
     const vilkaar = l.vilkaar.length
-      ? VEDERLAGET.vilkaar(l.vilkaar.map(VEDERLAGET.innsigelsen), l.lag > 2)
+      ? VEDERLAGET.vilkaar(l.vilkaar.map(innsigelsen), l.lag > 2)
       : null;
     if (vilkaar && grunnlag) return `${vilkaar}: ${grunnlag}.`;
     return vilkaar || grunnlag ? `${vilkaar ?? grunnlag}.` : '';

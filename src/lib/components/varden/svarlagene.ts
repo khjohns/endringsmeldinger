@@ -107,10 +107,6 @@ const innsigelseneI = (l: Svarlaget): Innsigelsen[] => [
   ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
 ];
 
-/** Innsigelsene i lagene foran laget `lag`, som et standpunkt uten eget lag bygger på (OV-U42). */
-export const innsigelseneFoer = (lagene: Svarlaget[], lag: number): Innsigelsen[] =>
-  lagene.slice(0, lag - 1).flatMap(innsigelseneI);
-
 /**
  * Svaret ble gitt mens forholdet ikke var besvart, og brevet har punktet med forbeholdet (GR-U34):
  * brevet hadde ikke noe svar på forholdet foran seg.
