@@ -266,8 +266,10 @@ export const MOTTATT = haerdet({
   fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} ${kl(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
-  sendtMerke: (d: string) => `Sendt ${dato(d)}`,
-  dittBrev: 'Brevet ditt er sendt.',
+  sendtMerke: (d: string) => `Sendt ${dato(d)} ${kl(d)}`,
+  saken: 'saken',
+  /** Brevet er sidens, ikke «ditt» (`docs/sprak.md`, «Brevet er sidens»). */
+  sendtTil: (mottaker: Part) => `Brevet er sendt til ${PARTEN[mottaker]}.`,
   forkastet: 'Utkastet er forkastet.',
   sakenEndret:
     'Brevet ble ikke sendt, fordi saken er endret siden du åpnet brevkontrollen. Se over saken og brevet på nytt før du sender.',

@@ -38,7 +38,7 @@ const versjonVed = (forloep: string, punkt: string) =>
   finnForloep(forloep)!.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
 const nyeRader = (demosak: Demosak, etter: number): Journalrad[] =>
   demosak.journal().filter((r) => r.versjon > etter);
-/** Teksten i kvitteringene øverst i arbeidet. */
+/** Teksten som bekrefter sendingen. */
 const kvitteringen = () =>
   screen
     .getAllByRole('status')
@@ -133,6 +133,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       )
     );
     // U-1: handlingen står ved den siste opplysningen, ikke ved den første.
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
     const foerste = await innlegget(1);
     expect(foerste.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     expect(
@@ -301,6 +302,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );
     // Teksten om den lukkede saken står én gang ved korrigeringen.
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
     expect((await innlegget(4)).getAllByText(/^Saken står lukket\. Korrigeringen/)).toHaveLength(1);
   });
 

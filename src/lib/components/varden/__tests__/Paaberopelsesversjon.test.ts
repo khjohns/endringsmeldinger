@@ -151,7 +151,13 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     const foer = demosak().journal().length;
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
-    await screen.findByText(/Brevet er sendt til byggherren/);
+    const kvittering = await screen.findByText(/Brevet er sendt til byggherren/);
+    // #2188 punkt 4: brevet beholder plassen og får journalens tidspunkt i stempelet.
+    expect(kvittering).toHaveAttribute('role', 'status');
+    expect(screen.getByTestId('stempel')).toHaveTextContent(/Sendt .+ kl\. \d{2}\.\d{2}/);
+    expect(screen.queryByText('Utkast · ikke sendt')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
+    expect(screen.queryByText(/Brevet er sendt til byggherren/)).toBeNull();
     const ny = demosak().journal().slice(foer);
     expect(ny).toHaveLength(1);
     // D-1, D-3: en ny kravversjon med samme dato og kategori.
@@ -224,6 +230,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Brevet er sendt til byggherren/);
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
     const traaden = within(
       await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' })
     );

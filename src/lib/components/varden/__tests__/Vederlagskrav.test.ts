@@ -157,6 +157,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     expect(innhold.kravposter).toEqual([expect.objectContaining({ betegnelse: 'P2' })]);
 
     // KA-U75: P1 kan tas med igjen i neste brev, med samme betegnelse.
+    await fireEvent.click(knapp('Tilbake til saken'));
     await fireEvent.click(
       within(
         await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
@@ -218,6 +219,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     const [, p2] = sistSendt(demosak().journal()).kravposter as { varsel?: string }[];
     expect(typeof p2.varsel).toBe('string');
     // OV-U79: beskrivelsen av varselet som er lagt til, står i saken (krav fra #2074 i #807).
+    await fireEvent.click(knapp('Tilbake til saken'));
     const varselet = await screen.findByRole('heading', {
       level: 4,
       name: /^Varsel om justerte enhetspriser\./,

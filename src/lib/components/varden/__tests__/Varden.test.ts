@@ -88,6 +88,36 @@ afterEach(() => {
 });
 
 describe('Varden med brukerforløpet BF-01', () => {
+  it('bekrefter sendingen i sporet brukeren har åpnet mens brevet ble sendt (#2210)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const sending = Promise.withResolvers<void>();
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: async (...args) => {
+        await sending.promise;
+        return demosak.send(...args);
+      },
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+    await bhSvarerIVarden();
+    await sendBrevet('Send svaret til totalentreprenøren');
+    expect(kjernesak.sender).toBe(true);
+
+    await fireEvent.click(screen.getByRole('button', { name: /^Fristforlengelse/ }));
+    sending.resolve();
+
+    expect(await screen.findByText('Brevet er sendt til totalentreprenøren.')).toBeVisible();
+    expect(screen.getByRole('button', { name: /^Fristforlengelse/ })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+    expect(screen.queryByRole('button', { name: 'Tilbake til saken' })).toBeNull();
+  });
+
   it('BH sender svaret og TE godtar det i Varden, og kontrollene ved kontrollpunktene holder', async () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
@@ -1130,7 +1160,7 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     await sendBrevet('Send svaret til totalentreprenøren');
-    await screen.findByText('Brevet ditt er sendt.');
+    await screen.findByText('Brevet er sendt til totalentreprenøren.');
     const svaret = kjernesak.utledning!.spor.forhold.gjeldendeSvar;
     expect(svaret?.gjelder).toBe(paaberopelsen);
     expect(screen.queryByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeNull();

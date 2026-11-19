@@ -52,7 +52,7 @@ describe('Brevhodet', () => {
 
   it('et sendt brev har stempelet «Sendt …», og et utkast har det ikke (system.md, raden Stempel)', () => {
     brev({ sendt: '2026-10-20T08:12:00Z' });
-    expect(screen.getByTestId('stempel').textContent).toBe('Sendt 20. oktober 2026');
+    expect(screen.getByTestId('stempel').textContent).toBe('Sendt 20. oktober 2026 kl.\u00a010.12');
     cleanup();
     brev({ dato: 'Settes ved sending' });
     expect(screen.queryByTestId('stempel')).toBeNull();

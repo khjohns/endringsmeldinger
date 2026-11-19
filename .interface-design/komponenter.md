@@ -12,7 +12,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | Komponent | Importører | Hva den er |
 | --- | ---: | --- |
 | [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 6 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
-| [`Brev`](../src/lib/components/varden/Brev.svelte) | 4 | Brevet som lesespalte (Varden, skjerm C og D). |
+| [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
 | [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 12 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
 | [`Brevskjema`](../src/lib/components/varden/Brevskjema.svelte) | 3 | Skallet for et skjema som blir et brev (#2119): utkastkortet med linja for korrespondanse lagt til, oppsummeringen av det som mangler, spørsmålene, «Forkast utkast» nederst og høyre kolonne med panelet, sendeknappen og tidslinja, eller brevet ved siden av. |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
@@ -29,7 +29,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Gjelderhvis`](../src/lib/components/varden/Gjelderhvis.svelte) | 3 | «Gjelder hvis» over et spørsmål i svaret: det i et foregående lag som rammer standpunktet, én forutsetning per linje i brevets rekkefølge (oppdragsgiver 30.10, #1391, #1400). |
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
 | [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 4 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
-| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 22 | Knappen i Varden: 6 px radius, minst 44 px høy. |
+| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 23 | Knappen i Varden: 6 px radius, minst 44 px høy. |
 | [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
 | [`Lagttilmerknader`](../src/lib/components/varden/Lagttilmerknader.svelte) | 4 | Det kjernen sier om et krav, et svar eller en aksept lagt til, før det legges til: kravet eller svaret blir ikke gjeldende fordi det er sendt før det siste (OV-U102, OV-U103), og brevene det er sendt samme dag som (OV-U104). |
