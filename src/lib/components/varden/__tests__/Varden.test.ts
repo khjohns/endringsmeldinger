@@ -139,8 +139,8 @@ describe('Varden med brukerforløpet BF-01', () => {
       onforkast: () => {},
     });
     const panel = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
-    expect(panel.getByText(/Vederlagsjustering.*P1: Beløp/)).toBeVisible();
-    expect(panel.getByText('P2: Beløp')).toBeVisible();
+    expect(panel.getByText(/Vederlagsjustering.*P1: Vederlagsjustering/)).toBeVisible();
+    expect(panel.getByText('P2: Vederlagsjustering')).toBeVisible();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(kontroller).toHaveBeenCalledOnce();
     const avsnitt = kontroller.mock.calls[0]![0].avsnitt as { punkt: string }[];

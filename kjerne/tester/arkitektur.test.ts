@@ -838,7 +838,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',
       // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
-      'spor/vederlag/tekst.ts:temaer',
+      'spor/vederlag/tekst.ts:svartemaerIVederlaget',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
@@ -1669,12 +1669,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'SPOERSMAALET.*',
     ['spor/frist/kommando.ts:fristspoersmaalForPunkt'],
-  ],
-  [
-    'spor/frist/kommando.ts',
-    'relasjon',
-    'fristspoersmaalForPunkt',
-    ['spor/frist/kommando.ts:spoersmaaletFor'],
   ],
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
   // Spørsmålene regelsettet krever svar på i fristen, også i lagene i et svarutkast (#1925, #2025).
