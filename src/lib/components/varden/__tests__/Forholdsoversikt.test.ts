@@ -95,22 +95,23 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
 const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, nyeste først' }));
 
 describe('Siden for forholdet', () => {
-  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står med kontraktens ord for irregulær endring (OV-U78, BF-05 U-10, GR-U32)', async () => {
+  it('hodet viser forholdet og hvem som sendte siste brev (#2180)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren svarte \d+\. \w+ 2026 og avslår kravet på endringsordre \(punkt\u00a032\.3 første ledd b\)\.$/
+      /^Byggherren sendte siste brev \d+\. \p{L}+ 2026\.$/u
     );
   });
 
-  it('under tittelen står bare stillingen, ikke siste brev, som tråden alt viser (oppdragsgiver 13.11 i #1908: «Bare stillingen»)', async () => {
+  it('hodet sier når den siste korrespondansen ble lagt til (#2180)', async () => {
     const { u } = await vis([PAABEROPELSE, AVSLAG, REGISTRERT]);
     expect(brevene(u).at(-1)?.art).toBe('registrert');
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
-    expect(tittel.nextElementSibling).toBeNull();
-    expect(screen.queryByText(/^Siste brev:/)).toBeNull();
+    expect(tittel.nextElementSibling?.textContent).toMatch(
+      /la til korrespondanse \d+\. \p{L}+ 2026\./u
+    );
   });
 
   it('ingen tekst brukeren ser, sier «grunnlag» (kriterium 1, OV-U76)', async () => {
@@ -130,13 +131,14 @@ describe('Siden for forholdet', () => {
     expect(brev[0].textContent).toContain('Svar ikke registrert.');
     const rad = brev[1];
     expect(rad.querySelector('.part')?.textContent).toBe('TE');
-    expect(rad.querySelector('.dato .lang')?.textContent).toMatch(/^\d+\. \p{L}+ 2026$/u);
+    expect(rad.querySelector('.dato')?.textContent?.trim()).toMatch(
+      /^\d+\. \p{L}+\.? 2026 · brev 1$/u
+    );
     expect(within(rad).getByRole('heading', { level: 4 }).textContent?.trim()).toBe(
       'Påberopelse av irregulær endring fra totalentreprenøren'
     );
-    expect(rad.querySelector('.nr')?.textContent).toBe('brev 1');
     expect(
-      screen.getByText(/^Sendt til byggherren \d+\. \w+ 2026\. Svar ikke registrert\.$/)
+      screen.getByText(/^Totalentreprenøren sendte siste brev \d+\. \p{L}+ 2026\.$/u)
     ).toBeTruthy();
   });
 
@@ -191,10 +193,9 @@ describe('Siden for forholdet', () => {
     ]);
     expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
     expect(screen.getByText('Begrunnelsen')).toBeTruthy();
-    // Statuslinjen sier begge lagene med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»).
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt\u00a032\.3 første ledd b\)\.$/
+      /^Byggherren sendte siste brev \d+\. \p{L}+ 2026\.$/u
     );
   });
 
@@ -233,10 +234,9 @@ describe('Siden for forholdet', () => {
       );
       expect(forSent).toBeGreaterThanOrEqual(0);
       expect(iTide).toBeGreaterThan(forSent);
-      // Løsningen trekker ikke konklusjonen: stillingen er det siste svaret, uten det tidligere.
       const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
       expect(tittel.nextElementSibling?.textContent).toMatch(
-        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt\u00a032\.3 første ledd b\)\.$/
+        /^Byggherren sendte siste brev \d+\. \p{L}+ 2026\.$/u
       );
       expect(document.body.textContent).not.toMatch(/bundet|kan ikke påberope|i strid med/i);
     }

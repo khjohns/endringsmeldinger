@@ -169,6 +169,7 @@ export class Kjoering {
     const klient = utledJournal(journal, medRegler(klientregler, this.kjerne));
     const k = kommandoFor(h, klient, klientregler, this.navn);
     endre?.(k as unknown as Record<string, unknown>);
+    const vedlegg = mellomlager(k, typeof h.filnavn === 'string' ? h.filnavn : undefined);
     // A1: klienten sender den låste teksten den viste, laget med sine regler. Avviser
     // forhåndsvisningen kommandoen, sendes den uten tekst, og serveren avviser den.
     try {
@@ -177,19 +178,13 @@ export class Kjoering {
         { ...this.kontekst(h), tidspunkt: () => this.klokke.naa() },
         journal,
         medRegler(klientregler, this.kjerne),
-        mellomlager(k)
+        vedlegg
       );
       // Brevet er den siste raden handlingen gir (VS-U53).
       const tekst = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
       if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
       else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
-      const utfall = vurder(
-        structuredClone(k),
-        this.kontekst(h),
-        journal,
-        this.kjerne,
-        mellomlager(k)
-      );
+      const utfall = vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne, vedlegg);
       return { kommando: k, utfall };
     } catch (feil) {
       if (feil instanceof Skrivefeil)

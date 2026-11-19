@@ -49,13 +49,14 @@
   {#if k.felles.length || k.utenLag.length}
     <section class="del" aria-labelledby={`${uid}-alle`}>
       <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
-      {#each k.felles as l (l.lag)}
+      {#each k.felles as l, i (l.lag)}
         {@const tekst = VEDERLAGET.laget(l, FRISTEN.innsigelsen)}
-        <div class="lag">
+        <div class="lag" class:under={i > 0}>
           <Maalrad
             navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
             verdi={l.dager === null ? null : dager(l.dager)}
             kompakt
+            dempet={i > 0}
           />
           {#if tekst}<p>{tekst}</p>{/if}
         </div>
@@ -115,9 +116,9 @@
                 navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
                 verdi={dager(l.dager)}
                 etter={ny ? FRISTEN.nyFrist(ny) : null}
-                andel={andel(l.dager)}
+                andel={l.dager > 0 && l.dager !== f.lagene[i - 1]?.dager ? andel(l.dager) : null}
                 kompakt
-                sterk={false}
+                dempet={i > 0}
                 trinn={i === f.lagene.length - 1 ? trinn : []}
                 {ende}
               />
@@ -167,6 +168,12 @@
     border-left: 2px solid var(--rule-strong-color);
     font-size: 14px;
     color: var(--ink-2);
+  }
+  .lag p {
+    color: var(--ink);
+  }
+  .lag.under p {
+    color: var(--ink-3);
   }
   .vilkaar {
     display: grid;

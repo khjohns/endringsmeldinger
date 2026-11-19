@@ -469,10 +469,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
 - **Handlingen står ved brevet den svarer på** på siden for forholdet, og på sidene for kravene
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
-  «Godta …» en sekundær knapp, og byggherrens «Send revidert svar» en lenkeknapp ved byggherrens
+  «Godta …» en sekundær knapp, og byggherrens «Send nytt svar» en lenkeknapp ved byggherrens
   eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
-  korrespondanse» står i et eget kort under «Andre handlinger», med én linje om hva som kan legges
-  til (#807, oppdragsgiver 16.11). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
+  korrespondanse» er en lenke i hodet til tråden, uten hjelpetekst (R1-3 i #2180). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
   handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under.
 - **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne i lesingen av vederlaget og
@@ -499,7 +498,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
   skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
   Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
-  Datoen og brevnummeret står i én dempet linje over tittelen, i alle bredder, med «Les brevet»
+  Datoen og brevnummeret står i én dempet linje over tittelen i 12 px, som er størrelsen for metadata, i alle bredder, med «Les brevet»
   eller «Vises til høyre» til høyre i samme linje. Innholdet bruker hele bredden ved siden av
   ringen. Handlingene ved et brev står uten hjelpetekst: knappeteksten sier hva handlingen gjør,
   og virkningen står i brevkontrollen under «Når du sender». Standpunktene i en rad følger

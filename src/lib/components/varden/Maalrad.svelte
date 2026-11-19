@@ -22,9 +22,10 @@
   export function maalestokken(stoerst: number, tilTrinn = false) {
     const steget = trinnene(stoerst)[1] ?? stoerst;
     const skala = tilTrinn && steget > 0 ? (Math.floor(stoerst / steget) + 1) * steget : stoerst;
-    const trinn = tilTrinn
-      ? Array.from({ length: Math.round(skala / steget) + 1 }, (_, i) => i * steget)
-      : trinnene(stoerst);
+    const trinn =
+      tilTrinn && steget > 0
+        ? Array.from({ length: Math.round(skala / steget) + 1 }, (_, i) => i * steget)
+        : trinnene(stoerst);
     const andel = (n: number) => (skala > 0 ? `${(n / skala) * 100}%` : '0');
     return {
       trinn,
@@ -46,7 +47,7 @@
     trinn = [],
     ende = false,
     kompakt = false,
-    sterk = true,
+    dempet = false,
   }: {
     navn: string;
     verdi?: string | null;
@@ -61,13 +62,13 @@
     ende?: boolean;
     /** Verdien i vanlig størrelse, som dagene for en frist. */
     kompakt?: boolean;
-    /** Navnet i halvfet, som kravet. */
-    sterk?: boolean;
+    /** Et lag etter det første standpunktet i raden. */
+    dempet?: boolean;
   } = $props();
 </script>
 
-<div class="lagrad" class:kompakt>
-  <span class="navn" class:sterk>{navn}</span>
+<div class="lagrad" class:kompakt class:dempet>
+  <span class="navn">{navn}</span>
   {#if verdi !== null}
     <span class="verdi"
       ><b>{verdi}</b>{#if etter}<span class="etter">&nbsp;· {etter}</span>{/if}</span
@@ -75,7 +76,7 @@
   {/if}
 </div>
 {#if andel !== null}
-  <div class="maal" class:aapen aria-hidden="true">
+  <div class="maal" class:aapen class:dempet aria-hidden="true">
     {#if aapen}<i class="ramme" style:width={andel}></i>{:else}<i style:width={andel}></i>{/if}
   </div>
 {/if}
@@ -95,17 +96,23 @@
   }
   .navn {
     font-size: 14px;
-    font-weight: 500;
-  }
-  .navn.sterk {
+    color: var(--ink);
     font-weight: 600;
   }
+  .dempet .navn {
+    color: var(--ink-2);
+    font-weight: 500;
+  }
   .verdi b {
+    color: var(--ink);
     font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.01em;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+  }
+  .dempet .verdi b {
+    color: var(--ink-2);
   }
   .kompakt .verdi b {
     font-size: 16px;
@@ -131,6 +138,9 @@
     min-width: 2px;
     background: var(--ink);
   }
+  .maal.dempet i {
+    background: var(--ink-3);
+  }
   /* Kravet er åpent: en ramme i blekk med lengden etter kravet, som ringene i tråden (U-2). */
   .maal i.ramme {
     background: transparent;
@@ -152,13 +162,19 @@
   /* Tallet ved enden slutter ved kanten av målet. */
   .trinn.ende span:last-child {
     flex: 0 0 0;
-    direction: rtl;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
   }
   /* Smal skjerm: laget står over dagene (U-5 i BF-45). */
   @media (max-width: 560px) {
     .kompakt {
       flex-direction: column;
       align-items: flex-start;
+    }
+    /* Tallene står midt under streken sin, så de ikke går over hverandre ved enden. */
+    .trinn.ende span:not(:first-child, :last-child) {
+      transform: translateX(-50%);
     }
   }
 </style>

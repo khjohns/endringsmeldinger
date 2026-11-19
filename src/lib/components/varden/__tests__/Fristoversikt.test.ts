@@ -207,7 +207,7 @@ describe('Siden for fristforlengelsen', () => {
   it('et registrert brev står med datoen det kom i saken, og sendedatoen i linja under (svar 1 A i #1999, OV-U85)', async () => {
     await vis(BF45.steg);
     const rad = screen.getByText('Revidert fremdriftsplan, revisjon 4').closest('li')!;
-    expect(rad.querySelector('.dato .lang')?.textContent).toBe('1. oktober 2026');
+    expect(rad.querySelector('.dato')?.textContent?.trim()).toBe('1. okt. 2026');
     expect(rad.textContent).toContain('Sendt 30. september 2026, ifølge byggherren.');
   });
 
