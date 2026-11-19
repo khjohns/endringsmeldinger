@@ -1324,17 +1324,20 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
         return { k, rader, endring: (s: Data) => (standpunkt(s, 'spesifisering').i_tide = true) };
       },
       'S-f1',
+      'dagene i standpunktet etter § 33.6.1 stemmer ikke med rettidigheten',
     ],
   ] as [
     string,
     () => Promise<{ k: Kjoering; rader: Journalrad[]; endring: (s: Data) => void }>,
     string,
-  ][])('er ikke forstått: %s', async (_n, lag, navn) => {
+    string?,
+  ][])('er ikke forstått: %s', async (_n, lag, navn, grunn) => {
     const { k, rader, endring } = await lag();
     expect(forstaatt(rader), 'kontrollsak: den uendrede raden er forstått').toBe(true);
     const endret = structuredClone(rader);
     endring(svaret(radMed(endret, k, navn), k, navn));
     expect(forstaatt(endret)).toBe(false);
+    if (grunn) expect(grunner(endret)).toEqual([expect.stringContaining(grunn)]);
   });
 });
 
