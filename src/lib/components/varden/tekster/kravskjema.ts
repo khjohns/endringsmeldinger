@@ -183,8 +183,6 @@ export const KRAVSKJEMA = haerdet({
   regelen: (poster: string[]) =>
     `${opplistet(poster)} gjøres opp etter en beregningsregel og har ikke et krevd beløp.`,
   trekkesListe: (poster: string[]) => `${opplistet(poster)} trekkes.`,
-  utkast: 'Utkast',
-  ikkeSendt: 'Ikke sendt.',
   // Tidslinja (U-17).
   tidslinjeVarselet: (post: string) => `Varselet for ${post}`,
   oppgisIKravet: 'Oppgis i kravet',
