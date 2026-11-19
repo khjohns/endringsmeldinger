@@ -105,7 +105,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     );
   });
 
-  it.each(['-2', '2,5'])(
+  it.each(['-2', '2,5', '0,0', '-0'])(
     'viser feilen ved %s i dagfeltet når raden lukkes (#2234)',
     async (verdi) => {
       await svarskjemaet(medFristkrav);
@@ -114,6 +114,15 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       await ferdig();
       expect(felt).toHaveFocus();
       expect(felt).toHaveAccessibleDescription(/Skriv et positivt helt antall dager\./);
+    }
+  );
+
+  it.each(['abc', '2,5', '-2'])(
+    'panelet viser ikke dagene byggherren godkjenner mens dagfeltet har %s (#2234)',
+    async (verdi) => {
+      await svarskjemaet(medFristkrav);
+      await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: verdi } });
+      expect(document.body).not.toHaveTextContent(/NaN|2\.5|-2 av/);
     }
   );
 

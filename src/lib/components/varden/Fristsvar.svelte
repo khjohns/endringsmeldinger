@@ -224,7 +224,7 @@
       return medVilkaar(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.vilkaar);
     });
     if (fra.length) return fra;
-    const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    const d = visteDager(f);
     return d === undefined ? [] : [FRISTSVAR.leselinjeDager(d, f.dager)];
   };
   const punktstatus = (punkt: string): string[] => {
@@ -310,13 +310,17 @@
     const v = valg.frister[f.id];
     if (v?.dager !== 'deler') return null;
     if (ubesvart(lagene, 'dager', f.id)) return FRISTSVAR.manglerDeldager;
-    if (!ugyldig(lagene, 'dager', f.id)) return null;
-    return heleDager(v.deldager) === undefined
-      ? FRISTSVAR.ugyldigeDeldager
-      : FRISTSVAR.deldagerUtenfor(f.dager);
+    // «0,0» og «20,0» er tall kjernen godtar, men ikke et helt antall dager under «Delvis».
+    if (heleDager(v.deldager) === undefined) return FRISTSVAR.ugyldigeDeldager;
+    return ugyldig(lagene, 'dager', f.id) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+  };
+  /** Dagene byggherren godkjenner, når det er et helt antall dager panelet kan vise. */
+  const visteDager = (f: Fristpost) => {
+    const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    return d !== undefined && Number.isInteger(d) && d >= 0 ? d : undefined;
   };
   const grenseForMaatteForstaa = (f: Fristpost) => {
-    const godkjent = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    const godkjent = visteDager(f);
     return godkjent !== undefined && godkjent <= f.dager ? godkjent : undefined;
   };
 
