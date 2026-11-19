@@ -236,7 +236,13 @@ describe('Siden for fristforlengelsen', () => {
       per
         .getAllByRole('listitem')
         .slice(0, 2)
-        .map((l) => l.textContent?.replace(/\s+/g, ' ').trim())
+        .map((l) =>
+          [...l.children]
+            .map((e) => e.textContent)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+        )
     ).toEqual([
       'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
       'Hvis innsigelsen om spesifiseringen ikke fører frem Dagene byggherren godkjenner.',

@@ -74,7 +74,7 @@
           navn={VEDERLAGET.krever}
           verdi={kroner(k.krevd)}
           andel={andel(k.krevd)}
-          aapen
+          aapen={k.kravbrev.avsender === 'TE'}
           trinn={k.lagene.length ? [] : trinn}
           {ende}
         />
@@ -92,6 +92,7 @@
                 navn={l.beloep === null ? '' : VEDERLAGET.godkjenner}
                 verdi={l.beloep === null ? null : kroner(l.beloep)}
                 andel={l.beloep === null ? null : andel(l.beloep)}
+                aapen={k.svarbrev?.avsender === 'TE'}
                 dempet={i > 0}
                 trinn={i === k.lagene.length - 1 ? trinn : []}
                 {ende}

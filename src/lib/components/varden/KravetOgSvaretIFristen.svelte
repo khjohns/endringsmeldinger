@@ -100,7 +100,7 @@
               verdi={dager(f.krevd)}
               etter={nyKrav ? FRISTEN.nyFrist(nyKrav) : null}
               andel={andel(f.krevd)}
-              aapen
+              aapen={k.kravbrev.avsender === 'TE'}
               kompakt
               trinn={f.lagene.length ? [] : trinn}
               {ende}
@@ -114,6 +114,7 @@
                 verdi={dager(l.dager)}
                 etter={ny ? FRISTEN.nyFrist(ny) : null}
                 andel={l.dager > 0 && l.dager !== f.lagene[i - 1]?.dager ? andel(l.dager) : null}
+                aapen={k.svarbrev?.avsender === 'TE'}
                 kompakt
                 dempet={i > 0}
                 trinn={i === f.lagene.length - 1 ? trinn : []}
