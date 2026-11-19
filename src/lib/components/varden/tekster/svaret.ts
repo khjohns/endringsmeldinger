@@ -232,14 +232,11 @@ export const HOVEDLINJER = haerdet({
 export const BREVKONTROLL = haerdet({
   utkast: 'Utkast · ikke sendt',
   tilbake: (hva: string) => `Tilbake til ${hva}`,
-  fra: 'Fra',
-  til: 'Til',
   mottaker: 'Mottaker',
   svarerPaa: 'Svarer på',
   viserTil: 'Viser til',
   svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
-  detteSender: 'Dette sender du',
   /** Virkningen av sendingen, adskilt fra innholdet (oppdragsgiver 06.11, PR 1650). */
   naarDuSender: 'Når du sender',
   akseptOmfatter:

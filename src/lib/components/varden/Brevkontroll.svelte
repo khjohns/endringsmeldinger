@@ -27,7 +27,6 @@
    */
   export type TilBrevkontrollen = Kontrollbrev & {
     kommando: Record<string, unknown>;
-    detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
   };
 
@@ -83,12 +82,6 @@
   }: TilBrevkontrollen & {
     /** Saken brevet sendes i. Ved en ny sak er det skjemaets sending (`NySak.svelte`). */
     kjernesak: Brevsending;
-    /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
-    handling: string;
-    /**
-     * Bare mottakeren i faktaene, uten avsenderen, som er TE selv (oppdragsgiver 07.11, PR 1650).
-     */
-    bareMottaker?: boolean;
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;

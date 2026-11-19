@@ -77,7 +77,7 @@
     medTekstene: (punktene: readonly string[]) => Record<string, unknown>;
     /** Tekstene står når BH går til brevkontrollen og tilbake. */
     tekster: { begrunnelser: Record<string, string>; forbehold: string };
-    linjer: TilBrevkontrollen['detteSender'];
+    linjer: { tekst: string; lag: string | null }[];
     /** Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B). */
     alternativer?: boolean;
     virkninger: string[];
@@ -241,8 +241,7 @@
       kanIkkeLages: HOVEDLINJER.kanIkkeLages,
       aarsak: (b) =>
         b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING' ? null : brevaarsak(b),
-      tilBrevkontrollen: (brevet) =>
-        onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger }),
+      tilBrevkontrollen: (brevet) => onbrevkontroll({ kommando, ...brevet, virkninger }),
     });
   }
 

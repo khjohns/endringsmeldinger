@@ -485,7 +485,6 @@
           vedlegg,
           ...brevet,
           // Som panelet: hver frist med dagene og en frist som trekkes (U-10), eller varselet eller svaret.
-          detteSender: linjer,
           virkninger:
             modus === 'varsel'
               ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]

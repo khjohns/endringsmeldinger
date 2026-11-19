@@ -189,7 +189,6 @@ export const KRAVSKJEMA = haerdet({
   tidslinjeSendes: 'Kravet sendes',
   naarDuSender: 'I dag, når du sender',
   // Brevkontrollen og kvitteringen.
-  kontroller: 'Kontroller og send',
   forrigeKravet: (krav: Brevref) => `Kravet i ${brevref(krav)}`,
   seBrevet: 'Se brevet før sending',
   sendTekst: 'Send til byggherren',
@@ -198,7 +197,4 @@ export const KRAVSKJEMA = haerdet({
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   forkastTekst:
     'Kravpostene og forbeholdet du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
-  detteSender: {
-    poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
-  },
 });

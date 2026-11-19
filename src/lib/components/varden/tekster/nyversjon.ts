@@ -33,8 +33,6 @@ export const NYVERSJON = haerdet({
   enighet: (svar: Brevref) =>
     `Du godtok svaret i ${brevref(svar)}. Enigheten står, og det nye brevet avviker fra den.`,
   forkastTekst: 'Begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
-  /** Overskriften i sendepanelet (oppdragsgiver 07.11, PR 1650). */
-  kontroller: 'Kontroller og send',
   sendTekst: 'Send til byggherren',
   tilbakeTil: 'utkastet',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',

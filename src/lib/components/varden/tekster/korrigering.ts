@@ -41,7 +41,6 @@ export const KORRIGERING = haerdet({
     `Tidligere oppgitt ${dato(o.dato)} i ${brevref(o.brev)}`,
   linjeForklaring: 'Forklaringen din står under den nye datoen',
   seBrevet: 'Se brevet før sending',
-  handling: 'Send korrigeringen',
   sendTekst: 'Send korrigeringen til byggherren',
   tilbakeTil: 'utkastet',
   /** U-4: datoen er TEs siste opplysning, og påberopelsen og svaret står som de ble sendt. */

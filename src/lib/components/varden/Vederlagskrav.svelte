@@ -538,12 +538,6 @@
     { naar: iDag, hva: KRAVSKJEMA.tidslinjeSendes, kilde: KRAVSKJEMA.naarDuSender },
   ]);
 
-  const detteSender = $derived([
-    ...(med.length ? [{ tekst: KRAVSKJEMA.detteSender.poster(med.length), lag: null }] : []),
-    // Brevkontrollen setter punktum selv.
-    ...hvaKravetEr.map((tekst) => ({ tekst: tekst.replace(/\.$/, ''), lag: null })),
-  ]);
-
   function seBrevet() {
     return flyt.send({
       mangler: mangler.length ? () => oppsummering : null,
@@ -554,7 +548,7 @@
       vedlegg,
       kanIkkeLages: KRAVSKJEMA.kanIkkeLages,
       tilBrevkontrollen: (brevet) =>
-        onbrevkontroll({ kommando, ...brevet, detteSender, virkninger: [], vedlegg }),
+        onbrevkontroll({ kommando, ...brevet, virkninger: [], vedlegg }),
     });
   }
 </script>
