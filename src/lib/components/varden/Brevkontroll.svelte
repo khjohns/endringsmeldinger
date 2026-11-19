@@ -5,7 +5,7 @@
   mangler avkrysningen, står det ved den (MM-U32).
 -->
 <script module lang="ts">
-  import type { Avsnitt } from '#kjerne/typer.ts';
+  import type { Kontrollbrev } from './nysak';
   import { harTekst, laastTekstI, type Brev as Kjernebrev } from '#lib/kjernesak/brevtekst.ts';
 
   /**
@@ -14,13 +14,6 @@
    * forhåndsvisningen gir (LV-U27, LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de
    * er en del av det avsenderen godkjenner (LV-U2, U-4 i BF-07).
    */
-  export type Kontrollbrev = {
-    avsnitt: Avsnitt[];
-    merking: string | null;
-    deresRef: string[];
-    tittel: string | null;
-  };
-
   /**
    * Det avsenderen godkjenner i brevet, som én tekst: endres en av delene, kontrolleres brevet
    * på nytt (LV-U2, LV-U46).

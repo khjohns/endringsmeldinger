@@ -5,7 +5,8 @@
  */
 
 import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-import { kontrollbrev, type Kontrollbrev } from './Brevkontroll.svelte';
+import { kontrollbrev } from './Brevkontroll.svelte';
+import type { Kontrollbrev } from './nysak';
 import { leggTilISaken } from './korrespondansen';
 import { feltfeil, fokuser, type Mangel } from './mangler';
 import type { vedleggskart } from './nysak';

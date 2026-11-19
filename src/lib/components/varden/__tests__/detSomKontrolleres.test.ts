@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { detSomKontrolleres, type Kontrollbrev } from '../Brevkontroll.svelte';
+import { detSomKontrolleres } from '../Brevkontroll.svelte';
+import type { Kontrollbrev } from '../nysak';
 
 const brevet: Kontrollbrev = {
   avsnitt: [{ gjelder: 'k', laast: 'Vi påberoper en irregulær endring.' }],

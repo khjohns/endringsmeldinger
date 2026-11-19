@@ -21,8 +21,15 @@ import {
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '#kjerne/format/koder.ts';
 import type { Kjerne } from '#kjerne/versjon.ts';
-import type { Part, Vedlegg } from '#kjerne/typer.ts';
-import type { Kontrollbrev } from './Brevkontroll.svelte';
+import type { Avsnitt, Part, Vedlegg } from '#kjerne/typer.ts';
+
+/** Brevet avsenderen kontrollerer i brevkontrollen. */
+export type Kontrollbrev = {
+  avsnitt: Avsnitt[];
+  merking: string | null;
+  deresRef: string[];
+  tittel: string | null;
+};
 
 /** Opprettelsen og påberopelsen, med brevteksten kjernen laget i brevkontrollen. */
 export interface NySak {
