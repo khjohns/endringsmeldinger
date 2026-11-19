@@ -456,7 +456,7 @@
     const sammeBrevkontroll =
       valgt === s && arbeid.art === 'kontroll' && arbeid.kommando === k.kommando;
     if (sammeBrevkontroll) tilArbeid({ art: 'les' }, s, true);
-    melding = { tekst: k.kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
+    melding = { tekst: k.kvittering ?? MOTTATT.sendtTil(kjernesak.part === 'TE' ? 'BH' : 'TE'), art: 'sendt' };
     const id = kjernesak.sistSendteHendelse;
     if (sammeBrevkontroll && u && id) kvittert = brevet(u, id);
   }

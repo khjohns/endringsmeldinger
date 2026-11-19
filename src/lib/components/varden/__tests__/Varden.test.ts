@@ -110,7 +110,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(screen.getByRole('button', { name: /^Fristforlengelse/ }));
     sending.resolve();
 
-    expect(await screen.findByText('Brevet ditt er sendt.')).toBeVisible();
+    expect(await screen.findByText('Brevet er sendt til totalentreprenøren.')).toBeVisible();
     expect(screen.getByRole('button', { name: /^Fristforlengelse/ })).toHaveAttribute(
       'aria-current',
       'page'
@@ -1160,7 +1160,7 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     await sendBrevet('Send svaret til totalentreprenøren');
-    await screen.findByText('Brevet ditt er sendt.');
+    await screen.findByText('Brevet er sendt til totalentreprenøren.');
     const svaret = kjernesak.utledning!.spor.forhold.gjeldendeSvar;
     expect(svaret?.gjelder).toBe(paaberopelsen);
     expect(screen.queryByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeNull();
