@@ -170,7 +170,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
   it('overskriften er «Vederlagsjustering» med hjemmelen etter, og hodet sier ikke hvem som skal handle (U-1, U-16, MM-U40)', async () => {
     await vis(BF44.steg);
     const h = screen.getByRole('heading', { level: 2, name: 'Vederlagsjustering pkt.\u00a034' });
-    expect(h.closest('header')?.textContent?.trim()).toBe('Vederlagsjustering pkt.\u00a034');
+    expect(h.nextElementSibling?.textContent).toMatch(
+      /^Byggherren la til korrespondanse \d+\. \p{L}+ 2026\.$/u
+    );
   });
 
   it('beløpet i hvert krav står ved brevet, og det eldre kravet er fulgt opp (U-5, U-12)', async () => {

@@ -485,6 +485,7 @@ export const fristtabellen = (
 /** Det sidene for forholdet, vederlaget og fristen får fra `Sporlesing` (oppsett B, #1997). */
 export interface Sideprops {
   u: Utledning;
+  leggTilKorrespondanse?: Snippet;
   /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
   betegnelser: Record<Spor, Betegnelse | null>;
   /** Fristtabellen, til siden for fristen. */

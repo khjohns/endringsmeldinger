@@ -25,9 +25,6 @@
   }
   .etikett {
     font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
 </style>

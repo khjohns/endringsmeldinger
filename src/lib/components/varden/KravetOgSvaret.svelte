@@ -55,7 +55,7 @@
     };
   });
   const stoerst = $derived(Math.max(k.krevd ?? 0, ...k.lagene.map((l) => l.beloep ?? 0)));
-  const { trinn, andel, steg } = $derived(maalestokken(stoerst));
+  const { trinn, andel, steg, ende } = $derived(maalestokken(stoerst, true));
   const sist = $derived(k.lagene.findLast((l) => l.beloep !== null));
   const avstand = $derived(k.krevd !== null && sist?.beloep != null ? k.krevd - sist.beloep : 0);
   // Byggherrens standpunkt til oppgjørsformen for en kravpost med regningsarbeid (U-13).
@@ -75,22 +75,27 @@
           verdi={kroner(k.krevd)}
           andel={andel(k.krevd)}
           aapen
-          {trinn}
+          trinn={k.lagene.length ? [] : trinn}
+          {ende}
         />
       </div>
       {#if k.lagene.length}
         <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
         <ul class="lagene" aria-labelledby={`${uid}-lag`}>
-          {#each k.lagene as l (l.lag)}
+          {#each k.lagene as l, i (l.lag)}
             <li>
-              {#if l.vilkaar.length}<p>{VEDERLAGET.lagetVilkaar(l.vilkaar)}</p>{/if}
-              {#if l.beloep !== null}<Maalrad
-                  navn={VEDERLAGET.godkjenner}
-                  verdi={l.beloep === null ? null : kroner(l.beloep)}
-                  andel={l.beloep === null ? null : andel(l.beloep)}
-                  sterk={false}
-                />{/if}
-              {#each VEDERLAGET.laget(l) as tekst, i (i)}<p>{tekst}</p>{/each}
+              {#if l.vilkaar.length}<p class:dempet={i > 0}>
+                  {VEDERLAGET.lagetVilkaar(l.vilkaar)}
+                </p>{/if}
+              {#each VEDERLAGET.laget(l) as tekst, j (j)}<p class:dempet={i > 0}>{tekst}</p>{/each}
+              <Maalrad
+                navn={l.beloep === null ? '' : VEDERLAGET.godkjenner}
+                verdi={l.beloep === null ? null : kroner(l.beloep)}
+                andel={l.beloep === null ? null : andel(l.beloep)}
+                dempet={i > 0}
+                trinn={i === k.lagene.length - 1 ? trinn : []}
+                {ende}
+              />
             </li>
           {/each}
         </ul>
@@ -202,6 +207,9 @@
   .lagene {
     display: grid;
     gap: var(--spacing-4);
+  }
+  .lagene p.dempet {
+    color: var(--ink-3);
   }
   .lagene p,
   .gap,
