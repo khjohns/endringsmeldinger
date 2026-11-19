@@ -35,9 +35,11 @@
     handling,
     brevet,
     levering = new Map(),
+    leggTilKorrespondanse,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
+  const traad = $derived(brevITraaden(alle, 'vederlag'));
   const k = $derived(kravetOgSvaret(u, alle));
   const beloepene = $derived(kravbeloepene(u));
   const varslene = $derived(varsleneIKravene(u, alle));
@@ -68,9 +70,10 @@
   <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist} />
 {/snippet}
 
-<Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel}>
+<Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>
   <Brevtraad
-    brev={brevITraaden(alle, 'vederlag')}
+    brev={traad}
+    {leggTilKorrespondanse}
     spor="vederlag"
     {fulgtOpp}
     {eldreKrav}

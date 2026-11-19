@@ -4,15 +4,33 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { Brevet } from './lesing';
+  import { TRAADEN } from './tekster';
 
-  let { tittel, hjemmel, children }: { tittel: string; hjemmel: string; children: Snippet } =
-    $props();
+  let {
+    tittel,
+    hjemmel,
+    siste = null,
+    merknad,
+    children,
+  }: {
+    tittel: string;
+    hjemmel?: string;
+    siste?: Brevet | null;
+    merknad?: Snippet;
+    children: Snippet;
+  } = $props();
   const uid = $props.id();
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
-    <h2 id={`${uid}-tittel`}>{tittel} <span class="hjemmel">{hjemmel}</span></h2>
+    <h2 id={`${uid}-tittel`} tabindex="-1">
+      {tittel}{#if hjemmel}{' '}
+        <span class="hjemmel">{hjemmel}</span>{/if}
+    </h2>
+    {#if siste}<p>{TRAADEN.siste(siste)}</p>{/if}
+    {@render merknad?.()}
   </header>
   {@render children()}
 </section>
@@ -41,5 +59,10 @@
     font-weight: 400;
     letter-spacing: 0;
     color: var(--ink-3);
+  }
+  .sporhode p {
+    margin-top: var(--spacing-1);
+    font-size: 14px;
+    color: var(--ink-2);
   }
 </style>
