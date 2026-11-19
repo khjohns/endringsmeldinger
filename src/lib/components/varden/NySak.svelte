@@ -16,6 +16,7 @@
     tekstenKanVaereUtdatert,
     type Sendeavvisning,
   } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { sendForsoek } from '#lib/kjernesak/forsoek.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {
     detSomKontrolleres,
@@ -48,6 +49,7 @@
     kommandoene,
     type Brevsending,
     type Forholdsvalg,
+    type NySak,
     type SendNySak,
     type Kjernevedlegg,
     type Utfylling,
@@ -67,6 +69,7 @@
     hentMerking,
     vedleggForNySak,
     utkast = null,
+    gjenoppta = null,
     onsendt,
     onavbrutt,
   }: {
@@ -78,6 +81,7 @@
     vedleggForNySak: VedleggForNySak;
     /** Skjemaet fra et forsøk med usikkert utfall, så et nytt forsøk sender det samme (#1526). */
     utkast?: Utfylling | null;
+    gjenoppta?: NySak | null;
     onsendt: (sakId: string) => void;
     onavbrutt: () => void;
   } = $props();
@@ -85,7 +89,8 @@
   const id = (felt: string) => `${uid}-${felt}`;
 
   // Skjemaet starter fra utkastet én gang; det følger ikke propen etterpå.
-  const start = (() => utkast)();
+  const startForsok = (() => (gjenoppta?.kontrollertBrev ? gjenoppta : null))();
+  const start = (() => startForsok?.utkast ?? utkast)();
   let forhold = $state<Forholdsvalg | null>(start?.forhold ?? null);
   let velgerAapen = $state(!start);
   let aapenGruppe = $state<string | null>(null);
@@ -102,7 +107,11 @@
   const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
+  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(
+    startForsok?.kontrollertBrev
+      ? { ...startForsok.kontrollertBrev, kommando: startForsok.paaberopelse }
+      : null
+  );
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   let merking = $state<Saksmerking | null>(null);
@@ -249,6 +258,38 @@
   let sendefeil = $state<string | null>(null);
   let sendeavvisning = $state<Sendeavvisning | null>(null);
   let nummerEndret = $state(false);
+  let ventende = $state<NySak | null>(startForsok);
+
+  async function sendForsok(forsok: NySak): Promise<boolean> {
+    sender = true;
+    sendefeil = null;
+    sendeavvisning = null;
+    nummerEndret = false;
+    try {
+      const utfall = await sendForsoek(forsok, send);
+      if (utfall.lagret || erKvittertBrevMangler(utfall.feil)) {
+        ventende = null;
+        return true;
+      }
+      ventende = utfall.ventende;
+      const e = utfall.feil;
+      sendeavvisning = sendeavvisningFra(e);
+      sendefeil = e instanceof Error ? e.message : String(e);
+      if (tekstenKanVaereUtdatert(e)) {
+        // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
+        const lest = kontrollbrev(await brevetMedNummer());
+        if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
+          const nyttNummer = lest.merking !== kontroll.merking;
+          kontroll = { ...kontroll, ...lest };
+          nummerEndret = nyttNummer;
+        }
+      }
+      return false;
+    } finally {
+      sender = false;
+    }
+  }
+
   const sending: Brevsending = {
     part: 'TE',
     get saksbilde() {
@@ -266,35 +307,31 @@
     get nummerEndret() {
       return nummerEndret;
     },
-    async send(_kommando, tekst) {
-      sender = true;
-      sendefeil = null;
-      sendeavvisning = null;
-      nummerEndret = false;
-      try {
-        const utkast = utfylling();
-        const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
-        await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
-        return true;
-      } catch (e) {
-        if (erKvittertBrevMangler(e)) return true;
-        sendeavvisning = sendeavvisningFra(e);
-        sendefeil = e instanceof Error ? e.message : String(e);
-        if (tekstenKanVaereUtdatert(e)) {
-          // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
-          const lest = kontrollbrev(await brevetMedNummer());
-          // Et annet brev kontrolleres på nytt. Bare en ny Vår ref. betyr at en annen sak tok
-          // nummeret; ellers står serverens melding.
-          if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
-            const nyttNummer = lest.merking !== kontroll.merking;
-            kontroll = { ...kontroll, ...lest };
-            nummerEndret = nyttNummer;
-          }
-        }
-        return false;
-      } finally {
-        sender = false;
-      }
+    get usikkertUtfall() {
+      return ventende !== null;
+    },
+    // Skjemaet har bare ett brev, så det ventende forsøket er alltid brevet i kontrollen.
+    venterPaa: () => ventende !== null,
+    send(_kommando, tekst) {
+      const utkast = utfylling();
+      const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
+      const kontrollertBrev = kontroll && {
+        avsnitt: $state.snapshot(kontroll.avsnitt),
+        merking: kontroll.merking,
+        deresRef: $state.snapshot(kontroll.deresRef),
+        tittel: kontroll.tittel,
+      };
+      return sendForsok({
+        sakId,
+        opprettelse,
+        paaberopelse,
+        tekst: tekst ?? [],
+        utkast,
+        kontrollertBrev: kontrollertBrev ?? undefined,
+      });
+    },
+    async provIgjen() {
+      return ventende && !sender ? sendForsok($state.snapshot(ventende)) : false;
     },
     fjernFeil() {
       sendefeil = null;
@@ -330,6 +367,7 @@
 {#if kontroll && valgt}
   <Brevkontroll
     kjernesak={sending}
+    gjenopptar={!!startForsok}
     {...kontroll}
     handling={NYSAK.handling}
     svarerPaa={null}

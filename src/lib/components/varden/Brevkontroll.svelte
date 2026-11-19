@@ -5,7 +5,7 @@
   mangler avkrysningen, står det ved den (MM-U32).
 -->
 <script module lang="ts">
-  import type { Avsnitt } from '#kjerne/typer.ts';
+  import type { Kontrollbrev } from './nysak';
   import { harTekst, laastTekstI, type Brev as Kjernebrev } from '#lib/kjernesak/brevtekst.ts';
 
   /**
@@ -14,13 +14,6 @@
    * forhåndsvisningen gir (LV-U27, LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de
    * er en del av det avsenderen godkjenner (LV-U2, U-4 i BF-07).
    */
-  export type Kontrollbrev = {
-    avsnitt: Avsnitt[];
-    merking: string | null;
-    deresRef: string[];
-    tittel: string | null;
-  };
-
   /**
    * Det avsenderen godkjenner i brevet, som én tekst: endres en av delene, kontrolleres brevet
    * på nytt (LV-U2, LV-U46).
@@ -64,7 +57,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, SENDEFEIL } from './tekster';
+  import { BREVKONTROLL, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -85,6 +78,7 @@
     sendTekst,
     tilbakeTil,
     visTilbake = true,
+    gjenopptar = false,
     ontilbake,
     onsendt,
     onavvist,
@@ -113,6 +107,7 @@
     sendTekst: string;
     tilbakeTil: string;
     visTilbake?: boolean;
+    gjenopptar?: boolean;
     ontilbake: () => void;
     onsendt: () => void;
     /**
@@ -160,6 +155,9 @@
   let tittelen = $state<HTMLElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
+  const proevIgjen = $derived(
+    (harSendt || gjenopptar) && !!kjernesak.venterPaa?.(kommando) ? kjernesak.provIgjen : undefined
+  );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
 
@@ -170,7 +168,7 @@
   }
 
   async function send() {
-    if (!kontrollert) {
+    if (!proevIgjen && !kontrollert) {
       manglerKontroll = true;
       // Beskjeden og aria-describedby må stå før fokus flyttes, så skjermleseren leser dem.
       await fokuser(() => avkrysning);
@@ -178,14 +176,15 @@
     }
     harSendt = true;
     sendtMedMerking = merking;
-    if (await kjernesak.send(kommando, tekst)) onsendt();
-    else onavvist?.();
+    const sendt = await (proevIgjen ? proevIgjen() : kjernesak.send(kommando, tekst));
+    if (sendt) onsendt();
+    else if (!kjernesak.venterPaa?.(kommando)) onavvist?.();
   }
 </script>
 
 <div class="kontroll">
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
-  {#if visTilbake}<p class="tilbake">
+  {#if visTilbake && !proevIgjen}<p class="tilbake">
       <Knapp variant="lenke" onclick={tilbake}
         ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
       >
@@ -263,9 +262,18 @@
         </p>{/if}
       <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
         <Send size={16} aria-hidden="true" />
-        {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
+        {kjernesak.sender
+          ? BREVKONTROLL.sender
+          : proevIgjen
+            ? USIKKERT_UTFALL.proevIgjen
+            : sendTekst}
       </Knapp>
-      {#if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
+      {#if proevIgjen && !kjernesak.sender}
+        <Melding art="info" role="alert">
+          <strong>{USIKKERT_UTFALL.tittel}</strong>
+          <p>{USIKKERT_UTFALL.forklaring}</p>
+        </Melding>
+      {:else if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
           >{#if avvisning}
             <strong>{SENDEFEIL.tittel}</strong>
             <p>{avvisning}</p>

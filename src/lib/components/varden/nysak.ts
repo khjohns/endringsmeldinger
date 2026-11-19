@@ -21,7 +21,15 @@ import {
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '#kjerne/format/koder.ts';
 import type { Kjerne } from '#kjerne/versjon.ts';
-import type { Part, Vedlegg } from '#kjerne/typer.ts';
+import type { Avsnitt, Part, Vedlegg } from '#kjerne/typer.ts';
+
+/** Brevet avsenderen kontrollerer i brevkontrollen. */
+export type Kontrollbrev = {
+  avsnitt: Avsnitt[];
+  merking: string | null;
+  deresRef: string[];
+  tittel: string | null;
+};
 
 /** Opprettelsen og påberopelsen, med brevteksten kjernen laget i brevkontrollen. */
 export interface NySak {
@@ -30,6 +38,8 @@ export interface NySak {
   opprettelse: { type: 'opprett_sak'; sakstittel: string };
   paaberopelse: Paaberopelse;
   tekst: string[];
+  /** Brevet avsenderen så, når forsøket skal gjenopptas etter ny innlasting. */
+  kontrollertBrev?: Kontrollbrev;
   /** Skjemaet slik det var sendt, så et nytt forsøk etter ny innlasting sender det samme (#1526). */
   utkast: Utfylling;
 }
@@ -243,6 +253,10 @@ export interface Brevsending {
   /** Sikker avvisning fra serveren i en eksisterende sak. */
   readonly sendeavvisning?: Sendeavvisning | null;
   readonly nummerEndret?: boolean;
+  readonly usikkertUtfall?: boolean;
+  /** Det usikre utfallet gjelder `kommando`, så «Prøv å sende igjen» sender det samme brevet. */
+  venterPaa?(kommando: Record<string, unknown>): boolean;
+  provIgjen?(): Promise<boolean>;
   send(kommando: Record<string, unknown>, tekst?: string[]): Promise<boolean>;
   fjernFeil(): void;
 }

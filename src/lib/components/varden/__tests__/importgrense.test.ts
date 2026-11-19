@@ -31,6 +31,8 @@ const PAKKER = new Set([
 const MODULER = new Set(
   [
     'kjernesak/kontekst.svelte',
+    // NySak bruker samme transportutfall som en eksisterende sak (#2188). Ingen regel.
+    'kjernesak/forsoek',
     // Lesingen av beløpsfeltet (OV-U58). Ingen regel.
     'utils/belop',
     // Prosjektet frontenden alt henter, med partsnavnene (#1398). Ingen regel.
@@ -105,7 +107,7 @@ describe('grensen for Varden', () => {
         [
           `import { lagSaksbilde } from '../../kjernesak/saksbilde';`,
           `export * from '#lib/kjernesak/vederlagssvar.ts';`,
-          `const d = await import('#lib/kjernesak/forsoek.ts');`,
+          `const d = await import('#lib/kjernesak/fristsvarvisning.ts');`,
           `import { kjoer } from '#kjerne/tester/kjoerer.ts';`,
           `import { handlinger } from '#kjerne/kommandoer/handlinger.ts';`,
           `import x from 'bits-ui';`,
@@ -118,7 +120,7 @@ describe('grensen for Varden', () => {
       'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/journal.ts',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/saksbilde',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/vederlagssvar.ts',
-      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/forsoek.ts',
+      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/fristsvarvisning.ts',
       'src/lib/components/varden/eksempel.ts → kjerne/tester/kjoerer.ts',
       'src/lib/components/varden/eksempel.ts → bits-ui',
       'src/lib/components/varden/eksempel.ts → src/lib/components/varden/__tests__/hjelp',

@@ -10,8 +10,14 @@
   import NySak from '#lib/components/varden/NySak.svelte';
   import Vardensak from '#lib/components/varden/Vardensak.svelte';
   import { type SendNySak, type VedleggForNySak } from '#lib/components/varden/nysak.ts';
-  import { fjernVentende, lagreVentende, lesVentende } from '#lib/components/varden/ventende.ts';
   import {
+    etterFeiletForsoek,
+    fjernVentende,
+    lagreVentende,
+    lesVentende,
+  } from '#lib/components/varden/ventende.ts';
+  import {
+    erUsikkertUtfall,
     hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
     nyKommandoId,
@@ -30,13 +36,18 @@
   const sakId = $derived(ventende?.sakId ?? crypto.randomUUID());
   const kommandoId = $derived(ventende?.kommandoId ?? nyKommandoId());
   const send: SendNySak = $derived(async (nySak) => {
-    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast });
+    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak });
     try {
       const svar = await sendNySak(prosjektId, kommandoId)(nySak);
       fjernVentende(brukerId, prosjektId);
       return svar;
     } catch (feil) {
-      if (erKvittertBrevMangler(feil)) fjernVentende(brukerId, prosjektId);
+      etterFeiletForsoek(
+        brukerId,
+        prosjektId,
+        { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak },
+        erKvittertBrevMangler(feil) ? 'lagret' : erUsikkertUtfall(feil) ? 'usikkert' : 'avvist'
+      );
       throw feil;
     }
   });
@@ -64,6 +75,7 @@
         hentMerking={() => hentSaksmerkingForNySak(prosjektId)}
         {vedleggForNySak}
         utkast={ventende?.utkast ?? null}
+        gjenoppta={ventende?.forsok ?? null}
         onsendt={(s) =>
           goto(resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: s }), {
             state: { nySakSendt: true },

@@ -3,7 +3,7 @@
  * fjerne andre brukeres utkast uten å laste skjemaet (#1678).
  */
 
-import type { Utfylling } from './nysak';
+import type { NySak, Utfylling } from './nysak';
 
 /**
  * Opprettelsen som er sendt uten at utfallet er kjent (#1526 punkt 1). Saks-ID-en og
@@ -22,6 +22,7 @@ export interface VentendeOpprettelse {
   sakId: string;
   kommandoId: string;
   utkast: Utfylling | null;
+  forsok?: NySak;
 }
 
 const VENTENDE = 'nysak:ventende:';
@@ -77,4 +78,21 @@ export function fjernVentende(brukerId: string | undefined, prosjektId: string) 
   } catch {
     // Som over.
   }
+}
+
+/**
+ * Den ventende opprettelsen etter et forsøk som feilet (#2188). Er saken lagret, fjernes den.
+ * Er utfallet usikkert, står forsøket, så det gjenopptas med de samme ID-ene. Er forsøket
+ * sikkert avvist, står skjemaet uten forsøket, så en ny lasting viser skjemaet og ikke
+ * brevkontrollen for et brev som ikke ble sendt.
+ */
+export function etterFeiletForsoek(
+  brukerId: string | undefined,
+  prosjektId: string,
+  ventende: VentendeOpprettelse,
+  utfall: 'lagret' | 'usikkert' | 'avvist'
+) {
+  if (utfall === 'lagret') fjernVentende(brukerId, prosjektId);
+  else if (utfall === 'avvist')
+    lagreVentende(brukerId, prosjektId, { ...ventende, forsok: undefined });
 }

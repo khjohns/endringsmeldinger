@@ -51,6 +51,7 @@ function aapne(
   send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' })),
   {
     utkast = null as Utfylling | null,
+    gjenoppta = null as Parameters<SendNySak>[0] | null,
     hentMerking = async (): Promise<Saksmerking> => DEMOMERKING,
   } = {}
 ) {
@@ -63,6 +64,7 @@ function aapne(
     hentMerking,
     vedleggForNySak,
     utkast,
+    gjenoppta,
     onsendt,
     onavbrutt,
   });
@@ -565,6 +567,41 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.queryByText(SENDEFEIL.tittel)).toBeNull();
   });
 
+  it('prøver samme opprettelse igjen etter usikkert utfall (#2188 punkt 3)', async () => {
+    const send = vi
+      .fn<SendNySak>()
+      .mockRejectedValueOnce(new ApiError(0, 'Forbindelsen ble brutt.'))
+      .mockResolvedValueOnce({ sakId: 'ny-sak' });
+    const { onsendt } = aapne(send);
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText('Vi vet ikke om brevet ble sendt');
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv å sende igjen' }));
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalledWith('ny-sak'));
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1]).toEqual(send.mock.calls[0]);
+  });
+
+  it('gjenopptar samme forhåndsvisning og innhold etter ny montering (#2188 punkt 3)', async () => {
+    const foerste = aapne(vi.fn<SendNySak>().mockRejectedValue(new ApiError(0, 'Nettbrudd.')));
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText('Vi vet ikke om brevet ble sendt');
+    const forsok = foerste.send.mock.calls[0][0];
+    cleanup();
+    const hentMerking = vi.fn(async () => ({
+      ...DEMOMERKING,
+      sakskode: { kode: 'koe' as const, loepenummer: 18 },
+    }));
+    const andre = aapne(undefined, { gjenoppta: forsok, hentMerking });
+
+    expect(screen.getByTestId('vaar-ref')).toHaveTextContent('K201-KOE-017-01');
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv å sende igjen' }));
+    await vi.waitFor(() => expect(andre.onsendt).toHaveBeenCalledWith('ny-sak'));
+    expect(andre.send.mock.calls[0][0]).toEqual(forsok);
+    expect(hentMerking).not.toHaveBeenCalled();
+  });
+
   it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
     let nummer = 17;
     const send = vi
@@ -579,7 +616,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
       .mockResolvedValue({ sakId: 'ny-sak' });
     const hentMerking = async (): Promise<Saksmerking> => ({
       ...DEMOMERKING,
-      sakskode: { kode: 'koe', loepenummer: nummer },
+      sakskode: { kode: 'koe' as const, loepenummer: nummer },
     });
     aapne(send, { hentMerking });
     await fyllIrregulaerEndring();
