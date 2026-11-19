@@ -200,9 +200,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     const u = await utledning(BF44.steg);
     const brev = brevene(u).find((b) => b.nummer === 1)!;
     const innsigelse = { art: 'grunn', grunn: 'prekludert', brev } as const;
-    for (const lesetekst of [VEDERLAGET.innsigelsen, FRISTEN.innsigelsen])
-      expect(lesetekst(innsigelse)).toBe(
-        'innsigelsen om at varselet etter punkt\u00a032.2 kom for sent (brev 1)'
+    for (const vilkaar of [VEDERLAGET.lagetVilkaar, FRISTEN.vilkaar])
+      expect(vilkaar([innsigelse])).toBe(
+        'Hvis innsigelsen om at varselet etter punkt\u00a032.2 kom for sent (brev 1) ikke fører frem'
       );
   });
 

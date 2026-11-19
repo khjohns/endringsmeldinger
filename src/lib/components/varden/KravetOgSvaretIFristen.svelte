@@ -167,6 +167,9 @@
     font-size: 14px;
     color: var(--ink-2);
   }
+  .lag p {
+    color: var(--ink);
+  }
   .lag.under p {
     color: var(--ink-3);
   }

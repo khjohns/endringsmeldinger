@@ -209,6 +209,9 @@
     display: grid;
     gap: var(--spacing-4);
   }
+  .lagene p {
+    color: var(--ink);
+  }
   .lagene p.dempet {
     color: var(--ink-3);
   }
@@ -217,6 +220,9 @@
   .ikke-svart {
     margin-top: 6px;
     font-size: 14px;
+  }
+  .gap,
+  .ikke-svart {
     color: var(--ink-2);
   }
   .gap {
