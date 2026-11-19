@@ -652,12 +652,15 @@ export function startJobbkjoerer(
       }
       if (!stoppet && avh.hr && Date.now() >= nesteHr) {
         nesteHr = Date.now() + HR_INTERVALL_MS;
-        try {
-          const antall = await synkroniserHr(avh.datalag, avh.hr);
-          loggInfo('HR-kopien er synkronisert fra Graph', { antall }, avh.logg);
-        } catch (feil) {
-          loggFeil('HR-kopien ble ikke synkronisert', feil, 'error', avh.logg);
-        }
+        const hr = avh.hr;
+        await medLoggkontekst(async () => {
+          try {
+            const antall = await synkroniserHr(avh.datalag, hr);
+            loggInfo('HR-kopien er synkronisert fra Graph', { antall }, avh.logg);
+          } catch (feil) {
+            loggFeil('HR-kopien ble ikke synkronisert', feil, 'error', avh.logg);
+          }
+        });
       }
       await vent();
     }

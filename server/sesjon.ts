@@ -1,3 +1,5 @@
+import { korrelasjonsId } from './logg.ts';
+import type { Innloggingshendelse } from './tilgangslogg.ts';
 /**
  * Sesjonen og innloggingsforsøket i SQL Server (B-19, #656), gjennom prosedyrene
  * i `koe_api` fra `database/migrasjoner/20261016190000_sesjon.sql`. `les_sesjon`,
@@ -63,13 +65,20 @@ export interface Sesjon {
   utloeper: Date;
 }
 
-export async function opprettSesjon(pool: Pool, bruker: string): Promise<NySesjon> {
+export async function opprettSesjon(
+  pool: Pool,
+  bruker: string,
+  innlogging?: { hendelse: Innloggingshendelse; gammel: string }
+): Promise<NySesjon> {
   const ny = { token: token(), csrfToken: token() };
   const svar = await kall(() =>
     utenKontekst(pool)
       .input('token_hash', sql.NVarChar(4000), sha256(ny.token))
       .input('bruker', sql.UniqueIdentifier, bruker)
       .input('csrf_token', sql.NVarChar(4000), ny.csrfToken)
+      .input('innlogging', sql.VarChar(40), innlogging?.hendelse ?? null)
+      .input('gammel_hash', sql.NVarChar(64), innlogging?.gammel ? sha256(innlogging.gammel) : null)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .output('utloeper', sql.DateTime2(3))
       .execute('koe_api.opprett_sesjon')
   );
@@ -100,6 +109,8 @@ export async function slettSesjon(pool: Pool, sesjonstoken: string): Promise<voi
   await kall(() =>
     utenKontekst(pool)
       .input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken))
+      .input('utlogging', sql.Bit, 1)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .execute('koe_api.slett_sesjon')
   );
 }

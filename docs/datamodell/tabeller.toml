@@ -47,7 +47,7 @@ identiteten stod på, når den bare har medlemskap, fravær og sesjoner (#1002).
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.registrer_entra_identitet`)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen."
 
@@ -65,7 +65,7 @@ lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. For `entra` kommer subjektet fra ID-tokenet fra Entra ID."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som sletter én Catenda-identitet når den flyttes)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.registrer_entra_identitet`)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter én Catenda-identitet når den flyttes)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -103,7 +103,7 @@ lagres_fra = "Driften, med `koe_drift.sett_rolle` og `koe_drift.fjern_rolle`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Driftens registrering er kilden."
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_rolle` og `koe_drift.fjern_rolle`)"]
 funn = []
 belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen."
 
@@ -121,7 +121,7 @@ lagres_fra = "Driften, med `koe_drift.sett_stillingstittel` og `koe_drift.fjern_
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Driftens registrering er kilden."
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_stillingstittel` og `koe_drift.fjern_stillingstittel`)"]
 funn = []
 belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen."
 
@@ -200,7 +200,7 @@ leserolle (#820)."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)", "database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som flytter medlemskapene til brukeren identiteten kobles til)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som flytter medlemskapene til brukeren identiteten kobles til)"]
 funn = []
 belegg = "L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10)."
 
@@ -226,7 +226,7 @@ team (svaret 18.10 i #764). Byttes Catenda-prosjektet, må teamene oppgis på ny
 fra_catenda = "Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`)", "database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`)", "database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`."
 
@@ -284,7 +284,7 @@ modulen fra tilbakekallet i `server/innlogging.ts` (F0b-5b)."""
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny innlogging"
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med prosjektene brukeren ikke er med i og tidspunktene for innloggingene (`observed_at`, `updated_at`)."
-skrivere = ["database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som flytter fraværet til brukeren identiteten kobles til)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som flytter fraværet til brukeren identiteten kobles til)"]
 funn = []
 belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
@@ -307,7 +307,7 @@ lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`,
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)"]
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)"]
 funn = []
 belegg = "L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test."
 
@@ -870,7 +870,7 @@ lagres_fra = "Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Tabellen har ingen rader."
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)", "database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene)", "database/migrasjoner/20261104100000_sakskode.sql (legger til fremmednøkkelen til sakens kode)"]
+skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)", "database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene)", "database/migrasjoner/20261104100000_sakskode.sql (legger til fremmednøkkelen til sakens kode)", "database/migrasjoner/20261119210000_tilgangslogg.sql (legger til fremmednøkkelen til tilgangsloggen)"]
 funn = []
 belegg = "L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`."
 
@@ -905,7 +905,7 @@ tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
-skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`)", "database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
+skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
 funn = []
 belegg = "L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700)."
 
@@ -961,3 +961,28 @@ og `opprettDokumentreferanse` i `server/catenda.ts`."""
 belegg = """
 L 08.11: `server/jobber.ts` og `server/catenda.ts`. Mappestrukturen og
 navngivingen er ikke kontrollert (B-03)."""
+
+[[tabell]]
+navn = "koe.tilgangslogg"
+lagring = "SQL Server"
+type = ["transaksjon", "teknisk"]
+status = "i bruk"
+beskrivelse = """
+Tilgangshendelser med basens UTC-klokke, utfall, fast avslagsgrunn, serverens
+korrelasjons-ID og verifiserte bruker- og prosjekt-ID-er når de er kjent.
+Ved avvist innlogging kan loggen ha et verifisert leverandørsubjekt og Entra-tenant.
+Direkte driftskall har SQL-innloggingen. Bruker-ID-ene beholdes som historiske
+verdier også ved en senere identitetsflytting. Rader kan ikke endres eller
+slettes. Bevaring avklares i B-05."""
+lagres_fra = """
+HTTP-inngangene for innlogging, utlogging og autorisasjon, prosedyrene for
+leserolle, roller, stillingstitler, identitetskoblinger, kontraktsteam, medlemskap
+og HR, og triggeren for
+Catenda-prosjektkoblingen. En gjennomført endring og loggraden skrives i samme
+transaksjon."""
+fra_catenda = "Delvis. Ved avslag kan et verifisert Catenda-subjekt lagres dersom intern bruker-ID mangler."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Bruker-ID-er, verifisert leverandørsubjekt ved avslag og SQL-innlogging ved driftsendringer."
+skrivere = ["database/migrasjoner/20261119210000_tilgangslogg.sql (`koe.skriv_tilgangslogg`, `koe.catenda_project_configs_tilgangslogg` og `koe_api.deaktiver_ved_innlogging`)"]
+funn = ["OBS-01", "OBS-02"]
+belegg = "K 19.11: katalogen og server/tester/tilgangslogg.test.ts."

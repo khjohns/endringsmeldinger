@@ -883,6 +883,26 @@
      }
     ]
    },
+   "koe.tilgangslogg": {
+    "kolonner": [
+     ["id", "bigint", "NOT NULL"],
+     ["tidspunkt", "datetime2(3)", "NOT NULL"],
+     ["korrelasjons_id", "uniqueidentifier", "NULL"],
+     ["aktor_id", "uniqueidentifier", "NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NULL"],
+     ["driftsidentitet", "sysname", "NULL"],
+     ["beroert_bruker_id", "uniqueidentifier", "NULL"],
+     ["forsokt_subjekt", "uniqueidentifier", "NULL"],
+     ["forsokt_tenant", "uniqueidentifier", "NULL"],
+     ["hendelse", "varchar(40)", "NOT NULL"],
+     ["utfall", "varchar(16)", "NOT NULL"],
+     ["grunn", "varchar(40)", "NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
    "koe.toemmingsvern": {
     "kolonner": [
      ["app_identities_id", "uniqueidentifier", "NULL"],
@@ -903,7 +923,8 @@
      ["innkommende_behandling_id", "bigint", "NULL"],
      ["innkommende_forsoek_id", "bigint", "NULL"],
      ["topic_kommentar_id", "bigint", "NULL"],
-     ["sak_kode_sak_id", "nvarchar(36)", "NULL"]
+     ["sak_kode_sak_id", "nvarchar(36)", "NULL"],
+     ["tilgangslogg_id", "bigint", "NULL"]
     ],
     "primærnøkkel": [],
     "unike": [],
@@ -973,6 +994,12 @@
       "kolonner": ["sak_kode_sak_id"],
       "til": "koe.sak_kode",
       "til_kolonner": ["sak_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["tilgangslogg_id"],
+      "til": "koe.tilgangslogg",
+      "til_kolonner": ["id"],
       "ved_sletting": "NO ACTION"
      },
      {
