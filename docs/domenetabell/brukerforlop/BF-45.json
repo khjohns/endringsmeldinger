@@ -141,19 +141,21 @@
     {
       "id": "te-har-mottatt-svaret",
       "etter": 4,
-      "beskrivelse": "Byggherren har svart med tre lag: prinsipalt at varselet etter punkt 33.4 kom for sent (0 dager for alle fristene), subsidiært at kravet ble spesifisert for sent, med dagene byggherren måtte forstå (0, 8 og 8), og videre subsidiært dagene byggherren godkjenner (0, 14 og 14). Fremdriften er hindret, men for mekanisk ferdigstillelse avslår byggherren dagene. Svaret har akseptfrist og forbeholdet om at forholdet ikke er besvart.",
+      "beskrivelse": "Byggherren har svart med tre lag. Prinsipalt gjør byggherren gjeldende at varselet etter punkt 33.4 kom for sent. Subsidiært legger byggherren til grunn at fremdriften er hindret av forholdet og gjør gjeldende at kravet ble spesifisert for sent. Byggherren godkjenner da dagene byggherren måtte forstå (0, 8 og 8). Videre subsidiært godkjenner byggherren 0, 14 og 14 dager. Svaret har akseptfrist og forbeholdet om at forholdet ikke er besvart.",
       "kontroller": [
         {
           "rolle": "mal",
           "kilde": [
             "OV-U32",
             "KA-U78",
+            "KA-U84",
             "VS-U20"
           ],
           "forventet": {
             "standpunkt.S-f1.rettidighet.hjemmel": "33.4",
             "standpunkt.S-f1.rettidighet.iTide": false,
-            "virkning.S-f1.rettidighet": 1
+            "virkning.S-f1.rettidighet": 1,
+            "virkning.S-f1.hindring": 2
           }
         },
         {
@@ -179,13 +181,14 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser under «For alle fristene» at byggherren prinsipalt gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at det gjelder alle fristene. At fremdriften er hindret, står som en linje uten eget lag.",
+          "tekst": "Under «For alle fristene» ser totalentreprenøren innsigelsen om at varselet etter punkt 33.4 kom for sent. Standpunktet om hindringen står med vilkåret fra brevet.",
           "kilde": [
             "VS-U20",
             "OV-U42",
             "KA-U80",
             "KA-U81",
-            "KA-U78"
+            "KA-U78",
+            "KA-U84"
           ]
         },
         {
@@ -315,6 +318,11 @@
       "dato": "2026-11-15",
       "forhold": "#1927",
       "hva": "Forløpet er kjørbart (G-8): startjournalen har tre frister, to registrert og én som ikke er registrert, byggherrens svar med tre lag, avslaget av dagene for én frist med begrunnelsen, akseptfristen og forbeholdet om at forholdet ikke er besvart. Forespørselen etter punkt 33.6.2 er ikke i den kjørbare saken og prøves i komponenttestene. Vedtakene som sto i `kilder`, står nå i kontrollene og forståelsen; OV-U73, GFK-U3, GFK-U4, GFK-U17, GFK-U19, GFK-U20, GFK-U21, GFK-U24, VS-U47, VS-U3 og HF-U11 gjelder forespørselen og pakken til godkjenning, som ikke er i saken. Forløpet kjøres ikke i saksruta, av samme grunn som BF-44: akseptfristen er en fast dato."
+    },
+    {
+      "dato": "2026-11-19",
+      "forhold": "KA-U84",
+      "hva": "Brev 4 og oversikten viser hindringen i laget etter innsigelsen om varselet."
     }
   ],
   "prototype": {

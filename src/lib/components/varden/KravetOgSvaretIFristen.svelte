@@ -50,8 +50,8 @@
     <section class="del" aria-labelledby={`${uid}-alle`}>
       <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
       {#each k.felles as l, i (l.lag)}
-        {@const tekst = VEDERLAGET.laget(l)}
-        <div class="lag" class:dempet={i > 0}>
+        {@const tekst = VEDERLAGET.laget(l, FRISTEN.innsigelsen)}
+        <div class="lag" class:under={i > 0}>
           <Maalrad
             navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
             verdi={l.dager === null ? null : dager(l.dager)}
@@ -61,8 +61,8 @@
           {#if tekst}<p>{tekst}</p>{/if}
         </div>
       {/each}
-      {#each k.utenLag as s (s.standpunkt.id)}
-        <p class="uten-lag">{FRISTEN.utenLag(s.standpunkt, s.vilkaar)}</p>
+      {#each k.utenLag as s (s.id)}
+        <p class="uten-lag">{FRISTEN.utenLag(s)}</p>
       {/each}
     </section>
   {/if}
@@ -168,6 +168,9 @@
     border-left: 2px solid var(--rule-strong-color);
     font-size: 14px;
     color: var(--ink-2);
+  }
+  .lag.under p {
+    color: var(--ink-3);
   }
   .vilkaar {
     display: grid;
