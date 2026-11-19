@@ -4901,6 +4901,57 @@ tekst = '''
 Standpunktet om at fremdriften er hindret og at hindringen skyldes forholdet, gjelder uten vilkår.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U85"
+dato = 2026-11-19
+hvem = "oppdragsgiver"
+kilde = ["#2237", "#2163"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1a i [`docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md`](../vedlegg/stabelen-2163-2026-11-19/sporsmal.md), oppfølgingsspørsmål til svar 1 19.11. Spørsmål 1 var: #2237 lar innsigelsen etter punkt 33.6.2 være subsidiær til innsigelsen etter 33.4; før sto begge prinsipalt (OV-U32). Svaret på spørsmål 1 var ordrett: «Slik jeg ser det kan BH mene kravet er fremsatt for sent, men av hensyn til forutsigbarhet - evt av taktiske grunner - fortsatt ønske at TE spesifiserer krav etter 33.6.2. Denne forespørselen vil da måtte vise til at BH prinsipalt mener kravet er fremsatt for sent, tenker jeg.» Oppfølgingsspørsmålet 1a: svar 1 leses slik at forespørselen sendes under forbehold om innsigelsen etter 33.4, og at innsigelsen om at totalentreprenøren ikke svarte på forespørselen, derfor står subsidiært til innsigelsen etter 33.4. Det er rekkefølgen #2237 har bygget, og alternativ A i spørsmål 1 faller bort. Ja eller nei?'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 19.11, ordrett for spørsmål 1a: «1a ja». Hele svaret står i spørsmålsfila. Valgt: Ja.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u32" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Påberoper byggherren både at varselet etter punkt 33.4 kom for sent og at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, står innsigelsen etter punkt 33.4 prinsipalt og innsigelsen etter punkt 33.6.2 subsidiært, fordi forespørselen sendes under forbehold om innsigelsen etter punkt 33.4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A i spørsmål 1"
+tekst = '''
+Begge innsigelsene står prinsipalt, og de øvrige standpunktene er subsidiære når én av dem er påberopt.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "KA-U86"
+dato = 2026-11-19
+hvem = "oppdragsgiver"
+kilde = ["#2237", "#2163"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1b i [`docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md`](../vedlegg/stabelen-2163-2026-11-19/sporsmal.md), oppfølgingsspørsmål til svar 1 19.11: når bare innsigelsen etter 33.6.2 er påberopt. Varselet etter 33.4 er ikke påberopt, men byggherren gjør gjeldende at totalentreprenøren ikke svarte på forespørselen i tide. Byggherren er enig i at fremdriften er hindret. C (anbefalt): de øvrige standpunktene, også at fremdriften er hindret, gjelder bare hvis innsigelsen etter 33.6.2 ikke fører frem, som etter KA-U84 for 33.4. Begge innsigelsene gjør at kravet tapes helt. B: som bygget, de øvrige standpunktene gjelder uten vilkår.'''
+valgt = "C"
+svar = '''
+Oppdragsgiver 19.11, ordrett for spørsmål 1b: «1b C». Hele svaret står i spørsmålsfila. Valgt: C.'''
+forhold = [{ art = "utvider", vedtak = "ka-u84" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Påberoper byggherren at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter til kravet om fristforlengelse, også at fremdriften er hindret, bare hvis den innsigelsen ikke fører frem, som etter KA-U84 for punkt 33.4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Påberoper byggherren bare at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter uten vilkår.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
@@ -11525,6 +11576,7 @@ I første versjon er en forespørsel etter § 33.6.2 sendt utenfor appen dokumen
 [[gruppe.vedtak.sitat]]
 kilde = "ns8407"
 tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
+
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -25510,6 +25562,38 @@ navn = "C"
 tekst = '''
 Henvisningssetningen står bare når totalentreprenøren har skrevet et standpunkt, og viser til der det står. Forhold: snevrer inn LV-U52 og KA-U52 punkt 4. Brevet nevner da svaret to ganger.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U76"
+dato = 2026-11-19
+hvem = "oppdragsgiver"
+kilde = ["#2237", "#2163"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 5 i [`docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md`](../vedlegg/stabelen-2163-2026-11-19/sporsmal.md), oppfølgingsspørsmål til svar 1 19.11: forbeholdet i forespørselen etter punkt 33.6.2. Forespørselen fra løsningen (LV-U18) har ikke noe forbehold. Etter fjerde ledd mister byggherren innsigelsen om at kravet ble spesifisert for sent (33.6.1) når totalentreprenøren svarer med dager. Forbeholdet kan derfor bare gjelde varselet etter 33.4. Alternativ A hadde dette eksempelet på ordlyd: «Byggherren fastholder at varselet etter NS 8407 punkt 33.4 i brev 2 kom for sent. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.» Styrer LV-U18 og brevteksten for forespørselen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 19.11, ordrett for spørsmål 5: «5 A». Hele svaret og svaret på spørsmål 1, som ga oppfølgingsspørsmålet, står i spørsmålsfila. Valgt: A.'''
+forhold = [{ art = "utvider", vedtak = "lv-u18" }]
+folge = '''
+Bygges i #2246.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Har byggherren påberopt at varselet etter punkt 33.4 kom for sent, sier forespørselen etter punkt 33.6.2 at byggherren fastholder det prinsipalt, og at forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren velger i skjemaet om forbeholdet tas med.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Ingen endring.'''
+
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
