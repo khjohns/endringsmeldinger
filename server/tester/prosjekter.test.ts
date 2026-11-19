@@ -161,9 +161,10 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
     }
   });
 
-  it('feiler synkroniseringen, gir lista 503', async () => {
+  it('prosjektlista viser lagrede medlemskap når Catenda-hentingen feiler (#51)', async () => {
     const b = await nyBruker();
-    await prosjekt(b, { alder: 3600 });
+    const gammel = await prosjekt(b, { alder: 3600, navn: 'A' });
+    const fersk = await prosjekt(b, { navn: 'B' });
     const egen = await startServer(o, {
       catenda: {
         ...catendaFra(o.teammedlemmer),
@@ -175,10 +176,16 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
       const svar = await liste(b, egen.url);
-      expect(svar.status).toBe(503);
-      expect(svar.kropp.error).toBe('ACCESS_UNAVAILABLE');
-      // Årsaken logges, som ruterens sluttfanger gjør (#724 punkt 2), uten meldingen (#867 punkt 5).
-      expect(logg.mock.calls.join('\n')).toContain('Prosjektene kunne ikke leses (Error)');
+      expect(svar.status).toBe(200);
+      expect(ider(svar.kropp)).toEqual([gammel, fersk]);
+      const prosjektSvar = await kall(egen.url, `/api/projects/${gammel}`, {
+        bruker: b,
+        prosjektId: gammel,
+      });
+      expect(prosjektSvar).toMatchObject({ status: 200, kropp: { id: gammel } });
+      expect(logg.mock.calls.join('\n')).toContain(
+        'Medlemslisten fra Catenda kunne ikke synkroniseres (Error)'
+      );
       expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();
