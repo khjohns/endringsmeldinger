@@ -4,6 +4,7 @@
  * den før behandleren kalles.
  */
 
+import { loggFeil } from './logg.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import {
   utledJournal,
@@ -21,7 +22,7 @@ import {
   type Prosjekttilgang,
 } from './autorisasjon.ts';
 import { UsikkertUtfall, UUID, type Kontekst, type Pool } from './datalag.ts';
-import { fast, lagret, loggFeil, ugyldig, feilsvar, ukjenteFelt } from './inngang.ts';
+import { fast, lagret, ugyldig, feilsvar, ukjenteFelt } from './inngang.ts';
 import { lesSaken, lesSakensMaal, type Leveringsmaal } from './lager.ts';
 import type { Sakslenke } from './catenda.ts';
 import {
@@ -149,7 +150,7 @@ export async function sakssvar(
   }
   const { journal, oppdrag, navn, navnefeil } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
-  if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
+  if ('navnefeil' in saken) loggFeil('Navneoppslaget i saken feilet', navnefeil, 'warn');
   return [
     200,
     {
@@ -197,7 +198,7 @@ async function catendaLenke(
     const maal = await lesSakensMaal(datalag, kontekst, sakId);
     return maal && sakslenke(maal);
   } catch (feil) {
-    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, feil, 'warn');
+    loggFeil('Oppslaget av lenken til Catenda i saken feilet', feil, 'warn');
     return null;
   }
 }

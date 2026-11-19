@@ -16,12 +16,12 @@
  * (`synkroniserKobling()`); feiler det, nektes tilgangen med 503, som i Python.
  */
 
+import { kjenteLoggfelter, loggFeil } from './logg.ts';
 import { timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, utenKontekst, type Kontekst, type Pool } from './datalag.ts';
-import { loggFeil } from './inngang.ts';
 import {
   oversett,
   prosjektkobling,
@@ -107,6 +107,7 @@ export async function krevSesjon(
     throw new Nektet(503, 'AUTH_UNAVAILABLE', 'Innlogging er midlertidig utilgjengelig.');
   }
   if (!sesjon) throw new Nektet(401, 'UNAUTHORIZED', 'Du må logge inn.');
+  kjenteLoggfelter({ aktor_id: sesjon.bruker.id });
   // Inne i autentiseringen, som i Flask: en utlogget bruker skal få 401, ikke 403.
   const metode = foresporsel.method ?? 'GET';
   const csrf = foresporsel.headers['x-csrf-token'];
@@ -384,6 +385,7 @@ export async function krevProsjekttilgang(
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw ingenTilgang();
+    kjenteLoggfelter({ prosjekt_id: prosjektId });
     const synkronisert = await oppdaterMedlemslisten(
       db,
       catenda,
@@ -659,6 +661,7 @@ export async function krevGodkjennertilgang(
   let hindring;
   try {
     hindring = await hindringForGodkjenner(db, catenda, bruker.id, prosjektId);
+    if (hindring !== 'ukjent_prosjekt') kjenteLoggfelter({ prosjekt_id: prosjektId });
   } catch (feil) {
     utilgjengelig('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
   }

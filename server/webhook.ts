@@ -9,6 +9,7 @@
  * Stien står aldri i en logg.
  */
 
+import { korrelasjonsId } from './logg.ts';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { AapenRute, Svar } from './rutetyper.ts';
@@ -115,6 +116,7 @@ export async function mottaHendelse(
     .input('hendelse_id', sql.NVarChar(4000), hendelse.id)
     .input('hendelsestype', sql.NVarChar(4000), hendelse.type)
     .input('kropp', sql.NVarChar(sql.MAX), kropp)
+    .input('korrelasjons_id', sql.UniqueIdentifier, korrelasjonsId() ?? null)
     .output('ny', sql.Bit)
     .execute('koe_api.motta_hendelse');
   return output.ny === true;

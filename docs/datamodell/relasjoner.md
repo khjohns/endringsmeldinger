@@ -111,6 +111,7 @@ erDiagram
         nvarchar_100 prosjekt_id FK
         uniqueidentifier siste_forsoek FK
         uniqueidentifier leveringsoppdrag_id FK
+        uniqueidentifier logg_aktor_id "uten fremmednøkkel"
     }
     koe_jobbforsoek {
         uniqueidentifier forsoek_id PK
@@ -315,6 +316,7 @@ erDiagram
     koe_godkjenningspakke ||--o{ koe_godkjenningshandling : "(pakke_id, prosjekt_id, aktor_team_id)"
     koe_godkjenningssteg |o--o{ koe_godkjenningshandling : "(pakke_id, steg)"
     koe_app_users ||--o{ koe_godkjenningshandling : "aktor_id"
+    koe_app_users |o..o{ koe_jobb : "logg_aktor_id"
     koe_rolle ||--o{ koe_stillingstittel : "rolle"
     koe_app_users ||--o| koe_hr_kopi : "bruker_id"
     koe_rolle |o--o{ koe_hr_kopi : "rolle"
@@ -401,6 +403,7 @@ erDiagram
 | `koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id)` | `koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken handlingen gjelder, med samme prosjekt og team. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningshandling.(pakke_id, steg)` | `koe.godkjenningssteg.(pakke_id, steg)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Steget som er godkjent eller returnert. En trekking har ikke steg. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningshandling.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som godkjente, returnerte eller trakk pakken. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.jobb.logg_aktor_id` | `koe.app_users.id` | uten fremmednøkkel | mange til én | Aktøren fra skrivekonteksten da jobben ble opprettet. Brukes i driftsloggen. | — | L 19.11: `20261119180000_korrelasjon_i_driftsloggen.sql` (#1805). |
 | `koe.stillingstittel.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen stillingstittelen gir (S3 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
 | `koe.hr_kopi.bruker_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brukeren HR-kopien gjelder. Synkroniseringen registrerer Entra-identiteten når den mangler (svaret 20.10 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
 | `koe.hr_kopi.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen personen har etter siste synkronisering, eller ingen. | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
@@ -434,6 +437,8 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.hr_kopi.oid` | Personens `oid` i Entra ID, det samme som subjektet i `koe.app_identities` for Entra-identiteten til `bruker_id`. |
 | `koe.hr_kopi.leder_oid` | Lederens `oid` i Entra ID, fra `manager` i Graph. Lederen trenger ikke ha en rolle og har da ingen rad i HR-kopien. |
 | `koe.kontraktsfrist.frist_id` | Fristens ID i prosjektet, tildelt av `koe_drift.sett_kontraktsfrist`. Et krav viser til fristen med den; hendelsen i journalen har ingen fremmednøkkel hit (#721). |
+| `koe.jobb.korrelasjons_id` | ID-en til forespørselen som opprettet jobben. Forespørselen er en oppføring i driftsloggen. |
+| `koe.innkommende_hendelse.korrelasjons_id` | ID-en til forespørselen som først lagret hendelsen. Forespørselen er en oppføring i driftsloggen. |
 
 ## Dataflyt mot Catenda
 

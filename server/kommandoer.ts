@@ -19,6 +19,7 @@
  * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
+import { loggFeil } from './logg.ts';
 import type { Kontraktsteam } from './autorisasjon.ts';
 import type { Registrertfrist } from '../kjerne/spor/frist/format.ts';
 import { lesKontraktsfrister } from './kontraktsfrister.ts';
@@ -120,7 +121,7 @@ function oversett(feil: unknown, forventet: number | null): unknown {
   // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739
   // punkt 1). Et tomt mål av en annen grunn ville sett likt ut, så årsaken logges (#763).
   if (feil instanceof IngenLeveringsmaal) {
-    console.warn(`Skrivingen ble avvist: ${melding}`);
+    loggFeil('Skrivingen ble avvist', feil, 'warn');
     return new SkrivingAvvist(melding, { cause: feil });
   }
   switch (feilnummer(feil)) {

@@ -333,6 +333,26 @@ export function postgresql(kilde: string): string[] {
   return funn;
 }
 
+function direkteKonsoll(kilde: string): string[] {
+  const funn: string[] = ts
+    .preProcessFile(kilde, true, true)
+    .importedFiles.map((i) => i.fileName)
+    .filter((i) => i === 'console' || i === 'node:console');
+  const fil = ts.createSourceFile('kilde.ts', kilde, ts.ScriptTarget.Latest, true);
+  const besok = (node: ts.Node) => {
+    if (ts.isIdentifier(node) && node.text === 'console') funn.push(node.getText(fil));
+    if (
+      ts.isStringLiteralLike(node) &&
+      node.text === 'console' &&
+      (ts.isElementAccessExpression(node.parent) || ts.isBindingElement(node.parent))
+    )
+      funn.push(node.parent.getText(fil));
+    ts.forEachChild(node, besok);
+  };
+  besok(fil);
+  return funn;
+}
+
 function alleFiler(mappe: string, endelse = /\.ts$/): string[] {
   return readdirSync(mappe, { withFileTypes: true }).flatMap((d) =>
     d.isDirectory()
@@ -346,6 +366,23 @@ function alleFiler(mappe: string, endelse = /\.ts$/): string[] {
 const filer = alleFiler(SERVER);
 
 describe('grensene rundt TS-serveren', () => {
+  it('bare loggmodulen skriver til console (#1805)', () => {
+    const funn = filer
+      .filter((f) => !f.startsWith(TESTER + sep) && relative(SERVER, f) !== 'logg.ts')
+      .flatMap((f) =>
+        direkteKonsoll(readFileSync(f, 'utf8')).map((uttrykk) => [relative(SERVER, f), uttrykk])
+      );
+    expect(funn).toEqual([]);
+  });
+
+  it.each([
+    "console.warn('melding');",
+    "const ut = globalThis['console']; ut.error('melding');",
+    "import { error } from 'node:console';",
+  ])('konsollvakten avviser %s', (kilde) => {
+    expect(direkteKonsoll(kilde)).not.toEqual([]);
+  });
+
   it('finner serverens moduler og testene', () => {
     expect(filer.map((f) => relative(SERVER, f))).toEqual(
       expect.arrayContaining(['app.ts', 'datalag.ts', 'lager.ts', 'tester/arkitektur.test.ts'])
