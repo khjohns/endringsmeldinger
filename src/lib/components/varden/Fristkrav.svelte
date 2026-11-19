@@ -641,17 +641,23 @@
   {#if kanVarsle}
     <Spoersmaal>
       {#if varsel}
-        <p>{FRISTKRAV.bareVarsel}</p>
-        <Knapp id={id('hva')} variant="lenke" onclick={() => velgHva('krav')}
-          >{FRISTKRAV.krevDager}</Knapp
+        <p id={id('hva-status')}>{FRISTKRAV.bareVarsel}</p>
+        <Knapp
+          id={id('hva')}
+          variant="lenke"
+          aria-describedby={`${id('hva-status')} ${id('hva-hjelp')}`}
+          onclick={() => velgHva('krav')}>{FRISTKRAV.krevDager}</Knapp
         >
       {:else}
-        <p>{FRISTKRAV.kravMedDager}</p>
-        <Knapp id={id('hva')} variant="lenke" onclick={() => velgHva('varsel')}
-          >{FRISTKRAV.varsleSenere}</Knapp
+        <p id={id('hva-status')}>{FRISTKRAV.kravMedDager}</p>
+        <Knapp
+          id={id('hva')}
+          variant="lenke"
+          aria-describedby={`${id('hva-status')} ${id('hva-hjelp')}`}
+          onclick={() => velgHva('varsel')}>{FRISTKRAV.varsleSenere}</Knapp
         >
       {/if}
-      <p class="dempet">{FRISTKRAV.hvaHjelp}</p>
+      <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
     </Spoersmaal>
   {/if}
 

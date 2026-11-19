@@ -250,6 +250,43 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(felt).toHaveAccessibleDescription(/Skriv høyst 25 dager\./);
   });
 
+  it('«Delvis» uten gyldig antall dager stopper både «Ferdig» og bytte av frist (#2210)', async () => {
+    await svarskjemaet(medFristkrav);
+    await svarPaaHeleKravet('Spesifisert i tide');
+    await radio('Delvis');
+    const dager = screen.getByRole('textbox', { name: 'Godkjente dager' });
+    const neste = screen.getByRole('button', { name: 'Svar på Sluttfristen' });
+
+    await ferdig();
+    expect(dager).toHaveFocus();
+    expect(dager).toHaveAttribute('aria-invalid', 'true');
+    await fireEvent.click(neste);
+    expect(dager).toHaveFocus();
+    expect(neste).toBeInTheDocument();
+
+    await fireEvent.input(dager, { target: { value: '10' } });
+    expect(dager).not.toHaveAttribute('aria-invalid');
+    await fireEvent.click(neste);
+    expect(dager).not.toBeInTheDocument();
+    expect(neste).not.toBeInTheDocument();
+  });
+
+  it('feilen for «Delvis» fra «Ferdig» vises ikke igjen før et nytt forsøk når byggherren har valgt et annet svar imellom (review av #2229)', async () => {
+    await svarskjemaet(medFristkrav);
+    await svarPaaHeleKravet('Spesifisert i tide');
+    await radio('Delvis');
+    await ferdig();
+    expect(screen.getByRole('textbox', { name: 'Godkjente dager' })).toHaveAttribute(
+      'aria-invalid',
+      'true'
+    );
+    await radio('Avslått');
+    await radio('Delvis');
+    expect(screen.getByRole('textbox', { name: 'Godkjente dager' })).not.toHaveAttribute(
+      'aria-invalid'
+    );
+  });
+
   it('en feil fra «Ferdig» vises ikke igjen før et nytt forsøk når spesifiseringen er byttet (review av #2204)', async () => {
     await svarskjemaet(medFristkrav);
     await svarPaaHeleKravet('Spesifisert for sent');

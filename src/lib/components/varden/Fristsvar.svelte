@@ -255,12 +255,24 @@
     return avvist ? FRISTSVAR.maatteForstaaHoeyst(grense ?? f.dager) : null;
   };
   const maatteForstaaId = (f: Fristpost) => `${uid}-maatte-${f.id}`;
+  const deldagerId = (f: Fristpost) => `${uid}-deldager-${f.id}`;
+  const fristerMedDeldagerfeil = new SvelteSet<string>();
+  // Feilen fra «Ferdig» gjelder «Delvis»; velger byggherren et annet svar, gjelder den ikke lenger.
+  $effect(() => {
+    for (const id of fristerMedDeldagerfeil)
+      if (valg.frister[id]?.dager !== 'deler') untrack(() => fristerMedDeldagerfeil.delete(id));
+  });
   function kontrollerVedFerdig(f: Fristpost) {
     if (maatteForstaaFeil(f)) {
       fristerMedFeltfeil.add(f.id);
       return maatteForstaaId(f);
     }
     fristerMedFeltfeil.delete(f.id);
+    if (deldagerFeil(f)) {
+      fristerMedDeldagerfeil.add(f.id);
+      return deldagerId(f);
+    }
+    fristerMedDeldagerfeil.delete(f.id);
     return null;
   }
   const mangler = $derived(
@@ -411,8 +423,8 @@
         </div>
         <!-- U-14: «Godkjente dager» står alltid, tomt til byggherren har valgt, og tallet styrer
              valget. -->
-        {@const id = `${uid}-deldager-${f.id}`}
-        {@const dFeil = feil(id)}
+        {@const id = deldagerId(f)}
+        {@const dFeil = feil(id) ?? (fristerMedDeldagerfeil.has(f.id) ? deldagerFeil(f) : null)}
         <Linjefelt
           {id}
           etikett={FRISTSVAR.deldagerEtikett}
@@ -421,7 +433,11 @@
           bredde="tall"
           inputmode="numeric"
           bind:verdi={
-            () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
+            () => godkjenteDagerIFeltet(v, f.dager),
+            (t) => {
+              skrivGodkjenteDager(v, t, f.dager);
+              if (!deldagerFeil(f)) fristerMedDeldagerfeil.delete(f.id);
+            }
           }
           feil={dFeil}
         />
