@@ -130,7 +130,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
       )
     ).toBeTruthy();
     const kontrollen = within(screen.getByRole('region', { name: 'Sending' }));
-    expect(kontrollen.getByRole('heading', { name: /^Kontroller og send/ })).toBeTruthy();
+    expect(kontrollen.getByText('Kontroller og send')).toHaveAttribute('aria-current', 'step');
     // U-3, D-5: mottakeren og brevrelasjonene. Datoen står i brevet, og korrigeringen på
     // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11 og 07.11, PR 1650).
     expect(kontrollen.queryByText('Fra')).toBeNull();
@@ -395,7 +395,7 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     const kortet = await vis('BF-04', 'te-har-mottatt-svaret', 'TE', 'vederlag');
     await fireEvent.click(kortet.getByRole('button', { name: 'Oppdater kravet' }));
     expect(
-      await screen.findByRole('heading', { name: 'Vederlagsjustering', level: 3 })
+      await screen.findByRole('heading', { name: /^(?:\d+\. )?Vederlagsjustering$/, level: 3 })
     ).toBeTruthy();
     expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
   });

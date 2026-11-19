@@ -13,7 +13,10 @@
     oppgittDato,
   } from '#kjerne/spor/forhold/format.ts';
   import { blirEndringsordre } from '#kjerne/spor/forhold/frysing.ts';
-  import { forholdet as forholdIKatalogen } from '#kjerne/spor/forhold/tekst.ts';
+  import {
+    BREVTEKSTEN_I_FORHOLDET,
+    forholdet as forholdIKatalogen,
+  } from '#kjerne/spor/forhold/tekst.ts';
   import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -40,8 +43,14 @@
   import { kanFrafalle } from '#kjerne/regler/forhold.ts';
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
-  import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager } from './tekster';
+  import {
+    begrunnelserForTemaene,
+    kravbrevetI,
+    kravetSendt,
+    manglene,
+    ugyldig,
+  } from './svarskjema';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager, SKJEMA } from './tekster';
 
   let {
     kjernesak,
@@ -150,6 +159,17 @@
     )!
   );
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
+  const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
+  const begrunnelserISkjemaet = $derived(
+    begrunnelserForTemaene(BREVTEKSTEN_I_FORHOLDET.temaer(), (punkt) =>
+      punkt === '32.2'
+        ? !!lagene?.standpunkter.some(
+            (s) => s.art === 'rettidighet' && s.hjemmel === punkt && s.besvart
+          ) && !ugyldig(lagene, 'grunnlag_varslet_i_tide')
+        : !!lagene?.standpunkter.some((s) => s.art === 'forhold' && s.besvart) &&
+          !ugyldig(lagene, 'resultat')
+    )
+  );
   const forutsetninger = $derived(
     lagene?.standpunkter.find((s) => s.art === 'forhold')?.forutsetninger ?? []
   );
@@ -188,6 +208,7 @@
           if (s.art === 'rettidighet')
             return [
               {
+                punkt: s.hjemmel,
                 tekst: s.iTide
                   ? FORHOLDSSVAR.linjeVarselIkkeForSent
                   : FORHOLDSSVAR.linjeVarselForSent,
@@ -197,6 +218,7 @@
           if (s.art === 'forhold')
             return [
               {
+                punkt: 'forhold',
                 tekst: forholdslinjen(s.resultat as Forholdsresultat, f, endringsordre),
                 lag: l.lag,
               },
@@ -204,6 +226,30 @@
           return [];
         })
       : []
+  );
+  const skjemapunkter = $derived(
+    begrunnelserISkjemaet
+      .filter((p) => p.punkt !== '32.2' || f.varslingsplikt)
+      .map((p) => {
+        const varsel = p.punkt === '32.2';
+        const tekst = varsel
+          ? valg.forSent === null
+            ? null
+            : valg.forSent
+              ? FORHOLDSSVAR.varselJa
+              : FORHOLDSSVAR.varselNei
+          : valg.resultat === null
+            ? null
+            : valgteksten(valg.resultat, f, valg.forSent);
+        const fraBrevet = linjer.filter((l) => l.punkt === p.punkt);
+        return {
+          ...p,
+          aktiv: foersteSporsmaal === (varsel ? 'grunnlag_varslet_i_tide' : 'resultat'),
+          linjer: fraBrevet.length
+            ? fraBrevet
+            : [{ tekst: tekst ?? SKJEMA.ikkeBesvart, lag: null }],
+        };
+      })
   );
   // U-7 og D-5: hva svaret gjør, lest av kjernens utledning av utkastet.
   const virkning = $derived.by(() => {
@@ -250,11 +296,13 @@
   virkninger={virkning ? [virkning] : []}
   {mangler}
   begrunnelseKreves={kreves}
+  {begrunnelserISkjemaet}
+  {skjemapunkter}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
 >
-  {#snippet spoersmaal(feil)}
+  {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#if !lagtTil && onleggtil}
       <div class="utenfor">
         <Knapp variant="lenke" kompakt iFlukt onclick={onleggtil}>{FORHOLDSSVAR.leggTilSvar}</Knapp>
@@ -262,7 +310,11 @@
     {/if}
 
     {#if f.varslingsplikt}
-      <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel}>
+      <Spoersmaal
+        id={`${uid}-sp-varsel`}
+        aktiv={foersteSporsmaal === 'grunnlag_varslet_i_tide'}
+        tittel={overskrift('32.2') ?? FORHOLDSSVAR.varselTittel}
+      >
         <Datoer linjer={datoene} />
         <Valg
           navn={`${uid}-varsel`}
@@ -275,12 +327,14 @@
           feil={feil(`${uid}-varsel`)}
           stablet
         />
+        {@render begrunnelse('32.2')}
       </Spoersmaal>
     {/if}
 
     <Spoersmaal
       id={`${uid}-sp-forhold`}
-      tittel={FORHOLDSSVAR.forholdTittel}
+      aktiv={foersteSporsmaal === 'resultat'}
+      tittel={overskrift('forhold') ?? FORHOLDSSVAR.forholdTittel}
       hjemmel={hjemmelen ? [hjemmelen] : undefined}
     >
       <Gjelderhvis
@@ -306,6 +360,7 @@
         </Sitat>
       {/if}
       {#if virkning}<p class="virkning">{virkning}</p>{/if}
+      {@render begrunnelse('forhold')}
     </Spoersmaal>
   {/snippet}
 </Svarskjema>

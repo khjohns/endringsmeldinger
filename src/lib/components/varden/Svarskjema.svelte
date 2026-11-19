@@ -13,6 +13,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import { FORBEHOLDET, FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -26,7 +27,16 @@
   import Tidslinje from './Tidslinje.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import { brevene, datoerISporet } from './lesing';
-  import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
+  import {
+    begrunnelsespunktene,
+    kravbrevetI,
+    panelpunktene,
+    punktoverskriftene,
+    type Begrunnelsespunkt,
+    type BegrunnelseISkjemaet,
+    type Postvelger,
+    type Skjemapunkt,
+  } from './svarskjema';
   import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA } from './tekster';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
@@ -47,6 +57,8 @@
     postliste,
     stopp = null,
     begrunnelseKreves = null,
+    begrunnelserISkjemaet = [],
+    skjemapunkter,
     onbrevkontroll,
     onforkast,
     onvedsiden,
@@ -65,7 +77,7 @@
     medTekstene: (punktene: readonly string[]) => Record<string, unknown>;
     /** Tekstene står når BH går til brevkontrollen og tilbake. */
     tekster: { begrunnelser: Record<string, string>; forbehold: string };
-    linjer: TilBrevkontrollen['detteSender'];
+    linjer: { tekst: string; lag: string | null }[];
     /** Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B). */
     alternativer?: boolean;
     virkninger: string[];
@@ -78,13 +90,22 @@
      * begrunnelsen er valgfri (D-7 i BF-08).
      */
     begrunnelseKreves?: { punktene: readonly string[]; grunn: string; mangler: string } | null;
+    /** Brevpunktene skjemaet har plass til og om de er besvart før kjernen kan lage brevet. */
+    begrunnelserISkjemaet?: readonly BegrunnelseISkjemaet[];
+    skjemapunkter: readonly Skjemapunkt[];
     onbrevkontroll: (k: TilBrevkontrollen) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
     /** Spørsmålene, med beskjeden for feltet med ID-en når BH har prøvd å se brevet. */
-    spoersmaal: Snippet<[feil: (id: string) => string | null]>;
+    spoersmaal: Snippet<
+      [
+        feil: (id: string) => string | null,
+        begrunnelse: Snippet<[string]>,
+        overskrift: (punkt: string) => string | undefined,
+      ]
+    >;
     /**
      * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
      * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (OV-U80), og løsningen lager
@@ -110,15 +131,58 @@
   const utkastbrev = $derived(kjernesak.brev(utkast));
   const brevMedTekst = $derived(harTekst(utkastbrev) ? utkastbrev : null);
   const punktene = $derived(brevMedTekst ? begrunnelsespunktene(brevMedTekst.avsnitt) : []);
+  const medForbehold = $derived(
+    brevMedTekst && tekster.forbehold.trim()
+      ? kjernesak.brev(medTekstene(punktene.map((p) => p.punkt)))
+      : null
+  );
+  const overskriftene = $derived(
+    punktoverskriftene((harTekst(medForbehold) ? medForbehold : brevMedTekst)?.avsnitt)
+  );
+  const overskrift = (punkt: string) => overskriftene.get(punkt);
+  const feltpunktene = $derived(
+    panelpunktene(
+      lagtTil || stopp !== null
+        ? skjemapunkter
+        : [
+            ...skjemapunkter,
+            {
+              punkt: FORBEHOLDET,
+              navn: SKJEMA.forbehold,
+              linjer: [
+                {
+                  tekst: tekster.forbehold.trim()
+                    ? SKJEMA.skrevet
+                    : overskriftene.get(FORBEHOLDET)
+                      ? SKJEMA.staarIBrevet
+                      : SKJEMA.ikkeSkrevet,
+                  lag: null,
+                },
+              ],
+            },
+          ],
+      overskriftene
+    )
+  );
+  const tidligereForhold = $derived(skjemapunkter.find((p) => p.punkt === FORHOLDET));
+  const feltene = $derived(
+    brevMedTekst ? punktene : begrunnelserISkjemaet.filter((punkt) => punkt.besvart)
+  );
+  const vedSpoersmaalene = $derived(new Set(begrunnelserISkjemaet.map((p) => p.punkt)));
+  const felteneSist = $derived(feltene.filter((p) => !vedSpoersmaalene.has(p.punkt)));
 
   const begrunnelseId = (punkt: string) => `${uid}-begrunnelse-${punkt}`;
-  // Punktene i skjemaet der begrunnelsen som kreves, kan stå (D-7). Holder ett av flere, sier
-  // seksjonen det én gang, og ingen av feltene er påkrevd alene.
+  // Holder ett av flere felt (D-7), får de én felles forklaring. Kravet kontrolleres mot
+  // punktene i brevet når det kan lages.
   const kreverPunktene = $derived(
     begrunnelseKreves?.punktene.filter((p) => punktene.some((x) => x.punkt === p)) ?? []
   );
-  const kreves = (punkt: string) => kreverPunktene.length === 1 && kreverPunktene[0] === punkt;
-  const kanStaa = (punkt: string) => kreverPunktene.length > 1 && kreverPunktene.includes(punkt);
+  const forEtiketten = $derived(
+    brevMedTekst ? kreverPunktene : (begrunnelseKreves?.punktene ?? [])
+  );
+  const kreves = (punkt: string) => forEtiketten.length === 1 && forEtiketten[0] === punkt;
+  const kanStaa = (punkt: string) => forEtiketten.length > 1 && forEtiketten.includes(punkt);
+  const fellesHjelpVed = $derived(feltene.find((p) => kanStaa(p.punkt))?.punkt);
   // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
   const alleMangler = $derived.by((): Mangel[] => {
     const k = lagtTil ? null : begrunnelseKreves;
@@ -177,8 +241,7 @@
       kanIkkeLages: HOVEDLINJER.kanIkkeLages,
       aarsak: (b) =>
         b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING' ? null : brevaarsak(b),
-      tilBrevkontrollen: (brevet) =>
-        onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger }),
+      tilBrevkontrollen: (brevet) => onbrevkontroll({ kommando, ...brevet, virkninger }),
     });
   }
 
@@ -197,6 +260,33 @@
 {#snippet kompaktLinje(knappen: Snippet, tilPanelet: () => void)}
   {@render knappen()}
   <Knapp onclick={tilPanelet}>{HOVEDLINJER.seHovedlinjene}</Knapp>
+{/snippet}
+
+{#snippet begrunnelsesfelt(p: Begrunnelsespunkt, vedPunktet: boolean)}
+  {@const id = begrunnelseId(p.punkt)}
+  {#if p.punkt === fellesHjelpVed}
+    <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+  {/if}
+  <Tekstomraade
+    {id}
+    etikett={p.navn}
+    underordnet
+    valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+    hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
+    rader={2}
+    bind:verdi={tekster.begrunnelser[p.punkt]}
+    paakrevd={kreves(p.punkt)}
+    feil={feil(id)}
+    foran={vedPunktet ? [] : [`${uid}-begrunnelse-hjelp`]}
+    etter={kanStaa(p.punkt) ? [`${uid}-begrunnelse-kreves`] : []}
+  />
+{/snippet}
+
+{#snippet begrunnelse(punkt: string)}
+  {@const p = feltene.find((felt) => felt.punkt === punkt)}
+  {#if p && !lagtTil}
+    {@render begrunnelsesfelt(p, true)}
+  {/if}
 {/snippet}
 
 <Brevskjema
@@ -222,7 +312,7 @@
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
 >
   {#snippet panel(sendeknapp)}
-    <Hovedlinjer {linjer} {alternativer} handling={sendeknapp} />
+    <Hovedlinjer {linjer} {alternativer} punkter={feltpunktene} handling={sendeknapp} />
   {/snippet}
   {#snippet tidslinje()}<Tidslinje brev={sporbrev} {datoer} />{/snippet}
 
@@ -231,7 +321,13 @@
       <p>{stopp}</p>
     </div>
   {:else}
-    {@render spoersmaal(feil)}
+    {#if tidligereForhold}
+      <p class="fast-punkt">
+        <strong>{overskrift(FORHOLDET) ?? tidligereForhold.navn}</strong>
+        {#each tidligereForhold.linjer ?? [] as l, i (i)}<span>{l.tekst}</span>{/each}
+      </p>
+    {/if}
+    {@render spoersmaal(feil, begrunnelse, overskrift)}
 
     {#if kommandoLagtTil}
       <Lagttilmerknader
@@ -243,40 +339,22 @@
         innfelt
       />
     {:else}
-      <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
-         Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
+      <!-- Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
       <section
         class="begrunnelser"
-        aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
+        aria-labelledby={felteneSist.length ? `${uid}-sp-begrunnelse` : undefined}
       >
-        {#if punktene.length}
+        {#if felteneSist.length}
           <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
           <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
-          {#if kreverPunktene.length > 1}
-            <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
-          {/if}
-          {#each punktene as p (p.punkt)}
-            {@const id = begrunnelseId(p.punkt)}
-            {@const bFeil = feil(id)}
-            <Tekstomraade
-              {id}
-              etikett={p.navn}
-              underordnet
-              valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
-              hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
-              rader={2}
-              bind:verdi={tekster.begrunnelser[p.punkt]}
-              paakrevd={kreves(p.punkt)}
-              feil={bFeil}
-              foran={[`${uid}-begrunnelse-hjelp`]}
-              etter={kanStaa(p.punkt) ? [`${uid}-begrunnelse-kreves`] : []}
-            />
+          {#each felteneSist as p (p.punkt)}
+            {@render begrunnelsesfelt(p, false)}
           {/each}
         {/if}
         <div class="forbehold">
           <Tekstomraade
             id={`${uid}-forbehold`}
-            etikett={SKJEMA.forbehold}
+            etikett={overskrift(FORBEHOLDET) ?? SKJEMA.forbehold}
             valgfri
             hjelp={SKJEMA.forbeholdHjelp}
             bind:verdi={tekster.forbehold}
@@ -288,6 +366,15 @@
 </Brevskjema>
 
 <style>
+  .fast-punkt {
+    padding: var(--spacing-3) var(--spacing-6);
+    border-bottom: var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-2);
+    color: var(--ink-3);
+    font-size: 14px;
+  }
   .begrunnelser {
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;

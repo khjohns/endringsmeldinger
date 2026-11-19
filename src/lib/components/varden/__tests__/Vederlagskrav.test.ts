@@ -49,6 +49,36 @@ async function sendBrevet() {
 }
 
 describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
+  it('viser poster før varsler i skjemaet med nummer fra brevet, der varslene står først (#2190)', async () => {
+    await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    await skriv('Beskrivelse av posten', 'Omlegging av rør');
+    await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
+    await skriv('Beløpet du krever', '210 000');
+    await fireEvent.click(knapp('Ferdig'));
+
+    const posten = screen.getByRole('heading', { name: /^\d+\. Vederlagsjustering$/ });
+    const varselet = screen.getByRole('heading', {
+      name: /^\d+\. Varselet om vederlagsjustering$/,
+    });
+    expect(
+      posten.compareDocumentPosition(varselet) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(screen.getByRole('link', { name: posten.textContent! })).toBeVisible();
+
+    await fireEvent.click(knapp('Se brevet før sending'));
+    const brevet = await screen.findByRole('article', { name: /^Krav om vederlagsjustering/ });
+    expect(
+      within(brevet)
+        .getAllByRole('heading', { level: 3 })
+        .map((t) => t.textContent)
+    ).toEqual([varselet.textContent, posten.textContent]);
+  });
+
   it('#2185: tabellhodet vises først når en kravpost er ferdig', async () => {
     await aapneSomTe('forholdet-er-godkjent');
     await fireEvent.click(
@@ -235,7 +265,9 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
         await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
       ).getByRole('button')
     );
-    const panelet = within(screen.getByRole('heading', { name: 'Punktene' }).closest('section')!);
+    const panelet = within(
+      screen.getByRole('heading', { name: 'Punktene i brevet' }).closest('section')!
+    );
     const lenke = (navn: string) => panelet.getByRole('link', { name: navn });
     const avsnitt = (navn: string) => document.querySelector(lenke(navn).getAttribute('href')!)!;
     const merket = () =>
@@ -422,7 +454,10 @@ describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663
     await fireEvent.click(panel.getByRole('radio', { name: 'TE' }));
     await fireEvent.click(await screen.findByRole('button', { name: /^Vederlagsjustering/ }));
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater kravet' }));
-    await screen.findByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 });
+    await screen.findByRole('heading', {
+      name: /^(?:\d+\. )?Særskilt vederlagsjustering$/,
+      level: 3,
+    });
     return () => demosak!;
   }
 
@@ -434,7 +469,7 @@ describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663
     ).toBeTruthy();
     await fireEvent.click(knapp('Angre trekket av den særskilte vederlagsjusteringen'));
     expect(
-      screen.getByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 })
+      screen.getByRole('heading', { name: /^(?:\d+\. )?Særskilt vederlagsjustering$/, level: 3 })
     ).toBeTruthy();
     await fireEvent.click(knapp('Trekk den særskilte vederlagsjusteringen'));
     await sendBrevet();

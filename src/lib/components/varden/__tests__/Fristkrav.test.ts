@@ -142,8 +142,19 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await skriv(await screen.findByLabelText('Navnet i kontrakten'), 'Sluttfristen');
     await skriv(screen.getByLabelText('Antall dager du krever'), '10');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Pelingen tar lenger tid.');
+    const seksjonene = screen
+      .getAllByRole('heading', { level: 3, name: /^\d+\./ })
+      .map((h) => h.textContent);
+    expect(seksjonene).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^\d+\. Fristforlengelse$/)])
+    );
+    const panel = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panel.getByText(/^\d+\. Fristforlengelse$/)).toBeVisible();
     await seBrevet();
     expect(sendt).toHaveLength(1);
+    expect(seksjonene).toEqual(
+      sendt[0]!.avsnitt.flatMap((a) => (a.overskrift ? [a.overskrift] : []))
+    );
     expect(sendt[0]!.kommando).toMatchObject({
       type: 'krav',
       spor: 'frist',
@@ -153,7 +164,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('det første kravet er varselet etter punkt 33.4, og brevet lages ikke før fristen, dagene og begrunnelsen er fylt ut (U-6, D-1)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    expect(screen.getByText('Gis i dette brevet.')).toBeInTheDocument();
+    expect(within(screen.getByRole('form')).getByText('Gis i dette brevet.')).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(0);
     const oppsummering = screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' });
@@ -299,11 +310,6 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       { id: expect.any(String), nummer: '5', navn: 'Mekanisk ferdigstillelse', dager: 30 },
     ]);
     expect(innhold.trekker).toHaveLength(1);
-    // «Dette sender du» sier at fristen trekkes, som brevet (U-10).
-    expect(sendt[0]!.detteSender.map((l) => l.tekst)).toEqual([
-      '5 Mekanisk ferdigstillelse: 30 dager',
-      'Sluttfristen: trekkes',
-    ]);
   });
 
   it('en registrert frist fra forrige versjon står fast med ID-en og fristen i tabellen, og samme frist kan ikke velges to ganger (U-10, KA-U79)', async () => {

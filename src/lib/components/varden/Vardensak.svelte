@@ -79,7 +79,6 @@
     SAKEN,
     SAKSLISTE,
     SPORNAVN,
-    STILLING,
   } from './tekster';
   import { SAKSDELEN } from './tekster/felles';
 
@@ -124,9 +123,6 @@
   });
 
   type Kontroll = TilBrevkontrollen & {
-    handling: string;
-    /** Bare mottakeren i faktaene, for den nye versjonen (oppdragsgiver 07.11, PR 1650). */
-    bareMottaker?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
@@ -391,7 +387,6 @@
       art: 'kontroll',
       versjon: kjernesak.versjon,
       ...k,
-      handling: BREVKONTROLL.sendSvaret,
       sendTekst: BREVKONTROLL.sendSvaret,
       tilbakeTil: 'utkastet',
       svarerPaa: krav ?? null,
@@ -409,8 +404,6 @@
       art: 'kontroll',
       versjon: kjernesak.versjon,
       ...k,
-      handling: KRAVSKJEMA.kontroller,
-      bareMottaker: true,
       sendTekst: KRAVSKJEMA.sendTekst,
       tilbakeTil: KRAVSKJEMA.tilbakeTil,
       svarerPaa: null,
@@ -713,7 +706,6 @@
           art: 'kontroll',
           versjon: kjernesak.versjon,
           ...k,
-          handling: KORRIGERING.handling,
           sendTekst: KORRIGERING.sendTekst,
           tilbakeTil: KORRIGERING.tilbakeTil,
           svarerPaa: viserTil,
@@ -747,8 +739,6 @@
         art: 'kontroll',
         versjon: kjernesak.versjon,
         ...k,
-        handling: NYVERSJON.kontroller,
-        bareMottaker: true,
         sendTekst: NYVERSJON.sendTekst,
         tilbakeTil: NYVERSJON.tilbakeTil,
         svarerPaa: svaret ?? null,
@@ -1098,8 +1088,6 @@
                 art: 'kontroll',
                 versjon: kjernesak.versjon,
                 ...k,
-                detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-                handling: BREVKONTROLL.sendAksepten,
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',
                 svarerPaa: svaret ?? null,

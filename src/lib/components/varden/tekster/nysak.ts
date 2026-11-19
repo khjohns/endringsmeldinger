@@ -1,5 +1,5 @@
 import { GRENSEN_FOR_VEDLEGG } from './felles';
-import { punkt, haerdet } from './format';
+import { haerdet } from './format';
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
 export const NYSAK = haerdet({
@@ -78,9 +78,6 @@ export const NYSAK = haerdet({
   beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),
   oppgiDatoen: 'Oppgi datoen.',
   oppgiEndringsordren: 'Oppgi endringsordren.',
-  handling: 'Send påberopelsen til byggherren',
-  detteSender: (forhold: string, hjemmel: string) =>
-    `Påberopelsen av ${forhold.toLowerCase()} etter ${punkt(hjemmel)}, som første brev i en ny sak`,
   virkning: 'Saken opprettes når brevet sendes, og forholdet står fast etter sendingen.',
   sendTekst: 'Send til byggherren',
   tilbakeTil: 'skjemaet',

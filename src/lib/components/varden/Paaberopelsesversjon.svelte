@@ -84,8 +84,6 @@
         onbrevkontroll({
           kommando,
           ...brevet,
-          // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
-          detteSender: [],
           virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],
         }),
     });

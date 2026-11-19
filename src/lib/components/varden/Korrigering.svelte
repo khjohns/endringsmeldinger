@@ -99,7 +99,6 @@
         onbrevkontroll({
           kommando,
           ...brevet,
-          detteSender: linjer,
           virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
         }),
     });

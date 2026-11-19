@@ -4,7 +4,7 @@ import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
-import { brevref, brevrefStor, metodenavn } from './felles';
+import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
 import { dato, kl, haerdet } from './format';
 
 /** Forutsetningen om et sent varsel i svarskjemaene (#2183, G-2). */
@@ -24,6 +24,7 @@ export const SKJEMA = haerdet({
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
   varselTittel: 'Varselet om kravet',
+  varselPunktTittel: 'Varselet om vederlagsjustering',
   varselSpoersmaal: 'Kom varselet om kravet i tide?',
   iTide: 'Varslet i tide',
   forSent: 'Varslet for sent',
@@ -40,6 +41,7 @@ export const SKJEMA = haerdet({
   // Svaret på oppgjørsformen, for fast sum og for en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   formSpoersmaalRegel: 'Oppgjørsformen',
+  metodeTittel: 'Beregningsmetode',
   godkjenner: (m: Oppgjoersform) => `Godkjenner ${metodenavn(m)}`,
   menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
@@ -108,6 +110,10 @@ export const SKJEMA = haerdet({
   begrunnelseHjelp:
     'Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
   forbehold: 'Forbehold for hele svaret',
+  skrevet: 'Skrevet',
+  staarIBrevet: 'Står i brevet',
+  ikkeSkrevet: 'Ikke skrevet',
+  forholdspunktet: 'Forholdet',
   forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
@@ -212,9 +218,9 @@ export const VIRKNING = haerdet({
 });
 
 export const HOVEDLINJER = haerdet({
-  tittel: 'Hovedlinjene i svaret',
+  tittel: BREVSTEG.punktene,
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
-  alternativer: 'alternativer, ikke tillegg',
+  alternativer: 'Beløpene er alternativer, ikke tillegg.',
   krevd: (b: number) => `${kroner(b)} krevd`,
   seBrevet: 'Se brevet før sending',
   seHovedlinjene: 'Se hovedlinjene',
@@ -226,14 +232,11 @@ export const HOVEDLINJER = haerdet({
 export const BREVKONTROLL = haerdet({
   utkast: 'Utkast · ikke sendt',
   tilbake: (hva: string) => `Tilbake til ${hva}`,
-  fra: 'Fra',
-  til: 'Til',
   mottaker: 'Mottaker',
   svarerPaa: 'Svarer på',
   viserTil: 'Viser til',
   svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
-  detteSender: 'Dette sender du',
   /** Virkningen av sendingen, adskilt fra innholdet (oppdragsgiver 06.11, PR 1650). */
   naarDuSender: 'Når du sender',
   akseptOmfatter:
@@ -241,8 +244,8 @@ export const BREVKONTROLL = haerdet({
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',
   sender: 'Sender …',
-  sendSvaret: 'Send svaret til totalentreprenøren',
-  sendAksepten: 'Send aksepten til byggherren',
+  sendSvaret: 'Send til totalentreprenøren',
+  sendAksepten: 'Send til byggherren',
 });
 
 /** Sikre sendefeil i brevkontrollen (#2188, E-2). */

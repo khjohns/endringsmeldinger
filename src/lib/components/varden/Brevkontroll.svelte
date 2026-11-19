@@ -27,7 +27,6 @@
    */
   export type TilBrevkontrollen = Kontrollbrev & {
     kommando: Record<string, unknown>;
-    detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
   };
 
@@ -54,10 +53,11 @@
   import type { Brevsending } from './nysak';
   import { fokuser } from './mangler';
   import Brev from './Brev.svelte';
+  import Brevsteg from './Brevsteg.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
+  import { BREVKONTROLL, BREVSTEG, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -67,12 +67,9 @@
     merking,
     deresRef,
     tittel,
-    handling,
-    bareMottaker = false,
     svarerPaa,
     relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
-    detteSender,
     virkninger,
     kanIkkeGjoeresOm = false,
     sendTekst,
@@ -85,12 +82,6 @@
   }: TilBrevkontrollen & {
     /** Saken brevet sendes i. Ved en ny sak er det skjemaets sending (`NySak.svelte`). */
     kjernesak: Brevsending;
-    /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
-    handling: string;
-    /**
-     * Bare mottakeren i faktaene, uten avsenderen, som er TE selv (oppdragsgiver 07.11, PR 1650).
-     */
-    bareMottaker?: boolean;
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;
@@ -135,6 +126,8 @@
       : resolve('/login')
   );
 
+  const punktene = $derived(avsnitt.flatMap((a) => (a.overskrift ? [a.overskrift] : [])));
+
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
@@ -152,14 +145,26 @@
   });
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
-  let tittelen = $state<HTMLElement | null>(null);
+  let sendeknapp = $state<HTMLDivElement | null>(null);
+  let sendeknappensHoeyde = $state(0);
+  $effect(() => {
+    if (!sendeknapp) return;
+    const element = sendeknapp;
+    const maal = () => (sendeknappensHoeyde = element.offsetHeight);
+    maal();
+    if (typeof ResizeObserver !== 'function') return;
+    const observatoer = new ResizeObserver(maal);
+    observatoer.observe(element);
+    return () => observatoer.disconnect();
+  });
+  let stegviseren = $state<HTMLOListElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
   const proevIgjen = $derived(
     (harSendt || gjenopptar) && !!kjernesak.venterPaa?.(kommando) ? kjernesak.provIgjen : undefined
   );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
-  onMount(() => tittelen?.focus());
+  onMount(() => stegviseren?.focus());
 
   // Feilen fra et tidligere forsøk står ikke over brevet når avsenderen kommer tilbake (#1393).
   function tilbake() {
@@ -182,7 +187,7 @@
   }
 </script>
 
-<div class="kontroll">
+<div class="kontroll" style:--sendeknappens-hoeyde={`${sendeknappensHoeyde}px`}>
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
   {#if visTilbake && !proevIgjen}<p class="tilbake">
       <Knapp variant="lenke" onclick={tilbake}
@@ -202,20 +207,11 @@
     />
   </div>
 
-  <section class="panel" aria-label="Sending">
-    <header class="hode">
-      <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
-    </header>
+  <section class="panel" aria-label={BREVSTEG.sending}>
+    <Brevsteg kontroll bind:element={stegviseren} />
     <dl class="fakta">
-      {#if bareMottaker}
-        <dt>{BREVKONTROLL.mottaker}</dt>
-        <dd>{partnavn(mottaker)}</dd>
-      {:else}
-        <dt>{BREVKONTROLL.fra}</dt>
-        <dd>{partnavn(avsender)}</dd>
-        <dt>{BREVKONTROLL.til}</dt>
-        <dd>{partnavn(mottaker)}</dd>
-      {/if}
+      <dt>{BREVKONTROLL.mottaker}</dt>
+      <dd>{partnavn(mottaker)}</dd>
       {#each relasjoner as r (r.hva)}
         <dt>{r.hva}</dt>
         <dd>{r.brev}</dd>
@@ -226,12 +222,12 @@
         {/if}
       {/each}
     </dl>
-    {#if detteSender.length}
+    {#if punktene.length}
       <div class="sender">
-        <h3>{BREVKONTROLL.detteSender}</h3>
+        <h3>{BREVSTEG.punktene}</h3>
         <ul>
-          {#each detteSender as l, i (i)}
-            <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
+          {#each punktene as punkt, i (i)}
+            <li>{punkt}</li>
           {/each}
         </ul>
       </div>
@@ -260,14 +256,16 @@
       {#if manglerKontroll && !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="feilmelding">
           {BREVKONTROLL.hvorforIkke}
         </p>{/if}
-      <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
-        <Send size={16} aria-hidden="true" />
-        {kjernesak.sender
-          ? BREVKONTROLL.sender
-          : proevIgjen
-            ? USIKKERT_UTFALL.proevIgjen
-            : sendTekst}
-      </Knapp>
+      <div class="sendeknapp" bind:this={sendeknapp}>
+        <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
+          <Send size={16} aria-hidden="true" />
+          {kjernesak.sender
+            ? BREVKONTROLL.sender
+            : proevIgjen
+              ? USIKKERT_UTFALL.proevIgjen
+              : sendTekst}
+        </Knapp>
+      </div>
       {#if proevIgjen && !kjernesak.sender}
         <Melding art="info" role="alert">
           <strong>{USIKKERT_UTFALL.tittel}</strong>
@@ -316,24 +314,16 @@
     border: var(--rule);
     border-radius: var(--r-kort);
   }
-  .hode,
   .fakta,
   .sender,
   .virkning,
   .send {
     padding: var(--spacing-5);
   }
-  .hode,
   .fakta,
   .sender,
   .virkning {
     border-bottom: var(--rule);
-  }
-  h2 {
-    margin-top: var(--spacing-2);
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: var(--sperring-20);
   }
   .fakta {
     display: grid;
@@ -352,8 +342,7 @@
   ul {
     display: grid;
     gap: var(--spacing-2);
-    list-style: disc;
-    padding-left: var(--spacing-5);
+    list-style: none;
     margin-bottom: var(--spacing-3);
     font-size: 14px;
   }
@@ -363,6 +352,9 @@
   .virkninger {
     display: grid;
     gap: var(--spacing-2);
+    border-left: 3px solid var(--ink);
+    padding: var(--spacing-3);
+    background: var(--surface-inset);
     font-size: 14px;
   }
   /* Bare for en handling som ikke kan gjøres om, og teksten sier det selv (system.md). */
@@ -373,9 +365,17 @@
     background: var(--danger-bg);
   }
   .send {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    background: var(--surface);
+    border-radius: 0 0 var(--r-kort) var(--r-kort);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
+  }
+  .sendeknapp {
+    display: grid;
   }
   .avkryss {
     display: flex;
@@ -406,6 +406,22 @@
   @media (max-width: 1180px) {
     .kontroll {
       grid-template-columns: minmax(0, 1fr);
+      padding-bottom: var(--sendeknappens-hoeyde);
+    }
+    .send {
+      position: static;
+    }
+    .sendeknapp {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 20;
+      padding: var(--spacing-3) var(--spacing-6);
+      padding-bottom: max(var(--spacing-3), env(safe-area-inset-bottom));
+      background: var(--surface);
+      border-top: var(--rule-strong);
+    }
+    .kontroll :global(:focus-visible) {
+      scroll-margin-bottom: var(--sendeknappens-hoeyde);
     }
   }
 </style>

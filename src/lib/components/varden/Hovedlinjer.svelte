@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { Skjemapunkt } from './svarskjema';
   import { HOVEDLINJER } from './tekster';
 
   let {
@@ -14,6 +15,7 @@
     handling,
     tittel = HOVEDLINJER.tittel,
     tom = HOVEDLINJER.tom,
+    punkter,
   }: {
     linjer: { tekst: string; lag: string | null }[];
     /** Svaret har beløp i mer enn ett lag. */
@@ -23,6 +25,7 @@
     tittel?: string;
     /** Teksten før det finnes en linje. */
     tom?: string;
+    punkter?: readonly Skjemapunkt[];
   } = $props();
   const uid = $props.id();
 
@@ -32,22 +35,38 @@
     tekst.split(BELOEP).map((del, i) => ({ del, beloep: i % 2 === 1 }));
 </script>
 
+{#snippet standpunkt(l: { tekst: string; lag: string | null })}
+  {#if l.lag}<span class="lag">{l.lag}</span>{/if}
+  <span
+    >{#each deler(l.tekst) as d, j (j)}{#if d.beloep}<span class="num">{d.del}</span
+        >{:else}{d.del}{/if}{/each}</span
+  >
+{/snippet}
+
 <section class="kort" aria-labelledby={`${uid}-hovedlinjer-tittel`}>
   <h2 class="hode" id={`${uid}-hovedlinjer-tittel`}>{tittel}</h2>
   <div class="linjer" aria-live="polite">
-    {#if linjer.length}
-      <ul>
-        {#each linjer as l, i (i)}
-          <li>
-            {#if l.lag}<span class="lag">{l.lag}</span>{/if}
-            <span
-              >{#each deler(l.tekst) as d, j (j)}{#if d.beloep}<span class="num">{d.del}</span
-                  >{:else}{d.del}{/if}{/each}</span
-            >
+    {#if punkter?.length}
+      <ul class="punkter">
+        {#each punkter as p (p.punkt)}
+          <li class:aktiv={p.aktiv} aria-current={p.aktiv ? 'step' : undefined}>
+            <strong>{p.navn}</strong>
+            {#each p.linjer ?? [] as l, i (i)}
+              <span class="punktstatus">{@render standpunkt(l)}</span>
+            {/each}
           </li>
         {/each}
       </ul>
-      {#if alternativer}<p class="merknad">Beløpene er {HOVEDLINJER.alternativer}.</p>{/if}
+      {#if alternativer}<p class="merknad">{HOVEDLINJER.alternativer}</p>{/if}
+    {:else if linjer.length}
+      <ul>
+        {#each linjer as l, i (i)}
+          <li>
+            {@render standpunkt(l)}
+          </li>
+        {/each}
+      </ul>
+      {#if alternativer}<p class="merknad">{HOVEDLINJER.alternativer}</p>{/if}
     {:else}
       <p class="merknad">{tom}</p>
     {/if}
@@ -83,6 +102,16 @@
   }
   li:last-child {
     border-bottom: 0;
+  }
+  .punkter .aktiv {
+    box-shadow: inset 3px 0 0 var(--ink);
+    padding-inline-start: var(--spacing-3);
+  }
+  .punktstatus {
+    color: var(--ink-2);
+  }
+  .punktstatus .lag {
+    margin-inline-end: var(--spacing-1);
   }
   .num {
     font-weight: 500;

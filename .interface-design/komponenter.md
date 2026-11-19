@@ -15,6 +15,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
 | [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 12 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
 | [`Brevskjema`](../src/lib/components/varden/Brevskjema.svelte) | 3 | Skallet for et skjema som blir et brev (#2119): utkastkortet med linja for korrespondanse lagt til, oppsummeringen av det som mangler, spørsmålene, «Forkast utkast» nederst og høyre kolonne med panelet, sendeknappen og tidslinja, eller brevet ved siden av. |
+| [`Brevsteg`](../src/lib/components/varden/Brevsteg.svelte) | 2 | Stegviseren for skjemaet og brevkontrollen (#2190). |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
 | [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 2 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
 | [`Datofelt`](../src/lib/components/varden/Datofelt.svelte) | 3 | Et datofelt i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |

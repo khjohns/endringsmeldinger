@@ -385,7 +385,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await fyllIrregulaerEndring();
     await seBrevet();
     const panel = await screen.findByRole('region', { name: 'Sending' });
-    expect(within(panel).getByText('Send påberopelsen til byggherren')).toBeTruthy();
+    expect(within(panel).getByText('Kontroller og send')).toHaveAttribute('aria-current', 'step');
     expect(screen.getByText('Påberopelse av irregulær endring i sak KOE-17')).toBeTruthy();
     // Beskrivelsen står i avsnittene kjernen lager, slik brevet sendes (LV-U2, #1856).
     expect(

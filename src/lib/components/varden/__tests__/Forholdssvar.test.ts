@@ -108,7 +108,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(valg[0]?.closest('.kort')).toHaveClass('stablet');
   });
 
-  it('det tomme skjemaet har kjernens tittel for svaret og forbeholdet, men ingen felt for begrunnelsen før brevet har punkter (#2035)', async () => {
+  it('begrunnelsen vises under hvert punkt når det er besvart (#2190)', async () => {
     await svarskjemaet(medGrunnlag);
     // #2178: tittelen og brevnummeret står fra start. Stempelet står i samme hode.
     const overskrift = screen.getByRole('heading', {
@@ -120,17 +120,25 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(hode.getByText('Brev 2 til totalentreprenøren')).toBeInTheDocument();
     expect(hode.getByText('Vår ref. K201-KOE-017-02')).toBeInTheDocument();
     expect(hode.getByText('Datoen settes ved sending')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Begrunnelse' })).not.toBeInTheDocument();
+    const varselet = screen.getByRole('heading', { name: /Varselet etter punkt\u00a032\.2/ });
+    const varselpunktet = within(varselet.closest('section')!);
+    const forholdet = screen.getByRole('heading', { name: 'Forholdet' });
+    const forholdspunktet = within(forholdet.closest('section')!);
+    expect(varselpunktet.queryByRole('textbox')).toBeNull();
+    expect(forholdspunktet.queryByRole('textbox')).toBeNull();
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
+    const grunn = varselpunktet.getByRole('textbox', { name: /Varselet etter punkt 32\.2/ });
+    await fireEvent.input(grunn, { target: { value: 'Varselet kom samme dag.' } });
+    expect(forholdspunktet.queryByRole('textbox')).toBeNull();
     await radio('Enig. Svaret er en endringsordre');
     expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
-    expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();
+    expect(varselpunktet.getByRole('textbox')).toHaveValue('Varselet kom samme dag.');
+    expect(forholdspunktet.getByRole('textbox', { name: /Forholdet/ })).toBeInTheDocument();
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     // Hjemmelen står til høyre på linja med overskriften, som tekst og ikke som merke («Høyst tre
     // nivåer» i `system.md`, oppdragsgiver 16.11).
-    const forholdet = screen.getByRole('heading', { name: 'Forholdet' });
     expect(forholdet.parentElement).toHaveTextContent(/pkt\. 32\.3$/);
   });
 

@@ -12,11 +12,12 @@
 <script lang="ts">
   import { KRAVTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { untrack } from 'svelte';
-  import { kroner } from '#kjerne/frosset/tekst.ts';
+  import { erKravpostpunkt, FORBEHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
   import { krevdProduktivitet, kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kravpost } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
     varseletFoerKravet,
@@ -54,6 +55,7 @@
     type Brevref,
   } from './lesing';
   import { dagensDato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
+  import { punktoverskriftene } from './svarskjema';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -241,6 +243,13 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
+  const iVarselseksjonen = (m: Mangel) => /-(varsel|type|dato|dokument)-/.test(m.felt);
+  const ventendePunkt = $derived.by(() => {
+    if (mangler.some((m) => m.felt !== id('saerskilt') && !iVarselseksjonen(m)))
+      return id('postene');
+    if (mangler.some((m) => m.felt === id('saerskilt'))) return id('saerskilt-seksjon');
+    return mangler.length ? id('varslene') : null;
+  });
   const flyt = sendeflyt(() => kjernesak, id('hindring'));
   const feil = (felt: string): string | null => flyt.feil(mangler.find((m) => m.felt === id(felt)));
   let oppsummering = $state<HTMLElement | null>(null);
@@ -253,7 +262,7 @@
     }
     if (m.post === null) return;
     const p = v.poster.find((q) => q.noekkel === m.post)!;
-    const iVarselet = /-(varsel|type|dato|dokument)-/.test(m.felt);
+    const iVarselet = iVarselseksjonen(m);
     e.preventDefault();
     if (iVarselet) aapentVarsel = p.noekkel;
     else aapen = p.noekkel;
@@ -377,11 +386,41 @@
         ({ p, vs }) => vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet'
       ).length
   );
+  // Postene må velges før varslene som følger av dem. I brevet kommer varslene først.
+  // Skjemaets plassering gir derfor ikke punktnummeret. Det leses av brevets overskrift.
+  const overskrifterIBrevet = $derived.by(() => {
+    const brev = lagtTil || mangler.length ? null : kjernesak.brev(kommando, vedlegg);
+    return punktoverskriftene(harTekst(brev) ? brev.avsnitt : undefined);
+  });
+  const posttittel = $derived(
+    [...overskrifterIBrevet].find(([punkt]) => erKravpostpunkt(punkt))?.[1] ?? KRAVSKJEMA.postene
+  );
+  const saerskilttittel = $derived(
+    overskrifterIBrevet.get('produktivitet') ?? KRAVSKJEMA.saerskilt
+  );
+  const forbeholdstittel = $derived(
+    overskrifterIBrevet.get(FORBEHOLDET) ?? KRAVSKJEMA.forbeholdPunkt
+  );
+  const varseletsTittel = (hjemmel: '34.1.2' | '34.1.3') =>
+    overskrifterIBrevet.get(hjemmel) ?? KRAVSKJEMA.varselnavn[hjemmel];
+  const brevpunkteneOmVarsler = $derived(
+    (['34.1.2', '34.1.3'] as const).flatMap((hjemmel) => {
+      const tittel = overskrifterIBrevet.get(hjemmel);
+      return tittel
+        ? [
+            {
+              id: id(`varsel-${hjemmel}`),
+              tittel,
+              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltvarselet),
+            },
+          ]
+        : [];
+    })
+  );
   const punkter = $derived([
     {
       id: id('postene'),
-      nummer: '1',
-      tittel: KRAVSKJEMA.postene,
+      tittel: posttittel,
       status: KRAVSKJEMA.antallPoster(med.length),
       poster: v.poster.map((p) => ({
         noekkel: p.noekkel,
@@ -400,26 +439,27 @@
       ? [
           {
             id: id('saerskilt-seksjon'),
-            nummer: '2',
-            tittel: KRAVSKJEMA.saerskilt,
+            tittel: saerskilttittel,
             status: saerskiltBeloep,
           },
         ]
       : []),
-    {
-      id: id('varslene'),
-      nummer: v.saerskilt ? '3' : '2',
-      tittel: KRAVSKJEMA.varslene,
-      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
-    },
+    ...(brevpunkteneOmVarsler.length
+      ? brevpunkteneOmVarsler
+      : [
+          {
+            id: id('varslene'),
+            tittel: KRAVSKJEMA.varslene,
+            status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
+          },
+        ]),
     // OV-U80: et krav lagt til har ikke noe forbehold.
     ...(lagtTil
       ? []
       : [
           {
             id: id('forbehold'),
-            nummer: v.saerskilt ? '4' : '3',
-            tittel: KRAVSKJEMA.forbeholdPunkt,
+            tittel: forbeholdstittel,
             status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
           },
         ]),
@@ -498,12 +538,6 @@
     { naar: iDag, hva: KRAVSKJEMA.tidslinjeSendes, kilde: KRAVSKJEMA.naarDuSender },
   ]);
 
-  const detteSender = $derived([
-    ...(med.length ? [{ tekst: KRAVSKJEMA.detteSender.poster(med.length), lag: null }] : []),
-    // Brevkontrollen setter punktum selv.
-    ...hvaKravetEr.map((tekst) => ({ tekst: tekst.replace(/\.$/, ''), lag: null })),
-  ]);
-
   function seBrevet() {
     return flyt.send({
       mangler: mangler.length ? () => oppsummering : null,
@@ -514,7 +548,7 @@
       vedlegg,
       kanIkkeLages: KRAVSKJEMA.kanIkkeLages,
       tilBrevkontrollen: (brevet) =>
-        onbrevkontroll({ kommando, ...brevet, detteSender, virkninger: [], vedlegg }),
+        onbrevkontroll({ kommando, ...brevet, virkninger: [], vedlegg }),
     });
   }
 </script>
@@ -778,6 +812,7 @@
     <Kravpunkter
       {punkter}
       aktiv={aktivtPunkt}
+      venter={ventendePunkt}
       faste={summer.faste}
       anslag={summer.anslag}
       {pns}
@@ -794,11 +829,11 @@
   <section
     class="seksjon"
     id={id('postene')}
+    class:venter={ventendePunkt === id('postene')}
     aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
   >
     <div class="seksjonshode">
-      <span class="nummer" aria-hidden="true">1</span>
-      <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
+      <h3 id={id('postene-tittel')}>{posttittel}</h3>
       <Hjemmel id={id('postene-hjemmel')} numre={KRAVSKJEMA.posteneHjemmel} />
     </div>
     <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
@@ -845,11 +880,11 @@
     <section
       class="seksjon"
       id={id('saerskilt-seksjon')}
+      class:venter={ventendePunkt === id('saerskilt-seksjon')}
       aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
     >
       <div class="seksjonshode">
-        <span class="nummer" aria-hidden="true">2</span>
-        <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
+        <h3 id={id('saerskilt-tittel')}>{saerskilttittel}</h3>
         <Hjemmel id={id('saerskilt-hjemmel')} numre={KRAVSKJEMA.saerskiltHjemmel} />
       </div>
       <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
@@ -923,9 +958,13 @@
     </section>
   {/if}
 
-  <section class="seksjon" id={id('varslene')} aria-labelledby={id('varslene-tittel')}>
+  <section
+    class="seksjon"
+    class:venter={ventendePunkt === id('varslene')}
+    id={id('varslene')}
+    aria-labelledby={id('varslene-tittel')}
+  >
     <div class="seksjonshode">
-      <span class="nummer" aria-hidden="true">{v.saerskilt ? 3 : 2}</span>
       <h3 id={id('varslene-tittel')}>{KRAVSKJEMA.varslene}</h3>
     </div>
     <p class="intro">
@@ -936,10 +975,10 @@
       <span></span>
     </div>
     <ul class="varsler">
-      <li class="varselrad">
+      <li class="varselrad" id={id('varsel-34.1.2')}>
         <span class="punkt">34.1.2</span>
         <div class="hva">
-          <h4>{KRAVSKJEMA.varselnavn['34.1.2']}</h4>
+          <h4>{varseletsTittel('34.1.2')}</h4>
           <p class="dempet">{KRAVSKJEMA.gjelderHele}</p>
         </div>
         <div class="brevet">
@@ -953,10 +992,10 @@
         </div>
       </li>
       {#if v.saerskilt}
-        <li class="varselrad">
+        <li class="varselrad" id={id('varsel-34.1.3')}>
           <span class="punkt">34.1.3</span>
           <div class="hva">
-            <h4>{KRAVSKJEMA.varselnavn['34.1.3']}</h4>
+            <h4>{varseletsTittel('34.1.3')}</h4>
             <p class="dempet">{KRAVSKJEMA.gjelderSaerskilt}</p>
           </div>
           <div class="brevet">
@@ -1022,9 +1061,8 @@
     />
   {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
       <div class="seksjonshode">
-        <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
         <h3 class="fyller" id={id('forbehold-tittel')}>
-          <Valgfri>{KRAVSKJEMA.forbeholdPunkt}</Valgfri>
+          <Valgfri>{forbeholdstittel}</Valgfri>
         </h3>
       </div>
       <Tekstomraade
@@ -1045,6 +1083,13 @@
     padding: var(--spacing-5) var(--spacing-6);
     border-bottom: var(--rule);
   }
+  .seksjon.venter {
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  .seksjon.venter :global(legend) {
+    font-size: 20px;
+    line-height: 1.3;
+  }
   .seksjon.kompakt {
     padding-block: var(--spacing-4);
   }
@@ -1055,18 +1100,6 @@
   }
   .fyller {
     flex: 1;
-  }
-  .nummer {
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 24px;
-    height: 24px;
-    border: 1.5px solid var(--ink);
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: 600;
-    align-self: flex-start;
   }
   h3 {
     font-size: 16px;

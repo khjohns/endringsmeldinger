@@ -85,7 +85,7 @@
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
     onkorriger?: (opplysning: string) => void;
     /** Aksepten til brevkontrollen, med virkningen slik kjernen regner den. */
-    onakseptbrev: (k: Omit<TilBrevkontrollen, 'detteSender'>) => void;
+    onakseptbrev: (k: TilBrevkontrollen) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (BF-45 U-5). */
     sakslenke?: (sakId: string) => string;
   } = $props();

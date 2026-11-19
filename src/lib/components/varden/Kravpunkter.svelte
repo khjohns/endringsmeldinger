@@ -1,8 +1,7 @@
 <!--
   Panelet til høyre i TEs krav om vederlagsjustering (U-5, U-15 og U-16 i BF-14): ett punkt per
   avsnitt i skjemaet med status, kravpostene under vederlagsjusteringen, summene, fordelingen på
-  PNS og hva kravet er. Et punkt lenker til avsnittet. «Se brevet før sending» står fast nederst,
-  med «Utkast» og «Ikke sendt» ved knappen (`system.md`, «Utkastet sier det selv»).
+  PNS og hva kravet er. Et punkt lenker til avsnittet. «Se brevet før sending» står nederst.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -19,11 +18,11 @@
     hvaKravetEr,
     handling,
     aktiv = null,
-    status = KRAVSKJEMA.ikkeSendt,
+    venter = null,
+    status,
   }: {
     punkter: {
       id: string;
-      nummer: string;
       tittel: string;
       status: string;
       poster?: {
@@ -44,7 +43,9 @@
     handling: Snippet;
     /** Punktet for avsnittet som er i syne. */
     aktiv?: string | null;
-    /** Teksten ved merket under knappen; et krav lagt til blir ikke sendt (OV-U80). */
+    /** Det første punktet som trenger et svar. */
+    venter?: string | null;
+    /** Teksten under knappen når parten legger til et krav (OV-U80). */
     status?: string;
   } = $props();
   const uid = $props.id();
@@ -57,8 +58,11 @@
   </div>
   <ol class="punkter">
     {#each punkter as p (p.id)}
-      <li class:aktiv={aktiv === p.id}>
-        <span class="nummer" aria-hidden="true">{p.nummer}</span>
+      <li
+        class:aktiv={aktiv === p.id}
+        class:venter={venter === p.id}
+        aria-current={venter === p.id ? 'step' : undefined}
+      >
         <div class="innhold">
           <a href={`#${p.id}`} aria-current={aktiv === p.id ? 'location' : undefined}>{p.tittel}</a>
           <span class="status">{p.status}</span>
@@ -114,10 +118,7 @@
   {/if}
   <div class="bunn">
     {@render handling()}
-    <p class="status-utkast">
-      <span class="merke">{KRAVSKJEMA.utkast}</span>
-      <span class="dempet">{status}</span>
-    </p>
+    {#if status}<p class="dempet status-utkast">{status}</p>{/if}
   </div>
 </section>
 
@@ -162,23 +163,6 @@
     margin: 0;
     padding-top: 0;
     list-style: none;
-  }
-  .punkter > li {
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr);
-    align-items: start;
-    gap: var(--spacing-3);
-  }
-  .nummer {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    border: 1.5px solid var(--ink);
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
   }
   .innhold {
     display: flex;
@@ -238,6 +222,9 @@
   }
   .punkter > li.aktiv {
     background: var(--surface-selected);
+    border-left-color: var(--ink);
+  }
+  .punkter > li.venter {
     border-left-color: var(--ink);
   }
   .punkter > li.aktiv > .innhold > a {
@@ -303,18 +290,6 @@
   }
   /* Midtstilt under knappen (oppdragsgiver 12.11, #1663). */
   .status-utkast {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--spacing-2);
-  }
-  .merke {
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: var(--r-merke);
-    background: var(--draft-bg);
-    color: var(--draft);
-    font-size: 12px;
-    font-weight: 500;
+    text-align: center;
   }
 </style>

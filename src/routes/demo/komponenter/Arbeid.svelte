@@ -10,7 +10,7 @@
   import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
   import { tomtSvar, type Svarvalg } from '#lib/components/varden/kommandoer.ts';
   import { brevene } from '#lib/components/varden/lesing.ts';
-  import { BREVKONTROLL, SAKEN, STILLING } from '#lib/components/varden/tekster/index.ts';
+  import { BREVKONTROLL, SAKEN } from '#lib/components/varden/tekster/index.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
@@ -71,7 +71,6 @@
       const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
       kontroll = {
         ...k,
-        handling: BREVKONTROLL.sendSvaret,
         sendTekst: BREVKONTROLL.sendSvaret,
         tilbakeTil: 'utkastet',
         svarerPaa: krav ?? null,
@@ -91,8 +90,6 @@
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {
         ...k,
-        detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-        handling: BREVKONTROLL.sendAksepten,
         sendTekst: BREVKONTROLL.sendAksepten,
         tilbakeTil: 'saken',
         svarerPaa: svaret ?? null,

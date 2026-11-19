@@ -1,7 +1,7 @@
 import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
 import type { Brevref } from '../lesing';
-import { brevref } from './felles';
+import { BREVSTEG, brevref } from './felles';
 import { dato, haerdet } from './format';
 
 /** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
@@ -148,7 +148,7 @@ export const FRISTKRAV = haerdet({
   ],
   fremdriftsplan: 'Vis gjerne til fremdriftsplanen med kritisk linje (Del II punkt 172).',
   // Panelet.
-  punktene: 'Punktene',
+  punktene: BREVSTEG.punktene,
   ingenFrister: 'Legg til en frist, så står dagene her.',
   linje: (navn: string, d: string) => `${navn}: ${d}`,
   ikkeOppgitt: 'dagene er ikke oppgitt',

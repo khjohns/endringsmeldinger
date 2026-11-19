@@ -107,7 +107,7 @@
   const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(
+  let kontroll = $state<Omit<TilBrevkontrollen, 'virkninger'> | null>(
     startForsok?.kontrollertBrev
       ? { ...startForsok.kontrollertBrev, kommando: startForsok.paaberopelse }
       : null
@@ -369,14 +369,7 @@
     kjernesak={sending}
     gjenopptar={!!startForsok}
     {...kontroll}
-    handling={NYSAK.handling}
     svarerPaa={null}
-    detteSender={[
-      {
-        tekst: NYSAK.detteSender(valgt.navn, valgt.punkt),
-        lag: null,
-      },
-    ]}
     virkninger={[NYSAK.virkning]}
     sendTekst={NYSAK.sendTekst}
     tilbakeTil={NYSAK.tilbakeTil}
