@@ -122,8 +122,11 @@
       <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="rad">
         <span class="dato">
-          {kortDatoMedAar(datoen)}{#if b.nummer !== null}
-            {' · '}{TRAADEN.nummer(b.nummer)}{/if}{#if fulgt}{TRAADEN.fulgtOpp(fulgt)}{/if}
+          {kortDatoMedAar(
+            datoen
+          )}{#if b.nummer !== null}{` · ${TRAADEN.nummer(b.nummer)}`}{/if}{#if fulgt}{TRAADEN.fulgtOpp(
+              fulgt
+            )}{/if}
         </span>
         <span class="meta">
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
@@ -162,7 +165,9 @@
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
                 {#each i.standpunkter as l, j (l.standpunkt.id)}
                   <li class:under={j > 0 && l.lag !== i.standpunkter[0]?.lag}>
-                    {#if l.vilkaar?.length}<b>{VEDERLAGET.lagetVilkaar(l.vilkaar)}</b>{/if}
+                    {#if l.vilkaar?.length && l.vilkaar !== i.standpunkter[j - 1]?.vilkaar}<b
+                        >{VEDERLAGET.lagetVilkaar(l.vilkaar, l.heller)}</b
+                      >{/if}
                     <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</span>
                   </li>
                 {/each}
@@ -245,6 +250,7 @@
   .traadhode {
     display: flex;
     flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-4);
     justify-content: space-between;
     align-items: baseline;
     padding: var(--spacing-4) var(--spacing-5) 0;

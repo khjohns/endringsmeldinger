@@ -45,8 +45,8 @@ export const VEDERLAGET = haerdet({
     heller
       ? `Hvis heller ikke ${liste(innsigelser)} fører frem`
       : `Hvis ${liste(innsigelser)} ikke fører frem`,
-  lagetVilkaar: (innsigelser: readonly Innsigelsen[]): string =>
-    VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), false),
+  lagetVilkaar: (innsigelser: readonly Innsigelsen[], heller = false): string =>
+    VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), heller),
   /** Et standpunkt et lag bygger på, med brevet med varselet en påberopelse gjelder. */
   standpunkt: (s: Standpunkt, varselbrev: Brevref | null) =>
     s.art === 'rettidighet' && !s.iTide && varselbrev && s.hjemmel !== '34.4'

@@ -78,7 +78,12 @@ export interface Skjemapunkt {
   punkt: string;
   navn: string;
   beholdNavn?: boolean;
-  linjer?: readonly { tekst: string; lag: string | null; vilkaar?: Innsigelsen[] }[];
+  linjer?: readonly {
+    tekst: string;
+    lag: string | null;
+    vilkaar?: Innsigelsen[];
+    heller?: boolean;
+  }[];
   aktiv?: boolean;
 }
 

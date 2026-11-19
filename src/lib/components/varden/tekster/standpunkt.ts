@@ -62,8 +62,10 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
 function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
   post: Kravpost,
-  vilkaar: (innsigelser: Innsigelsen[]) => string
+  vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string
 ): string[] {
+  // Vilkåret står én gang for standpunktene i samme lag (#2182).
+  let forrige: Innsigelsen[] | undefined;
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -73,7 +75,9 @@ function leselinjeneMedVanligeMellomrom(
       s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
     );
     if (!t) return [];
-    return l.vilkaar?.length ? [vilkaar(l.vilkaar), t] : [t];
+    const nytt = l.vilkaar?.length && l.vilkaar !== forrige;
+    forrige = l.vilkaar;
+    return nytt ? [vilkaar(l.vilkaar!, l.heller), t] : [t];
   });
 }
 
@@ -199,11 +203,11 @@ export function iSvaretPaaForholdet(
 export const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 
 /** Utsagnet i en rad med laget først, som «subsidiært er byggherren enig …», uten punktum. */
-export const medLaget = (lag: string | null, u: Utsagnet) =>
+const medLaget = (lag: string | null, u: Utsagnet) =>
   lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
 
 /** Radene i svaret som statuslinjen og roten i «Tilknyttede krav» sier (oppdragsgiver 15.11 i #2038: «B»). */
-export function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
+function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
   const begge = rader.some(
     (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
   );

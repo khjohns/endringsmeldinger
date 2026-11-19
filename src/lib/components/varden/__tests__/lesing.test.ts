@@ -231,6 +231,29 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
   });
 });
 
+describe('vilkåret i den lukkede kravposten (#2182, svar 4B)', () => {
+  it('står én gang over standpunktene i samme lag', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      brevet(forholdet('avslaatt'), {
+        spor: 'vederlag',
+        navn: 'S-v1',
+        kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+      }),
+    ]);
+    const [p1] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const linjene = leselinjene(
+      standpunktene(u.spor.vederlag.svar[0]!, u),
+      p1!,
+      VEDERLAGET.lagetVilkaar
+    );
+    expect(linjene.filter((l) => l.startsWith('Hvis '))).toHaveLength(1);
+    expect(linjene[0]).toMatch(/^Hvis /);
+    expect(linjene).toHaveLength(3);
+  });
+});
+
 describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdragsgiver 12.11)', () => {
   const svaretPaaPostene = (...poster: Record<string, unknown>[]) =>
     brevet(forholdet('godkjent'), { spor: 'vederlag', navn: 'S-v1', kravposter: poster });

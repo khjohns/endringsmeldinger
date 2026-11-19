@@ -80,7 +80,7 @@
     medTekstene: (punktene: readonly string[]) => Record<string, unknown>;
     /** Tekstene står når BH går til brevkontrollen og tilbake. */
     tekster: { begrunnelser: Record<string, string>; forbehold: string };
-    linjer: { tekst: string; lag: string | null; vilkaar?: Innsigelsen[] }[];
+    linjer: { tekst: string; lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean }[];
     /** Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B). */
     alternativer?: boolean;
     virkninger: string[];
