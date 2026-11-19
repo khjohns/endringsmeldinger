@@ -789,7 +789,7 @@ try {
       {
         navn: '403',
         svar: { status: 403, kropp: { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang.' } },
-        melding: /Du har ikke tilgang/,
+        melding: /ikke tilgang til å sende brev/,
       },
       {
         navn: '500',
@@ -797,7 +797,7 @@ try {
           status: 500,
           kropp: { success: false, error: 'INTERNAL_ERROR', message: 'Kommandoen ble ikke lagret på grunn av en feil.' },
         },
-        melding: /ikke lagret på grunn av en feil/,
+        melding: /det oppstod en feil hos oss/,
       },
       { navn: 'avbrutt', svar: null, melding: /usikkert om brevet ble lagret/ },
     ];
