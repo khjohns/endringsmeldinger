@@ -5,6 +5,7 @@
  * dagene. Modulen avgjør ingenting selv.
  */
 
+import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
@@ -38,9 +39,9 @@ export interface Svarlaget {
 
 /** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
 function innsigelsen(s: Standpunkt): Innsigelsen[] {
-  if (s.art === 'rettidighet' && !s.iTide) return [{ art: 'varsel', hjemmel: s.hjemmel }];
-  if (s.art === 'spesifisering' && !s.iTide) return [{ art: 'spesifisering' }];
-  if (s.art === 'hindring' && !s.oppfylt) return [{ art: 'hindring' }];
+  if (!erInnsigelseIFristen(s)) return [];
+  if (s.art === 'rettidighet') return [{ art: 'varsel', hjemmel: s.hjemmel }];
+  if (s.art === 'spesifisering' || s.art === 'hindring') return [{ art: s.art }];
   return [];
 }
 

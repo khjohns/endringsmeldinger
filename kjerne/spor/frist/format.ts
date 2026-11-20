@@ -27,6 +27,23 @@ import type {
 import { kontrollerRadene } from '../poster/format.ts';
 import { kategori } from '../forhold/format.ts';
 
+/** En innsigelse som gir et eget lag i fristsvaret (KA-U78, KA-U84, KA-U86). */
+export function erInnsigelseIFristen(s: Standpunkt): boolean {
+  return (
+    (s.art === 'hindring' && !s.oppfylt) ||
+    ((s.art === 'spesifisering' || s.art === 'rettidighet') && !s.iTide)
+  );
+}
+
+/** Et standpunkt som vises én gang for hele fristkravet (BF-45, U-3 og U-4). */
+export function gjelderHeleFristkravet(s: Standpunkt): boolean {
+  return (
+    s.art === 'hindring' ||
+    s.art === 'rettidighet' ||
+    (s.art === 'spesifisering' && !erInnsigelseIFristen(s))
+  );
+}
+
 /** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
 export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
   // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`kontrollerHjemleneIFristen`).
@@ -286,12 +303,7 @@ function kontrollerUtregningenIFristen(
   const dagene = ut.filter((s) => s.art === 'dager');
   const virkning = new Map(virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelsenI = (lag: number) =>
-    ut.find(
-      (s) =>
-        virkning.get(s.id) === lag &&
-        ((s.art === 'hindring' && !s.oppfylt) ||
-          ((s.art === 'spesifisering' || s.art === 'rettidighet') && !s.iTide))
-    );
+    ut.find((s) => virkning.get(s.id) === lag && erInnsigelseIFristen(s));
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
     // OV-U100.
