@@ -1225,6 +1225,24 @@ describe('brevhodet og en avvist sending (A2b i #1497)', () => {
   });
 });
 
+it('viser det nyeste brevet i vederlagstråden til høyre (BF-08, #2242)', async () => {
+  const demosak = lagDemosak(finnForloep('BF-08')!, 'te-har-mottatt-svaret', 'TE');
+  const kjernesak = lagKjernesak({
+    sakId: demosak.sakId,
+    prosjektId: 'demo',
+    part: 'TE',
+    hent: demosak.hent,
+    send: demosak.send,
+  });
+  await kjernesak.last();
+  render(Vardensak, { kjernesak, spor: 'vederlag' });
+
+  const brev = await screen.findByRole('region', { name: 'Brevet' });
+  expect(within(brev).getByText(/\bbrev 2$/)).toBeVisible();
+  const raden = screen.getByText('Vises til høyre').closest('li')!;
+  expect(within(raden).getByText(/\bbrev 2$/)).toBeVisible();
+});
+
 describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
   it('BH åpner svaret fra «Svar på påberopelsen», utkastet står når BH bytter spor, og svaret sendes som svar på gjeldende versjon (G-3 i BF-08, BF-01 S-8)', async () => {
     const demosak = lagDemosak(finnForloep('BF-08')!, 'bh-har-mottatt-paaberopelsen', 'BH');
