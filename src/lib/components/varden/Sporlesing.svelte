@@ -29,6 +29,7 @@
     betegnelsene,
     brevMedUtsagn,
     brevene,
+    brevITraaden,
     fristtabellen,
     handlingerISporet,
     hovedkategorien,
@@ -106,10 +107,11 @@
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
   const smalt = medietreff(SMAL);
   const smal = $derived(smalt.treff);
-  // Brevet brukeren valgte å lese. I høyre kolonne står det siste brevet med tekst fra start.
+  // Før brukeren velger et brev, viser høyre kolonne det nyeste brevet med tekst i tråden.
   let lest = $state<string | null>(null);
   const visesId = $derived(
-    lest ?? (smal ? null : (alleBrev.findLast((b) => b.avsnitt !== null)?.id ?? null))
+    lest ??
+      (smal ? null : (brevITraaden(alleBrev, spor).findLast((b) => b.avsnitt !== null)?.id ?? null))
   );
   const visesBrev = $derived(alleBrev.find((b) => b.id === visesId && b.avsnitt !== null));
   // Svaret på byggherrens forespørsel etter punkt 33.6.2 står ved forespørselen (U-6 i BF-45).
