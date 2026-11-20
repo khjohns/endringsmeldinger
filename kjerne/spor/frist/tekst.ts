@@ -21,7 +21,13 @@ import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager, FORHOLDET, INNLEDNINGEN } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
-import { betegnelsen, hindringenEtter, innholdIFristen, type FristIKravet } from './format.ts';
+import {
+  betegnelsen,
+  erInnsigelseIFristen,
+  hindringenEtter,
+  innholdIFristen,
+  type FristIKravet,
+} from './format.ts';
 import { svarPaaForesporsler } from './frysing.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
@@ -188,8 +194,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
     }
   },
   // KA-U78: hindringen og spesifiseringen står i et eget lag når byggherren påberoper dem.
-  erInnsigelse: (p) =>
-    (p.art === 'hindring' && !p.oppfylt) || (p.art === 'spesifisering' && !p.iTide),
+  erInnsigelse: erInnsigelseIFristen,
   rettidighetUtenVarsel: { '33.6.2': foresporselenTil },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
