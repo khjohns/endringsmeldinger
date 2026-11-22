@@ -146,6 +146,30 @@ det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen 
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står i
 [arbeidsøkt-skillen, «Review i byggeøkta»](../arbeidsokt/SKILL.md#tid-og-kontekst).
+
+**Security review kommer i tillegg til `/code-review`** når diffen gjør minst ett av
+dette:
+
+- endrer en tilgangsavgjørelse eller hva som skjer når et oppslag feiler (fail-closed);
+- legger til eller endrer en inngang uten sesjon, som innloggingen, tilbakekallet eller
+  webhooken;
+- endrer sesjonen, CSRF, tokenene eller hvordan en identitet avgjøres;
+- endrer rettigheter, triggere eller prosedyrer i `koe_api`, `koe_drift` eller
+  `koe_sikkerhet`;
+- skriver nye felt til en logg, eller rader i en tabell som ikke kan tømmes.
+
+Den kjøres i ny kontekst, i en subagent som får diffen, sikkerhetsinvariantene i
+`CLAUDE.md` og [`tilgang.md`](../../rules/tilgang.md), og ber om bare funn med et konkret
+scenario. Funnene følger stoppregelen under. En diff utenom kriteriene får ingen security
+review. Grunnlaget er reviewet av #2243–#2245, der security review fant ett funn (DoS)
+som `/code-review` også fant, og bekreftet at de andre lagene holdt.
+
+**En PR bygget av en annen agent**, for eksempel Codex, får `/code-review`, og security
+review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Står det i
+PR-en at uavhengig review gjenstår, er den ikke klar. Stablede PR-er, og PR-er som endrer
+de samme filene, reviewes samlet over den felles diffen, og hvert funn sier hvilken PR det
+gjelder. `/simplify` kjøres da på PR-en som kriteriet gjelder, før reviewet.
+
 `/simplify` kjøres når et kriterium i [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify)
 gjelder: orkestratoren bestiller den, eller økta avgjør selv når den ikke er orkestrert.
 Den kjøres før `/code-review`, slik at reviewet ser den endelige koden.
