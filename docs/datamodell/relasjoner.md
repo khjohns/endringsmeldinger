@@ -455,8 +455,8 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.jobb.korrelasjons_id` | ID-en til forespørselen som opprettet jobben. Forespørselen er en oppføring i driftsloggen. |
 | `koe.innkommende_hendelse.korrelasjons_id` | ID-en til forespørselen som først lagret hendelsen. Forespørselen er en oppføring i driftsloggen. |
 | `koe.tilgangslogg.korrelasjons_id` | Serverens ID for forespørselen eller jobben kan brukes til oppslag i driftsloggen. |
-| `koe.tilgangslogg.forsokt_subjekt` | Verifisert subjekt hos innloggingsleverandøren. Det trenger ingen registrert bruker. |
-| `koe.tilgangslogg.forsokt_tenant` | Tenanten fra det validerte Entra-tokenet kan være ukjent for appen. |
+| `koe.tilgangslogg.forsoekt_subjekt` | Verifisert subjekt hos innloggingsleverandøren. Det trenger ingen registrert bruker. |
+| `koe.tilgangslogg.forsoekt_tenant` | Tenanten fra det validerte Entra-tokenet kan være ukjent for appen. |
 
 ## Dataflyt mot Catenda
 

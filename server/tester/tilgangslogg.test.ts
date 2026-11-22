@@ -55,8 +55,8 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
       await eier().request().input('korrelasjon', sql.UniqueIdentifier, korrelasjon)
         .query(`SELECT hendelse, utfall, grunn, prosjekt_id, LOWER(CONVERT(char(36), aktor_id)) AS aktor_id,
                     LOWER(CONVERT(char(36), beroert_bruker_id)) AS beroert_bruker_id,
-                    LOWER(CONVERT(char(36), forsokt_subjekt)) AS forsokt_subjekt,
-                    LOWER(CONVERT(char(36), forsokt_tenant)) AS forsokt_tenant, tidspunkt
+                    LOWER(CONVERT(char(36), forsoekt_subjekt)) AS forsoekt_subjekt,
+                    LOWER(CONVERT(char(36), forsoekt_tenant)) AS forsoekt_tenant, tidspunkt
                FROM koe.tilgangslogg WHERE korrelasjons_id = @korrelasjon ORDER BY id`)
     ).recordset;
   }
@@ -166,8 +166,8 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
               hendelse: 'innlogging_entra',
               grunn: 'identitet_eller_medlemskap',
               aktor_id: null,
-              forsokt_subjekt: ukjentOid,
-              forsokt_tenant: tenant,
+              forsoekt_subjekt: ukjentOid,
+              forsoekt_tenant: tenant,
             },
           ]);
         }

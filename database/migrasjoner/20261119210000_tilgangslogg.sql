@@ -7,8 +7,8 @@ CREATE TABLE koe.tilgangslogg (
   prosjekt_id nvarchar(100) COLLATE Latin1_General_100_BIN2_UTF8 NULL,
   driftsidentitet sysname NULL,
   beroert_bruker_id uniqueidentifier NULL,
-  forsokt_subjekt uniqueidentifier NULL,
-  forsokt_tenant uniqueidentifier NULL,
+  forsoekt_subjekt uniqueidentifier NULL,
+  forsoekt_tenant uniqueidentifier NULL,
   hendelse varchar(40) COLLATE Latin1_General_100_BIN2_UTF8 NOT NULL,
   utfall varchar(16) COLLATE Latin1_General_100_BIN2_UTF8 NOT NULL,
   grunn varchar(40) COLLATE Latin1_General_100_BIN2_UTF8 NULL,
@@ -17,11 +17,11 @@ CREATE TABLE koe.tilgangslogg (
     'leserolle_satt', 'leserolle_fjernet', 'rolle_satt', 'rolle_fjernet',
     'kontraktsteam', 'prosjektkobling', 'medlemssynk', 'medlem_deaktivert', 'medlem_fravaer', 'hr_synk',
     'stillingstittel_satt', 'stillingstittel_fjernet', 'catenda_identitet_koblet', 'entra_identitet_koblet')),
-  CONSTRAINT tilgangslogg_forsokt_identitet CHECK (
-    (forsokt_subjekt IS NULL AND forsokt_tenant IS NULL) OR (
-      forsokt_subjekt IS NOT NULL AND aktor_id IS NULL AND utfall = 'avvist' AND (
-        (hendelse = 'innlogging_catenda' AND forsokt_tenant IS NULL)
-        OR (hendelse = 'innlogging_entra' AND forsokt_tenant IS NOT NULL)))),
+  CONSTRAINT tilgangslogg_forsoekt_identitet CHECK (
+    (forsoekt_subjekt IS NULL AND forsoekt_tenant IS NULL) OR (
+      forsoekt_subjekt IS NOT NULL AND aktor_id IS NULL AND utfall = 'avvist' AND (
+        (hendelse = 'innlogging_catenda' AND forsoekt_tenant IS NULL)
+        OR (hendelse = 'innlogging_entra' AND forsoekt_tenant IS NOT NULL)))),
   CONSTRAINT tilgangslogg_utfall CHECK (
     (utfall = 'gjennomfoert' AND grunn IS NULL AND hendelse <> 'autorisasjon')
     OR (utfall = 'avvist' AND grunn IS NOT NULL AND (
@@ -54,16 +54,16 @@ CREATE PROCEDURE koe.skriv_tilgangslogg
   @driftsidentitet sysname = NULL,
   @utfall varchar(16) = 'gjennomfoert',
   @grunn varchar(40) = NULL,
-  @forsokt_subjekt uniqueidentifier = NULL,
-  @forsokt_tenant uniqueidentifier = NULL
+  @forsoekt_subjekt uniqueidentifier = NULL,
+  @forsoekt_tenant uniqueidentifier = NULL
 AS
 BEGIN
   SET NOCOUNT ON;
   INSERT koe.tilgangslogg
     (hendelse, korrelasjons_id, aktor_id, prosjekt_id, beroert_bruker_id, driftsidentitet, utfall, grunn,
-     forsokt_subjekt, forsokt_tenant)
+     forsoekt_subjekt, forsoekt_tenant)
   VALUES (@hendelse, @korrelasjon, @aktor, @prosjekt, @beroert_bruker, @driftsidentitet, @utfall, @grunn,
-          @forsokt_subjekt, @forsokt_tenant);
+          @forsoekt_subjekt, @forsoekt_tenant);
 END
 GO
 
@@ -73,8 +73,8 @@ CREATE PROCEDURE koe_api.logg_tilgang
   @grunn varchar(40) = NULL,
   @aktor uniqueidentifier = NULL,
   @prosjekt nvarchar(100) = NULL,
-  @forsokt_subjekt uniqueidentifier = NULL,
-  @forsokt_tenant uniqueidentifier = NULL
+  @forsoekt_subjekt uniqueidentifier = NULL,
+  @forsoekt_tenant uniqueidentifier = NULL
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -83,7 +83,7 @@ BEGIN
     THROW 52069, N'Ugyldig hendelse eller manglende korrelasjon for tilgangsloggen', 1;
   EXEC koe.skriv_tilgangslogg @hendelse, @korrelasjon, @aktor, @prosjekt,
     @utfall = 'avvist', @grunn = @grunn,
-    @forsokt_subjekt = @forsokt_subjekt, @forsokt_tenant = @forsokt_tenant;
+    @forsoekt_subjekt = @forsoekt_subjekt, @forsoekt_tenant = @forsoekt_tenant;
 END
 GO
 GRANT EXECUTE ON koe_api.logg_tilgang TO koe_runtime;

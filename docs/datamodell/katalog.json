@@ -892,8 +892,8 @@
      ["prosjekt_id", "nvarchar(100)", "NULL"],
      ["driftsidentitet", "sysname", "NULL"],
      ["beroert_bruker_id", "uniqueidentifier", "NULL"],
-     ["forsokt_subjekt", "uniqueidentifier", "NULL"],
-     ["forsokt_tenant", "uniqueidentifier", "NULL"],
+     ["forsoekt_subjekt", "uniqueidentifier", "NULL"],
+     ["forsoekt_tenant", "uniqueidentifier", "NULL"],
      ["hendelse", "varchar(40)", "NOT NULL"],
      ["utfall", "varchar(16)", "NOT NULL"],
      ["grunn", "varchar(40)", "NULL"]

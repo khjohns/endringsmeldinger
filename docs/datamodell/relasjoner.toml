@@ -990,9 +990,9 @@ kolonne = "koe.tilgangslogg.korrelasjons_id"
 begrunnelse = "Serverens ID for forespørselen eller jobben kan brukes til oppslag i driftsloggen."
 
 [[uten_relasjon]]
-kolonne = "koe.tilgangslogg.forsokt_subjekt"
+kolonne = "koe.tilgangslogg.forsoekt_subjekt"
 begrunnelse = "Verifisert subjekt hos innloggingsleverandøren. Det trenger ingen registrert bruker."
 
 [[uten_relasjon]]
-kolonne = "koe.tilgangslogg.forsokt_tenant"
+kolonne = "koe.tilgangslogg.forsoekt_tenant"
 begrunnelse = "Tenanten fra det validerte Entra-tokenet kan være ukjent for appen."

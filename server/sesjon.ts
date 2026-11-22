@@ -2,9 +2,10 @@ import { korrelasjonsId } from './logg.ts';
 import type { Innloggingshendelse } from './tilgangslogg.ts';
 /**
  * Sesjonen og innloggingsforsøket i SQL Server (B-19, #656), gjennom prosedyrene
- * i `koe_api` fra `database/migrasjoner/20261016190000_sesjon.sql`. `les_sesjon`,
- * `slett_sesjon` og `bruk_innloggingsforsoek` er sist definert i
- * `20261016233000_hashparametre.sql` (#700). Tokenene lages
+ * i `koe_api` fra `database/migrasjoner/20261016190000_sesjon.sql`. `les_sesjon` og
+ * `bruk_innloggingsforsoek` er sist definert i `20261016233000_hashparametre.sql`
+ * (#700), og `opprett_sesjon` og `slett_sesjon` i `20261119210000_tilgangslogg.sql`
+ * (#1804). Tokenene lages
  * her, som `secrets.token_urlsafe(32)` i Python, og basen får bare SHA-256 av
  * sesjonstokenet, staten og nettlesertokenet. Levetidene og klokka er basens.
  * Kallene er systemkall uten aktør og prosjektkontekst, så de går utenom

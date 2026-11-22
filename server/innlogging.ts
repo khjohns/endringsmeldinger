@@ -20,7 +20,7 @@
 
 import {
   loggAvvisning,
-  type ForsoktIdentitet,
+  type ForsoektIdentitet,
   type Innloggingsavvisning,
   type Innloggingshendelse,
 } from './tilgangslogg.ts';
@@ -211,7 +211,7 @@ async function medlemskapVedInnlogging(
   pool: Pool,
   oauth: Innloggingsleverandoer,
   token: string,
-  verifisert: (id: ForsoktIdentitet) => void
+  verifisert: (id: ForsoektIdentitet) => void
 ): Promise<string> {
   const catendaBruker = await oauth.bruker(token);
   const subjekt = uuidMedBindestreker(catendaBruker.subjekt);
@@ -247,7 +247,7 @@ interface Leverandoer {
     kode: string,
     nettleser: string,
     avh: Required<Avhengigheter>,
-    verifisert: (id: ForsoktIdentitet) => void
+    verifisert: (id: ForsoektIdentitet) => void
   ): Promise<string>;
 }
 
@@ -317,7 +317,7 @@ async function tilbakekall(
   leverandoer: Leverandoer
 ): Promise<Svar> {
   const innlogging = avh.innlogging;
-  let identitet: ForsoktIdentitet | undefined;
+  let identitet: ForsoektIdentitet | undefined;
   const avvis = (grunn: Innloggingsavvisning) =>
     loggAvvisning(avh.datalag, { hendelse: leverandoer.hendelse, grunn, identitet });
   if (!innlogging || !leverandoer.sattOpp(innlogging)) {
@@ -329,7 +329,7 @@ async function tilbakekall(
   const naa = avh.tidspunkt();
   const ryddForsoek = kapsel(`${navn}${leverandoer.kapselsuffiks}`, '', 0, naa);
   const mislyktes = omdiriger(`${innlogging.frontend}/login?error=login_failed`, [ryddForsoek]);
-  let grunn: Innloggingsavvisning = 'ugyldig_forsoek';
+  let grunn: Innloggingsavvisning = 'utilgjengelig';
   try {
     const state = url.searchParams.getAll('state');
     const kode = url.searchParams.getAll('code');
