@@ -38,8 +38,11 @@ Alle kall brukte konstruert innhold (en liten `kalk.py` utenfor repoet), aldri r
 - **Strukturert svar.** `--json-schema` ga JSON som fulgte skjemaet. `--output-format stream-json`
   gir hendelser, og `init` lister verktøyene, blant dem nettleser, subagenter og MCP-kall.
 - **Skråstrekkommandoer.** `/context` finnes, men bare i det interaktive grensesnittet.
-- **Push til `main`.** En tørrkjøring av `git push` til `main` ble avvist fordi grenen lå bak, ikke
-  fordi tilgangen manglet.
+- **Push til `main`.** Regelsettet for `main` hadde først ikke krav om PR og ikke blokkering av
+  force push, bare krav om sjekker og forbud mot sletting. Bypass-listen var tom, og regelsettet
+  gjelder bare `main`. Eieren slo på begge reglene. En tom testcommit pushet fra skyøkta til
+  `main` ble deretter avvist med «Changes must be made through a pull request» og «5 of 5
+  required status checks are expected».
 
 ## Hva Gemini 4-modellene er egnet for
 
@@ -78,9 +81,10 @@ ikke undersøkt.
 sikker avgrensning. `agy` har ingen MCP-servere, så den kan ikke merge via GitHub-verktøyene til
 Claude. Forslaget, i prioritert rekkefølge:
 
-1. **Beskytt `main` på GitHub** med et regelsett som krever PR og blokkerer direkte push. Det er
-   den eneste sperren som holder uansett hva som kjører. Eieren setter den i repoinnstillingene.
-   Om den allerede står der, er ikke kontrollert.
+1. **Beskytt `main` på GitHub** med et regelsett som krever PR og blokkerer direkte push og force
+   push. Det er den eneste sperren som holder uansett hva som kjører. Gjort 22.11.2026 og prøvd
+   med et push fra skyøkta (se «Kjørt og observert»). Antallet godkjenninger er satt slik at
+   eieren kan merge sin egen PR.
 2. **Gi `agy` en egen klon uten push-adresse** (`git remote set-url --push origin no_push`).
    Den kan commite lokalt, men ikke pushe. Claude henter og leser diffen og pusher selv til
    utviklingsgrenen. En `git worktree` er ikke nok, siden den deler konfigurasjonen med repoet.
@@ -101,6 +105,9 @@ oppdragsgiver.
   - forbruket mot kvoten i abonnementet, og `/context` og andre skråstrekkommandoer;
   - om `agy` bruker eksplisitt cache, og minimumsgrensen for Gemini 4;
   - om `gh` i containeren har et token `agy` kan bruke;
-  - om `main` er beskyttet, og at klonen uten push-adresse stopper et push;
+  - push til `main` fra en annen konto med bypass (listen er tom);
+  - at klonen uten push-adresse stopper et push;
+  - at force push til `main` avvises (regelen er slått på, men ikke prøvd);
   - hva selvoppdateringen i skriptet gjør over tid.
-- **Ikke gjort:** sperrene i forslaget er ikke satt opp.
+- **Ikke gjort:** klonen uten push-adresse (punkt 2) og instruksen i prompten (punkt 3) er ikke
+  satt opp.
