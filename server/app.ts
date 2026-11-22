@@ -15,6 +15,7 @@
  * sak får topicen i Catenda av jobbkjøreren i `jobber.ts` etter commit (#741).
  */
 
+import { loggAvvisning } from './tilgangslogg.ts';
 import { korrelasjonsId, loggFeil, loggInfo, medLoggkontekst } from './logg.ts';
 import { randomUUID } from 'node:crypto';
 import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
@@ -288,6 +289,18 @@ export function lagServer(avh: Avhengigheter) {
       else loggFeil(funnet ? `${funnet.r.metode} ${funnet.r.sti.source}` : 'Ruteren', feil);
     }
     const [status, kropp] = svar;
+    if (status === 403 && funnet && !erAapen(funnet.r)) {
+      const kode = (kropp as { error?: string } | null)?.error;
+      await loggAvvisning(full.datalag, {
+        hendelse: 'autorisasjon',
+        grunn:
+          kode === 'CSRF validation failed'
+            ? 'csrf'
+            : kode === 'CONTRACT_ROLE_REQUIRED'
+              ? 'kontraktsrolle'
+              : 'tilgang_nektet',
+      });
+    }
     // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2),
     // eller reservesvaret behandleren ga for en skriving som er lagret (#893).
     let tekst: string | Buffer | undefined;

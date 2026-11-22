@@ -1,3 +1,4 @@
+import { korrelasjonsId } from './logg.ts';
 /**
  * Prosjektinngangene (F0b-6, #660): brukerens prosjekter og ett prosjekt, med
  * samme stier og svar som `list_projects` og `get_project` i
@@ -250,6 +251,7 @@ async function begrensMedlem(
       .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
       .input('medlem', sql.UniqueIdentifier, medlem)
       .input('leserolle', sql.Bit, verdi)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .output('endret', sql.Bit)
       .execute('koe_api.sett_leserolle');
     return svar.output.endret === true ? lagret([200, { success: true }]) : nekt;
