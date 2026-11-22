@@ -789,6 +789,15 @@ Den som godkjente, returnerte eller trakk pakken."""
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
+[[relasjon]]
+fra = "koe.jobb.logg_aktor_id"
+til = "koe.app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Aktøren fra skrivekonteksten da jobben ble opprettet. Brukes i driftsloggen."
+funn = []
+belegg = "L 19.11: `20261119180000_korrelasjon_i_driftsloggen.sql` (#1805)."
+
 # ---------------------------------------------------------------------------
 # Kolonner som ser ut som nøkler eller personreferanser, men som ikke viser
 # til en tabell i appen. Testen krever en begrunnelse for hver.
@@ -930,3 +939,60 @@ og har da ingen rad i HR-kopien."""
 [[uten_relasjon]]
 kolonne = "koe.kontraktsfrist.frist_id"
 begrunnelse = "Fristens ID i prosjektet, tildelt av `koe_drift.sett_kontraktsfrist`. Et krav viser til fristen med den; hendelsen i journalen har ingen fremmednøkkel hit (#721)."
+
+
+[[uten_relasjon]]
+kolonne = "koe.jobb.korrelasjons_id"
+begrunnelse = "ID-en til forespørselen som opprettet jobben. Forespørselen er en oppføring i driftsloggen."
+
+[[uten_relasjon]]
+kolonne = "koe.innkommende_hendelse.korrelasjons_id"
+begrunnelse = "ID-en til forespørselen som først lagret hendelsen. Forespørselen er en oppføring i driftsloggen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.tilgangslogg_id"
+til = "koe.tilgangslogg.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader."
+funn = ["OBS-01"]
+belegg = "K 19.11: katalogen."
+
+[[relasjon]]
+fra = "koe.tilgangslogg.aktor_id"
+til = "koe.app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Aktøren fra verifisert identitet eller sesjon. ID-en bevares også når brukeren slettes ved identitetsflytting."
+funn = ["OBS-01", "OBS-02"]
+belegg = "L 19.11: tilgangsloggen og innloggingsinngangene."
+
+[[relasjon]]
+fra = "koe.tilgangslogg.beroert_bruker_id"
+til = "koe.app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Brukeren endringen gjelder. ID-en bevares også når brukeren slettes ved identitetsflytting."
+funn = ["OBS-01"]
+belegg = "L 19.11: tilgangsloggmigrasjonen."
+
+[[relasjon]]
+fra = "koe.tilgangslogg.prosjekt_id"
+til = "koe.projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet oppslaget eller endringen gjelder, lagret som en historisk verdi."
+funn = ["OBS-01", "OBS-02"]
+belegg = "L 19.11: tilgangsloggen og autorisasjonen."
+
+[[uten_relasjon]]
+kolonne = "koe.tilgangslogg.korrelasjons_id"
+begrunnelse = "Serverens ID for forespørselen eller jobben kan brukes til oppslag i driftsloggen."
+
+[[uten_relasjon]]
+kolonne = "koe.tilgangslogg.forsoekt_subjekt"
+begrunnelse = "Verifisert subjekt hos innloggingsleverandøren. Det trenger ingen registrert bruker."
+
+[[uten_relasjon]]
+kolonne = "koe.tilgangslogg.forsoekt_tenant"
+begrunnelse = "Tenanten fra det validerte Entra-tokenet kan være ukjent for appen."

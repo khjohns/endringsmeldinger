@@ -7,7 +7,6 @@
 
 import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 import type { Svar } from './rutetyper.ts';
-import { feilnummer } from './datalag.ts';
 import { ukjenteFeltmelding } from '../src/lib/kontroll/kroppsfelt.ts';
 
 /** Feilsvaret i samme form fra hver inngang, også de åpne (#942). */
@@ -86,67 +85,3 @@ const lagretUtenSvar = (): Svar => [
     message: 'Endringen er lagret, men svaret kunne ikke skrives. Last inn på nytt.',
   },
 ];
-
-/** En kode fra Node, `tedious` eller `mssql`, som `ETIMEOUT` eller `UND_ERR_SOCKET`. */
-const KODE = /^[A-Z][A-Z0-9_]{0,39}$/;
-
-/**
- * Logger en feil serveren ikke kan svare på annet enn generelt: stedet,
- * feilklassen, feilnummeret fra basen, eller koden når feilen ikke har et nummer,
- * og kallstakken, uten meldingen. Meldingen kan bære et token, et navn eller et
- * svar fra Catenda (CLAUDE.md, #867 punkt 5). Koden skiller et tidsavbrudd fra en
- * lukket forbindelse og en parameterfeil (#926).
- */
-export function loggFeil(hvor: string, feil: unknown, nivaa: 'error' | 'warn' = 'error'): void {
-  const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
-  // En feil som pakker inn en annen, som `TransaksjonAvbrutt` og en feil fra `fetch`,
-  // har nummeret eller koden i `cause`.
-  const indre = (feil as { cause?: unknown } | null)?.cause;
-  const nummer = feilnummer(feil) ?? feilnummer(indre);
-  const kode =
-    (feil as { code?: unknown } | null)?.code ?? (indre as { code?: unknown } | null)?.code;
-  const merke =
-    nummer !== undefined
-      ? `, feilnummer ${nummer}`
-      : typeof kode === 'string' && KODE.test(kode)
-        ? `, kode ${kode}`
-        : '';
-  const rammer = rammene(feil);
-  console[nivaa](`${hvor} (${klasse}${merke})${rammer ? `\n${rammer}` : ''}`);
-}
-
-/**
- * En ramme fra V8: `at sted (fil:linje:kolonne)` eller `at fil:linje:kolonne`, også
- * med mellomrom i stien og som eval-ramme, `at eval (eval at f (fil:1:1), <anonymous>:1:1)`.
- */
-const RAMME = /^\s+at (?:.* \((?:.+:\d+:\d+|<anonymous>|native|index \d+)\)|.+:\d+:\d+)$/;
-
-/**
- * Rammene i kallstakken, uten hodet med navnet og meldingen, der en linje også kan
- * begynne med «at». Hodet lages som `Error.prototype.toString`, også i formen
- * `navn [kode]: melding` for Nodes egne feil. Står ikke et av dem alene på
- * første linje eller linjene, gis ingen rammer, og bare linjer med en plassering
- * regnes som rammer.
- */
-function rammene(feil: unknown): string {
-  try {
-    const { stack, name, message, code } = feil as Error & { code?: unknown };
-    if (typeof stack !== 'string') return '';
-    const melding = message === undefined ? '' : String(message);
-    const hode = (navn: string) => (!navn ? melding : !melding ? navn : `${navn}: ${melding}`);
-    const navn = name === undefined ? 'Error' : String(name);
-    const hoder = [hode(navn)];
-    if (typeof code === 'string') hoder.push(hode(`${navn} [${code}]`));
-    const funnet = hoder.find(
-      (h) => stack.startsWith(h) && (stack.length === h.length || stack[h.length] === '\n')
-    );
-    if (funnet === undefined) return '';
-    return stack
-      .slice(funnet.length)
-      .split('\n')
-      .filter((l) => RAMME.test(l))
-      .join('\n');
-  } catch {
-    return '';
-  }
-}

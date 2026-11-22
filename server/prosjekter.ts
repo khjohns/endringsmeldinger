@@ -1,3 +1,4 @@
+import { korrelasjonsId } from './logg.ts';
 /**
  * Prosjektinngangene (F0b-6, #660): brukerens prosjekter og ett prosjekt, med
  * samme stier og svar som `list_projects` og `get_project` i
@@ -18,10 +19,11 @@
  * Server, så `id` i svaret og i stien er brukeren.
  */
 
+import { loggFeil } from './logg.ts';
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
 import { sql, utenKontekst, UUID, type Pool } from './datalag.ts';
-import { fast, lagret, loggFeil } from './inngang.ts';
+import { fast, lagret } from './inngang.ts';
 import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
 interface Prosjektrad {
@@ -207,6 +209,8 @@ async function synkroniser(
   { prosjekt }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
+  // Tilgangskontrollen har alt forsøkt og logget hentingen (#825 punkt 7).
+  if (prosjekt.synkroniseringFeilet) return IKKE_OPPDATERT;
   try {
     const { medlemmer, deaktivert } =
       prosjekt.synkronisert ??
@@ -247,6 +251,7 @@ async function begrensMedlem(
       .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
       .input('medlem', sql.UniqueIdentifier, medlem)
       .input('leserolle', sql.Bit, verdi)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .output('endret', sql.Bit)
       .execute('koe_api.sett_leserolle');
     return svar.output.endret === true ? lagret([200, { success: true }]) : nekt;

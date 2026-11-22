@@ -651,6 +651,19 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await sakerForTopic(topic)).toEqual([
       { sak_id: utfall.sak_id, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
+    const logg = await somEier<{ hendelse: string; korrelasjon: string }>(
+      `SELECT l.hendelse, LOWER(CONVERT(char(36), l.korrelasjons_id)) AS korrelasjon
+         FROM koe.tilgangslogg l JOIN koe.app_identities i ON i.user_id = l.aktor_id
+        WHERE l.prosjekt_id = @p AND i.provider = 'catenda' AND i.subject = @subjekt`,
+      { p: o.prosjekt.id, subjekt: iTeamet }
+    );
+    // Synkroniseringen og medlemmene den endret, med samme korrelasjon (#1804, punkt 2).
+    expect(logg.recordset).toContainEqual({
+      hendelse: 'medlemssynk',
+      korrelasjon: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
+    expect(logg.recordset.map((rad) => rad.hendelse)).toContain('medlem_aktivert');
+    expect(new Set(logg.recordset.map((rad) => rad.korrelasjon)).size).toBe(1);
     expect(teller.hentinger).toBe(1);
 
     // Kontrollsak: et nytt medlem uten kontraktsteam får medlemskapet, men ingen side.
