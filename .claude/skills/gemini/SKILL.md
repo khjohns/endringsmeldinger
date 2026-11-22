@@ -5,9 +5,8 @@ description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldi
 
 # Gemini i skyøkta
 
-Prøvene, målingene og det som ikke er prøvd, står i
-[vurderingen](../../../docs/vurdering-antigravity-cli-2026-11-22.md). Her står hvordan
-verktøyet brukes. `agy` er ikke en del av løsningen. Det Gemini lager, er ikke levert før
+Prøvene og målingene står i PR-en som innførte skillen. Her står hvordan verktøyet brukes.
+`agy` er ikke en del av løsningen. Det Gemini lager, er ikke levert før
 Claude har kontrollert det etter [leveranseskillen](../leveranse/SKILL.md).
 
 ## Når
@@ -59,8 +58,9 @@ for kontoen. Sperrene ligger derfor utenfor `agy`:
 
 - **Egen klon per oppgave**, fra `main`, i scratchpad, med `git clone --no-hardlinks` og
   `git remote set-url --push origin no_push`. Et push ved en feil stoppes. Klonen er likevel
-  ingen sperre, for `agy` kan sette adressen tilbake. Sperren er regelsettet for `main` og at
-  Claude pusher.
+  ingen sperre, for `agy` kan sette adressen tilbake. Sperren er regelsettet for `main` på GitHub
+  (PR kreves, force push blokkert) og at Claude pusher. `agy` har ingen GitHub-verktøy og kan
+  ikke merge.
 - **Egen git-identitet:** `git config user.name "Gemini (agy)"` og
   `git config user.email agy@invalid` i klonen. Uten den står commiten med identiteten i
   containeren, som er Claudes.
