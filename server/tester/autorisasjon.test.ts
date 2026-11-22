@@ -589,13 +589,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         const t = await tilgang(m, p.id, { catenda, minsteRolle: 'member' });
         expect(t).toMatchObject({ prosjektId: p.id, rolle: 'member' });
         expect(t.synkronisert).toBeUndefined();
+        expect(t.synkroniseringFeilet).toBe(true);
         expect(await krevKontraktsrolle(kjoeretid.pool, catenda, t)).toMatchObject({
           rolle: 'TE',
           teamId: p.te[0],
         });
-        expect(await hindringForGodkjenner(kjoeretid.pool, catenda, m.bruker.id, p.id)).toBe(
-          'te_team'
-        );
+        // Godkjenneren kontrolleres ikke mot den lagrede listen før B-09 er avgjort (#2243).
+        await expect(
+          hindringForGodkjenner(kjoeretid.pool, catenda, m.bruker.id, p.id)
+        ).rejects.toThrow('ikke er fersk');
         expect(await nektet(tilgang(inaktiv, p.id, { catenda }))).toEqual({
           status: 403,
           error: 'FORBIDDEN',
@@ -668,6 +670,52 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       } finally {
         vi.unstubAllEnvs();
         logg.mockRestore();
+      }
+    });
+
+    it('driftsvarselet gjelder listen som brukes: ikke en som nettopp ble hentet, men den lagrede etter en feil (#2243)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '60');
+      try {
+        const { catenda: virker, kall } = catendaMed({}, async () => [
+          { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+        ]);
+        await tilgang(m, p.id, { catenda: virker });
+        expect(kall).toEqual([p.catenda]);
+        expect(warn).not.toHaveBeenCalled();
+        const q = await prosjekt({ liste: 'gammel' });
+        const n = await medlem(q);
+        const { catenda: nede } = catendaMed({}, async () => {
+          throw new Error('Catenda er nede');
+        });
+        await tilgang(n, q.id, { catenda: nede });
+        expect(warn).toHaveBeenCalledExactlyOnceWith(
+          expect.stringMatching(new RegExp(`^Medlemslisten fra Catenda er utdatert .*"${q.id}"`))
+        );
+      } finally {
+        vi.unstubAllEnvs();
+        warn.mockRestore();
+        error.mockRestore();
+      }
+    });
+
+    it('en varselgrense som ikke er et positivt heltall, gir 503 i stedet for å slå av varselet (#2243)', async () => {
+      const p = await prosjekt();
+      const m = await medlem(p);
+      const { catenda } = catendaMed();
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '1h');
+      try {
+        expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+          status: 503,
+          error: 'ACCESS_UNAVAILABLE',
+        });
+      } finally {
+        vi.unstubAllEnvs();
+        error.mockRestore();
       }
     });
   });

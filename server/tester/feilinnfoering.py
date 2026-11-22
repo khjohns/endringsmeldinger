@@ -603,14 +603,19 @@ FEILINNFOERINGER = [
      "en feil uten feilnummer har koden"),
     ("S154", "en synkroniseringsfeil stanser prosjektkontrollen selv med en lagret medlemsliste (#51)",
      "server/autorisasjon.ts",
-     "    return null;\n  }\n  const etter = await medlemslistensAlder(db, prosjekt);",
-     "    throw new Error('Medlemslisten kunne ikke synkroniseres');\n  }\n  const etter = await medlemslistensAlder(db, prosjekt);",
+     "    varsleOmMedlemslistensAlder(prosjekt, lagret.alderSekunder);\n    return 'synkronisering_feilet';",
+     "    throw new Error('Medlemslisten kunne ikke synkroniseres');",
      "ved Catenda-feil brukes aktivt medlemskap fra den lagrede listen"),
     ("S155", "aldersvarselet uteblir når listen ennå ikke skal hentes på nytt (#51)",
      "server/autorisasjon.ts",
-     "  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);\n  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;",
-     "  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;\n  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);",
+     "  if (sist !== null && sist.alderSekunder < medlemskapsalder()) {\n    varsleOmMedlemslistensAlder(prosjekt, sist.alderSekunder);\n    return null;",
+     "  if (sist !== null && sist.alderSekunder < medlemskapsalder()) {\n    return null;",
      "driftsvarselet følger aldersgrensen uten feil fra Catenda"),
+    ("S157", "godkjenneren kontrolleres mot den lagrede listen når synkroniseringen feiler (#2243)",
+     "server/autorisasjon.ts",
+     "    'synkronisering_feilet'\n  )\n    throw new Error('Godkjenneren",
+     "    'aldri'\n  )\n    throw new Error('Godkjenneren",
+     "ved Catenda-feil brukes aktivt medlemskap fra den lagrede listen"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

@@ -154,6 +154,8 @@ export interface Prosjekttilgang {
    * henting en annen hadde startet.
    */
   synkronisert?: Synkroniseringsutfall;
+  /** Synkroniseringen feilet, og tilgangen er avgjort mot den lagrede listen (B-04 punkt 4). */
+  synkroniseringFeilet?: true;
 }
 
 const ENKELTREFERANSER = new Set(['sak_id', 'sakId', 'koe_sak_id', 'relatert_sak_id']);
@@ -229,9 +231,13 @@ export async function medlemslistensAlder(
 /** Hentingene fra Catenda som pågår, per base og kobling, så samtidige forespørsler deler én (#726 punkt 3). */
 const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering | null>>>();
 
-function varsleOmMedlemslistensAlder(prosjekt: string, alder: number | undefined): void {
-  const grense = Number(process.env.AUTH_MEMBERSHIP_ALERT_AGE_SECONDS);
-  if (alder !== undefined && Number.isSafeInteger(grense) && grense > 0 && alder >= grense) {
+function varsleOmMedlemslistensAlder(prosjekt: string, alder: number): void {
+  const verdi = process.env.AUTH_MEMBERSHIP_ALERT_AGE_SECONDS;
+  if (!verdi) return;
+  const grense = Number(verdi);
+  if (!(Number.isSafeInteger(grense) && grense > 0))
+    throw new Error('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS må være et positivt heltall');
+  if (alder >= grense) {
     console.warn(
       `Medlemslisten fra Catenda er utdatert ${JSON.stringify({ prosjekt, alder_sekunder: alder })}`
     );
@@ -253,17 +259,21 @@ function varsleOmMedlemslistensAlder(prosjekt: string, alder: number | undefined
  *
  * Returnerer utfallet av en vellykket synkronisering når forespørselen startet
  * den. Ved synkroniseringsfeil kan forespørselen fortsette hvis den samme koblingen
- * fortsatt har en lagret liste (B-04 punkt 4, DL-U10).
+ * fortsatt har en lagret liste (B-04 punkt 4, DL-U10), og da returneres
+ * `'synkronisering_feilet'`. Aldersvarselet gjelder listen som brukes: en fersk nok
+ * liste eller den lagrede etter en feil, ikke en som nettopp ble hentet.
  */
 async function oppdaterMedlemslisten(
   db: Pool,
   catenda: Catenda,
   prosjekt: string,
   catendaProsjekt: string
-): Promise<Synkroniseringsutfall | null> {
+): Promise<Synkroniseringsutfall | 'synkronisering_feilet' | null> {
   const sist = await medlemslistensAlder(db, prosjekt);
-  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);
-  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;
+  if (sist !== null && sist.alderSekunder < medlemskapsalder()) {
+    varsleOmMedlemslistensAlder(prosjekt, sist.alderSekunder);
+    return null;
+  }
   let iBasen = hentinger.get(db);
   if (!iBasen) hentinger.set(db, (iBasen = new Map()));
   const noekkel = JSON.stringify([prosjekt, catendaProsjekt]);
@@ -282,12 +292,12 @@ async function oppdaterMedlemslisten(
   }
   const synkronisering = await henting;
   if (synkronisering === null) {
-    if (
-      (await prosjektkobling(db, prosjekt)) !== catendaProsjekt ||
-      (await medlemslistensAlder(db, prosjekt)) === null
-    )
-      throw new Error('Det finnes ingen lagret medlemsliste for koblingen');
-    return null;
+    if ((await prosjektkobling(db, prosjekt)) !== catendaProsjekt)
+      throw new Error('Koblingen til Catenda ble endret mens medlemslisten ble hentet');
+    const lagret = await medlemslistensAlder(db, prosjekt);
+    if (lagret === null) throw new Error('Det finnes ingen lagret medlemsliste for koblingen');
+    varsleOmMedlemslistensAlder(prosjekt, lagret.alderSekunder);
+    return 'synkronisering_feilet';
   }
   const etter = await medlemslistensAlder(db, prosjekt);
   if (etter === null || etter.hentet.getTime() < synkronisering.hentet.getTime())
@@ -437,7 +447,11 @@ export async function krevProsjekttilgang(
       rolle,
       oppsett,
       medlemskap: medlemskap!,
-      ...(synkronisert ? { synkronisert } : {}),
+      ...(synkronisert === 'synkronisering_feilet'
+        ? { synkroniseringFeilet: true }
+        : synkronisert
+          ? { synkronisert }
+          : {}),
     };
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
     const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
@@ -641,8 +655,10 @@ async function kontraktsside(
 /**
  * Hvorfor aktøren ikke kan godkjenne i prosjektet, eller `null` når hen kan: prosjektet er
  * ukjent, eller aktøren er medlem og med i et av prosjektets team for totalentreprenøren i
- * Catenda, også med leserollen (kravet 20.10 i #831, punkt 1). Medlemslisten
- * kontrolleres først etter B-04 punkt 4. Et teamoppslag som feiler, kaster.
+ * Catenda, også med leserollen (kravet 20.10 i #831, punkt 1). Medlemslisten gjøres fersk
+ * først. Kan den ikke det, kaster den, også når en lagret liste finnes: en person som
+ * er lagt i et team for totalentreprenøren etter siste synkronisering, står ikke i den
+ * (B-04 punkt 4, til B-09 er avgjort). Et oppslag som feiler, kaster.
  */
 export async function hindringForGodkjenner(
   db: Pool,
@@ -652,7 +668,11 @@ export async function hindringForGodkjenner(
 ): Promise<'ukjent_prosjekt' | 'te_team' | null> {
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) return 'ukjent_prosjekt';
-  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
+  if (
+    (await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt)) ===
+    'synkronisering_feilet'
+  )
+    throw new Error('Godkjenneren kan ikke kontrolleres mot en medlemsliste som ikke er fersk');
   const [medlemskap, { TE: te }] = await Promise.all([
     prosjektmedlemskap(db, aktor, prosjektId),
     kontraktsteamene(db, aktor, prosjektId, true),

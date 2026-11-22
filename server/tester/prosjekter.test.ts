@@ -193,6 +193,36 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
     }
   });
 
+  it('prosjektlista gir 503 når Catenda feiler og et prosjekt ikke har en lagret liste fra koblingen (#2243)', async () => {
+    const b = await nyBruker();
+    await prosjekt(b, { navn: 'A' });
+    const uten = await prosjekt(b, { alder: 3600, navn: 'B' });
+    await eier()
+      .input('p', uten)
+      .query(
+        'UPDATE koe.app_membership_sync SET catenda_project_id = NEWID() WHERE project_id = @p'
+      );
+    const egen = await startServer(o, {
+      catenda: {
+        ...catendaFra(o.teammedlemmer),
+        async medlemmer() {
+          throw new Error('Catenda er nede');
+        },
+      },
+    });
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const svar = await liste(b, egen.url);
+      expect(svar.status).toBe(503);
+      expect(svar.kropp.error).toBe('ACCESS_UNAVAILABLE');
+      expect(logg.mock.calls.join('\n')).toContain('Prosjektene kunne ikke leses (Error)');
+      expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
+    } finally {
+      logg.mockRestore();
+      await egen.stopp();
+    }
+  });
+
   it('lista synkroniserer høyst tre gamle prosjekter samtidig, og alle blir synkronisert (#877)', async () => {
     const b = await nyBruker();
     for (let i = 0; i < 5; i++) await prosjekt(b, { alder: 3600 });
@@ -610,6 +640,34 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
       }
     }
   );
+
+  it('har tilgangskontrollen alt prøvd hentingen og feilet, gir synkroniseringen 503 uten å spørre Catenda igjen (#825 punkt 7, #2243)', async () => {
+    const p = await prosjektMed([{ rolle: 'admin' }], 3600);
+    let hentinger = 0;
+    const egen = await startServer(o, {
+      catenda: {
+        ...catendaFra(o.teammedlemmer),
+        async medlemmer() {
+          hentinger++;
+          throw new Error('Catenda er nede');
+        },
+      },
+    });
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const svar = await kall(egen.url, `/api/projects/${p.id}/members/sync`, {
+        bruker: p.deltakere[0],
+        prosjektId: p.id,
+        kropp: {},
+      });
+      expect(svar.status).toBe(503);
+      expect(svar.kropp.error).toBe('SYNC_UNAVAILABLE');
+      expect(hentinger).toBe(1);
+    } finally {
+      logg.mockRestore();
+      await egen.stopp();
+    }
+  });
 
   it('feiler hentingen fra Catenda, gir synkroniseringen 503 SYNC_UNAVAILABLE', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }]);
