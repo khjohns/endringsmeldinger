@@ -45,16 +45,21 @@ Passer ikke:
    lim koden inn med `tmux send-keys -l`. Koden skrives ikke noe annet sted.
 4. **Datainnsamlingen.** Haken på siden «Terms of Service & Data Use» er satt på forhånd.
    Fjern den, og kontroller i `/settings` at «Enable Telemetry» er `off`.
-5. **Arbeidsmappa.** Godkjenn en tom mappe i scratchpad, og avslutt med Escape.
+5. **Arbeidsmappa.** Godkjenn en egen, tom mappe i scratchpad, og avslutt med Escape. Legg
+   klonene utenfor den. I prøven lå klonene under den godkjente mappa, og `agy` skrev og
+   committet uten å spørre, selv om «Tool Permission» sto på `request-review`. Godkjenningen
+   gjelder trolig alt under mappa. Klonene utenfor mappa er ikke prøvd.
 
 Innstillingene til `agy` har samme filnavn som hookoppsettet. Brokervakten stopper derfor
 skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
 
 ## Arbeidsformen
 
-`agy -p` håndhever ikke tillatelsene. Den kjører kommandoer og committer uten å spørre, og
-den har skrevet utenfor arbeidsmappa, også med `--sandbox`. `--mode auto` er ikke tilgjengelig
-for kontoen. Sperrene ligger derfor utenfor `agy`:
+Tillatelsene i `agy` er ingen sperre. Den har skrevet utenfor arbeidsmappa, også med
+`--sandbox`, og i en godkjent mappe kjører den kommandoer og committer uten å spørre.
+`--mode auto` er ikke tilgjengelig for kontoen. Ligger klonen utenfor den godkjente mappa, må
+skrivingen trolig tillates, med `--mode accept-edits` eller med `--settings`. Det er ikke prøvd.
+Sperrene ligger derfor utenfor `agy`:
 
 - **Egen klon per oppgave**, fra `main`, i scratchpad, med `git clone --no-hardlinks` og
   `git remote set-url --push origin no_push`. Et push ved en feil stoppes. Klonen er likevel
@@ -74,11 +79,17 @@ for kontoen. Sperrene ligger derfor utenfor `agy`:
 cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" GIT_SSL_CAINFO="$GIT_SSL_CAINFO" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
-  ~/.local/bin/agy -p "$(cat "$BESTILLING")" --model gemini-4-neon-high --output-format json > svar.json
+  ~/.local/bin/agy -p "$(cat "$BESTILLING")" --model gemini-4-neon-high --output-format json \
+  --print-timeout 30m --disable-slash-commands > svar.json
 ```
 
 Uavhengige oppgaver startes samtidig, hver i sin klon, med `run_in_background`. Svaret har
-`usage` med tokenene.
+`usage` med tokenene. `--print-timeout` stopper en kjøring som henger.
+`--disable-slash-commands` hindrer at tekst i bestillingen leses som en kommando i `agy`. En
+bestilling over om lag 64 kB sendes på stdin uten `-p`, fordi argumentet blir for langt. Disse
+tre er hentet fra pluginen
+[antigravity-for-claude-code](https://github.com/yuting0624/antigravity-for-claude-code) og er
+ikke prøvd her.
 
 **Review uten skriving:** `--mode plan` avviser alle skallkommandoer, også `git show`. Legg
 diffen i bestillingen, og be om funnene etter et skjema med `--json-schema`. Funnene
@@ -121,7 +132,20 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 ## Kontrollen
 
 - Hent commitene med `git fetch "$KLON" <gren>`, og se forfatteren og `--stat`.
-- Kjør sjekkene selv i hovedkopien. At Gemini sier en sjekk er grønn, er en påstand.
+- **Testene i klonen og i hovedkopien** er den raske kjøringen i
+  [miljø-skillen, «Rask kjøring under arbeidet»](../miljo/SKILL.md#rask-kjøring-under-arbeidet),
+  med prosjektene for mappene som er endret. I tillegg kommer typesjekken for de mappene og
+  `--ankre` når kjernen eller serveren er endret ([«Sjekker»](../miljo/SKILL.md#sjekker)). Hele
+  samlingen og feilinnføringene kjører ikke Gemini. `env -i` fjerner
+  `KOE_SQLSERVER_TILKOBLING`, så testene mot SQL Server hoppes over i klonen.
+- **Claude kjører testene selv i hovedkopien.** At Gemini sier en sjekk er grønn, er en
+  påstand. Er `server/` eller lagringen endret, kjører Claude også testene mot SQL Server for de
+  berørte filene, i bakgrunnen. Feilinnføringene følger leveranseskillen, «Før en PR meldes
+  klar». For kjernen er beviset CI-kjøringen med etiketten `feilinnfoering`, satt ved første
+  push. For serveren er beviset en målrettet kjøring i bakgrunnen.
+- **Eksisterende tester:** `git diff --diff-filter=MD --stat main...HEAD -- '*.test.*' '**/tester/**'`
+  viser testfilene som er endret eller slettet. Claude leser de linjene og ser at bestillingen ba om endringen. Nye
+  tester er forventet.
 - Kjør `/code-review` etter leveranseskillen, som for annen kode. Les ikke hele diffen i
   tillegg. Det overlapper reviewet og koster kontekst.
 - Svarer Gemini at ingenting trenger endring, kontrollerer Claude det avgjørende leddet, som
