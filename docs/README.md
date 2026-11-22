@@ -45,7 +45,7 @@ utgangspunkt, og må leses mot gjeldende vedtak og referanser.
 | [Språkfila](sprak.md) · [designsystemet](../.interface-design/system.md) | Ord, brevtekst, tokens og mønstre i Varden |
 | [Beslutningslogg](adr/README.md) | Juridiske drøftelser: [varsling og kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [særskilt krav og varsel etter § 34.1.2](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md). Vedtakene står i vedtaksfila |
 | [Catendas API-spesifikasjoner](tredjepart-api/) | Uendrede kopier av tredjepartens OpenAPI-spesifikasjoner |
-| [Antigravity CLI i skyøkta](vurdering-antigravity-cli-2026-11-22.md) | Prøven av `agy`: installasjon, innlogging og hva Gemini-modellene er egnet for |
+| [Antigravity CLI i skyøkta](vurdering-antigravity-cli-2026-11-22.md) | Prøvene av `agy`: installasjon, innlogging, review, retting og issues, og hva Gemini-modellene er egnet for. Arbeidsformen står i [skillen `gemini`](../.claude/skills/gemini/SKILL.md) |
 | [CLAUDE.md](../CLAUDE.md) · [reglene](../.claude/rules/) | Stabile arbeidsregler; egne regler for [database](../.claude/rules/database.md), [tester](../.claude/rules/tester.md), [tilgang](../.claude/rules/tilgang.md), [kjerne](../.claude/rules/kjerne.md) og [dokumentasjon](../.claude/rules/dokumentasjon.md) |
 
 Markdown og Excel i datamodellen er genererte visninger. Rett kilderegistrene og

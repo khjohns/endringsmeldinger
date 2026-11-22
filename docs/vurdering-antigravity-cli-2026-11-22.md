@@ -44,6 +44,50 @@ Alle kall brukte konstruert innhold (en liten `kalk.py` utenfor repoet), aldri r
   `main` ble deretter avvist med «Changes must be made through a pull request» og «5 of 5
   required status checks are expected».
 
+## Prøve 2: review, retting og issues
+
+Kjørt i en annen skyøkt samme dag, i miljøet «Catenda», mot `main` (`f83be79`). Her ble kode
+fra repoet sendt til Google. Repoet er offentlig. Arbeidsformen står i
+[skillen `gemini`](../.claude/skills/gemini/SKILL.md).
+
+- **Nettverk.** «Catenda» blokkerte `antigravity.google` og oppdateringsverten
+  `antigravity-cli-auto-updater-974169037036.us-central1.run.app`. Begge ble lagt til i miljøet.
+  Binæren lastes fra `storage.googleapis.com`, som allerede var tillatt.
+- **Datainnsamlingen.** Haken på siden «Terms of Service & Data Use» var satt på forhånd og
+  ble fjernet. `/settings` viser «Enable Telemetry: off».
+- **Review av en plantet feil.** En lokal commit skrev om løkka i `hverdagerIForlengelsen` til
+  `Array.from` med indeks fra 0, så tellingen ble én dag feil. `/code-review` (medium),
+  Gemini 4 Neon (high) og Gemini 4 Argon (high) fant feilen med samme eksempel. Alle tre fant
+  også at `REGELVERSJON` ikke var økt. Ingen ga falske funn. Bare `/code-review` førte
+  virkningen i `server/fullmakt.ts` som eget funn og merket commit-meldingen.
+- **Plan-modus.** `--mode plan` avviser alle skallkommandoer, også `git show`. Den første
+  reviewkjøringen leverte derfor ikke noe. Diffen må stå i bestillingen.
+- **Retting i egen klon.** Neon rettet feilen, økte `REGELVERSJON` og committet. Testene,
+  `tsc -p kjerne`, prettier og regelversjonsvakten var grønne i hovedkopien. `--mode auto` er
+  ikke tilgjengelig for kontoen. I standardmodus kjørte `agy` likevel kommandoer og committet
+  uten å spørre. Commiten fikk git-identiteten i containeren, som er Claudes, fram til klonen
+  fikk en egen.
+- **Klonen uten push-adresse.** Et push fra klonen ble avvist. Hovedkopien var uendret etter
+  alle kjøringene. Utenfor klonen skrev `agy` bare de midlertidige filene pytest lager i `/tmp`.
+- **Miljø uten hemmeligheter.** `agy` ble startet med `env -i` og bare hjemmappa, stien,
+  proxyen og sertifikatene. Dermed så den ikke `CATENDA_*`.
+- **Tre åpne issues**, hver i sin klon, samtidig. #1597 fikk en commit, som Claude kontrollerte
+  mot `vedtaksregister.py` (PR #2254). #1978 og punkt 1 i #2105 var allerede løst. Gemini
+  meldte det og endret ingenting. Claude kontrollerte det avgjørende leddet i hvert av dem.
+- **Forbruk.**
+
+  | Kjøring | Tid | Tokens inn og ut | Lest fra cache |
+  | --- | --- | --- | --- |
+  | Neon, review | 134 s | 144 000 | 533 000 |
+  | Argon, review | 172 s | 180 000 | 1 035 000 |
+  | Neon, retting | 299 s | 143 000 | 1 400 000 |
+  | Neon, tre issues | 165–437 s | 453 000 | 3 556 000 |
+
+  `/code-review` (medium) på diffen på én linje brukte 9 kall i en subagent: 564 000 tokens
+  lest og 167 000 skrevet til cache, og 4 900 ut. Claudes kontroll av de tre issuene tok om lag
+  8 kall. Konteksten i økta vokste da fra 182 000 til 201 000 tokens. `/code-review` koster
+  det samme uansett hvem som skrev koden.
+
 ## Hva Gemini 4-modellene er egnet for
 
 Lest fra nettet, ikke prøvd i repoet. Det meste kommer fra tredjeparts blogger og Googles egne
@@ -69,7 +113,8 @@ ikke undersøkt.
 - `agy` sender det den får, til Google. Saksdata, kontraktsinnhold, personnavn, nøkler og
   tilgangsopplysninger skal ikke sendes (`CLAUDE.md`, «Hvor hva står»).
 - Innloggingsguiden har en forhåndsvalgt avkrysning om at Google kan samle og bruke
-  interaksjonsdata. Valget ble ikke tatt bevisst, og det er uavklart om det ble akseptert.
+  interaksjonsdata. Ved den første innloggingen ble valget ikke tatt bevisst, og det er
+  uavklart om det ble akseptert. Ved den andre ble haken fjernet (prøve 2).
 - [Catenda-brokeren](../verktoy/catenda-broker/README.md) holder bare Catenda-hemmeligheter og
   kan ikke bære Google-innlogging.
 - Verktøyet er ikke bestilt til noe i løsningen. Brukes det til repoarbeid, gjelder samme regler
@@ -88,6 +133,7 @@ Claude. Forslaget, i prioritert rekkefølge:
 2. **Gi `agy` en egen klon uten push-adresse** (`git remote set-url --push origin no_push`).
    Den kan commite lokalt, men ikke pushe. Claude henter og leser diffen og pusher selv til
    utviklingsgrenen. En `git worktree` er ikke nok, siden den deler konfigurasjonen med repoet.
+   Prøvd i prøve 2. Klonen er likevel ingen sperre, for `agy` kan sette adressen tilbake.
 3. **Skriv i prompten at `agy` aldri skal pushe eller merge.** Dette er en påminnelse, ikke en
    sperre.
 
@@ -96,18 +142,18 @@ oppdragsgiver.
 
 ## Verifikasjon og grenser
 
-- **Kjørt og observert:** alt under «Kjørt og observert».
+- **Kjørt og observert:** alt under «Kjørt og observert» og «Prøve 2».
 - **Lest fra nettet:** egnetheten per modell, utfasingen av Gemini CLI, cachelevetiden og prisene.
 - **Ikke testet:**
   - cachens faktiske levetid over tid (1, 5, 15 og 60 minutter);
-  - kvalitet, hastighet og kostnad på modellene mot oppgaver i repoet;
-  - review av en kjent diff med en bevisst feil;
+  - kvaliteten på oppgaver som er større enn ett lite issue, og på feil som verken testene eller
+    en rask lesing fanger;
   - forbruket mot kvoten i abonnementet, og `/context` og andre skråstrekkommandoer;
   - om `agy` bruker eksplisitt cache, og minimumsgrensen for Gemini 4;
   - om `gh` i containeren har et token `agy` kan bruke;
   - push til `main` fra en annen konto med bypass (listen er tom);
-  - at klonen uten push-adresse stopper et push;
   - at force push til `main` avvises (regelen er slått på, men ikke prøvd);
-  - hva selvoppdateringen i skriptet gjør over tid.
-- **Ikke gjort:** klonen uten push-adresse (punkt 2) og instruksen i prompten (punkt 3) er ikke
-  satt opp.
+  - hva selvoppdateringen i skriptet gjør over tid;
+  - hva `/code-review` koster på en større diff, og hva det koster å gjøre et issue selv. Det er
+    ikke målt, bare anslått.
+- **Ikke gjort:** instruksen i prompten (punkt 3) er brukt i prøve 2, men er ikke en sperre.
