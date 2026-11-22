@@ -35,15 +35,6 @@ export function erInnsigelseIFristen(s: Standpunkt): boolean {
   );
 }
 
-/** Et standpunkt som vises én gang for hele fristkravet (BF-45, U-3 og U-4). */
-export function gjelderHeleFristkravet(s: Standpunkt): boolean {
-  return (
-    s.art === 'hindring' ||
-    s.art === 'rettidighet' ||
-    (s.art === 'spesifisering' && !erInnsigelseIFristen(s))
-  );
-}
-
 /** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
 export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
   // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`kontrollerHjemleneIFristen`).

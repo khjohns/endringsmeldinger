@@ -11,7 +11,6 @@ import { sakensKode } from '#kjerne/frosset/tekst.ts';
 import { forlengetFrist } from '#kjerne/regler/hverdager.ts';
 import {
   erInnsigelseIFristen,
-  gjelderHeleFristkravet,
   innholdIFristen,
   utregningIFristen,
 } from '#kjerne/spor/frist/format.ts';
@@ -70,9 +69,13 @@ export interface KravetOgSvaretIFristen {
  */
 const gjelderAlle = (l: Svarlaget): boolean =>
   l.iSporet < 1 ||
-  l.standpunkter.some(
-    ({ standpunkt: s }) => s.art !== 'spesifisering' && erInnsigelseIFristen(s)
-  );
+  l.standpunkter.some(({ standpunkt: s }) => s.art !== 'spesifisering' && erInnsigelseIFristen(s));
+
+/** Et standpunkt som vises én gang for hele fristkravet (BF-45, U-3 og U-4). */
+const gjelderHeleFristkravet = (s: Standpunkt): boolean =>
+  s.art === 'hindring' ||
+  s.art === 'rettidighet' ||
+  (s.art === 'spesifisering' && !erInnsigelseIFristen(s));
 
 /**
  * Kravet som gjelder i fristen og byggherrens svar på det, eller `null` uten krav. `alle` er brevene i
