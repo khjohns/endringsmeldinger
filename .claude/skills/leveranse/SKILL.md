@@ -209,20 +209,22 @@ i PR-en fra grenen `skjermbilder`, slik
 **Stoppregelen for funn.** Den gjelder alle funnene fra reviewene i dette avsnittet, også
 forslagene fra `/simplify` som ikke gjennomføres. En modell som blir bedt om å finne feil,
 finner alltid noe, så hvert funn får en prioritet før det får et utfall. Prioriteten
-avgjøres av hva som skjer i vanlig bruk, ikke av hva som kan tenkes (#1958).
+avgjøres av hva som faktisk kan skje med gyldig tilstand og inndata, ikke av hva som kan
+tenkes (#1958).
 
 | Prioritet | Når | Utfall |
 | --- | --- | --- |
 | **P0** | Gir feil resultat nå i vanlig bruk, eller bryter et vedtak, kontrakten eller en sikkerhetsinvariant i `CLAUDE.md` | Rettes i PR-en |
-| **P1** | Gir feil i vanlig bruk når en endring som er planlagt i et issue eller et vedtak, kommer. Eller en regel eller verdi står to steder og kan gli fra hverandre: en domeneregel, en lagret verdi, eller en kontrakt eller konstant som deles mellom serveren, kjernen og visningen | Rettes i PR-en når det gjelder koden PR-en skriver eller endrer. Ellers føres det videre (under) |
-| **P2** | Et konkret scenario utenfor vanlig bruk: et kanttilfelle, en sjelden inndata eller en feilsti, med inndata eller steg som kan beskrives | Prøves, og blir P1 eller P3. P2 er aldri det endelige nivået |
-| **P3** | Alt annet: ingen kaller treffer det i dag, stil, navn, docstringer, ytelse uten måling, duplisering av kode i samme lag, små designpunkter, og testkode, verktøy, hooks og dokumentasjon som verken kan gjøre en test grønn for feil atferd i produktkoden eller skjule en feil der | Avvises med én linje. Duplisering PR-en selv innfører, rettes |
+| **P1** | Gir feil i vanlig bruk når en endring som er planlagt i et issue eller et vedtak, kommer. Eller en funksjon, prosedyre eller modul PR-en skriver eller endrer, gir feil resultat for gyldig inndata etter sin egen kontrakt, også før kalleren er koblet på. Eller en regel eller verdi står to steder og kan gli fra hverandre: en domeneregel, en lagret verdi, en kontrakt eller konstant som deles mellom serveren, kjernen og visningen, eller visningen eller serveren som avgjør noe kjernen eier | Rettes i PR-en når det gjelder koden PR-en skriver eller endrer. Ellers føres det videre (under) |
+| **P2** | Et konkret scenario utenfor vanlig bruk: et kanttilfelle, en sjelden inndata eller en feilsti, med inndata eller steg som kan beskrives | Prøves. Kan scenariet inntreffe med gyldig tilstand og inndata, og gir det feil resultat etter en kilde, blir det P1. Ellers P3. P2 er aldri det endelige nivået |
+| **P3** | Alt annet: kode ingen kaller treffer, som PR-en ikke skriver eller endrer, stil, navn, docstringer, ytelse uten måling, duplisering av kode i samme lag, små designpunkter, og testkode, verktøy, hooks og dokumentasjon som verken kan gjøre en test grønn for feil atferd i produktkoden eller skjule en feil der | Avvises med én linje. Duplisering PR-en selv innfører, rettes |
 
 **Prøvingen.** Funnene med P0–P2 prøves av agenten `funnprove` i ny kontekst før de
 rettes, én gang per review. Den får funnene med prioriteten og diffen, ikke byggeøktas
-begrunnelse, og forsøker å avkrefte hvert funn. Et funn holder når agenten finner
-inndata eller et steg i vanlig bruk som gir feilen, og en kilde for at resultatet er
-feil. Da blir et P2 et P1. Ellers settes funnet ned, et P2 til P3. Et brudd på et
+begrunnelse, og forsøker å avkrefte hvert funn. Et P0 holder når agenten finner inndata
+eller et steg i vanlig bruk som gir feilen, og en kilde for at resultatet er feil. Et P1
+eller P2 holder når scenariet kan inntreffe med gyldig tilstand og inndata, og en kilde
+viser at resultatet blir feil. Da blir et P2 et P1. Ellers settes funnet ned. Et brudd på et
 vedtak, kontrakten eller en sikkerhetsinvariant settes ikke ned fordi scenariet er
 sjeldent. Et funn med en test som feiler før rettingen, er alt prøvd, og et P2 blir da
 P1. Har reviewet bare P3-funn, kjøres ikke prøvingen.
@@ -235,8 +237,8 @@ Et funn med P0 eller P1 rettes ikke i PR-en, når
 - rettingen hører til en inngang eller del som ikke finnes ennå, eller som bygges i et
   annet åpent issue. Da føres kravet som kommentar i det issuet, også når PR-en er «Del
   av» det issuet;
-- funnet sto før PR-en, og rettingen er mer enn noen få linjer i en fil PR-en alt endrer.
-  Da blir et P0 et eget issue (`CLAUDE.md`, «Hvor hva står»), og et P1 føres i ett
+- funnet sto før PR-en, utenfor funksjonene PR-en skriver eller endrer. Da blir et P0 et
+  eget issue (`CLAUDE.md`, «Hvor hva står»), og et P1 føres i ett
   oppfølgingsissue per PR, med etiketten `review-oppfølging` og en sjekkliste. Ett issue
   per funn lages ikke (#649).
 
@@ -250,9 +252,9 @@ prioriteten og utfallet: rettet med commit, lenke til kommentaren eller
 oppfølgingsissuet, spørsmålet under «Åpne spørsmål», eller avvisningen med begrunnelsen.
 Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3».
 
-Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
-av rettingene rettes bare når det er P0. Et P1 derfra føres videre, et P2 settes til P3
-(«P2 → P3») uten ny prøving, og et P3 avvises.
+Reviewet kjøres én gang, og kontrollen av rettingene én gang. Fra kontrollen av
+rettingene rettes et P0, og et P1 eller prøvd P2 i linjene rettingen selv skrev. Et annet
+P1 føres videre, et annet P2 settes til P3 («P2 → P3») uten prøving, og et P3 avvises.
 
 **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står punktet der
 alt, skriver du en kommentar der i stedet for et nytt punkt.
