@@ -55,7 +55,7 @@ const testfil = (
 });
 
 describe('SuitefeilReporter og samleSuitefeil (#1133, #1425)', () => {
-  it('samler feil på filnivå, i describe og uhåndterte feil med testfil når Vitest oppgir den', () => {
+  it('samler feil på filnivå, i describe og uhåndterte feil med tom fil og suite', () => {
     const filer: Testfil[] = [
       testfil(
         `${ROT}/${MAALFIL}`,
@@ -64,20 +64,14 @@ describe('SuitefeilReporter og samleSuitefeil (#1133, #1425)', () => {
       ),
     ];
     const feil = samleSuitefeil(filer, [
-      {
-        message: 'uhåndtert i annen fil',
-        type: 'Unhandled Rejection',
-        VITEST_TEST_PATH: `${ROT}/${ANNEN_FIL}`,
-      },
-      { message: 'uhåndtert uten fil', type: 'Unhandled Rejection' },
+      { message: 'uhåndtert avvisning', type: 'Unhandled Rejection' },
       { message: undefined, name: 'Error', type: 'Unhandled Rejection' },
       { message: 42, type: 'Unhandled Rejection' },
     ]);
     expect(feil).toEqual<Suitefeil[]>([
       { fil: `${ROT}/${MAALFIL}`, suite: '', melding: 'importfeil' },
       { fil: `${ROT}/${MAALFIL}`, suite: 'oppsett', melding: 'hook feilet' },
-      { fil: `${ROT}/${ANNEN_FIL}`, suite: '', melding: 'uhåndtert i annen fil' },
-      { fil: '', suite: '', melding: 'uhåndtert uten fil' },
+      { fil: '', suite: '', melding: 'uhåndtert avvisning' },
       { fil: '', suite: '', melding: 'Error' },
       { fil: '', suite: '', melding: '42' },
     ]);
@@ -91,17 +85,9 @@ describe('SuitefeilReporter og samleSuitefeil (#1133, #1425)', () => {
     try {
       new SuitefeilReporter().onTestRunEnd(
         [testfil(`${ROT}/${MAALFIL}`, [])],
-        [
-          {
-            message: 'avvisning i målfil',
-            type: 'Unhandled Rejection',
-            VITEST_TEST_PATH: `${ROT}/${MAALFIL}`,
-          },
-          { message: 'avvisning utenfor test', type: 'Unhandled Rejection' },
-        ]
+        [{ message: 'avvisning utenfor test', type: 'Unhandled Rejection' }]
       );
       expect(JSON.parse(readFileSync(ut, 'utf8'))).toEqual([
-        { fil: `${ROT}/${MAALFIL}`, suite: '', melding: 'avvisning i målfil' },
         { fil: '', suite: '', melding: 'avvisning utenfor test' },
       ]);
     } finally {
@@ -155,75 +141,28 @@ describe('uhåndterte feil i vurder og kontrollfeil (#1425)', () => {
     expect(vurder(medForutsetning, rapport, ROT, MAALFILER).oppdaget).toBe(false);
   });
 
-  it('en suitefeil eller uhåndtert feil i en annen fil enn målfilene avgjør ikke utfallet (#2108)', () => {
+  it('en suitefeil i en annen fil enn målfilene avgjør fortsatt ikke utfallet (#2108)', () => {
     const rapport: Rapport = {
       testResults: [fil(MAALFIL, [assertionFeil('M-1: forventning')])],
-      suitefeil: samleSuitefeil(
-        [
-          testfil(
-            `${ROT}/${ANNEN_FIL}`,
-            [],
-            [{ fullName: 'annen', feil: [{ message: 'oppsett feilet' }] }]
-          ),
-        ],
-        [
-          {
-            message: 'avvisning i annen fil',
-            type: 'Unhandled Rejection',
-            VITEST_TEST_PATH: `${ROT}/${ANNEN_FIL}`,
-          },
-        ]
-      ),
+      suitefeil: [{ fil: `${ROT}/${ANNEN_FIL}`, suite: 'annen', melding: 'oppsett feilet' }],
     };
     const u = vurder(MUTASJON, rapport, ROT, MAALFILER);
     expect(u.oppdaget).toBe(true);
     expect(u.linjer).toContain(
-      `  utenfor målfilene, avgjør ikke utfallet: ${ANNEN_FIL}: 2 feil som ikke er assertions`
+      `  utenfor målfilene, avgjør ikke utfallet: ${ANNEN_FIL}: 1 feil som ikke er assertions`
     );
   });
 
-  it('en uhåndtert feil med VITEST_TEST_PATH i målfilen hindrer oppdaget', () => {
-    const rapport: Rapport = {
-      testResults: [fil(MAALFIL, [assertionFeil('M-1: forventning')])],
-      suitefeil: samleSuitefeil(
-        [],
-        [
-          {
-            message: 'avvisning i målfil',
-            type: 'Unhandled Rejection',
-            VITEST_TEST_PATH: `${ROT}/${MAALFIL}`,
-          },
-        ]
-      ),
-    };
-    const u = vurder(MUTASJON, rapport, ROT, MAALFILER);
-    expect(u.oppdaget).toBe(false);
-    expect(u.linjer).toContain(`  suitefeil: ${MAALFIL}: avvisning i målfil`);
-  });
-
-  it('kontrollfeil melder uhåndterte feil både med og uten testfil selv når alle testene er grønne', () => {
+  it('kontrollfeil melder en uhåndtert feil selv når alle testene er grønne', () => {
     const medUhaandtert: Rapport = {
       testResults: [fil(MAALFIL, [gronnTest('M-1: forventning')])],
-      suitefeil: samleSuitefeil(
-        [],
-        [
-          {
-            message: 'avvisning i annen fil\nlinje 2',
-            type: 'Unhandled Rejection',
-            VITEST_TEST_PATH: `${ROT}/${ANNEN_FIL}`,
-          },
-          { message: 'avvisning utenfor test\nlinje 2', type: 'Unhandled Rejection' },
-        ]
-      ),
+      suitefeil: [{ fil: '', suite: '', melding: 'avvisning utenfor test\nlinje 2' }],
     };
     const uten: Rapport = {
       testResults: [fil(MAALFIL, [gronnTest('M-1: forventning')])],
       suitefeil: [],
     };
-    expect(kontrollfeil(medUhaandtert, ROT)).toEqual([
-      `${ANNEN_FIL}: avvisning i annen fil`,
-      'uhåndtert: avvisning utenfor test',
-    ]);
+    expect(kontrollfeil(medUhaandtert, ROT)).toEqual(['uhåndtert: avvisning utenfor test']);
     expect(kontrollfeil(uten, ROT)).toEqual([]);
   });
 });

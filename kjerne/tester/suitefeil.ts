@@ -11,7 +11,6 @@ export interface Vitestfeil {
   message?: unknown;
   name?: string;
   type?: string;
-  VITEST_TEST_PATH?: unknown;
 }
 
 /** Det reporteren leser av en fil eller en `describe` i Vitest. */
@@ -24,8 +23,8 @@ export interface Testfil extends Suite {
 }
 
 /**
- * En feil som ikke hører til én test: `suite` er `describe` eller tom for fila, og `fil` er
- * tom for en uhåndtert feil uten tilknyttet testfil (#1425).
+ * En feil som ikke hører til én test: `suite` er `describe` eller tom for fila, og både
+ * `fil` og `suite` er tomme for en uhåndtert feil (#1425).
  */
 export interface Suitefeil {
   fil: string;
@@ -49,11 +48,7 @@ export function samleSuitefeil(
         s.errors().map((e) => ({ fil: f.moduleId, suite: s.fullName, melding: melding(e) }))
       ),
     ]),
-    ...uhaandterte.map((e) => ({
-      fil: typeof e.VITEST_TEST_PATH === 'string' ? e.VITEST_TEST_PATH : '',
-      suite: '',
-      melding: melding(e),
-    })),
+    ...uhaandterte.map((e) => ({ fil: '', suite: '', melding: melding(e) })),
   ];
 }
 
