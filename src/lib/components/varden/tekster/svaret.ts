@@ -116,6 +116,7 @@ export const SKJEMA = haerdet({
   forholdspunktet: 'Forholdet',
   forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
+  lagfeil: 'Vi kunne ikke beregne vilkårene for svaret. Prøv å laste saken på nytt.',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: (m: Oppgjoersform) => `Velg om du godkjenner ${metodenavn(m)}.`,
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
@@ -196,6 +197,7 @@ export const FRISTSVAR = haerdet({
   manglerSpesifisering: 'Velg om kravet ble spesifisert i tide.',
   manglerDager: 'Velg hvor mange av dagene du godkjenner.',
   manglerDeldager: 'Skriv et helt antall dager.',
+  ugyldigeDeldager: 'Skriv et positivt helt antall dager.',
   deldagerUtenfor: (krevd: number) =>
     `Totalentreprenøren krever ${dager(krevd)}. Du kan ikke godkjenne flere.`,
   manglerMaatteForstaa:

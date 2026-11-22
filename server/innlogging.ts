@@ -18,6 +18,7 @@
  * loggen får bare navnet på feiltypen, som i Python.
  */
 
+import { kjenteLoggfelter, loggFeil } from './logg.ts';
 import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'node:http';
 
 import type { Avhengigheter, Innlogget, Rute, Svar } from './rutetyper.ts';
@@ -25,7 +26,7 @@ import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
-import { fast, loggFeil, svarhoder } from './inngang.ts';
+import { fast, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -317,6 +318,7 @@ async function tilbakekall(
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
     kontrollerHoder(innlogget(''), rute);
     const bruker = await leverandoer.konto(innlogging, kode[0], nettleser, avh);
+    kjenteLoggfelter({ aktor_id: bruker });
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
     // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).

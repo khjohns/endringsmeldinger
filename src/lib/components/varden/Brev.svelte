@@ -378,6 +378,7 @@
     font-size: 14px;
   }
   .rullende .fot {
+    border-top: var(--rule);
     position: sticky;
     bottom: 0;
     margin: var(--spacing-8) calc(-1 * var(--innfelt-luft)) calc(-1 * var(--innfelt-luft));

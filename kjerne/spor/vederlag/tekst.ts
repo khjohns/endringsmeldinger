@@ -256,8 +256,12 @@ function kravetsBeloep(krav: Krav): string {
 }
 
 /** Temaene i byggherrens svar i skjemaets rekkefølge, med overskriften (LV-U34, KA-U53). */
-function temaer(krav: Krav, { saken }: Tekst, regler: Regelsett): Tema[] {
-  const hjemmel = hjemmelenGjelder('34.1.2', saken.paaberopelse, regler) ? '34.1.2' : '34.1.1';
+export function svartemaerIVederlaget(
+  krav: Krav,
+  paaberopelse: Krav | null,
+  regler: Regelsett
+): Tema[] {
+  const hjemmel = hjemmelenGjelder('34.1.2', paaberopelse, regler) ? '34.1.2' : '34.1.1';
   return [
     { punkt: FORHOLDET, overskrift: 'Forholdet' },
     { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
@@ -395,7 +399,7 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   kravetOm: KRAVET_OM,
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
-  temaer,
+  temaer: (krav, { saken }, regler) => svartemaerIVederlaget(krav, saken.paaberopelse, regler),
   punktet,
   erInnsigelse: (p) =>
     (p.art === 'oppgjoersform' && !p.aksepterer) || (p.art === 'justering' && !p.godtar),

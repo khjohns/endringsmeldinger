@@ -604,9 +604,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         });
         // Loggen har stedet og feilklassen, ikke meldingen (#867 punkt 5).
         const [linje] = logg.mock.calls[0] as [string];
-        expect(linje).toMatch(
-          /^Medlemslisten fra Catenda kunne ikke synkroniseres \(Error\)\n\s+at /
-        );
+        expect(JSON.parse(linje)).toMatchObject({
+          sted: 'Medlemslisten fra Catenda kunne ikke synkroniseres',
+          feilklasse: 'Error',
+          kallstakk: expect.any(Array),
+        });
         expect(linje).not.toContain(nede.message);
       } finally {
         logg.mockRestore();
@@ -641,9 +643,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       try {
         expect(await tilgang(m, p.id, { catenda, pool })).toMatchObject({ rolle: 'member' });
         expect(kall).toEqual([p.catenda]);
-        expect(logg.mock.calls[0][0]).toContain(
-          'Medlemslisten fra Catenda kunne ikke synkroniseres (Error)'
-        );
+        expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda kunne ikke synkroniseres',
+          feilklasse: 'Error',
+        });
       } finally {
         logg.mockRestore();
       }
@@ -662,11 +665,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '60');
         await tilgang(m, p.id, { catenda });
         expect(kall).toEqual([]);
-        expect(logg).toHaveBeenCalledExactlyOnceWith(
-          expect.stringMatching(
-            new RegExp(`^Medlemslisten fra Catenda er utdatert .*"${p.id}".*"alder_sekunder":\\d+`)
-          )
-        );
+        expect(logg).toHaveBeenCalledOnce();
+        expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda er utdatert',
+          prosjekt_id: p.id,
+          alder_sekunder: expect.any(Number),
+        });
       } finally {
         vi.unstubAllEnvs();
         logg.mockRestore();
@@ -694,9 +698,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         await tilgang(n, q.id, { catenda: nede });
         // Neste kontroll innenfor terskelen gir ikke et nytt varsel.
         await tilgang(n, q.id, { catenda: nede });
-        expect(warn).toHaveBeenCalledExactlyOnceWith(
-          expect.stringMatching(new RegExp(`^Medlemslisten fra Catenda er utdatert .*"${q.id}"`))
-        );
+        expect(warn).toHaveBeenCalledOnce();
+        expect(JSON.parse(String(warn.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda er utdatert',
+          prosjekt_id: q.id,
+        });
       } finally {
         vi.unstubAllEnvs();
         warn.mockRestore();

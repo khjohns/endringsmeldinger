@@ -19,6 +19,7 @@
  * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
+import { loggFeil } from './logg.ts';
 import type { Kontraktsteam } from './autorisasjon.ts';
 import type { Registrertfrist } from '../kjerne/spor/frist/format.ts';
 import { lesKontraktsfrister } from './kontraktsfrister.ts';
@@ -50,6 +51,7 @@ import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
   lesJournal,
+  lesKontraktsforkortelse,
   lesLeveringsmaal,
   SakFinnesIkke,
   skrevetAvKjernen,
@@ -120,7 +122,7 @@ function oversett(feil: unknown, forventet: number | null): unknown {
   // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739
   // punkt 1). Et tomt mål av en annen grunn ville sett likt ut, så årsaken logges (#763).
   if (feil instanceof IngenLeveringsmaal) {
-    console.warn(`Skrivingen ble avvist: ${melding}`);
+    loggFeil('Skrivingen ble avvist', feil, 'warn');
     return new SkrivingAvvist(melding, { cause: feil });
   }
   switch (feilnummer(feil)) {
@@ -408,19 +410,6 @@ export async function lesNesteSakskode(
   } catch (feil) {
     throw oversett(feil, null);
   }
-}
-
-/**
- * Kontraktsforkortelsen for merkingen av brevet (LV-U44), lest med `koe_api.kontraktsparter`
- * i skrivetransaksjonen, eller `null` når prosjektet ikke har den (S2 A i #1497).
- */
-async function lesKontraktsforkortelse(foresp: Foresp, kontekst: Kontekst): Promise<string | null> {
-  const svar = await foresp()
-    .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
-    .input('prosjekt', sql.NVarChar(4000), kontekst.prosjekt)
-    .execute<{ kontraktsforkortelse: string }>('koe_api.kontraktsparter');
-  const [rad] = svar.recordset;
-  return rad ? rad.kontraktsforkortelse : null;
 }
 
 /**

@@ -1852,18 +1852,17 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
-    expect(b.uten_virkning).toHaveLength(1);
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3, 3]);
+    expect(b.uten_virkning).toBeUndefined();
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a033.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt\u00a033.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a033.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt\u00a033.1), videre subsidiært ingen innsigelse om at kravet ble spesifisert for sent (punkt\u00a033.6.1), godkjent med 10 dager for frist Sluttfristen.'
     );
-    // KA-U78: varselet, hindringen og dagene i hvert sitt lag. Standpunktet uten virkning (§ 33.6.1
-    // i tide) står uten lagslinje (spørsmål 8 i spørsmålsfila for #1663, 09.11).
+    // KA-U84: vurderingen av spesifiseringen følger innsigelsene, i samme lag som dagene.
     expect(laast(rad)).toEqual([
       INNLEDNING_FRIST,
       '1. Varselet om fristforlengelse (punkt\u00a033.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
       '2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt\u00a033.1).',
-      '3. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt\u00a033.6.1).',
+      `3. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem\n\n${SPESIFISERING_JA}`,
       '4. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
       `5. Forbehold\n\n${FORBEHOLDET}`,
     ]);
@@ -1871,7 +1870,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(standpunktetErSubsidiaert(s.u(), 'frist', dagene.id), 'OV-U32').toBe(true);
   });
 
-  it('kontrollsak: med fremdriftshindring står dagene i lag 2, ikke 3 (OV-U32)', () => {
+  it('KA-U84: bekreftet hindring får vilkåret fra varselet uten å åpne et eget lag for dagene', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1885,7 +1884,13 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2]);
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 2, 2]);
+    expect(laast(rad)[2]).toBe(
+      HINDRET(2).replace(
+        '\n\n',
+        '\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\n'
+      )
+    );
     expect(laast(rad)[4]).toBe(
       '4. Dagene for frist Sluttfristen\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.'
     );
@@ -1910,8 +1915,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     // LV-U34, LV-U40 og GR-U32: svarene i punkter med lagslinjer, nummerert gjennom brevet.
     // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev, og lagslinjen viser
-    // til punktet i svaret på forholdet. Standpunktet uten virkning står uten lagslinje
-    // (OV-U33, spørsmål 8 for #1663).
+    // til punktet i svaret på forholdet. KA-U84 gjelder også vurderingen av spesifiseringen.
     expect(laast(rad)).toEqual([
       INNLEDNING_FORHOLDET,
       '1. Varselet etter punkt\u00a032.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.',
@@ -1919,7 +1923,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       INNLEDNING_FRIST,
       '3. Varselet om fristforlengelse (punkt\u00a033.4)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
       '4. Hindringen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a03 ovenfor fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt\u00a033.1).',
-      '5. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt\u00a033.6.1).',
+      `5. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a04 ovenfor fører frem\n\n${SPESIFISERING_JA}`,
       '6. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a04 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
       '7. Forbehold',
     ]);
@@ -4648,7 +4652,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
-  it('beslutningslinjen nevner begge bestemmelsene når svaret prekluderer etter § 33.4 og § 33.6.2 tredje ledd (VS-U17, vedtaket 05.10)', () => {
+  it('KA-U84: innsigelsen etter § 33.6.2 følger etter innsigelsen etter § 33.4', () => {
     const { s } = medForesporsel();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     const rad = fristsvar(
@@ -4662,19 +4666,18 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a033.4 og svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a033.4 kom for sent, subsidiært svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, videre subsidiært fremdriften er hindret av forholdet (punkt\u00a033.1), godkjent med 20 dager for frist Sluttfristen.'
     );
-    // OV-U32, LV-U34: begge påberopelsene står i lag 1, hver i sitt punkt, og lagslinjen for
-    // dagene i lag 2 viser til begge.
-    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 1, 2]);
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3, 3]);
     expect(
       laast(rad)
         .join('\n\n')
         .match(/^(Prinsipalt|Subsidiært|Videre subsidiært).*$/gm)
     ).toEqual([
       'Prinsipalt',
-      'Prinsipalt',
-      'Subsidiært, hvis innsigelsene i punkt\u00a01 og 2 ovenfor ikke fører frem',
+      'Subsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem',
+      'Videre subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem',
+      'Videre subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem',
     ]);
   });
 
@@ -4691,8 +4694,29 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
     expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, subsidiært fremdriften er hindret av forholdet (punkt\u00a033.1), godkjent med 20 dager for frist Sluttfristen.'
     );
+  });
+
+  it('KA-U86: etter innsigelsen etter § 33.6.2 alene er også en bekreftet hindring subsidiær', () => {
+    const vurdering = { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), frist_varsel_ok: true };
+    const lagene = (iTide: boolean) => {
+      const { s } = medForesporsel();
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const rad = fristsvar(
+        s,
+        { ...vurdering, foresporsel_svar_ok: iTide },
+        iTide
+          ? { resultat: 'godkjent', godkjent_dager: 20 }
+          : { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+      return (b.virkninger as Data[]).map((v) => v.lag);
+    };
+    // Innsigelsen etter § 33.6.2, hindringen og dagene.
+    expect(lagene(false)).toEqual([1, 2, 2]);
+    // Kontrollsak: svaret på forespørselen kom i tide, og hindringen står uten vilkår.
+    expect(lagene(true)).toEqual([1]);
   });
 
   it('et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent, godtas uten begrunnelse (KA-U46 punkt 1, VS-U17)', () => {
@@ -9560,6 +9584,26 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
       },
     ]);
   });
+
+  it.each([true, false])(
+    'KA-U84: hindringen i utkastet får vilkåret fra varselet når varselet kom i tide = %s',
+    (fristVarselOk) => {
+      const s = saken({ resultat: 'godkjent' });
+      const punkter = lagene(s, {
+        frist_varsel_ok: fristVarselOk,
+        vilkar_oppfylt: true,
+        spesifisert_krav_ok: true,
+        frister: [{ dager: 10 }],
+      });
+      const vilkaar = fristVarselOk ? [] : [{ innsigelse: '33.4' }];
+      expect(punkter.find((p) => p.standpunkt === 'hindring')).toMatchObject({
+        besvart: true,
+        virkning: fristVarselOk ? 'uten_virkning' : 2,
+        forutsetninger: vilkaar,
+      });
+      expect(punkter.find((p) => p.standpunkt === 'dager')?.forutsetninger).toEqual(vilkaar);
+    }
+  );
 
   it('KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag, med innsigelsene foran i brevets rekkefølge', () => {
     const s = saken({ resultat: 'godkjent' });

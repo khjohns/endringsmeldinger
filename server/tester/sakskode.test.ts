@@ -173,6 +173,45 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
     expect([linje(med).kode, linje(med).loepenummer]).toEqual(['koe', kode!.loepenummer]);
   });
 
+  it('leserollen får tildelt sakskode gjennom lesingen av saken (#2210)', async () => {
+    const sak = await opprettKjernesak(o);
+    const sti = `/api/kjerne/saker/${sak}`;
+    const les = () => kall(server.url, sti, { bruker: o.leser, prosjektId: o.prosjekt.id });
+    const foer = await les();
+    expect(foer.status).toBe(200);
+    expect(foer.kropp).toMatchObject({ sakskode: null, kan_foreslaa_sakskode: false });
+    expect((await sendKommando(server.url, o, sak, { versjon: 1 })).status).toBe(201);
+    const etter = await les();
+    expect(etter.status).toBe(200);
+    expect(etter.kropp).toMatchObject({
+      part: null,
+      sakskode: await kodenTil(sak),
+      kan_foreslaa_sakskode: false,
+    });
+    expect((etter.kropp as { sakskode: unknown }).sakskode).not.toBeNull();
+    expect(
+      (await kall(server.url, `${sti}/sakskode`, { bruker: o.leser, prosjektId: o.prosjekt.id }))
+        .status
+    ).toBe(403);
+  });
+
+  it('kontraktspartene kan få forslag til koden bare før sakens første brev (#2210)', async () => {
+    const sak = await opprettKjernesak(o);
+    const les = (bruker: typeof o.te) =>
+      kall(server.url, `/api/kjerne/saker/${sak}`, { bruker, prosjektId: o.prosjekt.id });
+    for (const bruker of [o.te, o.bh])
+      expect((await les(bruker)).kropp).toMatchObject({
+        sakskode: null,
+        kan_foreslaa_sakskode: true,
+      });
+    expect((await sendKommando(server.url, o, sak, { versjon: 1 })).status).toBe(201);
+    for (const bruker of [o.te, o.bh])
+      expect((await les(bruker)).kropp).toMatchObject({
+        sakskode: await kodenTil(sak),
+        kan_foreslaa_sakskode: false,
+      });
+  });
+
   it('registrert korrespondanse gir ikke saken en kode, og løpenummeret avvises for den (LV-U47)', async () => {
     const sak = await opprettKjernesak(o);
     const neste = await nesteFor('koe');
@@ -243,8 +282,8 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
     // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt.
     const igjen = await sendKommando(server.url, o, taperen, { versjon: 1 });
     expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
-    const numre = await Promise.all(saker.map(async (s) => (await kodenTil(s))?.loepenummer));
-    expect(numre.sort()).toEqual([neste, neste + 1]);
+    const numre = await Promise.all(saker.map(async (s) => (await kodenTil(s))!.loepenummer));
+    expect(numre.sort((a, b) => a - b)).toEqual([neste, neste + 1]);
     const rekke = (await koder()).filter((k) => k.kode === 'koe').map((k) => k.loepenummer);
     expect(rekke).toEqual(rekke.map((_, i) => i + 1));
   });

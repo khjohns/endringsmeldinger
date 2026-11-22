@@ -838,7 +838,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',
       // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
-      'spor/vederlag/tekst.ts:temaer',
+      'spor/vederlag/tekst.ts:svartemaerIVederlaget',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
@@ -1668,7 +1668,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/kommando.ts',
     'relasjon',
     'SPOERSMAALET.*',
-    ['spor/frist/kommando.ts:spoersmaaletFor'],
+    ['spor/frist/kommando.ts:fristspoersmaalForPunkt'],
   ],
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
   // Spørsmålene regelsettet krever svar på i fristen, også i lagene i et svarutkast (#1925, #2025).
@@ -2821,7 +2821,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
-  ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],
+  ['Linjeledd', 'brevtekst', 'tekst', ['frosset/linje.ts']],
+  [
+    'frosset/linje.ts:beslutningslinje(grunntekst)',
+    'brevtekst',
+    'forhold beloep oppgjoersform justering hindring spesifisering dager',
+    ['frosset/linje.ts:beslutningslinje'],
+  ],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],
   // OV-U32: leddene i samme lag under én etikett, i linjen og brevteksten.
   ['frosset/tekst.ts:iLagene', 'brevtekst', 'k l', ['frosset/tekst.ts']],

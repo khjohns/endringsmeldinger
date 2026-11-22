@@ -4,6 +4,7 @@
  * den før behandleren kalles.
  */
 
+import { loggFeil } from './logg.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import {
   utledJournal,
@@ -21,7 +22,7 @@ import {
   type Prosjekttilgang,
 } from './autorisasjon.ts';
 import { UsikkertUtfall, UUID, type Kontekst, type Pool } from './datalag.ts';
-import { fast, lagret, loggFeil, ugyldig, feilsvar, ukjenteFelt } from './inngang.ts';
+import { fast, lagret, ugyldig, feilsvar, ukjenteFelt } from './inngang.ts';
 import { lesSaken, lesSakensMaal, type Leveringsmaal } from './lager.ts';
 import type { Sakslenke } from './catenda.ts';
 import {
@@ -131,30 +132,40 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
 }
 
 const visSaken = ({ bruker, prosjekt, side, sakId }: Forespoersel, avh: Required<Avhengigheter>) =>
-  sakssvar(avh, lesekontekst(bruker, prosjekt.prosjektId, side), sakId, side?.rolle ?? null);
+  sakssvar(
+    avh,
+    lesekontekst(bruker, prosjekt.prosjektId, side),
+    sakId,
+    side?.rolle ?? null,
+    side !== null && prosjekt.rolle !== 'viewer'
+  );
 
 /** Saken slik aktøren i konteksten når den, med `part` som leserens side. */
 export async function sakssvar(
   avh: Required<Avhengigheter>,
   kontekst: Kontekst,
   sakId: string,
-  part: Kontraktstilgang['rolle'] | null
+  part: Kontraktstilgang['rolle'] | null,
+  kanForeslaaSakskode = false
 ): Promise<Svar> {
   let saken;
   try {
-    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
+    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true, merking: true });
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
-  const { journal, oppdrag, navn, navnefeil } = saken;
+  const { journal, oppdrag, navn, navnefeil, sakskode, kontraktsforkortelse } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
-  if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
+  if ('navnefeil' in saken) loggFeil('Navneoppslaget i saken feilet', navnefeil, 'warn');
   return [
     200,
     {
       success: true,
       part,
+      sakskode,
+      kontraktsforkortelse,
+      kan_foreslaa_sakskode: sakskode === null && kanForeslaaSakskode,
       ...sakenSomVises(journal, avh.kjerne),
       journal: journal.map((r) => ({
         event_id: r.event_id,
@@ -197,7 +208,7 @@ async function catendaLenke(
     const maal = await lesSakensMaal(datalag, kontekst, sakId);
     return maal && sakslenke(maal);
   } catch (feil) {
-    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, feil, 'warn');
+    loggFeil('Oppslaget av lenken til Catenda i saken feilet', feil, 'warn');
     return null;
   }
 }

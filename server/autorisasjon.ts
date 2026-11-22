@@ -17,12 +17,12 @@
  * for den samme koblingen (B-04 punkt 4).
  */
 
+import { kjenteLoggfelter, loggAdvarsel, loggFeil } from './logg.ts';
 import { timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, utenKontekst, type Kontekst, type Pool } from './datalag.ts';
-import { loggFeil } from './inngang.ts';
 import {
   FeilCatendaProsjekt,
   oversett,
@@ -109,6 +109,7 @@ export async function krevSesjon(
     throw new Nektet(503, 'AUTH_UNAVAILABLE', 'Innlogging er midlertidig utilgjengelig.');
   }
   if (!sesjon) throw new Nektet(401, 'UNAUTHORIZED', 'Du må logge inn.');
+  kjenteLoggfelter({ aktor_id: sesjon.bruker.id });
   // Inne i autentiseringen, som i Flask: en utlogget bruker skal få 401, ikke 403.
   const metode = foresporsel.method ?? 'GET';
   const csrf = foresporsel.headers['x-csrf-token'];
@@ -244,9 +245,10 @@ function varsleOmMedlemslistensAlder(prosjekt: string, alder: number): void {
   const naa = Date.now();
   if (alder >= grense && naa - (sisteVarsel.get(prosjekt) ?? -Infinity) >= grense * 1000) {
     sisteVarsel.set(prosjekt, naa);
-    console.warn(
-      `Medlemslisten fra Catenda er utdatert ${JSON.stringify({ prosjekt, alder_sekunder: alder })}`
-    );
+    loggAdvarsel('Medlemslisten fra Catenda er utdatert', {
+      prosjekt_id: prosjekt,
+      alder_sekunder: alder,
+    });
   }
 }
 
@@ -425,6 +427,7 @@ export async function krevProsjekttilgang(
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw ingenTilgang();
+    kjenteLoggfelter({ prosjekt_id: prosjektId });
     const synkronisert = await oppdaterMedlemslisten(
       db,
       catenda,
@@ -710,6 +713,7 @@ export async function krevGodkjennertilgang(
   let hindring;
   try {
     hindring = await hindringForGodkjenner(db, catenda, bruker.id, prosjektId);
+    if (hindring !== 'ukjent_prosjekt') kjenteLoggfelter({ prosjekt_id: prosjektId });
   } catch (feil) {
     utilgjengelig('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
   }

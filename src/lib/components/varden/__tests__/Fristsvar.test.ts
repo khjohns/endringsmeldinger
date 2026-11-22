@@ -5,7 +5,7 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
@@ -46,7 +46,11 @@ const medSvarPaaForesporsel = skrevet(
   }
 );
 
-async function svarskjemaet(journal: Journalrad[], valg: Fristsvarvalg = reaktiv(tomtFristsvar())) {
+async function svarskjemaet(
+  journal: Journalrad[],
+  valg: Fristsvarvalg = reaktiv(tomtFristsvar()),
+  lagfeil = false
+) {
   const kjernesak = lagKjernesak({
     sakId: SAK,
     prosjektId: 'p-1',
@@ -58,10 +62,14 @@ async function svarskjemaet(journal: Journalrad[], valg: Fristsvarvalg = reaktiv
       journal: journal.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
+      sakskode: null,
+      kontraktsforkortelse: null,
+      kan_foreslaa_sakskode: false,
       merking: MERKING,
     }),
   });
   await kjernesak.last();
+  if (lagfeil) vi.spyOn(kjernesak, 'lagForUtkastet').mockReturnValue(null);
   const sendt: TilBrevkontrollen[] = [];
   render(Fristsvar, {
     kjernesak,
@@ -93,6 +101,34 @@ async function svarPaaHeleKravet(spesifisert: 'Spesifisert i tide' | 'Spesifiser
 afterEach(cleanup);
 
 describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
+  it('viser feil ved beregning av lagene før byggherren ber om brevet (#2234)', async () => {
+    await svarskjemaet(medFristkrav, undefined, true);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Vi kunne ikke beregne vilkårene for svaret.'
+    );
+  });
+
+  it.each(['-2', '2,5', '0,0', '-0'])(
+    'viser feilen ved %s i dagfeltet når raden lukkes (#2234)',
+    async (verdi) => {
+      await svarskjemaet(medFristkrav);
+      const felt = screen.getByLabelText('Godkjente dager');
+      await fireEvent.input(felt, { target: { value: verdi } });
+      await ferdig();
+      expect(felt).toHaveFocus();
+      expect(felt).toHaveAccessibleDescription(/Skriv et positivt helt antall dager\./);
+    }
+  );
+
+  it.each(['abc', '2,5', '-2'])(
+    'panelet viser ikke dagene byggherren godkjenner mens dagfeltet har %s (#2234)',
+    async (verdi) => {
+      await svarskjemaet(medFristkrav);
+      await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: verdi } });
+      expect(document.body).not.toHaveTextContent(/NaN|2\.5|-2 av/);
+    }
+  );
+
   it('spørsmålet om hindringen og valgene nevner begge vilkårene (KA-U81)', async () => {
     await svarskjemaet(medFristkrav);
     expect(
@@ -317,7 +353,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await radio('Varslet for sent');
     expect(
       screen.getByText(
-        'For hele kravet. Prinsipalt: du gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at kravet er tapt for alle fristene.'
+        'For hele kravet. Du gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at kravet er tapt for alle fristene.'
       )
     ).toBeInTheDocument();
   });

@@ -14,19 +14,15 @@ import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Brevet, Fristtabellen } from './lesing';
-import {
-  innsigelseneFoer,
-  lageneISvaret,
-  medForbehold,
-  utenLag,
-  type Innsigelsen,
-  type Svarlaget,
-} from './svarlagene';
+import { lageneISvaret, medForbehold, utenLag, type Svarlaget } from './svarlagene';
 
 /** Dagene i et lag for én frist. */
 export interface Fristlaget {
   lag: number;
   etikett: string | null;
+  /** Innsigelsene laget gjelder hvis ikke fører frem, som raden heter etter (U-4). */
+  vilkaar: Svarlaget['vilkaar'];
+  heller: boolean;
   dager: number;
 }
 
@@ -54,8 +50,8 @@ export interface KravetOgSvaretIFristen {
   svarbrev: Brevet | null;
   frister: Fristen[];
   felles: Felleslaget[];
-  /** Standpunktene uten eget lag, med innsigelsene i lagene foran (U-3, OV-U42). */
-  utenLag: { standpunkt: Standpunkt; vilkaar: Innsigelsen[] }[];
+  /** Standpunktene som brevet ga uten eget lag (U-3, OV-U42). */
+  utenLag: Standpunkt[];
   /** Lagene som er ulike per frist, med vilkåret, som står én gang over fristene (U-4). */
   perFrist: Svarlaget[];
   /** Svaret ble gitt mens forholdet ikke var besvart, så forbeholdet gjelder (GR-U34, D-11). */
@@ -69,7 +65,13 @@ export interface KravetOgSvaretIFristen {
  */
 const gjelderAlle = (l: Svarlaget): boolean =>
   l.iSporet < 1 ||
-  l.standpunkter.some((s) => s.standpunkt.art === 'rettidighet' || s.standpunkt.art === 'hindring');
+  l.standpunkter.some(
+    ({ standpunkt: s }) =>
+      (s.art === 'rettidighet' && !s.iTide) || (s.art === 'hindring' && !s.oppfylt)
+  );
+
+const forAlleFristene = ({ standpunkt: s }: Svarlaget['standpunkter'][number]): boolean =>
+  s.art === 'hindring' || s.art === 'rettidighet' || (s.art === 'spesifisering' && s.iTide);
 
 /**
  * Kravet som gjelder i fristen og byggherrens svar på det, eller `null` uten krav. `alle` er brevene i
@@ -112,12 +114,18 @@ export function kravetOgSvaretIFristen(
   const lagene = lageneISvaret(u, svar, alle, sporlag, 'dager');
   const dagerI = (gjelder: string, l: Svarlaget) =>
     l.iSporet < 1 ? undefined : rader.get(gjelder)?.lag[l.iSporet - 1]?.dager;
-  const felles = lagene.filter(gjelderAlle).map((l): Felleslaget => {
+  const felles = lagene.flatMap((l): Felleslaget[] => {
+    if (!gjelderAlle(l)) {
+      const standpunkter = l.standpunkter.filter(forAlleFristene);
+      return standpunkter.length ? [{ ...l, standpunkter, dager: null }] : [];
+    }
     const dagene = new Set(frister.map((f) => dagerI(f.id, l)));
     const [dager] = dagene;
-    return { ...l, dager: dagene.size === 1 && dager !== undefined ? dager : null };
+    return [{ ...l, dager: dagene.size === 1 && dager !== undefined ? dager : null }];
   });
-  const perFrist = lagene.filter((l) => !gjelderAlle(l));
+  const perFrist = lagene
+    .filter((l) => !gjelderAlle(l))
+    .map((l) => ({ ...l, standpunkter: l.standpunkter.filter((s) => !forAlleFristene(s)) }));
   // Byggherrens begrunnelse står per punkt i svaret, og punktet for dagene i en frist er fristen
   // (KA-U46, `temaer` i `kjerne/spor/frist/tekst.ts`).
   const begrunnelse = (frist: string) =>
@@ -137,23 +145,20 @@ export function kravetOgSvaretIFristen(
     const lag = typeof v === 'number' ? lagene[v + grunnlag - 1] : undefined;
     return { etikett: lag?.etikett ?? null, begrunnelse: begrunnelse(frist) };
   };
-  // Et standpunkt uten eget lag gjelder hvis ingen av innsigelsene i lagene for hele kravet fører frem.
-  const foerPerFrist = perFrist[0]?.lag ?? lagene.length + 1;
   return {
     ...ut,
     frister: frister.map((f) => ({
       ...f,
       lagene: perFrist.flatMap((l) => {
         const dager = dagerI(f.id, l);
-        return dager === undefined ? [] : [{ lag: l.lag, etikett: l.etikett, dager }];
+        return dager === undefined
+          ? []
+          : [{ lag: l.lag, etikett: l.etikett, vilkaar: l.vilkaar, heller: l.heller, dager }];
       }),
       avslag: avslaget(f.id),
     })),
     felles,
-    utenLag: utenLag(svar, 'dager').map((standpunkt) => ({
-      standpunkt,
-      vilkaar: innsigelseneFoer(lagene, foerPerFrist),
-    })),
+    utenLag: utenLag(svar, 'dager'),
     perFrist,
     forbehold: medForbehold(u, svar, svarbrev),
   };

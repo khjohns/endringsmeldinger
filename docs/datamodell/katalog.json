@@ -458,7 +458,8 @@
      ["hendelse_id", "nvarchar(100)", "NOT NULL"],
      ["hendelsestype", "nvarchar(100)", "NOT NULL"],
      ["kropp", "nvarchar(max)", "NOT NULL"],
-     ["mottatt", "datetime2(3)", "NOT NULL"]
+     ["mottatt", "datetime2(3)", "NOT NULL"],
+     ["korrelasjons_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["id"],
     "unike": [],
@@ -482,7 +483,9 @@
      ["lease_startet", "datetime2(3)", "NULL"],
      ["lease_utloeper", "datetime2(3)", "NULL"],
      ["siste_forsoek", "uniqueidentifier", "NULL"],
-     ["leveringsoppdrag_id", "uniqueidentifier", "NULL"]
+     ["leveringsoppdrag_id", "uniqueidentifier", "NULL"],
+     ["korrelasjons_id", "uniqueidentifier", "NULL"],
+     ["logg_aktor_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["jobb_id"],
     "unike": [],

@@ -27,8 +27,16 @@ describe('utkastet for ny sak ved innlogging (#1678)', () => {
 });
 
 describe('den ventende opprettelsen etter et forsøk som feilet (#2188)', () => {
-  const forsok = { utkast: null } as never;
-  const ventende = { sakId: 'sak-1', kommandoId: 'kommando-1', utkast: null, forsok };
+  const utkast = {
+    forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+    tittel: 'Annen fundamentering',
+    beskrivelse: 'Vi måtte endre fundamenteringen.',
+    dato: '2026-10-01',
+    endringsordre: '',
+    vedlegg: [],
+  };
+  const forsok = { utkast } as never;
+  const ventende = { sakId: 'sak-1', kommandoId: 'kommando-1', forsok };
 
   it('en sikker avvisning beholder skjemaet og ID-ene, men ikke forsøket som ville gjenopptatt brevkontrollen', () => {
     lagreVentende('bruker-a', 'p1', ventende);
@@ -36,13 +44,19 @@ describe('den ventende opprettelsen etter et forsøk som feilet (#2188)', () => 
     expect(lesVentende('bruker-a', 'p1')).toEqual({
       sakId: 'sak-1',
       kommandoId: 'kommando-1',
-      utkast: null,
+      utkast,
     });
   });
 
   it('et usikkert utfall beholder forsøket, så det sendes på nytt med de samme ID-ene', () => {
     lagreVentende('bruker-a', 'p1', ventende);
     etterFeiletForsoek('bruker-a', 'p1', ventende, 'usikkert');
+    expect(JSON.parse(sessionStorage.getItem('nysak:ventende:bruker-a:p1')!)).toEqual(ventende);
+    expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
+  });
+
+  it('leser et eldre lagret forsøk med skjemaet i begge feltene (#2234)', () => {
+    sessionStorage.setItem('nysak:ventende:bruker-a:p1', JSON.stringify({ ...ventende, utkast }));
     expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
   });
 

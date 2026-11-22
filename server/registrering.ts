@@ -735,10 +735,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         const { oauth, integrasjonsnokkel } = catendaFraMiljoe();
         return { oauth, token: () => integrasjonsnokkel.token() };
       },
-      skriv: (linje) => console.log(linje),
+      skriv: (linje) => process.stdout.write(`${linje}\n`),
     });
   } catch (feil) {
-    console.error(feil instanceof Error ? feil.message : feil);
+    process.stderr.write(`${feil instanceof Error ? feil.message : String(feil)}\n`);
     process.exitCode = 1;
   } finally {
     await (pool as Pool | null)?.close();

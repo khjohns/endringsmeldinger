@@ -18,10 +18,11 @@
  * Server, så `id` i svaret og i stien er brukeren.
  */
 
+import { loggFeil } from './logg.ts';
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
 import { sql, utenKontekst, UUID, type Pool } from './datalag.ts';
-import { fast, lagret, loggFeil } from './inngang.ts';
+import { fast, lagret } from './inngang.ts';
 import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
 interface Prosjektrad {

@@ -5,8 +5,9 @@
  * står i #741 (kommentaren 18.10), med nummeret i testnavnet.
  */
 
+import type { Loggmottaker } from '../logg.ts';
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
   CatendaAvvisning,
@@ -67,7 +68,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
   let board: string;
   let kall_: { boardId: string; topic: NyTopic }[];
   let svar: () => Promise<string>;
-  const logg = { info() {}, warn() {}, error() {} };
+  const logg: Loggmottaker = { info() {}, warn() {}, error() {} };
   const ingenLevering = async (): Promise<never> => {
     throw new Error('Ingen levering i testene av topicen');
   };
@@ -106,7 +107,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       sakId
     );
-  const kjoer = () =>
+  const kjoer = (mottaker = logg) =>
     kjoerEnJobb({
       datalag: o.datalag.kjoeretid.pool,
       catenda: {
@@ -125,7 +126,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       },
       dokumenter: utenDokumenter,
       saksadresse: (p, s) => `https://app.example.no/${p}/${s}/kjerne`,
-      logg,
+      logg: mottaker,
     });
   const hent = (leasetid = LEASETID_S) =>
     o.datalag.kjoeretid.pool
@@ -220,6 +221,48 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     });
     expect(svar.status).toBe(201);
     expect(await jobben(svar.kropp.sak_id as string)).toHaveLength(1);
+  });
+
+  it('korrelasjons-ID-en følger HTTP-kommandoen til jobben etter commit (#1805)', async () => {
+    const klientensId = randomUUID();
+    const svar = await fetch(`${server.url}/api/kjerne/saker`, {
+      method: 'POST',
+      headers: {
+        Cookie: `__Host-koe_session=${o.te.token}`,
+        'X-CSRF-Token': o.te.csrf,
+        'X-Project-ID': o.prosjekt.id,
+        'X-Correlation-ID': klientensId,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        kommando_id: randomUUID(),
+        kommando: { type: 'opprett_sak', sakstittel: 'Skal ikke stå i loggen' },
+      }),
+    });
+    expect(svar.status).toBe(201);
+    const korrelasjon = svar.headers.get('X-Correlation-ID');
+    expect(korrelasjon).toMatch(/^[a-f0-9-]{36}$/);
+    expect(korrelasjon).not.toBe(klientensId);
+    const { sak_id: sakId } = (await svar.json()) as { sak_id: string };
+    const neste = await fetch(`${server.url}/ukjent`);
+    expect(neste.status).toBe(404);
+    expect(neste.headers.get('X-Correlation-ID')).toMatch(/^[a-f0-9-]{36}$/);
+    expect(neste.headers.get('X-Correlation-ID')).not.toBe(korrelasjon);
+    await neste.text();
+
+    const info = vi.fn<(linje: string) => void>();
+    expect(await kjoer({ ...logg, info })).toBe(true);
+    const [jobb] = await jobben(sakId);
+    expect(info).toHaveBeenCalledOnce();
+    const linje = info.mock.calls[0][0];
+    expect(JSON.parse(linje)).toMatchObject({
+      sted: 'Jobben laget topicen for saken',
+      korrelasjons_id: korrelasjon,
+      aktor_id: o.te.id,
+      prosjekt_id: o.prosjekt.id,
+      jobb_id: jobb.jobb_id,
+    });
+    expect(linje).not.toContain('Skal ikke stå i loggen');
   });
 
   it('2: jobben fryser boardet, Catenda-prosjektet og sakstittelen i samme transaksjon (KT-U3, invariant 6)', async () => {
@@ -459,6 +502,26 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     expect(await avvisning(kvitter(lease, 'etter-parkering'))).toBe(LEASE_UGYLDIG);
     expect((await forsoekene(sakId)).map((f) => f.utfall)).toEqual(['usikkert']);
     expect(await topicen(sakId)).toMatchObject({ topic_id: null });
+  });
+
+  it('5b: avvises kvitteringen etter at Catenda har laget topicen, logges ID-ene fra Catenda (#2244)', async () => {
+    const sakId = await opprettKjernesak(o);
+    svar = async () => {
+      await somKjoerer(
+        `UPDATE koe.jobb SET lease_utloeper = DATEADD(second, -1, SYSUTCDATETIME()) WHERE sak_id = @sak`,
+        { sak: sakId }
+      );
+      return 'topic-uten-kvittering';
+    };
+    const error = vi.fn();
+    await expect(kjoer({ ...logg, error })).rejects.toThrow();
+    const linjer = error.mock.calls.map(([linje]) => JSON.parse(String(linje)));
+    expect(linjer).toContainEqual(
+      expect.objectContaining({
+        sted: 'Jobben fikk svar fra Catenda, men kvitteringen ble avvist',
+        catenda_svar: expect.objectContaining({ topic_id: 'topic-uten-kvittering' }),
+      })
+    );
   });
 
   it('6: en jobb som en annen kjører har låst, hoppes over uten å vente (READPAST, UPDLOCK)', async () => {

@@ -10,7 +10,6 @@ import { iLagene, medHardeMellomrom, SENT_I_LINJEN } from './tekst.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
-  type Standpunkt,
   type Spor,
   type Standpunktsvirkning,
   type Virkning,
@@ -30,8 +29,6 @@ export function beslutningslinje(
   forskyvning: number,
   kravet?: Krav | null
 ): string {
-  // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
-  // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Et standpunkt om rettidighet som er et eget ledd i sporet, er ingen grunn (VS-U5).
   const egetLedd = iSporet(LINJE, svar.spor).egetLedd(svar, v);
@@ -42,29 +39,23 @@ export function beslutningslinje(
       s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) ? [s.id] : []
     )
   );
-  const prekluderende = v
-    .filter(
-      (p) =>
-        p.art === 'rettidighet' &&
-        laget(p.virkning) &&
-        p.standpunkt !== egetLedd &&
-        !forKravposten.has(p.standpunkt)
-    )
-    .map((p) => p.standpunkt);
-  const sene = svar.standpunkter
-    .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
-    .map((s) => SENT_I_LINJEN[s.hjemmel]);
-  const grunntekst: Record<string, string> = {
-    // HF-U11, MM-U23: byggherrens påberopelse slik brevet sier den, ikke appens slutning.
-    rettidighet: `${sene.join(' og ')} kom for sent`,
-    ...iSporet(LINJE, svar.spor).grunner(svar, paaberopelse, kravet),
-  };
-  const grunner = v.filter(
-    (p) =>
-      p.art in grunntekst &&
-      laget(p.virkning) &&
-      (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
+  const grunntekst: Record<string, string> = iSporet(LINJE, svar.spor).grunner(
+    svar,
+    paaberopelse,
+    kravet
   );
+  const virkninger = new Map(v.map((p) => [p.standpunkt, p.virkning]));
+  const grunner = svar.standpunkter.flatMap((s): Linjeledd[] => {
+    const virkning = virkninger.get(s.id);
+    if (typeof virkning !== 'number') return [];
+    const tekst =
+      s.art === 'rettidighet'
+        ? !s.iTide && s.id !== egetLedd && !forKravposten.has(s.id)
+          ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
+          : undefined
+        : grunntekst[s.art];
+    return tekst === undefined ? [] : [{ tekst, virkning }];
+  });
   const sine = iSporet(LINJE, svar.spor).ledd(svar, v, kravet, forKravposten);
   // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
   // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
@@ -72,11 +63,7 @@ export function beslutningslinje(
     const lag = laget(virkning);
     return lag === null ? null : lag + forskyvning;
   };
-  const ledd = iLagene(
-    [...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })), ...sine],
-    plass,
-    forskyvning + 1
-  );
+  const ledd = iLagene([...grunner, ...sine], plass, forskyvning + 1);
   const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);
   const merket = new Set<number>();
   const etikettert = (l: (typeof ledd)[number]) => {
