@@ -1,5 +1,6 @@
 import { liste } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
+import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
@@ -74,7 +75,7 @@ export const FRISTEN = haerdet({
   grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
     standpunkter.length
       ? standpunkter.flatMap((s) =>
-          s.art === 'spesifisering' && !s.iTide
+          s.art === 'spesifisering' && erInnsigelseIFristen(s)
             ? [
                 'Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1).',
                 'Byggherren godkjenner dagene byggherren måtte forstå.',
