@@ -644,7 +644,7 @@ export function startJobbkjoerer(
       vekker = null;
       vekket = false;
     });
-  // Linjene fra løkka selv, som HR-synkroniseringen, får kjørerens egen korrelasjons-ID.
+  // Linjene fra løkka selv får kjørerens egen korrelasjons-ID.
   const loekke = medLoggkontekst(
     async () => {
       while (!stoppet) {
@@ -657,12 +657,15 @@ export function startJobbkjoerer(
         }
         if (!stoppet && avh.hr && Date.now() >= nesteHr) {
           nesteHr = Date.now() + HR_INTERVALL_MS;
-          try {
-            const antall = await synkroniserHr(avh.datalag, avh.hr);
-            loggInfo('HR-kopien er synkronisert fra Graph', { antall });
-          } catch (feil) {
-            loggFeil('HR-kopien ble ikke synkronisert', feil, 'error');
-          }
+          const hr = avh.hr;
+          await medLoggkontekst(async () => {
+            try {
+              const antall = await synkroniserHr(avh.datalag, hr);
+              loggInfo('HR-kopien er synkronisert fra Graph', { antall });
+            } catch (feil) {
+              loggFeil('HR-kopien ble ikke synkronisert', feil, 'error');
+            }
+          });
         }
         await vent();
       }

@@ -31,6 +31,11 @@ export function medLoggkontekst<T>(
 
 export const korrelasjonsId = () => lager.getStore()?.felt.korrelasjons_id;
 
+export function tilgangsfelter(): Pick<Loggkontekst, 'aktor_id' | 'prosjekt_id'> {
+  const { aktor_id, prosjekt_id } = lager.getStore()?.felt ?? {};
+  return { aktor_id, prosjekt_id };
+}
+
 export function kjenteLoggfelter(kjent: Pick<Loggkontekst, 'aktor_id' | 'prosjekt_id'>): void {
   const kontekst = lager.getStore();
   if (kontekst) Object.assign(kontekst.felt, kjent);

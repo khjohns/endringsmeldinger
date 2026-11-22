@@ -442,8 +442,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('rollene og HR-kopien fra Graph (S-1c del
     const pl = person('Prosjektleder');
     graph.personer = [pl];
     let kall = 0;
-    let ferdig!: () => void;
-    const synket = new Promise<void>((ok) => (ferdig = ok));
+    let ferdig!: (korrelasjon: string) => void;
+    const synket = new Promise<string>((ok) => (ferdig = ok));
     const telt: HrKilde = {
       tenant,
       personerMedTittel: (titler) => (kall++, kilde.personerMedTittel(titler)),
@@ -462,8 +462,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('rollene og HR-kopien fra Graph (S-1c del
         saksadresse: () => '',
         hr: telt,
         logg: {
-          info: (melding: string) =>
-            JSON.parse(melding).sted === 'HR-kopien er synkronisert fra Graph' && ferdig(),
+          info: (linje) => {
+            const logg = JSON.parse(linje);
+            if (logg.sted === 'HR-kopien er synkronisert fra Graph') ferdig(logg.korrelasjons_id);
+          },
           warn: () => {},
           error: () => {},
         },
@@ -471,7 +473,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('rollene og HR-kopien fra Graph (S-1c del
       20
     );
     try {
-      await synket;
+      const korrelasjon = await synket;
+      expect(korrelasjon).toMatch(/^[0-9a-f-]{36}$/);
+      const logg = await eier()
+        .request()
+        .input('korrelasjon', sql.UniqueIdentifier, korrelasjon)
+        .query(`SELECT hendelse FROM koe.tilgangslogg WHERE korrelasjons_id = @korrelasjon`);
+      expect(logg.recordset).toEqual([{ hendelse: 'hr_synk' }]);
       // Flere runder etter den første gir ingen ny synkronisering innenfor intervallet.
       for (let i = 0; i < 3; i++) {
         kjoerer.vekk();

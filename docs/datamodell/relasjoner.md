@@ -193,6 +193,12 @@ erDiagram
         binary_32 noekkel PK
         nvarchar_100 rolle FK
     }
+    koe_tilgangslogg {
+        bigint id PK
+        uniqueidentifier aktor_id "uten fremmednøkkel"
+        nvarchar_100 prosjekt_id "uten fremmednøkkel"
+        uniqueidentifier beroert_bruker_id "uten fremmednøkkel"
+    }
     koe_toemmingsvern {
         uniqueidentifier app_identities_id FK
         uniqueidentifier brevdokument_id FK
@@ -213,6 +219,7 @@ erDiagram
         bigint innkommende_forsoek_id FK
         bigint topic_kommentar_id FK
         nvarchar_36 sak_kode_sak_id FK
+        bigint tilgangslogg_id FK
     }
     koe_topic_kommentar {
         bigint innkommende_hendelse_id PK, FK
@@ -320,6 +327,10 @@ erDiagram
     koe_rolle ||--o{ koe_stillingstittel : "rolle"
     koe_app_users ||--o| koe_hr_kopi : "bruker_id"
     koe_rolle |o--o{ koe_hr_kopi : "rolle"
+    koe_tilgangslogg |o--o{ koe_toemmingsvern : "tilgangslogg_id"
+    koe_app_users |o..o{ koe_tilgangslogg : "aktor_id"
+    koe_app_users |o..o{ koe_tilgangslogg : "beroert_bruker_id"
+    koe_projects |o..o{ koe_tilgangslogg : "prosjekt_id"
 ```
 
 ## Relasjonene
@@ -407,6 +418,10 @@ erDiagram
 | `koe.stillingstittel.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen stillingstittelen gir (S3 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
 | `koe.hr_kopi.bruker_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brukeren HR-kopien gjelder. Synkroniseringen registrerer Entra-identiteten når den mangler (svaret 20.10 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
 | `koe.hr_kopi.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen personen har etter siste synkronisering, eller ingen. | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
+| `koe.toemmingsvern.tilgangslogg_id` | `koe.tilgangslogg.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader. | OBS-01 | K 19.11: katalogen. |
+| `koe.tilgangslogg.aktor_id` | `koe.app_users.id` | uten fremmednøkkel | mange til én | Aktøren fra verifisert identitet eller sesjon. ID-en bevares også når brukeren slettes ved identitetsflytting. | OBS-01, OBS-02 | L 19.11: tilgangsloggen og innloggingsinngangene. |
+| `koe.tilgangslogg.beroert_bruker_id` | `koe.app_users.id` | uten fremmednøkkel | mange til én | Brukeren endringen gjelder. ID-en bevares også når brukeren slettes ved identitetsflytting. | OBS-01 | L 19.11: tilgangsloggmigrasjonen. |
+| `koe.tilgangslogg.prosjekt_id` | `koe.projects.id` | uten fremmednøkkel | mange til én | Prosjektet oppslaget eller endringen gjelder, lagret som en historisk verdi. | OBS-01, OBS-02 | L 19.11: tilgangsloggen og autorisasjonen. |
 
 ## Nøkkelkolonner uten relasjon
 
@@ -439,6 +454,9 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.kontraktsfrist.frist_id` | Fristens ID i prosjektet, tildelt av `koe_drift.sett_kontraktsfrist`. Et krav viser til fristen med den; hendelsen i journalen har ingen fremmednøkkel hit (#721). |
 | `koe.jobb.korrelasjons_id` | ID-en til forespørselen som opprettet jobben. Forespørselen er en oppføring i driftsloggen. |
 | `koe.innkommende_hendelse.korrelasjons_id` | ID-en til forespørselen som først lagret hendelsen. Forespørselen er en oppføring i driftsloggen. |
+| `koe.tilgangslogg.korrelasjons_id` | Serverens ID for forespørselen eller jobben kan brukes til oppslag i driftsloggen. |
+| `koe.tilgangslogg.forsoekt_subjekt` | Verifisert subjekt hos innloggingsleverandøren. Det trenger ingen registrert bruker. |
+| `koe.tilgangslogg.forsoekt_tenant` | Tenanten fra det validerte Entra-tokenet kan være ukjent for appen. |
 
 ## Dataflyt mot Catenda
 
@@ -473,6 +491,7 @@ flowchart LR
         t_koe_leveringskvittering["koe.leveringskvittering"]
         t_koe_sak_catenda_topic["koe.sak_catenda_topic"]
         t_koe_sak_metadata["koe.sak_metadata"]
+        t_koe_tilgangslogg["koe.tilgangslogg"]
         t_koe_topic_kommentar["koe.topic_kommentar"]
         t_koe_vedleggskvittering["koe.vedleggskvittering"]
     end
@@ -502,6 +521,7 @@ flowchart LR
     c_token -->|"C26.1 CatendaOAuth"| t_appen
     c_bruker -->|"C26.2 catendaIdentitet"| t_koe_app_users
     c_bruker -->|"C26.2 catendaIdentitet"| t_koe_app_identities
+    c_bruker -->|"C26.2 catendaIdentitet"| t_koe_tilgangslogg
     c_prosjekt -->|"C26.3 deaktiverVedInnlogging"| t_koe_app_project_memberships
     c_prosjekt -->|"C26.3 deaktiverVedInnlogging"| t_koe_app_membership_absences
     c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_project_memberships
@@ -602,6 +622,7 @@ flowchart LR
 | `koe.kjernebuffer` | — | — | — |
 | `koe.app_sessions` | — | — | — |
 | `koe.app_oauth_attempts` | — | — | — |
+| `koe.tilgangslogg` | C26 | — | — |
 
 ## Flytene
 
@@ -720,7 +741,7 @@ Koden byttes mot brukerens token (`authorization_code`), og med det tokenet lese
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
 | C26.1 | Catenda: tilgangstoken | Appen, lagres ikke | POST /oauth2/token | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Brukerens token, byttet mot koden fra tilbakekallet (`grant_type=authorization_code`). Brukes til de tre kallene under og lagres ikke. |
-| C26.2 | Catenda: innlogget bruker | koe.app_users, koe.app_identities | GET /v2/user | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`catendaIdentitet`](../../server/innlogging.ts) | Subjektet i `catendaId()`-formen, e-posten og navnet, til `koe_api.catenda_identitet`, som løser identiteten med `koe.resolve_identity`. Brukerraden får navnet og e-posten. |
+| C26.2 | Catenda: innlogget bruker | koe.app_users, koe.app_identities, koe.tilgangslogg | GET /v2/user | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`catendaIdentitet`](../../server/innlogging.ts) | Subjektet i `catendaId()`-formen, e-posten og navnet, til `koe_api.catenda_identitet`, som løser identiteten med `koe.resolve_identity`. Brukerraden får navnet og e-posten. Ved avvist innlogging kan tilgangsloggen få det verifiserte subjektet når en intern bruker-ID mangler. |
 | C26.3 | Catenda: brukerens prosjekter | koe.app_project_memberships, koe.app_membership_absences | GET /v2/projects (sidevis) | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`deaktiverVedInnlogging`](../../server/medlemskap.ts) | ID-ene til prosjektene brukeren er med i. `koe_api.koblede_prosjekter` finner de koblede prosjektene blant dem, og `koe_api.deaktiver_ved_innlogging` gjør medlemskapet inaktivt og fører fraværet i de koblede prosjektene som ikke står i listen. |
 | C26.4 | Catenda: prosjektmedlemmer | koe.app_project_memberships, koe.app_membership_sync, koe.app_membership_absences, koe.app_users, koe.app_identities | GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis), for hvert koblet prosjekt | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`synkroniserProsjekt`](../../server/medlemskap.ts) → [`synkroniserKobling`](../../server/medlemskap.ts) → [`synkroniserMedlemskap`](../../server/medlemskap.ts) | Hele medlemslisten med subjekt, e-post, navn og rolle, til `koe_api.synkroniser_medlemskap`. Prosedyren løser identiteten for hvert medlem med `koe.resolve_identity`, skriver medlemskapet og tidspunktet for listen, og gjør medlemmene som ikke står der, inaktive. |
 
