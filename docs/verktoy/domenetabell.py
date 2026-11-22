@@ -8,14 +8,18 @@ Tabellen og sporbarheten i README.md lages herfra og rettes ikke for hånd.
 Sporbarheten (#455, punkt 6 i #451): en rad kan vise til funksjonene som
 gjennomfører regelen (`funksjoner`) og regelkodene kjernen avviser med
 (`regelkoder`). Hver regelkode i kjernen står på en rad eller i `koder_uten_rad`
-med grunnen. En rad for et vedtak som bygges senere, har vedtaket som utsetter det i
-`utsatt` (OV-U7) og ingen bevis-sak eller regelkode før det bygges. Kjøring fra repoets rot:
+med grunnen. En rad som bygges senere eller venter på bevis-sak eller brukerforløp,
+har vedtaket eller arbeidsvalget som utsetter den i `utsatt` (OV-U7, AV-1791), og ingen
+bevis-sak for målmodellen før det er på plass. En rad utsatt etter OV-U7 har heller ingen
+funksjon eller regelkode før den bygges. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
 
 `verktoy/tester/test_domenetabell/` kjører kontrollen i CI. `bevis-saker.json` er et
-frosset arkiv som ingen test kjører mot en implementasjon (#49). Kontrollen viser at
+frosset arkiv som ingen test kjører mot en implementasjon (#49), og som verken teller som
+bevis eller vises som bevis-sak i tabellen (#1721, #1791). Arkivet kontrolleres fortsatt
+mot radene, og et kjent avvik i det vises i tabellen. Kontrollen viser at
 referansene henger sammen, ikke at forventningene er riktige.
 """
 
@@ -50,8 +54,8 @@ RADFELT = (
 # Sporbarheten innføres gradvis (#455), så feltene er valgfrie.
 SPORBARHET = ("funksjoner", "regelkoder")
 VALGFRIE_RADFELT = SPORBARHET + ("utsatt",)
-# Vedtakene som utsetter en rad til den bygges (OV-U7). Et nytt vedtak som utsetter, føres her.
-UTSETTER = {"OV-U7"}
+# Vedtakene og arbeidsvalgene som utsetter en rad (OV-U7, AV-1791). Et nytt som utsetter, føres her.
+UTSETTER = {"OV-U7", "AV-1791"}
 KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
 # Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
 # feiler på et kall til `avvis` uten en. Blokkommentarer og linjer som er kommentarer, leses ikke.
@@ -165,16 +169,20 @@ def _valider_rader(regler: dict) -> list[str]:
         typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
         if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
             feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
-        # OV-U7: vedtaket som utsetter raden, står blant kildene, og raden har ingen
-        # regelkode eller funksjon før den bygges.
+        # OV-U7, AV-1791: vedtaket eller arbeidsvalget som utsetter raden, står blant kildene.
+        # En rad utsatt etter AV-1791 mangler bare bevis og kan vise til koden som finnes.
+        # Ellers er raden ikke bygget og har ingen regelkode eller funksjon (OV-U7).
         if "utsatt" in rad:
-            if rad["utsatt"] not in rad["kilder"] or kilder.get(rad["utsatt"], {}).get("type") != "vedtak":
-                feil.append(f"{navn}: `utsatt` er ikke et vedtak blant kildene")
+            if rad["utsatt"] not in rad["kilder"] or kilder.get(rad["utsatt"], {}).get("type") not in {
+                "vedtak",
+                "arbeidsvalg",
+            }:
+                feil.append(f"{navn}: `utsatt` er ikke et vedtak eller arbeidsvalg blant kildene")
             elif rad["utsatt"] not in UTSETTER:
                 feil.append(f"{navn}: `utsatt` er {rad['utsatt']}, som ikke utsetter en rad ({', '.join(sorted(UTSETTER))})")
-            if rad.get("regelkoder"):
+            if rad["utsatt"] != "AV-1791" and rad.get("regelkoder"):
                 feil.append(f"{navn}: en utsatt rad har ingen regelkoder")
-            if rad.get("funksjoner"):
+            if rad["utsatt"] != "AV-1791" and rad.get("funksjoner"):
                 feil.append(f"{navn}: en utsatt rad har ingen funksjoner")
     return feil
 
@@ -336,7 +344,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
         if ukjente or not forlop["rader"]:
             feil.append(f"{navn}: ukjente eller manglende rader {ukjente}")
             continue
-        bevist.update(forlop["rader"])
+        # Det frosne arkivet (`bevis-saker.json`) kjøres ikke etter #49 og teller ikke som bevis (#1721, #1791).
         statuser = [rader[r].get("tolkningsstatus") for r in forlop["rader"]]
         if any(s not in STYRKE for s in statuser):
             continue  # Rapportert av _valider_rader.
@@ -464,7 +472,6 @@ def tabell(regler: dict, korpus: dict, maalmodell: dict | None = None) -> str:
     bevis, avvik = {}, {}
     for forlop in korpus["forlop"]:
         for rad in forlop["rader"]:
-            bevis.setdefault(rad, []).append(forlop["id"])
             if forlop.get("kjent_avvik"):
                 avvik.setdefault(rad, set()).add(forlop["kjent_avvik"]["funn"])
     for forlop in maalmodell["forlop"]:

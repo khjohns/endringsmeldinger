@@ -230,6 +230,19 @@ def test_regelradene_og_bevis_sakene_som_viser_til_vedtaket_er_med(tema, kilder)
     assert "F-MM-G18 (målmodellen)" in tekst
 
 
+def test_det_frosne_arkivet_vises_ikke_som_bevis_i_temavisningen(tema, kilder):
+    """#1721, #1791: `bevis-saker.json` er et frosset arkiv og vises ikke som bevis-sak
+    i temavisningen; utsatte rader vises som utsatt."""
+    assert all(sti.name != "bevis-saker.json" for sti in tv.BEVIS.values())
+    tekst = tv.visning(tema, kilder)
+    eo01 = next(linje for linje in tekst.splitlines() if '<a id="rad-eo-01"></a>EO-01' in linje)
+    ka08b = next(linje for linje in tekst.splitlines() if '<a id="rad-ka-08b"></a>KA-08b' in linje)
+    assert "| utsatt (AV-1791) |" in eo01
+    assert "F-EO-01" not in eo01
+    assert "| utsatt (AV-1791) |" in ka08b
+    assert "F-KA-08b" not in ka08b
+
+
 def test_et_vedtak_som_endrer_kjeden_og_mangler_i_temaet_gir_feil(tema, kilder):
     tema["vedtak"].remove("GR-U14")
     assert tv.feil(tema, kilder["register"]) == [

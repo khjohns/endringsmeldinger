@@ -117,7 +117,11 @@ def _arbeidsvalg(**endring):
 
 def test_et_arbeidsvalg_er_en_gyldig_kilde_for_en_arbeidshypotese(regler):
     regler["kilder"].append(_arbeidsvalg())
-    rad = next(r for r in regler["rader"] if r["tolkningsstatus"] == "arbeidshypotese")
+    rad = next(
+        r
+        for r in regler["rader"]
+        if r["tolkningsstatus"] == "arbeidshypotese" and "utsatt" not in r
+    )
     rad["kilder"] = ["A-451"]
     assert _feil(regler) == []
     assert v._kilde(_arbeidsvalg()) == (

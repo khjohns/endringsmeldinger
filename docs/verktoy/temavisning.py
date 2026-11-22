@@ -43,8 +43,8 @@ TEMAER = ROT / "docs" / "vedtaksregister" / "temaer.toml"
 MAPPE = ROT / "docs" / "vedtaksregister" / "temaer"
 PLANMAPPE = vr.HOVEDPLAN.parent
 REGLER = ROT / "docs" / "domenetabell" / "regler.json"
+# Det frosne arkivet (`bevis-saker.json`) kjøres ikke etter #49 og vises ikke som bevis (#1721, #1791).
 BEVIS = {
-    "": ROT / "docs" / "domenetabell" / "bevis-saker.json",
     " (målmodellen)": ROT / "docs" / "domenetabell" / "bevis-saker-maalmodell.json",
 }
 
@@ -320,10 +320,7 @@ def visning(tema: dict, kilder: dict) -> str:
         "- Vedtakene: [`docs/vedtaksregister/vedtak.toml`](../vedtak.toml)",
         "- Temaet: [`docs/vedtaksregister/temaer.toml`](../temaer.toml)",
         "- Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)",
-        (
-            "- Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) "
-            "og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)"
-        ),
+        "- Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)",
         "",
         f"Kontrollsum (SHA-256 over utdraget visningen leser): `{kontrollsum(ut)}`",
         "",
@@ -380,9 +377,11 @@ def visning(tema: dict, kilder: dict) -> str:
     for r in ut["rader"]:
         i_temaet = ", ".join(lenke(anker_for[k]) for k in r["kilder"] if k in anker_for)
         tilfelle = r["tilfelle"].replace("|", "\\|")
+        bevis_celle = ", ".join(_forlop_etter_rad(r["id"], bevis)) or (
+            f"utsatt ({r['utsatt']})" if "utsatt" in r else "—"
+        )
         linjer.append(
-            f'| <a id="{_radanker(r["id"])}"></a>{r["id"]} | {tilfelle} | {i_temaet} '
-            f"| {', '.join(_forlop_etter_rad(r['id'], bevis)) or '—'} |"
+            f'| <a id="{_radanker(r["id"])}"></a>{r["id"]} | {tilfelle} | {i_temaet} | {bevis_celle} |'
         )
     return "\n".join(linjer) + "\n"
 

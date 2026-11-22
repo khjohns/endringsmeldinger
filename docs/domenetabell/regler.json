@@ -1485,6 +1485,13 @@
       "dato": "2026-11-15",
       "ref": "../plans/vedtak.md#ov-u105",
       "radetikett": "OV-U105: Et svar byggherren har sendt utenfor løsningen og lagt til som svar med svarskjemaet etter OV-U80, har samme virkning"
+    },
+    {
+      "id": "AV-1791",
+      "type": "arbeidsvalg",
+      "issue": 1791,
+      "dato": "2026-11-11",
+      "merknad": "Oppdragsgivers svar 11.11 i #1791 (svar A på spørsmål 10): de 20 radene i domenetabellen med bevis bare i det frosne arkivet (`bevis-saker.json`) markeres `utsatt` til de får en bevis-sak eller et brukerforløp."
     }
   ],
   "rader": [
@@ -1601,9 +1608,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "V-TFR01",
-        "KA-U1"
+        "KA-U1",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "KA-08b",
@@ -1616,9 +1625,11 @@
       "kilder": [
         "KA-U5",
         "HF-U9",
-        "KA-U1"
+        "KA-U1",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "KA-09",
@@ -1717,9 +1728,11 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U2"
+        "KA-U2",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "KA-16",
@@ -1731,9 +1744,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U2",
-        "NS-33.6.2-1"
+        "NS-33.6.2-1",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "KA-17",
@@ -1761,9 +1776,11 @@
       "kilder": [
         "KA-U4",
         "V-API-NULL",
-        "NS-33.6.2-4"
+        "NS-33.6.2-4",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "KA-18b",
@@ -2653,9 +2670,11 @@
         "EO-U38",
         "EO-U39",
         "V-B02-3",
-        "V-EO-KOE"
+        "V-EO-KOE",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-02",
@@ -2668,9 +2687,11 @@
       "kilder": [
         "MM-U34",
         "EO-U12",
-        "V-TFR05"
+        "V-TFR05",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-03",
@@ -2683,9 +2704,11 @@
       "kilder": [
         "MM-U34",
         "EO-U12",
-        "V-TFR05"
+        "V-TFR05",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-04",
@@ -2712,9 +2735,11 @@
       "kilder": [
         "V-TFR01",
         "MM-U34",
-        "EO-U12"
+        "EO-U12",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-06",
@@ -2726,9 +2751,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U34",
-        "EO-U12"
+        "EO-U12",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-07",
@@ -2740,9 +2767,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U34",
-        "EO-U12"
+        "EO-U12",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-09",
@@ -2756,9 +2785,11 @@
         "EO-U34",
         "EO-U38",
         "EO-U39",
-        "V-TFR02"
+        "V-TFR02",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-10",
@@ -2769,9 +2800,11 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-TFR02"
+        "V-TFR02",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-11",
@@ -2782,9 +2815,11 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-TFR02"
+        "V-TFR02",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-15",
@@ -2798,9 +2833,11 @@
         "V-TFR02",
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-16",
@@ -2813,9 +2850,11 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-21",
@@ -2828,9 +2867,11 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-22",
@@ -2843,9 +2884,11 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-23",
@@ -2859,9 +2902,11 @@
         "V-EO-KOE",
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-24",
@@ -2874,9 +2919,11 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
-        "EO-U39"
+        "EO-U39",
+        "AV-1791"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "arbeidshypotese",
+      "utsatt": "AV-1791"
     },
     {
       "id": "EO-25",
