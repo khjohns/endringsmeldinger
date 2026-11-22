@@ -5,7 +5,7 @@ description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldi
 
 # Gemini i skyøkta
 
-Prøvene og målingene står i PR-en som innførte skillen. Her står hvordan verktøyet brukes.
+Prøvene og målingene står i PR-en som innførte skillen, og erfaringene per runde i #2256. Her står hvordan verktøyet brukes.
 `agy` er ikke en del av løsningen. Det Gemini lager, er ikke levert før
 Claude har kontrollert det etter [leveranseskillen](../leveranse/SKILL.md).
 
@@ -57,9 +57,9 @@ skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
 
 Tillatelsene i `agy` er ingen sperre. Den har skrevet utenfor arbeidsmappa, også med
 `--sandbox`, og i en godkjent mappe kjører den kommandoer og committer uten å spørre.
-`--mode auto` er ikke tilgjengelig for kontoen. Ligger klonen utenfor den godkjente mappa, må
-skrivingen trolig tillates, med `--mode accept-edits` eller med `--settings`. Det er ikke prøvd.
-Sperrene ligger derfor utenfor `agy`:
+`--mode auto` er ikke tilgjengelig for kontoen. Ligger klonen utenfor den godkjente mappa, skriver
+den med `--mode accept-edits`, og skallkommandoene må tillates i en liste (se «Tillatelsene»
+under). Sperrene ligger derfor utenfor `agy`:
 
 - **Egen klon per oppgave**, fra `main`, i scratchpad, med `git clone --no-hardlinks` og
   `git remote set-url --push origin no_push`. Et push ved en feil stoppes. Klonen er likevel
@@ -79,19 +79,37 @@ Sperrene ligger derfor utenfor `agy`:
 cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" GIT_SSL_CAINFO="$GIT_SSL_CAINFO" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
-  ~/.local/bin/agy -p "$(cat "$BESTILLING")" --model gemini-4-neon-high --output-format json \
-  --print-timeout 30m --disable-slash-commands > svar.json
+  ~/.local/bin/agy -p "$(cat "$BESTILLING")" --mode accept-edits --settings "$TILLATELSER" \
+  --json-schema "$SKJEMA" --model gemini-4-neon-high --output-format json \
+  --print-timeout 30m > svar.json
 ```
+
+**Tillatelsene.** Uten skjerm kan `agy` ikke spørre. En kommando som ikke er tillatt, avvises,
+og kjøringen stopper med tomt svar, selv om `status` er `SUCCESS`. Se etter `denied_actions` i
+svaret og `jetski: no output produced` i stderr. Tillat kommandoene i en JSON-fil til
+`--settings`: `{"permissions":{"allow":["command(git)","command(npx)", …]}}`. Gi fila et annet
+navn enn hookoppsettet (#1764). Regelen er et prefiks og avviser likevel kjedede kommandoer
+(`;`, `&&`) og `python - <<EOF`, også når hvert ledd er tillatt. Be derfor i bestillingen om én
+kommando per kall og om skript i en fil. Lesing gjennom symlenken til `node_modules` krever
+`read_file(<sti til hovedkopiens node_modules>)`. Hva som ble avvist, står i
+`~/.gemini/antigravity-cli/brain/<conversation_id>/.system_generated/logs/transcript_full.jsonl`.
+Fortsett samtalen med `--conversation <id>` og en utvidet liste, så går ikke arbeidet tapt.
+`--dangerously-skip-permissions` stoppes av auto-modus i Claude Code.
+
+Svaret kan ha tekst foran JSON-en. Les fra første `{"` etter teksten.
 
 Uavhengige oppgaver startes samtidig, hver i sin klon, med `run_in_background`. Svaret har
 `usage` med tokenene. `--print-timeout` stopper en kjøring som henger.
-`--disable-slash-commands` hindrer at tekst i bestillingen leses som en kommando i `agy`. En
+`--disable-slash-commands` hindrer at tekst i bestillingen leses som en kommando i `agy`, men
+slår av `--mode`. Bruk det bare når bestillingen begynner med `/`. En
 bestilling over om lag 64 kB sendes på stdin uten `-p`, fordi argumentet blir for langt. Disse
 tre er hentet fra pluginen
 [antigravity-for-claude-code](https://github.com/yuting0624/antigravity-for-claude-code) og er
 ikke prøvd her.
 
-**Review uten skriving:** `--mode plan` avviser alle skallkommandoer, også `git show`. Legg
+**Kartlegging og review uten skriving:** `--mode plan` avviser alle skallkommandoer, også
+`git show` og `grep`, og en kartlegging får da tomt svar. Kartlegg med en liste over
+lesekommandoer i stedet, i en klon, og kontroller `git status` etterpå. For review: legg
 diffen i bestillingen, og be om funnene etter et skjema med `--json-schema`. Funnene
 kontrolleres etter stoppregelen i leveranseskillen.
 
@@ -165,7 +183,9 @@ kontrollerer vurderingen og gjør det som skjer på GitHub. Stoppregelen og utfa
    hentet med `gh api`, siden Gemini ikke kan søke selv. Gemini leser «Review og funn» i
    leveranseskillen og [vedtaksskillen](../vedtak/SKILL.md). Har Gemini skrevet koden, fortsetter
    samtalen med `--conversation <id>`. Da har den konteksten, slik leveranseskillen forutsetter
-   for byggeøkta.
+   for byggeøkta. Bestillingen sier hva issuet skal oppnå, og ber Gemini holde hver retting mot
+   det. Foreslår et funn flere løsninger, er den første ikke nødvendigvis riktig. I runde 1 i
+   #2256 ble tre av fire rettinger tilbakeført, fordi de fulgte forslaget mot målet i issuet.
 2. **Gemini svarer etter et skjema med én rad per funn**: utfallet (rettet, avvist, krav i
    issue, spørsmål eller oppfølgingsissue), begrunnelsen etter stoppregelen og commiten for et
    rettet funn. For de andre utfallene har raden teksten som skal stå i PR-en eller issuet. Hvert
