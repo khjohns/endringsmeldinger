@@ -10,14 +10,16 @@ gjennomfører regelen (`funksjoner`) og regelkodene kjernen avviser med
 (`regelkoder`). Hver regelkode i kjernen står på en rad eller i `koder_uten_rad`
 med grunnen. En rad som bygges senere eller venter på bevis-sak eller brukerforløp,
 har vedtaket eller arbeidsvalget som utsetter den i `utsatt` (OV-U7, AV-1791), og ingen
-bevis-sak for målmodellen, funksjon eller regelkode før det er på plass. Kjøring fra repoets rot:
+bevis-sak for målmodellen før det er på plass. En rad utsatt etter OV-U7 har heller ingen
+funksjon eller regelkode før den bygges. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
 
 `verktoy/tester/test_domenetabell/` kjører kontrollen i CI. `bevis-saker.json` er et
 frosset arkiv som ingen test kjører mot en implementasjon (#49), og som verken teller som
-bevis eller vises som bevis-sak i tabellen (#1721, #1791). Kontrollen viser at
+bevis eller vises som bevis-sak i tabellen (#1721, #1791). Arkivet kontrolleres fortsatt
+mot radene, og et kjent avvik i det vises i tabellen. Kontrollen viser at
 referansene henger sammen, ikke at forventningene er riktige.
 """
 
@@ -167,8 +169,9 @@ def _valider_rader(regler: dict) -> list[str]:
         typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
         if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
             feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
-        # OV-U7, AV-1791: vedtaket eller arbeidsvalget som utsetter raden, står blant kildene,
-        # og raden har ingen regelkode eller funksjon før den bygges eller får en bevis-sak.
+        # OV-U7, AV-1791: vedtaket eller arbeidsvalget som utsetter raden, står blant kildene.
+        # En rad utsatt etter AV-1791 mangler bare bevis og kan vise til koden som finnes.
+        # Ellers er raden ikke bygget og har ingen regelkode eller funksjon (OV-U7).
         if "utsatt" in rad:
             if rad["utsatt"] not in rad["kilder"] or kilder.get(rad["utsatt"], {}).get("type") not in {
                 "vedtak",
@@ -177,9 +180,9 @@ def _valider_rader(regler: dict) -> list[str]:
                 feil.append(f"{navn}: `utsatt` er ikke et vedtak eller arbeidsvalg blant kildene")
             elif rad["utsatt"] not in UTSETTER:
                 feil.append(f"{navn}: `utsatt` er {rad['utsatt']}, som ikke utsetter en rad ({', '.join(sorted(UTSETTER))})")
-            if rad.get("regelkoder"):
+            if rad["utsatt"] != "AV-1791" and rad.get("regelkoder"):
                 feil.append(f"{navn}: en utsatt rad har ingen regelkoder")
-            if rad.get("funksjoner"):
+            if rad["utsatt"] != "AV-1791" and rad.get("funksjoner"):
                 feil.append(f"{navn}: en utsatt rad har ingen funksjoner")
     return feil
 

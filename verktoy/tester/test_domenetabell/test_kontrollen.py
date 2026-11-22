@@ -54,6 +54,17 @@ def test_en_utsatt_rad_staar_uten_bevis_sak_men_ikke_med_en():
     assert "KA-32: er utsatt, men har en bevis-sak" in feil
 
 
+def test_en_rad_utsatt_til_den_faar_bevis_kan_vise_til_funksjoner_og_regelkoder():
+    """#1721: en rad utsatt etter AV-1791 mangler bare bevis. Den kan vise til koden som
+    finnes, i motsetning til en rad som ikke er bygget (OV-U7)."""
+    regler = copy.deepcopy(korpus.REGLER)
+    rad = next(r for r in regler["rader"] if r.get("utsatt") == "AV-1791")
+    rad["funksjoner"] = ["kjerne/utledning/utled.ts#utled"]
+    rad["regelkoder"] = ["FEIL_PART"]
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert f"{rad['id']}: en utsatt rad har ingen funksjoner" not in feil
+    assert f"{rad['id']}: en utsatt rad har ingen regelkoder" not in feil
+
 def test_en_utsatt_rad_med_et_vedtak_som_ikke_utsetter_eller_med_funksjoner_gir_feil():
     """#669, #1721: `utsatt` må være et vedtak eller arbeidsvalg som utsetter
     (AV-1791, OV-U7), ikke hvilket som helst vedtak eller arbeidsvalg blant kildene,
