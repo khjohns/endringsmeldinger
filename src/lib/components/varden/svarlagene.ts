@@ -10,7 +10,7 @@ import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Spor, Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
+import type { Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
 
@@ -38,14 +38,10 @@ export interface Svarlaget {
 }
 
 /** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
-function innsigelsen(s: Standpunkt, spor: Spor): Innsigelsen[] {
-  if (spor === 'frist') {
-    if (!erInnsigelseIFristen(s)) return [];
-    if (s.art === 'rettidighet') return [{ art: 'varsel', hjemmel: s.hjemmel }];
-    if (s.art === 'spesifisering' || s.art === 'hindring') return [{ art: s.art }];
-    return [];
-  }
-  if (s.art === 'rettidighet' && !s.iTide) return [{ art: 'varsel', hjemmel: s.hjemmel }];
+function innsigelsen(s: Standpunkt): Innsigelsen[] {
+  if (!erInnsigelseIFristen(s)) return [];
+  if (s.art === 'rettidighet') return [{ art: 'varsel', hjemmel: s.hjemmel }];
+  if (s.art === 'spesifisering' || s.art === 'hindring') return [{ art: s.art }];
   return [];
 }
 
@@ -97,7 +93,7 @@ export function lageneISvaret(
         })),
     };
   });
-  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!, svar.spor);
+  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!);
   return lagene;
 }
 
@@ -110,9 +106,9 @@ export const utenLag = (svar: Svar, utenom: Standpunktsart): Standpunkt[] => {
 };
 
 /** Innsigelsene i laget: grunnene fra forholdet og standpunktene som rammer kravet. */
-const innsigelseneI = (l: Svarlaget, spor: Spor): Innsigelsen[] => [
+const innsigelseneI = (l: Svarlaget): Innsigelsen[] => [
   ...l.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt, spor)),
+  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
 ];
 
 /**

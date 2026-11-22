@@ -11,6 +11,7 @@ import { sakensKode } from '#kjerne/frosset/tekst.ts';
 import { forlengetFrist } from '#kjerne/regler/hverdager.ts';
 import {
   erInnsigelseIFristen,
+  gjelderHeleFristkravet,
   innholdIFristen,
   utregningIFristen,
 } from '#kjerne/spor/frist/format.ts';
@@ -69,13 +70,12 @@ export interface KravetOgSvaretIFristen {
  */
 const gjelderAlle = (l: Svarlaget): boolean =>
   l.iSporet < 1 ||
-  l.standpunkter.some(({ standpunkt: s }) => s.art !== 'spesifisering' && erInnsigelseIFristen(s));
+  l.standpunkter.some(
+    ({ standpunkt }) => gjelderHeleFristkravet(standpunkt) && erInnsigelseIFristen(standpunkt)
+  );
 
-/** Et standpunkt som vises én gang for hele fristkravet (BF-45, U-3 og U-4). */
-const gjelderHeleFristkravet = (s: Standpunkt): boolean =>
-  s.art === 'hindring' ||
-  s.art === 'rettidighet' ||
-  (s.art === 'spesifisering' && !erInnsigelseIFristen(s));
+const forAlleFristene = ({ standpunkt }: Svarlaget['standpunkter'][number]): boolean =>
+  gjelderHeleFristkravet(standpunkt);
 
 /**
  * Kravet som gjelder i fristen og byggherrens svar på det, eller `null` uten krav. `alle` er brevene i
@@ -120,9 +120,7 @@ export function kravetOgSvaretIFristen(
     l.iSporet < 1 ? undefined : rader.get(gjelder)?.lag[l.iSporet - 1]?.dager;
   const felles = lagene.flatMap((l): Felleslaget[] => {
     if (!gjelderAlle(l)) {
-      const standpunkter = l.standpunkter.filter(({ standpunkt }) =>
-        gjelderHeleFristkravet(standpunkt)
-      );
+      const standpunkter = l.standpunkter.filter(forAlleFristene);
       return standpunkter.length ? [{ ...l, standpunkter, dager: null }] : [];
     }
     const dagene = new Set(frister.map((f) => dagerI(f.id, l)));
@@ -131,10 +129,7 @@ export function kravetOgSvaretIFristen(
   });
   const perFrist = lagene
     .filter((l) => !gjelderAlle(l))
-    .map((l) => ({
-      ...l,
-      standpunkter: l.standpunkter.filter(({ standpunkt }) => !gjelderHeleFristkravet(standpunkt)),
-    }));
+    .map((l) => ({ ...l, standpunkter: l.standpunkter.filter((s) => !forAlleFristene(s)) }));
   // Byggherrens begrunnelse står per punkt i svaret, og punktet for dagene i en frist er fristen
   // (KA-U46, `temaer` i `kjerne/spor/frist/tekst.ts`).
   const begrunnelse = (frist: string) =>
