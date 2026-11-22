@@ -112,7 +112,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
   const SESJON = sesjonsnavn();
   let o: Oppsett;
   let server: KjorendeServer;
-  let slettinger = 0;
+  let opprettelser = 0;
   const oauth: Innloggingsleverandoer = {
     autorisasjonsadresse: (state) => `https://catenda.test/oauth2/authorize?state=${state}`,
     byttKode: async () => 'brukertoken',
@@ -123,8 +123,8 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
     },
   };
 
-  /** Poolen, med den første slettingen av en sesjon som feiler. */
-  function medFeilendeSletting(pool: Pool): Pool {
+  /** Poolen, med den første opprettelsen av en sesjon som feiler. */
+  function medFeilendeOpprettelse(pool: Pool): Pool {
     return new Proxy(pool, {
       get(maal, navn) {
         if (navn !== 'request') {
@@ -135,7 +135,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
           const foresporsel = maal.request();
           const utfoer = foresporsel.execute.bind(foresporsel);
           foresporsel.execute = ((prosedyre: string) =>
-            prosedyre === 'koe_api.slett_sesjon' && ++slettinger === 1
+            prosedyre === 'koe_api.opprett_sesjon' && ++opprettelser === 1
               ? Promise.reject(new Error('Forbindelsen ble brutt'))
               : utfoer(prosedyre)) as typeof foresporsel.execute;
           return foresporsel;
@@ -154,7 +154,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
   beforeAll(async () => {
     o = await lagOppsett();
     server = await startServer(o, {
-      datalag: medFeilendeSletting(o.datalag.kjoeretid.pool),
+      datalag: medFeilendeOpprettelse(o.datalag.kjoeretid.pool),
       innlogging: { frontend: 'https://app.example.no', oauth },
     });
   }, 240_000);
@@ -163,7 +163,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
     if (o) await rydd(o);
   }, 60_000);
 
-  it('feiler slettingen av den gamle sesjonen, slettes den nye, og den gamle består', async () => {
+  it('feiler opprettelsen av den nye sesjonen, får klienten ingen sesjon, og den gamle består (#2245)', async () => {
     const pool = o.datalag.kjoeretid.pool;
     const gammel = await opprettSesjon(pool, o.te.id);
     const forsoek = await opprettInnloggingsforsoek(pool, '/saker/1');
@@ -177,7 +177,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 p
     );
     expect(svar.headers.get('location')).toBe('https://app.example.no/login?error=login_failed');
     expect(svar.headers.getSetCookie().some((k) => k.startsWith(`${SESJON}=`))).toBe(false);
-    expect(slettinger).toBe(2);
+    expect(opprettelser).toBe(1);
     expect(await antallSesjoner()).toBe(foer);
     expect((await lesSesjon(pool, gammel.token))?.bruker.id.toLowerCase()).toBe(o.te.id);
   });

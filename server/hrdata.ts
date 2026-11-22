@@ -1,3 +1,4 @@
+import { korrelasjonsId } from './logg.ts';
 /**
  * HR-kopien fra Microsoft Graph (S-1c del 2, #831). Driften registrerer hvilken
  * stillingstittel som gir hvilken rolle, og grensen per rolle (S3 (a), GFK-U6,
@@ -174,6 +175,7 @@ export async function synkroniserHr(datalag: Pool, kilde: HrKilde): Promise<numb
   await utenKontekst(datalag)
     .input('tenant', sql.UniqueIdentifier, kilde.tenant)
     .input('personer', sql.NVarChar(sql.MAX), JSON.stringify(personer))
+    .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
     .execute('koe_api.synkroniser_hr');
   return personer.length;
 }

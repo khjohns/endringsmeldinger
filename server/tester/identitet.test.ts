@@ -222,6 +222,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.sak_catenda_topic.prosjekt_id',
         'koe.sak_kode.prosjekt_id',
         'koe.sak_metadata.prosjekt_id',
+        'koe.tilgangslogg.prosjekt_id',
         'koe.vedlegg.prosjekt_id',
         'koe.vedlegg_uten_sak.prosjekt_id',
         'koe.vedleggskvittering.prosjekt_id',

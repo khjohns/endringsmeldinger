@@ -188,10 +188,16 @@ Klassene for postene som fantes 03.11, kommer fra tabellen i
   samlevedtaket (svar 4 A 04.11 i #1534). Vakttesten godtar det, og Følge merker opphevelsen
   som over. Regelen gjelder alle samlevedtak (S1 A i vedtaks-PR-en for samlevedtaket for
   endringsordren).
-- **Etter merge** kan en ny post få forholdene `opphever`, `samler` og `bygger på`, og
-  et forhold kan bli `opphever` eller `samler` når et senere vedtak har tatt innholdet
-  (svar 14 i PR #1537). Andre forhold står, unntatt et forhold oppdragsgiver har bestemt,
-  som står i `FORHOLD_FOERT_ETTER_MERGE` med kilden.
+- **Etter merge** kan en ny post få forholdene `opphever`, `samler` og `bygger på`. Et
+  eksisterende forhold (unntatt `opphever`) kan også bli `opphever` eller `samler` når et
+  senere vedtak har tatt innholdet (svar 14 i PR #1537). Ellers står forholdene, med to
+  lukkede lister i verktøyet som unntak:
+  - `FORHOLD_FOERT_ETTER_MERGE`: tillater at en merget ny post får et forhold oppdragsgiver
+    har bestemt, med kilden.
+  - `FORHOLD_FJERNET_ETTER_MERGE`: tillater at en merget post mister et forhold oppdragsgiver
+    har bestemt. Hver rad må ha en kilde med issuet, og forholdet må være fjernet fra
+    registeret. Henvisningene og lenkene forholdet ga i Følge, kan falle bort. I en importert
+    post kan forholdet fortsatt stå med ord i Følge.
 - **Varslene.** `vedtaksregister.py` varsler, uten å feile, om «app» utenfor sitattegn i det
   valgte alternativet i en post som ikke står på `main`, og om et samlevedtak som har fått
   tre endringer (svar 6 og 10 i #1534). Når steg 4 er avsluttet, settes `STEG_4_AVSLUTTET`,
@@ -281,15 +287,15 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | --- | --- |
 | Vedtaksfila er lik det verktøyet lager | alle poster |
 | Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret; en rad uten anker kan få et | alle rader, også de importerte |
-| Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få hele nye avsnitt lagt til; hver rad blir i gruppen sin; lenkene i Følge blir stående | 3.1 på `main` |
-| Følge i en importert rad står ordrett. Henvisningene fra nye vedtak kommer først og kan bli flere, og tekst kan legges til på slutten | importerte rader på `main` |
+| Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få hele nye avsnitt lagt til; hver rad blir i gruppen sin; lenkene i Følge blir stående, unntatt lenker fra forhold i `FORHOLD_FJERNET_ETTER_MERGE` | 3.1 på `main` |
+| Følge i en importert rad står ordrett. Henvisningene verktøyet setter først kan bli flere, eller falle bort for et forhold i `FORHOLD_FJERNET_ETTER_MERGE`, og tekst kan legges til på slutten | importerte rader på `main` |
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
 | Hvert anker står én gang i hovedplanen og vedtaksfila til sammen, og ID-en til en ny post står ikke i hovedplanen, arkivet eller vedtaksfila på `main` fra før, heller ikke uten anker | hovedplanen, arkivet og vedtaksfila |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret. `folge` og klassen med delene kan endres, og forholdene etter [Klassen](#klassen) | nye poster på `main` |
 | Posten har klassen, og delene og `bindende_i` passer til den; `flyttet_til` har formen `BF-06.md#u-12`, `BF-02A.md#u-3` eller `.interface-design/system.md#mm-u22`; en post i `bindende_i` er ikke opphevet uten å være samlet | alle poster |
 | Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista og vedtak som et gjeldende samlevedtak opphever | alle poster |
 | Forholdet står begge veier | nye poster med `forhold` |
-| Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
+| Forholdene i en importert post er de Følge sier uttrykkelig, unntatt dem i `FORHOLD_FJERNET_ETTER_MERGE`, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |

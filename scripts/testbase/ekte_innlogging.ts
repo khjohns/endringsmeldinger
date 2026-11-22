@@ -208,7 +208,7 @@ try {
     'server',
     ['node', 'server/start.ts', String(SERVERPORT)],
     { ...rentMiljoe(), ...catendaMiljoe, KOE_DATALAG_TILKOBLING: kjoeretid.tilkobling },
-    /lytter på/
+    /"sted":"Serveren lytter"/
   );
   await startProsess(
     'vite',

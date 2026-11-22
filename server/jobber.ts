@@ -17,6 +17,7 @@
  * (`database/migrasjoner/20261018100000_jobber.sql`).
  */
 
+import { loggFeil, loggInfo, medLoggkontekst, type Loggmottaker } from './logg.ts';
 import {
   CatendaAvvisning,
   CatendaOppsettfeil,
@@ -83,6 +84,8 @@ export const PAUSE_FOER_NY_REGISTRERING_MS = 5_000;
 export const POLLEINTERVALL_MS = 10_000;
 
 interface Jobbrad {
+  korrelasjons_id: string | null;
+  aktor_id: string | null;
   jobb_id: string;
   jobbtype: string;
   lease: string;
@@ -109,7 +112,7 @@ export interface Jobbavhengigheter {
   saksadresse: (prosjektId: string, sakId: string) => string;
   /** Tiden ventetiden i innboksen regnes fra; basens klokke når den mangler. */
   klokke?: () => Date;
-  logg?: Pick<Console, 'info' | 'warn' | 'error'>;
+  logg?: Loggmottaker;
 }
 
 /** Jobben kan ikke gjøres av denne kjøreren. Forsøket kan ha bedt Catenda om endringer før. */
@@ -222,7 +225,6 @@ function utfallAv(
  * En feil i basen kastes; løkka logger den og prøver igjen ved neste runde.
  */
 export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
-  const logg = avh.logg ?? console;
   // Før kallet, så leasen regnes fra et tidspunkt basen ikke har gitt den før.
   const hentet = performance.now();
   const svar = await utenKontekst(avh.datalag)
@@ -230,7 +232,19 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     .execute<Jobbrad>('koe_api.hent_jobb');
   const jobb = svar.recordset[0];
   if (!jobb) return false;
+  return medLoggkontekst(
+    () => utfoerJobb(avh, jobb, hentet),
+    {
+      korrelasjons_id: jobb.korrelasjons_id,
+      aktor_id: jobb.aktor_id,
+      prosjekt_id: jobb.prosjekt_id,
+      jobb_id: jobb.jobb_id,
+    },
+    avh.logg
+  );
+}
 
+async function utfoerJobb(avh: Jobbavhengigheter, jobb: Jobbrad, hentet: number): Promise<boolean> {
   const lease = () => utenKontekst(avh.datalag).input('lease', sql.UniqueIdentifier, jobb.lease);
   // Neste forsøk av en levering avstemmes mot Catenda (`lever`); en topic gjør ikke det.
   const avstemmes = jobb.jobbtype === 'levering';
@@ -246,11 +260,11 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       } catch (feil) {
         if (stegetAvstemmes && forbigaaendeISql(feil)) throw feil;
         // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
-        const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
-        logg.error(
-          `Jobben ${jobb.jobb_id} fikk ${verdier.join(', ')} fra Catenda, men kvitteringen ble avvist:`,
-          feil
-        );
+        loggFeil('Jobben fikk svar fra Catenda, men kvitteringen ble avvist', feil, 'error', {
+          catenda_svar: Object.fromEntries(
+            Object.entries(parametre).map(([navn, [, verdi]]) => [navn, verdi])
+          ),
+        });
         throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
       }
     };
@@ -270,7 +284,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         topic_id: [sql.NVarChar(100), topicId],
         topic_nummer: [sql.Int, topic.nummer],
       });
-      logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topicId} for saken ${jobb.sak_id}.`);
+      loggInfo('Jobben laget topicen for saken', undefined);
     } else if (jobb.jobbtype === 'levering') {
       let leasenTapt = false;
       let fornyet = hentet;
@@ -311,7 +325,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
           })
           .catch((feil) => {
             if (feilnummer(feil) === LEASEN_GJELDER_IKKE) leasenTapt = true;
-            logg.warn(`Jobben ${jobb.jobb_id} fikk ikke fornyet leasen:`, feil);
+            loggFeil('Jobben fikk ikke fornyet leasen', feil, 'warn');
           });
       }, FORNYELSE_MS);
       try {
@@ -319,7 +333,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       } finally {
         clearInterval(fornyelse);
       }
-      logg.info(`Jobben ${jobb.jobb_id} leverte brevet og vedleggene til topicen.`);
+      loggInfo('Jobben leverte brevet og vedleggene til topicen', undefined);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
     }
@@ -327,21 +341,15 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     if (feil instanceof AvvistKvittering) throw feil.cause;
     if (feil instanceof TaptLease || feilnummer(feil) === LEASEN_GJELDER_IKKE) {
       // Uten lease kan ikke forsøket registreres; `hent_jobb` avgjør jobben når leasen er ute.
-      logg.error(
-        `Jobben ${jobb.jobb_id} mistet leasen og stoppet før neste endring i Catenda:`,
-        feil
-      );
+      loggFeil('Jobben mistet leasen og stoppet før neste endring i Catenda', feil, 'error');
       return true;
     }
     const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
     if (feil instanceof CatendaOppsettfeil)
-      logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
+      loggFeil('Jobben venter på at driften retter oppsettet mot Catenda', feil, 'error');
     // Om en jobb som feilet, prøves igjen, avgjør registreringen; loggen etter den sier det.
-    else if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet:`, feil);
-    else
-      logg.error(
-        `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
-      );
+    else if (utfall === 'feilet') loggFeil('Jobben feilet', feil, 'warn');
+    else loggFeil('Jobben er parkert', feil, 'error', { utfall });
     const registrer = () =>
       lease()
         .input('utfall', sql.NVarChar(20), utfall)
@@ -352,27 +360,25 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       registrert = await registrer();
     } catch (feilIBasen) {
       if (feilnummer(feilIBasen) === LEASEN_GJELDER_IKKE) {
-        logg.error(`Jobben ${jobb.jobb_id} mistet leasen før feilen ble registrert:`, feilIBasen);
+        loggFeil('Jobben mistet leasen før feilen ble registrert', feilIBasen, 'error');
         return true;
       }
       // Går leasen ut uten registrering, parkerer `hent_jobb` jobben som usikker (#877 p15).
       if (!forbigaaendeISql(feilIBasen)) throw feilIBasen;
-      logg.warn(`Jobben ${jobb.jobb_id} fikk ikke registrert feilen og prøver igjen:`, feilIBasen);
+      loggFeil('Jobben fikk ikke registrert feilen og prøver igjen', feilIBasen, 'warn');
       await pause(PAUSE_FOER_NY_REGISTRERING_MS);
       try {
         registrert = await registrer();
       } catch (igjen) {
         if (feilnummer(igjen) !== LEASEN_GJELDER_IKKE) throw igjen;
-        logg.error(`Jobben ${jobb.jobb_id} mistet leasen før feilen ble registrert:`, igjen);
+        loggFeil('Jobben mistet leasen før feilen ble registrert', igjen, 'error');
         return true;
       }
     }
     // Basen parkerer en levering etter et fast antall forsøk (svar A 11.11 i #1791).
     if (utfall === 'feilet' && registrert.recordset[0]?.tilstand === 'parkert')
-      logg.error(
-        `Jobben ${jobb.jobb_id} har brukt opp forsøkene og er parkert (${melding}). Driften starter den på nytt.`
-      );
-    else if (utfall === 'feilet') logg.info(`Jobben ${jobb.jobb_id} prøves igjen.`);
+      loggFeil('Jobben har brukt opp forsøkene og er parkert', feil, 'error');
+    else if (utfall === 'feilet') loggInfo('Jobben prøves igjen', undefined);
   }
   return true;
 }
@@ -393,13 +399,23 @@ export const FORSOEK_UTEN_TOPIC = 10;
  * `ugyldig_hendelse`. En annen feil gir utfallet `feilet`, som blir stående.
  */
 export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
-  const logg = avh.logg ?? console;
   if (!avh.innboks) return false;
   const rad = await nesteInnkommende(avh.datalag, avh.klokke?.());
   if (!rad) return false;
+  return medLoggkontekst(
+    () => utfoerHendelse(avh, rad),
+    { korrelasjons_id: rad.korrelasjons_id, innkommende_hendelse_id: rad.id },
+    avh.logg
+  );
+}
+
+async function utfoerHendelse(
+  avh: Jobbavhengigheter,
+  rad: NonNullable<Awaited<ReturnType<typeof nesteInnkommende>>>
+): Promise<boolean> {
   let behandling: Behandling;
   try {
-    behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks }, rad);
+    behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks! }, rad);
   } catch (feil) {
     // Etter et usikkert utfall kan saken være lagret; et nytt forsøk med samme kommando-ID
     // finner den i kvitteringen.
@@ -413,7 +429,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
       feil instanceof LaasFeilet ||
       feil instanceof MedlemskapetLaast
     ) {
-      logg.warn(`Hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+      loggFeil('Hendelsen i innboksen prøves igjen senere', feil, 'warn');
       await registrerForsoek(
         avh.datalag,
         rad.id,
@@ -423,7 +439,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
       );
       return true;
     } else {
-      logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
+      loggFeil('Hendelsen i innboksen kunne ikke behandles', feil, 'error');
       behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
     }
   }
@@ -432,11 +448,11 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   } catch (feil) {
     // Koblingen er endret etter oppslaget. Et nytt forsøk slår opp prosjektet på nytt.
     if (feilnummer(feil) !== ANNET_BOARD) throw feil;
-    logg.warn(`Hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+    loggFeil('Hendelsen i innboksen prøves igjen senere', feil, 'warn');
     await registrerForsoek(avh.datalag, rad.id, 'behandling', feilmelding(feil), false);
     return true;
   }
-  logg.info(`Hendelsen ${rad.id} i innboksen er behandlet: ${behandling.utfall}.`);
+  loggInfo('Hendelsen i innboksen er behandlet', { utfall: behandling.utfall });
   return true;
 }
 
@@ -452,23 +468,38 @@ const feilmelding = (feil: unknown) =>
  * utfallet venter før neste forsøk, som i `behandleEnHendelse`.
  */
 export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean> {
-  const logg = avh.logg ?? console;
   if (!avh.innboks) return false;
   const rad = await nesteKommentar(avh.datalag, avh.klokke?.());
   if (!rad) return false;
+  return medLoggkontekst(
+    () => utfoerKommentar(avh, rad),
+    {
+      korrelasjons_id: rad.korrelasjons_id,
+      prosjekt_id: rad.prosjekt_id ?? undefined,
+      innkommende_hendelse_id: rad.id,
+    },
+    avh.logg
+  );
+}
+
+async function utfoerKommentar(
+  avh: Jobbavhengigheter,
+  rad: NonNullable<Awaited<ReturnType<typeof nesteKommentar>>>
+): Promise<boolean> {
+  const innboks = avh.innboks!;
   const tekst = kommentartekst(rad, avh.saksadresse);
   try {
     if (!tekst) throw new Error(`Utfallet ${rad.utfall} har ingen kommentar`);
     const { catenda_board_id: board, catenda_topic_id: topic } = rad;
-    const epost = await avh.innboks.integrasjonensEpost();
-    const funnet = (await avh.innboks.kommentarer(board, topic)).find((k) =>
+    const epost = await innboks.integrasjonensEpost();
+    const funnet = (await innboks.kommentarer(board, topic)).find((k) =>
       appensKommentar(k, tekst, epost)
     );
-    const id = funnet?.id ?? (await avh.innboks.opprettKommentar(board, topic, tekst));
+    const id = funnet?.id ?? (await innboks.opprettKommentar(board, topic, tekst));
     await kvitterKommentar(avh.datalag, rad.id, id);
-    logg.info(`Kommentaren for hendelsen ${rad.id} i innboksen er skrevet.`);
+    loggInfo('Kommentaren for hendelsen i innboksen er skrevet', undefined);
   } catch (feil) {
-    logg.warn(`Kommentaren for hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+    loggFeil('Kommentaren for hendelsen i innboksen prøves igjen senere', feil, 'warn');
     await registrerForsoek(avh.datalag, rad.id, 'kommentar', feilmelding(feil), false);
   }
   return true;
@@ -597,7 +628,6 @@ export function startJobbkjoerer(
   avh: Jobbavhengigheter,
   intervallMs = POLLEINTERVALL_MS
 ): Jobbkjoerer {
-  const logg = avh.logg ?? console;
   let stoppet = false;
   let vekker: (() => void) | null = null;
   let vekket = false;
@@ -614,27 +644,35 @@ export function startJobbkjoerer(
       vekker = null;
       vekket = false;
     });
-  const loekke = (async () => {
-    while (!stoppet) {
-      try {
-        while (!stoppet && (await kjoerEnJobb(avh)));
-        while (!stoppet && (await behandleEnHendelse(avh)));
-        while (!stoppet && (await skrivEnKommentar(avh)));
-      } catch (feil) {
-        logg.error('Jobbkjøreren feilet:', feil);
-      }
-      if (!stoppet && avh.hr && Date.now() >= nesteHr) {
-        nesteHr = Date.now() + HR_INTERVALL_MS;
+  // Linjene fra løkka selv får kjørerens egen korrelasjons-ID.
+  const loekke = medLoggkontekst(
+    async () => {
+      while (!stoppet) {
         try {
-          const antall = await synkroniserHr(avh.datalag, avh.hr);
-          logg.info(`HR-kopien er synkronisert med ${antall} personer fra Graph.`);
+          while (!stoppet && (await kjoerEnJobb(avh)));
+          while (!stoppet && (await behandleEnHendelse(avh)));
+          while (!stoppet && (await skrivEnKommentar(avh)));
         } catch (feil) {
-          logg.error('HR-kopien ble ikke synkronisert:', feil);
+          loggFeil('Jobbkjøreren feilet', feil, 'error');
         }
+        if (!stoppet && avh.hr && Date.now() >= nesteHr) {
+          nesteHr = Date.now() + HR_INTERVALL_MS;
+          const hr = avh.hr;
+          await medLoggkontekst(async () => {
+            try {
+              const antall = await synkroniserHr(avh.datalag, hr);
+              loggInfo('HR-kopien er synkronisert fra Graph', { antall });
+            } catch (feil) {
+              loggFeil('HR-kopien ble ikke synkronisert', feil, 'error');
+            }
+          });
+        }
+        await vent();
       }
-      await vent();
-    }
-  })();
+    },
+    {},
+    avh.logg
+  );
   return {
     vekk() {
       vekket = true;

@@ -4,10 +4,13 @@
  * Forventningene har disse kildene:
  * - `require_project_access` i `backend/lib/auth/project_access.py`: aktiv kobling,
  *   aktivt medlemskap, leserollen, prosjektgrensen for hver sak det vises til (RV-07);
- * - `AuthService.ensure_fresh`: en liste som mangler eller er for gammel, synkroniseres;
- *   listen hentes fra koblingen tilgangskontrollen alt har lest, samtidige
- *   forespørsler deler hentingen, og en liste som ikke er fersk etter
- *   synkroniseringen, gir 503 (#726 punkt 2 og 3, #707 kommentar a);
+ * - B-04 punkt 4: en liste som mangler eller er for gammel, forsøkes synkronisert.
+ *   Synkroniseringsfeil logges, og en lagret liste fra samme kobling kan fortsatt
+ *   brukes. Driftsvarselet følger listens alder;
+ * - #726 punkt 2 og 3, #707 kommentar a: listen hentes fra koblingen
+ *   tilgangskontrollen alt har lest. Samtidige forespørsler deler hentingen.
+ *   En liste som mangler eller er eldre enn den hentede etter en vellykket
+ *   synkronisering, gir 503;
  * - `require_contract_role` og `contract_membership`: én entydig side, ellers 403;
  * - #53, kommentar 6212192068: teamet er et kontraktsteam på avsenderens side, og
  *   `null` når avsenderen er med i flere av dem;
@@ -22,6 +25,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   catendaId,
   ferskeProsjekter,
+  hindringForGodkjenner,
   krevKontraktsrolle,
   krevProsjekttilgang,
   type FraSti,
@@ -133,9 +137,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
   async function prosjekt({
     kobling = 'aktiv',
     liste = 'fersk',
+    alder = 3600,
   }: {
     kobling?: 'aktiv' | 'inaktiv' | 'ingen';
     liste?: 'fersk' | 'gammel' | 'ingen';
+    alder?: number;
   } = {}): Promise<Prosjekt> {
     const p: Prosjekt = {
       id: `autorisasjon-${randomBytes(4).toString('hex')}`,
@@ -161,7 +167,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         project_id: p.id,
         catenda_project_id: p.catenda,
         synced_at: {
-          sql: liste === 'fersk' ? 'SYSUTCDATETIME()' : 'DATEADD(second, -3600, SYSUTCDATETIME())',
+          sql:
+            liste === 'fersk' ? 'SYSUTCDATETIME()' : `DATEADD(second, -${alder}, SYSUTCDATETIME())`,
         },
       });
     for (const [side, team] of [
@@ -494,29 +501,35 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(t).not.toHaveProperty('synkronisert');
     });
 
-    it('endres koblingen under kontrollen, hentes listen fra koblingen som ble lest først, og basen avviser den med 503 (#726 punkt 2)', async () => {
-      const p = await prosjekt({ liste: 'gammel' });
-      const m = await medlem(p);
-      const ny = randomUUID();
-      // Koblingen flyttes etter at tilgangskontrollen har lest den, rett før alderen leses.
-      const pool = medFoer(kjoeretid.pool, 'koe_api.medlemsliste_alder', async () => {
-        await r()
-          .input('prosjekt', sql.NVarChar(100), p.id)
-          .input('ny', sql.UniqueIdentifier, ny)
-          .query(
-            `UPDATE koe.catenda_project_configs SET catenda_project_id = @ny
+    it.each(['liste', 'feil'] as const)(
+      'ved endret kobling under hentingen gir Catenda-utfallet %s 503 (#726 punkt 2, #51)',
+      async (utfall) => {
+        const p = await prosjekt({ liste: 'gammel' });
+        const m = await medlem(p);
+        const ny = randomUUID();
+        const { catenda, kall } = catendaMed({}, async () => {
+          await r()
+            .input('prosjekt', sql.NVarChar(100), p.id)
+            .input('ny', sql.UniqueIdentifier, ny)
+            .query(
+              `UPDATE koe.catenda_project_configs SET catenda_project_id = @ny
               WHERE internal_project_id = @prosjekt AND catenda_project_id <> @ny`
-          );
-      });
-      const { catenda, kall } = catendaMed({}, async () => [
-        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
-      ]);
-      expect(await nektet(tilgang(m, p.id, { catenda, pool }))).toEqual({
-        status: 503,
-        error: 'ACCESS_UNAVAILABLE',
-      });
-      expect(kall).toEqual([p.catenda]);
-    });
+            );
+          if (utfall === 'feil') throw new Error('Catenda er nede');
+          return [{ subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' }];
+        });
+        const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+        try {
+          expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+            status: 503,
+            error: 'ACCESS_UNAVAILABLE',
+          });
+        } finally {
+          logg.mockRestore();
+        }
+        expect(kall).toEqual([p.catenda]);
+      }
+    );
 
     it('skriver ikke synkroniseringen fordi listen er markert nyere, og listen er fortsatt ikke fersk, gir det 503 (#707 kommentar a)', async () => {
       const p = await prosjekt({ liste: 'gammel' });
@@ -528,7 +541,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
           .input('prosjekt', sql.NVarChar(100), p.id)
           .query(
             `UPDATE koe.app_membership_sync
-                SET catenda_project_id = '00000000-0000-0000-0000-000000000000',
+                    SET catenda_project_id = NULL,
                     synced_at = DATEADD(second, 1, SYSUTCDATETIME())
               WHERE project_id = @prosjekt`
           );
@@ -563,12 +576,50 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(flest).toBe(2);
     });
 
-    it('feiler synkroniseringen, gir det 503 og ikke tilgang, og årsaken logges (#867 punkt 1)', async () => {
+    it('ved Catenda-feil brukes aktivt medlemskap fra den lagrede listen og feilen logges (#51)', async () => {
       const p = await prosjekt({ liste: 'gammel' });
       const m = await medlem(p);
+      const inaktiv = await medlem(p, { aktiv: false });
       const nede = new Error('Catenda er nede');
-      const { catenda } = catendaMed({}, async () => {
+      const { catenda } = catendaMed({ [p.te[0]]: [m.subjekt] }, async () => {
         throw nede;
+      });
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        const t = await tilgang(m, p.id, { catenda, minsteRolle: 'member' });
+        expect(t).toMatchObject({ prosjektId: p.id, rolle: 'member' });
+        expect(t.synkronisert).toBeUndefined();
+        expect(t.synkroniseringFeilet).toBe(true);
+        expect(await krevKontraktsrolle(kjoeretid.pool, catenda, t)).toMatchObject({
+          rolle: 'TE',
+          teamId: p.te[0],
+        });
+        // Godkjenneren kontrolleres ikke mot den lagrede listen før B-09 er avgjort (#2243).
+        await expect(
+          hindringForGodkjenner(kjoeretid.pool, catenda, m.bruker.id, p.id)
+        ).rejects.toThrow('ikke er fersk');
+        expect(await nektet(tilgang(inaktiv, p.id, { catenda }))).toEqual({
+          status: 403,
+          error: 'FORBIDDEN',
+        });
+        // Loggen har stedet og feilklassen, ikke meldingen (#867 punkt 5).
+        const [linje] = logg.mock.calls[0] as [string];
+        expect(JSON.parse(linje)).toMatchObject({
+          sted: 'Medlemslisten fra Catenda kunne ikke synkroniseres',
+          feilklasse: 'Error',
+          kallstakk: expect.any(Array),
+        });
+        expect(linje).not.toContain(nede.message);
+      } finally {
+        logg.mockRestore();
+      }
+    });
+
+    it('ved Catenda-feil uten en lagret liste fra koblingen er tilgang utilgjengelig (#51)', async () => {
+      const p = await prosjekt({ liste: 'ingen' });
+      const m = await medlem(p);
+      const { catenda } = catendaMed({}, async () => {
+        throw new Error('Catenda er nede');
       });
       const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
@@ -576,12 +627,103 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
           status: 503,
           error: 'ACCESS_UNAVAILABLE',
         });
-        // Loggen har stedet og feilklassen, ikke meldingen (#867 punkt 5).
-        const [linje] = logg.mock.calls[0] as [string];
-        expect(linje).toMatch(/^Prosjekttilgangen kunne ikke avgjøres \(Error\)\n\s+at /);
-        expect(linje).not.toContain(nede.message);
       } finally {
         logg.mockRestore();
+      }
+    });
+
+    it('ved skrivefeil i synkroniseringen brukes aktivt medlemskap fra den lagrede listen (#51)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const { catenda, kall } = catendaMed();
+      const pool = medFoer(kjoeretid.pool, 'koe_api.synkroniser_medlemskap', async () => {
+        throw new Error('Listen kunne ikke skrives');
+      });
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        expect(await tilgang(m, p.id, { catenda, pool })).toMatchObject({ rolle: 'member' });
+        expect(kall).toEqual([p.catenda]);
+        expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda kunne ikke synkroniseres',
+          feilklasse: 'Error',
+        });
+      } finally {
+        logg.mockRestore();
+      }
+    });
+
+    it('driftsvarselet følger aldersgrensen uten feil fra Catenda (#51)', async () => {
+      const p = await prosjekt({ liste: 'gammel', alder: 60 });
+      const m = await medlem(p);
+      const { catenda, kall } = catendaMed();
+      const logg = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.stubEnv('AUTH_MEMBERSHIP_MAX_AGE_SECONDS', '900');
+      try {
+        vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '600');
+        await tilgang(m, p.id, { catenda });
+        expect(logg).not.toHaveBeenCalled();
+        vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '60');
+        await tilgang(m, p.id, { catenda });
+        expect(kall).toEqual([]);
+        expect(logg).toHaveBeenCalledOnce();
+        expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda er utdatert',
+          prosjekt_id: p.id,
+          alder_sekunder: expect.any(Number),
+        });
+      } finally {
+        vi.unstubAllEnvs();
+        logg.mockRestore();
+      }
+    });
+
+    it('driftsvarselet gjelder listen som brukes: ikke en som nettopp ble hentet, men den lagrede etter en feil (#2243)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '60');
+      try {
+        const { catenda: virker, kall } = catendaMed({}, async () => [
+          { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+        ]);
+        await tilgang(m, p.id, { catenda: virker });
+        expect(kall).toEqual([p.catenda]);
+        expect(warn).not.toHaveBeenCalled();
+        const q = await prosjekt({ liste: 'gammel' });
+        const n = await medlem(q);
+        const { catenda: nede } = catendaMed({}, async () => {
+          throw new Error('Catenda er nede');
+        });
+        await tilgang(n, q.id, { catenda: nede });
+        // Neste kontroll innenfor terskelen gir ikke et nytt varsel.
+        await tilgang(n, q.id, { catenda: nede });
+        expect(warn).toHaveBeenCalledOnce();
+        expect(JSON.parse(String(warn.mock.calls[0][0]))).toMatchObject({
+          sted: 'Medlemslisten fra Catenda er utdatert',
+          prosjekt_id: q.id,
+        });
+      } finally {
+        vi.unstubAllEnvs();
+        warn.mockRestore();
+        error.mockRestore();
+      }
+    });
+
+    it('en varselgrense som ikke er et positivt heltall, gir 503 i stedet for å slå av varselet (#2243)', async () => {
+      const p = await prosjekt();
+      const m = await medlem(p);
+      const { catenda } = catendaMed();
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.stubEnv('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '1h');
+      try {
+        expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+          status: 503,
+          error: 'ACCESS_UNAVAILABLE',
+        });
+      } finally {
+        vi.unstubAllEnvs();
+        error.mockRestore();
       }
     });
   });
