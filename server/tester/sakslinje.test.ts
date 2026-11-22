@@ -275,6 +275,70 @@ describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7,
       ['Delfristen', dager[1]],
     ]);
   });
+
+  it('fristsvaret er subsidiært når bare én av to frister er subsidiær (MM-U9, OV-U32)', () => {
+    // Dagens regler gir alle dager-standpunktene samme lag, men utledningen leser laget
+    // for hvert standpunkt fra det frosne beslutningsgrunnlaget (MM-U9).
+    const medBareEnSubsidiaer = (subsidiaerIndeks: 0 | 1): Sakslinje => {
+      const sak = new Sak();
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'frist',
+        innhold: {
+          frister: [
+            { navn: 'Sluttfristen', dager: 20 },
+            { navn: 'Delfristen', dager: 10 },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('frist', {
+            ...FRIST_I_ORDEN,
+            vilkar_oppfylt: false,
+            frister: [{ dager: 20 }, { dager: 10 }],
+          }),
+        ],
+      });
+      const svarListe = sak.journal.at(-1)!.data.svar as Record<string, unknown>[];
+      const fristsvar = svarListe.find((s) => s.spor === 'frist')!;
+      const dager = (fristsvar.standpunkter as { id: string; art: string }[]).filter(
+        (p) => p.art === 'dager'
+      );
+      const prinsipalId = dager[1 - subsidiaerIndeks]!.id;
+      const grunnlag = fristsvar.beslutningsgrunnlag as {
+        virkninger: { standpunkt: string; lag: number }[];
+      };
+      for (const v of grunnlag.virkninger) if (v.standpunkt === prinsipalId) v.lag = 1;
+      return sak.linje();
+    };
+
+    const bareAndre = medBareEnSubsidiaer(1);
+    expect(
+      bareAndre.forstaatt,
+      'forutsetning: journalen forstås med bare andre frist subsidiær'
+    ).toBe(true);
+    expect(bareAndre.frist.svar).toMatchObject({ subsidiaert: true });
+    expect(bareAndre.frist.svar!.frister.map((f) => [f.betegnelse, f.subsidiaert])).toEqual([
+      ['Sluttfristen', false],
+      ['Delfristen', true],
+    ]);
+
+    const bareFoerste = medBareEnSubsidiaer(0);
+    expect(
+      bareFoerste.forstaatt,
+      'forutsetning: journalen forstås med bare første frist subsidiær'
+    ).toBe(true);
+    expect(bareFoerste.frist.svar).toMatchObject({ subsidiaert: true });
+    expect(bareFoerste.frist.svar!.frister.map((f) => [f.betegnelse, f.subsidiaert])).toEqual([
+      ['Sluttfristen', true],
+      ['Delfristen', false],
+    ]);
+  });
 });
 
 describe('linja i sakslisten (#1022)', () => {
