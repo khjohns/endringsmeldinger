@@ -16,6 +16,10 @@ Utfallene skriptet godtar, er de stoppregelen for funn i leveranseskillen
 - spørsmål, når «Åpne spørsmål» i beskrivelsen har innhold, eller når utfallet
   sier at oppdragsgiver har svart, med datoen.
 
+Har tabellen en kolonne «Prioritet», er prioriteten P0–P3, og ved en prøving som satte
+funnet ned, begge («P2 → P3»). Den siste gjelder: et P3 avvises eller rettes og føres ikke
+videre, og et P0–P2 avvises ikke.
+
 En rad som begynner med «Ingen funn», er ikke et funn. Overleveringen er ikke noe
 utfall. En henvisning til PR-en
 selv, eller til et issue PR-en lukker, er ingen føring. En rad i avvikstabellen
@@ -63,6 +67,7 @@ LUKKER = re.compile(
     r"(\d+)",
     re.IGNORECASE,
 )
+PRIORITET = re.compile(r"\bP([0-3])\b")
 I_BESKRIVELSEN = re.compile(r"\brettet i (denne |pr-)?beskrivelsen\b")
 IKKE_RETTET = re.compile(
     r"ikke rettet|prøvd rettet|tilbakeført|satt tilbake|rettes\b", re.IGNORECASE
@@ -453,11 +458,15 @@ def kontroller(
 
     for overskrift, hode, rader in funntabeller:
         kolonne = hode.index("utfall")
+        prioritet = hode.index("prioritet") if "prioritet" in hode else None
         for linje, celler in rader:
             if not any(celler):
                 continue
             utfall = celler[kolonne] if kolonne < len(celler) else ""
             rad = Rad("«Funn og utfall»", linje, celler, utfall)
+            if prioritet is not None:
+                celle = celler[prioritet] if prioritet < len(celler) else ""
+                _kontroller_prioritet(rad, celle, resultat)
             _kontroller_funnrad(
                 rad, pr, lukkes, aapne, oppslag, commit_finnes, resultat
             )
@@ -487,6 +496,29 @@ def _er_avvikstabell(hode: list[str], overskrift: str) -> bool:
             hode[0].startswith("avvik") or "avvik fra prototypen" in overskrift.lower()
         )
     )
+
+
+def _kontroller_prioritet(rad: Rad, celle: str, resultat: Resultat) -> None:
+    liten = rad.utfall.lower().lstrip("*_ ")
+    if liten.startswith("ingen funn"):
+        return
+    nivaaer = PRIORITET.findall(celle.upper())
+    if not nivaaer:
+        resultat.feil.append(_rad_feil(rad, "prioriteten mangler eller er ikke P0–P3"))
+        return
+    nivaa = int(nivaaer[-1])
+    avvist = bool(re.match(r"avvist\b", liten))
+    rettet = bool(re.search(r"\brettet\b", liten)) and not IKKE_RETTET.search(liten)
+    if nivaa == 3 and not (avvist or rettet):
+        resultat.feil.append(_rad_feil(rad, "et P3-funn avvises og føres ikke videre"))
+    elif nivaa < 3 and avvist:
+        resultat.feil.append(
+            _rad_feil(
+                rad,
+                f"et P{nivaa}-funn avvises ikke; satte prøvingen det ned, "
+                "skriv begge («P2 → P3»)",
+            )
+        )
 
 
 FORING = re.compile(r"oppfølging|krav i|ført|issue|delvis|^\[?#\d", re.IGNORECASE)

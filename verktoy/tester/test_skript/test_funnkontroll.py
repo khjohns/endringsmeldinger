@@ -303,3 +303,44 @@ def test_rettet_med_annen_tekst_uten_commit_avvises_fortsatt():
     assert "«rettet» uten commit" in " ".join(
         _kontroller(_funn("Rettet: radioknapper")).feil
     )
+
+
+PRIORITETSHODE = "| Funn | Kilde | Prioritet | Utfall |"
+
+
+def _med_prioritet(prioritet: str, utfall: str) -> str:
+    rad = f"| Funnet | `/code-review` | {prioritet} | {utfall} |"
+    return f"## Funn og utfall\n\n{PRIORITETSHODE}\n| --- | --- | --- | --- |\n{rad}\n"
+
+
+@pytest.mark.parametrize(
+    "prioritet, utfall",
+    [
+        ("P0", "Rettet i `1fc3849e`"),
+        ("P1", "Oppfølgingsissue #1905"),
+        ("P2 → P3", "Avvist: ingen kaller treffer det"),
+        ("**P3**", "Avvist: stil"),
+        ("P3", "Rettet i `1fc3849e`"),
+    ],
+)
+def test_prioritet_som_stoppregelen_tillater_holder(prioritet, utfall):
+    assert _kontroller(_med_prioritet(prioritet, utfall)).feil == []
+
+
+@pytest.mark.parametrize(
+    "prioritet, utfall, melding",
+    [
+        ("P3", "Oppfølgingsissue #1905", "et P3-funn avvises"),
+        ("P2 → P3", "Oppfølgingsissue #1905", "et P3-funn avvises"),
+        ("P1", "Avvist: kan vente", "et P1-funn avvises ikke"),
+        ("P3 → P2", "Avvist: kan vente", "et P2-funn avvises ikke"),
+        ("", "Avvist: stil", "prioriteten mangler"),
+        ("høy", "Rettet i `1fc3849e`", "prioriteten mangler"),
+    ],
+)
+def test_prioritet_stoppregelen_ikke_tillater_avvises(prioritet, utfall, melding):
+    assert melding in " ".join(_kontroller(_med_prioritet(prioritet, utfall)).feil)
+
+
+def test_tabell_uten_kolonnen_prioritet_kontrolleres_som_foer():
+    assert _kontroller(_funn("Avvist: stil")).feil == []
