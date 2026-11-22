@@ -657,9 +657,13 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         WHERE l.prosjekt_id = @p AND i.provider = 'catenda' AND i.subject = @subjekt`,
       { p: o.prosjekt.id, subjekt: iTeamet }
     );
-    expect(logg.recordset).toEqual([
-      { hendelse: 'medlemssynk', korrelasjon: expect.stringMatching(/^[0-9a-f-]{36}$/) },
-    ]);
+    // Synkroniseringen og medlemmene den endret, med samme korrelasjon (#1804, punkt 2).
+    expect(logg.recordset).toContainEqual({
+      hendelse: 'medlemssynk',
+      korrelasjon: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
+    expect(logg.recordset.map((rad) => rad.hendelse)).toContain('medlem_aktivert');
+    expect(new Set(logg.recordset.map((rad) => rad.korrelasjon)).size).toBe(1);
     expect(teller.hentinger).toBe(1);
 
     // Kontrollsak: et nytt medlem uten kontraktsteam får medlemskapet, men ingen side.
