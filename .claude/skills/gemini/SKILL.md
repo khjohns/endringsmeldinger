@@ -105,11 +105,14 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 
 - Issueteksten med kommentarene, hentet med `gh api`. `agy` har ikke tilgang til GitHub.
 - Be den lese filene oppgaven trenger, ved sti, så de har ett hjem og ikke gjengis i
-  bestillingen. Det gjelder alltid `CLAUDE.md` og [leveranseskillen](../leveranse/SKILL.md), og i
-  tillegg reglene i `.claude/rules/` for treet den endrer. Den skal også lese
+  bestillingen. Det gjelder alltid `CLAUDE.md`, [leveranseskillen](../leveranse/SKILL.md) og
+  [miljø-skillen](../miljo/SKILL.md) for testkommandoene, og i tillegg reglene i
+  `.claude/rules/` for treet den endrer. Den skal også lese
   `.claude/rules/tester.md` når den skriver tester, og språkfila når den endrer synlig tekst.
   Når et spørsmål til oppdragsgiver kan oppstå, skal den lese [vedtaksskillen](../vedtak/SKILL.md).
   Skriv hvilke avsnitt som gjelder, for eksempel «Review og funn».
+- Ikke [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). Den styrer Claude-økta: hurtigbufferen,
+  push, PR-en, CI og orkestratoren. Reglene der strider mot reglene for Gemini.
 - Reglene: arbeid bare i mappa, ikke push, ikke endre remote eller git config, og commit med
   en melding etter `CLAUDE.md`.
 - Sluttrapporten: hva som er endret, sjekkene med resultat, hva den søkte etter, og det den
