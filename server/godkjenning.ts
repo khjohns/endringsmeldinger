@@ -55,7 +55,7 @@ export class RollenMistet extends Error {}
  */
 function varsleDriften(hva: string, melding: string, feil: unknown): string {
   const [aarsak, driftsdetaljer] = melding.split(' | ', 2);
-  loggFeil(hva, feil, 'warn', undefined, { aarsak, driftsdetaljer });
+  loggFeil(hva, feil, 'warn', { aarsak, driftsdetaljer });
   return aarsak;
 }
 
