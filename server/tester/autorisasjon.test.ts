@@ -692,6 +692,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
           throw new Error('Catenda er nede');
         });
         await tilgang(n, q.id, { catenda: nede });
+        // Neste kontroll innenfor terskelen gir ikke et nytt varsel.
+        await tilgang(n, q.id, { catenda: nede });
         expect(warn).toHaveBeenCalledExactlyOnceWith(
           expect.stringMatching(new RegExp(`^Medlemslisten fra Catenda er utdatert .*"${q.id}"`))
         );

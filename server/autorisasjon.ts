@@ -231,13 +231,19 @@ export async function medlemslistensAlder(
 /** Hentingene fra Catenda som pågår, per base og kobling, så samtidige forespørsler deler én (#726 punkt 3). */
 const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering | null>>>();
 
+/** Når aldersvarselet sist ble skrevet for prosjektet, i millisekunder. */
+const sisteVarsel = new Map<string, number>();
+
+/** Høyst ett varsel per prosjekt per terskel, så et langt brudd ikke fyller loggen. */
 function varsleOmMedlemslistensAlder(prosjekt: string, alder: number): void {
   const verdi = process.env.AUTH_MEMBERSHIP_ALERT_AGE_SECONDS;
   if (!verdi) return;
   const grense = Number(verdi);
   if (!(Number.isSafeInteger(grense) && grense > 0))
     throw new Error('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS må være et positivt heltall');
-  if (alder >= grense) {
+  const naa = Date.now();
+  if (alder >= grense && naa - (sisteVarsel.get(prosjekt) ?? -Infinity) >= grense * 1000) {
+    sisteVarsel.set(prosjekt, naa);
     console.warn(
       `Medlemslisten fra Catenda er utdatert ${JSON.stringify({ prosjekt, alder_sekunder: alder })}`
     );
