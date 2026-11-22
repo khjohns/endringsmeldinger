@@ -12,6 +12,8 @@ CREATE TABLE koe.tilgangslogg (
   hendelse varchar(40) COLLATE Latin1_General_100_BIN2_UTF8 NOT NULL,
   utfall varchar(16) COLLATE Latin1_General_100_BIN2_UTF8 NOT NULL,
   grunn varchar(40) COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+  CONSTRAINT tilgangslogg_hendelse_form
+    CHECK (NOT hendelse COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^a-z_]%'),
   CONSTRAINT tilgangslogg_hendelse CHECK (hendelse IN (
     'innlogging_catenda', 'innlogging_entra', 'utlogging', 'autorisasjon',
     'leserolle_satt', 'leserolle_fjernet', 'rolle_satt', 'rolle_fjernet',
