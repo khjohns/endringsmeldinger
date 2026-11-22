@@ -142,7 +142,6 @@ ikke de faste reglene i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). Det inneh
   aldri kildene som er fasit (#1492);
 - for kjerne-oppgaver: svarene på domenespørsmålene fra kartleggingen;
 - om ingen følger øktene, når oppdragsgiver har sagt det;
-- om økta er den eneste PR-en i runden som rører hovedplanen;
 - hvilke relaterte issues økta tar etter hverandre, og i hvilken rekkefølge;
 - sjekkene før push, og nettleserkontroll med skillen `mockup-nettleser` der issuet
   krever det. Endrer økta visningen, sier oppdraget at den følger `interface-design`,

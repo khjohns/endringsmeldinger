@@ -211,8 +211,6 @@ skriver ikke der.
   i vedtaksfila for hånd. PR-en merges før arbeids-PR-ene, som viser til ID-ene.
   Da får parallelle PR-er ikke konflikt i vedtaksfila. Lenker et vedtak til et dokument i en
   arbeids-PR, merges den PR-en først, så lenken virker.
-- Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
-  samme PR, på samme måte.
 - En vedtakstekst skrives ikke om, verken når den føres eller etter merge.
   [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) i CI
   erstatter kontrollrundene av vedtaksteksten. Det som krever skjønn, er
