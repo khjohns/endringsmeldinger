@@ -71,11 +71,8 @@ export interface KravetOgSvaretIFristen {
 const gjelderAlle = (l: Svarlaget): boolean =>
   l.iSporet < 1 ||
   l.standpunkter.some(
-    ({ standpunkt }) => gjelderHeleFristkravet(standpunkt) && erInnsigelseIFristen(standpunkt)
+    ({ standpunkt: s }) => s.art !== 'spesifisering' && erInnsigelseIFristen(s)
   );
-
-const forAlleFristene = ({ standpunkt }: Svarlaget['standpunkter'][number]): boolean =>
-  gjelderHeleFristkravet(standpunkt);
 
 /**
  * Kravet som gjelder i fristen og byggherrens svar på det, eller `null` uten krav. `alle` er brevene i
@@ -120,7 +117,9 @@ export function kravetOgSvaretIFristen(
     l.iSporet < 1 ? undefined : rader.get(gjelder)?.lag[l.iSporet - 1]?.dager;
   const felles = lagene.flatMap((l): Felleslaget[] => {
     if (!gjelderAlle(l)) {
-      const standpunkter = l.standpunkter.filter(forAlleFristene);
+      const standpunkter = l.standpunkter.filter(({ standpunkt }) =>
+        gjelderHeleFristkravet(standpunkt)
+      );
       return standpunkter.length ? [{ ...l, standpunkter, dager: null }] : [];
     }
     const dagene = new Set(frister.map((f) => dagerI(f.id, l)));
@@ -129,7 +128,10 @@ export function kravetOgSvaretIFristen(
   });
   const perFrist = lagene
     .filter((l) => !gjelderAlle(l))
-    .map((l) => ({ ...l, standpunkter: l.standpunkter.filter((s) => !forAlleFristene(s)) }));
+    .map((l) => ({
+      ...l,
+      standpunkter: l.standpunkter.filter(({ standpunkt }) => !gjelderHeleFristkravet(standpunkt)),
+    }));
   // Byggherrens begrunnelse står per punkt i svaret, og punktet for dagene i en frist er fristen
   // (KA-U46, `temaer` i `kjerne/spor/frist/tekst.ts`).
   const begrunnelse = (frist: string) =>
