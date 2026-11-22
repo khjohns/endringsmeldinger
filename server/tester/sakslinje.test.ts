@@ -313,7 +313,11 @@ describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7,
       const grunnlag = fristsvar.beslutningsgrunnlag as {
         virkninger: { standpunkt: string; lag: number }[];
       };
-      for (const v of grunnlag.virkninger) if (v.standpunkt === prinsipalId) v.lag = 1;
+      const prinsipale = grunnlag.virkninger.filter((v) => v.standpunkt === prinsipalId);
+      expect(prinsipale, 'forutsetning: laget står for det prinsipale standpunktet').not.toEqual(
+        []
+      );
+      for (const v of prinsipale) v.lag = 1;
       return sak.linje();
     };
 
