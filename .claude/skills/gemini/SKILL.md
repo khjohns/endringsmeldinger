@@ -1,6 +1,6 @@
 ---
 name: gemini
-description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldinger. Når verktøyet passer og ikke, oppsettet (vertene, installasjonen, innloggingen og datainnsamlingen), arbeidsformen med egen klon, egen git-identitet og et miljø uten hemmeligheter, bestillingen, og hvordan Claude kontrollerer resultatet. Brukes når et issue, en kartlegging av åpne issues et review eller sparring i et viktig spørsmål, som en arkitekturvurdering, skal gjøres av Gemini, og bare i en økt der oppdragsgiver er til stede og kan logge inn.
+description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldinger. Når verktøyet passer og ikke, oppsettet (vertene, installasjonen, innloggingen og datainnsamlingen), arbeidsformen med egen klon, egen git-identitet og et miljø uten hemmeligheter, bestillingen, og hvordan Claude kontrollerer resultatet. Brukes når et issue, en kartlegging av åpne issues, et review eller sparring i et viktig spørsmål, som en arkitekturvurdering, skal gjøres av Gemini, og bare i en økt der oppdragsgiver er til stede og kan logge inn.
 ---
 
 # Gemini i skyøkta
