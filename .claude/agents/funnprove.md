@@ -1,6 +1,7 @@
 ---
 name: funnprove
 description: Prøver funnene fra et review som motpart før de rettes, og setter ned det som ikke gir feil med gyldig tilstand og inndata. Bruk etter `/code-review`, `/design-review`, reviewet av samspillet mellom reglene eller security review, med funnene som har P0–P2. Leser bare.
+model: sonnet
 effort: high
 tools: Read, Grep, Glob
 ---
