@@ -6,7 +6,7 @@
  *     CATENDA_CLIENT_SECRET=… CATENDA_LOGIN_REDIRECT_URI=… npm run server -- 8090
  *
  * Serveren lytter på `KOE_LYTTEADRESSE`, eller 127.0.0.1 når den ikke er satt, og
- * skriver «lytter på http://<adresse>:<port>» når den er klar. Port 0 gir en ledig
+ * logger «Serveren lytter» med adressen når den er klar. Port 0 gir en ledig
  * port. Bildet setter 0.0.0.0, så ruteren i en annen container når serveren (#376).
  *
  * - `KOE_DATALAG_TILKOBLING` er tilkoblingsstrengen til en migrert base i
@@ -35,6 +35,7 @@
  */
 
 import { createServer } from 'node:http';
+import { loggAdvarsel, loggFeil, loggInfo } from './logg.ts';
 import { constants } from 'node:os';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
@@ -66,101 +67,135 @@ const utenCatenda: Catenda = {
   },
 };
 
-kontrollerSkrifter();
+async function start(): Promise<void> {
+  try {
+    kontrollerSkrifter();
+  } catch (feil) {
+    loggFeil('Skriftene til brev-PDF-en kan ikke brukes', feil);
+    process.exitCode = 1;
+    return;
+  }
 
-const tilkobling = process.env.KOE_DATALAG_TILKOBLING;
-if (!tilkobling) throw new Error('KOE_DATALAG_TILKOBLING er ikke satt');
+  const tilkobling = process.env.KOE_DATALAG_TILKOBLING;
+  if (!tilkobling) {
+    loggFeil('KOE_DATALAG_TILKOBLING er ikke satt', undefined);
+    process.exitCode = 1;
+    return;
+  }
 
-const datalag = await opprettPool(sql.ConnectionPool.parseConnectionString(tilkobling));
-datalag.on('error', (feil) =>
-  console.error('Forbindelsen til SQL Server ble brutt:', feil.message)
-);
+  const datalag = await opprettPool(sql.ConnectionPool.parseConnectionString(tilkobling));
+  datalag.on('error', (feil) => loggFeil('Forbindelsen til SQL Server ble brutt', feil));
+  try {
+    await startMedDatalag(datalag);
+  } catch (feil) {
+    await datalag.close().catch((igjen) => loggFeil('SQL Server-poolen kunne ikke lukkes', igjen));
+    throw feil;
+  }
+}
 
-const funn = await hindringer(datalag, lesMigrasjoner());
-if (funn.length) throw new Error(`Serveren kan ikke bruke basen:\n${funn.join('\n')}`);
+async function startMedDatalag(datalag: sql.ConnectionPool): Promise<void> {
+  const funn = await hindringer(datalag, lesMigrasjoner());
+  if (funn.length) {
+    loggAdvarsel('Serveren kan ikke bruke basen', { antall: funn.length, hindringer: funn });
+    await datalag.close();
+    process.exitCode = 1;
+    return;
+  }
 
-// Innloggingen bruker integrasjonens klient, så uten Catenda er den heller ikke
-// satt opp (#726 punkt 4). Et feil oppsett av innloggingen stenger ikke
-// integrasjonen. Meldingene har ingen verdier fra oppsettet, så hemmeligheten
-// når ikke loggen.
-let klient: ReturnType<typeof catendaFraMiljoe> | null = null;
-let catenda = utenCatenda;
-try {
-  klient = catendaFraMiljoe();
-  catenda = integrasjonen(klient);
-} catch (feil) {
-  console.warn(`Catenda er ikke satt opp: ${(feil as Error).message}`);
-}
-let innlogging: Innlogging | null = null;
-try {
-  if (!klient) throw new Error('Catenda er ikke satt opp');
-  innlogging = innloggingFraMiljoe(process.env, klient);
-} catch (feil) {
-  console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
-}
-// Uten hemmeligheten svarer webhooken 404, og meldingen har ikke verdien (INT-01).
-let webhook: Webhook | null = null;
-try {
-  webhook = webhookFraMiljoe();
-} catch (feil) {
-  console.warn(`Webhooken fra Catenda er ikke satt opp: ${(feil as Error).message}`);
-}
-let hr: Graph | null = null;
-try {
-  hr = graphFraMiljoe(process.env);
-} catch (feil) {
-  console.warn(`HR-synkroniseringen er ikke satt opp: ${(feil as Error).message}`);
-}
-// Uten verten har saken ingen lenke til Catenda (U-15 i BF-44).
-let sakslenke: Sakslenke | null = null;
-try {
-  sakslenke = sakslenkeFraMiljoe();
-} catch (feil) {
-  console.warn(`Lenken til saken i Catenda er ikke satt opp: ${(feil as Error).message}`);
-}
-let jobber: Jobbkjoerer | null = null;
-if (klient && innlogging) {
-  const { frontend } = innlogging;
-  jobber = startJobbkjoerer({
-    datalag,
-    catenda: topicoppretter(klient),
-    dokumenter: dokumentleverandoer(klient),
-    innboks: innboksintegrasjon(klient),
-    hr: hr ?? undefined,
-    saksadresse: (prosjektId, sakId) =>
-      `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}`,
+  // Innloggingen bruker integrasjonens klient, så uten Catenda er den heller ikke
+  // satt opp (#726 punkt 4). Et feil oppsett av innloggingen stenger ikke
+  // integrasjonen. Meldingene har ingen verdier fra oppsettet, så hemmeligheten
+  // når ikke loggen.
+  let klient: ReturnType<typeof catendaFraMiljoe> | null = null;
+  let catenda = utenCatenda;
+  try {
+    klient = catendaFraMiljoe();
+    catenda = integrasjonen(klient);
+  } catch (feil) {
+    loggFeil('Catenda er ikke satt opp', feil, 'warn');
+  }
+  let innlogging: Innlogging | null = null;
+  try {
+    if (!klient) throw new Error('Catenda er ikke satt opp');
+    innlogging = innloggingFraMiljoe(process.env, klient);
+  } catch (feil) {
+    loggFeil('Innloggingen er ikke satt opp', feil, 'warn');
+  }
+  // Uten hemmeligheten svarer webhooken 404, og meldingen har ikke verdien (INT-01).
+  let webhook: Webhook | null = null;
+  try {
+    webhook = webhookFraMiljoe();
+  } catch (feil) {
+    loggFeil('Webhooken fra Catenda er ikke satt opp', feil, 'warn');
+  }
+  let hr: Graph | null = null;
+  try {
+    hr = graphFraMiljoe(process.env);
+  } catch (feil) {
+    loggFeil('HR-synkroniseringen er ikke satt opp', feil, 'warn');
+  }
+  // Uten verten har saken ingen lenke til Catenda (U-15 i BF-44).
+  let sakslenke: Sakslenke | null = null;
+  try {
+    sakslenke = sakslenkeFraMiljoe();
+  } catch (feil) {
+    loggFeil('Lenken til saken i Catenda er ikke satt opp', feil, 'warn');
+  }
+  let jobber: Jobbkjoerer | null = null;
+  const server = createServer(
+    lagServer({
+      datalag,
+      catenda,
+      innlogging,
+      webhook,
+      sakslenke,
+      vekkJobbkjoereren: () => jobber?.vekk(),
+    })
+  );
+  const lytteadresse = process.env.KOE_LYTTEADRESSE || '127.0.0.1';
+  await new Promise<void>((klar, avvist) => {
+    server.once('error', avvist);
+    server.listen(Number(process.argv[2] ?? 0), lytteadresse, () => {
+      server.off('error', avvist);
+      klar();
+    });
   });
-}
+  server.on('error', (feil) => loggFeil('HTTP-serveren feilet', feil));
+  if (klient && innlogging) {
+    const { frontend } = innlogging;
+    jobber = startJobbkjoerer({
+      datalag,
+      catenda: topicoppretter(klient),
+      dokumenter: dokumentleverandoer(klient),
+      innboks: innboksintegrasjon(klient),
+      hr: hr ?? undefined,
+      saksadresse: (prosjektId, sakId) =>
+        `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}`,
+    });
+  }
 
-const server = createServer(
-  lagServer({
-    datalag,
-    catenda,
-    innlogging,
-    webhook,
-    sakslenke,
-    vekkJobbkjoereren: () => jobber?.vekk(),
-  })
-);
-const lytteadresse = process.env.KOE_LYTTEADRESSE || '127.0.0.1';
-server.listen(Number(process.argv[2] ?? 0), lytteadresse, () => {
+  // Poolen lukkes først når løkka har kvittert (#778). Et nytt signal mens stoppen
+  // pågår, avslutter med en gang, så en stopp som henger, ikke krever SIGKILL (#813 punkt 3).
+  let stoppes = false;
+  const stopp = (signal: NodeJS.Signals) => {
+    if (stoppes) {
+      loggAdvarsel(`${signal} mens stoppen pågår: avslutter uten å vente på serveren og jobbene`);
+      process.exit(128 + constants.signals[signal]);
+    }
+    stoppes = true;
+    void new Promise<void>((lukket) => server.close(() => lukket()))
+      .then(() => jobber?.stopp())
+      .then(() => datalag.close())
+      .catch((feil) => loggFeil('Serveren kunne ikke stoppes', feil));
+  };
+  process.on('SIGTERM', stopp);
+  process.on('SIGINT', stopp);
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;
-  console.log(`lytter på http://${lytteadresse}:${port}`);
-});
+  loggInfo('Serveren lytter', { adresse: `http://${lytteadresse}:${port}` });
+}
 
-// Poolen lukkes først når løkka har kvittert (#778). Et nytt signal mens stoppen
-// pågår, avslutter med en gang, så en stopp som henger, ikke krever SIGKILL (#813 punkt 3).
-let stoppes = false;
-const stopp = (signal: NodeJS.Signals) => {
-  if (stoppes) {
-    console.error(`${signal} mens stoppen pågår: avslutter uten å vente på serveren og jobbene`);
-    process.exit(128 + constants.signals[signal]);
-  }
-  stoppes = true;
-  void new Promise<void>((lukket) => server.close(() => lukket()))
-    .then(() => jobber?.stopp())
-    .then(() => datalag.close());
-};
-process.on('SIGTERM', stopp);
-process.on('SIGINT', stopp);
+await start().catch((feil) => {
+  loggFeil('Serveren kunne ikke startes', feil);
+  process.exitCode = 1;
+});

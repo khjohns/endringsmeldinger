@@ -402,7 +402,7 @@ try {
       CATENDA_GRUNNADRESSE: catendaUrl,
       CATENDA_ACCESS_TOKEN: INTEGRASJONEN,
     },
-    /lytter på/
+    /"sted":"Serveren lytter"/
   );
   if (await svarer(FRONTEND)) throw new Error(`${FRONTEND} svarer alt; stopp den vite-serveren først.`);
   await startProsess(

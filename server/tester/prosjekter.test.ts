@@ -178,7 +178,10 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('ACCESS_UNAVAILABLE');
       // Årsaken logges, som ruterens sluttfanger gjør (#724 punkt 2), uten meldingen (#867 punkt 5).
-      expect(logg.mock.calls.join('\n')).toContain('Prosjektene kunne ikke leses (Error)');
+      expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+        sted: 'Prosjektene kunne ikke leses',
+        feilklasse: 'Error',
+      });
       expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();
@@ -623,7 +626,10 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
       });
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('SYNC_UNAVAILABLE');
-      expect(logg.mock.calls.join('\n')).toContain('Medlemmene kunne ikke synkroniseres (Error)');
+      expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+        sted: 'Medlemmene kunne ikke synkroniseres',
+        feilklasse: 'Error',
+      });
       expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();

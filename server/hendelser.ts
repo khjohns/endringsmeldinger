@@ -28,6 +28,7 @@
  * forfatteren er et medlem, så ingen brukerrad lages eller endres for andre.
  */
 
+import { kjenteLoggfelter } from './logg.ts';
 import { createHash } from 'node:crypto';
 import { erObjekt, tegnSomIkkeKanVises } from '../kjerne/format/skjema.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
@@ -86,6 +87,7 @@ export class TopicenFinnesIkke extends Error {
 }
 
 export interface Innkommende {
+  korrelasjons_id?: string | null;
   /** `bigint`, som tekst fra mssql. */
   id: string;
   hendelse_id: string;
@@ -201,6 +203,7 @@ export async function registrerForsoek(
 }
 
 export interface Kommentarrad {
+  korrelasjons_id?: string | null;
   /** Hendelsen i innboksen, `bigint` som tekst. */
   id: string;
   utfall: Behandlingsutfall;
@@ -312,6 +315,7 @@ export async function behandle(
     .execute<{ prosjekt_id: string }>('koe_api.topicens_prosjekt');
   const prosjektId = oppslag.recordset[0]?.prosjekt_id;
   if (!prosjektId) return { utfall: endret ? 'ikke_behandlet_type' : 'ukjent_prosjekt', topicId };
+  kjenteLoggfelter({ prosjekt_id: prosjektId });
   if (endret && !(await tittelAvvistFoer(avh.datalag, prosjektId, topicId)))
     return { utfall: 'ikke_behandlet_type' };
   const ut = (utfall: Behandlingsutfall, melding?: string): Behandling => ({
@@ -335,6 +339,7 @@ export async function behandle(
   if (!medlem) return ut('ukjent_side');
 
   const aktor = await catendaIdentitet(avh.datalag, medlem);
+  kjenteLoggfelter({ aktor_id: aktor });
   const kommando = {
     id: kommandoId(rad),
     // Uten tittelen: den leses fra Catenda og kan endres mellom to forsøk.

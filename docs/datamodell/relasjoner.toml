@@ -789,6 +789,15 @@ Den som godkjente, returnerte eller trakk pakken."""
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
+[[relasjon]]
+fra = "koe.jobb.logg_aktor_id"
+til = "koe.app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Aktøren fra skrivekonteksten da jobben ble opprettet. Brukes i driftsloggen."
+funn = []
+belegg = "L 19.11: `20261119180000_korrelasjon_i_driftsloggen.sql` (#1805)."
+
 # ---------------------------------------------------------------------------
 # Kolonner som ser ut som nøkler eller personreferanser, men som ikke viser
 # til en tabell i appen. Testen krever en begrunnelse for hver.
@@ -930,3 +939,12 @@ og har da ingen rad i HR-kopien."""
 [[uten_relasjon]]
 kolonne = "koe.kontraktsfrist.frist_id"
 begrunnelse = "Fristens ID i prosjektet, tildelt av `koe_drift.sett_kontraktsfrist`. Et krav viser til fristen med den; hendelsen i journalen har ingen fremmednøkkel hit (#721)."
+
+
+[[uten_relasjon]]
+kolonne = "koe.jobb.korrelasjons_id"
+begrunnelse = "ID-en til forespørselen som opprettet jobben. Forespørselen er en oppføring i driftsloggen."
+
+[[uten_relasjon]]
+kolonne = "koe.innkommende_hendelse.korrelasjons_id"
+begrunnelse = "ID-en til forespørselen som først lagret hendelsen. Forespørselen er en oppføring i driftsloggen."
