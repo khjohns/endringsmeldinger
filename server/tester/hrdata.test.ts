@@ -462,7 +462,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('rollene og HR-kopien fra Graph (S-1c del
         saksadresse: () => '',
         hr: telt,
         logg: {
-          info: (melding: string) => melding.startsWith('HR-kopien er synkronisert') && ferdig(),
+          info: (melding: string) =>
+            JSON.parse(melding).sted === 'HR-kopien er synkronisert fra Graph' && ferdig(),
           warn: () => {},
           error: () => {},
         },
