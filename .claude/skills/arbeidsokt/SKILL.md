@@ -125,9 +125,10 @@ uten at oppdraget gjentar det:
   Det venter. For kjerne-oppgaver er spørsmålene samlet i kartleggingen, og
   svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
   den og spør på samme måte.
-- **Hovedplanen.** Økta skriver ikke i hovedplanen, unntatt når oppdraget sier at
-  den er den eneste PR-en i runden som rører planen. Da kan den føre et vedtak
-  den trenger, slik [vedtaksskillen](../vedtak/SKILL.md) sier.
+- **Hovedplanen og vedtaksregisteret.** Økta skriver ikke i hovedplanen,
+  vedtaksregisteret eller vedtaksfila. I en orkestrert runde fører orkestratoren
+  vedtakene og merknadene i egne små PR-er (`CLAUDE.md`, «Hvor hva står», og
+  [vedtaksskillen](../vedtak/SKILL.md#vedtaks-pr-en)).
 - **Feil utenfor oppdraget**, som ikke er reviewfunn, blir egne issues (regelen i
   `CLAUDE.md`). Økta løser en slik feil i samme PR med `Closes #n` bare når
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
