@@ -233,10 +233,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const jobb = svar.recordset[0];
   if (!jobb) return false;
   return medLoggkontekst(() => utfoerJobb(avh, jobb, hentet), {
-    korrelasjons_id: jobb.korrelasjons_id?.toLowerCase(),
-    aktor_id: jobb.aktor_id?.toLowerCase(),
+    korrelasjons_id: jobb.korrelasjons_id,
+    aktor_id: jobb.aktor_id,
     prosjekt_id: jobb.prosjekt_id,
-    jobb_id: jobb.jobb_id.toLowerCase(),
+    jobb_id: jobb.jobb_id,
   });
 }
 
@@ -405,7 +405,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   const rad = await nesteInnkommende(avh.datalag, avh.klokke?.());
   if (!rad) return false;
   return medLoggkontekst(() => utfoerHendelse(avh, rad), {
-    korrelasjons_id: rad.korrelasjons_id?.toLowerCase(),
+    korrelasjons_id: rad.korrelasjons_id,
     innkommende_hendelse_id: rad.id,
   });
 }
@@ -473,7 +473,7 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
   const rad = await nesteKommentar(avh.datalag, avh.klokke?.());
   if (!rad) return false;
   return medLoggkontekst(() => utfoerKommentar(avh, rad), {
-    korrelasjons_id: rad.korrelasjons_id?.toLowerCase(),
+    korrelasjons_id: rad.korrelasjons_id,
     prosjekt_id: rad.prosjekt_id ?? undefined,
     innkommende_hendelse_id: rad.id,
   });

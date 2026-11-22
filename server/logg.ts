@@ -12,8 +12,22 @@ type Loggkontekst = {
 
 const lager = new AsyncLocalStorage<Loggkontekst>();
 
-export function medLoggkontekst<T>(arbeid: () => T, kjent: Partial<Loggkontekst> = {}): T {
-  return lager.run({ ...kjent, korrelasjons_id: kjent.korrelasjons_id ?? randomUUID() }, arbeid);
+type Uuidfelt = 'korrelasjons_id' | 'aktor_id' | 'jobb_id';
+
+/** SQL Server leser `uniqueidentifier` med store bokstaver; loggen bruker små, som `randomUUID()`. */
+export function medLoggkontekst<T>(
+  arbeid: () => T,
+  kjent: Partial<Omit<Loggkontekst, Uuidfelt> & Record<Uuidfelt, string | null>> = {}
+): T {
+  return lager.run(
+    {
+      ...kjent,
+      korrelasjons_id: kjent.korrelasjons_id?.toLowerCase() ?? randomUUID(),
+      aktor_id: kjent.aktor_id?.toLowerCase(),
+      jobb_id: kjent.jobb_id?.toLowerCase(),
+    },
+    arbeid
+  );
 }
 
 export const korrelasjonsId = () => lager.getStore()?.korrelasjons_id;
@@ -58,12 +72,12 @@ function skrivLogg(
   );
 }
 
-export function loggInfo(sted: string, felt?: Loggfelter, mottaker?: Loggmottaker): void {
-  skrivLogg('info', sted, felt ?? {}, mottaker);
+export function loggInfo(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
+  skrivLogg('info', sted, felt, mottaker);
 }
 
-export function loggAdvarsel(sted: string, felt?: Loggfelter): void {
-  skrivLogg('warn', sted, felt ?? {});
+export function loggAdvarsel(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
+  skrivLogg('warn', sted, felt, mottaker);
 }
 
 /** En kode fra Node, `tedious` eller `mssql`, som `ETIMEOUT` eller `UND_ERR_SOCKET`. */
