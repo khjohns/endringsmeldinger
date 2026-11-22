@@ -280,8 +280,9 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
       expect(JSON.parse(linje)).toMatchObject({
         sted: 'Godkjenningspakken kan ikke lages',
         feilnummer: 52071,
+        aarsak: 'En leder i kjeden har ingen rolle i en fersk HR-kopi',
+        driftsdetaljer: `prosjekt=${o.prosjekt.id}; bruker=${o.bh.id}; tenant=${tenant}; leder_oid=${oid.leder}`,
       });
-      expect(linje).not.toContain('tenant=');
       await registrerHierarki();
       // Rådgiveren står ikke i kopien, og når kjeden bare leses, sier loggen det.
       logg.mockClear();
@@ -293,7 +294,7 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
         sted: 'Godkjenningskjeden kan ikke avledes',
         feilnummer: 52071,
       });
-      expect(kjedelogg).not.toContain('tenant=');
+      expect(JSON.parse(kjedelogg).driftsdetaljer).toMatch(/^prosjekt=.*; tenant=/);
     } finally {
       logg.mockRestore();
     }

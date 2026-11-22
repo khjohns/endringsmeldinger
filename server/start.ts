@@ -96,7 +96,7 @@ async function start(): Promise<void> {
 async function startMedDatalag(datalag: sql.ConnectionPool): Promise<void> {
   const funn = await hindringer(datalag, lesMigrasjoner());
   if (funn.length) {
-    loggAdvarsel('Serveren kan ikke bruke basen', { antall: funn.length });
+    loggAdvarsel('Serveren kan ikke bruke basen', { antall: funn.length, hindringer: funn });
     await datalag.close();
     process.exitCode = 1;
     return;

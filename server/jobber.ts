@@ -233,10 +233,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const jobb = svar.recordset[0];
   if (!jobb) return false;
   return medLoggkontekst(() => utfoerJobb(avh, jobb, hentet), {
-    korrelasjons_id: jobb.korrelasjons_id?.toLowerCase(),
-    aktor_id: jobb.aktor_id?.toLowerCase(),
+    korrelasjons_id: jobb.korrelasjons_id,
+    aktor_id: jobb.aktor_id,
     prosjekt_id: jobb.prosjekt_id,
-    jobb_id: jobb.jobb_id.toLowerCase(),
+    jobb_id: jobb.jobb_id,
   });
 }
 
@@ -260,7 +260,12 @@ async function utfoerJobb(avh: Jobbavhengigheter, jobb: Jobbrad, hentet: number)
           'Jobben fikk svar fra Catenda, men kvitteringen ble avvist',
           feil,
           'error',
-          avh.logg
+          avh.logg,
+          {
+            catenda_svar: Object.fromEntries(
+              Object.entries(parametre).map(([navn, [, verdi]]) => [navn, verdi])
+            ),
+          }
         );
         throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
       }
@@ -351,7 +356,7 @@ async function utfoerJobb(avh: Jobbavhengigheter, jobb: Jobbrad, hentet: number)
       loggFeil('Jobben venter på at driften retter oppsettet mot Catenda', feil, 'error', avh.logg);
     // Om en jobb som feilet, prøves igjen, avgjør registreringen; loggen etter den sier det.
     else if (utfall === 'feilet') loggFeil('Jobben feilet', feil, 'warn', avh.logg);
-    else loggFeil('Jobben er parkert', feil, 'error', avh.logg);
+    else loggFeil('Jobben er parkert', feil, 'error', avh.logg, { utfall });
     const registrer = () =>
       lease()
         .input('utfall', sql.NVarChar(20), utfall)
@@ -405,7 +410,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   const rad = await nesteInnkommende(avh.datalag, avh.klokke?.());
   if (!rad) return false;
   return medLoggkontekst(() => utfoerHendelse(avh, rad), {
-    korrelasjons_id: rad.korrelasjons_id?.toLowerCase(),
+    korrelasjons_id: rad.korrelasjons_id,
     innkommende_hendelse_id: rad.id,
   });
 }
@@ -473,7 +478,7 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
   const rad = await nesteKommentar(avh.datalag, avh.klokke?.());
   if (!rad) return false;
   return medLoggkontekst(() => utfoerKommentar(avh, rad), {
-    korrelasjons_id: rad.korrelasjons_id?.toLowerCase(),
+    korrelasjons_id: rad.korrelasjons_id,
     prosjekt_id: rad.prosjekt_id ?? undefined,
     innkommende_hendelse_id: rad.id,
   });

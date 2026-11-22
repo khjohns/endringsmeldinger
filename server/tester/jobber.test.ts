@@ -504,6 +504,26 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     expect(await topicen(sakId)).toMatchObject({ topic_id: null });
   });
 
+  it('5b: avvises kvitteringen etter at Catenda har laget topicen, logges ID-ene fra Catenda (#2244)', async () => {
+    const sakId = await opprettKjernesak(o);
+    svar = async () => {
+      await somKjoerer(
+        `UPDATE koe.jobb SET lease_utloeper = DATEADD(second, -1, SYSUTCDATETIME()) WHERE sak_id = @sak`,
+        { sak: sakId }
+      );
+      return 'topic-uten-kvittering';
+    };
+    const error = vi.fn();
+    await expect(kjoer({ ...logg, error })).rejects.toThrow();
+    const linjer = error.mock.calls.map(([linje]) => JSON.parse(String(linje)));
+    expect(linjer).toContainEqual(
+      expect.objectContaining({
+        sted: 'Jobben fikk svar fra Catenda, men kvitteringen ble avvist',
+        catenda_svar: expect.objectContaining({ topic_id: 'topic-uten-kvittering' }),
+      })
+    );
+  });
+
   it('6: en jobb som en annen kjører har låst, hoppes over uten å vente (READPAST, UPDLOCK)', async () => {
     const sakId = await opprettKjernesak(o);
     const annen = o.datalag.base.pool.transaction();

@@ -12,8 +12,22 @@ type Loggkontekst = {
 
 const lager = new AsyncLocalStorage<Loggkontekst>();
 
-export function medLoggkontekst<T>(arbeid: () => T, kjent: Partial<Loggkontekst> = {}): T {
-  return lager.run({ ...kjent, korrelasjons_id: kjent.korrelasjons_id ?? randomUUID() }, arbeid);
+type Uuidfelt = 'korrelasjons_id' | 'aktor_id' | 'jobb_id';
+
+/** SQL Server leser `uniqueidentifier` med store bokstaver; loggen bruker små, som `randomUUID()`. */
+export function medLoggkontekst<T>(
+  arbeid: () => T,
+  kjent: Partial<Omit<Loggkontekst, Uuidfelt> & Record<Uuidfelt, string | null>> = {}
+): T {
+  return lager.run(
+    {
+      ...kjent,
+      korrelasjons_id: kjent.korrelasjons_id?.toLowerCase() ?? randomUUID(),
+      aktor_id: kjent.aktor_id?.toLowerCase(),
+      jobb_id: kjent.jobb_id?.toLowerCase(),
+    },
+    arbeid
+  );
 }
 
 export const korrelasjonsId = () => lager.getStore()?.korrelasjons_id;
@@ -37,19 +51,23 @@ type Loggfelter = {
   utfall?: string;
   statuskode?: number;
   rute?: string;
+  /** ID-ene Catenda svarte med, når kvitteringen for dem ble avvist. */
+  catenda_svar?: Record<string, unknown>;
+  hindringer?: string[];
+  /** Setningen og driftsdetaljene fra basen, med ID-er og uten navn (GFK-U10). */
+  aarsak?: string;
+  driftsdetaljer?: string;
 };
 
 function skrivLogg(
   nivaa: Nivaa,
   sted: string,
-  felt:
-    | Loggfelter
-    | {
-        feilklasse: string;
-        feilnummer?: number;
-        feilkode?: string;
-        kallstakk?: string[];
-      },
+  felt: Loggfelter & {
+    feilklasse?: string;
+    feilnummer?: number;
+    feilkode?: string;
+    kallstakk?: string[];
+  },
   mottaker: Loggmottaker = console
 ): void {
   mottaker[nivaa](
@@ -63,12 +81,12 @@ function skrivLogg(
   );
 }
 
-export function loggInfo(sted: string, felt?: Loggfelter, mottaker?: Loggmottaker): void {
-  skrivLogg('info', sted, felt ?? {}, mottaker);
+export function loggInfo(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
+  skrivLogg('info', sted, felt, mottaker);
 }
 
-export function loggAdvarsel(sted: string, felt?: Loggfelter): void {
-  skrivLogg('warn', sted, felt ?? {});
+export function loggAdvarsel(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
+  skrivLogg('warn', sted, felt, mottaker);
 }
 
 /** En kode fra Node, `tedious` eller `mssql`, som `ETIMEOUT` eller `UND_ERR_SOCKET`. */
@@ -85,9 +103,10 @@ export function loggFeil(
   hvor: string,
   feil: unknown,
   nivaa: 'error' | 'warn' = 'error',
-  mottaker?: Loggmottaker
+  mottaker?: Loggmottaker,
+  felt: Loggfelter = {}
 ): void {
-  skrivLogg(nivaa, hvor, feilfelter(feil), mottaker);
+  skrivLogg(nivaa, hvor, { ...felt, ...feilfelter(feil) }, mottaker);
 }
 
 function feilfelter(feil: unknown) {
