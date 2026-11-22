@@ -1,6 +1,6 @@
 ---
 name: gemini
-description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldinger. Når verktøyet passer og ikke, oppsettet (vertene, installasjonen, innloggingen og datainnsamlingen), arbeidsformen med egen klon, egen git-identitet og et miljø uten hemmeligheter, bestillingen, og hvordan Claude kontrollerer resultatet. Brukes når et issue, en kartlegging av åpne issues eller et review skal gjøres av Gemini, og bare i en økt der oppdragsgiver er til stede og kan logge inn.
+description: Gemini gjennom Antigravity CLI (`agy`) i en skyøkt i endringsmeldinger. Når verktøyet passer og ikke, oppsettet (vertene, installasjonen, innloggingen og datainnsamlingen), arbeidsformen med egen klon, egen git-identitet og et miljø uten hemmeligheter, bestillingen, og hvordan Claude kontrollerer resultatet. Brukes når et issue, en kartlegging av åpne issues et review eller sparring i et viktig spørsmål, som en arkitekturvurdering, skal gjøres av Gemini, og bare i en økt der oppdragsgiver er til stede og kan logge inn.
 ---
 
 # Gemini i skyøkta
@@ -19,15 +19,20 @@ Passer:
 - **Små issues med prøvbare forventninger utenfor kjernen:** tekst, dokumentasjon, verktøy
   og avhengigheter.
 - **Review med en annen modellfamilie,** i tillegg til `/code-review` og ikke i stedet.
+- **Sparring i viktige spørsmål**, som arkitekturvurderinger, før Claude legger fram en
+  anbefaling. Se «Sparring» under. Om sparringen er god, vurderes underveis.
+- **Bygging i kjernen etter et vedtak**, med de samme kontrollene som ellers: feilinnføringene,
+  regelversjonsvakten og arkitekturtesten.
 
 Passer ikke:
 
-- Regler i domenekjernen og tolkning av NS 8407 og vedtakene. En regel har en kilde
-  (`CLAUDE.md`, «Domenekjernen»).
-- Spørsmål til oppdragsgiver, vedtak, push og merge.
+- Å avgjøre tolkningen av NS 8407 eller det et vedtak ikke sier. Det avgjør oppdragsgiver,
+  uansett modell (`CLAUDE.md`, «Domenekjernen»). Gemini kan gi innspill, ikke avgjøre.
+- Spørsmål til oppdragsgiver, vedtak, push og merge. Vedtak krever dialogen med oppdragsgiver,
+  og `agy` ser ikke samtalen. Push og merge er sperrene.
 - Saksdata, nøkler og tilgangsopplysninger. `agy` sender det den får, til Google.
 - Økter uten oppdragsgiver, som orkestrerte økter og rutiner. Innloggingen gjøres for hånd i
-  hver container.
+  hver container, og tokenet kan ikke lagres i miljøet.
 
 ## Oppsett, én gang per container
 
@@ -78,6 +83,23 @@ Uavhengige oppgaver startes samtidig, hver i sin klon, med `run_in_background`. 
 **Review uten skriving:** `--mode plan` avviser alle skallkommandoer, også `git show`. Legg
 diffen i bestillingen, og be om funnene etter et skjema med `--json-schema`. Funnene
 kontrolleres etter stoppregelen i leveranseskillen.
+
+## Sparring
+
+En subagent fra Claude deler Claudes antakelser, og en fork arver i tillegg det økta tror.
+Gemini 4 Argon er en annen modellfamilie og har andre blindsoner.
+
+1. **Argon svarer før den ser Claudes konklusjon.** Bestillingen har spørsmålet, alternativene,
+   de relevante filene og vedtakene som binder. Den har ikke Claudes anbefaling, så svaret ikke
+   forankres i den. Kjør med `--mode plan` og `--json-schema`: anbefaling, antakelser, risiko
+   og hva som må undersøkes.
+2. **Deretter kan Argon kritisere Claudes vurdering**, i samme samtale med `--conversation`.
+3. **Claude kontrollerer det de er uenige om**, mot koden og katalogen etter
+   resonneringsreglene i `CLAUDE.md`. Det som står igjen, legges fram for oppdragsgiver som
+   alternativer, med hvem som mente hva.
+
+Argon avgjør ingenting. Juridiske spørsmål kan få samme sparring før de legges fram, men
+legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 
 ## Bestillingen
 
