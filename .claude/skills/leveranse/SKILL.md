@@ -168,6 +168,11 @@ scenario. Funnene følger stoppregelen under. En diff utenom kriteriene får ing
 review. Grunnlaget er reviewet av #2243–#2245, der security review fant ett funn (DoS)
 som `/code-review` også fant, og bekreftet at de andre lagene holdt.
 
+**Review med en annen modellfamilie** prøves for diffene med høyest risiko:
+serverinngangene, tilgangen og reglene i kjernen. Det kommer i tillegg til `/code-review`,
+etter [Gemini-skillen](../gemini/SKILL.md), og utfallet føres i #2256. Det er ikke et krav
+før gjennomgangen der har avgjort det.
+
 **En PR bygget av en annen agent**, for eksempel Codex, får `/code-review`, og security
 review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Byggeagenten
 lar PR-en stå som utkast og oppgir issuet og vedtakene, akseptkravene, basen og head-SHA-en,
@@ -258,10 +263,11 @@ eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
 issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
 `Closes` for et oppfølgingsissue.
 
-Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
-rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium` (#484, #490). Rører rettingene bare tester og dokumentasjon, kjøres ikke
-kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
+Kontrollen av rettingene gjelder bare rettingsdiffen, og kjøres bare når et P0 eller P1
+er rettet i `kjerne/`, `server/` eller `src/`. Den kjøres på nivå `medium` når rettingene
+rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers på
+`low`, som gir bare funnene modellen er mest sikker på (#484, #490, #1958). Er bare P3,
+tester og dokumentasjon rettet, kjøres testene, og PR-en sier at kontrollen er utelatt.
 
 ## Før en PR meldes klar
 
