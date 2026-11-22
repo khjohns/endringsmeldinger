@@ -150,13 +150,17 @@ bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står
 **Security review kommer i tillegg til `/code-review`** når diffen gjør minst ett av
 dette:
 
-- endrer en tilgangsavgjørelse eller hva som skjer når et oppslag feiler (fail-closed);
+- endrer en tilgangsavgjørelse, også et predikat i `kjerne/` som serveren bruker til å
+  avgjøre hvem som får utføre en handling, eller hva som skjer når et tilgangsoppslag
+  feiler (fail-closed);
 - legger til eller endrer en inngang uten sesjon, som innloggingen, tilbakekallet eller
   webhooken;
 - endrer sesjonen, CSRF, tokenene eller hvordan en identitet avgjøres;
 - endrer rettigheter, triggere eller prosedyrer i `koe_api`, `koe_drift` eller
   `koe_sikkerhet`;
-- skriver nye felt til en logg, eller rader i en tabell som ikke kan tømmes.
+- skriver nye felt til en logg eller rader i en tabell som ikke kan tømmes, eller endrer
+  hvilke kall som kan utløse slik skriving, hvor ofte de kan skje eller hvor mye de kan
+  skrive.
 
 Den kjøres i ny kontekst, i en subagent som får diffen, sikkerhetsinvariantene i
 `CLAUDE.md` og [`tilgang.md`](../../rules/tilgang.md), og ber om bare funn med et konkret
@@ -165,10 +169,16 @@ review. Grunnlaget er reviewet av #2243–#2245, der security review fant ett fu
 som `/code-review` også fant, og bekreftet at de andre lagene holdt.
 
 **En PR bygget av en annen agent**, for eksempel Codex, får `/code-review`, og security
-review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Står det i
-PR-en at uavhengig review gjenstår, er den ikke klar. Stablede PR-er, og PR-er som endrer
-de samme filene, reviewes samlet over den felles diffen, og hvert funn sier hvilken PR det
-gjelder. `/simplify` kjøres da på PR-en som kriteriet gjelder, før reviewet.
+review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Byggeagenten
+lar PR-en stå som utkast og oppgir issuet og vedtakene, akseptkravene, basen og head-SHA-en,
+avhengighetene og rekkefølgen for flettingen, testkommandoene med resultatet på den
+committen, og åpne funn og hva som gjenstår. Orkestratoren bestiller reviewet i en ny
+Claude-økt. Unntaket i #1338 gjelder fortsatt.
+
+**Samlet review.** Stablede PR-er reviewes mot stabelens felles base. Parallelle PR-er
+reviewes samlet når endringene kan påvirke samme atferd etter flettingen, også på tvers av
+filer. Hvert funn sier hvilken PR som skal rette det, og kontrollene kjøres på nytt etter en
+rebase eller fletting. `/simplify` kjøres på PR-en som kriteriet gjelder, før reviewet.
 
 `/simplify` kjøres når et kriterium i [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify)
 gjelder: orkestratoren bestiller den, eller økta avgjør selv når den ikke er orkestrert.
