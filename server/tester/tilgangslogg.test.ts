@@ -213,14 +213,18 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
     }
   });
 
-  it('leserolle og medlemssynk logger endring med samme aktør, prosjekt og HTTP-korrelasjon', async () => {
+  it('leserolle og medlemssynk logger endringen og hvert medlem som mister tilgangen, med samme aktør, prosjekt og HTTP-korrelasjon', async () => {
     const { prosjekt, te, bh } = o;
+    let medBh = false;
     const server = await startServer(o, {
       catenda: {
         teammedlemmer: async () => new Set(),
         medlemmer: async () => [
           { subjekt: catendaId(te.subjekt)!, epost: '', navn: '', rolle: 'admin' },
           { subjekt: catendaId(o.leser.subjekt)!, epost: '', navn: '', rolle: 'member' },
+          ...(medBh
+            ? [{ subjekt: catendaId(bh.subjekt)!, epost: '', navn: '', rolle: 'member' as const }]
+            : []),
         ],
       },
     });
@@ -253,13 +257,44 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
         body: '{}',
       });
       expect(synk.status).toBe(200);
-      expect(await hendelser(synk)).toMatchObject([
-        {
-          hendelse: 'medlemssynk',
-          aktor_id: te.id,
-          prosjekt_id: prosjekt.id,
-        },
-      ]);
+      const rader = await hendelser(synk);
+      expect(rader[0]).toMatchObject({
+        hendelse: 'medlemssynk',
+        aktor_id: te.id,
+        prosjekt_id: prosjekt.id,
+      });
+      // Byggherren står ikke i listen fra Catenda og mister tilgangen (#1804, punkt 2).
+      const deaktivert = rader.filter((rad) => rad.hendelse === 'medlem_deaktivert');
+      expect(deaktivert.map((rad) => rad.beroert_bruker_id)).toContain(bh.id);
+      expect(rader.slice(1)).toEqual(
+        rader
+          .slice(1)
+          .map(() => expect.objectContaining({ aktor_id: te.id, prosjekt_id: prosjekt.id }))
+      );
+      // Står byggherren i listen igjen ved neste synkronisering, får hen tilgangen tilbake.
+      medBh = true;
+      await settInn(() => eier().request(), 'app_identities', {
+        id: randomUUID(),
+        provider: 'catenda',
+        issuer: 'https://api.catenda.com',
+        subject: catendaId(bh.subjekt),
+        user_id: bh.id,
+      });
+      await eier()
+        .request()
+        .input('p', prosjekt.id)
+        .query(
+          'UPDATE koe.app_membership_sync SET synced_at = DATEADD(hour, -1, synced_at) WHERE project_id = @p'
+        );
+      const igjen = await fetch(`${server.url}/api/projects/${prosjekt.id}/members/sync`, {
+        method: 'POST',
+        headers,
+        body: '{}',
+      });
+      expect(igjen.status).toBe(200);
+      expect(
+        (await hendelser(igjen)).filter((rad) => rad.hendelse === 'medlem_aktivert')
+      ).toMatchObject([{ aktor_id: te.id, prosjekt_id: prosjekt.id, beroert_bruker_id: bh.id }]);
     } finally {
       await server.stopp();
     }

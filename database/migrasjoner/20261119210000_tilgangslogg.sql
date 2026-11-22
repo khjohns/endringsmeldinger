@@ -15,7 +15,7 @@ CREATE TABLE koe.tilgangslogg (
   CONSTRAINT tilgangslogg_hendelse CHECK (hendelse IN (
     'innlogging_catenda', 'innlogging_entra', 'utlogging', 'autorisasjon',
     'leserolle_satt', 'leserolle_fjernet', 'rolle_satt', 'rolle_fjernet',
-    'kontraktsteam', 'prosjektkobling', 'medlemssynk', 'medlem_deaktivert', 'medlem_fravaer', 'hr_synk',
+    'kontraktsteam', 'prosjektkobling', 'medlemssynk', 'medlem_aktivert', 'medlem_deaktivert', 'medlem_fravaer', 'hr_synk',
     'stillingstittel_satt', 'stillingstittel_fjernet', 'catenda_identitet_koblet', 'entra_identitet_koblet')),
   CONSTRAINT tilgangslogg_forsoekt_identitet CHECK (
     (forsoekt_subjekt IS NULL AND forsoekt_tenant IS NULL) OR (
@@ -197,6 +197,9 @@ BEGIN
   END
 
   DECLARE @subject nvarchar(400), @email nvarchar(320), @name nvarchar(400), @role nvarchar(20), @bruker uniqueidentifier;
+  DECLARE @aktiverte TABLE (bruker uniqueidentifier NOT NULL);
+  DECLARE @deaktiverte TABLE (bruker uniqueidentifier NOT NULL);
+  DECLARE @endret TABLE (foer bit NOT NULL, etter bit NOT NULL);
   DECLARE medlem CURSOR LOCAL FAST_FORWARD FOR
     SELECT subject, NULLIF(email, N''), NULLIF(name, N''), role FROM @liste ORDER BY subject;
   OPEN medlem;
@@ -210,13 +213,20 @@ BEGIN
            active = CASE WHEN deactivated_at IS NULL OR deactivated_at < @hentet THEN 1 ELSE active END,
            deactivated_at = CASE WHEN deactivated_at IS NULL OR deactivated_at < @hentet THEN NULL ELSE deactivated_at END,
            updated_at = SYSUTCDATETIME()
+    OUTPUT deleted.active, inserted.active INTO @endret (foer, etter)
      WHERE project_id = @prosjekt AND user_id = @bruker;
     IF @@ROWCOUNT = 0
        AND NOT EXISTS (SELECT 1 FROM koe.app_membership_absences
                         WHERE project_id = @prosjekt AND user_id = @bruker AND observed_at >= @hentet)
+    BEGIN
       INSERT koe.app_project_memberships
         (project_id, user_id, catenda_subject, user_email, display_name, role, viewer_override, active)
       VALUES (@prosjekt, @bruker, @subject, ISNULL(@email, N''), ISNULL(@name, N''), @role, 0, 1);
+      INSERT @aktiverte (bruker) VALUES (@bruker);
+    END
+    ELSE IF EXISTS (SELECT 1 FROM @endret WHERE foer = 0 AND etter = 1)
+      INSERT @aktiverte (bruker) VALUES (@bruker);
+    DELETE @endret;
     FETCH NEXT FROM medlem INTO @subject, @email, @name, @role;
   END
   CLOSE medlem;
@@ -224,6 +234,7 @@ BEGIN
 
   UPDATE koe.app_project_memberships
      SET active = 0, deactivated_at = @hentet, updated_at = SYSUTCDATETIME()
+  OUTPUT inserted.user_id INTO @deaktiverte (bruker)
    WHERE project_id = @prosjekt AND active = 1
      AND NOT EXISTS (SELECT 1 FROM @liste l WHERE l.subject = catenda_subject);
   SET @deaktivert = @@ROWCOUNT;
@@ -237,6 +248,10 @@ BEGIN
   DELETE koe.app_membership_absences WHERE project_id = @prosjekt AND observed_at < @hentet;
   SET @skrevet = 1;
   EXEC koe.skriv_tilgangslogg 'medlemssynk', @korrelasjon, @aktor, @prosjekt;
+  INSERT koe.tilgangslogg (hendelse, utfall, korrelasjons_id, aktor_id, prosjekt_id, beroert_bruker_id)
+  SELECT 'medlem_aktivert', 'gjennomfoert', @korrelasjon, @aktor, @prosjekt, bruker FROM @aktiverte
+  UNION ALL
+  SELECT 'medlem_deaktivert', 'gjennomfoert', @korrelasjon, @aktor, @prosjekt, bruker FROM @deaktiverte;
   COMMIT;
 END
 GO
