@@ -97,7 +97,10 @@
       {b}
     {/if}
   </h4>
-  {#if overskrift && b}<p class="dempet">{navn(p)} {b}</p>{/if}
+  {#if overskrift}<p class="dempet">
+      {navn(p)}{#if b}
+        {b}{/if}
+    </p>{/if}
 {/snippet}
 
 {#if flere}

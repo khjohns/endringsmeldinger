@@ -606,6 +606,10 @@ FEILINNFOERINGER = [
      ".input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)",
      ".input('korrelasjon', sql.UniqueIdentifier, null)",
      "korrelasjons-ID-en følger HTTP-kommandoen til jobben etter commit"),
+    ("S154", "sakens leseinngang gir ingen tildelt kode (#2210)", "server/saker.ts",
+     "      sakskode,\n      kontraktsforkortelse,\n      kan_foreslaa_sakskode:",
+     "      sakskode: null,\n      kontraktsforkortelse,\n      kan_foreslaa_sakskode:",
+     "leserollen får tildelt sakskode gjennom lesingen av saken"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

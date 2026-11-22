@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import Brevtraad from './Brevtraad.svelte';
+  import Sporside from './Sporside.svelte';
   import TilknyttedeKrav from './TilknyttedeKrav.svelte';
   import {
     brevITraaden,
@@ -30,8 +31,8 @@
     handlingVed = null,
     handling,
     brevet,
+    leggTilKorrespondanse,
   }: Sideprops = $props();
-  const uid = $props.id();
 
   const alle = $derived(brevene(u));
   const traad = $derived(brevITraaden(alle, 'forhold'));
@@ -39,35 +40,20 @@
   const fulgtOpp = $derived(oppfoelgingene(u, alle));
   const forholdsbrev = $derived(alle.filter((b) => b.spor.includes('forhold')));
   const forholdet = $derived(forholdetISaken(u));
-  const siste = $derived(forholdsbrev.at(-1) ?? null);
   const merke = $derived(betegnelser.forhold);
   const trekket = $derived(
     u.spor.forhold.trukket ? (forholdsbrev.findLast((b) => b.art === 'trekk') ?? null) : undefined
   );
-  // Hvor saken står, i vanlig språk: byggherrens standpunkt når svaret er siste brev, og at svaret
-  // ikke er registrert når påberopelsen er det. Ellers ingenting, fordi tråden alt viser siste brev
-  // (oppdragsgiver 13.11 i #1908: «Bare stillingen»).
-  const status = $derived.by(() => {
-    if (!siste || siste === trekket) return null;
-    const svar = u.spor.forhold.gjeldendeSvar;
-    const rader = svar?.dokument === siste.id ? innlegg.get(siste.id)?.standpunkter : undefined;
-    if (rader?.some((r) => r.standpunkt.art === 'forhold'))
-      return FORHOLDET.utfall(rader, siste.registrert);
-    if (u.spor.forhold.gjeldendeKrav?.dokument === siste.id)
-      return FORHOLDET.venter(siste.registrert);
-    return null;
-  });
 </script>
 
-<section class="kort" aria-labelledby={`${uid}-tittel`}>
-  <header class="sporhode">
-    <h2 id={`${uid}-tittel`} tabindex="-1">{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
-    {#if status}<p class="status">{status}</p>{/if}
+<Sporside tittel={forholdet?.navn ?? FORHOLDET.utenNavn} siste={traad.at(-1)}>
+  {#snippet merknad()}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>
     {/if}
-  </header>
+  {/snippet}
   <Brevtraad
+    {leggTilKorrespondanse}
     brev={traad}
     spor="forhold"
     {innlegg}
@@ -85,35 +71,11 @@
     {handling}
     {brevet}
   />
-</section>
+</Sporside>
 
 <TilknyttedeKrav {u} {betegnelser} brev={alle} {onspor} />
 
 <style>
-  .kort {
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    min-width: 0;
-  }
-  .sporhode {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: var(--spacing-5) var(--spacing-5) 18px;
-    border-bottom: var(--rule-subtle);
-  }
-  h2 {
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: var(--sperring-24);
-    color: var(--ink);
-  }
-  .status {
-    font-size: 16px;
-    color: var(--ink-2);
-  }
   .trukket {
     margin-top: var(--spacing-2);
     padding: var(--spacing-2) var(--spacing-3);

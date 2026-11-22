@@ -10,7 +10,7 @@
     harProduktivitetspost,
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
-  import { BREVTEKSTEN_I_VEDERLAGET } from '#kjerne/spor/vederlag/tekst.ts';
+  import { BREVTEKSTEN_I_VEDERLAGET, svartemaerIVederlaget } from '#kjerne/spor/vederlag/tekst.ts';
   import { FORHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
@@ -56,6 +56,7 @@
     grunntekst,
     innsigelsenOmVarselet,
     leselinjene,
+    VEDERLAGET,
     standpunkttekst,
   } from './tekster';
 
@@ -184,13 +185,15 @@
                 post && flere ? post.betegnelse : undefined
               ),
         lag: l.lag,
+        vilkaar: l.vilkaar,
+        heller: l.heller,
       };
     })
   );
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = leselinjene(nyeStandpunkter, p);
+    const fra = leselinjene(nyeStandpunkter, p, VEDERLAGET.lagetVilkaar);
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
@@ -233,15 +236,21 @@
     return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
   };
   const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
-  // Før brevet kan lages, bruker skjemaet sine egne etiketter uten punktnummer.
-  const svartemaene = $derived([
-    { punkt: '34.1.2', overskrift: SKJEMA.varselPunktTittel },
-    { punkt: 'metode', overskrift: SKJEMA.metodeTittel },
-    ...poster.map((p) => ({
-      punkt: p.betegnelse,
-      overskrift: flere ? SKJEMA.iPosten(p.betegnelse, SKJEMA.beloepTittel) : SKJEMA.beloepTittel,
-    })),
-  ]);
+  const svartemaene = $derived(
+    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((tema) => {
+      if (tema.punkt === '34.1.2' || tema.punkt === 'metode') return [tema];
+      const post = poster.find((p) => p.betegnelse === tema.punkt);
+      if (!post) return [];
+      return [
+        {
+          ...tema,
+          overskrift: flere
+            ? SKJEMA.iPosten(post.betegnelse, SKJEMA.beloepTittel)
+            : tema.overskrift,
+        },
+      ];
+    })
+  );
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(svartemaene, (punkt) => {
       if (!lagene) return false;
@@ -315,6 +324,7 @@
                       : [];
               return {
                 ...p,
+                beholdNavn: flere && post !== undefined,
                 aktiv: foerstePunkt === p.punkt,
                 linjer: fraBrevet.length
                   ? fraBrevet
@@ -394,6 +404,7 @@
 {/snippet}
 
 <Svarskjema
+  lagfeil={!stoppet && lagene === null}
   {kjernesak}
   {u}
   spor="vederlag"

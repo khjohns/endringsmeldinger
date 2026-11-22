@@ -51,6 +51,7 @@ import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
   lesJournal,
+  lesKontraktsforkortelse,
   lesLeveringsmaal,
   SakFinnesIkke,
   skrevetAvKjernen,
@@ -409,19 +410,6 @@ export async function lesNesteSakskode(
   } catch (feil) {
     throw oversett(feil, null);
   }
-}
-
-/**
- * Kontraktsforkortelsen for merkingen av brevet (LV-U44), lest med `koe_api.kontraktsparter`
- * i skrivetransaksjonen, eller `null` når prosjektet ikke har den (S2 A i #1497).
- */
-async function lesKontraktsforkortelse(foresp: Foresp, kontekst: Kontekst): Promise<string | null> {
-  const svar = await foresp()
-    .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
-    .input('prosjekt', sql.NVarChar(4000), kontekst.prosjekt)
-    .execute<{ kontraktsforkortelse: string }>('koe_api.kontraktsparter');
-  const [rad] = svar.recordset;
-  return rad ? rad.kontraktsforkortelse : null;
 }
 
 /**

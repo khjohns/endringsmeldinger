@@ -243,6 +243,7 @@
     "OV-U39",
     "KA-U77",
     "KA-U78",
+    "KA-U84",
     "KA-U79",
     "GFK-U24",
     "GR-U38",
@@ -332,6 +333,11 @@
       "dato": "2026-11-19",
       "forhold": "#2186",
       "hva": "Ordene i U-6, U-13, U-14 og F-3 følger skjemaet: «Gis i dette brevet.», «Varselet er gitt før», «Legg til et varsel du har sendt før» og «Alle <n> dagene» (#2210)."
+    },
+    {
+      "dato": "2026-11-19",
+      "forhold": "KA-U84",
+      "hva": "D-10 viser til vilkåret for hindringen når byggherren påberoper at varselet kom for sent."
     }
   ]
 }

@@ -7,6 +7,7 @@
 <script module lang="ts">
   import type { Kontrollbrev } from './nysak';
   import { harTekst, laastTekstI, type Brev as Kjernebrev } from '#lib/kjernesak/brevtekst.ts';
+  import { IKKE_SENDT } from '#lib/kjernesak/kontekst.svelte.ts';
 
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
@@ -207,7 +208,8 @@
     />
   </div>
 
-  <section class="panel" aria-label={BREVSTEG.sending}>
+  <section class="panel" aria-labelledby={`${uid}-sending`}>
+    <h2 id={`${uid}-sending`} class="visually-hidden">{BREVSTEG.sending}</h2>
     <Brevsteg kontroll bind:element={stegviseren} />
     <dl class="fakta">
       <dt>{BREVKONTROLL.mottaker}</dt>
@@ -224,8 +226,8 @@
     </dl>
     {#if punktene.length}
       <div class="sender">
-        <h3>{BREVSTEG.punktene}</h3>
-        <ul>
+        <h3 id={`${uid}-punktene`}>{BREVSTEG.punktene}</h3>
+        <ul aria-labelledby={`${uid}-punktene`}>
           {#each punktene as punkt, i (i)}
             <li>{punkt}</li>
           {/each}
@@ -271,9 +273,10 @@
           <strong>{USIKKERT_UTFALL.tittel}</strong>
           <p>{USIKKERT_UTFALL.forklaring}</p>
         </Melding>
-      {:else if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
-          >{#if avvisning}
-            <strong>{SENDEFEIL.tittel}</strong>
+      {:else if harSendt && kjernesak.feil && !kjernesak.sender}
+        <Melding art="feil">
+          <strong>{SENDEFEIL.tittel}</strong>
+          {#if avvisning}
             <p>{avvisning}</p>
             {#if nummerEndret}
               <p><a href={`#${uid}-brevet`}>{SENDEFEIL.seOverBrevet}</a></p>
@@ -283,8 +286,14 @@
             {:else if avvisning === SENDEFEIL.serverfeil}
               <p>{SENDEFEIL.proevSenere}</p>
             {/if}
-          {:else}{kjernesak.feil}{/if}</Melding
-        >{/if}
+          {:else}
+            {@const grunn = kjernesak.feil.startsWith(IKKE_SENDT)
+              ? kjernesak.feil.slice(IKKE_SENDT.length).trimStart()
+              : kjernesak.feil}
+            {#if grunn}<p>{grunn}</p>{/if}
+          {/if}
+        </Melding>
+      {/if}
     </div>
   </section>
 </div>
