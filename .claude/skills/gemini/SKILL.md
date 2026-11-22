@@ -104,8 +104,12 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 ## Bestillingen
 
 - Issueteksten med kommentarene, hentet med `gh api`. `agy` har ikke tilgang til GitHub.
-- Be den lese `CLAUDE.md`, reglene i `.claude/rules/` for treet den endrer, og språkfila når
-  den endrer synlig tekst.
+- Be den lese filene oppgaven trenger, ved sti, så de har ett hjem og ikke gjengis i
+  bestillingen. Det gjelder alltid `CLAUDE.md` og [leveranseskillen](../leveranse/SKILL.md), og i
+  tillegg reglene i `.claude/rules/` for treet den endrer. Den skal også lese
+  `.claude/rules/tester.md` når den skriver tester, og språkfila når den endrer synlig tekst.
+  Når et spørsmål til oppdragsgiver kan oppstå, skal den lese [vedtaksskillen](../vedtak/SKILL.md).
+  Skriv hvilke avsnitt som gjelder, for eksempel «Review og funn».
 - Reglene: arbeid bare i mappa, ikke push, ikke endre remote eller git config, og commit med
   en melding etter `CLAUDE.md`.
 - Sluttrapporten: hva som er endret, sjekkene med resultat, hva den søkte etter, og det den
@@ -122,3 +126,32 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 - Kontroller helst i en ny, liten økt. Hvert kall leser hele konteksten, og oppsettet av
   `agy` fyller den.
 - PR-en sier at endringen er skrevet av Gemini og kontrollert av Claude, og viser sjekkene.
+
+## Funn fra `/code-review`
+
+Gemini vurderer funnene etter stoppregelen og retter dem som skal rettes i PR-en. Claude
+kontrollerer vurderingen og gjør det som skjer på GitHub. Stoppregelen og utfallene står i
+[leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn), og bare der.
+
+1. **Bestillingen** har funnene ordrett fra `/code-review`, og diffen PR-en gjelder
+   (`git diff main...HEAD`). Den har også de åpne `review-oppfølging`-issuene med sjekklistene,
+   hentet med `gh api`, siden Gemini ikke kan søke selv. Gemini leser «Review og funn» i
+   leveranseskillen og [vedtaksskillen](../vedtak/SKILL.md). Har Gemini skrevet koden, fortsetter
+   samtalen med `--conversation <id>`. Da har den konteksten, slik leveranseskillen forutsetter
+   for byggeøkta.
+2. **Gemini svarer etter et skjema med én rad per funn**: utfallet (rettet, avvist, krav i
+   issue, spørsmål eller oppfølgingsissue), begrunnelsen etter stoppregelen og commiten for et
+   rettet funn. For de andre utfallene har raden teksten som skal stå i PR-en eller issuet. Hvert
+   rettet funn får sin egen commit.
+3. **Gemini svarer ikke selv på et spørsmål som krever en avgjørelse fra oppdragsgiver.** Et
+   funn som krever et vedtak, et designvalg eller en tolkning, får utfallet «spørsmål». Det
+   rettes ikke, og en bestemmelse eller et vedtak ikke sier, blir ikke tolket.
+4. **Claude kontrollerer vurderingen**: hver rad mot stoppregelen, særlig «avvist» og
+   «spørsmål». Et avvist funn som kan gi feil resultat, rettes eller føres videre. Claude ser også
+   at ingen test er svekket eller hoppet over for å bli grønn (`--stat`, og diffen i testfilene).
+5. **Claude gjør det som skjer på GitHub**: tabellen «Funn og utfall», kommentarene i issuene,
+   oppfølgingsissuet og spørsmålene, etter leveranseskillen og
+   [GitHub-skillen](../github/SKILL.md). Et domenespørsmål stilles etter vedtaksskillen.
+6. **Kontrollen av rettingene** kjøres én gang, som `/code-review` på rettingsdiffen, på
+   nivået leveranseskillen sier. Funnene fra kontrollen følger leveranseskillen. Ingen ny runde
+   med vurdering hos Gemini.
