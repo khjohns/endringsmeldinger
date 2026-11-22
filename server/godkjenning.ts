@@ -51,11 +51,12 @@ export class PakkeKanIkkeLages extends Error {}
 export class RollenMistet extends Error {}
 
 /**
- * Meldingen i svaret er setningen fra basen, før driftsdetaljene (GFK-U10).
+ * Svaret får setningen fra basen, og loggen får også driftsdetaljene (GFK-U10).
  */
 function varsleDriften(hva: string, melding: string, feil: unknown): string {
-  loggFeil(hva, feil, 'warn');
-  return melding.split(' | ', 1)[0];
+  const [aarsak, driftsdetaljer] = melding.split(' | ', 2);
+  loggFeil(hva, feil, 'warn', undefined, { aarsak, driftsdetaljer });
+  return aarsak;
 }
 
 async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke lages'): Promise<T> {

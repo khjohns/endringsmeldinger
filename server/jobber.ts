@@ -260,7 +260,12 @@ async function utfoerJobb(avh: Jobbavhengigheter, jobb: Jobbrad, hentet: number)
           'Jobben fikk svar fra Catenda, men kvitteringen ble avvist',
           feil,
           'error',
-          avh.logg
+          avh.logg,
+          {
+            catenda_svar: Object.fromEntries(
+              Object.entries(parametre).map(([navn, [, verdi]]) => [navn, verdi])
+            ),
+          }
         );
         throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
       }
@@ -351,7 +356,7 @@ async function utfoerJobb(avh: Jobbavhengigheter, jobb: Jobbrad, hentet: number)
       loggFeil('Jobben venter på at driften retter oppsettet mot Catenda', feil, 'error', avh.logg);
     // Om en jobb som feilet, prøves igjen, avgjør registreringen; loggen etter den sier det.
     else if (utfall === 'feilet') loggFeil('Jobben feilet', feil, 'warn', avh.logg);
-    else loggFeil('Jobben er parkert', feil, 'error', avh.logg);
+    else loggFeil('Jobben er parkert', feil, 'error', avh.logg, { utfall });
     const registrer = () =>
       lease()
         .input('utfall', sql.NVarChar(20), utfall)

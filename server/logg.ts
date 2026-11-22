@@ -46,19 +46,23 @@ type Loggfelter = {
   utfall?: string;
   statuskode?: number;
   rute?: string;
+  /** ID-ene Catenda svarte med, når kvitteringen for dem ble avvist. */
+  catenda_svar?: Record<string, unknown>;
+  hindringer?: string[];
+  /** Setningen og driftsdetaljene fra basen, med ID-er og uten navn (GFK-U10). */
+  aarsak?: string;
+  driftsdetaljer?: string;
 };
 
 function skrivLogg(
   nivaa: Nivaa,
   sted: string,
-  felt:
-    | Loggfelter
-    | {
-        feilklasse: string;
-        feilnummer?: number;
-        feilkode?: string;
-        kallstakk?: string[];
-      },
+  felt: Loggfelter & {
+    feilklasse?: string;
+    feilnummer?: number;
+    feilkode?: string;
+    kallstakk?: string[];
+  },
   mottaker: Loggmottaker = console
 ): void {
   mottaker[nivaa](
@@ -94,9 +98,10 @@ export function loggFeil(
   hvor: string,
   feil: unknown,
   nivaa: 'error' | 'warn' = 'error',
-  mottaker?: Loggmottaker
+  mottaker?: Loggmottaker,
+  felt: Loggfelter = {}
 ): void {
-  skrivLogg(nivaa, hvor, feilfelter(feil), mottaker);
+  skrivLogg(nivaa, hvor, { ...felt, ...feilfelter(feil) }, mottaker);
 }
 
 function feilfelter(feil: unknown) {
