@@ -209,16 +209,18 @@ avgjøres av hva som skjer i vanlig bruk, ikke av hva som kan tenkes (#1958).
 | Prioritet | Når | Utfall |
 | --- | --- | --- |
 | **P0** | Gir feil resultat nå i vanlig bruk, eller bryter et vedtak, kontrakten eller en sikkerhetsinvariant i `CLAUDE.md` | Rettes i PR-en |
-| **P1** | Gir feil i vanlig bruk når en endring som er planlagt i et issue eller et vedtak, kommer. Eller en domeneregel eller en lagret verdi står to steder, for eksempel i kjernen og i visningen | Rettes i PR-en når det gjelder koden PR-en skriver eller endrer. Ellers føres det videre |
-| **P2** | Et konkret scenario utenfor vanlig bruk: et kanttilfelle, en sjelden inndata eller en feilsti, med inndata eller steg som kan beskrives | Prøves. Holder scenariet i vanlig bruk, blir det P1, ellers P3 |
-| **P3** | Alt annet: ingen kaller treffer det i dag, stil, navn, docstringer, ytelse uten måling, duplisering av kode i samme lag, små designpunkter, og testkode, verktøy og dokumentasjon som ikke kan gjøre en test grønn for feil atferd i produktkoden | Avvises med én linje |
+| **P1** | Gir feil i vanlig bruk når en endring som er planlagt i et issue eller et vedtak, kommer. Eller en regel eller verdi står to steder og kan gli fra hverandre: en domeneregel, en lagret verdi, eller en kontrakt eller konstant som deles mellom serveren, kjernen og visningen | Rettes i PR-en når det gjelder koden PR-en skriver eller endrer. Ellers føres det videre (under) |
+| **P2** | Et konkret scenario utenfor vanlig bruk: et kanttilfelle, en sjelden inndata eller en feilsti, med inndata eller steg som kan beskrives | Prøves, og blir P1 eller P3. P2 er aldri det endelige nivået |
+| **P3** | Alt annet: ingen kaller treffer det i dag, stil, navn, docstringer, ytelse uten måling, duplisering av kode i samme lag, små designpunkter, og testkode, verktøy, hooks og dokumentasjon som verken kan gjøre en test grønn for feil atferd i produktkoden eller skjule en feil der | Avvises med én linje. Duplisering PR-en selv innfører, rettes |
 
 **Prøvingen.** Funnene med P0–P2 prøves av agenten `funnprove` i ny kontekst før de
 rettes, én gang per review. Den får funnene med prioriteten og diffen, ikke byggeøktas
 begrunnelse, og forsøker å avkrefte hvert funn. Et funn holder når agenten finner
-inndata eller et steg som gir feilen, og en kilde for at resultatet er feil. Ellers
-settes det ned. Et funn med en test som feiler før rettingen, er alt prøvd. Har reviewet
-bare P3-funn, kjøres ikke prøvingen.
+inndata eller et steg i vanlig bruk som gir feilen, og en kilde for at resultatet er
+feil. Da blir et P2 et P1. Ellers settes funnet ned, et P2 til P3. Et brudd på et
+vedtak, kontrakten eller en sikkerhetsinvariant settes ikke ned fordi scenariet er
+sjeldent. Et funn med en test som feiler før rettingen, er alt prøvd, og et P2 blir da
+P1. Har reviewet bare P3-funn, kjøres ikke prøvingen.
 
 Et funn med P0 eller P1 rettes ikke i PR-en, når
 
@@ -228,12 +230,14 @@ Et funn med P0 eller P1 rettes ikke i PR-en, når
 - rettingen hører til en inngang eller del som ikke finnes ennå, eller som bygges i et
   annet åpent issue. Da føres kravet som kommentar i det issuet, også når PR-en er «Del
   av» det issuet;
-- funnet sto før PR-en, i en fil PR-en ikke endrer. Da blir et P0 et eget issue
-  (`CLAUDE.md`, «Hvor hva står»), og et P1 føres i ett oppfølgingsissue per PR, med
-  etiketten `review-oppfølging` og en sjekkliste. Ett issue per funn lages ikke (#649).
+- funnet sto før PR-en, og rettingen er mer enn noen få linjer i en fil PR-en alt endrer.
+  Da blir et P0 et eget issue (`CLAUDE.md`, «Hvor hva står»), og et P1 føres i ett
+  oppfølgingsissue per PR, med etiketten `review-oppfølging` og en sjekkliste. Ett issue
+  per funn lages ikke (#649).
 
-Et P3 parkeres med raden i «Funn og utfall» og føres ikke i noe issue. At fila eies av en
-annen økt, er ingen grunn til å avvise et funn.
+Et P3 parkeres med raden i «Funn og utfall» og føres ikke i noe issue. Det kan rettes
+når rettingen er noen få linjer i PR-ens egen kode. At fila eies av en annen økt, er
+ingen grunn til å avvise et funn.
 
 Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare står
 der, blir glemt. Tabellen «Funn og utfall» i PR-beskrivelsen har én rad per funn med
@@ -242,8 +246,8 @@ oppfølgingsissuet, spørsmålet under «Åpne spørsmål», eller avvisningen m
 Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3».
 
 Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
-av rettingene rettes bare når det er P0. Resten får utfallet prioriteten gir, uten ny
-prøving.
+av rettingene rettes bare når det er P0. Et P1 derfra føres videre, et P2 settes til P3
+(«P2 → P3») uten ny prøving, og et P3 avvises.
 
 **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står punktet der
 alt, skriver du en kommentar der i stedet for et nytt punkt.

@@ -333,13 +333,20 @@ def test_prioritet_som_stoppregelen_tillater_holder(prioritet, utfall):
         ("P3", "Oppfølgingsissue #1905", "et P3-funn avvises"),
         ("P2 → P3", "Oppfølgingsissue #1905", "et P3-funn avvises"),
         ("P1", "Avvist: kan vente", "et P1-funn avvises ikke"),
-        ("P3 → P2", "Avvist: kan vente", "et P2-funn avvises ikke"),
+        ("P3 → P0", "Avvist: kan vente", "et P0-funn avvises ikke"),
+        ("P2", "Oppfølgingsissue #1905", "et P2-funn prøves"),
         ("", "Avvist: stil", "prioriteten mangler"),
         ("høy", "Rettet i `1fc3849e`", "prioriteten mangler"),
     ],
 )
 def test_prioritet_stoppregelen_ikke_tillater_avvises(prioritet, utfall, melding):
     assert melding in " ".join(_kontroller(_med_prioritet(prioritet, utfall)).feil)
+
+
+def test_p3_som_er_ført_videre_sendes_ikke_til_agenten():
+    resultat = _kontroller(_med_prioritet("P3", "Oppfølgingsissue #1905"))
+    assert len(resultat.feil) == 1
+    assert resultat.fort_videre == []
 
 
 def test_tabell_uten_kolonnen_prioritet_kontrolleres_som_foer():

@@ -25,12 +25,16 @@ om funnet gir feil i vanlig bruk, ikke å forbedre det. For hvert funn:
    i et issue eller et vedtak og som funnet selv viser til.
 3. Finn kilden for at resultatet er feil: vedtaket, bestemmelsen i NS 8407,
    sikkerhetsinvarianten eller en test.
-4. Gi dommen:
-   - **holder**: du fant både scenariet og kilden. Prioriteten står, eller settes opp når
-     scenariet er vanlig bruk;
-   - **settes ned**: scenariet finnes, men utenfor vanlig bruk (P2), eller kilden mangler.
-     Oppgi ny prioritet;
+4. Gi dommen. Etter prøvingen er nivået P0, P1 eller P3, aldri P2:
+   - **holder**: du fant både scenariet i vanlig bruk og kilden. Et P0 eller P1 står, og
+     et P2 blir P1. Er feilen der nå, i vanlig bruk, er nivået P0;
+   - **settes ned**: scenariet finnes bare utenfor vanlig bruk, eller kilden mangler. Et
+     P0 blir P1 når feilen først kommer med en planlagt endring, ellers P3. Et P1 eller P2
+     blir P3;
    - **avkreftet**: du fant ikke scenariet, eller en annen del av koden hindrer det. P3.
+
+   Et brudd på et vedtak, kontrakten eller en sikkerhetsinvariant i `CLAUDE.md` settes
+   ikke ned fordi scenariet er sjeldent. Finner du inndata som gir bruddet, står P0.
 
 Godta ikke «kan», «hvis noen senere» eller «i teorien» som scenario. Et scenario som
 krever en kaller som ikke finnes, er ikke vanlig bruk. Er du usikker etter å ha lest

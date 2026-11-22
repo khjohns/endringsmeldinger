@@ -382,7 +382,7 @@ Bestillingen til økta sier:
 - **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller predikater
   endres. Et forslag ut over grensene gjennomføres ikke i PR-en; det er et funn etter
   stoppregelen for funn i leveranseskillen, med kilden `/simplify` i «Funn og utfall».
-  En domeneregel eller lagret verdi som står to steder, er P1 og avvises ikke.
+  Prioriteten settes etter tabellen der.
 - **Etterpå:** testene kjøres på nytt. Feilinnføringene for kjernen kjøres i CI, og for
   serveren de ID-ene som hører til endringen.
 - **PR-beskrivelsen** sier hva som ble endret, og «Funn og utfall» har forslagene som

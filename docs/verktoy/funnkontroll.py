@@ -17,8 +17,9 @@ Utfallene skriptet godtar, er de stoppregelen for funn i leveranseskillen
   sier at oppdragsgiver har svart, med datoen.
 
 Har tabellen en kolonne «Prioritet», er prioriteten P0–P3, og ved en prøving som satte
-funnet ned, begge («P2 → P3»). Den siste gjelder: et P3 avvises eller rettes og føres ikke
-videre, og et P0–P2 avvises ikke.
+funnet ned, begge («P2 → P3»). Den siste gjelder: P2 er aldri det endelige nivået, et P3
+avvises eller rettes og føres ikke videre, og et P0 eller P1 avvises ikke. En rad med feil
+prioritet kontrolleres ikke videre.
 
 En rad som begynner med «Ingen funn», er ikke et funn. Overleveringen er ikke noe
 utfall. En henvisning til PR-en
@@ -466,7 +467,10 @@ def kontroller(
             rad = Rad("«Funn og utfall»", linje, celler, utfall)
             if prioritet is not None:
                 celle = celler[prioritet] if prioritet < len(celler) else ""
-                _kontroller_prioritet(rad, celle, resultat)
+                feil = _prioritetsfeil(rad, celle)
+                if feil:
+                    resultat.feil.append(_rad_feil(rad, feil))
+                    continue
             _kontroller_funnrad(
                 rad, pr, lukkes, aapne, oppslag, commit_finnes, resultat
             )
@@ -498,27 +502,23 @@ def _er_avvikstabell(hode: list[str], overskrift: str) -> bool:
     )
 
 
-def _kontroller_prioritet(rad: Rad, celle: str, resultat: Resultat) -> None:
+def _prioritetsfeil(rad: Rad, celle: str) -> str | None:
     liten = rad.utfall.lower().lstrip("*_ ")
-    if liten.startswith("ingen funn"):
-        return
+    if not liten or liten.startswith("ingen funn"):
+        return None
     nivaaer = PRIORITET.findall(celle.upper())
     if not nivaaer:
-        resultat.feil.append(_rad_feil(rad, "prioriteten mangler eller er ikke P0–P3"))
-        return
+        return "prioriteten mangler eller er ikke P0–P3"
     nivaa = int(nivaaer[-1])
     avvist = bool(re.match(r"avvist\b", liten))
     rettet = bool(re.search(r"\brettet\b", liten)) and not IKKE_RETTET.search(liten)
+    if nivaa == 2:
+        return "et P2-funn prøves og blir P1 eller P3 («P2 → P3»)"
     if nivaa == 3 and not (avvist or rettet):
-        resultat.feil.append(_rad_feil(rad, "et P3-funn avvises og føres ikke videre"))
-    elif nivaa < 3 and avvist:
-        resultat.feil.append(
-            _rad_feil(
-                rad,
-                f"et P{nivaa}-funn avvises ikke; satte prøvingen det ned, "
-                "skriv begge («P2 → P3»)",
-            )
-        )
+        return "et P3-funn avvises og føres ikke videre"
+    if nivaa < 3 and avvist:
+        return f"et P{nivaa}-funn avvises ikke; satte prøvingen det ned, skriv begge («P1 → P3»)"
+    return None
 
 
 FORING = re.compile(r"oppfølging|krav i|ført|issue|delvis|^\[?#\d", re.IGNORECASE)

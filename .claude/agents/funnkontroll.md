@@ -52,8 +52,8 @@ Noter i tillegg, uten at det endrer dommen:
 - at et krav er ført i et issue som ikke bygger den delen kravet gjelder;
 - at funnet bare står i en overlevering eller en omtale av PR-en, ikke som et krav
   eller et punkt. Overleveringen er ikke noe utfall;
-- at funnet etter stoppregelen er P3 og burde vært avvist i stedet for ført, og hvorfor.
-  En domeneregel eller lagret verdi som står to steder, er P1 og føres.
+- at funnet etter tabellen i stoppregelen er P3 og burde vært avvist i stedet for ført,
+  og hvorfor.
 
 Rapporter på norsk bokmål, én tabell for alle radene:
 
