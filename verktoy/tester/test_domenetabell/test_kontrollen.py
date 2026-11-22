@@ -65,6 +65,7 @@ def test_en_rad_utsatt_til_den_faar_bevis_kan_vise_til_funksjoner_og_regelkoder(
     assert f"{rad['id']}: en utsatt rad har ingen funksjoner" not in feil
     assert f"{rad['id']}: en utsatt rad har ingen regelkoder" not in feil
 
+
 def test_en_utsatt_rad_med_et_vedtak_som_ikke_utsetter_eller_med_funksjoner_gir_feil():
     """#669, #1721: `utsatt` må være et vedtak eller arbeidsvalg som utsetter
     (AV-1791, OV-U7), ikke hvilket som helst vedtak eller arbeidsvalg blant kildene,
