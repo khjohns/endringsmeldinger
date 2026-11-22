@@ -601,7 +601,7 @@ FEILINNFOERINGER = [
      "server/inngang.ts",
      "      : typeof kode === 'string' && KODE.test(kode)", "      : false",
      "en feil uten feilnummer har koden"),
-    ("S154", "en synkroniseringsfeil stanser prosjektkontrollen selv med en lagret medlemsliste (#51)",
+    ("S158", "en synkroniseringsfeil stanser prosjektkontrollen selv med en lagret medlemsliste (#51)",
      "server/autorisasjon.ts",
      "    varsleOmMedlemslistensAlder(prosjekt, lagret.alderSekunder);\n    return 'synkronisering_feilet';",
      "    throw new Error('Medlemslisten kunne ikke synkroniseres');",
