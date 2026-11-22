@@ -37,7 +37,7 @@ import {
   fristkravErFremmet,
   fristnoekkel,
 } from './utledning.ts';
-import { fristinnhold, innholdIFristen } from './format.ts';
+import { erInnsigelseIFristen, fristinnhold, innholdIFristen } from './format.ts';
 import {
   dagerMaatteForstaa,
   fristkravet,
@@ -303,10 +303,11 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
   );
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
-    if (f.art === 'rettidighet' && !f.iTide)
+    if (!erInnsigelseIFristen(f)) return [];
+    if (f.art === 'rettidighet')
       return f.hjemmel === '33.4' || f.hjemmel === '33.6.2' ? [{ innsigelse: f.hjemmel }] : [];
-    if (f.art === 'spesifisering' && !f.iTide) return [{ innsigelse: '33.6.1' }];
-    if (f.art === 'hindring' && !f.oppfylt) return [{ innsigelse: 'hindring' }];
+    if (f.art === 'spesifisering') return [{ innsigelse: '33.6.1' }];
+    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];
     return [];
   };
   const stilt: LagIFristen['stilt'] = [];

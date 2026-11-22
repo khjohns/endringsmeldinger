@@ -9,7 +9,12 @@
 
 import { sakensKode } from '#kjerne/frosset/tekst.ts';
 import { forlengetFrist } from '#kjerne/regler/hverdager.ts';
-import { utregningIFristen, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+import {
+  erInnsigelseIFristen,
+  gjelderHeleFristkravet,
+  innholdIFristen,
+  utregningIFristen,
+} from '#kjerne/spor/frist/format.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
@@ -66,12 +71,11 @@ export interface KravetOgSvaretIFristen {
 const gjelderAlle = (l: Svarlaget): boolean =>
   l.iSporet < 1 ||
   l.standpunkter.some(
-    ({ standpunkt: s }) =>
-      (s.art === 'rettidighet' && !s.iTide) || (s.art === 'hindring' && !s.oppfylt)
+    ({ standpunkt }) => gjelderHeleFristkravet(standpunkt) && erInnsigelseIFristen(standpunkt)
   );
 
-const forAlleFristene = ({ standpunkt: s }: Svarlaget['standpunkter'][number]): boolean =>
-  s.art === 'hindring' || s.art === 'rettidighet' || (s.art === 'spesifisering' && s.iTide);
+const forAlleFristene = ({ standpunkt }: Svarlaget['standpunkter'][number]): boolean =>
+  gjelderHeleFristkravet(standpunkt);
 
 /**
  * Kravet som gjelder i fristen og byggherrens svar på det, eller `null` uten krav. `alle` er brevene i

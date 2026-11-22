@@ -5663,8 +5663,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "    if (f.art === 'hindring' && !f.oppfylt) return [{ innsigelse: 'hindring' }];",
-        "    if (f.art === 'hindring' && !f.oppfylt) return [];",
+        "    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];",
+        "    if (f.art === 'hindring') return [];",
       ],
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
