@@ -555,9 +555,12 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
     const svar = await kommandoMedKobling(false, sakId);
     expect(svar.status).toBe(403);
     expect(svar.kropp.error).toBe('FORBIDDEN');
-    expect(advarsel).toHaveBeenCalledWith(
-      `Skrivingen ble avvist: Saken ${sakId} har ingen aktiv kobling til Catenda.`
-    );
+    expect(JSON.parse(String(advarsel.mock.calls[0][0]))).toMatchObject({
+      sted: 'Skrivingen ble avvist',
+      feilklasse: 'IngenLeveringsmaal',
+      prosjekt_id: o.prosjekt.id,
+      aktor_id: o.te.id,
+    });
     const lest = await lesSaken(
       o.datalag.kjoeretid.pool,
       { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },

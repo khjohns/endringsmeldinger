@@ -25,8 +25,10 @@
  */
 
 import sql from 'mssql';
+import { korrelasjonsId, loggFeil } from './logg.ts';
+import { feilnummer } from './sqlfeil.ts';
 
-export { sql };
+export { sql, feilnummer };
 export type Pool = sql.ConnectionPool;
 
 export interface Kontekst {
@@ -43,9 +45,8 @@ export interface Kontekst {
 }
 
 /**
- * Nøklene i `SESSION_CONTEXT`, med samme navn som prøven (02_sikkerhet.sql): de
- * fem første setter `transaksjon`, og `koe_skriving` setter
- * `koe_api.skriv_hendelse`. Ingen av dem har verdi etter nullstillingen.
+ * `transaksjon` setter de seks første nøklene. `koe_api.skriv_hendelse` setter
+ * `koe_skriving`. Ingen av dem har verdi etter nullstillingen.
  */
 export const KONTEKSTNOEKLER = [
   'koe_aktor',
@@ -53,20 +54,9 @@ export const KONTEKSTNOEKLER = [
   'koe_side',
   'koe_team',
   'koe_tx',
+  'koe_korrelasjon',
   'koe_skriving',
 ] as const;
-
-/**
- * Feilnummeret fra SQL Server: 2627 for brudd på en unik nøkkel, et eget nummer
- * fra THROW osv. `mssql` har det på feilen selv, og en feil gjennom `tedious`
- * har det i `originalError.info`.
- */
-export function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: unknown; originalError?: { info?: { number?: unknown } } };
-  // En `RequestError` uten `info` har koden fra `tedious` ('ETIMEOUT') i `number` (#926).
-  for (const n of [f?.number, f?.originalError?.info?.number]) if (typeof n === 'number') return n;
-  return undefined;
-}
 
 /**
  * Feilnumrene fra basen som serveren oversetter. Numrene er kontrakter med
@@ -287,7 +277,7 @@ export function forkast(pool: Pool, forbindelse: Forbindelse): void {
     try {
       steg();
     } catch (feil) {
-      console.error('Datalaget: forkastingen av forbindelsen feilet:', feil);
+      loggFeil('Datalaget: forkastingen av forbindelsen feilet', feil);
     }
   }
 }
@@ -305,7 +295,7 @@ async function nullstillOgKontroller(
     await kontrollerRen(forelder);
     return true;
   } catch (feil) {
-    console.error('Datalaget: forbindelsen forkastes etter nullstillingen:', feil);
+    loggFeil('Datalaget: forbindelsen forkastes etter nullstillingen', feil);
     return false;
   }
 }
@@ -352,7 +342,7 @@ export async function transaksjon<T>(
     try {
       forbindelse.close();
     } catch (feil) {
-      console.error('Datalaget: lukkingen ved fristen feilet:', feil);
+      loggFeil('Datalaget: lukkingen ved fristen feilet', feil);
     }
   }, frist);
   let gjenbrukbar = false;
@@ -409,13 +399,15 @@ async function iTransaksjon<T>(
       .input('prosjekt', sql.NVarChar(100), kontekst.prosjekt)
       .input('side', sql.NVarChar(2), kontekst.side ?? null)
       .input('team', sql.NVarChar(32), kontekst.team ?? null)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .batch(
         `DECLARE @tx bigint = CURRENT_TRANSACTION_ID();
          EXEC sp_set_session_context N'koe_aktor', @aktor, @read_only = 1;
          EXEC sp_set_session_context N'koe_prosjekt', @prosjekt, @read_only = 1;
          EXEC sp_set_session_context N'koe_side', @side, @read_only = 1;
          EXEC sp_set_session_context N'koe_team', @team, @read_only = 1;
-         EXEC sp_set_session_context N'koe_tx', @tx, @read_only = 1;`
+         EXEC sp_set_session_context N'koe_tx', @tx, @read_only = 1;
+         EXEC sp_set_session_context N'koe_korrelasjon', @korrelasjon, @read_only = 1;`
       );
     svar = await arbeid(foresp);
   } catch (feil) {

@@ -1,3 +1,4 @@
+import { korrelasjonsId, tilgangsfelter } from './logg.ts';
 /**
  * Medlemskapet i SQL Server (#53, del 3b, DL-U7, DL-U8, DL-U9, DL-U10):
  * `koe_api.prosjektkobling`, `koe_api.synkroniser_medlemskap`,
@@ -196,6 +197,8 @@ export async function synkroniserMedlemskap(
       .input('catenda_prosjekt', sql.UniqueIdentifier, liste.catendaProsjekt)
       .input('medlemmer', sql.NVarChar(sql.MAX), JSON.stringify(medlemmer))
       .input('hentet', sql.DateTime2(3), liste.hentet)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
+      .input('aktor', sql.UniqueIdentifier, tilgangsfelter().aktor_id ?? null)
       .output('skrevet', sql.Bit)
       .output('deaktivert', sql.Int)
       .execute('koe_api.synkroniser_medlemskap');
@@ -232,6 +235,7 @@ export async function deaktiverVedInnlogging(
         JSON.stringify(innlogging.catendaProsjekter)
       )
       .input('hentet', sql.DateTime2(3), innlogging.hentet)
+      .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
       .execute<{ prosjekt: string }>('koe_api.deaktiver_ved_innlogging');
     return svar.recordset.map((r) => r.prosjekt);
   } catch (feil) {

@@ -50,6 +50,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
 | [`koe.app_sessions`](#koeapp_sessions) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.app_oauth_attempts`](#koeapp_oauth_attempts) | SQL Server | teknisk | i bruk | Nei | Nei |
+| [`koe.tilgangslogg`](#koetilgangslogg) | SQL Server | transaksjon, teknisk | i bruk | Delvis | Nei |
 
 ## SQL Server
 
@@ -63,10 +64,10 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og e-post ved innloggingen. `koe_drift.koble_catenda_identitet` kobler en Catenda-identitet til en bruker med Entra-identitet og sletter brukeren identiteten stod på, når den bare har medlemskap, fravær og sesjoner (#1002). |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: fra Catenda i C26 (arket Dataflyt). |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.logg_aktor_id (uten fremmednøkkel); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.tilgangslogg.aktor_id (uten fremmednøkkel); koe.tilgangslogg.beroert_bruker_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.registrer_entra_identitet`); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_api.entra_identitet`, som oppdaterer navn og e-post); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen. |
 
@@ -83,7 +84,7 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.app_identities_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som sletter én Catenda-identitet når den flyttes) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.registrer_entra_identitet`); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_api.entra_identitet`, som oppdaterer navn og e-post); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter én Catenda-identitet når den flyttes) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -117,7 +118,7 @@ Rollene byggherren gir fullmakt etter, med beløpsgrensen i kroner, globalt for 
 | Relasjoner | Nøkler: primærnøkkel (rolle). Vises til fra: koe.hr_kopi.rolle (fremmednøkkel, ON DELETE NO ACTION); koe.stillingstittel.rolle (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Driftens registrering er kilden. |
 | Personopplysninger | Nei. |
-| Skrives av | database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_rolle` og `koe_drift.fjern_rolle`) |
 | Funn | — |
 | Belegg | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen. |
 
@@ -134,7 +135,7 @@ Hvilken stillingstittel (`jobTitle` i Graph) som gir hvilken rolle (S3 i #831). 
 | Relasjoner | Nøkler: primærnøkkel (noekkel). Viser til: rolle → koe.rolle.rolle (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Driftens registrering er kilden. |
 | Personopplysninger | Nei. |
-| Skrives av | database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_stillingstittel` og `koe_drift.fjern_stillingstittel`) |
 | Funn | — |
 | Belegg | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen. |
 
@@ -165,7 +166,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Nei. Navnet oppgis av driften med `--navn` til `server/registrering.ts`. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsfrist.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktssum.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_kode.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsfrist.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktssum.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_kode.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.tilgangslogg.prosjekt_id (uten fremmednøkkel); koe.vedlegg_uten_sak.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
@@ -185,7 +186,7 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`. `serve
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som flytter medlemskapene til brukeren identiteten kobles til) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som flytter medlemskapene til brukeren identiteten kobles til) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10). |
 
@@ -202,7 +203,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel); koe.vedlegg_uten_sak.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`); database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`); database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`. |
 
@@ -236,7 +237,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny innlogging |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med prosjektene brukeren ikke er med i og tidspunktene for innloggingene (`observed_at`, `updated_at`). |
-| Skrives av | database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som flytter fraværet til brukeren identiteten kobles til) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som flytter fraværet til brukeren identiteten kobles til) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
 
@@ -253,7 +254,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 | Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny synkronisering |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test. |
 
@@ -327,7 +328,7 @@ Interne notater, skjermet på teamet (CLAUDE.md). Ikke et kontraktsvarsel, og ka
 
 ### `koe.jobb`
 
-Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En sak fra appen får jobben `catenda_topic` i samme transaksjon, med boardet, Catenda-prosjektet og sakstittelen frosset (KT-U3, invariant 6). En sak fra en topic i innboksen får ingen jobb; den kobles til topicen (W-1b.1, #819). Et brev med tekst fra appen får jobben `levering` for leveringsoppdraget, lagt inn av triggeren `koe.leveringsoppdrag_levering` (#371). Jobben har en lease mens den gjøres, og tilstanden `venter`, `utfoert` eller `parkert`. Bare kjøreveien, `koe_jobbkjoerer`, ser og endrer jobbene; kjøretiden har ingen rett på tabellen.
+Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En sak fra appen får jobben `catenda_topic` i samme transaksjon, med boardet, Catenda-prosjektet og sakstittelen frosset (KT-U3, invariant 6). En sak fra en topic i innboksen får ingen jobb; den kobles til topicen (W-1b.1, #819). Et brev med tekst fra appen får jobben `levering` for leveringsoppdraget, lagt inn av triggeren `koe.leveringsoppdrag_levering` (#371). Jobben har en lease mens den gjøres, og tilstanden `venter`, `utfoert` eller `parkert`. Bare kjøreveien, `koe_jobbkjoerer`, ser og endrer jobbene; kjøretiden har ingen rett på tabellen. Driftsloggen leser `korrelasjons_id` og `logg_aktor_id` for å knytte jobben til forespørselen som opprettet den (#1805).
 
 | Felt | Innhold |
 | --- | --- |
@@ -335,10 +336,10 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: til Catenda i C24 (arket Dataflyt). |
-| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); logg_aktor_id → koe.app_users.id (uten fremmednøkkel). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261116130000_opprettelse_med_kontraktsteamene.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`); database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.kvitter_topic`, som avslutter forsøket, kalt fra `server/jobber.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_levering`, som avslutter forsøket, kalt fra `server/jobber.ts`); database/migrasjoner/20261116120000_leveringen_parkeres_etter_forsoek.sql (`koe_api.registrer_jobbfeil`, innført i `20261018100000_jobber.sql`, som avslutter forsøket gjennom `koe_api.avslutt_forsoek` og parkerer en levering etter 24 forsøk, kalt fra `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261116130000_opprettelse_med_kontraktsteamene.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261119180000_korrelasjon_i_driftsloggen.sql (`koe_api.hent_jobb`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`); database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.kvitter_topic`, som avslutter forsøket, kalt fra `server/jobber.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_levering`, som avslutter forsøket, kalt fra `server/jobber.ts`); database/migrasjoner/20261116120000_leveringen_parkeres_etter_forsoek.sql (`koe_api.registrer_jobbfeil`, innført i `20261018100000_jobber.sql`, som avslutter forsøket gjennom `koe_api.avslutt_forsoek` og parkerer en levering etter 24 forsøk, kalt fra `server/jobber.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -355,7 +356,7 @@ Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV
 | Relasjoner | Nøkler: primærnøkkel (forsoek_id). Viser til: jobb_id → koe.jobb.jobb_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.forsoek_id (uten fremmednøkkel); koe.jobb.siste_forsoek (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.forsoek_id (uten fremmednøkkel); koe.vedleggskvittering.forsoek_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innloggingen til den i driften som startet en jobb på nytt. |
-| Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261116120000_leveringen_parkeres_etter_forsoek.sql (`koe_api.registrer_jobbfeil`, innført i `20261018100000_jobber.sql`, gjennom `koe_api.avslutt_forsoek`); database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, som avslutter forsøket); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket) |
+| Skrives av | database/migrasjoner/20261119180000_korrelasjon_i_driftsloggen.sql (`koe_api.hent_jobb`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261116120000_leveringen_parkeres_etter_forsoek.sql (`koe_api.registrer_jobbfeil`, innført i `20261018100000_jobber.sql`, gjennom `koe_api.avslutt_forsoek`); database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, som avslutter forsøket); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -599,7 +600,7 @@ Sakens topic i Catenda, med boardet og topicens løpenummer i prosjektet (`bimsy
 
 ### `koe.innkommende_hendelse`
 
-Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med kilden, `event.id` og `event.type`, før svaret 200, og samme ID fra samme kilde lagres én gang (INT-02). Prosjektet og saken er ikke avgjort ved mottaket, så tabellen har ingen `prosjekt_id` og ingen radsikkerhet; kjøretiden har ingen rett på den og skriver med `koe_api.motta_hendelse`. Raden kan ikke endres eller slettes. Hendelsene behandles av `server/hendelser.ts`, og utfallet står i `koe.innkommende_behandling` (W-1b.1).
+Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med kilden, `event.id` og `event.type`, før svaret 200, og samme ID fra samme kilde lagres én gang (INT-02). Prosjektet og saken er ikke avgjort ved mottaket, så tabellen har ingen `prosjekt_id` og ingen radsikkerhet; kjøretiden har ingen rett på den og skriver med `koe_api.motta_hendelse`. Raden kan ikke endres eller slettes. Hendelsene behandles av `server/hendelser.ts`, og utfallet står i `koe.innkommende_behandling` (W-1b.1). `korrelasjons_id` knytter forsøkene til forespørselen som først la hendelsen i innboksen (#1805).
 
 | Felt | Innhold |
 | --- | --- |
@@ -610,7 +611,7 @@ Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med 
 | Relasjoner | Nøkler: primærnøkkel (id); unik indeks (kilde, hendelse_id). Vises til fra: koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); koe.innkommende_forsoek.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); koe.toemmingsvern.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ja: kroppen har navnet og e-postadressen til den som laget topicen i Catenda. |
-| Skrives av | database/migrasjoner/20261020124000_innkommende_hendelse.sql (`koe_api.motta_hendelse`, kalt fra `server/webhook.ts`) |
+| Skrives av | database/migrasjoner/20261119180000_korrelasjon_i_driftsloggen.sql (`koe_api.motta_hendelse`, kalt fra `server/webhook.ts`) |
 | Funn | INT-01, INT-02 |
 | Belegg | L 19.10: migrasjonen. K 19.10: `server/tester/webhook.test.ts`. |
 
@@ -709,10 +710,10 @@ Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel vi
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad. |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); innkommende_behandling_id → koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); innkommende_forsoek_id → koe.innkommende_forsoek.id (fremmednøkkel, ON DELETE NO ACTION); topic_kommentar_id → koe.topic_kommentar.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); sak_kode_sak_id → koe.sak_kode.sak_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); innkommende_behandling_id → koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); innkommende_forsoek_id → koe.innkommende_forsoek.id (fremmednøkkel, ON DELETE NO ACTION); topic_kommentar_id → koe.topic_kommentar.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); sak_kode_sak_id → koe.sak_kode.sak_id (fremmednøkkel, ON DELETE NO ACTION); tilgangslogg_id → koe.tilgangslogg.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja. Tabellen har ingen rader. |
 | Personopplysninger | Nei. |
-| Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene); database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen); database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene); database/migrasjoner/20261104100000_sakskode.sql (legger til fremmednøkkelen til sakens kode) |
+| Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene); database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen); database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene); database/migrasjoner/20261104100000_sakskode.sql (legger til fremmednøkkelen til sakens kode); database/migrasjoner/20261119210000_tilgangslogg.sql (legger til fremmednøkkelen til tilgangsloggen) |
 | Funn | — |
 | Belegg | L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`. |
 
@@ -746,7 +747,7 @@ Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesj
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
-| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`); database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra) |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra) |
 | Funn | — |
 | Belegg | L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700). |
 
@@ -766,6 +767,23 @@ Påbegynte innlogginger mot Catenda (OAuth). Lagrer SHA-256 av staten og av nett
 | Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.rydd_utloepte`); database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.bruk_innloggingsforsoek`, innført i `20261016190000_sesjon.sql`) |
 | Funn | — |
 | Belegg | L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på statehashen (#700). |
+
+### `koe.tilgangslogg`
+
+Tilgangshendelser med basens UTC-klokke, utfall, fast avslagsgrunn, serverens korrelasjons-ID og verifiserte bruker- og prosjekt-ID-er når de er kjent. Ved avvist innlogging kan loggen ha et verifisert leverandørsubjekt og Entra-tenant. Direkte driftskall har SQL-innloggingen. Bruker-ID-ene beholdes som historiske verdier også ved en senere identitetsflytting. Rader kan ikke endres eller slettes. Bevaring avklares i B-05.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon, teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | HTTP-inngangene for innlogging, utlogging og autorisasjon, prosedyrene for leserolle, roller, stillingstitler, identitetskoblinger, kontraktsteam, medlemskap og HR, og triggeren for Catenda-prosjektkoblingen. En gjennomført endring og loggraden skrives i samme transaksjon. |
+| Data fra Catenda | Delvis. Ved avslag kan et verifisert Catenda-subjekt lagres dersom intern bruker-ID mangler. Dataflyt: fra Catenda i C26 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); beroert_bruker_id → koe.app_users.id (uten fremmednøkkel); prosjekt_id → koe.projects.id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.tilgangslogg_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Bruker-ID-er, verifisert leverandørsubjekt ved avslag og SQL-innlogging ved driftsendringer. |
+| Skrives av | database/migrasjoner/20261119210000_tilgangslogg.sql (`koe.skriv_tilgangslogg`, `koe.catenda_project_configs_tilgangslogg` og `koe_api.deaktiver_ved_innlogging`) |
+| Funn | OBS-01, OBS-02 |
+| Belegg | K 19.11: katalogen og server/tester/tilgangslogg.test.ts. |
 
 ## Utenfor databasene
 

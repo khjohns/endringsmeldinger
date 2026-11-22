@@ -133,9 +133,8 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
     const p = start(join(mappe, 'server', 'start.ts'), rentMiljoe());
     expect((await p.avsluttet).kode).toBe(1);
     expect(p.utdata()).toContain('Skriftene til brev-PDF-en kan ikke brukes');
-    expect(p.utdata()).toContain('NotoSansMath-Regular.ttf');
     expect(p.utdata()).not.toContain('KOE_DATALAG_TILKOBLING');
-    expect(p.utdata()).not.toContain('lytter på');
+    expect(p.utdata()).not.toContain('Serveren lytter');
   }, 30_000);
 });
 
@@ -165,7 +164,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
       const se = () => {
         const treff = p
           .utdata()
-          .match(new RegExp(`lytter på http://${adresse.replaceAll('.', '\\.')}:(\\d+)`));
+          .match(new RegExp(`"adresse":"http://${adresse.replaceAll('.', '\\.')}:(\\d+)`));
         if (treff) klar(Number(treff[1]));
       };
       p.barn.stdout!.on('data', se);

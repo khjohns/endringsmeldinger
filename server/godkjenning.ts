@@ -7,6 +7,7 @@
  * ingen pakke for dem (invarianten om utkast). Godkjenneren i kjeden har aktøren og
  * prosjektet, og når saken og pakken mens pakken er åpen, uten team (GFK-U9).
  */
+import { loggFeil } from './logg.ts';
 import {
   BLOKKERT,
   feilnummer,
@@ -50,19 +51,12 @@ export class PakkeKanIkkeLages extends Error {}
 export class RollenMistet extends Error {}
 
 /**
- * Meldingen fra basen er setningen, og etter ` | ` prosjektet, brukeren og tenanten
- * driften trenger for å rette HR-kopien eller rollene (GFK-U10). Feilen får setningen,
- * og loggen får begge.
+ * Svaret får setningen fra basen, og loggen får også driftsdetaljene (GFK-U10).
  */
-function varsleDriften(hva: string, melding: string): string {
-  const skille = melding.indexOf(' | ');
-  if (skille < 0) {
-    console.warn(`${hva}: ${melding}`);
-    return melding;
-  }
-  const setning = melding.slice(0, skille);
-  console.warn(`${hva}: ${setning} (${melding.slice(skille + 3)})`);
-  return setning;
+function varsleDriften(hva: string, melding: string, feil: unknown): string {
+  const [aarsak, driftsdetaljer] = melding.split(' | ', 2);
+  loggFeil(hva, feil, 'warn', { aarsak, driftsdetaljer });
+  return aarsak;
 }
 
 async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke lages'): Promise<T> {
@@ -78,9 +72,10 @@ async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke la
         cause: feil,
       });
     if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
-    if (nr === INGEN_ROLLER) throw new IngenRoller(varsleDriften(hva, melding), { cause: feil });
+    if (nr === INGEN_ROLLER)
+      throw new IngenRoller(varsleDriften(hva, melding, feil), { cause: feil });
     if (nr === KJEDEN_MANGLER)
-      throw new PakkeKanIkkeLages(varsleDriften(hva, melding), { cause: feil });
+      throw new PakkeKanIkkeLages(varsleDriften(hva, melding, feil), { cause: feil });
     if (nr === ROLLEN_MISTET) throw new RollenMistet(melding, { cause: feil });
     throw feil;
   }

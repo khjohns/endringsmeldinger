@@ -234,13 +234,10 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
         await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(verdi)))).rejects.toThrow(
           PakkeKanIkkeLages
         );
-        expect(logg).toHaveBeenCalledWith(
-          expect.stringMatching(
-            new RegExp(
-              `^Godkjenningspakken kan ikke lages: [^|]+ \\(prosjekt=${o.prosjekt.id}; bruker=[0-9a-f-]{36}; tenant=`
-            )
-          )
-        );
+        expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+          sted: 'Godkjenningspakken kan ikke lages',
+          feilnummer: 52071,
+        });
       } finally {
         await registrerHierarki();
       }
@@ -279,20 +276,25 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
       const feil = await i(som(o.bh.id), (f) => lagPakke(f, pakke(TO))).catch((e: unknown) => e);
       expect(feil).toBeInstanceOf(PakkeKanIkkeLages);
       expect((feil as Error).message).toBe('En leder i kjeden har ingen rolle i en fersk HR-kopi');
-      expect(logg).toHaveBeenCalledWith(
-        `Godkjenningspakken kan ikke lages: En leder i kjeden har ingen rolle i en fersk HR-kopi ` +
-          `(prosjekt=${o.prosjekt.id}; bruker=${o.bh.id}; tenant=${tenant}; leder_oid=${oid.leder})`
-      );
+      const linje = String(logg.mock.calls[0][0]);
+      expect(JSON.parse(linje)).toMatchObject({
+        sted: 'Godkjenningspakken kan ikke lages',
+        feilnummer: 52071,
+        aarsak: 'En leder i kjeden har ingen rolle i en fersk HR-kopi',
+        driftsdetaljer: `prosjekt=${o.prosjekt.id}; bruker=${o.bh.id}; tenant=${tenant}; leder_oid=${oid.leder}`,
+      });
       await registrerHierarki();
       // Rådgiveren står ikke i kopien, og når kjeden bare leses, sier loggen det.
       logg.mockClear();
       await expect(
         i(som(raadgiver, { team: raadgiverteam }), (f) => lesGodkjenningskjede(f, EN))
       ).rejects.toThrow(PakkeKanIkkeLages);
-      expect(logg).toHaveBeenCalledWith(
-        `Godkjenningskjeden kan ikke avledes: Saksbehandleren har ingen rolle i en fersk HR-kopi ` +
-          `(prosjekt=${o.prosjekt.id}; bruker=${raadgiver}; tenant=)`
-      );
+      const kjedelogg = String(logg.mock.calls[0][0]);
+      expect(JSON.parse(kjedelogg)).toMatchObject({
+        sted: 'Godkjenningskjeden kan ikke avledes',
+        feilnummer: 52071,
+      });
+      expect(JSON.parse(kjedelogg).driftsdetaljer).toMatch(/^prosjekt=.*; tenant=/);
     } finally {
       logg.mockRestore();
     }
@@ -307,10 +309,12 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
       await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(
         'Driften har ikke registrert roller'
       );
-      expect(logg).toHaveBeenCalledWith(
-        `Godkjenningspakken kan ikke lages: Driften har ikke registrert roller ` +
-          `(prosjekt=${o.prosjekt.id}; bruker=${o.bh.id})`
-      );
+      const linje = String(logg.mock.calls[0][0]);
+      expect(JSON.parse(linje)).toMatchObject({
+        sted: 'Godkjenningspakken kan ikke lages',
+        feilnummer: 52070,
+      });
+      expect(linje).not.toContain('tenant=');
     } finally {
       logg.mockRestore();
       await registrerHierarki();

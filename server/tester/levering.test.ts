@@ -6,6 +6,7 @@
  * Akseptkriteriene står i PR-en, med nummeret (L) i testnavnet.
  */
 
+import type { Loggmottaker } from '../logg.ts';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import {
@@ -129,7 +130,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   let o: Oppsett;
   let server: KjorendeServer;
   let catenda: FalskCatenda;
-  const logg = { info() {}, warn() {}, error() {} };
+  const logg: Loggmottaker = { info() {}, warn() {}, error() {} };
 
   const somKjoerer = <T>(setning: string, parametre: Record<string, unknown> = {}) =>
     somJobbkjoerer<T>(o, setning, parametre);
@@ -422,8 +423,11 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await nyeForsoek()).toEqual([['feilet', 'Catenda svarte med feil']]);
-    expect((feillogg.mock.calls as unknown[][]).map((k) => String(k[0]))).toContainEqual(
-      expect.stringMatching(/har brukt opp forsøkene og er parkert \(Catenda svarte med feil\)/)
+    expect(feillogg.mock.calls.map(([l]) => JSON.parse(String(l)))).toContainEqual(
+      expect.objectContaining({
+        sted: 'Jobben har brukt opp forsøkene og er parkert',
+        feilklasse: 'CatendaUtilgjengelig',
+      })
     );
 
     catenda.foer = {};
