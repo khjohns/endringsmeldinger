@@ -100,7 +100,6 @@ export const KORRESPONDANSEN = haerdet({
  */
 export const LEGG_TIL = haerdet({
   tittel: 'Legg til korrespondanse',
-  inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
   // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
   egen: 'Du legger til det du selv har sendt.',
   gjelder: 'Gjelder',

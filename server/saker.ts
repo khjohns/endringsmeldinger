@@ -132,23 +132,30 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
 }
 
 const visSaken = ({ bruker, prosjekt, side, sakId }: Forespoersel, avh: Required<Avhengigheter>) =>
-  sakssvar(avh, lesekontekst(bruker, prosjekt.prosjektId, side), sakId, side?.rolle ?? null);
+  sakssvar(
+    avh,
+    lesekontekst(bruker, prosjekt.prosjektId, side),
+    sakId,
+    side?.rolle ?? null,
+    side !== null && prosjekt.rolle !== 'viewer'
+  );
 
 /** Saken slik aktøren i konteksten når den, med `part` som leserens side. */
 export async function sakssvar(
   avh: Required<Avhengigheter>,
   kontekst: Kontekst,
   sakId: string,
-  part: Kontraktstilgang['rolle'] | null
+  part: Kontraktstilgang['rolle'] | null,
+  kanForeslaaSakskode = false
 ): Promise<Svar> {
   let saken;
   try {
-    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
+    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true, merking: true });
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
-  const { journal, oppdrag, navn, navnefeil } = saken;
+  const { journal, oppdrag, navn, navnefeil, sakskode, kontraktsforkortelse } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
   if ('navnefeil' in saken) loggFeil('Navneoppslaget i saken feilet', navnefeil, 'warn');
   return [
@@ -156,6 +163,9 @@ export async function sakssvar(
     {
       success: true,
       part,
+      sakskode,
+      kontraktsforkortelse,
+      kan_foreslaa_sakskode: sakskode === null && kanForeslaaSakskode,
       ...sakenSomVises(journal, avh.kjerne),
       journal: journal.map((r) => ({
         event_id: r.event_id,

@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
   import { dager } from '#kjerne/frosset/tekst.ts';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
@@ -49,19 +48,20 @@
   {#if k.felles.length || k.utenLag.length}
     <section class="del" aria-labelledby={`${uid}-alle`}>
       <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
-      {#each k.felles as l (l.lag)}
-        {@const tekst = VEDERLAGET.laget(l)}
-        <div class="lag">
-          <Maalrad
-            navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
-            verdi={l.dager === null ? null : dager(l.dager)}
-            kompakt
-          />
-          {#if tekst}<p>{tekst}</p>{/if}
+      {#each k.felles as l, i (l.lag)}
+        <div class="lag" class:under={i > 0}>
+          {#if l.vilkaar.length}<p>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</p>{/if}
+          {#each VEDERLAGET.laget(l) as tekst, j (j)}<p>{tekst}</p>{/each}
+          {#if l.dager !== null}<Maalrad
+              navn={FRISTEN.godkjent}
+              verdi={dager(l.dager)}
+              kompakt
+              dempet={i > 0}
+            />{/if}
         </div>
       {/each}
-      {#each k.utenLag as s (s.standpunkt.id)}
-        <p class="uten-lag">{FRISTEN.utenLag(s.standpunkt, s.vilkaar)}</p>
+      {#each k.utenLag as s (s.id)}
+        <p class="uten-lag">{FRISTEN.utenLag(s)}</p>
       {/each}
     </section>
   {/if}
@@ -76,10 +76,8 @@
             l.lag === sistePerFrist
           )}
           <li>
-            <b>{stor(l.etikett ?? '')}</b>{#if l.vilkaar.length}, {FRISTEN.vilkaar(
-                l.vilkaar,
-                l.lag > 2
-              )}{/if}{#if grunnlag}: {grunnlag}{/if}
+            {#if l.vilkaar.length}<b>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</b>{/if}
+            {#each grunnlag as tekst, i (i)}<p>{tekst}</p>{/each}
           </li>
         {/each}
       </ul>
@@ -102,7 +100,7 @@
               verdi={dager(f.krevd)}
               etter={nyKrav ? FRISTEN.nyFrist(nyKrav) : null}
               andel={andel(f.krevd)}
-              aapen
+              aapen={k.kravbrev.avsender === 'TE'}
               kompakt
               trinn={f.lagene.length ? [] : trinn}
               {ende}
@@ -112,12 +110,13 @@
             {@const ny = nyFrist(g, l.dager)}
             <li>
               <Maalrad
-                navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
+                navn={FRISTEN.radnavn(l.vilkaar, l.heller)}
                 verdi={dager(l.dager)}
                 etter={ny ? FRISTEN.nyFrist(ny) : null}
-                andel={andel(l.dager)}
+                andel={l.dager > 0 && l.dager !== f.lagene[i - 1]?.dager ? andel(l.dager) : null}
+                aapen={k.svarbrev?.avsender === 'TE'}
                 kompakt
-                sterk={false}
+                dempet={i > 0}
                 trinn={i === f.lagene.length - 1 ? trinn : []}
                 {ende}
               />
@@ -125,7 +124,7 @@
           {/each}
         </ul>
         {#if f.avslag}
-          <p class="avslag">{FRISTEN.avslag(f.avslag.etikett, f.avslag.begrunnelse)}</p>
+          <p class="avslag">{FRISTEN.avslag(f.avslag.begrunnelse)}</p>
         {/if}
       </section>
     {/each}
@@ -167,6 +166,12 @@
     border-left: 2px solid var(--rule-strong-color);
     font-size: 14px;
     color: var(--ink-2);
+  }
+  .lag p {
+    color: var(--ink);
+  }
+  .lag.under p {
+    color: var(--ink-3);
   }
   .vilkaar {
     display: grid;

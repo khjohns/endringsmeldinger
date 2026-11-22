@@ -702,7 +702,7 @@ export const innholdssummen = (id: string): string =>
  * Mellomlageret slik serveren leser det, for vedleggene kommandoen viser til: hvert av
  * dem finnes, med filnavnet av ID-en. Et vedlegg som ikke finnes, prøves for seg.
  */
-export function mellomlager(kommando: unknown): Vedleggsoppslag {
+export function mellomlager(kommando: unknown, filnavn?: string): Vedleggsoppslag {
   const ider: unknown =
     typeof kommando === 'object' && kommando !== null ? vedleggI(kommando as Kommando) : [];
   const vedlegg = (Array.isArray(ider) ? ider : []).filter((id) => typeof id === 'string');
@@ -711,7 +711,7 @@ export function mellomlager(kommando: unknown): Vedleggsoppslag {
       id.toLowerCase(),
       {
         vedlegg_id: id.toLowerCase(),
-        filnavn: `${id}.pdf`,
+        filnavn: filnavn ?? `${id}.pdf`,
         innhold_sha256: innholdssummen(id),
       },
     ])

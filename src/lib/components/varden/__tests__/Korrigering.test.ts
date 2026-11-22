@@ -52,7 +52,9 @@ const traaden = async () =>
 const innlegget = async (n: number) =>
   within(
     [...(await traaden()).getAllByRole('listitem')].find(
-      (li) => li.querySelector(':scope > .rad .nr')?.textContent === `brev ${n}`
+      // Datolinja er «<dato> · brev <n>», og kan fortsette med brevet som fulgte det opp.
+      (li) =>
+        li.querySelector(':scope > .rad .dato')?.textContent?.match(/· brev (\d+)/)?.[1] === `${n}`
     )!
   );
 

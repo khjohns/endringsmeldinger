@@ -149,7 +149,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
       ['videre subsidiært', 130000],
     ]);
     expect(k.lagene[1]!.vilkaar.map((v) => v.art)).toEqual(['grunn']);
-    expect(VEDERLAGET.laget(k.lagene[0]!)).toBe('Byggherren har avslått forholdet i brev 2.');
+    expect(VEDERLAGET.laget(k.lagene[0]!)).toEqual(['Byggherren har avslått forholdet i brev 2.']);
   });
 
   it('før byggherren har svart, står kravet uten lag (U-4)', async () => {
@@ -170,7 +170,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
   it('overskriften er «Vederlagsjustering» med hjemmelen etter, og hodet sier ikke hvem som skal handle (U-1, U-16, MM-U40)', async () => {
     await vis(BF44.steg);
     const h = screen.getByRole('heading', { level: 2, name: 'Vederlagsjustering pkt.\u00a034' });
-    expect(h.closest('header')?.textContent?.trim()).toBe('Vederlagsjustering pkt.\u00a034');
+    expect(h.nextElementSibling?.textContent).toMatch(
+      /^Byggherren la til korrespondanse \d+\. \p{L}+ 2026\.$/u
+    );
   });
 
   it('beløpet i hvert krav står ved brevet, og det eldre kravet er fulgt opp (U-5, U-12)', async () => {
@@ -198,9 +200,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     const u = await utledning(BF44.steg);
     const brev = brevene(u).find((b) => b.nummer === 1)!;
     const innsigelse = { art: 'grunn', grunn: 'prekludert', brev } as const;
-    for (const lesetekst of [VEDERLAGET.innsigelsen, FRISTEN.innsigelsen])
-      expect(lesetekst(innsigelse)).toBe(
-        'innsigelsen om at varselet etter punkt\u00a032.2 kom for sent (brev 1)'
+    for (const vilkaar of [VEDERLAGET.lagetVilkaar, FRISTEN.vilkaar])
+      expect(vilkaar([innsigelse])).toBe(
+        'Hvis innsigelsen om at varselet etter punkt\u00a032.2 kom for sent (brev 1) ikke fører frem'
       );
   });
 
@@ -286,8 +288,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
         .map((l) => l.querySelector('p')?.textContent)
     ).toEqual([
       'Byggherren gjør gjeldende at varselet etter punkt\u00a034.1.2 i brev 2 kom for sent.',
-      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt\u00a034.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
-      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem.',
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem',
+      // Det tredje laget: «heller ikke», som prototypen `vederlagsoversikt-v2.html` og brevet.
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem',
     ]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(

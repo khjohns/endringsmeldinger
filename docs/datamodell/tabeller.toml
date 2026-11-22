@@ -342,7 +342,9 @@ løsningen skrives (LV-U46): koden følger parten som sendte brevet, og nummeret
 neste for koden i prosjektet, kontrollert under lås, så rekken ikke får hull. Et
 registrert brev gir ikke saken en kode, og til det første brevet er sendt, har saken
 ingen rad (LV-U47). «KOE-17» lagres ikke, men settes sammen når det vises. En trigger
-avviser endring og sletting. Sakslisten leser koden gjennom `koe_api.saksliste`."""
+avviser endring og sletting. Sakslisten leser koden gjennom `koe_api.saksliste`.
+Saksvisningen leser den tildelte koden gjennom `koe_api.les_tildelt_sakskode` under
+samme radsikkerhet som journalen (#2210)."""
 lagres_fra = "`koe_api.skriv_hendelse` for sakens første brev fra løsningen, med løpenummeret `koe_api.sakskode` foreslo i samme transaksjon, kalt fra `skrivHendelse` og `opprettSakMedPaaberopelse` i `server/kommandoer.ts`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Nummeret står i de sendte brevene."

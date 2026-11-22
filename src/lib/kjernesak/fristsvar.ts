@@ -3,6 +3,9 @@
  */
 
 import { foresporselForFristsvar } from '#kjerne/spor/frist/utledning.ts';
+
+/** Koblingen mellom punktet i brevet og spørsmålet i fristsvaret, som kjernen eier (#2234). */
+export { fristpunktForSpoersmaal, fristspoersmaalForPunkt } from '#kjerne/spor/frist/kommando.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 /**

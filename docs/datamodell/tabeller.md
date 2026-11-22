@@ -277,7 +277,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 
 ### `koe.sak_kode`
 
-Sakens kode, `koe` eller `eo`, og løpenummeret for koden i prosjektet (LV-U44, arbeidsvalget N2 04.11 i #1497). Raden skrives én gang, når sakens første brev fra løsningen skrives (LV-U46): koden følger parten som sendte brevet, og nummeret er det neste for koden i prosjektet, kontrollert under lås, så rekken ikke får hull. Et registrert brev gir ikke saken en kode, og til det første brevet er sendt, har saken ingen rad (LV-U47). «KOE-17» lagres ikke, men settes sammen når det vises. En trigger avviser endring og sletting. Sakslisten leser koden gjennom `koe_api.saksliste`.
+Sakens kode, `koe` eller `eo`, og løpenummeret for koden i prosjektet (LV-U44, arbeidsvalget N2 04.11 i #1497). Raden skrives én gang, når sakens første brev fra løsningen skrives (LV-U46): koden følger parten som sendte brevet, og nummeret er det neste for koden i prosjektet, kontrollert under lås, så rekken ikke får hull. Et registrert brev gir ikke saken en kode, og til det første brevet er sendt, har saken ingen rad (LV-U47). «KOE-17» lagres ikke, men settes sammen når det vises. En trigger avviser endring og sletting. Sakslisten leser koden gjennom `koe_api.saksliste`. Saksvisningen leser den tildelte koden gjennom `koe_api.les_tildelt_sakskode` under samme radsikkerhet som journalen (#2210).
 
 | Felt | Innhold |
 | --- | --- |

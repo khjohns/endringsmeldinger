@@ -10,36 +10,35 @@ type Loggkontekst = {
   innkommende_hendelse_id?: string;
 };
 
-const lager = new AsyncLocalStorage<Loggkontekst>();
+const lager = new AsyncLocalStorage<{ felt: Loggkontekst; mottaker?: Loggmottaker }>();
 
 type Uuidfelt = 'korrelasjons_id' | 'aktor_id' | 'jobb_id';
 
 /** SQL Server leser `uniqueidentifier` med store bokstaver; loggen bruker små, som `randomUUID()`. */
 export function medLoggkontekst<T>(
   arbeid: () => T,
-  kjent: Partial<Omit<Loggkontekst, Uuidfelt> & Record<Uuidfelt, string | null>> = {}
+  kjent: Partial<Omit<Loggkontekst, Uuidfelt> & Record<Uuidfelt, string | null>> = {},
+  mottaker: Loggmottaker | undefined = lager.getStore()?.mottaker
 ): T {
-  return lager.run(
-    {
-      ...kjent,
-      korrelasjons_id: kjent.korrelasjons_id?.toLowerCase() ?? randomUUID(),
-      aktor_id: kjent.aktor_id?.toLowerCase(),
-      jobb_id: kjent.jobb_id?.toLowerCase(),
-    },
-    arbeid
-  );
+  const felt = {
+    ...kjent,
+    korrelasjons_id: kjent.korrelasjons_id?.toLowerCase() ?? randomUUID(),
+    aktor_id: kjent.aktor_id?.toLowerCase(),
+    jobb_id: kjent.jobb_id?.toLowerCase(),
+  };
+  return lager.run({ felt, mottaker }, arbeid);
 }
 
-export const korrelasjonsId = () => lager.getStore()?.korrelasjons_id;
+export const korrelasjonsId = () => lager.getStore()?.felt.korrelasjons_id;
 
 export function tilgangsfelter(): Pick<Loggkontekst, 'aktor_id' | 'prosjekt_id'> {
-  const { aktor_id, prosjekt_id } = lager.getStore() ?? {};
+  const { aktor_id, prosjekt_id } = lager.getStore()?.felt ?? {};
   return { aktor_id, prosjekt_id };
 }
 
 export function kjenteLoggfelter(kjent: Pick<Loggkontekst, 'aktor_id' | 'prosjekt_id'>): void {
   const kontekst = lager.getStore();
-  if (kontekst) Object.assign(kontekst, kjent);
+  if (kontekst) Object.assign(kontekst.felt, kjent);
 }
 
 type Nivaa = 'info' | 'warn' | 'error';
@@ -67,26 +66,26 @@ function skrivLogg(
     feilnummer?: number;
     feilkode?: string;
     kallstakk?: string[];
-  },
-  mottaker: Loggmottaker = console
+  }
 ): void {
-  mottaker[nivaa](
+  const kontekst = lager.getStore();
+  (kontekst?.mottaker ?? console)[nivaa](
     JSON.stringify({
       tidspunkt: new Date().toISOString(),
       nivaa,
       sted,
-      ...(lager.getStore() ?? { korrelasjons_id: randomUUID() }),
+      ...kontekst?.felt,
       ...felt,
     })
   );
 }
 
-export function loggInfo(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
-  skrivLogg('info', sted, felt, mottaker);
+export function loggInfo(sted: string, felt: Loggfelter = {}): void {
+  skrivLogg('info', sted, felt);
 }
 
-export function loggAdvarsel(sted: string, felt: Loggfelter = {}, mottaker?: Loggmottaker): void {
-  skrivLogg('warn', sted, felt, mottaker);
+export function loggAdvarsel(sted: string, felt: Loggfelter = {}): void {
+  skrivLogg('warn', sted, felt);
 }
 
 /** En kode fra Node, `tedious` eller `mssql`, som `ETIMEOUT` eller `UND_ERR_SOCKET`. */
@@ -103,10 +102,9 @@ export function loggFeil(
   hvor: string,
   feil: unknown,
   nivaa: 'error' | 'warn' = 'error',
-  mottaker?: Loggmottaker,
   felt: Loggfelter = {}
 ): void {
-  skrivLogg(nivaa, hvor, { ...felt, ...feilfelter(feil) }, mottaker);
+  skrivLogg(nivaa, hvor, { ...felt, ...feilfelter(feil) });
 }
 
 function feilfelter(feil: unknown) {

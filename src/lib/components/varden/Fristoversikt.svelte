@@ -38,9 +38,11 @@
     handlingVed = null,
     handling,
     brevet,
+    leggTilKorrespondanse,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
+  const traad = $derived(brevITraaden(alle, 'frist'));
   const k = $derived(kravetOgSvaretIFristen(u, alle));
   const dagene = $derived(kravdagene(u));
   const eldreKrav = $derived(eldreKravISporet(u, 'frist', alle));
@@ -76,9 +78,10 @@
   <Datolinjer {b} {klar} varselbrev={varsel?.dokument ?? null} {akseptfrist} />
 {/snippet}
 
-<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel}>
+<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel} siste={traad.at(-1)}>
   <Brevtraad
-    brev={brevITraaden(alle, 'frist')}
+    brev={traad}
+    {leggTilKorrespondanse}
     spor="frist"
     fulgtOpp={oppfoelgingene(u, alle)}
     {eldreKrav}

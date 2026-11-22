@@ -64,11 +64,18 @@ export function heleDager(tekst: string): number | undefined {
   return /^\d+$/.test(t) ? Number(t) : undefined;
 }
 
-/** Dagene BH godkjenner for fristen, eller `undefined` når de ikke er besvart. */
+/**
+ * Dagene BH godkjenner for fristen, eller `undefined` når de ikke er besvart. Under «Delvis» blir
+ * en tekst som ikke er et tall, `NaN`, så kjernen avviser den som ugyldig (#2234).
+ */
 export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined {
   if (f.dager === 'alle') return krevd;
   if (f.dager === 'avslaatt') return 0;
-  if (f.dager === 'deler') return heleDager(f.deldager);
+  if (f.dager === 'deler') {
+    const tekst = f.deldager.trim();
+    if (!tekst) return undefined;
+    return /^-?\d+(?:[.,]\d+)?$/.test(tekst) ? Number(tekst.replace(',', '.')) : NaN;
+  }
   return undefined;
 }
 

@@ -94,6 +94,7 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
     // VS-U20: påberopelsen av at varselet kom for sent, gjelder varselet og dermed alle fristene.
     expect(k.felles.map((l) => [l.etikett, l.dager, l.standpunkter[0]?.standpunkt.art])).toEqual([
       ['prinsipalt', 0, 'rettidighet'],
+      ['subsidiært', null, 'hindring'],
     ]);
     expect(k.perFrist.map((l) => l.etikett)).toEqual(['subsidiært', 'videre subsidiært']);
     expect(k.frister.map((f) => f.lagene.map((l) => l.dager))).toEqual([
@@ -104,12 +105,11 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
     expect(k.forbehold).toBe(true);
   });
 
-  it('at fremdriften er hindret, står uten eget lag, og avslaget for én frist står med laget og begrunnelsen i brevet (U-3, U-13, D-3, KA-U80, OV-U42)', async () => {
+  it('hindringen leses fra det fryste laget og avslaget fra laget og begrunnelsen i brevet (U-3, U-13, D-3, KA-U80, KA-U84)', async () => {
     const u = await utledning(BF45.steg);
     const k = kravetOgSvaretIFristen(u, brevene(u))!;
-    expect(k.utenLag.map((s) => [s.standpunkt.art, s.vilkaar])).toEqual([
-      ['hindring', [{ art: 'varsel', hjemmel: '33.4' }]],
-    ]);
+    expect(k.utenLag).toEqual([]);
+    expect(k.felles[1]?.vilkaar).toEqual([{ art: 'varsel', hjemmel: '33.4' }]);
     expect(k.frister.map((f) => f.avslag)).toEqual([
       {
         etikett: 'videre subsidiært',
@@ -207,7 +207,7 @@ describe('Siden for fristforlengelsen', () => {
   it('et registrert brev står med datoen det kom i saken, og sendedatoen i linja under (svar 1 A i #1999, OV-U85)', async () => {
     await vis(BF45.steg);
     const rad = screen.getByText('Revidert fremdriftsplan, revisjon 4').closest('li')!;
-    expect(rad.querySelector('.dato .lang')?.textContent).toBe('1. oktober 2026');
+    expect(rad.querySelector('.dato')?.textContent?.trim()).toBe('1. okt. 2026');
     expect(rad.textContent).toContain('Sendt 30. september 2026, ifølge byggherren.');
   });
 
@@ -223,18 +223,30 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       alle.getByText(
-        'Hvis innsigelsen om varselet ikke fører frem, legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+        'Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
       )
     ).toBeTruthy();
+    expect(
+      alle.getByText(
+        'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem'
+      )
+    ).toBeVisible();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
     expect(
       per
         .getAllByRole('listitem')
         .slice(0, 2)
-        .map((l) => l.textContent?.replace(/\s+/g, ' ').trim())
+        .map((l) =>
+          [...l.children]
+            .map((e) => e.textContent)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+        )
     ).toEqual([
-      'Subsidiært, hvis innsigelsen om varselet ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.',
-      'Videre subsidiært, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.',
+      'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
+      // Det tredje laget: «heller ikke», som brevets «Videre subsidiært» (LV-U4 punkt 4).
+      'Hvis heller ikke innsigelsen om spesifiseringen fører frem Dagene byggherren godkjenner.',
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
@@ -245,13 +257,20 @@ describe('Siden for fristforlengelsen', () => {
     expect(overtakelse.getByRole('link', { name: 'KOE-9' }).getAttribute('href')).toBe('/p/annen');
     expect(overtakelse.getByText(/ny frist 15\. september 2027/)).toBeTruthy();
     expect(overtakelse.getByText(/ny frist 9\. september 2027/)).toBeTruthy();
+    // Radene per frist heter etter vilkåret i kortform (svar 2 B 19.11 i
+    // docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md).
+    expect(
+      within(overtakelse.getByRole('list', { name: 'Overtakelse' }))
+        .getAllByRole('listitem')
+        .map((l) => l.textContent!.match(/^\s*(\D+?)\s*\d/)?.[1])
+    ).toEqual(['Krevd', 'Hvis varselet kom i tide', 'Hvis også spesifiseringen kom i tide']);
     const mekanisk = within(per.getByRole('region', { name: /^Frist 3\s+Mekanisk/ }));
     expect(
       mekanisk.getByText('Gjeldende frist er 1. juni 2027. Det er datoen i kontrakten.')
     ).toBeTruthy();
     expect(
       mekanisk.getByText(
-        'Videre subsidiært avslår byggherren dagene for fristen: Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
+        'Byggherren avslår dagene for fristen. Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
       )
     ).toBeTruthy();
     const utomhus = within(per.getByRole('region', { name: /^Frist 8\s+Overtakelse av/ }));
@@ -319,6 +338,9 @@ describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
         journal: medForesporsel.map(linje),
         leveringsoppdrag: [],
         catenda_lenke: null,
+        sakskode: null,
+        kontraktsforkortelse: null,
+        kan_foreslaa_sakskode: false,
         merking: MERKING,
       }),
       send: async () => ({ event_id: 'e-1', leveringsoppdrag: 'l-1', versjon: 1 }),

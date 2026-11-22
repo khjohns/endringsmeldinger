@@ -527,7 +527,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     cleanup();
 
     // Ny innlasting: skjemaet starter fra utkastet, og TE sender uten å skrive noe på nytt.
-    const andre = aapne(undefined, { utkast: forsoek.utkast });
+    const andre = aapne(undefined, { gjenoppta: { ...forsoek, kontrollertBrev: undefined } });
     await sendBrevet();
     await vi.waitFor(() => expect(andre.send).toHaveBeenCalled());
     const nytt = andre.send.mock.calls[0][0];

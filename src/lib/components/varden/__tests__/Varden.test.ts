@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '#lib/kjernesak/demosak.ts';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
-import { MERKING, linje, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
+import { MERKING, linje, medGrunnlag, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
   finn,
@@ -20,6 +20,8 @@ import {
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
+import { tomPost, tomtSvar } from '#lib/components/varden/kommandoer.ts';
 import { ApiError } from '#lib/api/client.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { SMAL } from '#lib/components/varden/medie.svelte.ts';
@@ -100,6 +102,57 @@ afterEach(() => {
 });
 
 describe('Varden med brukerforløpet BF-01', () => {
+  it('vederlagssvaret viser begge kravpostene i panelet og i brevet (#2234, KA-U53)', async () => {
+    const journal = skrevet(medGrunnlag, 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [
+          { beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 10000 },
+          { beskrivelse: 'Utgraving', oppgjoersform: 'tilbud', beloep: 20000 },
+        ],
+      },
+      utdypning: 'Postene gjelder to ulike arbeider.',
+    });
+    const kjernesak = lagKjernesak({
+      sakId: journal[0]!.sak_id,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: async () => ({
+        versjon: journal.at(-1)!.versjon,
+        part: 'BH',
+        visning: null as never,
+        journal: journal.map(linje),
+        leveringsoppdrag: [],
+        catenda_lenke: null,
+        sakskode: null,
+        kontraktsforkortelse: null,
+        kan_foreslaa_sakskode: false,
+        merking: MERKING,
+      }),
+    });
+    await kjernesak.last();
+    const godkjent = { ...tomPost(), form: 'godtar' as const, beloep: 'hele' as const };
+    const kontroller = vi.fn();
+    render(Vederlagssvar, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      valg: { ...tomtSvar(), poster: { P1: godkjent, P2: { ...godkjent } } },
+      onbrevkontroll: kontroller,
+      onforkast: () => {},
+    });
+    const panel = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panel.getByText(/Vederlagsjustering.*P1: Vederlagsjustering/)).toBeVisible();
+    expect(panel.getByText('P2: Vederlagsjustering')).toBeVisible();
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    expect(kontroller).toHaveBeenCalledOnce();
+    const avsnitt = kontroller.mock.calls[0]![0].avsnitt as { punkt: string }[];
+    expect(avsnitt.filter((a) => /^P[12]$/.test(a.punkt)).map((a) => a.punkt)).toEqual([
+      'P1',
+      'P2',
+    ]);
+  });
+
   it('bekrefter sendingen i sporet brukeren har åpnet mens brevet ble sendt (#2210)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const sending = Promise.withResolvers<void>();
@@ -147,9 +200,8 @@ describe('Varden med brukerforløpet BF-01', () => {
       brevkontrollen.getByText('Enigheten registreres ut fra valgene du har gjort.')
     ).toBeVisible();
     expect(
-      brevkontrollen
+      within(brevkontrollen.getByRole('list', { name: 'Punktene i brevet' }))
         .getAllByRole('listitem')
-        .slice(2)
         .map((rad) => rad.textContent?.trim())
     ).toEqual(vist.filter((avsnitt) => /^\d+\. /.test(avsnitt)));
     // LV-U34: lagslinjen står for seg over påberopelsen, og begrunnelsen under punktet.
@@ -359,8 +411,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     );
     expect(within(linjer[0]).getByText('1. Forholdet')).toBeVisible();
     expect(within(linjer[0]).getByText('Du har avslått forholdet i brev 2')).toBeVisible();
-    expect(within(linjer[0]).getByText(/^prinsipalt$/i)).toBeVisible();
-    expect(within(linjer[1]).getByText(/^subsidiært$/i)).toBeVisible();
+    expect(within(linjer[0]).queryByText(/^prinsipalt$/i)).toBeNull();
+    expect(
+      within(linjer[1]).getByText(/^Hvis avslaget av forholdet i brev 2 ikke fører frem$/)
+    ).toBeVisible();
   });
 
   it('BF-04: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet, og hovedlinjene sier ikke noe om det; med fast sum godkjent står valget for beløpet igjen (KA-U72)', async () => {
@@ -462,6 +516,9 @@ describe('Varden med brukerforløpet BF-01', () => {
           journal: journal.map(linje),
           leveringsoppdrag: [],
           catenda_lenke: null,
+          sakskode: null,
+          kontraktsforkortelse: null,
+          kan_foreslaa_sakskode: false,
           merking: MERKING,
         }),
       });

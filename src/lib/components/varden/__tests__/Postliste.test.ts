@@ -42,6 +42,9 @@ async function svarskjemaet() {
       journal: journal.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
+      sakskode: null,
+      kontraktsforkortelse: null,
+      kan_foreslaa_sakskode: false,
       merking: MERKING,
     }),
   });
