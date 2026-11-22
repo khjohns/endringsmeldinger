@@ -50,6 +50,9 @@ type Loggfelter = {
   utfall?: string;
   statuskode?: number;
   rute?: string;
+  /** Prosjektet linjen gjelder, når det ikke er prosjektet i konteksten. */
+  prosjekt_id?: string;
+  alder_sekunder?: number;
   /** ID-ene Catenda svarte med, når kvitteringen for dem ble avvist. */
   catenda_svar?: Record<string, unknown>;
   hindringer?: string[];

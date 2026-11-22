@@ -209,6 +209,8 @@ async function synkroniser(
   { prosjekt }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
+  // Tilgangskontrollen har alt forsøkt og logget hentingen (#825 punkt 7).
+  if (prosjekt.synkroniseringFeilet) return IKKE_OPPDATERT;
   try {
     const { medlemmer, deaktivert } =
       prosjekt.synkronisert ??
