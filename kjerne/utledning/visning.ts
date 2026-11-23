@@ -603,9 +603,9 @@ export type Enighetsvirkning = NonNullable<ReturnType<typeof enighetensVirkning>
 export interface Foreligger {
   /** Sporets betegnelse fra den faste lista (`betegnelse`, MM-U30). */
   betegnelse: Betegnelse | null;
-  /** Kravet venter på byggherrens svar (`venterPaaSvar`, MM-U29). */
+  /** Kravet venter på byggherrens svar (`venterPaaSvar`, MM-U29 (opphevet av MM-U40)). */
   venter_paa_svar: boolean;
-  /** Byggherrens gjeldende svar står, og TE kan fortsatt godta det (`svarIkkeGodtatt`, MM-U29). */
+  /** Byggherrens gjeldende svar står, og TE kan fortsatt godta det (`svarIkkeGodtatt`, MM-U29 (opphevet av MM-U40)). */
   svar_ikke_godtatt: boolean;
 }
 

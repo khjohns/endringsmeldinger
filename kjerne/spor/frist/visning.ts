@@ -73,7 +73,7 @@ function resultatForSvaret(resultater: readonly Fristresultat[]): Fristresultat 
 
 /**
  * Byggherrens gjeldende svar på fristen: dagene og resultatet for hver frist, og om
- * standpunktet er subsidiært (`standpunktetErSubsidiaert`, MM-U28), med resultatet for hele
+ * standpunktet er subsidiært (`standpunktetErSubsidiaert`, MM-U28 (opphevet av MM-U37)), med resultatet for hele
  * svaret og hvor mange frister som har fått alle dagene.
  */
 function fristsvaretISakslisten(
