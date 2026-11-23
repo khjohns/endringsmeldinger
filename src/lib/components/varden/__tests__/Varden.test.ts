@@ -887,6 +887,32 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.getByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeTruthy();
   });
 
+  it('MM-U44: meldingen i en sak kjernen ikke forstår, sier at et varsel med frist sendes på annen måte og legges til som korrespondanse, og knappen finnes (OV-U4, #2079)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const hent: typeof demosak.hent = async (...a) => {
+      const svar = await demosak.hent(...a);
+      return {
+        ...svar,
+        journal: svar.journal.map((r, i) => (i === 0 ? { ...r, format: 999 } : r)),
+      };
+    };
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    const melding = await screen.findByText(/^Saken har en hendelse løsningen ikke kan lese\./);
+    expect(melding).toHaveTextContent('Brev kan ikke sendes herfra.');
+    expect(melding).toHaveTextContent(
+      'Et varsel med frist sender du på annen måte, og legger til i saken etterpå med «Legg til korrespondanse».'
+    );
+    expect(screen.getByRole('button', { name: 'Legg til korrespondanse' })).toBeTruthy();
+  });
+
   it('kontrollsak for MM-U2: en sak kjernen forstår, har tittelen og ingen melding om at saken ikke kan leses (#2079)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const kjernesak = lagKjernesak({
