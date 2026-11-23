@@ -17,7 +17,7 @@ import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
-import { justerteEnhetspriser, kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -111,14 +111,6 @@ export const stiltIPosten = (p: Postvalg, post: Kravpost): SpoersmaalIKravposten
     post
   );
 
-/**
- * Skjemaet spør om varselet etter § 34.3.3 for justerte enhetspriser, også subsidiært når BH ikke
- * godtar beregningsregelen (VS-U56), og om varselet etter § 34.4 når BH godtar regningsarbeid
- * (KA-U64, VS-U63).
- */
-export const spoerOmVarselet = (p: Postvalg, post: Kravpost): boolean =>
-  justerteEnhetspriser(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
-
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
@@ -140,8 +132,9 @@ export const definert = <T extends object>(felt: T): T =>
  */
 function kravpostsvaret(post: Kravpost, p: Postvalg) {
   const beloep = beloepsvalget(p, post);
-  const kreverTilbud = stiltIPosten(p, post).includes('krever_tilbud') && p.kreverTilbud;
-  const varslet = spoerOmVarselet(p, post) ? p.varsletITide : null;
+  const stilt = stiltIPosten(p, post);
+  const kreverTilbud = stilt.includes('krever_tilbud') && p.kreverTilbud;
+  const varslet = stilt.includes('varslet_i_tide') ? p.varsletITide : null;
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
@@ -161,7 +154,9 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
       varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
         ? undefined
         : varslet,
-    godtar_justering: justerteEnhetspriser(post) ? (p.godtarJustering ?? undefined) : undefined,
+    godtar_justering: stilt.includes('godtar_justering')
+      ? (p.godtarJustering ?? undefined)
+      : undefined,
   });
 }
 

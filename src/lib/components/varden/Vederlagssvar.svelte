@@ -35,7 +35,6 @@
     spoerOmBeloepet,
     spoerOmHovedvarselet,
     stiltIPosten,
-    spoerOmVarselet,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -523,7 +522,7 @@
           lett
         />
       {/if}
-      {#if spoerOmVarselet(v, p)}
+      {#if stiltIPosten(v, p).includes('varslet_i_tide')}
         {#if regel === 'regningsarbeid'}
           <div class="setning">
             <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">

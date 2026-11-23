@@ -137,9 +137,6 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('punkt 34.4 er en setning, og lenken gjør gjeldende at varselet ikke ble gitt eller kom for sent (VS-U63)', async () => {
     const sendt = await svarskjemaet();
-    expect(
-      screen.queryByText('Varselet før regningsarbeidet settes i gang (punkt 34.4).')
-    ).toBeNull();
     await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
     expect(screen.getByText('Ingen innsigelse.')).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
@@ -155,6 +152,22 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     // LV-U34: «NS 8407» står bare første gang i brevet.
+    expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
+      'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
+    );
+  });
+
+  it('mener BH enhetspriser for regningsarbeidet, kan BH likevel gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent (oppdragsgiver 23.11 i #2171)', async () => {
+    const sendt = await svarskjemaet();
+    await fireEvent.click(radio('Mener enhetspriser (punkt\u00a034.3)'));
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Varselet ble ikke gitt eller kom for sent' })
+    );
+    await ferdig();
+    await aapne('P2');
+    await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
+    await fireEvent.click(radio('Varslet i tide'));
+    await seBrevet();
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
       'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
     );
