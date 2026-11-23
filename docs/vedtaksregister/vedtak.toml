@@ -14479,6 +14479,36 @@ kilde = "hovedplanen"
 tekst = "binder også posten"
 utdrag = true
 
+[[gruppe.vedtak]]
+id = "VS-U78"
+dato = 2026-11-23
+hvem = "oppdragsgiver"
+kilde = ["#2171", "#2269"]
+klasse = "vedtak"
+sporsmal = '''
+Totalentreprenøren krever regningsarbeid for en kravpost, og byggherren godtar ikke det, men mener for eksempel enhetspriser. Kan byggherren da gjøre gjeldende subsidiært at varselet etter punkt 34.4 ikke ble gitt eller kom for sent? A (ja, som VS-U56 for punkt 34.3.3): byggherren kan det. B (nei): byggherren kan ikke det, og kjernen avviser svaret.'''
+valgt = "A"
+svar = '''
+A. «34.4 ja: arbeidet kan være påbegynt før krav fremmes. BH må da kunne si at varsel etter 34.4 er for sent og han mener det feks skal beregnes etter enhetspriser. For arbeidet som alt er utført gjelder reglene i kap 30»'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u77" },
+  { art = "bygger på", vedtak = "vs-u56" },
+]
+folge = '''
+Bygges i #2269. Alternativene A (ja) og B (nei) er skrevet i vedtaksform etter spørsmålet i #2171. Spørsmålet gjelder varselet etter punkt 34.4 når byggherren ikke godtar regningsarbeid, og følger VS-U56 for varselet etter punkt 34.3.3.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Krever totalentreprenøren regningsarbeid for en kravpost, og godtar ikke byggherren det, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent. Arbeidet kan være påbegynt før kravet fremmes, og for arbeidet som alt er utført gjelder reglene i kapittel 30. Løsningen avgjør ikke om varselet kom i tide (VS-U48).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan ikke gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent når byggherren ikke godtar regningsarbeid for kravposten. Kjernen avviser svaret.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
