@@ -14500,7 +14500,7 @@ Bygges i #2269. Alternativene A (ja) og B (nei) er skrevet i vedtaksform etter s
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Krever totalentreprenøren regningsarbeid for en kravpost, og godtar ikke byggherren det, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent. Løsningen avgjør ikke om varselet kom i tide.'''
+Krever totalentreprenøren regningsarbeid for en kravpost, og godtar ikke byggherren det, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent. Arbeidet kan være påbegynt før kravet fremmes, og for arbeidet som alt er utført gjelder reglene i kapittel 30. Løsningen avgjør ikke om varselet kom i tide (VS-U48).'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]

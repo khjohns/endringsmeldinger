@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `6e7785e772eaa63c587f5a34f681987db1080cdf781ab35f1b74a80814b16356`
+Kontrollsum (SHA-256 over utdraget visningen leser): `54e89dc627b99907de8d3a24094c328717346603f629e29710d6e95dcd507c97`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -2143,7 +2143,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="vs-u78"></a>VS-U78
 
-> VS-U78: Krever totalentreprenøren regningsarbeid for en kravpost, og godtar ikke byggherren det, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent. Løsningen avgjør ikke om varselet kom i tide.
+> VS-U78: Krever totalentreprenøren regningsarbeid for en kravpost, og godtar ikke byggherren det, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent. Arbeidet kan være påbegynt før kravet fremmes, og for arbeidet som alt er utført gjelder reglene i kapittel 30. Løsningen avgjør ikke om varselet kom i tide (VS-U48).
 
 **Forkastet:** «Byggherren kan ikke gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent når byggherren ikke godtar regningsarbeid for kravposten. Kjernen avviser svaret.»
 
