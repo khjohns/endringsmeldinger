@@ -26,7 +26,8 @@ import { type Svarvurdering } from '../../kjerne/frosset/byggeklosser.ts';
 import { kravposterI } from '../../kjerne/spor/vederlag/format.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { sakslinje, type Sakslinje } from '../saksliste.ts';
+import type { Sakslinje } from '../../kjerne/utledning/visning.ts';
+import { sakslinje } from '../saksliste.ts';
 import { PAABEROPELSE } from './testbase.ts';
 
 type Steg = (sak: Sak) => void;

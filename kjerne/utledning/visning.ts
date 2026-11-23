@@ -11,12 +11,31 @@
 
 import type { Regelsett } from '../regler/regelsett.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
-import { dokumenterI } from '../format/leser.ts';
+import {
+  datoForDokumentet,
+  dokumenterI,
+  kalenderdag,
+  registrertDato,
+  sakstittelen,
+} from '../format/leser.ts';
 import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
-import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
-import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
-import { VISNING_I_FRISTEN } from '../spor/frist/visning.ts';
+import { innholdIForholdet } from '../spor/forhold/format.ts';
+import {
+  forholdetISakslisten,
+  VISNING_I_FORHOLDET,
+  type ForholdetISakslisten,
+} from '../spor/forhold/visning.ts';
+import {
+  vederlagetISakslisten,
+  VISNING_I_VEDERLAGET,
+  type VederlagetISakslisten,
+} from '../spor/vederlag/visning.ts';
+import {
+  fristenISakslisten,
+  VISNING_I_FRISTEN,
+  type FristenISakslisten,
+} from '../spor/frist/visning.ts';
 import { prinsipaltAvslaatteDager } from '../spor/frist/utledning.ts';
 import {
   datoenDetBleSendt,
@@ -33,7 +52,16 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Dokument, type Krav, type Kravspor, type Spor, type Svar } from '../typer.ts';
+import {
+  SPOR,
+  type Dokument,
+  type Krav,
+  type Kravspor,
+  type Part,
+  type Sakskode,
+  type Spor,
+  type Svar,
+} from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -564,5 +592,178 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     vurderingsgrunnlag,
     registrerteBrev: u.registrerteBrev,
     merknader: merknader(u, kode),
+  };
+}
+
+// ---------- Linja i sakslisten (#1022) ----------
+
+/** Enighetens virkning slik sakslisten gir den videre (`enighetensVirkning`). */
+export type Enighetsvirkning = NonNullable<ReturnType<typeof enighetensVirkning>>;
+
+export interface Foreligger {
+  /** Sporets betegnelse fra den faste lista (`betegnelse`, MM-U30). */
+  betegnelse: Betegnelse | null;
+  /** Kravet venter på byggherrens svar (`venterPaaSvar`, MM-U29). */
+  venter_paa_svar: boolean;
+  /** Byggherrens gjeldende svar står, og TE kan fortsatt godta det (`svarIkkeGodtatt`, MM-U29). */
+  svar_ikke_godtatt: boolean;
+}
+
+/**
+ * Kravet står: saken er forstått og ikke avsluttet, og kravet er ikke trukket (svar 2 fra
+ * oppdragsgiver 20.10 i #1029). Nøkkeltallene i Varden leser flagget (#1068, #1861).
+ */
+interface Staaende {
+  kravet_staar: boolean;
+  /**
+   * Sporet har et varsel løsningen kjenner (OV-U5), uavhengig av betegnelsen, som kan være
+   * en annen når et varsel foreligger (MM-U30). Lista viser «Varslet» av flagget (MM-U37).
+   */
+  har_varsel: boolean;
+}
+
+export interface Forholdslinje extends Foreligger, ForholdetISakslisten {}
+export interface Vederlagslinje extends Foreligger, Staaende, VederlagetISakslisten {}
+export interface Fristlinje extends Foreligger, Staaende, FristenISakslisten {}
+
+/**
+ * Én linje i sakslisten fra `GET /api/projects/<p>/saker`. Feltnavnene er kontrakter (B-17);
+ * betydningen står i domenetabellen, raden «Linja i sakslisten». Saken har ingen samlet status,
+ * bare en betegnelse i de fire tilfellene i MM-U22. Serveren fyller feltene i `LagretISakslinjen`
+ * fra lagringen og resten med `sakslinjen`.
+ */
+export interface Sakslinje {
+  sak_id: string;
+  sakstype: string;
+  sakstittel: string | null;
+  opprettet: string;
+  /**
+   * Sakens kode, `koe` eller `eo`, og løpenummeret for koden i prosjektet (LV-U44, LV-U46).
+   * Begge er `null` til sakens første brev fra løsningen er sendt (LV-U47). Visningen setter
+   * sammen «KOE-17».
+   */
+  kode: Sakskode['kode'] | null;
+  loepenummer: number | null;
+  /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
+  siste_hendelse: string;
+  /**
+   * Sakens siste brev, med avsenderen og brevets dato (ÅÅÅÅ-MM-DD), se `brevetsDato`. `null`
+   * når saken ikke har noe brev, og når kjernen ikke forstår saken (MM-U2): da kan ikke
+   * lista vite om det ukjente er et brev.
+   */
+  siste_brev: { avsender: Part; dato: string } | null;
+  hovedkategori: string | null;
+  /** Forholdet TE påberoper, med kjernens kode, så lista kan vise henvisningen (arbeidsvalg 03.11 i #1450). */
+  underkategori: string | null;
+  forstaatt: boolean;
+  saksbetegnelse: Saksbetegnelse | null;
+  /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
+  brev_utenfor_appen: boolean;
+  forhold: Forholdslinje;
+  vederlag: Vederlagslinje;
+  frist: Fristlinje;
+}
+
+/** Feltene i linja som serveren leser fra lagringen, ikke av utledningen. */
+export type LagretISakslinjen =
+  | 'sak_id'
+  | 'sakstype'
+  | 'opprettet'
+  | 'kode'
+  | 'loepenummer'
+  | 'siste_hendelse';
+
+const INGENTING: Foreligger = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+};
+
+function foreligger(u: Utledning, spor: Spor): Foreligger {
+  return {
+    betegnelse: betegnelse(u, spor),
+    venter_paa_svar: venterPaaSvar(u, spor),
+    svar_ikke_godtatt: svarIkkeGodtatt(u, spor),
+  };
+}
+
+const staaende = (u: Utledning, spor: Kravspor): Staaende => ({
+  kravet_staar: kravetStaar(u, spor),
+  har_varsel: harVarsel(u, spor),
+});
+
+/**
+ * Brevets dato: for et registrert brev datoen parten oppga at det ble sendt, ellers mottatt
+ * (OV-U80), og ellers dagen det ble registrert i løsningen (VS-U8). Oppdragsgiver 03.11 i
+ * #1450. En oppgitt dato som ikke kan leses, gir registreringsdagen.
+ */
+function brevetsDato(d: Dokument): string {
+  const oppgitt =
+    datoForDokumentet(d.opplysninger, 'sendt') ?? datoForDokumentet(d.opplysninger, 'mottatt');
+  const dag = oppgitt ? kalenderdag(oppgitt.dato) : null;
+  return dag ?? registrertDato(d);
+}
+
+/**
+ * Brevet i saken med den seneste datoen, og ved samme dag det siste i journalen. En retting
+ * registrerer brevet på nytt, så det er den siste registreringen i kjeden som gjelder, ikke den
+ * den retter (OV-U17). En retting som sier at brevet ikke hører til saken, har ingen
+ * registrering etter seg, så da er brevet ikke med (OV-U18). En sak med en ugyldig retting er
+ * ikke forstått og kommer ikke hit.
+ */
+function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
+  const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
+  const rettet = new Set(dokumenter.map((d) => d.retter).filter((id) => id !== null));
+  const brev = dokumenter.filter((d) => !rettet.has(d.id) && !d.ikkeISaken);
+  let siste: Sakslinje['siste_brev'] = null;
+  for (const d of brev) {
+    const dato = brevetsDato(d);
+    if (!siste || dato >= siste.dato) siste = { avsender: d.avsender, dato };
+  }
+  return siste;
+}
+
+/**
+ * Linja for saken uten feltene fra lagringen. En sak kjernen ikke forstår (MM-U2), har bare
+ * betegnelsen og ingen krav, svar eller enighet, som visningen av saken.
+ */
+export function sakslinjen(u: Utledning): Omit<Sakslinje, LagretISakslinjen> {
+  const felles = {
+    sakstittel: sakstittelen(u.journal),
+    forstaatt: u.forstaatt,
+    saksbetegnelse: saksbetegnelse(u),
+    brev_utenfor_appen: harIkkeVurdertBrev(u),
+  };
+  if (!u.forstaatt) {
+    const ingenKrav = {
+      kravet_staar: false,
+      har_varsel: false,
+      krav: null,
+      svar: null,
+      enighet: null,
+    };
+    return {
+      ...felles,
+      siste_brev: null,
+      hovedkategori: null,
+      underkategori: null,
+      forhold: { ...INGENTING, svar: null },
+      vederlag: { ...INGENTING, ...ingenKrav },
+      frist: { ...INGENTING, ...ingenKrav },
+    };
+  }
+  const paaberopt = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
+  return {
+    ...felles,
+    siste_brev: sisteBrev(u),
+    hovedkategori: paaberopt.hovedkategori,
+    underkategori: typeof paaberopt.underkategori === 'string' ? paaberopt.underkategori : null,
+    forhold: { ...foreligger(u, 'forhold'), ...forholdetISakslisten(u) },
+    vederlag: {
+      ...foreligger(u, 'vederlag'),
+      ...staaende(u, 'vederlag'),
+      ...vederlagetISakslisten(u),
+    },
+    frist: { ...foreligger(u, 'frist'), ...staaende(u, 'frist'), ...fristenISakslisten(u) },
   };
 }

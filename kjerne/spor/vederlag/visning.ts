@@ -5,9 +5,22 @@
 
 import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
-import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
-import type { Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
-import { beloepeneILagene, kravposterI } from './format.ts';
+import { tilTall } from '../../regler/beloep.ts';
+import type { Vederlagsresultat } from '../../regler/typer.ts';
+import {
+  enighetensVirkning,
+  standpunktetErSubsidiaert,
+  vurdertVedRegistreringen,
+  type Utledning,
+} from '../../utledning/utled.ts';
+import type { Enighetsvirkning, Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
+import {
+  beloepeneILagene,
+  fasteBeloepIKravet,
+  fasteBeloepISvaret,
+  kravposterI,
+  type FasteBeloep,
+} from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
@@ -101,3 +114,65 @@ export const VISNING_I_VEDERLAGET = {
   kravetErEtterspurt: () => false,
   senkning: SENKNING_I_VEDERLAGET,
 } satisfies Sporsvisning;
+
+/**
+ * `beloep` er summen av de faste beløpene i kroner, eller `null` når ingen post har et fast
+ * beløp, og `antall_uten_fast_beloep` er kravpostene summen ikke regner med (`FasteBeloep`,
+ * arbeidsvalget 12.11 i #1779).
+ */
+export interface Beloepene {
+  beloep: number | null;
+  antall_uten_fast_beloep: number;
+}
+
+/** Kravet, svaret og enigheten om vederlaget i sakslisten (#1022). */
+export interface VederlagetISakslisten {
+  krav: Beloepene | null;
+  /** Beløpet er det byggherren godtar om ingen påberopelse fører fram (OV-U31). */
+  svar: (Beloepene & { resultat: Vederlagsresultat; subsidiaert: boolean }) | null;
+  /**
+   * `uten_fast_beloep` er betegnelsene på kravpostene uten fast beløp i det første laget, som
+   * `beloep` ikke regner med (OV-U73, svar 6 A i #1663).
+   */
+  enighet: { beloep: number | null; uten_fast_beloep: string[]; virkning: Enighetsvirkning } | null;
+}
+
+const beloepene = (b: FasteBeloep): Beloepene => ({
+  beloep: b.sum === null ? null : tilTall(b.sum),
+  antall_uten_fast_beloep: b.utenFastBeloep,
+});
+
+/**
+ * Byggherrens gjeldende svar på vederlaget, med resultatet i det første standpunktet til et
+ * beløp. Subsidiært når et av standpunktene til beløpene er det (`standpunktetErSubsidiaert`).
+ */
+function vederlagssvaretISakslisten(u: Utledning): VederlagetISakslisten['svar'] {
+  const svar = u.spor.vederlag.gjeldendeSvar;
+  const poster = (svar?.standpunkter ?? []).filter((p) => p.art === 'beloep');
+  if (!svar || !poster.length) return null;
+  return {
+    resultat: poster[0]!.resultat,
+    ...beloepene(fasteBeloepISvaret(svar)),
+    subsidiaert: poster.some((p) => standpunktetErSubsidiaert(u, 'vederlag', p.id)),
+  };
+}
+
+export function vederlagetISakslisten(u: Utledning): VederlagetISakslisten {
+  const s = u.spor.vederlag;
+  const virkning = enighetensVirkning(u, 'vederlag');
+  return {
+    krav: s.gjeldendeKrav ? beloepene(fasteBeloepIKravet(s.gjeldendeKrav)) : null,
+    svar: vederlagssvaretISakslisten(u),
+    enighet:
+      s.enighet && virkning
+        ? {
+            beloep: s.enighet.grunnlag.utfall.beloep ?? null,
+            uten_fast_beloep: (s.enighet.grunnlag.utfall.uten_fast_beloep ?? []).map(
+              (id) =>
+                s.krav.flatMap((k) => kravposterI(k)).find((p) => p.id === id)?.betegnelse ?? id
+            ),
+            virkning,
+          }
+        : null,
+  };
+}
