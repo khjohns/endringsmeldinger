@@ -451,6 +451,18 @@ export function svaretFraVurderingene(
   };
 }
 
+/**
+ * OV-U23, OV-U26: byggherren tar stilling til posten etter § 34.1.3 annet ledd bare når kravet har
+ * den. Feilene står på feltene i kommandoen.
+ */
+export function kontrollerProduktivitetsposten(v: Svarvurdering, krav: Krav): void {
+  if (krevdProduktivitet(krav) !== null) return;
+  const feil: Record<string, string> = {};
+  for (const felt of Object.values(PRODUKTIVITETSFELT))
+    if (v[felt] != null) feil[felt] = 'kravet har ikke denne posten';
+  if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
+}
+
 /** Utregningen av vederlaget av postene i kravet (§ 34). */
 function regnUtVederlag(
   v: Svarvurdering,
@@ -463,15 +475,7 @@ function regnUtVederlag(
   if (tilbakeholdelse) throw new UgyldigVurdering({ hold_tilbake: tilbakeholdelse });
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520), og
   // til oppgjørsformen bare for en kravpost (KA-U57 (d)), i `kravpostvurderinger`.
-  const produktivitet: (keyof Svarvurdering)[] = [
-    'produktivitet_vurdering',
-    'produktivitet_godkjent_beloep',
-    'produktivitet_varslet_i_tide',
-    'produktivitet_begrenset_beloep',
-  ];
-  if (krevdProduktivitet(krav) === null)
-    for (const felt of produktivitet)
-      if (v[felt] != null) throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten' });
+  kontrollerProduktivitetsposten(v, krav);
   const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   for (const { post, svar } of kravpostvurderinger(v, krav))

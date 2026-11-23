@@ -1070,7 +1070,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt
      frister produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
-     rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
+     rigg_varslet_i_tide hold_tilbake`,
   ],
   // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
   ['spor/vederlag/frysing.ts:svaretFraVurderingene', 'regelsett', 'svar felt'],
@@ -1085,6 +1085,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
+  ],
+  // #2171: posten etter § 34.1.3 annet ledd når kravet ikke har den, i utkastet som i utregningen.
+  [
+    'spor/vederlag/frysing.ts',
+    'regelsett',
+    'kontrollerProduktivitetsposten',
+    ['spor/vederlag/kommando.ts:ugyldigIVederlaget'],
   ],
   [
     'PRODUKTIVITETSFELT',
@@ -1139,7 +1146,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/vederlag.ts',
     'regelsett',
     'kontrollerVarseletForVederlag kontrollerOppgjoersformen',
-    ['spor/vederlag/frysing.ts'],
+    [
+      'spor/vederlag/frysing.ts',
+      'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+      'spor/vederlag/kommando.ts:feilIOppgjoersformen',
+    ],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
@@ -1699,7 +1710,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'godkjent_dager spesifisert_krav_ok',
   ],
-  ['spor/vederlag/kommando.ts:ugyldigIVederlaget(feil)', 'regelsett', 'varslet_i_tide *'],
   [
     'kommandoer/utkastlag.ts',
     'regelsett',
@@ -1707,9 +1717,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/frist/kommando.ts:ugyldigIFristen',
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+      'spor/vederlag/kommando.ts:feilIOppgjoersformen',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
+  // #2171: svarene på kravposten kontrollen av oppgjørsformen avviser, tas ut før lagene regnes.
+  ['spor/vederlag/kommando.ts:utenAvvisteSvar(iOppgjoersformen.get(post.id))', 'regelsett', '*'],
   [
     'kommandoer/utkastlag.ts',
     'kommando',

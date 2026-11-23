@@ -12360,6 +12360,89 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(ugyldig(s, 'vederlag', v(20000)), 'kontrollsak').toEqual([]);
   });
 
+  /** En kravpost etter en beregningsregel, med P1 etter tilbudet først (KA-U66). */
+  const medRegel = (oppgjoersform: string, rest: Data = {}) =>
+    vederlagskravet({
+      kravposter: [
+        {
+          betegnelse: 'P1',
+          beskrivelse: 'Ny fundamentering',
+          oppgjoersform: 'tilbud',
+          beloep: 100000,
+        },
+        { betegnelse: 'P2', beskrivelse: 'Pumping', oppgjoersform, ...rest },
+      ],
+    });
+  const P1 = { gjelder: 'P1', aksepterer: true, vurdering: 'godkjent', godkjent_beloep: 100000 };
+
+  it('vederlaget: en oppgjørsform byggherren mener når tilbudet aksepteres, er et svar kjernen ikke godtar, i utkastet som når svaret sendes (punkt 34.2.2, arbeidsvalget i #479, #2171)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = (p1: Data) => ({ kravposter: [{ ...P1, ...p1 }] });
+    const feil = v({ oensket_oppgjoersform: 'regningsarbeid' });
+    expect(ugyldig(s, 'vederlag', feil)).toEqual(['P1.oensket_oppgjoersform']);
+    expect(melding(s, 'vederlag', feil)).toContain('gjelder bare når tilbudet ikke aksepteres');
+    expect(ugyldig(s, 'vederlag', v({})), 'kontrollsak').toEqual([]);
+  });
+
+  it('vederlaget: kravet om tilbud når byggherren godtar beregningsregelen, eller for en kravpost etter tilbudet, er et svar kjernen ikke godtar (KA-U69, KA-U71, #2171)', () => {
+    const s = saken(medRegel('regningsarbeid'));
+    const v = (p1: Data, p2: Data) => ({
+      kravposter: [
+        { ...P1, ...p1 },
+        { gjelder: 'P2', ...p2 },
+      ],
+    });
+    const godtar = v({}, { aksepterer: true, krever_tilbud: true });
+    expect(ugyldig(s, 'vederlag', godtar)).toEqual(['P2.krever_tilbud']);
+    expect(melding(s, 'vederlag', godtar)).toContain(
+      'kan ikke stå når byggherren godtar beregningsregelen'
+    );
+    const tilbudet = v({ krever_tilbud: true }, { aksepterer: true });
+    expect(ugyldig(s, 'vederlag', tilbudet)).toEqual(['P1.krever_tilbud']);
+    expect(melding(s, 'vederlag', tilbudet)).toContain(
+      'gjelder bare en kravpost etter en beregningsregel'
+    );
+    expect(
+      ugyldig(s, 'vederlag', v({}, { aksepterer: false, krever_tilbud: true })),
+      'kontrollsak'
+    ).toEqual([]);
+  });
+
+  it('vederlaget: et svar på varselet etter § 34.3.3 eller § 34.4 for en kravpost etter tilbudet, og justeringen for en kravpost uten justerte enhetspriser, er svar kjernen ikke godtar (KA-U64, KA-U68, #2171)', () => {
+    const s = saken(medRegel('regningsarbeid'));
+    const v = (p1: Data, p2: Data) => ({
+      kravposter: [
+        { ...P1, ...p1 },
+        { gjelder: 'P2', aksepterer: true, ...p2 },
+      ],
+    });
+    const feil = v({ varslet_i_tide: false }, { godtar_justering: true });
+    expect(ugyldig(s, 'vederlag', feil)).toEqual(['P1.varslet_i_tide', 'P2.godtar_justering']);
+    expect(melding(s, 'vederlag', feil)).toContain(
+      'gjelder bare varselet etter punkt 34.3.3 for justerte enhetspriser og punkt 34.4 for regningsarbeid'
+    );
+    expect(ugyldig(s, 'vederlag', v({}, { varslet_i_tide: false })), 'kontrollsak').toEqual([]);
+  });
+
+  it('vederlaget: et svar på varselet etter § 34.1.2 når varslingsplikten ikke gjelder kategorien, er et svar kjernen ikke godtar (OV-U15, #2171)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = { hovedkrav_varslet_i_tide: true, kravposter: [P1] };
+    expect(ugyldig(s, 'vederlag', v)).toEqual(['hovedkrav_varslet_i_tide']);
+    expect(melding(s, 'vederlag', v)).toContain('gjelder bare svikt og andre forhold');
+    expect(
+      ugyldig(saken(vederlagskravet(tilbud(100000)), true), 'vederlag', v),
+      'kontrollsak'
+    ).toEqual([]);
+  });
+
+  it('vederlaget: et svar om posten etter § 34.1.3 annet ledd når kravet ikke har den, er et svar kjernen ikke godtar (OV-U23, OV-U26, #2171)', () => {
+    const v = { kravposter: [P1], produktivitet_vurdering: 'godkjent' };
+    const s = saken(vederlagskravet(tilbud(100000)));
+    expect(ugyldig(s, 'vederlag', v)).toEqual(['produktivitet_vurdering']);
+    expect(melding(s, 'vederlag', v)).toContain('kravet har ikke denne posten');
+    expect(ugyldig(s, 'vederlag', { kravposter: [P1] }), 'kontrollsak').toEqual([]);
+  });
+
   it('fristen: med to frister står et svar om hele kravet kjernen ikke godtar, én gang (punkt 33.6.2 fjerde ledd, #2156)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
