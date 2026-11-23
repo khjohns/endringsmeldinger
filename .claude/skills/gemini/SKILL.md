@@ -186,15 +186,16 @@ kontrollerer vurderingen og gjør det som skjer på GitHub. Stoppregelen og utfa
    for byggeøkta. Bestillingen sier hva issuet skal oppnå, og ber Gemini holde hver retting mot
    det. Foreslår et funn flere løsninger, er den første ikke nødvendigvis riktig. I runde 1 i
    #2256 ble tre av fire rettinger tilbakeført, fordi de fulgte forslaget mot målet i issuet.
-2. **Gemini svarer etter et skjema med én rad per funn**: utfallet (rettet, avvist, krav i
-   issue, spørsmål eller oppfølgingsissue), begrunnelsen etter stoppregelen og commiten for et
+2. **Gemini svarer etter et skjema med én rad per funn**: prioriteten P0–P3, utfallet
+   (rettet, avvist, krav i issue, spørsmål eller oppfølgingsissue), begrunnelsen etter stoppregelen og commiten for et
    rettet funn. For de andre utfallene har raden teksten som skal stå i PR-en eller issuet. Hvert
    rettet funn får sin egen commit.
 3. **Gemini svarer ikke selv på et spørsmål som krever en avgjørelse fra oppdragsgiver.** Et
    funn som krever et vedtak, et designvalg eller en tolkning, får utfallet «spørsmål». Det
    rettes ikke, og en bestemmelse eller et vedtak ikke sier, blir ikke tolket.
 4. **Claude kontrollerer vurderingen**: hver rad mot stoppregelen, særlig «avvist» og
-   «spørsmål». Et avvist funn som kan gi feil resultat, rettes eller føres videre. Claude ser også
+   «spørsmål». Et avvist funn som er P0 eller P1, rettes eller føres videre, og P0–P2
+   prøves med `funnprove` før de rettes. Claude ser også
    at ingen test er svekket eller hoppet over for å bli grønn (`--stat`, og diffen i testfilene).
 5. **Claude gjør det som skjer på GitHub**: tabellen «Funn og utfall», kommentarene i issuene,
    oppfølgingsissuet og spørsmålene, etter leveranseskillen og

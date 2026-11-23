@@ -350,6 +350,12 @@ ryddingen og reviewet av visningen, kjøringen av den ekte saksruta og stopprege
 funn står i
 [leveranseskillen, «Review og funn»](.claude/skills/leveranse/SKILL.md#review-og-funn).
 
+**Et review leter etter det som gir feil resultat, ikke etter alt som kan forbedres.**
+Hvert funn har et konkret scenario med gyldig tilstand og inndata, og en kilde for at
+resultatet blir feil: et vedtak, NS 8407, en sikkerhetsinvariant eller en test. Stil,
+navn, kommentarer og ytelse uten måling er ikke feil. Prioriteten P0–P3 og utfallet står i
+stoppregelen i leveranseskillen (#1958).
+
 **Hold hurtigbufferen varm**, i alle skyøkter, også en direkte økt som ikke er
 orkestrert (#425). Hele konteksten sendes på nytt ved hvert kall til modellen, og
 hurtigbufferen gjør det billig bare når det er under en time siden forrige kall. Hvor
