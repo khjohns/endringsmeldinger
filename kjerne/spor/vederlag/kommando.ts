@@ -629,7 +629,8 @@ const KRAVPOSTFELT = [
  * varslingsplikten ikke gjelder kategorien, posten etter § 34.1.3 annet ledd når kravet ikke har
  * den, standpunktet til oppgjørsformen for hver kravpost (`kontrollerOppgjoersformen`), og
  * beløpet for hver post (`kontroller` i regelsettet). Feltene følger nøklene kontrollene fører,
- * også de de i dag bare fører som ubesvarte; de ubesvarte tar kalleren ut.
+ * også de de i dag bare fører som ubesvarte; de ubesvarte tar kalleren ut. Tilbakeholdelsen og
+ * rigg og drift (`utenforOmfanget`) er ikke spørsmål i utkastet og står ikke her.
  */
 function ugyldigIVederlaget(
   svaret: Vederlagssvar,

@@ -510,7 +510,7 @@ export type SpoersmaalIKravposten =
  * (arbeidsvalget i #479), kravet om tilbud for en beregningsregel som ikke er godtatt (KA-U69,
  * KA-U71), varselet etter § 34.3.3 og § 34.4 (KA-U64, VS-U56) og justeringen for justerte
  * enhetspriser (KA-U68, VS-U56). Et svar på et spørsmål som ikke stilles, avviser
- * `kontrollerOppgjoersformen`.
+ * `kontrollerOppgjoersformen`. Kravet om tilbud sendes med `aksepterer: false` (KA-U71).
  */
 export function stiltIKravposten(
   p: { aksepterer?: unknown },
