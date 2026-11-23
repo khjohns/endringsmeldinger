@@ -9,6 +9,7 @@ import { regnUtSvar } from '#kjerne/frosset/utregning.ts';
 import { hjemmelenGjelder, type Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
 import { UgyldigBeloep } from '#kjerne/regler/beloep.ts';
 import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
+import { stiltIKravposten, type SpoersmaalIKravposten } from '#kjerne/regler/vederlag.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import type { Krav, Kravpost, Oppgjoersform, Spor } from '#kjerne/typer.ts';
@@ -16,7 +17,7 @@ import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
-import { justerteEnhetspriser, kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -100,19 +101,15 @@ export const beloepsvalget = (p: Postvalg, post: Kravpost): Beloepsvalg | null =
   spoerOmBeloepet(p, post) ? p.beloep : null;
 
 /**
- * Skjemaet spør om kravet om tilbud når BH ikke godtar beregningsregelen (KA-U69, KA-U71). Valget
- * står likevel, så det er der igjen om BH endrer standpunktet til oppgjørsformen.
+ * Spørsmålene om oppgjørsformen kjernen stiller for kravposten med valgene så langt
+ * (`stiltIKravposten`, #2171). Et valg står likevel, så det er der igjen om BH endrer
+ * standpunktet til oppgjørsformen.
  */
-export const spoerOmTilbud = (p: Postvalg, post: Kravpost): boolean =>
-  etterRegel(post) && p.form !== 'godtar';
-
-/**
- * Skjemaet spør om varselet etter § 34.3.3 for justerte enhetspriser, også subsidiært når BH ikke
- * godtar beregningsregelen (VS-U56), og om varselet etter § 34.4 når BH godtar regningsarbeid
- * (KA-U64, VS-U63).
- */
-export const spoerOmVarselet = (p: Postvalg, post: Kravpost): boolean =>
-  justerteEnhetspriser(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
+export const stiltIPosten = (p: Postvalg, post: Kravpost): SpoersmaalIKravposten[] =>
+  stiltIKravposten(
+    { aksepterer: p.form === 'godtar' ? true : p.form !== null ? false : undefined },
+    post
+  );
 
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
@@ -135,8 +132,9 @@ export const definert = <T extends object>(felt: T): T =>
  */
 function kravpostsvaret(post: Kravpost, p: Postvalg) {
   const beloep = beloepsvalget(p, post);
-  const kreverTilbud = spoerOmTilbud(p, post) && p.kreverTilbud;
-  const varslet = spoerOmVarselet(p, post) ? p.varsletITide : null;
+  const stilt = stiltIPosten(p, post);
+  const kreverTilbud = stilt.includes('krever_tilbud') && p.kreverTilbud;
+  const varslet = stilt.includes('varslet_i_tide') ? p.varsletITide : null;
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
@@ -156,7 +154,9 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
       varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
         ? undefined
         : varslet,
-    godtar_justering: justerteEnhetspriser(post) ? (p.godtarJustering ?? undefined) : undefined,
+    godtar_justering: stilt.includes('godtar_justering')
+      ? (p.godtarJustering ?? undefined)
+      : undefined,
   });
 }
 
