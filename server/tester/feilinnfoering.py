@@ -625,6 +625,16 @@ FEILINNFOERINGER = [
      "    'synkronisering_feilet'\n  )\n    throw new Error('Godkjenneren",
      "    'aldri'\n  )\n    throw new Error('Godkjenneren",
      "ved Catenda-feil brukes aktivt medlemskap fra den lagrede listen"),
+    ("S159", "fristsvaret i sakslisten krever at alle fristene er subsidiære (#1910)",
+     "server/saksliste.ts",
+     "subsidiaert: frister.some((f) => f.subsidiaert),",
+     "subsidiaert: frister.every((f) => f.subsidiaert),",
+     "fristsvaret er subsidiært når bare én av to frister er subsidiær"),
+    ("S160", "fristsvaret i sakslisten leser bare om den første fristen er subsidiær (#1910)",
+     "server/saksliste.ts",
+     "subsidiaert: frister.some((f) => f.subsidiaert),",
+     "subsidiaert: frister[0]!.subsidiaert,",
+     "fristsvaret er subsidiært når bare én av to frister er subsidiær"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
