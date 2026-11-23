@@ -12,7 +12,7 @@ import { lagSakslinje } from './sakslinje';
 import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import { ApiError } from '#lib/api/client.ts';
-import type { Sakslinje } from '#lib/types/api.ts';
+import type { Sakslinje } from '#kjerne/utledning/visning.ts';
 import { sorter } from '#lib/components/varden/saksliste.ts';
 
 afterEach(cleanup);

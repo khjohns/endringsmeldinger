@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import type { Part } from '#kjerne/typer.ts';
-  import type { Sakslinje } from '#lib/types/api.ts';
+  import type { Sakslinje } from '#kjerne/utledning/visning.ts';
   import { Plus } from 'lucide-svelte';
   import { kroner } from '#kjerne/frosset/tekst.ts';
   import Knapp from './Knapp.svelte';

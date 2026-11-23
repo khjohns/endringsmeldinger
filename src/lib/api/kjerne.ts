@@ -6,6 +6,7 @@
 import { ApiError, apiFetch } from '#lib/api/client.ts';
 import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '#kjerne/typer.ts';
+import type { Fristtabellsvar } from '#kjerne/spor/frist/visning.ts';
 import type { Visning } from '#kjerne/utledning/visning.ts';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
@@ -122,25 +123,6 @@ async function medFristtabell(merking: Saksmerking, prosjektId: string): Promise
         }
       : {}),
   };
-}
-
-/**
- * En frist i fristtabellen slik serveren gir den, med dagene partene er enige om i sakene i
- * prosjektet (`Fristlinje` i `server/kontraktsfrister.ts`, KA-U77).
- */
-interface Fristlinje {
-  frist_id: number;
-  nummer: string | null;
-  navn: string;
-  dato: string;
-  dagmulktbelagt: boolean;
-  forlengelser: { sak_id: string; sakskode: Sakskode | null; dager: number }[];
-}
-
-/** Svaret fra fristtabellen (`fristtabellsvar` i `server/kontraktsfrister.ts`). */
-interface Fristtabellsvar {
-  frister: Fristlinje[];
-  saker_ikke_forstaatt: { sak_id: string }[];
 }
 
 /**

@@ -16,7 +16,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { sql, transaksjon, type Kontekst } from '../datalag.ts';
-import type { Sakslinje } from '../saksliste.ts';
+import type { Sakslinje } from '../../kjerne/utledning/visning.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
   kall,

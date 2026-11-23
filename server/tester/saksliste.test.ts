@@ -10,7 +10,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { transaksjon } from '../datalag.ts';
-import type { Sakslinje } from '../saksliste.ts';
+import type { Sakslinje } from '../../kjerne/utledning/visning.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
   PAABEROPELSE,

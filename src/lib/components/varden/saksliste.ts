@@ -3,7 +3,7 @@
  * viser bare det totalentreprenøren har krevd, og nøkkeltallene summerer kravene. Byggherrens
  * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
-import type { Sakslinje } from '#lib/types/api.ts';
+import type { Sakslinje } from '#kjerne/utledning/visning.ts';
 import {
   HOVEDKATEGORI_FRA_KATALOGEN,
   tilKatalogen,
