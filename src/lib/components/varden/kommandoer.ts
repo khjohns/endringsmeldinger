@@ -9,6 +9,7 @@ import { regnUtSvar } from '#kjerne/frosset/utregning.ts';
 import { hjemmelenGjelder, type Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
 import { UgyldigBeloep } from '#kjerne/regler/beloep.ts';
 import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
+import { stiltIKravposten, type SpoersmaalIKravposten } from '#kjerne/regler/vederlag.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import type { Krav, Kravpost, Oppgjoersform, Spor } from '#kjerne/typer.ts';
@@ -100,11 +101,15 @@ export const beloepsvalget = (p: Postvalg, post: Kravpost): Beloepsvalg | null =
   spoerOmBeloepet(p, post) ? p.beloep : null;
 
 /**
- * Skjemaet spør om kravet om tilbud når BH ikke godtar beregningsregelen (KA-U69, KA-U71). Valget
- * står likevel, så det er der igjen om BH endrer standpunktet til oppgjørsformen.
+ * Spørsmålene om oppgjørsformen kjernen stiller for kravposten med valgene så langt
+ * (`stiltIKravposten`, #2171). Et valg står likevel, så det er der igjen om BH endrer
+ * standpunktet til oppgjørsformen.
  */
-export const spoerOmTilbud = (p: Postvalg, post: Kravpost): boolean =>
-  etterRegel(post) && p.form !== 'godtar';
+export const stiltIPosten = (p: Postvalg, post: Kravpost): SpoersmaalIKravposten[] =>
+  stiltIKravposten(
+    { aksepterer: p.form === 'godtar' ? true : p.form !== null ? false : undefined },
+    post
+  );
 
 /**
  * Skjemaet spør om varselet etter § 34.3.3 for justerte enhetspriser, også subsidiært når BH ikke
@@ -135,7 +140,7 @@ export const definert = <T extends object>(felt: T): T =>
  */
 function kravpostsvaret(post: Kravpost, p: Postvalg) {
   const beloep = beloepsvalget(p, post);
-  const kreverTilbud = spoerOmTilbud(p, post) && p.kreverTilbud;
+  const kreverTilbud = stiltIPosten(p, post).includes('krever_tilbud') && p.kreverTilbud;
   const varslet = spoerOmVarselet(p, post) ? p.varsletITide : null;
   return definert({
     gjelder: post.id,

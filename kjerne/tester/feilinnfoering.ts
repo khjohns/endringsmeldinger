@@ -6443,6 +6443,19 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F761',
+    feilklasse:
+      'kjernen stiller spørsmålet om kravet om tilbud også når byggherren godtar beregningsregelen (KA-U71, #2171)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        "    ...(post.oppgjoersform !== 'tilbud' && p.aksepterer !== true",
+        "    ...(post.oppgjoersform !== 'tilbud'",
+      ],
+    ],
+    mal: ['et spørsmål om oppgjørsformen kjernen ikke stiller for kravposten'],
+  },
+  {
     id: 'F748',
     feilklasse:
       'lagene i vederlaget kaster for en kravpost uten oppgjørsformen byggherren mener (#2140)',

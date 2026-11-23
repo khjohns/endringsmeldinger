@@ -961,6 +961,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'regler/vederlag.ts:kontrollerOppgjoersformen',
       'regler/vederlag.ts:ubesvartIKravposten',
+      'regler/vederlag.ts:stiltIKravposten',
     ],
   ],
   // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
@@ -1171,6 +1172,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
   ['regler/vederlag.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform'],
+  // #2171: spørsmålene om oppgjørsformen for kravposten, gitt svaret så langt.
+  ['regler/vederlag.ts:stiltIKravposten', 'utsagn', 'aksepterer oppgjoersform'],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',

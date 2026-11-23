@@ -496,6 +496,38 @@ export function ubesvartIKravposten(
   ];
 }
 
+/** Et spørsmål om oppgjørsformen for en kravpost (`stiltIKravposten`). */
+export type SpoersmaalIKravposten =
+  | 'aksepterer'
+  | 'oensket_oppgjoersform'
+  | 'krever_tilbud'
+  | 'varslet_i_tide'
+  | 'godtar_justering';
+
+/**
+ * Spørsmålene om oppgjørsformen byggherren tar stilling til for kravposten, gitt svaret så langt
+ * (#2171): aksepten (§ 34.2.2, KA-U57 (d)), oppgjørsformen byggherren mener uten aksept
+ * (arbeidsvalget i #479), kravet om tilbud for en beregningsregel som ikke er godtatt (KA-U69,
+ * KA-U71), varselet etter § 34.3.3 og § 34.4 (KA-U64, VS-U56) og justeringen for justerte
+ * enhetspriser (KA-U68, VS-U56). Et svar på et spørsmål som ikke stilles, avviser
+ * `kontrollerOppgjoersformen`.
+ */
+export function stiltIKravposten(
+  p: { aksepterer?: unknown },
+  post: { oppgjoersform: Oppgjoersform; justert?: boolean }
+): SpoersmaalIKravposten[] {
+  const justert = justerteEnhetspriser(post);
+  return [
+    'aksepterer',
+    ...(p.aksepterer === false ? (['oensket_oppgjoersform'] as const) : []),
+    ...(post.oppgjoersform !== 'tilbud' && p.aksepterer !== true
+      ? (['krever_tilbud'] as const)
+      : []),
+    ...(post.oppgjoersform === 'regningsarbeid' || justert ? (['varslet_i_tide'] as const) : []),
+    ...(justert ? (['godtar_justering'] as const) : []),
+  ];
+}
+
 /**
  * Standpunktet til oppgjørsformen for kravposten `navn` (KA-U57 (d), KA-U54), kravet om tilbud
  * (KA-U69, KA-U71), varselet etter § 34.3.3 eller § 34.4 (KA-U64) og justeringen (KA-U68),

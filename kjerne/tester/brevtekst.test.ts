@@ -27,7 +27,11 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
-import { ubesvartIKravposten } from '../regler/vederlag.ts';
+import {
+  kontrollerOppgjoersformen,
+  stiltIKravposten,
+  ubesvartIKravposten,
+} from '../regler/vederlag.ts';
 import { harProduktivitetspost, kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
@@ -12534,6 +12538,54 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       'oensket_oppgjoersform',
     ]);
     expect(melding(s, 'vederlag', v)).toContain('P1.oensket_oppgjoersform: mangler');
+  });
+
+  it('vederlaget: et spørsmål om oppgjørsformen kjernen ikke stiller for kravposten, avviser kontrollen når det besvares, og et som stilles, godtar den (KA-U57 (d), KA-U64, KA-U68, KA-U69, KA-U71, VS-U56, #2171)', () => {
+    const poster = [
+      { oppgjoersform: 'tilbud' },
+      { oppgjoersform: 'enhetspriser' },
+      { oppgjoersform: 'enhetspriser', justert: true },
+      { oppgjoersform: 'regningsarbeid' },
+    ] as const;
+    /** Et gyldig svar på spørsmålet, med aksepten skjemaet sender sammen med det. */
+    const svaret = (felt: string, post: (typeof poster)[number], aksepterer?: boolean) =>
+      felt === 'oensket_oppgjoersform'
+        ? {
+            aksepterer,
+            oensket_oppgjoersform:
+              post.oppgjoersform === 'regningsarbeid' ? 'enhetspriser' : 'regningsarbeid',
+          }
+        : felt === 'krever_tilbud'
+          ? { aksepterer: aksepterer ?? false, krever_tilbud: true }
+          : { aksepterer, [felt]: felt === 'godtar_justering' };
+    const avvist = (p: Record<string, unknown>, post: (typeof poster)[number]) => {
+      try {
+        kontrollerOppgjoersformen('P', p, post);
+        return [];
+      } catch (e) {
+        return Object.keys((e as { feil: Record<string, string> }).feil);
+      }
+    };
+    for (const post of poster)
+      for (const aksepterer of [true, false, undefined])
+        for (const felt of [
+          'oensket_oppgjoersform',
+          'krever_tilbud',
+          'varslet_i_tide',
+          'godtar_justering',
+        ] as const)
+          expect(
+            avvist(svaret(felt, post, aksepterer), post).includes(`P.${felt}`),
+            `${JSON.stringify(post)} ${String(aksepterer)} ${felt}`
+          ).toBe(!stiltIKravposten({ aksepterer }, post).includes(felt));
+    expect(stiltIKravposten({ aksepterer: true }, { oppgjoersform: 'tilbud' })).toEqual([
+      'aksepterer',
+    ]);
+    expect(stiltIKravposten({}, { oppgjoersform: 'regningsarbeid' })).toEqual([
+      'aksepterer',
+      'krever_tilbud',
+      'varslet_i_tide',
+    ]);
   });
 
   const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
