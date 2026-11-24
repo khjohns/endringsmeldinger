@@ -118,13 +118,19 @@
     "F-MM-KORR1"
   ],
   "visninger": [
-    "demoruta"
+    "demoruta",
+    "saksruta"
   ],
   "endringer": [
     {
       "dato": "2026-11-05",
       "forhold": "#1308, MM-U51",
       "hva": "Forløpet er registrert som kjørbart, som varianten av BF-02A for en lukket sak."
+    },
+    {
+      "dato": "2026-11-24",
+      "forhold": "#2299",
+      "hva": "Forløpet kjøres i saksruta. Ingenting hindret det: `saksruta` var ikke ført i `visninger`."
     }
   ]
 }

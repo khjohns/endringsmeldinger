@@ -2551,6 +2551,28 @@ describe('aksepten (LV-U4 punkt 6)', () => {
     ]);
   });
 
+  it('aksepten av svaret på forholdet viser til påberopelsen av forholdet, ikke «grunnlaget» (LV-U41, #2029)', () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+    const rad = s.send('TE', {
+      type: 'aksept',
+      spor: 'forhold',
+      svar: s.u().spor.forhold.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren godtar byggherrens svar på påberopelsen av irregulær endring i brev K201-KOE-017-04 av 5. oktober 2026.',
+    ]);
+  });
+
   it('når svaret er subsidiært fordi forholdet er avslått, sier aksepten at TE ikke er enig i det (GR-U7)', () => {
     const s = sakMedKrav();
     s.send('BH', {
@@ -2575,7 +2597,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       regelversjon: KJERNE.regler.versjon,
     });
     expect(laast(rad)).toEqual([
-      'Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. Totalentreprenøren er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget.',
+      'Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. Totalentreprenøren er enig i antallet dager, men ikke i byggherrens standpunkt til forholdet.',
     ]);
   });
   it('godkjenner byggherren forholdet etter et subsidiært svar, leser aksepten saken når den sendes (GR-U1, arbeidsvalget om LV-U4 punkt 6)', () => {
