@@ -291,6 +291,7 @@
   "bevis_saker": [],
   "visninger": [
     "demoruta",
+    "saksruta",
     "varden"
   ],
   "endringer": [
@@ -328,6 +329,11 @@
       "dato": "2026-11-24",
       "forhold": "#2186",
       "hva": "Linja under hver handling i «Andre handlinger» er fjernet, unntatt ved trekket og forseringen (D3 A 24.11). Påminnelsen etter MM-U34 står i skjemaet og i «Når du sender», og sier ikke lenger at byggherren ikke er bundet av svaret."
+    },
+    {
+      "dato": "2026-11-24",
+      "forhold": "#2299",
+      "hva": "Forløpet kjøres i saksruta. Oppsettet i skriptet registrerer kontraktsfristene i `FRISTTABELLEN` fra kjøringen i minnet, i samme rekkefølge, så fristene forløpet viser til, har samme ID i basen. Akseptfristen settes som i BF-44 (#1998). Uten fristene avviste serveren fristkravet fordi fristen ikke var registrert for prosjektet."
     }
   ],
   "prototype": {

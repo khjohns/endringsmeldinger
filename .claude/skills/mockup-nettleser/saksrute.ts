@@ -5,8 +5,8 @@
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
- * 1. lager en migrert testbase og registrerer ett prosjekt med kontraktsteam for TE og BH,
- *    som `lagOppsett` i `server/tester/testbase.ts`. Registreringen er driftens
+ * 1. lager en migrert testbase og registrerer ett prosjekt med kontraktsteam for TE og BH og
+ *    kontraktsfristene i `FRISTTABELLEN`, som `lagOppsett` i `server/tester/testbase.ts`. Registreringen er driftens
  *    (`server/registrering.ts`); sesjoner, brukere og medlemskap lages ikke her;
  * 2. starter en falsk Catenda på 127.0.0.1 med to brukere, som innloggingen, medlemslistene
  *    og kontraktsteamene leses fra (OAuth, `/v2/user`, `/v2/projects`, `/members`, teamene);
@@ -44,7 +44,7 @@ import { opprettelse } from '../../../kjerne/kommandoer/opprettelse.ts';
 import type { Journalrad, Part, Sakskode } from '../../../kjerne/typer.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
 import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
-import { kjoer } from '../../../kjerne/tester/kjoerer.ts';
+import { FRISTTABELLEN, kjoer } from '../../../kjerne/tester/kjoerer.ts';
 import { vedleggI, type Kommando } from '../../../kjerne/kommandoer/kommando.ts';
 import { veggklokke } from '../../../kjerne/tester/testmiljoe.ts';
 import { erHverdag, erLoerdag } from '../../../kjerne/regler/hverdager.ts';
@@ -383,6 +383,33 @@ try {
       team_id: hex(team),
       contract_role: side,
     });
+  // Fristene i kjøringen i minnet, så en sak med fristkrav (BF-45) har de samme fristene i basen
+  // (#2299). Driften setter dem med samme prosedyre (`server/registrering.ts`), og den gir ID-ene
+  // i rekkefølgen de settes inn. Datoene og satsene er de i demoruta (`src/lib/kjernesak/demosak.ts`).
+  const datoer: Record<number, { dato: string; dagmulktbelagt: boolean }> = {
+    1: { dato: '2027-08-16', dagmulktbelagt: true },
+    2: { dato: '2027-06-01', dagmulktbelagt: false },
+  };
+  for (const frist of FRISTTABELLEN) {
+    const { dato, dagmulktbelagt } = datoer[frist.fristId]!;
+    const svar = await r()
+      .input('prosjekt', katalog.prosjekt)
+      .input('frist_id', null)
+      .input('nummer', frist.nummer)
+      .input('navn', frist.navn)
+      .input('dato', dato)
+      .input('dagmulktbelagt', dagmulktbelagt)
+      .input('satsgrunnlag', dagmulktbelagt ? 'fast_beloep' : null)
+      .input('promille', null)
+      .input('minstebeloep', null)
+      .input('delens_verdi', null)
+      .input('beloep_per_dag', dagmulktbelagt ? 1000 : null)
+      .execute<{ frist_id: number }>('koe_drift.sett_kontraktsfrist');
+    if (svar.recordset[0]!.frist_id !== frist.fristId)
+      throw new Error(
+        `Fristen «${frist.navn}» fikk ID ${svar.recordset[0]!.frist_id} i basen, ikke ${frist.fristId} som i FRISTTABELLEN`
+      );
+  }
   kjoeretid = await opprettKjoeretid(base);
 
   await new Promise<void>((ok) => falsk.listen(0, '127.0.0.1', ok));
