@@ -426,8 +426,9 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
  *
  * Radene står i `lesbart/`, i én fil per område i kjernen, og klassene i
  * `lesbart/klasse.ts`. Legger du til et felt reglene leser, klassifiserer du det i fila for
- * området det hører til. Hører det ikke til noen klasse, er det en oppsummering, og regelen
- * skal lese det feltet oppsummerer i stedet.
+ * området som leser det. Søk først etter eieren og feltet i alle filene: en rad uten `steder`
+ * tillater alle lesere, også der en annen rad har en begrensning. Hører feltet ikke til noen
+ * klasse, er det en oppsummering, og regelen skal lese det feltet oppsummerer i stedet.
  */
 const LESBART: Lesbar[] = [
   ...DOKUMENTENE,
