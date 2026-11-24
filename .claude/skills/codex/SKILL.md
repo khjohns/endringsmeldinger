@@ -158,3 +158,4 @@ postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.
+- Om `codex exec resume` virker etter en kjøring med `--ephemeral`, er ikke prøvd.
