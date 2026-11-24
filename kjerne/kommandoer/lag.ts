@@ -14,7 +14,9 @@ import type { Svarutkast } from './kommando.ts';
 
 /**
  * Lagene i et svarutkast i ett spor, med sporets egen type for lagene (`Utkastlag`). `sendt` er
- * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen (`lageneIUtkastet`).
+ * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Bare lagene fra forholdet
+ * leses på dagen (`lageneIUtkastet`); utkastet gjelder den gjeldende kravversjonen i sporet. Et
+ * svar lagt til på en eldre kravversjon har ingen forhåndsvisning ennå (#807).
  */
 export type Sporslag<L> = (
   utkast: Svarutkast,
