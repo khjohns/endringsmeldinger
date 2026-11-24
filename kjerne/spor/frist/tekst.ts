@@ -174,7 +174,7 @@ function foresporselenTil(gjelder: string, j: Journalen): string {
 }
 
 export const BREVTEKSTEN_I_FRISTEN = {
-  svaretGjelder: `kravet om ${KRAVET_OM}`,
+  svaretGjelder: () => `kravet om ${KRAVET_OM}`,
   krav: fristkravtekst,
   // KA-U33: kravet begrunner antallet dager.
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
