@@ -116,19 +116,13 @@ export function krevd(
     return {
       tekst: SAKSLISTE.varslet,
       tall: false,
-      dempet: !varselITallene(linje, spor, iEndringsordre),
+      // MM-U38: et varsel uten krav telles når kjernen sier at det står, utenfor en endringsordre.
+      dempet: iEndringsordre || !l.varselet_staar,
       utenFast: null,
       merknad,
     };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, utenFast: null, merknad: null };
 }
-
-/**
- * Et varsel uten krav telles for seg når kjernen sier at det står (`varselet_staar`) og saken ikke
- * inngår i en endringsordre (MM-U38). Ellers er det dempet i lista.
- */
-const varselITallene = (linje: Sakslinje, spor: 'vederlag' | 'frist', iEndringsordre: boolean) =>
-  linje[spor].varselet_staar && !iEndringsordre;
 
 export type Noekkeltall = {
   /** `utenBeloep` er krav etter regningsarbeid eller enhetspriser: ukjent er ikke 0 (OV-U43). */
@@ -157,9 +151,9 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
-    else if (varselITallene(l, 'vederlag', false)) n.vederlag.varslet += 1;
+    else if (v.varselet_staar) n.vederlag.varslet += 1;
     if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
-    else if (varselITallene(l, 'frist', false)) n.frist.varslet += 1;
+    else if (l.frist.varselet_staar) n.frist.varslet += 1;
   }
   return n;
 }

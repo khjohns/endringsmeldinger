@@ -6615,16 +6615,9 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F769',
-    feilklasse: 'et varsel i et trukket spor står og telles i sakslisten (MM-U38, #2277)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [['  harVarsel(u, spor) &&\n  !u.spor[spor].trukket &&', '  harVarsel(u, spor) &&']],
-    mal: ['et varsel uten krav står til sporet er trukket'],
-  },
-  {
-    id: 'F770',
     feilklasse: 'et varsel står når sporet har et krav (MM-U38, #2277)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['  u.spor[spor].gjeldendeKrav === null &&\n  harVarsel', '  harVarsel']],
+    endringer: [['u.spor[spor].gjeldendeKrav === null && harVarsel', 'harVarsel']],
     mal: ['et krav er ikke et varsel uten krav'],
   },
 ];

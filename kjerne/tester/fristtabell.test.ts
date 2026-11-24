@@ -22,14 +22,14 @@ describe('fristtabellsvaret', () => {
     dato,
     dagmulktbelagt: false,
   });
-  const TABELL = [frist(1, '2027-06-30'), frist(2, '2026-12-15')];
-  const KODE = { kode: 'koe' as const, loepenummer: 4 };
+  const tabell = [frist(1, '2027-06-30'), frist(2, '2026-12-15')];
+  const kode = { kode: 'koe' as const, loepenummer: 4 };
   const lest = (l: Partial<Forlengelsene>): Forlengelsene => ({
     tattMed: [],
     ikkeTattMed: [],
     ikkeForstaatt: [],
     sakskoder: new Map([
-      ['a', KODE],
+      ['a', kode],
       ['b', null],
       ['c', null],
     ]),
@@ -37,8 +37,8 @@ describe('fristtabellsvaret', () => {
   });
 
   it('KA-U77: datoen regnes med de avtalte dagene i alle sakene, frist for frist, og sakene nevnes', () => {
-    const { frister, saker_ikke_forstaatt } = fristtabellsvaret(
-      TABELL,
+    const { frister, saker_ikke_forstaatt: ikkeForstaatt } = fristtabellsvaret(
+      tabell,
       lest({
         tattMed: [
           { sakId: 'a', fristId: 1, dager: 3, grunnlag: 'avtalt' },
@@ -47,13 +47,13 @@ describe('fristtabellsvaret', () => {
         ],
       })
     );
-    expect(saker_ikke_forstaatt).toEqual([]);
+    expect(ikkeForstaatt).toEqual([]);
     expect(frister.map((f) => [f.frist_id, f.dato, f.dato_etter_forlengelsene])).toEqual([
       [1, '2027-06-30', '2027-07-05'],
       [2, '2026-12-15', '2026-12-20'],
     ]);
     expect(frister[0]!.forlengelser).toEqual([
-      { sak_id: 'a', sakskode: KODE, dager: 3 },
+      { sak_id: 'a', sakskode: kode, dager: 3 },
       { sak_id: 'b', sakskode: null, dager: 2 },
     ]);
     expect(frister[0]!.ikke_tatt_med).toEqual([]);
@@ -61,7 +61,7 @@ describe('fristtabellsvaret', () => {
 
   it('KA-U77, GR-U38: dager byggherren har godkjent uten enighet, og subsidiære dager, er ikke tatt med og nevnes med grunnen', () => {
     const { frister } = fristtabellsvaret(
-      TABELL,
+      tabell,
       lest({
         tattMed: [{ sakId: 'a', fristId: 1, dager: 3, grunnlag: 'godkjent' }],
         ikkeTattMed: [
@@ -74,7 +74,7 @@ describe('fristtabellsvaret', () => {
     expect(frister.map((f) => f.forlengelser)).toEqual([[], []]);
     expect(frister.map((f) => f.ikke_tatt_med)).toEqual([
       [
-        { sak_id: 'a', sakskode: KODE, dager: 3, grunnlag: 'godkjent' },
+        { sak_id: 'a', sakskode: kode, dager: 3, grunnlag: 'godkjent' },
         { sak_id: 'b', sakskode: null, dager: 4, grunnlag: 'subsidiaert_til_forholdet' },
       ],
       [{ sak_id: 'c', sakskode: null, dager: 6, grunnlag: 'subsidiaert_i_fristen' }],
@@ -82,16 +82,16 @@ describe('fristtabellsvaret', () => {
   });
 
   it('MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist og nevnes', () => {
-    const { frister, saker_ikke_forstaatt } = fristtabellsvaret(
-      TABELL,
+    const { frister, saker_ikke_forstaatt: ikkeForstaatt } = fristtabellsvaret(
+      tabell,
       lest({
         tattMed: [{ sakId: 'a', fristId: 1, dager: 3, grunnlag: 'avtalt' }],
         ikkeForstaatt: ['c'],
       })
     );
     expect(frister.map((f) => f.dato_etter_forlengelsene)).toEqual([null, null]);
-    expect(frister[0]!.forlengelser).toEqual([{ sak_id: 'a', sakskode: KODE, dager: 3 }]);
-    expect(saker_ikke_forstaatt).toEqual([{ sak_id: 'c', sakskode: null }]);
+    expect(frister[0]!.forlengelser).toEqual([{ sak_id: 'a', sakskode: kode, dager: 3 }]);
+    expect(ikkeForstaatt).toEqual([{ sak_id: 'c', sakskode: null }]);
   });
 });
 

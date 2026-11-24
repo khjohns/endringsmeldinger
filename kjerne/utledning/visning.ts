@@ -230,16 +230,12 @@ export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.forstaatt && u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
 
 /**
- * Et varsel uten krav i sporet står: saken er forstått og ikke avsluttet av TE, sporet har et
- * varsel og ikke noe krav, og det er ikke trukket. Nøkkeltallene i sakslisten teller det for seg
- * (MM-U38).
+ * Et varsel uten krav i sporet står: saken er forstått og ikke avsluttet av TE, og sporet har et
+ * varsel og ikke noe krav. Nøkkeltallene i sakslisten teller det for seg (MM-U38). Et spor uten
+ * krav kan ikke være trukket: bare et krav trekkes (`trukket` i `utled.ts`).
  */
 export const varseletStaar = (u: Utledning, spor: Kravspor): boolean =>
-  u.forstaatt &&
-  u.spor[spor].gjeldendeKrav === null &&
-  harVarsel(u, spor) &&
-  !u.spor[spor].trukket &&
-  !avsluttetAvTe(u);
+  u.forstaatt && u.spor[spor].gjeldendeKrav === null && harVarsel(u, spor) && !avsluttetAvTe(u);
 
 /**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge TE kan godta svaret

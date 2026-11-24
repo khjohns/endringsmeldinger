@@ -6,7 +6,7 @@
  * Satsen i kroner regnes her, ikke i kjernen.
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
-import { fristtabellsvaret } from '../kjerne/spor/frist/visning.ts';
+import { fristtabellsvaret, type FristIKontrakten } from '../kjerne/spor/frist/visning.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { tall, transaksjon, type Foresp } from './datalag.ts';
 import { lesForlengelsene } from './forlengelser.ts';
@@ -20,21 +20,8 @@ export type Satsopplysninger =
   | { grunnlag: 'delens_verdi'; promille: number; minstebeloep: number; delensVerdi: number }
   | { grunnlag: 'fast_beloep'; beloepPerDag: number };
 
-export interface Kontraktsfrist {
-  /**
-   * Fristens ID i prosjektet. Den endres ikke, og et krav viser til fristen med den. Den
-   * er en teknisk nøkkel og står ikke i brevet.
-   */
-  fristId: number;
-  /**
-   * Kontraktens nummer på fristen, eller `null` når kontrakten ikke nummererer den.
-   * Brevet viser fristen med nummeret og navnet (`betegnelsen` i `kjerne/spor/frist/format.ts`).
-   */
-  nummer: string | null;
-  navn: string;
-  /** `ÅÅÅÅ-MM-DD`. */
-  dato: string;
-  dagmulktbelagt: boolean;
+/** Fristen fra kontrakten (`FristIKontrakten`) med satsen for dagmulkten. */
+export interface Kontraktsfrist extends FristIKontrakten {
   /** `null` når fristen ikke er dagmulktbelagt, eller satsen ikke er registrert. */
   satsopplysninger: Satsopplysninger | null;
   /**

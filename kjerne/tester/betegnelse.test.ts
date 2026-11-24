@@ -428,7 +428,7 @@ describe('det sakslisten leser av kjernen (#1779)', () => {
     expect([harVarsel(u, 'frist'), harVarsel(u, 'vederlag')]).toEqual([true, false]);
   });
 
-  it('et varsel uten krav står til sporet er trukket eller TE har avsluttet saken, og et krav er ikke et varsel uten krav (MM-U38)', () => {
+  it('et varsel uten krav står til TE har avsluttet saken, og et krav er ikke et varsel uten krav (MM-U38)', () => {
     const varslet = utledet(paaberopelse, varselIFristen, foresporsel);
     expect([varseletStaar(varslet, 'frist'), varseletStaar(varslet, 'vederlag')]).toEqual([
       true,
@@ -437,7 +437,9 @@ describe('det sakslisten leser av kjernen (#1779)', () => {
     expect(varseletStaar(utledet(paaberopelse, varselIFristen, trekk('forhold')), 'frist')).toBe(
       false
     );
-    expect(varseletStaar(utledet(forloepA), 'frist'), 'kravet står').toBe(false);
+    const medKrav = utledet(paaberopelse, varselIFristen, fristkrav);
+    expect(harVarsel(medKrav, 'frist'), 'forutsetning').toBe(true);
+    expect(varseletStaar(medKrav, 'frist'), 'kravet står').toBe(false);
   });
 
   it('kravet og svaret har summen av de faste beløpene og antallet kravposter uten fast beløp (OV-U31, KA-U61, KA-U72, arbeidsvalget 12.11 i #1779)', () => {

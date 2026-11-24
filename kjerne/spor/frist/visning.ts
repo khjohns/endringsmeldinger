@@ -195,7 +195,15 @@ export interface Forlengelsene {
 
 /** En frist i fristtabellen fra kontrakten. */
 export interface FristIKontrakten {
+  /**
+   * Fristens ID i prosjektet. Den endres ikke, og et krav viser til fristen med den. Den
+   * er en teknisk nøkkel og står ikke i brevet.
+   */
   fristId: number;
+  /**
+   * Kontraktens nummer på fristen, eller `null` når kontrakten ikke nummererer den.
+   * Brevet viser fristen med nummeret og navnet (`betegnelsen` i `format.ts`).
+   */
   nummer: string | null;
   navn: string;
   /** `ÅÅÅÅ-MM-DD`. */
@@ -211,7 +219,7 @@ export interface FristIKontrakten {
 export const datoenEtterForlengelsene = (
   dato: string,
   fristId: number,
-  forlengelser: readonly (Pick<Forlengelse, 'fristId' | 'dager'> & { sakId: string })[],
+  forlengelser: readonly Pick<SakensForlengelse, 'fristId' | 'dager' | 'sakId'>[],
   ikkeForstaatt: readonly string[],
   utenom?: string
 ): string | null =>
