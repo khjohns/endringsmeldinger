@@ -14,7 +14,8 @@ den ikke kan avgjøre:
   DENY og REVOKE, INSERT, ALTER ROLE … ADD MEMBER og SET for sesjonsvalg;
 - ALTER TABLE … ADD: på en tabell fila lager, alt; ellers en kolonne som kan
   være NULL eller har DEFAULT, men ikke er beregnet og ikke har UNIQUE, PRIMARY
-  KEY eller CHECK, og en fremmednøkkel fra kolonner fila legger til uten DEFAULT;
+  KEY eller CHECK, og en fremmednøkkel fra kolonner fila legger til uten DEFAULT,
+  med NO ACTION som eneste referansehandling (svar A på spørsmål 8 i #1791);
 - ALTER SECURITY POLICY … ADD FILTER/BLOCK PREDICATE … ON en tabell fila lager.
 
 Utenfor modulene (prosedyre, funksjon, visning og trigger) skilles setningene
@@ -23,7 +24,11 @@ utenom ON DELETE og ON UPDATE i en tabell og AFTER og BEFORE i et blokkpredikat,
 og et ord i SETNINGSORD etter starten av en setning avvises som en ny setning.
 """
 
+import json
 import re
+import shutil
+import subprocess
+from pathlib import Path
 
 GO = re.compile(r"^[ \t\r]*GO[ \t\r]*$", re.IGNORECASE | re.MULTILINE)
 NAVN = r"(?:[A-Za-z_][\w$#@]*)(?:\.[A-Za-z_][\w$#@]*){0,2}"
@@ -56,50 +61,89 @@ GRANT = re.compile(
 )
 
 
-def _uten_kommentarer_og_tekster(tekst: str) -> str:
-    """Kommentarene fjernet, tekstene tomme ('') og navnene uten [] og "".
+# Ordene i T-SQL som regelen leser som nøkkelord: de reserverte og de formene over bruker.
+# Et navn i [] eller "" som er et av dem, leses som et navn og ikke som ordet.
+_NOEKKELORD = """
+ACTION ADD AFTER ALL ALTER AND ANY AS ASC AUTHORIZATION BACKUP BEFORE BEGIN BETWEEN BLOCK
+BREAK BROWSE BULK BY CASCADE CASE CHECK CHECKPOINT CLOSE CLUSTERED COALESCE COLLATE COLUMN
+COLUMN_SET COMMIT COMPUTE CONSTRAINT CONTAINS CONTAINSTABLE CONTINUE CONVERT CREATE CROSS
+CURRENT CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER CURSOR DATABASE DBCC
+DEALLOCATE DECLARE DEFAULT DELETE DENY DESC DISABLE DISK DISTINCT DISTRIBUTED DOUBLE DROP
+DROP_EXISTING DUMP ELSE ENABLE END ERRLVL ESCAPE EXCEPT EXEC EXECUTE EXISTS EXIT EXTERNAL
+FETCH FILE FILLFACTOR FILTER FOR FOREIGN FREETEXT FREETEXTTABLE FROM FULL FUNCTION GO GOTO
+GRANT GROUP HAVING HOLDLOCK IDENTITY IDENTITY_INSERT IDENTITYCOL IF IN INDEX INNER INSERT
+INSTEAD INTERSECT INTO IS JOIN KEY KILL LEFT LIKE LINENO LOAD MEMBER MERGE NATIONAL NO
+NOCHECK NOCOUNT NONCLUSTERED NOT NULL NULLIF OF OFF OFFSETS ON OPEN OPENDATASOURCE OPENQUERY
+OPENROWSET OPENXML OPTION OR ORDER OUTER OVER PERCENT PERIOD PERSISTED PIVOT PLAN POLICY
+PRECISION PREDICATE PRIMARY PRINT PROC PROCEDURE PUBLIC RAISERROR READ READTEXT RECONFIGURE
+REFERENCES REPLICATION RESTORE RESTRICT RETURN REVERT REVOKE RIGHT ROLE ROLLBACK ROWCOUNT
+ROWGUIDCOL RULE SAVE SCHEMA SECURITY SECURITYAUDIT SELECT SEQUENCE SESSION_USER SET SETUSER
+SHUTDOWN SOME SP_RENAME SPARSE STATE STATISTICS SYNONYM SYSTEM_USER TABLE TABLESAMPLE TEXTSIZE
+THEN TO TOP TRAN TRANSACTION TRIGGER TRUNCATE TRY_CONVERT TSEQUAL TYPE UNION UNIQUE UNPIVOT
+UPDATE UPDATETEXT USE USER VALUES VARYING VIEW WAITFOR WHEN WHERE WHILE WITH WITHIN
+WRITETEXT XACT_ABORT ANSI_NULLS QUOTED_IDENTIFIER
+"""
+NOEKKELORD = frozenset(_NOEKKELORD.split()) | {
+    o for m in (FORBUDT, SETNINGSORD) for o in re.findall(r"[A-Z_]+", m.pattern)}
+ENKELT_NAVN = re.compile(r"[A-Za-z_][\w$#@]*")
+ORDTEGN = re.compile(r"[\w$#@]")
+LESEREN = Path(__file__).resolve().parents[2] / "server" / "sqlleser.ts"
+# Exit-koden fra leseren for en tekst, et navn eller en kommentar som ikke er avsluttet.
+UAVSLUTTET = 3
+# Navnet leseren gir et navn i [] eller "" som ikke kan stå som det er. Fila kan ikke bruke det selv.
+EGET_NAVN = "_lest_navn_"
 
-    Et navn i [] eller "" som er et av ordene i FORBUDT eller SETNINGSORD, får _
-    foran, så en kolonne som heter [close], ikke leses som en ny setning.
+
+class Uleselig(Exception):
+    """Leseren kunne ikke dele teksten, som når en tekst ikke er avsluttet."""
+
+
+def _uten_kommentarer_og_tekster(tekst: str) -> str:
+    """Kommentarene fjernet, tekstene tomme ('') og hvert navn i [] eller "" som ett navn.
+
+    Teksten deles av leseren i `server/sqlleser.ts`, den samme som runneren deler
+    filene på GO med (#1093). Et navn i [] eller "" som er et enkelt navn og ikke et
+    nøkkelord, står som det er, så `[koe].[ny]` og `koe.ny` er samme tabell. Ellers blir
+    det et eget navn, likt for likt navn uten hensyn til store og små bokstaver: `[d x]`,
+    `[koe.hendelse]` og `[default]` er ett navn hver, og ikke to ord, en tabell i `koe`
+    eller DEFAULT.
+
+    :raises Uleselig: når leseren avviser teksten
     """
-    ut, i, n = [], 0, len(tekst)
-    while i < n:
-        c = tekst[i]
-        if tekst.startswith("--", i):
-            i = tekst.find("\n", i)
-            i = n if i < 0 else i
-        elif tekst.startswith("/*", i):
-            dybde, i = 1, i + 2
-            while i < n and dybde:
-                if tekst.startswith("/*", i):
-                    dybde, i = dybde + 1, i + 2
-                elif tekst.startswith("*/", i):
-                    dybde, i = dybde - 1, i + 2
-                else:
-                    i += 1
-            ut.append(" ")
-        elif c == "'":
-            i += 1
-            while i < n:
-                if tekst[i] == "'" and tekst.startswith("''", i):
-                    i += 2
-                elif tekst[i] == "'":
-                    break
-                else:
-                    i += 1
-            i += 1
-            ut.append("''")
-        elif c in '["':
-            slutt = "]" if c == "[" else '"'
-            j = tekst.find(slutt, i + 1)
-            j = n if j < 0 else j
-            navn = tekst[i + 1:j]
-            ut.append(f"_{navn}" if FORBUDT.fullmatch(navn) or SETNINGSORD.fullmatch(navn) else navn)
-            i = j + 1
+    node = shutil.which("node")
+    if node is None:
+        raise RuntimeError("Tilleggsregelen trenger Node for å lese SQL-en (server/sqlleser.ts)")
+    svar = subprocess.run([node, str(LESEREN)], input=tekst, capture_output=True, text=True, check=False,
+                          encoding="utf-8")
+    if svar.returncode == UAVSLUTTET:
+        raise Uleselig(svar.stderr.strip())
+    if svar.returncode != 0:
+        raise RuntimeError(f"Leseren for SQL feilet: {svar.stderr.strip()}")
+    deler = json.loads(svar.stdout)
+    if any(d["art"] == "kode" and EGET_NAVN in d["tekst"].lower() for d in deler):
+        raise Uleselig(f"navnet {EGET_NAVN}… er satt av til leseren")
+    egne: dict[str, str] = {}
+    ut = ""
+    etter_navn = False
+    for del_ in deler:
+        art, innhold = del_["art"], del_["tekst"]
+        if art == "kode":
+            stykke = innhold
+        elif art == "tekst":
+            stykke = "''"
+        elif art == "kommentar":
+            stykke = " "
+        elif ENKELT_NAVN.fullmatch(innhold) and innhold.upper() not in NOEKKELORD:
+            stykke = innhold
         else:
-            ut.append(c)
-            i += 1
-    return "".join(ut)
+            stykke = egne.setdefault(innhold.lower(), f"{EGET_NAVN}{len(egne) + 1}")
+        # Et navn inntil et ord er to ord: `DELETE[koe].[x]` er DELETE og koe.x.
+        if (art == "navn" or etter_navn) and ut and stykke and ORDTEGN.match(ut[-1]) \
+                and ORDTEGN.match(stykke[0]):
+            ut += " "
+        ut += stykke
+        etter_navn = art == "navn"
+    return ut
 
 
 def _navn(navn: str) -> str:
@@ -132,6 +176,8 @@ def _alter_table(setning: str, nye: set[str], kolonner: dict[str, dict[str, bool
     # Kolonnene fila legger til på tabellen, og om de har DEFAULT.
     lagt_til = kolonner.setdefault(tabell, {})
     for del_ in _deler(resten):
+        if re.search(r"\bON\s+(?:DELETE|UPDATE)\s+(?!NO\s+ACTION\b)", del_, re.IGNORECASE):
+            return f"en fremmednøkkel på {tabell} med en annen referansehandling enn NO ACTION"
         nokkel = re.match(r"^(?:CONSTRAINT\s+\w+\s+)?FOREIGN\s+KEY\s*\(([^)]*)\)", del_, re.IGNORECASE)
         if nokkel:
             fra = {_navn(k.strip()) for k in nokkel.group(1).split(",")}
@@ -213,7 +259,11 @@ def kontroller(tekst: str) -> list[str]:
     funn: list[str] = []
     nye: set[str] = set()
     kolonner: dict[str, dict[str, bool]] = {}
-    for sats in GO.split(_uten_kommentarer_og_tekster(tekst)):
+    try:
+        lest = _uten_kommentarer_og_tekster(tekst)
+    except Uleselig as feil:
+        return [f"teksten kan ikke leses: {feil}"]
+    for sats in GO.split(lest):
         sats = sats.strip()
         if not sats:
             continue

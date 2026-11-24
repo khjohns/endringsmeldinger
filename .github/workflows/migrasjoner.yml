@@ -32,6 +32,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Tilleggsregelen leser SQL-en med server/sqlleser.ts (#1093).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Leseren for SQL kjører med Node
+        run: |
+          node --version
+          printf '%s' "SELECT [a]]b]" | node server/sqlleser.ts
+
       - name: Kontroller migrasjonene mot basen
         env:
           BASEGREN: ${{ github.base_ref }}
