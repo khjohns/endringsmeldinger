@@ -371,7 +371,8 @@ describe('Sakslisten i Varden', () => {
 
   it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, og dempet og ikke telt når sporet er trukket (MM-U37, MM-U38)', () => {
     type Betegnelse = 'spesifisert_krav_etterspurt' | 'trukket' | null;
-    // Kjernen sier at varselet står når sporet har et varsel og ikke er trukket (`varseletStaar`).
+    // Lista leser `varselet_staar` fra serveren. Hvilke saker kjernen gir det, prøves i
+    // `kjerne/tester/betegnelse.test.ts` og `server/tester/sakslinje.test.ts`.
     const varsel = (betegnelse: Betegnelse, har_varsel = true) => ({
       ...ingenting,
       betegnelse,
