@@ -194,3 +194,23 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
     expect(document.getElementById(id)).not.toHaveAttribute('data-fra-lista');
   });
 });
+
+describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
+  it('standpunktene etter innsigelsen om varselet begynner med vilkåret i klarspråk, uten lagnavnet fra brevet', async () => {
+    await svarskjemaet(svikt);
+    await radio('Varslet for sent');
+    await godkjennHele();
+    const punktene = screen.getByRole('region', { name: 'Punktene i brevet' });
+    const linjer = [...punktene.querySelectorAll('.punktstatus')].map((p) =>
+      [...p.children].map((c) => c.textContent!.replaceAll('\u00a0', ' '))
+    );
+    const vilkaaret =
+      'Hvis innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem';
+    expect(linjer.slice(0, 3)).toEqual([
+      ['Du gjør gjeldende at varselet etter punkt 34.1.2 kom for sent'],
+      [vilkaaret, 'Du godkjenner oppgjørsformen totalentreprenøren krever'],
+      [vilkaaret, 'Vederlagsjustering: du godkjenner 250 000 kr av 250 000 kr'],
+    ]);
+    expect(punktene.textContent).not.toMatch(/Prinsipalt|Subsidiært/);
+  });
+});
