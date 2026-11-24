@@ -630,7 +630,7 @@ FEILINNFOERINGER = [
      "    henting = synkroniserKobling(db, { prosjekt, catendaProsjekt }, (c) => catenda.medlemmer(c))",
      "    henting = synkroniserKobling(db, { prosjekt, catendaProsjekt: (await prosjektkobling(db, prosjekt))! }, (c) => catenda.medlemmer(c))",
      "hentes listen fra koblingen som ble lest først"),
-    ("S162", "oppstarten kontrollerer ikke varselgrensen for medlemslisten (#2262)",
+    ("S162", "oppstarten kontrollerer ikke oppsettet for medlemslisten (#2262)",
      "server/start.ts",
      "  const ugyldig = ugyldigMedlemslisteoppsett();\n  if (ugyldig.length) {",
      "  const ugyldig = ugyldigMedlemslisteoppsett();\n  if (false) {",

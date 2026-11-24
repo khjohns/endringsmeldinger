@@ -31,7 +31,7 @@
  * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
- * - `AUTH_MEMBERSHIP_MAX_AGE_SECONDS` (60–3600, standard 900) er hvor gammel
+ * - `AUTH_MEMBERSHIP_MAX_AGE_SECONDS` (et heltall 60–3600, standard 900 når den er tom) er hvor gammel
  *   medlemslisten kan være før den hentes på nytt, og
  *   `AUTH_MEMBERSHIP_ALERT_AGE_SECONDS` (et positivt heltall, valgfri) alderen som gir
  *   driftsvarselet. En ugyldig verdi stopper oppstarten (#2262).
@@ -83,7 +83,7 @@ async function start(): Promise<void> {
 
   const ugyldig = ugyldigMedlemslisteoppsett();
   if (ugyldig.length) {
-    loggAdvarsel('Oppsettet for medlemslisten er ugyldig', { hindringer: ugyldig });
+    loggFeil('Oppsettet for medlemslisten er ugyldig', undefined, 'error', { hindringer: ugyldig });
     process.exitCode = 1;
     return;
   }

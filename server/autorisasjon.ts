@@ -195,8 +195,8 @@ export function sakerDetVisesTil(verdi: unknown): Set<string> {
 }
 
 function medlemskapsalder(): number {
-  const sekunder = Number(process.env.AUTH_MEMBERSHIP_MAX_AGE_SECONDS ?? '900');
-  if (!(sekunder >= 60 && sekunder <= 3600))
+  const sekunder = Number(process.env.AUTH_MEMBERSHIP_MAX_AGE_SECONDS || '900');
+  if (!(Number.isSafeInteger(sekunder) && sekunder >= 60 && sekunder <= 3600))
     throw new Error('Membership cache lifetime must be 60–3600 seconds');
   return sekunder;
 }

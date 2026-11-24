@@ -145,6 +145,7 @@ describe('oppstarten med en ugyldig verdi for medlemslisten (#2262)', () => {
     ['AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '1h'],
     ['AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', '0'],
     ['AUTH_MEMBERSHIP_MAX_AGE_SECONDS', '30'],
+    ['AUTH_MEMBERSHIP_MAX_AGE_SECONDS', '60.5'],
   ])(
     '%s=%s stopper oppstarten med navnet på variabelen, før tilkoblingen leses',
     async (navn, verdi) => {
@@ -159,6 +160,17 @@ describe('oppstarten med en ugyldig verdi for medlemslisten (#2262)', () => {
     },
     30_000
   );
+
+  // Kilde: `server/.env.example` setter begge til tom verdi, og standarden er 900 s.
+  it('tomme verdier, som i server/.env.example, går forbi kontrollen og stopper først på tilkoblingen', async () => {
+    const p = start(
+      skript,
+      rentMiljoe({ AUTH_MEMBERSHIP_ALERT_AGE_SECONDS: '', AUTH_MEMBERSHIP_MAX_AGE_SECONDS: '' })
+    );
+    expect((await p.avsluttet).kode).toBe(1);
+    expect(p.utdata()).toContain('KOE_DATALAG_TILKOBLING er ikke satt');
+    expect(p.utdata()).not.toContain('Oppsettet for medlemslisten');
+  }, 30_000);
 
   it('gyldige verdier går forbi kontrollen og stopper først på tilkoblingen', async () => {
     const p = start(
