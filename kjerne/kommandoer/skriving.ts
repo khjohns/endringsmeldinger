@@ -24,11 +24,12 @@ import { foresporselenKravetSvarerPaa } from '../spor/frist/utledning.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
-import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
+import { forbeholdetBestrider, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
 import {
   BrevetAvvises,
   KanIkkeUttrykkes,
   UtdypningUtenPunkt,
+  type Saken,
   type Utdypning,
 } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
@@ -889,43 +890,42 @@ function brevtekstFor(
   const sak = lest.find((h) => h.art === 'sak');
   if (sak?.art !== 'sak') throw new Skrivefeil('Saken har ingen tittel å sette i brevteksten.');
   try {
-    const tekst = lagBrevtekst(
-      ny.dokument,
-      lest,
-      {
-        sakskode,
-        tittel: sak.tittel,
-        svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
-        utenVirkning: u.utenVirkning.map((x) => x.element),
-        datoopplysninger: u.datoopplysninger,
-        subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
-        avklartVedFrafall: u.frafalt,
-        kravpostvarsler: Object.fromEntries(
-          ny.dokument.krav.flatMap((k) =>
-            Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
-          )
-        ),
-        // Varslene for sporene brevet har krav i, som kravteksten viser til.
-        varsletFoer: Object.fromEntries(
-          (['33.4', '34.1.2', '34.1.3'] as const)
-            .filter((h) => ny.dokument.krav.some((k) => k.spor === VARSELSPOR[h]))
-            .flatMap((h) => {
-              const varsel = varseletFoerBrevet(u, h);
-              return varsel === undefined ? [] : [[h, varsel]];
-            })
-        ),
-        paaberopelse:
-          ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,
-      },
-      kjerne.regler,
-      utdypninger
-    );
+    const saken: Saken = {
+      sakskode,
+      tittel: sak.tittel,
+      svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
+      utenVirkning: u.utenVirkning.map((x) => x.element),
+      datoopplysninger: u.datoopplysninger,
+      subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
+      avklartVedFrafall: u.frafalt,
+      kravpostvarsler: Object.fromEntries(
+        ny.dokument.krav.flatMap((k) =>
+          Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
+        )
+      ),
+      // Varslene for sporene brevet har krav i, som kravteksten viser til.
+      varsletFoer: Object.fromEntries(
+        (['33.4', '34.1.2', '34.1.3'] as const)
+          .filter((h) => ny.dokument.krav.some((k) => k.spor === VARSELSPOR[h]))
+          .flatMap((h) => {
+            const varsel = varseletFoerBrevet(u, h);
+            return varsel === undefined ? [] : [[h, varsel]];
+          })
+      ),
+      paaberopelse:
+        ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,
+    };
+    const tekst = lagBrevtekst(ny.dokument, lest, saken, kjerne.regler, utdypninger);
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
     const tittel = lagBrevtittel(ny.dokument);
     return {
       tekst,
       tittel: tittel && medSakskode(tittel, sakskode),
-      deresRef: lagDeresRef(ny.dokument, lest),
+      deresRef: lagDeresRef(
+        ny.dokument,
+        lest,
+        forbeholdetBestrider(ny.dokument, lest, saken, kjerne.regler)
+      ),
     };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
