@@ -113,9 +113,7 @@ export interface Visning {
   /**
    * OV-U44: hva vurderingen bygger på, som hendelsene med hver kilde som ikke er rettet.
    * Rettingen etter OV-U18 står ikke der, som en rettet registrering (svar 2B 30.10 i
-   * #1045). Et brev sendt herfra med partens opplysning om et varsel (HF-U1) står også
-   * under partenes opplysninger (svar 3A), men ikke mens saken ikke er forstått (MM-U2,
-   * OV-U21). Vurderingen bygger på dem som er sendt herfra
+   * #1045). Vurderingen bygger på dem som er sendt herfra
    * og partenes opplysninger, ikke på dokumentasjonen. Ordlyden står i visningen, og den
    * sier alltid at oversikten ikke er fullstendig (arbeidsvalget 26.10 i #1045, punkt 2).
    */
@@ -574,12 +572,6 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     const d = dokumenter.get(j.hendelse);
     if (!j.kilde || j.rettet || d?.ikkeISaken) continue;
     vurderingsgrunnlag[j.kilde].push(j.hendelse);
-    if (
-      u.forstaatt &&
-      j.kilde === 'sendt_herfra' &&
-      d?.opplysninger.some((o) => 'gjelder' in o && o.gjelder !== undefined)
-    )
-      vurderingsgrunnlag.partens_opplysning.push(j.hendelse);
   }
   return {
     status: kode && { kode, tekst: statustekst(u, kode) },

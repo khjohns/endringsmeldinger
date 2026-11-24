@@ -875,6 +875,37 @@ describe('datoene for et registrert krav og varselet i det', () => {
     expect(await ny('2026-09-02')).toBe('VARSEL_REGISTRERT');
     expect(await ny('2026-09-02', true)).toMatch(/kan ikke leses som en dato/);
   });
+
+  it('i et brev fra løsningen gjør datoen for varselet i samme brev saken ikke forstått, for varselet står i et eget registrert brev (VS-U34, C1 i #2056, #2070)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['godkjent_forhold']);
+    const journal = await bane.journal();
+    const siste = journal.at(-1)!;
+    const varsel = randomUUID();
+    const rad: Journalrad = {
+      ...siste,
+      event_id: randomUUID(),
+      event_type: 'dokument_registrert',
+      versjon: siste.versjon + 1,
+      aktor_rolle: 'TE',
+      data: {
+        krav: [
+          {
+            id: randomUUID(),
+            spor: 'frist',
+            frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }],
+          },
+        ],
+        utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-02', gjelder: varsel }],
+      },
+    };
+    expect(grunner([...journal, rad])).toContainEqual(
+      expect.stringContaining(
+        'datoen for et varsel står i et eget registrert brev, ikke i et brev fra løsningen (VS-U34)'
+      )
+    );
+  });
 });
 
 /** Bare TE krever, varsler, godtar og trekker, og bare BH svarer (code-review av #308). */

@@ -1032,7 +1032,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       paaberopelse: null,
     };
     expect(() => lagBrevtekst(dokument, [], saken, KJERNE.regler)).toThrow(
-      'et varsel i et brev fra appen har datoen det ble sendt'
+      'et varsel i et brev fra løsningen står alene i brevet (VS-U15)'
     );
   });
 

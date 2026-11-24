@@ -542,9 +542,15 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt('dokumentet har spor, men er ikke dokumentasjon (OV-U16)');
   else if (data.beskrivelse !== undefined && !erRegistrert(dokument.opplysninger))
     throw new Uforstaatt('beskrivelsen står bare i registrert korrespondanse (OV-U79)');
-  // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
+  // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme registrerte dokument. Et
+  // varsel sendt før et krav fra løsningen står i et eget registrert brev (VS-U34, C1 i #2056).
+  const registrert = erRegistrert(dokument.opplysninger);
   for (const o of dokument.opplysninger)
-    if (
+    if (o.hva !== 'endringsordre' && o.gjelder !== undefined && !registrert)
+      throw new Uforstaatt(
+        'datoen for et varsel står i et eget registrert brev, ikke i et brev fra løsningen (VS-U34)'
+      );
+    else if (
       o.hva !== 'endringsordre' &&
       o.gjelder !== undefined &&
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)

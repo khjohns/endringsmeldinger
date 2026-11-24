@@ -209,11 +209,7 @@ export function lagBrevtekst(
       FORBEHOLDSPUNKTET
     );
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
-  for (const o of nytt.opplysninger) {
-    // Datoen for et varsel står i avsnittet for varselet.
-    if (erDato(o) && o.gjelder !== undefined) continue;
-    legg(o.id, opplysningstekst(o, nytt.avsender, j));
-  }
+  for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
   // A4: vedleggene står i teksten med filnavnet, så det som fryses, er teksten og
   // vedleggene (LV-U2, arbeidsvalg 10 i #790).
   if (nytt.dokumentasjon.length)
@@ -816,7 +812,7 @@ const VIL_KREVE: Record<Kravvarselhjemmel, string> = {
   '34.4': 'oppgjør som regningsarbeid',
 };
 
-/** Hjemmelen for varselet en datoopplysning gjelder (HF-U1). */
+/** Hjemmelen for varselet en datoopplysning i et registrert brev gjelder (HF-U1). */
 function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
   const e = j.element(id);
   if (e.art === 'utsagn' && e.utsagn.art === 'varsel') return e.utsagn.hjemmel;
@@ -830,14 +826,11 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
   switch (u.art) {
     case 'varsel': {
       const hjemmel = uttrykkbar(u.hjemmel);
-      const dato = nytt.opplysninger.find((o) => erDato(o) && o.gjelder === u.id);
-      // VS-U15: et brev med bare varselet, uten en dato for det, er selve varselet.
-      // LV-U19: varselet etter § 34.1.2 har samme form.
-      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
+      // VS-U15: et brev med bare varselet er selve varselet. LV-U19: varselet etter § 34.1.2 har
+      // samme form. Et varsel sendt før kravet står i et eget registrert brev (VS-U34).
+      if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
         return `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
-      if (dato?.hva !== 'sendt')
-        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
-      return `Totalentreprenøren opplyser at varsel ${VARSEL_OM[hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
+      throw new KanIkkeUttrykkes('et varsel i et brev fra løsningen står alene i brevet (VS-U15)');
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
