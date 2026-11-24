@@ -63,7 +63,8 @@ const TABELLEN: Fristtabellen = {
         { sakId: 'annen', sakskode: { kode: 'koe', loepenummer: 9 }, dager: 10 },
         { sakId: 'denne', sakskode: { kode: 'koe', loepenummer: 17 }, dager: 14 },
       ],
-      // Lesepunktet regner datoen med kjernen, uten dagene i saken selv.
+      // Lesepunktet regner datoen med kjernen, uten dagene i saken selv. Utregningen prøves i
+      // `kjerne/tester/fristtabell.test.ts` og gjennom lesepunktet i `Fristkrav.test.ts`.
       gjeldende: '2027-08-26',
     },
     {
@@ -149,7 +150,7 @@ describe('Målestokken for dagene (U-2)', () => {
 });
 
 describe('Gjeldende frist og ny frist (U-5, D-9, KA-U77)', () => {
-  it('gjeldende frist har forlengelsene i andre saker, ikke i saken selv, og ny frist regnes fra den', () => {
+  it('gjeldende frist er datoen fra lesepunktet, med forlengelsene i andre saker og ikke i saken selv, og ny frist regnes fra den', () => {
     const g = gjeldendeFrist(1, TABELLEN);
     expect(g).toEqual({
       art: 'kjent',

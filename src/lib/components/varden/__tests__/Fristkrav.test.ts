@@ -615,6 +615,14 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       ]);
     });
 
+    it('saken selv i sakene kjernen ikke forstår, gjør ikke gjeldende frist ukjent (MM-U2, KA-U77)', async () => {
+      await kravskjemaet(medGrunnlag, FORLENGET, [SAK]);
+      await fireEvent.click(
+        screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse · 11. mars 2027' })
+      );
+      expect(screen.getByText(/^Gjeldende frist er 11\. mars 2027/)).toBeInTheDocument();
+    });
+
     it('en annen sak kjernen ikke forstår, gjør gjeldende frist ukjent, og skjemaet viser ingen ny dato (MM-U2)', async () => {
       await kravskjemaet(medGrunnlag, FORLENGET, ['sak-b']);
       await fireEvent.click(

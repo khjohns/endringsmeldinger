@@ -423,8 +423,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     /**
      * Datoen og dagmulkten for fristene i tabellen, med gjeldende frist uten dagene i denne saken
-     * regnet av kjernen (`datoenEtterForlengelsene`, KA-U77, HF-U5, MM-U2). Tom når serveren ikke
-     * gir dem (demoruta).
+     * regnet av kjernen (`datoenEtterForlengelsene`, KA-U77, HF-U5, MM-U2). Tom når merkingen ikke
+     * har dem.
      */
     get fristdatoer(): readonly GjeldendeFristdato[] {
       const ikkeForstaatt = sak?.merking?.sakerIkkeForstaatt ?? [];
