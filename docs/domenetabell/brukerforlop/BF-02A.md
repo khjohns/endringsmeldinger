@@ -134,7 +134,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **G-4** Testklienten setter alltid datoen 15.09.2026 i grunnlagskravet
   (`kjerne/tester/klient.ts`). BF-02C kan derfor ikke vise en godtatt ny versjon med den
   korrigerte datoen, bare avvisningen. Teksten etter LV-U56 er prøvd i
-  `kjerne/tester/brevtekst.test.ts`.
+  `kjerne/tester/varslene.test.ts`.
 - **G-8** Kommandoen `korrigering` har forklaringen i `utdypning` (S-1, #1624).
 - **G-6** Brevet med korrigeringen har tittelen etter S-2 i `UTSAGNSTITTEL` i
   `kjerne/frosset/brevtittel.ts` (#1624).
