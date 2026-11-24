@@ -6220,7 +6220,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlaget og fristen gir et felt for begrunnelsen av forholdet fra et tidligere svar (#2145, LV-U41, MM-U50)',
     fil: `${K}/frosset/tekst.ts`,
-    endringer: [['FORBEHOLDET, FORHOLDET]);', 'FORBEHOLDET]);']],
+    endringer: [['[INNLEDNINGEN, OVERSIKTEN, FORHOLDET];', '[INNLEDNINGEN, OVERSIKTEN];']],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
   },
   {
@@ -6230,8 +6230,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))',
-        '    if (perPunkt[FORHOLDET] && false)',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && perPunkt[p.punkt])',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && false)',
       ],
     ],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
@@ -6837,6 +6837,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['const gjentatt = foer && !foer.iTide && !p.iTide;', 'const gjentatt = false;']],
     mal: ['brevet som gjentar innsigelsen mot varselet for kravposten, viser til brevet'],
+  },
+  {
+    id: 'F790',
+    feilklasse:
+      'en utdypning for innledningen eller oversikten i svaret godtas og står under punktet (LV-U71, #2153)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['      UTEN_BEGRUNNELSE_I_SVARET', '      [FORHOLDET]']],
+    mal: ['i svaret avvises, fordi skjemaet ikke har noe felt for den'],
   },
 ];
 /** En kopi av arbeidstreet. */

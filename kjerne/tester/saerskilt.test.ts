@@ -355,6 +355,40 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     );
   });
 
+  it.each([
+    ['innledningen', 'innledning', 'Innledningen'],
+    ['oversikten', 'oversikt', 'Oversikt'],
+  ])(
+    'en utdypning for %s i svaret avvises, fordi skjemaet ikke har noe felt for den (LV-U71, #2153)',
+    (_n, punkt, overskrift) => {
+      const s = sakMedPost();
+      const svaret = (utdypninger: Record<string, string>) => ({
+        type: 'brev',
+        svar: [
+          {
+            ...svar(
+              'vederlag',
+              s.krav('vederlag'),
+              { ...postene, ...begrenset },
+              { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+            ),
+            utdypninger,
+          },
+        ],
+      });
+      expect(s.avvisning('BH', svaret({ [punkt]: 'Byggherrens tekst.' }))?.melding).toBe(
+        `Punktet «${overskrift}» i brevet har ingen begrunnelse.`
+      );
+      // Kontrollsak: punktet står i brevet, og en utdypning for kravposten står under den.
+      const rad = s.send('BH', svaret({ P1: 'Byggherrens tekst.' }));
+      const avsnittene = rad.data.brevtekst as Avsnitt[];
+      expect(avsnittene.map((a) => a.punkt)).toContain(punkt);
+      const medUtdypning = avsnittene.filter((a) => a.utdypning).map((a) => a.punkt);
+      expect(medUtdypning).toContain('P1');
+      expect(medUtdypning).not.toContain(punkt);
+    }
+  );
+
   it('nøkler til postene som ikke svarer til radene i tabellen, eller står i et annet avsnitt, gjør saken ikke forstått (MM-U2, svaret 16.11 i #1997)', () => {
     const s = sakMedPost();
     const rad = brevet(

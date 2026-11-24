@@ -63,6 +63,7 @@ import {
   kroner,
   medHardeMellomrom,
   OVERSIKTEN,
+  UTEN_BEGRUNNELSE_I_SVARET,
 } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
@@ -133,7 +134,8 @@ export function lagBrevtekst(
   const leggPunkter = (
     gjelder: string,
     brevpunkter: Brevpunkt[],
-    egen?: { punkt: string; overskrift: string }
+    egen?: { punkt: string; overskrift: string },
+    utenBegrunnelse: readonly string[] = []
   ) => {
     if (!brevpunkter.some((p) => p.punkt !== undefined))
       return legg(gjelder, brevpunkter.flatMap((p) => p.avsnitt).join('\n\n'));
@@ -155,9 +157,11 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET] = forbehold;
     }
-    // #2145 (LV-U41, MM-U50): punktet med forholdet tar ingen utdypning.
-    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))
-      throw new UtdypningUtenPunkt('Punktet «Forholdet» i brevet har ingen begrunnelse.');
+    for (const p of brevpunkter)
+      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && perPunkt[p.punkt])
+        throw new UtdypningUtenPunkt(
+          `Punktet «${p.punkt === INNLEDNINGEN ? 'Innledningen' : p.overskrift}» i brevet har ingen begrunnelse.`
+        );
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
     if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
       throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
@@ -206,7 +210,8 @@ export function lagBrevtekst(
     leggPunkter(
       s.id,
       svarpunkter(s, t, regler, { foer: nummer, nummerert, ns }),
-      FORBEHOLDSPUNKTET
+      FORBEHOLDSPUNKTET,
+      UTEN_BEGRUNNELSE_I_SVARET
     );
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
   for (const o of nytt.opplysninger) {
