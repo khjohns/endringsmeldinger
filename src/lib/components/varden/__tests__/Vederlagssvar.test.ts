@@ -10,6 +10,8 @@ import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
+import { regnUtSvar } from '#kjerne/frosset/utregning.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import {
   MERKING,
   SAK,
@@ -212,5 +214,115 @@ describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
       [vilkaaret, 'Vederlagsjustering: du godkjenner 250 000 kr av 250 000 kr'],
     ]);
     expect(punktene.textContent).not.toMatch(/Prinsipalt|Subsidiært/);
+  });
+});
+
+describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 punkt 9, 10 og 12, #2177, #2309)', () => {
+  /**
+   * Byggherren har gjort gjeldende i brev 3 at varselet for kravposten kom for sent, og
+   * totalentreprenøren har sendt et nytt krav med samme kravpost.
+   */
+  const etterInnsigelsen = (post: Record<string, unknown>, svaret: Record<string, unknown>) => {
+    const krav = (id?: string) => ({
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { kravposter: [{ ...(id ? { id } : {}), beskrivelse: 'Pumping', ...post }] },
+      utdypning: 'Kravet.',
+    });
+    const medKrav = skrevet(medGrunnlag, 'TE', krav());
+    const u = utledJournal(medKrav, KJERNE);
+    const k = u.spor.vederlag.gjeldendeKrav!;
+    const id = kravposterI(k)[0]!.id;
+    const vurderinger = { kravposter: [{ gjelder: id, ...svaret }] };
+    const r = regnUtSvar(
+      'vederlag',
+      vurderinger,
+      { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
+      KJERNE.regler
+    );
+    const medSvaret = skrevet(medKrav, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'vederlag',
+          gjelder: k.id,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger,
+          resultat: { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep },
+        },
+      ],
+    });
+    return skrevet(medSvaret, 'TE', krav(id));
+  };
+  const regning = { oppgjoersform: 'regningsarbeid' };
+  const justert = { oppgjoersform: 'enhetspriser', justert: true };
+  const varselet = () => document.querySelector('[id$="-varsel-P1-standpunkt"]')?.textContent;
+  const postvurderingen = (sendt: TilBrevkontrollen[]) =>
+    (vurderingen(sendt).kravposter as Record<string, unknown>[])[0];
+
+  it('etter punkt 34.4 sier skjemaet at innsigelsen står, og svaret gjentar den', async () => {
+    const sendt = await svarskjemaet(
+      etterInnsigelsen(regning, { aksepterer: true, varslet_i_tide: false })
+    );
+    expect(varselet()).toContain(
+      'Du har gjort gjeldende i brev 3 at varselet ikke ble gitt eller kom for sent. Svaret gjentar innsigelsen.'
+    );
+    expect(screen.queryByText('Ingen innsigelse.')).toBeNull();
+    await radio('Godtar regningsarbeid (punkt 34.4)');
+    await seBrevet();
+    expect(postvurderingen(sendt)).toMatchObject({ varslet_i_tide: false });
+  });
+
+  it('etter punkt 34.4 kan byggherren gi opp innsigelsen, og svaret sier «i tide»', async () => {
+    const sendt = await svarskjemaet(
+      etterInnsigelsen(regning, { aksepterer: true, varslet_i_tide: false })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    expect(varselet()).toContain('Du gir opp innsigelsen.');
+    await radio('Godtar regningsarbeid (punkt 34.4)');
+    await seBrevet();
+    expect(postvurderingen(sendt)).toMatchObject({ varslet_i_tide: true });
+  });
+
+  it('etter punkt 34.4 uten en innsigelse fra før er skjemaet som før (kontrollsak)', async () => {
+    await svarskjemaet(etterInnsigelsen(regning, { aksepterer: true }));
+    expect(varselet()).toContain('Ingen innsigelse.');
+    expect(screen.queryByRole('button', { name: 'Gi opp innsigelsen' })).toBeNull();
+  });
+
+  it('etter punkt 34.3.3 står innsigelsen som en setning, ikke som valg uten forhåndsvalg', async () => {
+    const sendt = await svarskjemaet(
+      etterInnsigelsen(justert, {
+        aksepterer: true,
+        varslet_i_tide: false,
+        godtar_justering: true,
+      })
+    );
+    expect(
+      screen.queryByRole('group', {
+        name: 'Valgfri Varselet om justering av enhetsprisene (punkt 34.3.3)',
+      })
+    ).toBeNull();
+    expect(varselet()).toContain(
+      'Du har gjort gjeldende i brev 3 at varselet kom for sent. Svaret gjentar innsigelsen.'
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    await radio('Godtar enhetspriser (punkt 34.3)');
+    await radio('Godtar justeringen');
+    await seBrevet();
+    expect(postvurderingen(sendt)).toMatchObject({ varslet_i_tide: true });
+  });
+
+  it('etter punkt 34.3.3 etter «i tide» er valget som før, med det tidligere standpunktet som hjelpetekst', async () => {
+    await svarskjemaet(
+      etterInnsigelsen(justert, {
+        aksepterer: true,
+        varslet_i_tide: true,
+        godtar_justering: true,
+      })
+    );
+    expect(screen.getByText('Du har sagt i brev 3 at varselet kom i tide.')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Kom i tide' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
   });
 });

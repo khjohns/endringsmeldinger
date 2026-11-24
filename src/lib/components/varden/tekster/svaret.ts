@@ -58,6 +58,16 @@ export const SKJEMA = haerdet({
   ikkeGittEllerForSent: 'Du gjør gjeldende at varselet ikke ble gitt eller kom for sent.',
   gjoerGjeldendeVarsel: 'Varselet ble ikke gitt eller kom for sent',
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
+  // VS-U77 punkt 9, 10, 30 og 31: innsigelsen mot varselet for kravposten står fra et tidligere svar.
+  varselJustering: 'Varselet om justering av enhetsprisene (punkt 34.3.3).',
+  innsigelsenStaar: (b: Brevref, hjemmel: '34.3.3' | '34.4') =>
+    `Du har gjort gjeldende i ${brevref(b)} at varselet ${hjemmel === '34.4' ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}.`,
+  gjentarInnsigelsen: 'Svaret gjentar innsigelsen.',
+  girOppInnsigelsen: 'Du gir opp innsigelsen.',
+  girOppInnsigelsenKnapp: 'Gi opp innsigelsen',
+  gjentaInnsigelsenKnapp: 'Gjenta innsigelsen',
+  // VS-U77 punkt 8 og 30: «i tide» står mot senere kravversjoner.
+  varseletITideFoer: (b: Brevref) => `Du har sagt i ${brevref(b)} at varselet kom i tide.`,
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
   godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',

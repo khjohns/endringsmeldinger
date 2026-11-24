@@ -18,6 +18,11 @@ import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import {
+  standpunkteneTilVarslene,
+  type StandpunktTilVarselet,
+} from '#kjerne/spor/vederlag/kommando.ts';
+import { varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -40,8 +45,8 @@ export interface Postvalg {
   /** Kravet om spesifisert tilbud for en kravpost etter en beregningsregel (KA-U69, KA-U71). */
   kreverTilbud: boolean;
   /**
-   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). For § 34.4
-   * brukes bare `false` (VS-U63).
+   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). For § 34.4 er
+   * `true` bare oppgivelsen av en innsigelse som står (VS-U63, `varseletFoer`).
    */
   varsletITide: boolean | null;
   /** Om BH godtar justeringen av enhetsprisene etter § 34.3.2 (KA-U68). */
@@ -49,7 +54,7 @@ export interface Postvalg {
 }
 
 /**
- * Det BH har valgt i skjemaet. `null` er ikke besvart; ingenting er forhåndsvalgt. Svaret på
+ * Det BH har valgt i skjemaet. `null` er ikke besvart. Bare en innsigelse mot varselet for en kravpost som står, er forhåndsvalgt (`nyPost`). Svaret på
  * hver kravpost står under betegnelsen, som er unik i kravet (KA-U53).
  */
 export interface Svarvalg {
@@ -75,6 +80,27 @@ export const tomtSvar = (): Svarvalg => ({
   poster: {},
   begrunnelser: {},
   forbehold: '',
+});
+
+/**
+ * Byggherrens siste standpunkt til varselet kravposten trenger, i svarene før dette, slik kjernen
+ * leser det (`standpunkteneTilVarslene`, VS-U77 punkt 8–12), eller `null`.
+ */
+export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarselet | null => {
+  const hjemmel = varselhjemmel(post);
+  return (
+    standpunkteneTilVarslene(u, null).find((x) => x.gjelder === post.id && x.hjemmel === hjemmel) ??
+    null
+  );
+};
+
+/**
+ * Valgene for en kravpost skjemaet ikke har valg for ennå. Står byggherrens innsigelse mot
+ * varselet for posten, gjentar svaret den som utgangspunkt (VS-U77 punkt 9).
+ */
+export const nyPost = (u: Utledning, post: Kravpost): Postvalg => ({
+  ...tomPost(),
+  varsletITide: varseletFoer(u, post)?.iTide === false ? false : null,
 });
 
 /** Valgene for kravposten med betegnelsen, eller en ubesvart post. */
@@ -149,11 +175,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
     aksepterer: p.form === 'godtar' ? true : p.form !== null || kreverTilbud ? false : undefined,
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
-    // VS-U63.
-    varslet_i_tide:
-      varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
-        ? undefined
-        : varslet,
+    varslet_i_tide: varslet ?? undefined,
     godtar_justering: stilt.includes('godtar_justering')
       ? (p.godtarJustering ?? undefined)
       : undefined,

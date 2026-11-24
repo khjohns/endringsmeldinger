@@ -30,13 +30,14 @@
   import {
     beloepsvalget,
     etterRegel,
+    nyPost,
     postvalget,
     regelen,
     spoerOmBeloepet,
     spoerOmHovedvarselet,
     stiltIPosten,
-    tomPost,
     tomtSvar,
+    varseletFoer,
     vederlagssvaret,
     type Postvalg,
     type Regel,
@@ -107,15 +108,19 @@
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
   // Valgene for hver kravpost i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
+  // En innsigelse mot varselet som står, har ikke noe ubesvart valg i skjemaet (VS-U77 punkt 9).
   $effect.pre(() => {
-    for (const p of poster) valg.poster[p.betegnelse] ??= tomPost();
+    for (const p of poster) {
+      const v = (valg.poster[p.betegnelse] ??= nyPost(u, p));
+      if (v.varsletITide === null) v.varsletITide = nyPost(u, p).varsletITide;
+    }
   });
   function godkjennAlleFormer() {
-    for (const p of poster) (valg.poster[p.betegnelse] ??= tomPost()).form = 'godtar';
+    for (const p of poster) (valg.poster[p.betegnelse] ??= nyPost(u, p)).form = 'godtar';
   }
   function godkjennAlle() {
     for (const p of poster)
-      if (!etterRegel(p)) (valg.poster[p.betegnelse] ??= tomPost()).beloep = 'hele';
+      if (!etterRegel(p)) (valg.poster[p.betegnelse] ??= nyPost(u, p)).beloep = 'hele';
   }
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
@@ -530,7 +535,27 @@
         />
       {/if}
       {#if stiltIPosten(v, p).includes('varslet_i_tide')}
-        {#if regel === 'regningsarbeid'}
+        {@const foer = varseletFoer(u, p)}
+        {@const foerBrev = foer && brevet(u, foer.dokument)}
+        {@const staar = foer?.iTide === false}
+        {#snippet innsigelsenSomStaar(tittel: string)}
+          <!-- VS-U77 punkt 9, 10 og 12: svaret gjentar innsigelsen til byggherren gir den opp. -->
+          <div class="setning">
+            <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
+              <strong>{tittel}</strong>
+              {#if foerBrev}{SKJEMA.innsigelsenStaar(foerBrev, foer!.hjemmel)}{/if}
+              {v.varsletITide === true ? SKJEMA.girOppInnsigelsen : SKJEMA.gjentarInnsigelsen}
+            </p>
+            <Knapp variant="lenke" iFlukt onclick={() => (v.varsletITide = v.varsletITide !== true)}
+              >{v.varsletITide === true
+                ? SKJEMA.gjentaInnsigelsenKnapp
+                : SKJEMA.girOppInnsigelsenKnapp}</Knapp
+            >
+          </div>
+        {/snippet}
+        {#if regel === 'regningsarbeid' && staar}
+          {@render innsigelsenSomStaar(SKJEMA.varselRegning)}
+        {:else if regel === 'regningsarbeid'}
           <div class="setning">
             <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
               <strong>{SKJEMA.varselRegning}</strong>
@@ -554,20 +579,25 @@
               liste={varselet}
               punkt={forutsetning}
             />
-            <Valg
-              navn={`${uid}-varsel-${p.betegnelse}`}
-              spoersmaal={SKJEMA.varselJusteringSpoersmaal}
-              valgfri
-              beskrevetAv={varselet.length
-                ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
-                : undefined}
-              valg={[
-                { verdi: true, tekst: SKJEMA.komITide },
-                { verdi: false, tekst: SKJEMA.komForSent },
-              ]}
-              bind:verdi={v.varsletITide}
-              lett
-            />
+            {#if staar}
+              {@render innsigelsenSomStaar(SKJEMA.varselJustering)}
+            {:else}
+              <Valg
+                navn={`${uid}-varsel-${p.betegnelse}`}
+                spoersmaal={SKJEMA.varselJusteringSpoersmaal}
+                valgfri
+                hjelp={foer && foerBrev ? SKJEMA.varseletITideFoer(foerBrev) : undefined}
+                beskrevetAv={varselet.length
+                  ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
+                  : undefined}
+                valg={[
+                  { verdi: true, tekst: SKJEMA.komITide },
+                  { verdi: false, tekst: SKJEMA.komForSent },
+                ]}
+                bind:verdi={v.varsletITide}
+                lett
+              />
+            {/if}
           </div>
           <div class="betinget">
             <Gjelderhvis
