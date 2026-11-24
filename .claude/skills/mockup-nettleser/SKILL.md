@@ -23,6 +23,9 @@ ikke er det forventede:
 1. Lager en migrert testbase og registrerer ett prosjekt med Catenda-kobling,
    board og kontraktsteam for TE og BH, med `settInn` som `lagOppsett` i
    `server/tester/testbase.ts`. Det er det `server/registrering.ts` gjør i drift.
+   Kontraktsfristene i `FRISTTABELLEN` i `kjerne/tester/kjoerer.ts` settes med
+   `koe_drift.sett_kontraktsfrist`, i rekkefølgen som gir dem samme ID som i
+   kjøringen i minnet, så et forløp med fristkrav (BF-45) kjører (#2299).
    Brukere, medlemskap og sesjoner lages ikke: innloggingen lager dem.
 2. Starter en falsk Catenda på 127.0.0.1 med en TE- og en BH-bruker, hver i sitt
    team. Den svarer på OAuth (`/oauth2/authorize`, `/oauth2/token`), `/v2/user`,
