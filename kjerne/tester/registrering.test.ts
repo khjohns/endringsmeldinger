@@ -1317,8 +1317,13 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
       },
       minnebane(),
       { valg: { klokke: dagklokke() } }
+    ).catch((feil: unknown) =>
+      expect.fail(
+        `forutsetning: stegene ble ikke kjørt: ${feil instanceof Error ? feil.message : String(feil)}`
+      )
     );
     const u = await k.utledning();
+    expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
     const utkast = {
       spor: 'vederlag' as const,
       gjelder: u.spor.vederlag.gjeldendeKrav!.id,
