@@ -22,6 +22,7 @@ import {
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
   paaberopelserIDokumentet,
+  sisteStandpunktTilVarslene,
   svaretGjelderPaaberopelsen,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
@@ -360,7 +361,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       innsigelse: erInnsigelse(p, sporet),
       tekst: stor(
         p.art === 'rettidighet'
-          ? rettidighetstekst(p, krav, j, innsigelsene, sporet)
+          ? rettidighetstekst(p, krav, j, innsigelsene, sporet, t)
           : standpunkttekst(p, s, krav, j)
       ),
     });
@@ -707,7 +708,8 @@ function rettidighetstekst(
   krav: Krav,
   j: Journalen,
   innsigelsene: Innsigelse[],
-  sporet: Sporsbrevtekst
+  sporet: Sporsbrevtekst,
+  { saken, nytt }: Pick<Tekst, 'saken' | 'nytt'>
 ): string {
   const aapne = innsigelsene.filter((i) => i.hjemmel === p.hjemmel);
   const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
@@ -715,13 +717,32 @@ function rettidighetstekst(
   const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
   if (erKravpostvarselhjemmel(p.hjemmel)) {
     const om = `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`;
+    // VS-U77 punkt 9 og 10: innsigelsen fra et tidligere svar som står for posten, som svaret
+    // gjentar eller gir opp.
+    const foer = sisteStandpunktTilVarslene(
+      j.dokumenter
+        .filter((d) => d.id !== nytt.id)
+        .flatMap((d) =>
+          d.svar
+            .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
+            .map((x) => ({
+              s: x,
+              dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
+              lagtTil: erRegistrert(d.opplysninger),
+            }))
+        )
+    ).find((x) => x.gjelder === p.gjelder && x.hjemmel === p.hjemmel && !x.iTide);
+    const brevet = foer && j.brevet(foer.dokument);
+    const jf = brevet ? `, jf. innsigelsen i ${brevet}` : '';
     // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
     if (p.iTide && p.hjemmel === '34.4')
-      return `byggherren gir opp innsigelsen om at ${om} ikke ble gitt eller kom for sent.`;
+      return `byggherren gir opp innsigelsen${brevet ? ` i ${brevet}` : ''} om at ${om} ikke ble gitt eller kom for sent.`;
+    if (p.iTide && brevet)
+      return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${om} kom for sent.`;
     if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
     return p.hjemmel === '34.3.3'
-      ? `byggherren gjør gjeldende at ${om} kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
-      : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent.`;
+      ? `byggherren gjør gjeldende at ${om} kom for sent${jf}, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
+      : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent${jf}.`;
   }
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
