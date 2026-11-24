@@ -31,7 +31,8 @@ Passer ikke:
   og `agy` ser ikke samtalen. Push og merge er sperrene.
 - Saksdata, nøkler og tilgangsopplysninger. `agy` sender det den får, til Google.
 - Økter uten oppdragsgiver, som orkestrerte økter og rutiner. Innloggingen gjøres for hånd i
-  hver container, og tokenet kan ikke lagres i miljøet.
+  hver container, og tokenet kan ikke lagres i miljøet. En orkestrert byggeøkt bruker Gemini
+  gjennom [reviewøkta](../reviewokt/SKILL.md).
 
 ## Oppsett, én gang per container
 
