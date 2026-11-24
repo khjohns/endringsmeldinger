@@ -2,7 +2,7 @@
  * Varslene og datoene i brevene: datoen varslingsplikten løper fra, korrigeringen av datoen,
  * varslene etter § 32.2, § 33.4, § 34.1.2, punkt 34.3.3 og 34.4, også sendt utenfor løsningen,
  * og vedleggene ved påberopelsen.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';

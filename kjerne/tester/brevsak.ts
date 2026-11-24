@@ -1,8 +1,7 @@
 /**
- * Saken i minnet for testene av brevene og kommandoene (#2121): `sak()` sender hver kommando
- * gjennom `vurder` og fryser brevet slik klienten gjør, og konstantene er kommandoene og
- * tekstene testene bygger på. Brukes av `brevtekst.test.ts` og testfilene som ble skilt ut fra
- * den. Bevis-sakene kjøres med `kjoerer.ts` i en bane fra `bane.ts`.
+ * Saken i minnet for testene av brevene og kommandoene : `sak()` sender hver kommando gjennom
+ * `vurder` og fryser brevet slik klienten gjør, og konstantene er kommandoene og tekstene
+ * testene bygger på. Bevis-sakene kjøres med `kjoerer.ts` i en bane fra `bane.ts`.
  */
 
 import { AssertionError } from 'node:assert';

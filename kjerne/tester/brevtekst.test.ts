@@ -1,21 +1,17 @@
 /**
  * Brevteksten i kjernen (#369): teksten mottakeren leser i et brev appen sender.
- * Forventningene har kilde i vedtakene: LV-U4 (ordlyden, punkt 1–13, og 5.2, 5.5b
- * og 5.6 i svaret), GR-U14 (teksten etter § 31.3 i en godkjenning som er en
- * endringsordre), GR-U15 (TEs varsel etter § 32.2 beskriver pålegget), GR-U16
+ * Forventningene har kilde i vedtakene: LV-U4 (ordlyden, punkt 1–3 og 13), GR-U15 (TEs varsel etter § 32.2 beskriver pålegget), GR-U16
  * (endringsordrens dato eller nummer), KA-U31–KA-U33 og KA-U46 (begrunnelsen),
  * LV-U2 (teksten avsenderen godkjenner, er den som fryses, og et dokument gjengir
  * den tro), LV-U3 (hvert utsagn med virkning står i teksten, ikke appens vurdering),
- * KA-U22 og KA-U25 (de faste tekstene, ordrett), VS-U9 og VS-U11 (svaret gjentar
- * eller gir opp innsigelsen), B-13 05.10 (svaret når forholdet er avslått eller
- * prekludert), B-13 om begrunnelsestekst (den låste delen og utdypningen hver for
+ * KA-U22 og KA-U25 (de faste tekstene, ordrett), B-13 om begrunnelsestekst (den låste delen og utdypningen hver for
  * seg), MM-U17 (opphevet av MM-U50) (et registrert brev får ingen tekst fra appen) og HF-U1 (hvert avsnitt
  * viser til et element i brevet). Arbeidsvalgene A1–A8 står i paragrafmatrisen, og
  * testene som bare følger et arbeidsvalg, sier det. At hvert element i bevis-sakene
  * har et avsnitt, prøves i `forloep.test.ts` og mot testbasen i
  * `sprakprove/kjernelagring/lagring.test.ts`. Svaret, varslene, forespørselen, avvisningen,
  * revisjonen, det særskilte kravet, lagene i svaret, kravpostene og akseptfristen står i egne
- * filer (#2121), med samme sak i minnet fra `brevsak.ts`.
+ * filer. Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';

@@ -2,7 +2,7 @@
  * Nye versjoner av kravet og svaret: et «i tide» fra appen, en ny påberopelsesversjon,
  * frafallet, revisjonen og senkningen, det som foreligger i et lukket spor og den registrerte
  * enigheten.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';

@@ -1,8 +1,11 @@
 /**
  * Byggherrens svar i brevene: svaret, forbeholdet, oppgjøret som fast sum, aksepten,
  * innsigelsen, protesten og passiviteten, bestridelsen, den senere begrunnelsen og svaret når
- * kravene er avgjort.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * kravene er avgjort. Forventningene har kilde i LV-U4 (punkt 4–12, og 5.2, 5.5b og 5.6 i
+ * svaret), GR-U14 (teksten etter § 31.3 i en godkjenning som er en endringsordre), VS-U9 og
+ * VS-U11 (svaret gjentar eller gir opp innsigelsen) og B-13 05.10 (svaret når forholdet er
+ * avslått eller prekludert), og vedtakene i navnet på hver gruppe.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';

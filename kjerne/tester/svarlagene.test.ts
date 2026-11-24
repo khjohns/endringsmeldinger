@@ -1,7 +1,7 @@
 /**
  * Lagene i svaret: et frist- eller vederlagssvar som ikke er ferdig utfylt, forutsetningene i
  * forholdssvaret, spørsmålene regelen krever svar på og lagene i utregningen.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { describe, expect, it } from 'vitest';

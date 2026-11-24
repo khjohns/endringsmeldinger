@@ -2,7 +2,7 @@
  * Kommandoene kjernen avviser: en vurdering uten standpunkt, et
  * ukjent felt i vurderingene, svaret på kravpostene i kommandoen og påberopelsene som ikke er
  * bygget.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { describe, expect, it } from 'vitest';

@@ -1,6 +1,6 @@
 /**
  * Forespørselen og svaret etter § 33.6.2 i brevene.
- * Saken i minnet er `sak()` i `brevsak.ts`, som i `brevtekst.test.ts`.
+ * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';
