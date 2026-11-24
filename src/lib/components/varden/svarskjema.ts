@@ -142,7 +142,7 @@ export const kravbrevetI = (u: Utledning, spor: Spor): Brevet =>
 
 /**
  * Datoen kravet ble sendt: for registrert korrespondanse datoen TE oppgir, ikke når brevet ble
- * registrert (LV-U42, OV-U85, #1596). `null` når TE ikke har oppgitt den.
+ * registrert (LV-U45, OV-U85, #1596). `null` når TE ikke har oppgitt den.
  */
 export const kravetSendt = (b: Brevet): string | null =>
   b.sendt ?? (b.art === 'registrert' ? null : b.registrert);

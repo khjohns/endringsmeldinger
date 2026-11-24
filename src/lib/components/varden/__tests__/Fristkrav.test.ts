@@ -370,7 +370,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(sendt[0]!.virkninger[0]).toMatch(/^Varselet etter punkt\u00a033\.4 sendes i dag/);
   });
 
-  it('et varsel sendt utenfor løsningen registreres med typen, sendemåten, datoen, dokumentet og beskrivelsen, uten brevkontroll (U-13, VS-U16, LV-U42, OV-U79)', async () => {
+  it('et varsel sendt utenfor løsningen registreres med typen, sendemåten, datoen, dokumentet og beskrivelsen, uten brevkontroll (U-13, VS-U16, LV-U45, OV-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
     await fireEvent.click(
@@ -479,7 +479,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(JSON.stringify(sendt[0]!.avsnitt)).toMatch(/5\. oktober 2026/);
   });
 
-  it('VS-U34, LV-U42: et varsel gitt før i kravet krever typen, og kravet sender den (C1 i #2056)', async () => {
+  it('VS-U34, LV-U45: et varsel gitt før i kravet krever typen, og kravet sender den (C1 i #2056)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('button', { name: 'Varselet er gitt før' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
