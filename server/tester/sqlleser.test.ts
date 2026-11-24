@@ -46,12 +46,17 @@ describe('leseren for T-SQL (#1093)', () => {
     );
   });
 
-  it('kjørt med node gir delene som JSON, og exit 1 for en del som ikke er avsluttet', () => {
+  it('kjørt med node gir delene som JSON, og exit 3 for en del som ikke er avsluttet', () => {
     expect(
       JSON.parse(execFileSync(process.execPath, [LESEREN], { input: '[a]]b]' }).toString())
     ).toEqual([{ art: 'navn', tekst: 'a]b' }]);
     expect(() =>
       execFileSync(process.execPath, [LESEREN], { input: '/* x', stdio: 'pipe' })
-    ).toThrow(/Kommentaren som begynner på linje 1, er ikke avsluttet/);
+    ).toThrow(
+      expect.objectContaining({
+        status: 3,
+        message: expect.stringMatching(/Kommentaren som begynner på linje 1, er ikke avsluttet/),
+      })
+    );
   });
 });

@@ -6,6 +6,7 @@ noe som finnes. Formene som godtas, står i .github/scripts/tilleggsregel.py.
 """
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -66,6 +67,8 @@ GO
 ALTER TABLE koe.toemmingsvern ADD CONSTRAINT vern_ny FOREIGN KEY ([ny vern]) REFERENCES koe.ny (id)
   ON DELETE NO ACTION ON UPDATE NO ACTION;
 """,
+    "kolonner med navn som er setningsord": (
+        "CREATE TABLE koe.ny (a int, [throw] int);\nALTER TABLE koe.hendelse ADD [throw] int NULL;\n"),
     "en ny tabell kan ha CASCADE": (
         "CREATE TABLE koe.ny (a int REFERENCES koe.sak_metadata (sak_id) ON DELETE CASCADE);\n"),
 }
@@ -124,7 +127,14 @@ AVVIST = {
         "en unik indeks på db.koe.hendelse"),
     "indeks som erstatter en eksisterende": (
         "CREATE INDEX hendelse_idx ON koe.hendelse (sak_id) WITH (DROP_EXISTING = ON);", "DROP_EXISTING"),
-    # Punkt 1 i #1093: tilfellene leseren tidligere leste feil.
+    # Kilde: punkt 1 i #1093.
+    "et navn fila skriver, kan ikke være leserens navn for et navn i []": (
+        "CREATE TABLE koe._lest_navn_1 (a int); CREATE UNIQUE INDEX u ON koe.[x y] (a);",
+        "satt av til leseren"),
+    "DELETE rett foran et navn i []": (
+        "CREATE TABLE koe.ny (a int) DELETE[koe].[hendelse];", "DELETE"),
+    "EXEC rett foran et navn i []": (
+        "CREATE TABLE koe.ny (a int) EXEC[sys].[sp_executesql] N'DROP TABLE koe.hendelse';", "EXEC"),
     "]] i et navn skjuler ikke en DROP": (
         "CREATE TABLE koe.ny ([a]]'] int); DROP TABLE koe.hendelse; -- '", "DROP"),
     "\"\" i et navn skjuler ikke en DROP": (
@@ -190,3 +200,9 @@ def test_etter_foerste_ekte_sak_er_en_ny_sqlserver_migrasjon_markert(monkeypatch
 def test_uten_foerste_ekte_sak_kreves_ingen_markering(monkeypatch):
     vakt = _vakt(monkeypatch, None)
     assert vakt.to_trinn("database/migrasjoner", "20261201000000_ny.sql", "20261201000000") == []
+
+
+def test_hvert_ord_regelen_leser_som_et_setningsord_er_et_noekkelord_for_navnene():
+    for moenster in (tilleggsregel.FORBUDT, tilleggsregel.SETNINGSORD):
+        for ord_ in re.findall(r"[A-Z_]+", moenster.pattern):
+            assert ord_ in tilleggsregel.NOEKKELORD, ord_

@@ -9,7 +9,8 @@
  *   node server/sqlleser.ts < fil.sql
  *
  * skriver delene fra `deler()` som JSON. En tekst, et navn eller en kommentar som ikke
- * er avsluttet, gir exit 1 og meldingen på stderr.
+ * er avsluttet, gir exit 3 og meldingen på stderr, så en feil i Node selv (exit 1) ikke
+ * leses som en feil i SQL-en.
  */
 
 import { readFileSync } from 'node:fs';
@@ -142,6 +143,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   } catch (feil) {
     if (!(feil instanceof UavsluttetDel)) throw feil;
     process.stderr.write(`${feil.message}\n`);
-    process.exitCode = 1;
+    process.exitCode = 3;
   }
 }

@@ -81,11 +81,17 @@ ROWGUIDCOL RULE SAVE SCHEMA SECURITY SECURITYAUDIT SELECT SEQUENCE SESSION_USER 
 SHUTDOWN SOME SP_RENAME SPARSE STATE STATISTICS SYNONYM SYSTEM_USER TABLE TABLESAMPLE TEXTSIZE
 THEN TO TOP TRAN TRANSACTION TRIGGER TRUNCATE TRY_CONVERT TSEQUAL TYPE UNION UNIQUE UNPIVOT
 UPDATE UPDATETEXT USE USER VALUES VARYING VIEW WAITFOR WHEN WHERE WHILE WITH WITHIN
-WRITETEXT XACT_ABORT
+WRITETEXT XACT_ABORT ANSI_NULLS QUOTED_IDENTIFIER
 """
-NOEKKELORD = frozenset(_NOEKKELORD.split())
+NOEKKELORD = frozenset(_NOEKKELORD.split()) | {
+    o for m in (FORBUDT, SETNINGSORD) for o in re.findall(r"[A-Z_]+", m.pattern)}
 ENKELT_NAVN = re.compile(r"[A-Za-z_][\w$#@]*")
+ORDTEGN = re.compile(r"[\w$#@]")
 LESEREN = Path(__file__).resolve().parents[2] / "server" / "sqlleser.ts"
+# Exit-koden fra leseren for en tekst, et navn eller en kommentar som ikke er avsluttet.
+UAVSLUTTET = 3
+# Navnet leseren gir et navn i [] eller "" som ikke kan stå som det er. Fila kan ikke bruke det selv.
+EGET_NAVN = "_lest_navn_"
 
 
 class Uleselig(Exception):
@@ -109,25 +115,35 @@ def _uten_kommentarer_og_tekster(tekst: str) -> str:
         raise RuntimeError("Tilleggsregelen trenger Node for å lese SQL-en (server/sqlleser.ts)")
     svar = subprocess.run([node, str(LESEREN)], input=tekst, capture_output=True, text=True, check=False,
                           encoding="utf-8")
-    if svar.returncode == 1 and svar.stderr.strip() and not svar.stdout:
+    if svar.returncode == UAVSLUTTET:
         raise Uleselig(svar.stderr.strip())
     if svar.returncode != 0:
         raise RuntimeError(f"Leseren for SQL feilet: {svar.stderr.strip()}")
+    deler = json.loads(svar.stdout)
+    if any(d["art"] == "kode" and EGET_NAVN in d["tekst"].lower() for d in deler):
+        raise Uleselig(f"navnet {EGET_NAVN}… er satt av til leseren")
     egne: dict[str, str] = {}
-    ut = []
-    for del_ in json.loads(svar.stdout):
+    ut = ""
+    etter_navn = False
+    for del_ in deler:
         art, innhold = del_["art"], del_["tekst"]
         if art == "kode":
-            ut.append(innhold)
+            stykke = innhold
         elif art == "tekst":
-            ut.append("''")
+            stykke = "''"
         elif art == "kommentar":
-            ut.append(" ")
+            stykke = " "
         elif ENKELT_NAVN.fullmatch(innhold) and innhold.upper() not in NOEKKELORD:
-            ut.append(innhold)
+            stykke = innhold
         else:
-            ut.append(egne.setdefault(innhold.lower(), f"_lest_navn_{len(egne) + 1}"))
-    return "".join(ut)
+            stykke = egne.setdefault(innhold.lower(), f"{EGET_NAVN}{len(egne) + 1}")
+        # Et navn inntil et ord er to ord: `DELETE[koe].[x]` er DELETE og koe.x.
+        if (art == "navn" or etter_navn) and ut and stykke and ORDTEGN.match(ut[-1]) \
+                and ORDTEGN.match(stykke[0]):
+            ut += " "
+        ut += stykke
+        etter_navn = art == "navn"
+    return ut
 
 
 def _navn(navn: str) -> str:
