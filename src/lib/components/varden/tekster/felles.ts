@@ -55,16 +55,16 @@ export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }
 
 /**
  * Henvisningen til et brev i visningen, i kortform: «brev 3», med brevets nummer i saken. Brevet
- * selv viser til et tidligere brev med merkingen og datoen (LV-U53); visningen er i saken, så
+ * selv viser til et tidligere brev med merkingen og datoen (LV-U44); visningen er i saken, så
  * nummeret er nok. Registrert korrespondanse har ikke noe nummer og omtales slik brevteksten gjør
- * (LV-U42, LV-U45), eller med datoen den ble registrert.
+ * (LV-U45), eller med datoen den ble registrert.
  */
 export const brevref = (b: Brevref) =>
   b.nummer !== null ? `brev ${b.nummer}` : (b.omtale ?? `brevet registrert ${dato(b.registrert)}`);
 
 /**
  * Henvisningen med avsenderen: «brev 3 fra TE». Omtalen av registrert korrespondanse nevner
- * parten selv (LV-U42), så den står ikke to ganger.
+ * parten selv (LV-U45), så den står ikke to ganger.
  */
 export const brevrefFra = (b: Brevref, part: Part) =>
   b.nummer === null && b.omtale ? b.omtale : `${brevref(b)} fra ${part}`;
@@ -73,7 +73,7 @@ export const brevrefFra = (b: Brevref, part: Part) =>
 export const brevrefStor = (b: Brevref) => stor(brevref(b));
 
 /**
- * Overskriften for brevet: «K201-KOE-017-03 · tittelen» med merkingen (LV-U53), og bare
+ * Overskriften for brevet: «K201-KOE-017-03 · tittelen» med merkingen (LV-U44), og bare
  * tittelen for et brev uten merking.
  */
 export const brevhode = (b: Pick<Brevet, 'merking' | 'art' | 'brevtittel'>) =>
@@ -110,6 +110,6 @@ export const BETEGNELSE: Record<Betegnelse, string> = haerdet({
   varslet: 'Varslet',
 });
 
-/** Korrespondansen slik et brev omtaler den (LV-U42): parten, typen og datoen. */
+/** Korrespondansen slik et brev omtaler den (LV-U45): parten, typen og datoen. */
 export const omtalenAvKorrespondansen = (part: Part, type: Korrespondansetype, d: string) =>
   `${PARTENS[part]} ${KORRESPONDANSETYPEN[type].ubestemt} av ${dato(d)}`;

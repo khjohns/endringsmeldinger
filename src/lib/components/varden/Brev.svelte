@@ -37,7 +37,7 @@
   }: {
     avsender: Part;
     sak: string;
-    /** Vår ref., merkingen kjernen fryser (LV-U53, LV-U27). Uten den står ingen «Vår ref.». */
+    /** Vår ref., merkingen kjernen fryser (LV-U44, LV-U27). Uten den står ingen «Vår ref.». */
     merking: string | null;
     /**
      * Deres ref., kodene kjernen fryser, én per linje (LV-U27, LV-U49, U-2 i BF-07). Uten koder
