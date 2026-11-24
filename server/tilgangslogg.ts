@@ -62,7 +62,8 @@ export async function loggAvvisning(
   const { hendelse, grunn } = avvisning;
   const { aktor_id, prosjekt_id } = tilgangsfelter();
   const forsoekt = !aktor_id && 'identitet' in avvisning ? avvisning.identitet : undefined;
-  if (struping && !aktor_id && !forsoekt && !slipperGjennom(struping, hendelse, grunn)) return;
+  const strupes = struping && !aktor_id && !forsoekt;
+  if (strupes && !slipperGjennom(struping, hendelse, grunn)) return;
   try {
     await utenKontekst(pool)
       .input('hendelse', sql.VarChar(40), hendelse)
@@ -74,6 +75,10 @@ export async function loggAvvisning(
       .input('forsoekt_tenant', sql.UniqueIdentifier, forsoekt?.tenant ?? null)
       .execute('koe_api.logg_tilgang');
   } catch (feil) {
-    loggFeil('Tilgangsavvisningen kunne ikke logges', feil);
+    // Raden ble ikke skrevet, så minuttets plass er ledig for neste avvisning med samme grunn.
+    if (strupes) strupet.get(struping.eier)?.delete(`${hendelse}:${grunn}`);
+    loggFeil('Tilgangsavvisningen kunne ikke logges', feil, 'error', {
+      utfall: `${hendelse}:${grunn}`,
+    });
   }
 }

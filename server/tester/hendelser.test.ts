@@ -1129,6 +1129,35 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     }
   });
 
+  // Kilde: punkt 8 i #972 og #1210. Når saken finnes, lagres et annet utfall uten boardet, så
+  // basen godtar det etter et byttet topicboard, og topicen får ingen kommentar.
+  it('#1210: en hendelse for en topic med sak, laget av integrasjonen, får et utfall også når topicboardet er byttet', async () => {
+    const topic = randomUUID();
+    await motta(kropp(topic));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await sakerForTopic(topic)).toHaveLength(1);
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        { b, p: o.prosjekt.id }
+      );
+    await settBoard(randomUUID());
+    try {
+      const id = await motta(kropp(topic, { forfatter: INTEGRASJONEN }));
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([
+        expect.objectContaining({
+          utfall: 'laget_av_integrasjonen',
+          prosjekt_id: o.prosjekt.id,
+          sak_id: null,
+        }),
+      ]);
+      expect(await forsoekFor(id)).toBe(0);
+    } finally {
+      await settBoard(board);
+    }
+  });
+
   // Fastholder dagens atferd: en deaktivert kobling deaktiverer medlemskapene (triggeren på
   // koblingen), så kvitteringen kan ikke leses for forfatteren. Utfallet er ukjent_prosjekt,
   // ikke ukjent_side med en kommentar om at saken ikke er opprettet. Åpent i #1210.

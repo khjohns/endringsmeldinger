@@ -4,6 +4,9 @@
 -- koblingen med topicboardet, som før. En deaktivert kobling gir fortsatt ikke noe
 -- prosjekt: triggeren på koblingen deaktiverer medlemskapene, så kvitteringen kan ikke
 -- leses for forfatteren.
+-- `fra_topickoblingen` sier hvilken vei prosjektet ble funnet: da finnes saken, og
+-- behandlingen gir et annet utfall enn saken uten boardet, så `registrer_behandling` godtar
+-- det og topicen ikke får en kommentar om at saken ikke er opprettet.
 -- Prosjektet tas aldri fra kalleren. `@topic` er valgfri, så forrige utgivelse kan kalle
 -- prosedyren som før. Prosedyren er sist definert i
 -- `20261020130000_innkommende_behandling.sql`.
@@ -24,9 +27,10 @@ BEGIN
        AND TRY_CONVERT(uniqueidentifier, t.catenda_board_id) = @board
        AND k.catenda_project_id = @catenda_prosjekt AND k.is_active = 1);
   IF @prosjekt IS NOT NULL
-    SELECT @prosjekt AS prosjekt_id;
+    SELECT @prosjekt AS prosjekt_id, CAST(1 AS bit) AS fra_topickoblingen;
   ELSE
-    SELECT internal_project_id AS prosjekt_id FROM koe.catenda_project_configs
+    SELECT internal_project_id AS prosjekt_id, CAST(0 AS bit) AS fra_topickoblingen
+      FROM koe.catenda_project_configs
      WHERE catenda_project_id = @catenda_prosjekt AND topic_board_id = @board AND is_active = 1;
 END
 GO

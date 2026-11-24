@@ -4,6 +4,7 @@ import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
 import { entraIssuer } from '../entra.ts';
 import { synkroniserHr } from '../hrdata.ts';
 import { medLoggkontekst } from '../logg.ts';
+import { medRundt } from './rundt.ts';
 import { avvisning, settInn } from './sqlserver_migrert.ts';
 import { opprettKjoeretid, sql } from './sqlserver.ts';
 import { lagOppsett, rydd, startServer, TESTBASE_URL, type Oppsett } from './testbase.ts';
@@ -255,6 +256,34 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
       feil.mockRestore();
       await server.stopp();
       await uten.stopp();
+    }
+  });
+
+  // Kilde: svaret i #2251 (én rad per grunn og minutt) og #1804 (avviste innlogginger logges med grunn).
+  it('en avvisning uten sesjon som ikke kunne skrives, tar ikke minuttets rad (#2251)', async () => {
+    const naa = new Date('2026-11-24T13:00:10Z');
+    let feil = 1;
+    const datalag = medRundt(kjoeretid(), 'koe_api.logg_tilgang', async (kjoer) => {
+      if (feil-- > 0) throw new Error('Forbindelsen er brutt');
+      return kjoer();
+    });
+    const server = await startServer(o, { datalag, tidspunkt: () => naa });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const tilbakekall = () =>
+        fetch(`${server.url}/api/auth/entra/callback?state=x&code=y`, { redirect: 'manual' });
+      expect(await hendelser(await tilbakekall())).toEqual([]);
+      expect(JSON.parse(String(error.mock.calls.at(-1)![0]))).toMatchObject({
+        sted: 'Tilgangsavvisningen kunne ikke logges',
+        utfall: 'innlogging_entra:utilgjengelig',
+      });
+      expect(await hendelser(await tilbakekall())).toMatchObject([
+        { hendelse: 'innlogging_entra', grunn: 'utilgjengelig' },
+      ]);
+      expect(await hendelser(await tilbakekall())).toEqual([]);
+    } finally {
+      error.mockRestore();
+      await server.stopp();
     }
   });
 
