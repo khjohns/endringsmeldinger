@@ -1,7 +1,9 @@
--- #1210: et nytt forsøk etter en opprettet sak når saken også når topicboardet er byttet
--- eller koblingen deaktivert. Har topicen en topickobling med boardet fra webhooken, i et
--- prosjekt som er koblet til Catenda-prosjektet fra webhooken, aktivt eller ikke, er
--- prosjektet det. Ellers er prosjektet den aktive koblingen med topicboardet, som før.
+-- #1210: et nytt forsøk etter en opprettet sak når saken også når topicboardet er byttet.
+-- Har topicen en topickobling med boardet fra webhooken, i et prosjekt med aktiv kobling
+-- til Catenda-prosjektet fra webhooken, er prosjektet det. Ellers er prosjektet den aktive
+-- koblingen med topicboardet, som før. En deaktivert kobling gir fortsatt ikke noe
+-- prosjekt: triggeren på koblingen deaktiverer medlemskapene, så kvitteringen kan ikke
+-- leses for forfatteren.
 -- Prosjektet tas aldri fra kalleren. `@topic` er valgfri, så forrige utgivelse kan kalle
 -- prosedyren som før. Prosedyren er sist definert i
 -- `20261020130000_innkommende_behandling.sql`.
@@ -20,7 +22,7 @@ BEGIN
      WHERE @topic IS NOT NULL
        AND TRY_CONVERT(uniqueidentifier, t.catenda_topic_id) = @topic
        AND TRY_CONVERT(uniqueidentifier, t.catenda_board_id) = @board
-       AND k.catenda_project_id = @catenda_prosjekt);
+       AND k.catenda_project_id = @catenda_prosjekt AND k.is_active = 1);
   IF @prosjekt IS NOT NULL
     SELECT @prosjekt AS prosjekt_id;
   ELSE

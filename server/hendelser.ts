@@ -310,7 +310,7 @@ export async function behandle(
     };
 
   // Topickoblingen først, så et nytt forsøk etter en opprettet sak når saken også når
-  // topicboardet er byttet eller koblingen deaktivert (#1210).
+  // topicboardet er byttet (#1210).
   const oppslag = await utenKontekst(avh.datalag)
     .input('catenda_prosjekt', sql.UniqueIdentifier, catendaProsjekt)
     .input('board', sql.UniqueIdentifier, board)
