@@ -18,10 +18,8 @@ import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import {
-  standpunkteneTilVarslene,
-  type StandpunktTilVarselet,
-} from '#kjerne/spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/kommando.ts';
+import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';

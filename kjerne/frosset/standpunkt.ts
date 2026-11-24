@@ -19,6 +19,7 @@ import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { erRegistrert } from '../format/leser.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,
@@ -114,6 +115,56 @@ export function paaberopelserIDokumentet(
     (x): x is Extract<Utsagn, { art: 'innsigelse' }> =>
       erPaaberopelse(x) && !utenVirkning(x.id) && !utenVirkning(x.gjelder)
   );
+}
+
+/** Byggherrens siste standpunkt til varselet for en kravpost i svarene på vederlaget. */
+export interface StandpunktTilVarselet {
+  gjelder: string;
+  hjemmel: Kravpostvarselhjemmel;
+  iTide: boolean;
+  /** Brevet standpunktet står i. */
+  dokument: string;
+}
+
+/**
+ * VS-U77 punkt 8–12, 30 og 31: byggherrens siste standpunkt til varselet etter § 34.3.3 eller
+ * § 34.4 for hver kravpost i `svarene`, svarene på vederlaget med virkning, med dagen hvert ble
+ * sendt og om brevet er lagt til. Et svar som ikke sier noe om varselet, endrer ikke
+ * standpunktet: en innsigelse står (punkt 9 og 12), og et «i tide» etter § 34.3.3 står mot
+ * senere kravversjoner (punkt 8). Svarene leses i rekkefølgen de ble sendt, også et svar lagt til
+ * utenfor rekken, som har samme virkning for påberopelsen (punkt 12, OV-U103, OV-U105). Er to
+ * standpunkter fra samme dag, og minst ett av svarene er lagt til, er rekkefølgen ukjent
+ * (OV-U104), og innsigelsen kan stå. `dokument` er brevet en innsigelse først ble gjort gjeldende
+ * i, også når senere svar gjentar den (punkt 6). Kommandoen og brevteksten leser dem herfra.
+ */
+export function sisteStandpunktTilVarslene(
+  svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[]
+): StandpunktTilVarselet[] {
+  const siste = new Map<string, StandpunktTilVarselet & { dag: string; lagtTil: boolean }>();
+  const sendt = [...svarene].sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
+  for (const { s, dag, lagtTil } of sendt)
+    for (const p of s.standpunkter) {
+      if (p.art !== 'rettidighet' || !erKravpostvarselhjemmel(p.hjemmel)) continue;
+      const noekkel = `${p.hjemmel} ${p.gjelder}`;
+      const foer = siste.get(noekkel);
+      if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
+      // Punkt 6: en innsigelse som gjentas, står med brevet den først ble gjort gjeldende i.
+      const gjentatt = foer && !foer.iTide && !p.iTide;
+      siste.set(noekkel, {
+        gjelder: p.gjelder,
+        hjemmel: p.hjemmel,
+        iTide: p.iTide,
+        dokument: gjentatt ? foer.dokument : s.dokument,
+        dag,
+        lagtTil,
+      });
+    }
+  return [...siste.values()].map(({ gjelder, hjemmel, iTide, dokument }) => ({
+    gjelder,
+    hjemmel,
+    iTide,
+    dokument,
+  }));
 }
 
 /**

@@ -31,6 +31,10 @@ import {
 } from '../../regler/vederlag.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
+  sisteStandpunktTilVarslene,
+  type StandpunktTilVarselet,
+} from '../../frosset/standpunkt.ts';
+import {
   denAndreRegelen,
   justerteEnhetspriser,
   kravposterI,
@@ -266,24 +270,10 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
   return null;
 }
 
-/** Byggherrens siste standpunkt til varselet for en kravpost i svarene på vederlaget. */
-export interface StandpunktTilVarselet {
-  gjelder: string;
-  hjemmel: Kravpostvarselhjemmel;
-  iTide: boolean;
-  /** Brevet standpunktet står i. */
-  dokument: string;
-}
-
 /**
- * VS-U77 punkt 8–12, 30 og 31: byggherrens siste standpunkt til varselet etter § 34.3.3 eller
- * § 34.4 for hver kravpost i svarene på vederlaget. Et svar som ikke sier noe om varselet, endrer
- * ikke standpunktet: en innsigelse står (punkt 9 og 12), og et «i tide» etter § 34.3.3 står mot
- * senere kravversjoner (punkt 8). Svarene leses i rekkefølgen de ble sendt, også et svar lagt til
- * utenfor rekken, som har samme virkning for påberopelsen (punkt 12, OV-U103, OV-U105). Er to
- * standpunkter fra samme dag, og minst ett av svarene er lagt til, er rekkefølgen ukjent
- * (OV-U104), og innsigelsen kan stå. Et svar lagt til, sendt på dagen `sendt`, leser bare
- * svarene sendt før den dagen (OV-U98, OV-U104).
+ * Byggherrens siste standpunkt til varselet for hver kravpost i svarene på vederlaget
+ * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
+ * sendt før den dagen (OV-U98, OV-U104).
  */
 export function standpunkteneTilVarslene(
   u: Utledning,
@@ -293,32 +283,11 @@ export function standpunkteneTilVarslene(
   const lagtTil = new Set(
     [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
   );
-  const svarene = [...svar, ...svarUtenforRekken]
-    .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '', lagtTil: lagtTil.has(s.dokument) }))
-    .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
-    .sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
-  const siste = new Map<string, StandpunktTilVarselet & { dag: string; lagtTil: boolean }>();
-  for (const { s, dag, lagtTil } of svarene)
-    for (const p of s.standpunkter) {
-      if (p.art !== 'rettidighet' || !erKravpostvarselhjemmel(p.hjemmel)) continue;
-      const noekkel = `${p.hjemmel} ${p.gjelder}`;
-      const foer = siste.get(noekkel);
-      if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
-      siste.set(noekkel, {
-        gjelder: p.gjelder,
-        hjemmel: p.hjemmel,
-        iTide: p.iTide,
-        dokument: s.dokument,
-        dag,
-        lagtTil,
-      });
-    }
-  return [...siste.values()].map(({ gjelder, hjemmel, iTide, dokument }) => ({
-    gjelder,
-    hjemmel,
-    iTide,
-    dokument,
-  }));
+  return sisteStandpunktTilVarslene(
+    [...svar, ...svarUtenforRekken]
+      .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '', lagtTil: lagtTil.has(s.dokument) }))
+      .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
+  );
 }
 
 /** VS-U63: kravpostene der byggherrens innsigelse mot varselet etter § 34.4 står. */

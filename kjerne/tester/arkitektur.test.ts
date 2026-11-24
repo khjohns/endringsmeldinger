@@ -929,6 +929,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:partensPaaberopelser',
     ],
   ],
+  // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost, likt i
+  // kommandoen, skjemaet og brevteksten.
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'sisteStandpunktTilVarslene',
+    [
+      'frosset/brevtekst.ts:rettidighetstekst',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+    ],
+  ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
@@ -1192,7 +1203,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['regler/vederlag.ts:kontrollerOppgivelsenEtter344', 'utsagn', 'varslet_i_tide oppgjoersform'],
   // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
   // de ble sendt.
-  ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 's dag lagtTil'],
+  ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
+  ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
   // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost.
   ['StandpunktTilVarselet', 'relasjon', 'gjelder hjemmel iTide dokument'],
   // OV-U104: brevene lagt til, som gjør rekkefølgen samme dag ukjent.
@@ -1516,6 +1528,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:rettidighetstekst']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -2323,6 +2336,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:datoenDetBleSendt',
       'frosset/brevtekst.ts:aapneInnsigelser',
+      // VS-U77 punkt 9 og 12: dagen et svar med standpunktet til varselet for kravposten ble sendt.
+      'frosset/brevtekst.ts:rettidighetstekst',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
       'utledning/utled.ts:partensPaaberopelser',
