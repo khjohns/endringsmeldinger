@@ -135,6 +135,7 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   ti minutter og 144 000 tokens. Et review av denne skillen i prøven av verktøyøkta tok 43
   sekunder og 55 000 tokens.
 - Kontroller `git status --porcelain` i klonen og i hovedkopien etterpå. Det skal være likt.
+- **Oppfølging i samme samtale.** `codex exec resume <id>` er prøvd og virker, og `-o` virker med den. Id-en står i loggen som «session id» (#2256).
 
 ## Bestillingen
 
@@ -156,5 +157,4 @@ postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
   (0.172.0).
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
-- Sparring med `--conversation`-tilsvarende (`codex exec resume`).
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.
