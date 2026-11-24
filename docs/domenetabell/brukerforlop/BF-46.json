@@ -1,0 +1,44 @@
+{
+  "id": "BF-46",
+  "tittel": "TE godtar byggherrens svar etter akseptfristen",
+  "brukerhistorie": "Akseptfristen i byggherrens svar på kravet om fristforlengelse er ute. TE åpner saken, ser akseptfristen med datoen som før, og godtar svaret. I brevkontrollen ser TE at brevet sier at aksepten er sendt etter akseptfristen, og at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret. Byggherren ser aksepten med setningen og kan sende et innlegg eller et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-45 ved kontrollpunktet te-har-mottatt-svaret, men tid har gått: datoen i dag er etter akseptfristen i byggherrens svar."
+  },
+  "bestilling": "BF-46.md",
+  "kilder": [
+    "HF-U23",
+    "HF-U24",
+    "HF-U5",
+    "KA-U1",
+    "KA-U52",
+    "GR-U7",
+    "LV-U2",
+    "LV-U9",
+    "LV-U46",
+    "MM-U50",
+    "MM-U33",
+    "OV-U97",
+    "OV-U114",
+    "KA-U79",
+    "KA-U81",
+    "FO-U5",
+    "HF-U22",
+    "MM-U24",
+    "MM-U30"
+  ],
+  "venter_paa": [
+    "#2300"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-24",
+      "forhold": "#2300",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og svarene på spørsmål 1 og 2."
+    }
+  ]
+}
