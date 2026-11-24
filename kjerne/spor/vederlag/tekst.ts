@@ -38,6 +38,7 @@ import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { FORHOLDET, INNLEDNINGEN, kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
+  erInnsigelseIVederlaget,
   harProduktivitetspost,
   innholdIVederlaget,
   krevdIKravposten,
@@ -401,8 +402,7 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
   temaer: (krav, { saken }, regler) => svartemaerIVederlaget(krav, saken.paaberopelse, regler),
   punktet,
-  erInnsigelse: (p) =>
-    (p.art === 'oppgjoersform' && !p.aksepterer) || (p.art === 'justering' && !p.godtar),
+  erInnsigelse: erInnsigelseIVederlaget,
   oversikt,
   ingenBeloep,
   enigI: 'beløpet',

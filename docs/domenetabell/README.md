@@ -259,11 +259,9 @@ hvilken raden bygger på.
 første reelle hendelsen (#1453). Det som gjelder sporet, standpunktet og enigheten,
 heter `forhold`. Det som gjelder TEs brev, heter `paaberopelse`
 ([OV-U82](../plans/vedtak.md#ov-u82), svaret 01.11 i #1453). `kontrakt.json` og
-Python-stien står med `grunnlag` (DL-U2). Det gjør også navnene som deles med dem:
-utløserne `grunnlag_avslaatt` og `grunnlag_prekludert_32_2`, regelinngangene
-`grunnlag_resultat`, `er_grunnlag_subsidiaert` og
-`er_hele_fristen_subsidiaer_pga_grunnlag`, og feltet `grunnlag_varslet_i_tide`
-(HF-U2, teknisk valg). Teksten brukeren ser, byttes i #1433 og #1449.
+Python-stien står med `grunnlag` (DL-U2). Det gjør også feltet `grunnlag_varslet_i_tide`,
+som deles med dem (HF-U2, teknisk valg). Utløserne og regelinngangene med `grunnlag` er
+fjernet fra kjernen (#2242). Teksten brukeren ser, byttes i #1433 og #1449.
 
 | Før | Etter | Hvor |
 | --- | --- | --- |

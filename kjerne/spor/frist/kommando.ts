@@ -4,7 +4,6 @@
  * `regler/frist.ts`.
  */
 
-import { HJEMMEL } from '../../format/format.ts';
 import { erRegistrert, standpunkterISvaret } from '../../format/leser.ts';
 import { omtalen } from '../../frosset/brevdeler.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
@@ -42,6 +41,7 @@ import {
   dagerMaatteForstaa,
   fristkravet,
   fristvurderinger,
+  standpunkterIFristen,
   vurderingenAvFristen,
 } from './frysing.ts';
 import {
@@ -153,51 +153,14 @@ export const FORUTSETNINGER_I_FRISTEN = {
 } satisfies Sporsforutsetninger;
 
 /** Standpunktene i fristen (`STANDPUNKTER`). */
-export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) => {
-  const ut: Record<string, unknown>[] = [];
-  // VS-U20, OV-U5, HF-U1: varselet før svaret.
-  if (typeof v.frist_varsel_ok === 'boolean')
-    ut.push({
-      id: nyId(),
-      art: 'rettidighet',
-      gjelder: varseletForNyttSvar(u, '33.4'),
-      hjemmel: HJEMMEL.frist,
-      i_tide: v.frist_varsel_ok,
-    });
-  // VS-U17, VS-U29: svaret på forespørselen etter § 33.6.2, som kravet eller begrunnelsen.
-  const f = foresporselForFristsvar(u);
-  if (typeof v.foresporsel_svar_ok === 'boolean' && f)
-    ut.push({
-      id: nyId(),
-      art: 'rettidighet',
-      gjelder: f.gjelder,
-      hjemmel: '33.6.2',
-      i_tide: v.foresporsel_svar_ok,
-    });
-  if (typeof v.vilkar_oppfylt === 'boolean')
-    ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
-  const frister = fristvurderinger(v, krav);
-  if (typeof v.spesifisert_krav_ok === 'boolean')
-    ut.push({
-      id: nyId(),
-      art: 'spesifisering',
-      gjelder: krav.id,
-      hjemmel: '33.6.1',
-      i_tide: v.spesifisert_krav_ok,
-      // D-5: dagene byggherren måtte forstå, for hver frist i kravet.
-      ...(v.spesifisert_krav_ok
-        ? {}
-        : {
-            maatte_forstaa: frister.map((f) => ({
-              frist: f.gjelder,
-              dager: f.dager_maatte_forstaa,
-            })),
-          }),
-    });
-  // KA-U74: dagene for hver frist i kravet.
-  for (const f of frister) ut.push({ id: nyId(), art: 'dager', gjelder: f.gjelder });
-  return ut;
-};
+export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) =>
+  standpunkterIFristen(
+    v,
+    krav,
+    () => varseletForNyttSvar(u, '33.4'),
+    foresporselForFristsvar(u),
+    nyId
+  );
 
 /**
  * Det i et foregående lag som rammer standpunktet (OV-U32): en grunn fra forholdet, en innsigelse
