@@ -217,7 +217,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F10',
     feilklasse: 'innsigelsen om fremdriftshindring (§ 33.1) forsvinner når brevet skrives',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [
       ["ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });", 'void 0;'],
     ],
@@ -460,7 +460,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [["      gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
+    endringer: [["() => varseletForNyttSvar(u, '33.4'),", '() => undefined as unknown as string,']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -1561,11 +1561,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F193',
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
-    fil: `${K}/spor/frist/frysing.ts`,
+    fil: `${K}/spor/frist/format.ts`,
     endringer: [
       [
-        '{ maatteForstaa: [{ frist: f.gjelder, dager: maatteForstaa }] }',
-        '{ maatteForstaa: [{ frist: f.gjelder, dager: f.dager as number }] }',
+        "if (s?.art === 'spesifisering') return s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager;",
+        "if (s?.art === 'spesifisering') return d.vurdert;",
       ],
     ],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
@@ -1580,7 +1580,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F195',
     feilklasse: 'byggherrens vurdering etter § 33.6.1 lagres ikke som standpunkt (#341)',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [
       [
         "if (typeof v.spesifisert_krav_ok === 'boolean')",
@@ -2674,7 +2674,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'at TE svarte for sent på forespørselen, prekluderer ikke kravet (§ 33.6.2 tredje ledd, VS-U17)',
     fil: `${K}/spor/frist/frysing.ts`,
-    endringer: [['  if (foresporsel)\n', '  if (false)\n']],
+    endringer: [["if (typeof v.foresporsel_svar_ok === 'boolean' && foresporsel)", 'if (false)']],
     mal: ['VS-U17: «svaret kom for sent»', 'VS-U29: innsigelsen mot begrunnelsen'],
   },
   {
@@ -5631,29 +5631,15 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en frist som er trukket og tatt med igjen i en ny form'],
   },
   {
-    id: 'F588',
-    feilklasse:
-      'dagene byggherren måtte forstå står i laget før hindringen i utregningen av fristen (KA-U78)',
-    fil: `${K}/spor/frist/frysing.ts`,
-    endringer: [
-      [
-        "  for (const i of besvart(v.vilkar_oppfylt))\n    ut.push({ id: 'hindring', art: 'hindring', oppfylt: i });\n",
-        '',
-      ],
-      [
-        "  ut.push({\n    id: 'dager',",
-        "  for (const i of besvart(v.vilkar_oppfylt))\n    ut.push({ id: 'hindring', art: 'hindring', oppfylt: i });\n  ut.push({\n    id: 'dager',",
-      ],
-    ],
-    mal: ['hindringen bestridt og spesifiseringen for sent gir 0 dager'],
-  },
-  {
     id: 'F589',
     feilklasse:
       'leseren godtar en rad med andre dager i et lag enn standpunktet i laget gir (OV-U32)',
     fil: `${K}/spor/frist/format.ts`,
     endringer: [
-      ['      if (l.dager !== dagerI(n + 1))', '      if (l.dager !== dagerI(n + 1) && false)'],
+      [
+        '      if (l.dager !== dagerILaget(ut, virkninger, d, n + 1))',
+        '      if (l.dager !== dagerILaget(ut, virkninger, d, n + 1) && false)',
+      ],
     ],
     mal: ['en rad med andre dager i et lag enn standpunktet i laget gir fristen'],
   },

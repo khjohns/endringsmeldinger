@@ -1698,7 +1698,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/frist.ts',
     'regelsett',
     'kontroller',
-    ['spor/frist/kommando.ts:ugyldigIFristen', 'spor/frist/frysing.ts:regnUtFristen'],
+    ['spor/frist/kommando.ts:ugyldigIFristen', 'spor/frist/frysing.ts:regnUtFrist'],
   ],
   [
     'spor/frist/frysing.ts',
@@ -1966,7 +1966,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'HJEMMEL',
     [
       'format/leser.ts',
-      'spor/frist/kommando.ts',
+      'spor/frist/frysing.ts:standpunkterIFristen',
       'spor/vederlag/kommando.ts',
       'spor/forhold/frysing.ts',
       'frosset/standpunkt.ts',
@@ -2463,6 +2463,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #2242: utregningen i fristen regner lagene og dagene i dem slik lesingen kontrollerer dem.
   ['spor/poster/format.ts', 'rad', 'lagIGrunnlaget', ['spor/frist/frysing.ts:regnUtFristen']],
   ['spor/frist/format.ts', 'rad', 'dagerILaget', ['spor/frist/frysing.ts:regnUtFristen']],
+  // #2242: kommandoen og utregningen lager standpunktene i fristen av vurderingene likt.
+  ['spor/frist/frysing.ts', 'rad', 'standpunkterIFristen', ['spor/frist/kommando.ts']],
   [
     'spor/poster/format.ts',
     'rad',
@@ -2539,6 +2541,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts',
       'spor/vederlag/kommando.ts',
       'spor/frist/kommando.ts',
+      'spor/frist/frysing.ts:regnUtFrist',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],

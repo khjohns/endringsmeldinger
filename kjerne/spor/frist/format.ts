@@ -292,21 +292,17 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
  * byggherren måtte forstå for spesifiseringen, og de vurderte dagene i laget uten innsigelse.
  * Utregningen regner dagene i lagene med den (`regnUtFristen`), og lesingen kontrollerer dem.
  */
-export const dagerILaget =
-  (
-    standpunkter: readonly Standpunkt[],
-    virkninger: readonly Standpunktsvirkning[],
-    d: Pick<Extract<Standpunkt, { art: 'dager' }>, 'gjelder' | 'vurdert'>
-  ) =>
-  (lag: number): number | undefined => {
-    const s = standpunkter.find(
-      (x) =>
-        virkninger.find((v) => v.standpunkt === x.id)?.virkning === lag && erInnsigelseIFristen(x)
-    );
-    if (s?.art === 'spesifisering')
-      return s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager;
-    return s ? 0 : d.vurdert;
-  };
+export function dagerILaget(
+  standpunkter: readonly Standpunkt[],
+  virkninger: readonly Standpunktsvirkning[],
+  d: Extract<Standpunkt, { art: 'dager' }>,
+  lag: number
+): number | undefined {
+  const iLaget = new Set(virkninger.flatMap((v) => (v.virkning === lag ? [v.standpunkt] : [])));
+  const s = standpunkter.find((x) => iLaget.has(x.id) && erInnsigelseIFristen(x));
+  if (s?.art === 'spesifisering') return s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager;
+  return s ? 0 : d.vurdert;
+}
 
 /**
  * KA-U78, OV-U32: hver rad har ett lag for hvert lag i beslutningsgrunnlaget (`kontrollerRadene`),
@@ -326,9 +322,8 @@ function kontrollerUtregningenIFristen(
     // OV-U100.
     if (virkninger.find((v) => v.standpunkt === d.id)?.virkning === 'upaavirket')
       throw feil(`rad ${i + 1} har dagene upåvirket, men hver påberopelse i fristen rammer dem`);
-    const dagerI = dagerILaget(ut, virkninger, d);
     r.lag.forEach((l, n) => {
-      if (l.dager !== dagerI(n + 1))
+      if (l.dager !== dagerILaget(ut, virkninger, d, n + 1))
         throw feil(`rad ${i + 1} har ikke dagene standpunktet i lag ${n + 1} gir fristen`);
     });
     // Arbeidsvalget 15.11 i #1905 punkt 1.

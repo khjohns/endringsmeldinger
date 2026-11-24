@@ -1039,6 +1039,7 @@ describe('leddene ordnes etter laget (OV-U32, OV-U33)', () => {
  */
 describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
   const krav = {
+    id: 'k',
     innhold: {
       frister: [
         { id: 'a', navn: 'Ferdigstillelse', dager: 20 },
