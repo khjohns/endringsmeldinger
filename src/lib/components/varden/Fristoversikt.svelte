@@ -30,7 +30,7 @@
   let {
     u,
     betegnelser,
-    fristtabell = { datoer: [], sakId: '', ikkeForstaatt: [] },
+    fristtabell = { datoer: [], sakId: '' },
     vist = null,
     smal = false,
     onles,

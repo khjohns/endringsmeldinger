@@ -70,6 +70,13 @@ export type Fristdato = {
   forlengelser?: readonly { sakId: string; sakskode: Sakskode | null; dager: number }[];
 };
 
+/**
+ * En frist i fristtabellen med gjeldende frist uten dagene i saken (KA-U77, HF-U5), eller `null`
+ * når en annen sak kjernen ikke forstår, kan ha forlenget den (MM-U2). Lesepunktet regner den med
+ * kjernen.
+ */
+export type GjeldendeFristdato = Fristdato & { gjeldende: string | null };
+
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
   sakskode: merking.sakskode,

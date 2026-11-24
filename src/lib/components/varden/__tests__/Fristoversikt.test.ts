@@ -63,11 +63,18 @@ const TABELLEN: Fristtabellen = {
         { sakId: 'annen', sakskode: { kode: 'koe', loepenummer: 9 }, dager: 10 },
         { sakId: 'denne', sakskode: { kode: 'koe', loepenummer: 17 }, dager: 14 },
       ],
+      // Lesepunktet regner datoen med kjernen, uten dagene i saken selv.
+      gjeldende: '2027-08-26',
     },
-    { fristId: 2, dato: '2027-06-01', dagmulktbelagt: false, forlengelser: [] },
+    {
+      fristId: 2,
+      dato: '2027-06-01',
+      dagmulktbelagt: false,
+      forlengelser: [],
+      gjeldende: '2027-06-01',
+    },
   ],
   sakId: 'denne',
-  ikkeForstaatt: [],
   sakslenke: (id) => `/p/${id}`,
 };
 
@@ -154,9 +161,9 @@ describe('Gjeldende frist og ny frist (U-5, D-9, KA-U77)', () => {
     expect(nyFrist(g, 0)).toBeNull();
   });
 
-  it('en annen sak kjernen ikke forstår, gjør gjeldende frist ukjent; saken selv gjør det ikke (MM-U2)', () => {
-    expect(gjeldendeFrist(2, { ...TABELLEN, ikkeForstaatt: ['denne'] })?.art).toBe('kjent');
-    const ukjent = gjeldendeFrist(2, { ...TABELLEN, ikkeForstaatt: ['tredje'] });
+  it('gjeldende frist er ukjent når kjernen ikke kan regne datoen, fordi en annen sak den ikke forstår, kan ha forlenget fristen (MM-U2)', () => {
+    const datoer = TABELLEN.datoer.map((d) => ({ ...d, gjeldende: null }));
+    const ukjent = gjeldendeFrist(2, { ...TABELLEN, datoer });
     expect(ukjent).toEqual({ art: 'ukjent', iKontrakten: '2027-06-01' });
     expect(nyFrist(ukjent, 20)).toBeNull();
   });

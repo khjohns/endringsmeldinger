@@ -15,7 +15,6 @@ import {
   innholdIFristen,
   utregningIFristen,
 } from '#kjerne/spor/frist/format.ts';
-import { datoenEtterForlengelsene } from '#kjerne/spor/frist/visning.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
@@ -186,21 +185,19 @@ export type GjeldendeFrist =
 
 /**
  * Gjeldende frist: datoen i kontrakten med forlengelsene partene er enige om i andre saker i samme
- * kontrakt, uten saken `sakId` (KA-U77, HF-U5), regnet av kjernen (`datoenEtterForlengelsene`).
- * Forlengelsene leses av fristtabellen serveren gir (`Fristtabellinje` i `kjerne/spor/frist/visning.ts`).
+ * kontrakt, uten saken `sakId` (KA-U77, HF-U5). Datoen regnes av kjernen i lesepunktet
+ * (`fristdatoer` i `src/lib/kjernesak/kontekst.svelte.ts`).
  */
 export function gjeldendeFrist(
   fristId: number | null,
-  { datoer, sakId, ikkeForstaatt }: Fristtabellen
+  { datoer, sakId }: Fristtabellen
 ): GjeldendeFrist {
   const d = fristId === null ? undefined : datoer.find((x) => x.fristId === fristId);
   if (!d) return null;
-  const alle = (d.forlengelser ?? []).map((f) => ({ ...f, fristId: d.fristId }));
-  const dato = datoenEtterForlengelsene(d.dato, d.fristId, alle, ikkeForstaatt, sakId);
-  if (dato === null) return { art: 'ukjent', iKontrakten: d.dato };
+  if (d.gjeldende === null) return { art: 'ukjent', iKontrakten: d.dato };
   return {
     art: 'kjent',
-    dato,
+    dato: d.gjeldende,
     iKontrakten: d.dato,
     forlengelser: (d.forlengelser ?? []).filter((f) => f.sakId !== sakId),
   };
