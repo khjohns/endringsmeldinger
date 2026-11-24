@@ -68,6 +68,19 @@ export const VEDERLAGET = haerdet({
       : `Svaret er ${kroner(beloep)} lavere enn kravet.`,
   eksMva: 'Beløpene er eks. mva.',
   perPost: 'Per post',
+  /**
+   * Vilkåret ved en post i tabellen «Per post» når byggherren ikke godtar beregningsregelen eller
+   * justeringen for posten (svar A 24.11 i #2242, OV-U32).
+   */
+  postvilkaar: (innsigelser: readonly ('beregningsregel' | 'justering')[]) =>
+    VEDERLAGET.vilkaar(
+      innsigelser.map((i) =>
+        i === 'beregningsregel'
+          ? 'innsigelsen mot beregningsregelen'
+          : 'innsigelsen mot justeringen av enhetsprisene'
+      ),
+      false
+    ),
   post: 'Post',
   krevd: 'Krevd',
   oppgjoersform: (f: Oppgjoersform | null) =>

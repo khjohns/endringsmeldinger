@@ -14,7 +14,8 @@ import {
   krevdSamlet,
 } from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
-import type { Krav, Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
+import { plassene } from '#kjerne/frosset/byggeklosser.ts';
+import type { Krav, Kravpost, Oppgjoersform, Standpunkt, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
 import type { Brevet } from './lesing';
@@ -35,7 +36,15 @@ export interface Posten {
   oppgjoersform: Oppgjoersform | null;
   krevd: number | null;
   kravpost: Kravpost | null;
+  /**
+   * Innsigelsene mot beregningsregelen eller justeringen for posten som et senere lag for posten
+   * gjelder hvis ikke fører frem (OV-U32, svar A 24.11 i #2242).
+   */
+  innsigelser: Postinnsigelse[];
 }
+
+/** En innsigelse som bare gjelder én kravpost i vederlaget. */
+export type Postinnsigelse = 'beregningsregel' | 'justering';
 
 export interface KravetOgSvaret {
   kravbrev: Brevet;
@@ -63,7 +72,26 @@ const postene = (krav: Krav): Posten[] =>
     oppgjoersform: p.kravpost?.oppgjoersform ?? null,
     krevd: somTall(p.krevd),
     kravpost: p.kravpost,
+    innsigelser: [],
   }));
+
+/**
+ * Innsigelsene i svaret mot beregningsregelen eller justeringen for kravposten `id`, med et
+ * standpunkt til posten i et senere lag (`erInnsigelseIVederlaget`, `lagIKravposten`, OV-U32).
+ */
+function innsigelserIPosten(svar: Svar, id: string): Postinnsigelse[] {
+  const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, 0);
+  const lag = (x: Standpunkt) => plass.standpunkt(x.id).lag;
+  const senere = (l: number) =>
+    svar.standpunkter.some((x) => 'gjelder' in x && x.gjelder === id && (lag(x) ?? 0) > l);
+  return svar.standpunkter.flatMap((x): Postinnsigelse[] => {
+    if (!erInnsigelseIVederlaget(x) || (x.art !== 'oppgjoersform' && x.art !== 'justering'))
+      return [];
+    const l = lag(x);
+    if (x.gjelder !== id || l === null || !senere(l)) return [];
+    return [x.art === 'oppgjoersform' ? 'beregningsregel' : 'justering'];
+  });
+}
 
 /**
  * Kravet som gjelder i vederlaget og byggherrens svar på det, eller `null` uten krav. `alle` er
@@ -118,6 +146,10 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   const tabell = oversikten ? tabellenIAvsnittet(oversikten) : null;
   return {
     ...ut,
+    poster: ut.poster.map((p) => ({
+      ...p,
+      innsigelser: p.kravpost ? innsigelserIPosten(svar, p.kravpost.id) : [],
+    })),
     // MM-U50: leseren har kontrollert at nøklene svarer til radene.
     postradene: oversikten?.poster ?? [],
     lagene,
