@@ -232,22 +232,17 @@ describe('Siden for fristforlengelsen', () => {
       )
     ).toBeVisible();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
+    // Ett vilkår per lag, uten linjene om grunnlaget (D2 b i #2180, oppdragsgiver 24.11).
     expect(
-      per
+      within(per.getAllByRole('list')[0]!)
         .getAllByRole('listitem')
-        .slice(0, 2)
-        .map((l) =>
-          [...l.children]
-            .map((e) => e.textContent)
-            .join(' ')
-            .replace(/\s+/g, ' ')
-            .trim()
-        )
+        .map((l) => utenHardeMellomrom(l.textContent!.trim()))
     ).toEqual([
-      'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
+      'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem',
       // Det tredje laget: «heller ikke», som brevets «Videre subsidiært» (LV-U4 punkt 4).
-      'Hvis heller ikke innsigelsen om spesifiseringen fører frem Dagene byggherren godkjenner.',
+      'Hvis heller ikke innsigelsen om spesifiseringen fører frem',
     ]);
+    expect(per.queryByText(/godkjenner dagene byggherren måtte forstå/)).toBeNull();
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
       overtakelse.getByText(
@@ -264,6 +259,18 @@ describe('Siden for fristforlengelsen', () => {
         .getAllByRole('listitem')
         .map((l) => l.textContent!.match(/^\s*(\D+?)\s*\d/)?.[1])
     ).toEqual(['Krevd', 'Hvis varselet kom i tide', 'Hvis også spesifiseringen kom i tide']);
+    // Det første laget med standpunkt leder, og laget under er dempet (#2180 R1-1, U-2).
+    expect(
+      [...overtakelse.getByRole('list', { name: 'Overtakelse' }).querySelectorAll('.lagrad')].map(
+        (r) => r.classList.contains('dempet')
+      )
+    ).toEqual([false, false, true]);
+    // Skalaen slutter på trinnet over det største kravet, 25 dager (#2180 R2-3).
+    expect(
+      [...kort.getAllByText((_, e) => e?.classList.contains('trinn') ?? false)].map((t) =>
+        [...t.children].map((c) => c.textContent)
+      )
+    ).toEqual(Array(3).fill(['0', '10', '20', '30']));
     const mekanisk = within(per.getByRole('region', { name: /^Frist 3\s+Mekanisk/ }));
     expect(
       mekanisk.getByText('Gjeldende frist er 1. juni 2027. Det er datoen i kontrakten.')
