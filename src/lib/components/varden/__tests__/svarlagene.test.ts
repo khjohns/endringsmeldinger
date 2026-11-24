@@ -5,17 +5,19 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
 import { START } from '#kjerne/tester/brukerforloep.ts';
 import { testklokke } from '#kjerne/tester/testmiljoe.ts';
 import { kravetOgSvaret } from '#lib/components/varden/vederlagsoversikt.ts';
-import { brevene } from '#lib/components/varden/lesing.ts';
+import { brevene, standpunktene } from '#lib/components/varden/lesing.ts';
 import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 
 vi.mock('#kjerne/spor/frist/format.ts', { spy: true });
+
+afterEach(() => vi.restoreAllMocks());
 
 const BF44 = JSON.parse(readFileSync('docs/domenetabell/brukerforlop/BF-44.json', 'utf8')) as {
   steg: Handling[];
@@ -42,5 +44,10 @@ describe('Lagene i vederlagssvaret (#2242)', () => {
       [{ art: 'varsel', hjemmel: '34.1.2' }],
       [{ art: 'varsel', hjemmel: '34.1.3' }],
     ]);
+    // Punktene ved svarskjemaet leser lagene gjennom `standpunktene`.
+    const svar = Object.values(u.svar).find((b) => b.svar.spor === 'vederlag')!.svar;
+    expect(
+      standpunktene(svar, u).flatMap((l) => ('vilkaar' in l && l.vilkaar ? [l.vilkaar] : []))
+    ).toContainEqual([{ art: 'varsel', hjemmel: '34.1.2' }]);
   });
 });

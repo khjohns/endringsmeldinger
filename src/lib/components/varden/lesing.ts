@@ -21,7 +21,12 @@ import {
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { datoForDokumentet } from '#kjerne/format/leser.ts';
-import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
+import {
+  erInnsigelseIVederlaget,
+  fasteBeloepIKravet,
+  kravposterI,
+  utenFastBeloep,
+} from '#kjerne/spor/vederlag/format.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 import type {
@@ -383,7 +388,11 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
-  const lagene = lageneISvaret(u, svar, brevene(u), 0, 'dager', erInnsigelseIFristen);
+  // Vederlaget har sitt eget predikat i kjernen (#2242); forholdet leser fristens, som før.
+  const lagene =
+    svar.spor === 'vederlag'
+      ? lageneISvaret(u, svar, brevene(u), 0, 'beloep', erInnsigelseIVederlaget)
+      : lageneISvaret(u, svar, brevene(u), 0, 'dager', erInnsigelseIFristen);
   const vilkaarFor = (lag: number | null) => {
     const laget = lag === null ? undefined : lagene[lag - 1];
     return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};
