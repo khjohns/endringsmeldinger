@@ -327,17 +327,26 @@
     gap: var(--spacing-1);
   }
   /* Parten og brevet til venstre, tallet til høyre, så tallene står under hverandre. */
-  .delhode,
-  .rader li {
+  .delhode {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-2);
   }
-  .delhode .verdi,
-  .rader li > :last-child:not(.rnavn) {
+  .delhode .verdi {
     margin-left: auto;
     text-align: right;
+  }
+  /* Navnet brytes i sin kolonne, og tallet står fast til høyre på første linje. */
+  .rader li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0 var(--spacing-2);
+  }
+  .rader li > :last-child:not(.rnavn) {
+    text-align: right;
+    white-space: nowrap;
   }
   .part {
     font-weight: 600;
