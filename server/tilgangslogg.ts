@@ -75,8 +75,6 @@ export async function loggAvvisning(
       .input('forsoekt_tenant', sql.UniqueIdentifier, forsoekt?.tenant ?? null)
       .execute('koe_api.logg_tilgang');
   } catch (feil) {
-    // Raden ble ikke skrevet, så minuttets plass er ledig for neste avvisning med samme grunn.
-    if (strupes) strupet.get(struping.eier)?.delete(`${hendelse}:${grunn}`);
     loggFeil('Tilgangsavvisningen kunne ikke logges', feil, 'error', {
       utfall: `${hendelse}:${grunn}`,
     });

@@ -259,8 +259,10 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
     }
   });
 
-  // Kilde: svaret i #2251 (én rad per grunn og minutt) og #1804 (avviste innlogginger logges med grunn).
-  it('en avvisning uten sesjon som ikke kunne skrives, tar ikke minuttets rad (#2251)', async () => {
+  // Kilde: svaret i #2251 (høyst én rad per grunn og minutt) og #1804 (avvisningen logges med
+  // grunn). Feiler skrivingen, står grunnen i driftsloggen, og minuttet forblir strupet, så en
+  // base som er nede, ikke får en forespørsel per avvisning.
+  it('en avvisning uten sesjon som ikke kunne skrives, har grunnen i driftsloggen, og minuttet forblir strupet (#2251)', async () => {
     const naa = new Date('2026-11-24T13:00:10Z');
     let feil = 1;
     const datalag = medRundt(kjoeretid(), 'koe_api.logg_tilgang', async (kjoer) => {
@@ -277,10 +279,8 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
         sted: 'Tilgangsavvisningen kunne ikke logges',
         utfall: 'innlogging_entra:utilgjengelig',
       });
-      expect(await hendelser(await tilbakekall())).toMatchObject([
-        { hendelse: 'innlogging_entra', grunn: 'utilgjengelig' },
-      ]);
       expect(await hendelser(await tilbakekall())).toEqual([]);
+      expect(error).toHaveBeenCalledOnce();
     } finally {
       error.mockRestore();
       await server.stopp();
