@@ -6361,7 +6361,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet ved en delvis godkjenning kjernen ikke godtar, står ikke som ugyldig i svarutkastet (KA-U42, #2156)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['KRAVPOSTFELT.filter((felt) => feil[', 'KRAVPOSTFELT.filter((felt) => !feil[']],
+    endringer: [
+      ['KRAVPOSTFELT.filter((felt) => iPosten[', 'KRAVPOSTFELT.filter((felt) => !iPosten['],
+    ],
     mal: ['det krevde, et svar kjernen ikke godtar (KA-U42'],
   },
   {
@@ -6386,8 +6388,72 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet for posten etter § 34.1.3 annet ledd kjernen ikke godtar, står ikke som ugyldig (KA-U42, #2156)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['feil[`produktivitet.${felt}`] ?', 'false ?']],
+    endringer: [['feil[`produktivitet.${felt}`] ||', 'false ||']],
     mal: ['for posten etter § 34.1.3 annet ledd er et beløp ved en delvis godkjenning'],
+  },
+  {
+    id: 'F757',
+    feilklasse:
+      'et standpunkt til oppgjørsformen kjernen avviser når svaret sendes, står ikke som ugyldig i svarutkastet (#2171)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'const iPosten = { ...feil, ...iOppgjoersformen.get(post.id) };',
+        'const iPosten = { ...feil };',
+      ],
+    ],
+    mal: [
+      'en oppgjørsform byggherren mener når tilbudet aksepteres, er et svar kjernen ikke godtar',
+      'kravet om tilbud når byggherren godtar beregningsregelen',
+      'et svar på varselet etter § 34.3.3 eller § 34.4 for en kravpost etter tilbudet',
+    ],
+  },
+  {
+    id: 'F758',
+    feilklasse:
+      'et svar på varselet etter § 34.1.2 der varslingsplikten ikke gjelder, står ikke som ugyldig i svarutkastet (#2171)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['    ...avvisteFelt(() => kontrollerVarseletForVederlag(v, hovedkategori, regler)),\n', ''],
+    ],
+    mal: ['et svar på varselet etter § 34.1.2 når varslingsplikten ikke gjelder kategorien'],
+  },
+  {
+    id: 'F759',
+    feilklasse:
+      'et svar om posten etter § 34.1.3 annet ledd når kravet ikke har den, står ikke som ugyldig i svarutkastet (#2171)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['    ...avvisteFelt(() => kontrollerProduktivitetsposten(v, krav)),\n', '']],
+    mal: ['et svar om posten etter § 34.1.3 annet ledd når kravet ikke har den'],
+  },
+  {
+    id: 'F760',
+    feilklasse:
+      'lagene i vederlaget kaster for et standpunkt til oppgjørsformen kjernen avviser, i stedet for å regnes uten det (#2171)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '  if (![...iOppgjoersformen.values()].some((f) => Object.keys(f).length)) return v;',
+        '  return v;',
+      ],
+    ],
+    mal: [
+      'en oppgjørsform byggherren mener når tilbudet aksepteres, er et svar kjernen ikke godtar',
+      'kravet om tilbud når byggherren godtar beregningsregelen',
+    ],
+  },
+  {
+    id: 'F761',
+    feilklasse:
+      'kjernen stiller spørsmålet om kravet om tilbud også når byggherren godtar beregningsregelen (KA-U71, #2171)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        "    ...(post.oppgjoersform !== 'tilbud' && p.aksepterer !== true",
+        "    ...(post.oppgjoersform !== 'tilbud'",
+      ],
+    ],
+    mal: ['et spørsmål om oppgjørsformen kjernen ikke stiller for kravposten'],
   },
   {
     id: 'F748',

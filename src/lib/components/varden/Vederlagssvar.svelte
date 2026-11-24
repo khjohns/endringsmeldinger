@@ -34,8 +34,7 @@
     regelen,
     spoerOmBeloepet,
     spoerOmHovedvarselet,
-    spoerOmTilbud,
-    spoerOmVarselet,
+    stiltIPosten,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -198,7 +197,7 @@
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
     const regel = regelen(p);
-    const tilbud = spoerOmTilbud(v, p) && v.kreverTilbud;
+    const tilbud = stiltIPosten(v, p).includes('krever_tilbud') && v.kreverTilbud;
     const form =
       v.form === null
         ? tilbud && regel
@@ -513,7 +512,7 @@
         lett
         stablet
       />
-      {#if spoerOmTilbud(v, p)}
+      {#if stiltIPosten(v, p).includes('krever_tilbud')}
         <Valg
           navn={`${uid}-tilbud-${p.betegnelse}`}
           spoersmaal={SKJEMA.tilbudSpoersmaal}
@@ -523,7 +522,7 @@
           lett
         />
       {/if}
-      {#if spoerOmVarselet(v, p)}
+      {#if stiltIPosten(v, p).includes('varslet_i_tide')}
         {#if regel === 'regningsarbeid'}
           <div class="setning">
             <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">

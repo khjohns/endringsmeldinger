@@ -186,7 +186,7 @@ export type GjeldendeFrist =
 /**
  * Gjeldende frist: datoen i kontrakten med forlengelsene partene er enige om i andre saker i samme
  * kontrakt, uten saken `sakId` (KA-U77, HF-U5). Forlengelsene leses av fristtabellen serveren gir
- * (`Fristlinje` i `server/kontraktsfrister.ts`).
+ * (`Fristtabellinje` i `kjerne/spor/frist/visning.ts`).
  */
 export function gjeldendeFrist(
   fristId: number | null,

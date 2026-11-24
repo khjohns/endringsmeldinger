@@ -1,4 +1,4 @@
-import type { Sakslinje } from '#lib/types/api.ts';
+import type { Sakslinje } from '#kjerne/utledning/visning.ts';
 
 const ingenting = { betegnelse: null, venter_paa_svar: false, svar_ikke_godtatt: false };
 
@@ -9,6 +9,8 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     sakstype: 'standard',
     sakstittel: 'Endring i grunnarbeider',
     opprettet: '2025-11-01T10:00:00Z',
+    kode: null,
+    loepenummer: null,
     siste_hendelse: '2025-12-22T14:30:00Z',
     siste_brev: { avsender: 'TE', dato: '2025-12-22' },
     hovedkategori: 'endring',
