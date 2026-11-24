@@ -1097,6 +1097,97 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     }
   });
 
+  // Kilde: #1210 og idempotensen i behandlingen (#963): et nytt forsøk etter en lagret sak
+  // gir saken fra kvitteringen, også når topicboardet er byttet.
+  it('#1210: et nytt forsøk etter en lagret sak gir saken fra kvitteringen når topicboardet er byttet', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const rad = (await nesteInnkommende(avh.datalag))!;
+    // Saken lagres, men utfallet gjør det ikke, som når registrerBehandling feiler.
+    const foerste = await behandle({ datalag: avh.datalag, catenda: innboks }, rad);
+    expect(foerste.utfall).toBe('sak_opprettet');
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        { b, p: o.prosjekt.id }
+      );
+    await settBoard(randomUUID());
+    try {
+      expect(await behandle({ datalag: avh.datalag, catenda: innboks }, rad)).toEqual(foerste);
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([
+        expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
+      ]);
+      // Kontrollsak: en topic på det gamle boardet uten sak har ingen topickobling.
+      const kontroll = await motta(kropp(randomUUID()));
+      expect(await behandleEnHendelse(senere(2))).toBe(true);
+      expect(await utfallFor(kontroll)).toEqual([
+        expect.objectContaining({ utfall: 'ukjent_prosjekt' }),
+      ]);
+    } finally {
+      await settBoard(board);
+    }
+  });
+
+  // Kilde: punkt 8 i #972 og #1210. Når saken finnes, lagres et annet utfall uten boardet, så
+  // basen godtar det etter et byttet topicboard, og topicen får ingen kommentar.
+  it('#1210: en hendelse for en topic med sak, laget av integrasjonen, får et utfall også når topicboardet er byttet', async () => {
+    const topic = randomUUID();
+    await motta(kropp(topic));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await sakerForTopic(topic)).toHaveLength(1);
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        { b, p: o.prosjekt.id }
+      );
+    await settBoard(randomUUID());
+    try {
+      const id = await motta(kropp(topic, { forfatter: INTEGRASJONEN }));
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([
+        expect.objectContaining({
+          utfall: 'laget_av_integrasjonen',
+          prosjekt_id: o.prosjekt.id,
+          sak_id: null,
+        }),
+      ]);
+      expect(await forsoekFor(id)).toBe(0);
+    } finally {
+      await settBoard(board);
+    }
+  });
+
+  // Fastholder dagens atferd: en deaktivert kobling deaktiverer medlemskapene (triggeren på
+  // koblingen), så kvitteringen kan ikke leses for forfatteren. Utfallet er ukjent_prosjekt,
+  // ikke ukjent_side med en kommentar om at saken ikke er opprettet. Åpent i #1210.
+  it('#1210: et nytt forsøk etter en lagret sak gir ukjent_prosjekt når koblingen er deaktivert', async () => {
+    const topic = randomUUID();
+    await motta(kropp(topic));
+    const rad = (await nesteInnkommende(avh.datalag))!;
+    const foerste = await behandle({ datalag: avh.datalag, catenda: innboks }, rad);
+    expect(foerste.utfall).toBe('sak_opprettet');
+    const aktiv = (verdi: 0 | 1) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET is_active = @v WHERE internal_project_id = @p',
+        {
+          v: verdi,
+          p: o.prosjekt.id,
+        }
+      );
+    await aktiv(0);
+    try {
+      expect(await behandle({ datalag: avh.datalag, catenda: innboks }, rad)).toEqual({
+        utfall: 'ukjent_prosjekt',
+        topicId: topic,
+      });
+    } finally {
+      await aktiv(1);
+      // Hendelsen får et utfall, så den ikke blir liggende først i innboksen.
+      await behandleEnHendelse(senere(1));
+    }
+  });
+
   // Kilde: punkt 8 i #972 og idempotensen i `registrer_behandling` (#963). En sak som alt er
   // opprettet, har topicen på boardet i topickoblingen, også når topicboardet er byttet.
   it('#972 punkt 8: etter et byttet topicboard godtas boardet i sakens topickobling, og en hendelse med utfall gir ingen feil', async () => {
