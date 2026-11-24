@@ -115,7 +115,7 @@ export function kravetOgSvaretIFristen(
 
   const rader = new Map(utregningIFristen(svar.utregning).frister.map((r) => [r.gjelder, r]));
   const sporlag = Math.max(0, ...[...rader.values()].map((r) => r.lag.length));
-  const lagene = lageneISvaret(u, svar, alle, sporlag, 'dager');
+  const lagene = lageneISvaret(u, svar, alle, sporlag, 'dager', erInnsigelseIFristen);
   const dagerI = (gjelder: string, l: Svarlaget) =>
     l.iSporet < 1 ? undefined : rader.get(gjelder)?.lag[l.iSporet - 1]?.dager;
   const felles = lagene.flatMap((l): Felleslaget[] => {

@@ -8,7 +8,11 @@
 
 import { OVERSIKTEN, tabellenIAvsnittet } from '#kjerne/frosset/tekst.ts';
 import { beloep, tilTall, type Oere } from '#kjerne/regler/beloep.ts';
-import { beloepeneILagene, krevdSamlet } from '#kjerne/spor/vederlag/format.ts';
+import {
+  beloepeneILagene,
+  erInnsigelseIVederlaget,
+  krevdSamlet,
+} from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
 import type { Krav, Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -99,7 +103,14 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
         0n
       )
     );
-  const lagene: Laget[] = lageneISvaret(u, svar, alle, sporlag, 'beloep').map((l) => ({
+  const lagene: Laget[] = lageneISvaret(
+    u,
+    svar,
+    alle,
+    sporlag,
+    'beloep',
+    erInnsigelseIVederlaget
+  ).map((l) => ({
     ...l,
     beloep: l.iSporet < 1 ? null : iLaget(l.iSporet),
   }));
