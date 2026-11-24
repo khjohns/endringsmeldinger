@@ -1,3 +1,4 @@
+import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 import { lageneISvaret, type Innsigelsen } from './svarlagene';
 import { kravetOgSvaretIFristen } from './fristoversikt';
 import { kravetOgSvaret } from './vederlagsoversikt';
@@ -382,7 +383,7 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
-  const lagene = lageneISvaret(u, svar, brevene(u), 0, 'dager');
+  const lagene = lageneISvaret(u, svar, brevene(u), 0, 'dager', erInnsigelseIFristen);
   const vilkaarFor = (lag: number | null) => {
     const laget = lag === null ? undefined : lagene[lag - 1];
     return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};
