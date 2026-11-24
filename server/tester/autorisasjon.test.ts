@@ -501,6 +501,36 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(t).not.toHaveProperty('synkronisert');
     });
 
+    it('endres koblingen under kontrollen, hentes listen fra koblingen som ble lest først, og basen avviser den med 503 (#726 punkt 2)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const ny = randomUUID();
+      // Koblingen flyttes etter at tilgangskontrollen har lest den, rett før alderen
+      // leses og før synkroniseringen kunne lest den på nytt (#2262).
+      const pool = medFoer(kjoeretid.pool, 'koe_api.medlemsliste_alder', async () => {
+        await r()
+          .input('prosjekt', sql.NVarChar(100), p.id)
+          .input('ny', sql.UniqueIdentifier, ny)
+          .query(
+            `UPDATE koe.catenda_project_configs SET catenda_project_id = @ny
+              WHERE internal_project_id = @prosjekt AND catenda_project_id <> @ny`
+          );
+      });
+      const { catenda, kall } = catendaMed({}, async () => [
+        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+      ]);
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        expect(await nektet(tilgang(m, p.id, { catenda, pool }))).toEqual({
+          status: 503,
+          error: 'ACCESS_UNAVAILABLE',
+        });
+      } finally {
+        logg.mockRestore();
+      }
+      expect(kall).toEqual([p.catenda]);
+    });
+
     it.each(['liste', 'feil'] as const)(
       'ved endret kobling under hentingen gir Catenda-utfallet %s 503 (#726 punkt 2, #51)',
       async (utfall) => {

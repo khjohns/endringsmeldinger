@@ -64,8 +64,10 @@ denne skillen.
 
 ## Kjøringen
 
-1. **Kontroller commiten.** Hent PR-en med `pull_request_read` (`get`). SHA-en skal være
-   `head` i PR-en, og `base` gir målgrenen. Stemmer det ikke, svar byggeøkta og kjør ikke.
+1. **Kontroller commiten.** Hent PR-en med `pull_request_read` (`get`). Reviewet gjelder
+   `head` i PR-en, og `base` gir målgrenen. Er SHA-en i bestillingen en eldre commit, gjelder
+   reviewet `head`, og svaret sier hvilken SHA det gjelder. En bestilling på en eldre commit
+   avvises ikke (#2256, 24.11).
 2. **Klonen og kjøremappa** etter codex-skillen eller gemini-skillen, én per oppdrag, med
    commiten hentet fra `origin`.
 3. **Bestillingen til verktøyet** er malen under for review, eller teksten fra byggeøkta for
@@ -128,7 +130,7 @@ ikke på nytt uten at økta ber om det.
 
 - Byggeøkta vurderer funnene etter gemini-skillen, «Kontrollen», og stoppregelen i
   leveranseskillen. Hvert funn får en rad i «Funn og utfall» med kilden «Codex» eller
-  «Gemini». Rettingene får ingen ny runde hos verktøyet (gemini-skillen, «Funn fra
+  «Gemini». Et P2 settes til P1 eller P3 før funnkontrollen godtar raden, med begge prioritetene («P2 → P3», leveranseskillen, «Review og funn»; #2256). Rettingene får ingen ny runde hos verktøyet (gemini-skillen, «Funn fra
   `/code-review`», punkt 6).
 - Kommer det ikke noe svar, eller mangler innloggingen, fortsetter byggeøkta og skriver i
   PR-en at reviewet fra verktøyøkta ikke er kjørt. Vilkårene for merge i

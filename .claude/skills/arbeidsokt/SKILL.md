@@ -145,6 +145,7 @@ uten at oppdraget gjentar det:
   når den er bestilt. PR-en skriver at reviewet er «bestilt for `<sha>`» først når
   `send_message` har gitt `delivered`. Fram til da står det «ikke bestilt ennå» (#1065,
   24.11).
+- **Sparring fra verktøyøkta.** Sier oppdraget at et spørsmål skal ha sparring fra verktøyøkta, bestilles den rett etter første lesing, og økta skriver sin egen vurdering mens sparringen går. Oppdraget sier hvem som poster svaret, og om oppfølgingen går i samme samtale ([verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-fra-byggeøkta), #2256).
 - **`/simplify`.** Før `/code-review` ser byggeøkta om et av kriteriene i
   [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify) gjelder for
   grenen. Gjelder et, sier den fra til orkestratoren hvilket, og arbeider videre mens

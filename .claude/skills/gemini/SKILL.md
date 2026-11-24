@@ -146,8 +146,8 @@ Gemini 4 Argon er en annen modellfamilie og har andre blindsoner.
    forankres i den. Kjør med `--json-schema`: anbefaling, antakelser, risiko og hva som må
    undersøkes. `--mode plan` avviser `git grep`, så sparringen kjøres som en kartlegging: i en
    egen klon, med `--mode accept-edits`, en liste over lesekommandoer som `command(git)`, og
-   `git status` etterpå (se «Kartlegging og review uten skriving»).
-2. **Deretter kan Argon kritisere Claudes vurdering**, i samme samtale med `--conversation`.
+   `git status` etterpå (se «Kartlegging og review uten skriving»). Bestillingen ber om ett JSON-objekt, med stier relative til repoet, høyst fem punkter i runde 1 og en grense for antall ord. Gjelder spørsmålet visningen, tas designnotatene og `.interface-design/system.md` med blant filene (#2256).
+2. **Deretter skal Argon kritisere Claudes vurdering**, i samme samtale med `--conversation`. Runden er fast, ikke valgfri. Argon bes følge en anbefaling om å avvise noe helt til der kjernen leser feltet.
    Hurtigbufferen treffer innenfor én samtale, men ikke mellom samtaler: en ny samtale betaler
    hele prefikset ved første kall (målt 24.11, #2274). Fortsett derfor i samme samtale innenfor
    et oppdrag, og start en ny samtale per oppdrag.
