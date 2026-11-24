@@ -1,0 +1,30 @@
+-- #1210: et nytt forsøk etter en opprettet sak når saken også når topicboardet er byttet
+-- eller koblingen deaktivert. Har topicen en topickobling med boardet fra webhooken, i et
+-- prosjekt som er koblet til Catenda-prosjektet fra webhooken, aktivt eller ikke, er
+-- prosjektet det. Ellers er prosjektet den aktive koblingen med topicboardet, som før.
+-- Prosjektet tas aldri fra kalleren. `@topic` er valgfri, så forrige utgivelse kan kalle
+-- prosedyren som før. Prosedyren er sist definert i
+-- `20261020130000_innkommende_behandling.sql`.
+
+ALTER PROCEDURE koe_api.topicens_prosjekt
+  @catenda_prosjekt uniqueidentifier,
+  @board uniqueidentifier,
+  @topic uniqueidentifier = NULL
+WITH EXECUTE AS N'koe_jobbkjoerer'
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DECLARE @prosjekt nvarchar(100) = (
+    SELECT TOP (1) t.prosjekt_id FROM koe.sak_catenda_topic t
+      JOIN koe.catenda_project_configs k ON k.internal_project_id = t.prosjekt_id
+     WHERE @topic IS NOT NULL
+       AND TRY_CONVERT(uniqueidentifier, t.catenda_topic_id) = @topic
+       AND TRY_CONVERT(uniqueidentifier, t.catenda_board_id) = @board
+       AND k.catenda_project_id = @catenda_prosjekt);
+  IF @prosjekt IS NOT NULL
+    SELECT @prosjekt AS prosjekt_id;
+  ELSE
+    SELECT internal_project_id AS prosjekt_id FROM koe.catenda_project_configs
+     WHERE catenda_project_id = @catenda_prosjekt AND topic_board_id = @board AND is_active = 1;
+END
+GO

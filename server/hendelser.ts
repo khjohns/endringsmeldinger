@@ -309,9 +309,12 @@ export async function behandle(
       melding: 'Topicen, boardet eller prosjektet er ikke en UUID.',
     };
 
+  // Topickoblingen først, så et nytt forsøk etter en opprettet sak når saken også når
+  // topicboardet er byttet eller koblingen deaktivert (#1210).
   const oppslag = await utenKontekst(avh.datalag)
     .input('catenda_prosjekt', sql.UniqueIdentifier, catendaProsjekt)
     .input('board', sql.UniqueIdentifier, board)
+    .input('topic', sql.UniqueIdentifier, topicId)
     .execute<{ prosjekt_id: string }>('koe_api.topicens_prosjekt');
   const prosjektId = oppslag.recordset[0]?.prosjekt_id;
   if (!prosjektId) return { utfall: endret ? 'ikke_behandlet_type' : 'ukjent_prosjekt', topicId };
