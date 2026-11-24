@@ -279,7 +279,7 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
       ),
     ]);
     const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
-    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, tall: 100000 }]);
+    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 100000 }]);
     expect(svaret.utenFast).toBe(1);
   });
 
@@ -293,7 +293,7 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
       ),
     ]);
     const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
-    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, tall: 130000 }]);
+    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 130000 }]);
     expect(svaret.utenFast).toBe(0);
   });
 
@@ -403,7 +403,7 @@ describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () 
     const u = await utledning([PAABEROPELSE, TO_FRISTER, fristsvar(10)]);
     const k = tilknyttetKrav(u, 'frist');
     expect(k.svaret!.lagene).toEqual([]);
-    const ett = [{ vilkaar: [], heller: false, tall: 10 }];
+    const ett = [{ vilkaar: [], heller: false, etikett: null, tall: 10 }];
     expect(k.svaret!.forAlle).toEqual([]);
     expect(k.frister.map((f) => f.lagene)).toEqual([ett, ett]);
   });
@@ -435,7 +435,7 @@ describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () 
     ]);
     const k = tilknyttetKrav(u, 'frist');
     expect(k.krevd!.tall).toBe(25);
-    expect(k.svaret!.lagene).toEqual([{ vilkaar: [], heller: false, tall: 10 }]);
+    expect(k.svaret!.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 10 }]);
     expect(k.frister).toEqual([]);
   });
 });

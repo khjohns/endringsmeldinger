@@ -675,6 +675,8 @@ export interface TilknyttetKrav {
 export interface Lagraden {
   vilkaar: Innsigelsen[];
   heller: boolean;
+  /** «prinsipalt», «subsidiært» eller «videre subsidiært», og `null` når svaret har ett lag. */
+  etikett: string | null;
   tall: number;
 }
 
@@ -687,9 +689,10 @@ export interface Fristen {
   lagene: Lagraden[];
 }
 
-const lagraden = (l: { vilkaar: Innsigelsen[]; heller: boolean; tall: number }): Lagraden => ({
+const lagraden = (l: Lagraden): Lagraden => ({
   vilkaar: l.vilkaar.filter((i) => i.art !== 'grunn'),
   heller: l.heller,
+  etikett: l.etikett,
   tall: l.tall,
 });
 

@@ -71,9 +71,14 @@
         ? FORHOLDET.gjelderHvis(k.grunner)
         : forholdssvaret && FORHOLDET.blirSubsidiaert(forholdssvaret.brev);
   const tall = (spor: Spor, n: number) => (spor === 'frist' ? dager(n) : kroner(n));
-  /** Et lag etter det første heter etter vilkåret i kortform, som på siden for kravet (D1 A). */
+  /**
+   * Et lag etter det første heter etter vilkåret i kortform, som på siden for kravet (D1 A). Uten
+   * et vilkår i sporet står etiketten for laget, så raden ikke leses som et annet svar.
+   */
   const lagnavn = (spor: Spor, l: Lagraden): string =>
-    FRISTEN.radnavn(l.vilkaar, l.heller, spor === 'vederlag');
+    l.vilkaar.length
+      ? FRISTEN.radnavn(l.vilkaar, l.heller, spor === 'vederlag')
+      : (l.etikett ?? FRISTEN.radnavn([], false));
 
   interface Rad {
     navn: string;
@@ -102,6 +107,8 @@
       };
     }
     const gruppe = (tittel: string, lagene: Lagraden[]): Rad[] => {
+      // En frist som bare har lagene for alle fristene, står ikke for seg (KA-U74).
+      if (!lagene.length && s.forAlle.length) return [];
       const [foerste, ...resten] = lagene;
       if (foerste && !foerste.vilkaar.length)
         return [
@@ -197,7 +204,8 @@
                 <p class="delhode">
                   <span class="part">{FORHOLDET.byggherren}</span>
                   <span class="brev">{brevref(k.svaret.brev)}</span>
-                  {#if s.hode || (!k.frister.length && k.svaret.utenFast)}<span class="verdi"
+                  {#if s.hode || (!k.frister.length && !k.svaret.lagene.length && k.svaret.utenFast)}<span
+                      class="verdi"
                       >{#if s.hode}<span class="num">{s.hode}</span
                         >{#if k.svaret.utenFast}{@render utenFast(
                             k.svaret.utenFast
@@ -322,6 +330,7 @@
   .delhode,
   .rader li {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-2);
   }
