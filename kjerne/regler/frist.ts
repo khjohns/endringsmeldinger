@@ -82,6 +82,16 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   for (const [felt, hjemmel] of paakrevdeSpoersmaal(krav)) {
     if (mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
   }
+  // Et svar som ikke er ja eller nei, gir ikke et standpunkt, så det avvises (#2242).
+  const spoersmaalene: Fristspoersmaal[] = [
+    'frist_varsel_ok',
+    'spesifisert_krav_ok',
+    'foresporsel_svar_ok',
+    'vilkar_oppfylt',
+  ];
+  for (const felt of spoersmaalene)
+    if (!mangler(v[felt]) && typeof v[felt] !== 'boolean')
+      feil[felt] = 'er verken true eller false';
   // VS-U29: etter begrunnelsen gjentar svaret byggherrens innsigelse mot den, eller gir den opp.
   if (
     !krav.er_svar_paa_foresporsel &&

@@ -6565,6 +6565,14 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["!s.iTide && s.hjemmel !== '34.4')", '!s.iTide)']],
     mal: ['er ikke en innsigelse når varselet etter § 34.4 kom for sent'],
   },
+  {
+    id: 'F764',
+    feilklasse:
+      'en vurdering i fristsvaret som verken er true eller false, godtas og gir ikke et standpunkt (#2242)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [["!mangler(v[felt]) && typeof v[felt] !== 'boolean'", 'false']],
+    mal: ['som verken er true eller false, avvises'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {
