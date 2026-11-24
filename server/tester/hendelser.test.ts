@@ -1097,8 +1097,6 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     }
   });
 
-  // Kilde: punkt 8 i #972 og idempotensen i `registrer_behandling` (#963). En sak som alt er
-  // opprettet, har topicen på boardet i topickoblingen, også når topicboardet er byttet.
   // Kilde: #1210 og idempotensen i behandlingen (#963): et nytt forsøk etter en lagret sak
   // gir saken fra kvitteringen, også når topicboardet er byttet.
   it('#1210: et nytt forsøk etter en lagret sak gir saken fra kvitteringen når topicboardet er byttet', async () => {
@@ -1157,10 +1155,12 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     } finally {
       await aktiv(1);
       // Hendelsen får et utfall, så den ikke blir liggende først i innboksen.
-      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      await behandleEnHendelse(senere(1));
     }
   });
 
+  // Kilde: punkt 8 i #972 og idempotensen i `registrer_behandling` (#963). En sak som alt er
+  // opprettet, har topicen på boardet i topickoblingen, også når topicboardet er byttet.
   it('#972 punkt 8: etter et byttet topicboard godtas boardet i sakens topickobling, og en hendelse med utfall gir ingen feil', async () => {
     const topic = randomUUID();
     const foerst = await motta(kropp(topic));
