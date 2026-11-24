@@ -4953,6 +4953,31 @@ tekst = '''
 Påberoper byggherren bare at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter uten vilkår.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "OV-U117"
+dato = 2026-11-24
+hvem = "oppdragsgiver"
+kilde = ["#2280", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1 i [`docs/vedlegg/runde2-1065-2026-11-24/sporsmal.md`](../vedlegg/runde2-1065-2026-11-24/sporsmal.md), ordrett slik det ble stilt 24.11: «Kan en innsigelse mot én kravpost være vilkår for standpunktet til en annen kravpost?» Bakgrunnen og alternativene står ordrett i spørsmålsfila. A ble anbefalt.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 24.11, ordrett: «A som anbefalt» ([svaret i #2280](https://github.com/khjohns/endringsmeldinger/issues/2280#issuecomment-7138813504)). Valgt: A.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u32" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En innsigelse som gjelder én kravpost, rammer bare standpunktet til den kravposten. Den er ikke vilkår for standpunktet til en annen kravpost.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En innsigelse som gjelder én kravpost, er også vilkår for standpunktet til en annen kravpost når den rammer den andre posten.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
