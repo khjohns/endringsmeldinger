@@ -8653,7 +8653,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   it.each([
     ['beløpet etter begrensningen mangler', { produktivitet_varslet_i_tide: false }],
     [
-      'beløpet etter begrensningen er høyere enn det byggherren godtar for posten',
+      'beløpet etter begrensningen er høyere enn det byggherren godkjenner for posten',
       { produktivitet_varslet_i_tide: false, produktivitet_begrenset_beloep: 30001 },
     ],
     [
@@ -12246,7 +12246,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     ]);
   });
 
-  it('vederlaget: ved en delvis godkjenning er beløpet byggherren godtar påkrevd (KA-U42)', () => {
+  it('vederlaget: ved en delvis godkjenning er beløpet byggherren godkjenner påkrevd (KA-U42)', () => {
     const s = saken(vederlagskravet(tilbud(100000)));
     const v = { kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }] };
     expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.godkjent_beloep']);
@@ -12274,7 +12274,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(ugyldig(s, 'frist', { frister: [{}] })).toEqual([]);
   });
 
-  it('fristen: dagene byggherren måtte forstå er et svar kjernen ikke godtar når de er flere enn dagene byggherren godtar (VS-U4, D-5, #2156)', () => {
+  it('fristen: dagene byggherren måtte forstå er et svar kjernen ikke godtar når de er flere enn dagene byggherren godkjenner (VS-U4, D-5, #2156)', () => {
     const s = saken(FRISTKRAV);
     const v = {
       frist_varsel_ok: true,
@@ -12284,7 +12284,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     };
     expect(ugyldig(s, 'frist', v)).toEqual(['frist 1.dager_maatte_forstaa']);
     expect(melding(s, 'frist', v)).toContain(
-      'er flere enn dagene byggherren godtar om kravet kom i tide'
+      'er flere enn dagene byggherren godkjenner om kravet kom i tide'
     );
     expect(
       ugyldig(s, 'frist', { ...v, frister: [{ dager: 10, dager_maatte_forstaa: 10 }] })

@@ -1,6 +1,6 @@
 /**
  * Frysingen av svaret på vederlaget: lagene standpunktene står i, postene og påberopelsene i
- * brevet, det byggherren godtar prinsipalt og sammenfallet, og serverens utregning av svaret
+ * brevet, det byggherren godkjenner prinsipalt og sammenfallet, og serverens utregning av svaret
  * og kontrollen av byggherrens vurderinger (B-13). `frosset/standpunkt.ts` slår opp her
  * gjennom `FRYSING`, og `frosset/utregning.ts` gjennom `UTREGNING` (#1783).
  */
@@ -227,7 +227,7 @@ export function postlisten(
 }
 
 /**
- * Det byggherren godtar prinsipalt i vederlaget, av postene og lagene i brevet (OV-U26,
+ * Det byggherren godkjenner prinsipalt i vederlaget, av postene og lagene i brevet (OV-U26,
  * OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning. En
  * kravpost med beløpet i et senere lag, eller uten beløp fordi tilbudet ikke er akseptert
  * (KA-U72), har ikke et fast beløp i det første og regnes ikke med (OV-U73). `uten_fast_beloep` er de kravpostene, så beløpet ikke leses som et avslag
@@ -513,7 +513,7 @@ function regnUtVederlag(
 }
 
 /**
- * OV-U26, OV-U31: beløpet byggherren godtar for hver post i vederlagskravet uten
+ * OV-U26, OV-U31: beløpet byggherren godkjenner for hver post i vederlagskravet uten
  * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: kravpostene (`gjelder`), med
  * svaret på hver, og posten etter annet ledd (`saerskilt`). Regnet med regelsettet som utregningen.
  */

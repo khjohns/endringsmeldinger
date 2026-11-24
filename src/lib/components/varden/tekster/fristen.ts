@@ -1,6 +1,5 @@
 import { liste } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
-import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
@@ -77,20 +76,6 @@ export const FRISTEN = haerdet({
   /** Vilkåret for et lag i fristsvaret (BF-45 U-3 og U-4). */
   vilkaar: (innsigelser: readonly Innsigelsen[], heller = false) =>
     VEDERLAGET.lagetVilkaar(innsigelser, heller),
-  /** Det laget bygger på, i brevets ord, og de dagene byggherren godkjenner i det siste laget. */
-  grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
-    standpunkter.length
-      ? standpunkter.flatMap((s) =>
-          s.art === 'spesifisering' && erInnsigelseIFristen(s)
-            ? [
-                'Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1).',
-                'Byggherren godkjenner dagene byggherren måtte forstå.',
-              ]
-            : [`${standpunkttekst(s, false)}.`]
-        )
-      : sist
-        ? ['Dagene byggherren godkjenner.']
-        : [],
   /** Et standpunkt brevet ga uten eget lag (U-3, OV-U42). */
   utenLag: (s: Standpunkt) => `${standpunkttekst(s, false)}.`,
   /**

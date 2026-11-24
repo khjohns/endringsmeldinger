@@ -313,3 +313,23 @@ describe('ordlyden i forutsetningene (#2183 G-2)', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
+  it('standpunktet om forholdet etter innsigelsen om varselet begynner med vilkåret i klarspråk, uten lagnavnet fra brevet', async () => {
+    await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
+    await radio('Enig i at pålegget innebærer en endring');
+    const punktene = screen.getByRole('region', { name: 'Punktene i brevet' });
+    const linjer = [...punktene.querySelectorAll('.punktstatus')].map((p) =>
+      [...p.children].map((c) => c.textContent!.replaceAll('\u00a0', ' '))
+    );
+    expect(linjer.slice(0, 2)).toEqual([
+      ['Du gjør gjeldende at varselet etter punkt 32.2 kom for sent'],
+      [
+        'Hvis innsigelsen om at varselet etter punkt 32.2 kom for sent ikke fører frem',
+        'Du er enig i at pålegget innebærer en endring',
+      ],
+    ]);
+    expect(punktene.textContent).not.toMatch(/Prinsipalt|Subsidiært/);
+  });
+});

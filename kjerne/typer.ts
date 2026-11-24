@@ -114,7 +114,7 @@ export type Opplysning =
  */
 export type Standpunkt =
   /**
-   * `begrenset` er beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3, og
+   * `begrenset` er beløpet byggherren godkjenner for posten etter begrensningen etter § 34.1.3, og
    * står bare når varselet etter § 34.1.3 kom for sent (VS-U5, OV-U22).
    */
   | {
@@ -128,7 +128,7 @@ export type Standpunkt =
   /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
   | { id: string; art: 'forhold'; resultat: Forholdsresultat }
   /**
-   * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
+   * OV-U26: `godkjent` er beløpet byggherren godkjenner for posten uten begrensningen etter
    * § 34.1.3. Standpunktet har enten `gjelder`, kravpostens `id`, eller `saerskilt`
    * (KA-U57 (c); spørsmålsfila 09.11 for #1663, det tekniske avsnittet punkt 4). `resultat` er
    * svarets, som utregningen gir det. Uten `godkjent` når tilbudet for kravposten ikke er

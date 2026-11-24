@@ -3469,10 +3469,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F394',
     feilklasse:
-      'beløpet etter begrensningen kan være høyere enn det byggherren godtar for posten (valg 2 i #1047)',
+      'beløpet etter begrensningen kan være høyere enn det byggherren godkjenner for posten (valg 2 i #1047)',
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['else if (b > godkjent)', 'else if (b > krevd)']],
-    mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
+    mal: ['beløpet etter begrensningen er høyere enn det byggherren godkjenner for posten'],
   },
   {
     id: 'F397',
@@ -3523,10 +3523,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F402',
     feilklasse:
-      'leseren godtar et beløp etter begrensningen over det byggherren godtar for posten (valg 2 i #1047, MM-U2)',
+      'leseren godtar et beløp etter begrensningen over det byggherren godkjenner for posten (valg 2 i #1047, MM-U2)',
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
-    mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
+    mal: [
+      'et beløp etter begrensningen over det byggherren godkjenner for posten, er ikke forstått',
+    ],
   },
   // GR-U26, LV-U31 og OV-U33: forbeholdet for ubesvart forhold, oppgjør som fast sum og
   // metoden i laget til beløpet (#1239, #1240).
@@ -6351,7 +6353,7 @@ const MUTASJONER: Mutasjon[] = [
         '      true || feil.godkjent_dager || feil.spesifisert_krav_ok',
       ],
     ],
-    mal: ['er et svar kjernen ikke godtar når de er flere enn dagene byggherren godtar'],
+    mal: ['er et svar kjernen ikke godtar når de er flere enn dagene byggherren godkjenner'],
   },
   {
     id: 'F744',
