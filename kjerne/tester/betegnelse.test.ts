@@ -481,7 +481,7 @@ describe('det sakslisten leser av kjernen (#1779)', () => {
     });
   });
 
-  it('svaret har det byggherren godtar om ingen påberopelse fører fram, også når forholdet er avslått (OV-U31, OV-U33)', () => {
+  it('svaret har det byggherren godkjenner om ingen påberopelse fører fram, også når forholdet er avslått (OV-U31, OV-U33)', () => {
     const u = utledet(forloepA).spor.vederlag;
     expect(fasteBeloepISvaret(u.gjeldendeSvar!)).toEqual({ sum: 6000000n, utenFastBeloep: 0 });
   });

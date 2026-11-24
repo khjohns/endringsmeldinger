@@ -1001,7 +1001,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
     ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts'],
   ],
-  // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
+  // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godkjenner for hver post.
   ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/frysing.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.

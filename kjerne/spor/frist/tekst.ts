@@ -150,7 +150,7 @@ function temaer(krav: Krav): Tema[] {
   ];
 }
 
-/** Dagene byggherren godtar for fristen, som en setning med liten forbokstav (KA-U74). */
+/** Dagene byggherren godkjenner for fristen, som en setning med liten forbokstav (KA-U74). */
 function dagerForFristen(resultat: string, frist: FristIKravet, vurdert: number): string {
   const navn = `frist ${betegnelsen(frist)}`;
   if (resultat === 'godkjent') return `for ${navn} godkjenner byggherren ${dager(vurdert)}.`;
