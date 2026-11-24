@@ -41,11 +41,16 @@ Passer ikke:
    `storage.googleapis.com`. Mangler en vert, foreslås den med miljøverktøyene.
 2. **Installasjonen.** Last ned `https://antigravity.google/cli/install.sh` til en egen mappe
    i scratchpad, les skriptet og kjør det. Det sjekker SHA-512 og legger `agy` i
-   `~/.local/bin`.
+   `~/.local/bin`. Skriptet kjører også `agy install`, som endrer oppsettet for skallet.
 3. **Innloggingen.** Start `agy` i `tmux` og velg Google OAuth. Gi oppdragsgiver lenken, og
-   lim koden inn med `tmux send-keys -l`. Koden skrives ikke noe annet sted.
+   lim koden inn med `tmux send-keys -l`. Koden skrives ikke noe annet sted. Lenken brytes over
+   flere linjer i panelet. `tmux capture-pane -J` skal gi den på én linje, men det er ikke
+   prøvd. Etter koden kommer skjermene i denne rekkefølgen: fargetemaet («Next»), vilkårene og
+   datainnsamlingen (punkt 4), «Yes, I trust this folder» for arbeidsmappa (punkt 5) og
+   hovedskjermen (#2274).
 4. **Datainnsamlingen.** Haken på siden «Terms of Service & Data Use» er satt på forhånd.
-   Fjern den, og kontroller i `/settings` at «Enable Telemetry» er `off`.
+   Enter veksler haken. Fjern den, og gå til «Done» med Down, Right og Enter. Kontroller i
+   `/settings` at «Enable Telemetry» er `off`.
 5. **Arbeidsmappa.** Godkjenn en egen, tom mappe i scratchpad, og avslutt med Escape. Legg
    klonene utenfor den. I prøven lå klonene under den godkjente mappa, og `agy` skrev og
    committet uten å spørre, selv om «Tool Permission» sto på `request-review`. Godkjenningen
@@ -64,15 +69,16 @@ Valgt av oppdragsgiver 24.11. Modellen settes med `--model`.
 | Sparring | Argon, eller Carbon når den er tilgjengelig |
 | Billig kartlegging | Hydrogen |
 
-Bare `gemini-4-neon-high` er prøvd i `--model`. Navnene på de andre står i modellisten i
-`agy`. Argon brukes bare til sparring. Hydrogen prøves mot stikkprøver før den brukes alene,
+`gemini-4-neon-high` og `gemini-4-argon-high` er prøvd i `--model`, Argon i sparringen 24.11
+(#2267, #2286). Navnene på de andre står i modellisten i `agy` (`agy models`). Argon brukes bare til sparring. Hydrogen prøves mot stikkprøver før den brukes alene,
 og resultatet føres i #2256.
 
 ## Arbeidsformen
 
 Tillatelsene i `agy` er ingen sperre. Den har skrevet utenfor arbeidsmappa, også med
 `--sandbox`, og i en godkjent mappe kjører den kommandoer og committer uten å spørre.
-`--mode auto` er ikke tilgjengelig for kontoen. Ligger klonen utenfor den godkjente mappa, skriver
+`--mode auto` var ikke tilgjengelig for kontoen i prøven. Hovedskjermen viste likevel Agent Mode
+`auto` 24.11, og om flagget virker nå, er ikke prøvd (#2274). Ligger klonen utenfor den godkjente mappa, skriver
 den med `--mode accept-edits`, og skallkommandoene må tillates i en liste (se «Tillatelsene»
 under). Sperrene ligger derfor utenfor `agy`:
 
@@ -111,7 +117,9 @@ kommando per kall og om skript i en fil. Lesing gjennom symlenken til `node_modu
 Fortsett samtalen med `--conversation <id>` og en utvidet liste, så går ikke arbeidet tapt.
 `--dangerously-skip-permissions` stoppes av auto-modus i Claude Code.
 
-Svaret kan ha tekst foran JSON-en. Les fra første `{"` etter teksten.
+Svaret kan ha tekst foran JSON-en. Les fra første `{"` etter teksten. Argon kan gi to
+JSON-objekter etter hverandre, med ulike nøkler, som varianter av samme svar. Les begge som
+ett svar, og nevn det i kontrollen (#2274).
 
 Uavhengige oppgaver startes samtidig, hver i sin klon, med `run_in_background`. Svaret har
 `usage` med tokenene. `--print-timeout` stopper en kjøring som henger.
@@ -135,12 +143,20 @@ Gemini 4 Argon er en annen modellfamilie og har andre blindsoner.
 
 1. **Argon svarer før den ser Claudes konklusjon.** Bestillingen har spørsmålet, alternativene,
    de relevante filene og vedtakene som binder. Den har ikke Claudes anbefaling, så svaret ikke
-   forankres i den. Kjør med `--mode plan` og `--json-schema`: anbefaling, antakelser, risiko
-   og hva som må undersøkes.
+   forankres i den. Kjør med `--json-schema`: anbefaling, antakelser, risiko og hva som må
+   undersøkes. `--mode plan` avviser `git grep`, så sparringen kjøres som en kartlegging: i en
+   egen klon, med `--mode accept-edits`, en liste over lesekommandoer som `command(git)`, og
+   `git status` etterpå (se «Kartlegging og review uten skriving»).
 2. **Deretter kan Argon kritisere Claudes vurdering**, i samme samtale med `--conversation`.
+   Hurtigbufferen treffer innenfor én samtale, men ikke mellom samtaler: en ny samtale betaler
+   hele prefikset ved første kall (målt 24.11, #2274). Fortsett derfor i samme samtale innenfor
+   et oppdrag, og start en ny samtale per oppdrag.
 3. **Claude kontrollerer det de er uenige om**, mot koden og katalogen etter
    resonneringsreglene i `CLAUDE.md`. Det som står igjen, legges fram for oppdragsgiver som
    alternativer, med hvem som mente hva.
+
+Svaret postes av verktøyøkta som kommentar i issuet sparringen gjelder, etter
+[verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 
 Argon avgjør ingenting. Juridiske spørsmål kan få samme sparring før de legges fram, men
 legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.

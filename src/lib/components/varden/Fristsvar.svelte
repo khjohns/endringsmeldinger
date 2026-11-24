@@ -219,7 +219,7 @@
       vilkaar: Parameters<typeof FRISTEN.vilkaar>[0] = [],
       heller?: boolean
     ) => (vilkaar.length ? [FRISTEN.vilkaar(vilkaar, heller), t] : [t]);
-    // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godtar.
+    // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godkjenner.
     const fra = nyeStandpunkter.flatMap((l) => {
       if (!('standpunkt' in l)) return [];
       const s = l.standpunkt;
@@ -467,7 +467,7 @@
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     <!-- Dagene byggherren måtte forstå står først i fristen når kravet er spesifisert for sent
-         (D-5), så dagene byggherren godtar om kravet kom i tide (U-14, D-5, prototypen
+         (D-5), så dagene byggherren godkjenner om kravet kom i tide (U-14, D-5, prototypen
          `fristkrav-te.html#svar`). -->
     {#snippet fristvalgene(f: Fristpost)}
       {@const v = valg.frister[f.id]}

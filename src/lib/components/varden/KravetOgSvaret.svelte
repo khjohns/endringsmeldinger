@@ -147,7 +147,9 @@
               <th scope="row" role="rowheader"
                 >{celler[0]}{#if post}<span class="hj"
                     >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
-                  >{/if}</th
+                  >{#if post.innsigelser.length}<span class="hj"
+                      >{VEDERLAGET.postvilkaar(post.innsigelser)}</span
+                    >{/if}{/if}</th
               >
               {#each celler.slice(1) as c, m (m)}
                 <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>

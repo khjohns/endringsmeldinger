@@ -5,7 +5,6 @@
  * dagene. Modulen avgjør ingenting selv.
  */
 
-import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
@@ -37,9 +36,12 @@ export interface Svarlaget {
   standpunkter: { standpunkt: Standpunkt; brev: Brevref | null }[];
 }
 
-/** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
-function innsigelsen(s: Standpunkt): Innsigelsen[] {
-  if (!erInnsigelseIFristen(s)) return [];
+/**
+ * Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. Om
+ * standpunktet er en innsigelse, avgjør sporets predikat i kjernen (`erInnsigelse`, #2242).
+ */
+function innsigelsen(s: Standpunkt, erInnsigelse: (s: Standpunkt) => boolean): Innsigelsen[] {
+  if (!erInnsigelse(s)) return [];
   if (s.art === 'rettidighet') return [{ art: 'varsel', hjemmel: s.hjemmel }];
   if (s.art === 'spesifisering' || s.art === 'hindring') return [{ art: s.art }];
   return [];
@@ -48,14 +50,16 @@ function innsigelsen(s: Standpunkt): Innsigelsen[] {
 /**
  * Lagene i svaret: grunnene fra svaret på forholdet først, og så lagene i sporet (OV-U73, HF-U34).
  * `sporlag` er antallet lag i utregningen for sporet, og `utenom` standpunktet med beløpet eller
- * dagene, som siden viser selv. `alle` er brevene i saken (`brevene(u)`).
+ * dagene, som siden viser selv. `alle` er brevene i saken (`brevene(u)`). `erInnsigelse` er
+ * sporets predikat i kjernen: `erInnsigelseIVederlaget` eller `erInnsigelseIFristen`.
  */
 export function lageneISvaret(
   u: Utledning,
   svar: Svar,
   alle: Brevet[],
   sporlag: number,
-  utenom: Standpunktsart
+  utenom: Standpunktsart,
+  erInnsigelse: (s: Standpunkt) => boolean
 ): Svarlaget[] {
   const brev = (id: string) => alle.find((b) => b.id === id) ?? null;
   const beregning = u.svar[svar.id];
@@ -93,7 +97,7 @@ export function lageneISvaret(
         })),
     };
   });
-  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!);
+  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!, erInnsigelse);
   return lagene;
 }
 
@@ -106,9 +110,9 @@ export const utenLag = (svar: Svar, utenom: Standpunktsart): Standpunkt[] => {
 };
 
 /** Innsigelsene i laget: grunnene fra forholdet og standpunktene som rammer kravet. */
-const innsigelseneI = (l: Svarlaget): Innsigelsen[] => [
+const innsigelseneI = (l: Svarlaget, erInnsigelse: (s: Standpunkt) => boolean): Innsigelsen[] => [
   ...l.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
+  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt, erInnsigelse)),
 ];
 
 /**
