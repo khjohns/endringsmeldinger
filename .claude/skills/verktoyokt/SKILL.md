@@ -60,7 +60,9 @@ denne skillen.
 2. **Klonen og kjøremappa** etter codex-skillen eller gemini-skillen, én per oppdrag, med
    commiten hentet fra `origin`.
 3. **Bestillingen til verktøyet** er malen under for review, eller teksten fra byggeøkta for
-   sparring. Verktøyøkta fyller inn feltene og legger ikke til noe.
+   sparring. Verktøyøkta fyller inn feltene og legger ikke til noe. Codex leser
+   diffen fra `diff.patch` i kjøremappa (codex-skillen, «Kommandoen»). For Gemini står den
+   i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»).
 4. **Kjør** med `run_in_background`, etter «Kommandoen» i codex-skillen eller
    «Arbeidsformen» i gemini-skillen. Uavhengige oppdrag kjøres samtidig, hver i sin klon.
 
@@ -68,14 +70,18 @@ denne skillen.
 
 ```text
 Gjør et review av PR <nummer> i khjohns/endringsmeldinger, commit <sha>, mot <base>.
-Diffen står i <kjøremappe>/diff.patch. Klonen står i <klon>, på commiten.
+Klonen står i <klon>, på commiten.
 Les CLAUDE.md, særlig avsnittet om review under «Arbeidsform», «Review og funn» i
 .claude/skills/leveranse/SKILL.md, og reglene i .claude/rules/ for mappene diffen endrer.
 Kjør én kommando per kall. Søk med git grep -n -e a -e b, ikke med | i mønsteret. Kjør ikke
 tester eller skript.
 Svar etter skjemaet. «kontrollert» sier hva du leste og søkte etter, og «usikkert» hva du
 ikke fikk kjørt. En tom funnliste er et gyldig svar, men bare med den begrunnelsen.
+<diff>
 ```
+
+`<diff>` er «Diffen står i <kjøremappe>/diff.patch.» for Codex. For Gemini er det «Diffen:»
+med diffen på linjene etter.
 
 ## Svaret
 
