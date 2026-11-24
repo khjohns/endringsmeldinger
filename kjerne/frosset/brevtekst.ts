@@ -207,7 +207,7 @@ export function lagBrevtekst(
       svarpunkter(s, t, regler, { foer: nummer, nummerert, ns }),
       FORBEHOLDSPUNKTET
     );
-  for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
+  for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
   for (const o of nytt.opplysninger) {
     // Datoen for et varsel står i avsnittet for varselet.
     if (erDato(o) && o.gjelder !== undefined) continue;
@@ -228,15 +228,16 @@ interface Innsigelse {
 }
 
 /**
- * VS-U9, VS-U11, VS-U24: byggherrens egne innsigelser som er en påberopelse etter
- * bestemmelsen svaret tar stilling til, og som byggherren ikke senere har gitt opp
- * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Svaret gjentar dem eller
- * gir dem opp. Et svar lagt til med svarskjemaet gir den opp som et svar fra løsningen, fra
+ * VS-U9, VS-U11, VS-U24: partens egne innsigelser som er en påberopelse etter
+ * bestemmelsen et svar i sporet tar stilling til, og som parten ikke senere har gitt opp
+ * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Brevet `dokumentet` som skrives,
+ * er ikke med. Svaret gjentar dem eller gir dem opp. Et svar lagt til med svarskjemaet gir den opp som et svar fra løsningen, fra
  * dagen det ble sendt (OV-U105), så et svar sendt før innsigelsen gir den ikke opp (OV-U104).
  * Et svar uten virkning gir den ikke opp (MM-U43 punkt 9).
  */
 function aapneInnsigelser(
-  svar: Svar,
+  spor: Spor,
+  dokumentet: string,
   avsender: Part,
   { j, saken }: Pick<Tekst, 'j' | 'saken'>,
   regler: Regelsett
@@ -245,7 +246,7 @@ function aapneInnsigelser(
   const innsigelser: (Innsigelse & { fra: number; dag: string | null })[] = [];
   const utenVirkning = (id: string) => saken.utenVirkning.includes(id);
   for (const d of j.dokumenter) {
-    if (d.avsender !== avsender || d.svar.includes(svar)) continue;
+    if (d.avsender !== avsender || d.id === dokumentet) continue;
     const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
     for (const s of d.svar) if (!utenVirkning(s.id)) svarFraParten.push({ svar: s, dag });
     for (const u of paaberopelserIDokumentet(d, utenVirkning))
@@ -259,8 +260,7 @@ function aapneInnsigelser(
       .slice(i.fra)
       .filter((x) => !foerDagen(x.dag, i.dag))
       .map((x) => x.svar);
-    return svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&
-      !innsigelsenErOppgitt(svar.spor, etter, hjemmel)
+    return svaretGjelderPaaberopelsen(spor, hjemmel) && !innsigelsenErOppgitt(spor, etter, hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
   });
@@ -342,7 +342,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);
+  const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];
@@ -568,6 +568,58 @@ function forholdetsLag(
 }
 
 /**
+ * LV-U76 og LV-U77: forbeholdet i forespørselen etter § 33.6.2, med innsigelsene byggherren
+ * fastholder i rekkefølgen etter OV-U32: preklusjonen etter § 32.2, avslaget av forholdet og
+ * preklusjonen etter § 33.4. Hver viser til brevet der byggherren gjorde den gjeldende (LV-U4
+ * punkt 5). En innsigelse byggherren har gitt opp, er ikke med. Uten innsigelser er det tomt.
+ * Et ubesvart forhold er GR-U34 og ikke en del av forbeholdet.
+ */
+function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
+  const { j, nytt } = t;
+  const aapne = (spor: Spor, hjemmel: Hjemmel) =>
+    aapneInnsigelser(spor, nytt.id, nytt.avsender, t, regler).filter((i) => i.hjemmel === hjemmel);
+  const jfInnsigelsen = (dokumenter: string[]) => {
+    const brevene = [...new Set(dokumenter)];
+    return `, jf. ${brevene.length > 1 ? 'innsigelsene' : 'innsigelsen'} i ${liste(brevene.map((d) => j.brevet(d)))}`;
+  };
+  const g = svaretPaaForholdet(t);
+  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
+  const innsigelser: string[] = [];
+  const etter322 = [
+    ...(g && grunner.includes('prekludert') ? [g.dokument] : []),
+    ...aapne('forhold', '32.2').map((i) => i.dokument),
+  ];
+  if (etter322.length)
+    innsigelser.push(`at ${VARSELET_I_SVARET['32.2']} kom for sent${jfInnsigelsen(etter322)}`);
+  if (g && grunner.includes('avslaatt')) {
+    // MM-U50, LV-U41: det byggherren sa i svaret, med de samme ordene som i svarene (`forholdetsLag`).
+    const avslaget = g.beslutningsgrunnlag.varslingsplikt
+      ? 'avslaget av kravet på endringsordre'
+      : harRisikoen(j.krav(g.gjelder))
+        ? 'at byggherren ikke har risikoen for forholdet'
+        : 'avslaget av forholdet';
+    innsigelser.push(`${avslaget}, jf. svaret i ${j.brevet(g.dokument)}`);
+  }
+  const etter334 = aapne('frist', '33.4');
+  const varslene = [...new Set(etter334.map((i) => i.gjelder))];
+  if (varslene.length > 1)
+    throw new KanIkkeUttrykkes('innsigelsene etter § 33.4 gjelder flere varsler');
+  if (varslene.length)
+    innsigelser.push(
+      `at ${VARSELET_I_SVARET['33.4']} i ${j.brevet(j.dokumentetTil(varslene[0]))} kom for sent${jfInnsigelsen(etter334.map((i) => i.dokument))}`
+    );
+  if (!innsigelser.length) return [];
+  return [
+    ...innsigelser.map((hva, i) =>
+      i === 0
+        ? `Byggherren fastholder ${etikett(1)} ${hva}.`
+        : `${stor(etikett(i + 1))} fastholder byggherren ${hva}.`
+    ),
+    `Forespørselen sendes for det tilfellet at ${innsigelser.length > 1 ? 'innsigelsene' : 'innsigelsen'} ikke fører frem.`,
+  ];
+}
+
+/**
  * GR-U34 punkt 3–5 med GR-U33: forbeholdet når byggherren svarer på vederlaget uten å ha svart
  * på gjeldende versjon av forholdet, i brevet eller før det, og forholdet ikke er avklart ved
  * frafall (GR-U23). Det står under «Forbehold» sist i svaret og er ikke et lag.
@@ -701,7 +753,8 @@ function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
 }
 
 /** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22 og KA-U34 (opphevet av KA-U46) ordrett. */
-function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
+function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
+  const { j, saken, nytt, sak } = t;
   const part = PART[nytt.avsender];
   switch (u.art) {
     case 'varsel': {
@@ -744,8 +797,11 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter punkt 33.6.2 annet ledd.`;
       return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 punkt 5 tredje ledd).`;
     case 'foresporsel':
-      // LV-U18 setning 1, ordrett med saken satt inn.
-      return `Byggherren ber etter NS 8407 punkt 33.6.2 totalentreprenøren angi og begrunne det antall dager totalentreprenøren krever som fristforlengelse som følge av forholdet i ${sak}. Svarer ikke totalentreprenøren, tapes kravet på fristforlengelse. Har totalentreprenøren ikke grunnlag for å beregne kravet, skal totalentreprenøren i stedet begrunne hvorfor grunnlaget ikke foreligger.`;
+      // LV-U18 setning 1, ordrett med saken satt inn, og forbeholdet etter LV-U76 og LV-U77.
+      return [
+        `Byggherren ber etter NS 8407 punkt 33.6.2 totalentreprenøren angi og begrunne det antall dager totalentreprenøren krever som fristforlengelse som følge av forholdet i ${sak}. Svarer ikke totalentreprenøren, tapes kravet på fristforlengelse. Har totalentreprenøren ikke grunnlag for å beregne kravet, skal totalentreprenøren i stedet begrunne hvorfor grunnlaget ikke foreligger.`,
+        ...forbeholdetIForesporselen(t, regler),
+      ].join(' ');
     case 'foresporselssvar':
       // LV-U18 setning 2. TEs begrunnelse følger som utdypningen.
       return `Totalentreprenøren svarer på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(u.gjelder))} at grunnlaget for å beregne kravet ikke foreligger (punkt 33.6.2 annet ledd b).`;

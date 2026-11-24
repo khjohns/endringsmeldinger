@@ -860,6 +860,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsLag',
+      'frosset/brevtekst.ts:forbeholdetIForesporselen',
       'kommandoer/utkastlag.ts:lageneIUtkastet',
     ],
   ],
