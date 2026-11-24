@@ -54,6 +54,20 @@ Passer ikke:
 Innstillingene til `agy` har samme filnavn som hookoppsettet. Brokervakten stopper derfor
 skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
 
+## Modellen
+
+Valgt av oppdragsgiver 24.11. Modellen settes med `--model`.
+
+| Oppgave | Modell |
+| --- | --- |
+| Review og kartlegging | Neon (`gemini-4-neon-high`) |
+| Sparring | Argon, eller Carbon når den er tilgjengelig |
+| Billig kartlegging | Hydrogen |
+
+Bare `gemini-4-neon-high` er prøvd i `--model`. Navnene på de andre står i modellisten i
+`agy`. Argon brukes bare til sparring. Hydrogen prøves mot stikkprøver før den brukes alene,
+og resultatet føres i #2256.
+
 ## Arbeidsformen
 
 Tillatelsene i `agy` er ingen sperre. Den har skrevet utenfor arbeidsmappa, også med
@@ -81,7 +95,7 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" GIT_SSL_CAINFO="$GIT_SSL_CAINFO" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
   ~/.local/bin/agy -p "$(cat "$BESTILLING")" --mode accept-edits --settings "$TILLATELSER" \
-  --json-schema "$SKJEMA" --model gemini-4-neon-high --output-format json \
+  --json-schema "$SKJEMA" --model "$MODELL" --output-format json \
   --print-timeout 30m > svar.json
 ```
 

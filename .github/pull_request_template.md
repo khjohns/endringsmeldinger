@@ -49,7 +49,7 @@ bare for å fylle dette punktet. -->
 ## Funn og utfall
 
 <!-- Én rad per funn fra /code-review, reviewet av samspillet mellom reglene,
-/design-review, kontrollen av rettingene og forslagene fra /simplify som ikke er gjennomført, med prioriteten og utfallet etter stoppregelen for funn
+/design-review, reviewet fra Codex eller Gemini, kontrollen av rettingene og forslagene fra /simplify som ikke er gjennomført, med prioriteten og utfallet etter stoppregelen for funn
 i leveranseskillen. Prioriteten er P0–P3, eller begge når prøvingen satte funnet ned
 («P2 → P3»). Utfallet er ett av: rettet (commit), krav i issue (lenke til
 kommentaren), oppfølgingsissue (lenke), spørsmål (under «Åpne spørsmål») eller

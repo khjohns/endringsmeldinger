@@ -251,7 +251,8 @@ Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare s
 der, blir glemt. Tabellen «Funn og utfall» i PR-beskrivelsen har én rad per funn med
 prioriteten og utfallet: rettet med commit, lenke til kommentaren eller
 oppfølgingsissuet, spørsmålet under «Åpne spørsmål», eller avvisningen med begrunnelsen.
-Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3».
+Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3». Finner flere
+reviewer samme funn, får det én rad med alle kildene, så det ikke får to utfall.
 
 Reviewet kjøres én gang, og kontrollen av rettingene én gang. Fra kontrollen av
 rettingene rettes et P0, og et P1 eller prøvd P2 i linjene rettingen selv skrev. Et annet

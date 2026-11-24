@@ -45,6 +45,20 @@ merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en
    må kontrolleres før saksdata eller annet sensitivt går gjennom den. Gi den ingenting
    `agy` heller ikke skulle få.
 
+## Modellen
+
+Valgt av oppdragsgiver 24.11. Standardinnsatsen i katalogen er `low`, så modellen og
+innsatsen settes alltid i kommandoen (`$MODELL` og `$INNSATS`).
+
+| Oppgave | Modell | Innsats |
+| --- | --- | --- |
+| Review | `gpt-6.2-sol` | `high` |
+| Sparring | `gpt-6.2-sol` | `medium` |
+| Sparring om arkitektur og andre sammensatte spørsmål | `gpt-6.2-astra` | `high` |
+
+En nyere Sol eller Astra kan brukes når den står i `codex debug models`. Modellen og
+innsatsen står i kommentaren med svaret.
+
 ## Kommandoen
 
 Samme klon, git-identitet og `env -i` som i gemini-skillen. Klonen settes på commiten med
@@ -63,6 +77,7 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
   timeout 1500 "$CODEX_MAPPE/node_modules/.bin/codex" exec \
+  -m "$MODELL" -c "model_reasoning_effort=\"$INNSATS\"" \
   -c 'default_permissions="review"' -c "$LESBART" --ephemeral \
   --output-schema "$KJOERING/skjema.json" -o "$KJOERING/svar.json" \
   "$(cat "$KJOERING/bestilling.md")" \
