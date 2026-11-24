@@ -71,6 +71,7 @@ export const SKJEMA = haerdet({
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
   // Med en kravpost etter en beregningsregel (U-9 i BF-14).
   godkjennAlleFormerRegel: 'Godta oppgjørsformen totalentreprenøren krever for alle kravpostene',
+  godkjennAlleFormerBlandet: 'Godkjenn fast sum og godta beregningsreglene for alle kravpostene',
   godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
   teKrever: (beloep: number, pns?: string) =>
     `Totalentreprenøren krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
@@ -205,12 +206,12 @@ export const FRISTSVAR = haerdet({
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
   maatteForstaaHoeyst: (grense: number) => `Skriv høyst ${dager(grense)}.`,
   leselinjeDager: (n: number, krevd: number) =>
-    n === krevd
-      ? n === 1
-        ? '1 dag godkjent'
-        : `Alle ${n} dagene godkjent`
-      : n === 0
-        ? 'Avslått'
+    n === 0
+      ? 'Avslått'
+      : n === krevd
+        ? n === 1
+          ? '1 dag godkjent'
+          : `Alle ${n} dagene godkjent`
         : `${n} av ${dager(krevd)} godkjent`,
 });
 

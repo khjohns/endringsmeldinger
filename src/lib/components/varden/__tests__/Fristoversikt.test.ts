@@ -9,7 +9,7 @@
 
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
@@ -311,7 +311,16 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
     expect(andre.getByText(FRISTEN.trekkEtterSvar)).toBeTruthy();
   });
 
-  it('i «Andre handlinger» står en linje bare under forseringen og trekket (D3 A 24.11, OV-U2, KA-U22)', async () => {
+  it('skjemaet for det nye kravet sier at svaret ikke kan godtas her når brevet er sendt, og ikke at byggherren ikke er bundet (MM-U34 punkt 1)', async () => {
+    await demosaken('te-har-mottatt-svaret', 'TE');
+    await fireEvent.click(screen.getByRole('button', { name: HANDLINGENE.revidertKrav }));
+    expect(
+      await screen.findByText(/Når du sender brevet, kan du ikke godta det svaret her\./)
+    ).toBeTruthy();
+    expect(screen.queryByText(/bundet/)).toBeNull();
+  });
+
+  it('i «Andre handlinger» står en linje bare under forseringen og trekket (U-6 i BF-45)', async () => {
     await demosaken('te-har-mottatt-svaret', 'TE');
     const andre = screen.getByRole('region', { name: HANDLINGENE.andre });
     const linjer = [...andre.querySelectorAll('button .b')].map((l) => l.textContent);

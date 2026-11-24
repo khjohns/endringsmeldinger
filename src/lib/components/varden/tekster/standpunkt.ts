@@ -159,7 +159,7 @@ function standpunkttekstMedVanligeMellomrom(
     case 'dager': {
       const hva = `Fristforlengelse${forPosten}`;
       if (s.resultat === 'avslaatt') return `${hva}: ${hvemLiten} avslår dagene`;
-      if (s.vurdert === krevd)
+      if (s.vurdert === krevd && s.vurdert > 0)
         return `${hva}: ${hvemLiten} godkjenner ${s.vurdert === 1 ? dager(1) : `alle ${s.vurdert} dagene`}`;
       return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}${krevd !== undefined ? ` av ${dager(krevd)}` : ''}`;
     }
