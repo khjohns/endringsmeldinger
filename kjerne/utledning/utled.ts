@@ -719,6 +719,7 @@ function registreringenStrider(
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, utenVirkning) : [];
+  const forholdIBrevet = d.svar.some((x) => x.spor === 'forhold');
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
@@ -726,8 +727,7 @@ function registreringenStrider(
     const medSvaret = (med: string) => samme(s.id, med);
     // OV-U32, OV-U104: dagen sammenliknes med svarene på forholdet lagene regnes fra (#2057).
     // Med svaret på forholdet i samme brev regnes lagene fra det, uten å sammenlikne dagene (OV-U32).
-    if (s.spor !== 'forhold' && !d.svar.some((x) => x.spor === 'forhold'))
-      svaretPaaForholdetPaaDagen(u, sendt, medSvaret);
+    if (s.spor !== 'forhold' && !forholdIBrevet) svaretPaaForholdetPaaDagen(u, sendt, medSvaret);
     // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
     // `aapneInnsigelser`. Utledningen leser om § 32.2 gjelder kategorien, av det frosne svaret
     // (MM-U43 punkt 8).

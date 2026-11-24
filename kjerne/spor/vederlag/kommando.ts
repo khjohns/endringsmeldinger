@@ -711,8 +711,8 @@ function utenAvvisteSvar(
  * For oppgjørsformen, varselet og justeringen er `virkning` og `etikett` derfor laget i
  * utfyllingen, ikke i svaret slik det er besvart. `besvart` er `false` for et ubesvart spørsmål om
  * beløpet, oppgjørsformen, varselet etter § 34.3.3 eller § 34.4 og justeringen.
- * Lagene fra forholdet leses av svaret på forholdet som gjaldt dagen `sendt` (`lageneIUtkastet`),
- * som frysingen gjør når brevet ikke selv har et svar på forholdet. Beløpene påvirker ikke lagene og tas ut før standpunktene
+ * Lagene fra forholdet leses som frysingen leser dem når brevet ikke selv har et svar på
+ * forholdet (`lageneIUtkastet`). Beløpene påvirker ikke lagene og tas ut før standpunktene
  * bygges. Svarene på en kravpost `kontrollerOppgjoersformen` avviser, står i `ugyldig` og
  * tas ut før lagene regnes. Kaster `UgyldigVurdering` for svar på kravpostene som
  * `kravpostvurderinger` avviser.

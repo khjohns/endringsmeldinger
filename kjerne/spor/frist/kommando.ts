@@ -237,9 +237,9 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
  * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
  * ubesvart spørsmål om varselet, forespørselen, hindringen eller spesifiseringen regnes som at
  * innsigelsen ikke er gjort gjeldende, så laget kan endre seg når det besvares (S1-A), og
- * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses av svaret på
- * forholdet som gjaldt dagen `sendt` (`lageneIUtkastet`), som i vederlaget. Dagene påvirker ikke lagene, så utregningen har én rad per
- * frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
+ * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses som i vederlaget
+ * (`lageneIUtkastet`). Dagene påvirker ikke lagene, så utregningen har én rad per frist uten
+ * dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
  * fristene ikke er én per frist i kravet.
  */
 export function lagIFristen(
