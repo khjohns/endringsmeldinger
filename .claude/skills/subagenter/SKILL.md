@@ -32,10 +32,14 @@ gjør selv. Her står hvordan den bestilles, i alle økter.
   standardmodellen: prøving av alternativene mot vedtakene, forslaget og spørsmålene.
   En agent i `.claude/agents/`, som `ci-logg` og `diffkontroll`, har modellen og
   innsatsen i sin egen definisjon.
-- **Størrelse.** En subagent får en bestilling den kan gjøre ferdig på om lag 80 kall og
-  under 150 000 tokens, uavhengig av grensen for økta: én fil, én gruppe bevis-saker eller ett spørsmål. Større arbeid
-  deles på flere subagenter. Uavhengige subagenter startes i samme
-  melding, så de går parallelt. Ingen subagent venter på noe utenfor seg selv (#1065).
+- **Størrelse og deling.** En subagent får et arbeid som trenger lite fra resten av økta
+  og gir et kort resultat tilbake, for eksempel én fil, én gruppe bevis-saker eller ett
+  spørsmål. Arbeidet deles etter konteksten, ikke etter typen problem. En subagent tar det
+  som kan leses for seg, i en kontekst som kastes etterpå. Henger delene tett sammen, gjør
+  økta arbeidet selv, eller det blir en egen økt, fordi hver overlevering mister noe av
+  det økta vet. Uavhengige subagenter startes i samme melding, så de går parallelt. Ingen
+  subagent venter på noe utenfor seg selv (#1065,
+  [artikkelen fra Anthropic](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop)).
 - **Hurtigbufferen.** En subagent har sin egen hurtigbuffer, og den varer i fem minutter
   etter forrige kall, også i økter der hovedsamtalen har en time
   ([hurtigbufferen i Claude Code](https://code.claude.com/docs/en/prompt-caching#subagents-and-the-cache)).

@@ -69,8 +69,10 @@ subagent gjøre analysen, med denne bestillingen:
 - Se om grensene i arbeidsøkt-skillen og «Følg øktene» og «Orkestratorens kontekst» i orkestreringsskillen holder, som tegn som skal ses
   nærmere på: en arbeidsøkt eller orkestrator som endte over om lag 800 000 tokens,
   en som passerte 400 000 uten en vurdering i PR-en, eller en over 150 000 tokens som
-  ble vekket etter over en time uten kall; og subagenter over 150 000 tokens eller 80 kall i de øktene
-  som ble sett nærmere på.
+  ble vekket etter over en time uten kall; og, i de øktene som ble sett nærmere på,
+  subagenter som vokste langt over grunnkonteksten eller brukte mange kall, fordi
+  bestillingen var for vid eller hang tett sammen med økta («Størrelse og deling» i
+  skillen [`subagenter`](../subagenter/SKILL.md)).
 - Se om nedre grense i skillen [`subagenter`](../subagenter/SKILL.md) holder:
   subagenter med under om lag fem verktøykall skulle vært gjort i økta.
 
