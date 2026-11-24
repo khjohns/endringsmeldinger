@@ -37,14 +37,14 @@ export interface Posten {
   krevd: number | null;
   kravpost: Kravpost | null;
   /**
-   * Innsigelsene mot beregningsregelen eller justeringen for posten som et senere lag for posten
-   * gjelder hvis ikke fører frem (OV-U32, svar A 24.11 i #2242).
+   * Innsigelsen mot beregningsregelen for posten, som et senere lag for posten gjelder hvis ikke
+   * fører frem (OV-U32, svar A 24.11 i #2242).
    */
   innsigelser: Postinnsigelse[];
 }
 
 /** En innsigelse som bare gjelder én kravpost i vederlaget. */
-export type Postinnsigelse = 'beregningsregel' | 'justering';
+export type Postinnsigelse = 'beregningsregel';
 
 export interface KravetOgSvaret {
   kravbrev: Brevet;
@@ -76,8 +76,9 @@ const postene = (krav: Krav): Posten[] =>
   }));
 
 /**
- * Innsigelsene i svaret mot beregningsregelen eller justeringen for kravposten `id`, med et
- * standpunkt til posten i et senere lag (`erInnsigelseIVederlaget`, `lagIKravposten`, OV-U32).
+ * Innsigelsen i svaret mot beregningsregelen for kravposten `id`, med et standpunkt til posten i
+ * et senere lag (`erInnsigelseIVederlaget`, `lagIKravposten`, OV-U32). Justeringen står alltid i
+ * det siste laget for posten, så den får aldri et vilkår her.
  */
 function innsigelserIPosten(svar: Svar, id: string): Postinnsigelse[] {
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, 0);
@@ -85,11 +86,11 @@ function innsigelserIPosten(svar: Svar, id: string): Postinnsigelse[] {
   const senere = (l: number) =>
     svar.standpunkter.some((x) => 'gjelder' in x && x.gjelder === id && (lag(x) ?? 0) > l);
   return svar.standpunkter.flatMap((x): Postinnsigelse[] => {
-    if (!erInnsigelseIVederlaget(x) || (x.art !== 'oppgjoersform' && x.art !== 'justering'))
+    // Et tilbud etter § 34.2.2 er ikke en beregningsregel (`lagIKravposten` hopper over det).
+    if (x.art !== 'oppgjoersform' || x.hjemmel === '34.2.2' || !erInnsigelseIVederlaget(x))
       return [];
     const l = lag(x);
-    if (x.gjelder !== id || l === null || !senere(l)) return [];
-    return [x.art === 'oppgjoersform' ? 'beregningsregel' : 'justering'];
+    return x.gjelder === id && l !== null && senere(l) ? ['beregningsregel'] : [];
   });
 }
 
