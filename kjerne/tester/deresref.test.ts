@@ -180,7 +180,7 @@ describe('Deres ref. i brevet løsningen sender (LV-U27, LV-U49, BF-07)', () => 
       const lest = lesJournal(rader, KJERNE.leserformat);
       const svaret = lest.at(-1)!;
       if (svaret.art !== 'dokument') throw new Error('Forutsetning: svaret er et dokument');
-      return lagDeresRef(svaret.dokument, lest.slice(0, -1));
+      return lagDeresRef(svaret.dokument, lest.slice(0, -1), []);
     };
     expect(deresRef(journal)).toEqual([m(1)]);
     // Som registrert korrespondanse har kravet ingen merking (G-3).

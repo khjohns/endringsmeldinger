@@ -328,6 +328,9 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > [#1423](https://github.com/khjohns/endringsmeldinger/issues/1423#issuecomment-6616393286).
 > Beslutningsstatus: avgjort.
 
+> **Merknad 2026-11-24 til B-13:** [B-13 regelversjon](vedtak.md#b-13-regelversjon) er
+> endret 24.11 av [MM-U58](vedtak.md#mm-u58) (#2286). Beslutningsstatus er uendret: avgjort.
+
 > **Merknad til B-12, samlet ved sluttredigeringen 09.10** fra merknadene 23.09,
 > 29.09 og 09.10. Beslutningsstatus er uendret: åpen.
 >

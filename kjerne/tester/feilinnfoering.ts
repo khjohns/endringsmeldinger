@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140), og F770–F773 forbeholdet i forespørselen etter § 33.6.2 og brevene det bestrider (LV-U76, LV-U77, LV-U49, #2246). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -1017,7 +1017,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);',
+        'const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);',
         'const innsigelsene: Innsigelse[] = [];',
       ],
     ],
@@ -1695,8 +1695,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    return svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&',
-        "    return (svar.spor !== 'forhold' || i.gjelder === svar.gjelder) &&\n      svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&",
+        'const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);',
+        "const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler).filter((i) => s.spor !== 'forhold' || i.gjelder === s.gjelder);",
       ],
     ],
     mal: [
@@ -6619,6 +6619,49 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [['u.spor[spor].gjeldendeKrav === null && harVarsel', 'harVarsel']],
     mal: ['et krav er ikke et varsel uten krav'],
+  },
+  {
+    id: 'F770',
+    feilklasse:
+      'forespørselen tar ikke med påberopelsen etter § 33.4 i forbeholdet (LV-U76, #2246)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["  if (etter334.length) ut.push(kom('33.4', etter334));", '']],
+    mal: [
+      'LV-U76: etter en påberopelse etter § 33.4 fastholder forespørselen',
+      'LV-U77: preklusjonen etter § 32.2, avslaget og påberopelsen etter § 33.4',
+    ],
+  },
+  {
+    id: 'F771',
+    feilklasse:
+      'forbeholdet i forespørselen snur rekkefølgen på innsigelsene (LV-U77, OV-U32, #2246)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['...innsigelser.map((hva, i) =>', '...innsigelser.reverse().map((hva, i) =>']],
+    mal: [
+      'LV-U77: preklusjonen etter § 32.2, avslaget og påberopelsen etter § 33.4',
+      'LV-U77: byggherrens egen påberopelse etter § 32.2 står prinsipalt',
+    ],
+  },
+  {
+    id: 'F772',
+    feilklasse:
+      'forespørselen viser ikke til brevene med varslene forbeholdet bestrider under «Deres ref.» (LV-U49, #2246)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    ...bestrider,\n', '']],
+    mal: ['LV-U49: brevene med varslene forbeholdet sier kom for sent'],
+  },
+  {
+    id: 'F773',
+    feilklasse:
+      'forbeholdet leser preklusjonen etter § 32.2 bare av svaret på gjeldende påberopelsesversjon (LV-U77, arbeidsvalget 15.10 i #500, #2246)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    for (const svar of d.svar) {',
+        '    for (const svar of d.svar.filter((x) => x.id === saken.svarPaaPaaberopelsen)) {',
+      ],
+    ],
+    mal: ['LV-U77: preklusjonen etter § 32.2 i svaret på en tidligere påberopelsesversjon'],
   },
 ];
 /** En kopi av arbeidstreet. */
