@@ -1039,6 +1039,7 @@ describe('leddene ordnes etter laget (OV-U32, OV-U33)', () => {
  */
 describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
   const krav = {
+    id: 'k',
     innhold: {
       frister: [
         { id: 'a', navn: 'Ferdigstillelse', dager: 20 },
@@ -1056,6 +1057,21 @@ describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
     (u.frister as { lag: { lag: number; dager: number }[] }[]).map((r) =>
       r.lag.map((l) => l.dager)
     );
+
+  // Et svar som verken er ja eller nei, gir ikke et standpunkt i lagene (Codex på #2275).
+  it.each(['vilkar_oppfylt', 'frist_varsel_ok', 'spesifisert_krav_ok'])(
+    'en vurdering i %s som verken er true eller false, avvises',
+    (felt) => {
+      const v = {
+        frist_varsel_ok: true,
+        vilkar_oppfylt: true,
+        spesifisert_krav_ok: true,
+        frister: [{ dager: 15 }, { dager: 10 }],
+        [felt]: 'nei',
+      };
+      expect(() => regnUt(v)).toThrow(`${felt}: er verken true eller false`);
+    }
+  );
 
   it('hindringen bestridt og spesifiseringen for sent gir 0 dager, dagene byggherren måtte forstå og de vurderte dagene', () => {
     const u = regnUt({

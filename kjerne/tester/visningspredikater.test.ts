@@ -1,7 +1,8 @@
 /**
  * Predikatene visningen leser i stedet for en egen kopi (#2120): forseringen etter FO-U1
  * (`prinsipaltAvslaatteDager`), frafallet etter vedtaket 05.10 for #235 (`kanFrafalle`, som også
- * kontrollen av svaret leser) og akseptfristen etter HF-U23 og MM-U24 (`akseptfristen`).
+ * kontrollen av svaret leser), akseptfristen etter HF-U23 og MM-U24 (`akseptfristen`) og
+ * innsigelsen i vederlagssvaret (`erInnsigelseIVederlaget`, #2242).
  */
 
 import { readFileSync } from 'node:fs';
@@ -15,6 +16,8 @@ import { kanFrafalle } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { kontrollerForholdet } from '../regler/svarkontroll.ts';
 import { prinsipaltAvslaatteDager } from '../spor/frist/utledning.ts';
+import { erInnsigelseIVederlaget } from '../spor/vederlag/format.ts';
+import type { Standpunkt } from '../typer.ts';
 import { akseptfristen, forseringKanVelges } from '../utledning/visning.ts';
 
 const forloep = (navn: string) =>
@@ -169,5 +172,57 @@ describe('akseptfristen står så lenge totalentreprenøren kan godta svaret (HF
     ],
   ] as [string, Handling[]][])('akseptfristen står ikke når %s', async (_n, etter) => {
     expect(akseptfristen(await utledning([...svaret, ...etter]), 'vederlag')).toBeNull();
+  });
+});
+
+// OV-U32 og lagslinjen i LV-U34: et senere lag gjelder hvis innsigelsene i laget foran ikke fører
+// frem. Brevteksten i vederlaget leser predikatet, og visningen skal lese det samme (#2242).
+describe('innsigelsen i vederlagssvaret (#2242)', () => {
+  const rettidighet = (
+    hjemmel: '34.1.2' | '34.1.3' | '34.3.3' | '34.4',
+    iTide: boolean
+  ): Standpunkt => ({
+    id: 's',
+    art: 'rettidighet',
+    gjelder: 'v',
+    hjemmel,
+    iTide,
+  });
+  const regel = (aksepterer: boolean): Standpunkt => ({
+    id: 's',
+    art: 'oppgjoersform',
+    gjelder: 'P1',
+    hjemmel: '34.3',
+    aksepterer,
+  });
+  const justering = (godtar: boolean): Standpunkt => ({
+    id: 's',
+    art: 'justering',
+    gjelder: 'P1',
+    hjemmel: '34.3.2',
+    godtar,
+  });
+
+  it.each([
+    ['varselet etter § 34.1.2 kom for sent', rettidighet('34.1.2', false)],
+    ['varselet etter § 34.1.3 kom for sent', rettidighet('34.1.3', false)],
+    ['varselet etter § 34.3.3 kom for sent', rettidighet('34.3.3', false)],
+    ['byggherren godtar ikke beregningsregelen', regel(false)],
+    ['byggherren godtar ikke justeringen av enhetsprisene', justering(false)],
+  ] as [string, Standpunkt][])('er en innsigelse når %s', (_n, s) => {
+    expect(erInnsigelseIVederlaget(s)).toBe(true);
+  });
+
+  it.each([
+    ['varselet etter § 34.1.2 kom i tide', rettidighet('34.1.2', true)],
+    ['varselet etter § 34.4 kom for sent (KA-U64: ingen virkning)', rettidighet('34.4', false)],
+    ['byggherren godtar beregningsregelen', regel(true)],
+    ['byggherren godtar justeringen av enhetsprisene', justering(true)],
+    [
+      'standpunktet er beløpet',
+      { id: 's', art: 'beloep', resultat: 'avslaatt', gjelder: 'P1' } as Standpunkt,
+    ],
+  ] as [string, Standpunkt][])('er ikke en innsigelse når %s', (_n, s) => {
+    expect(erInnsigelseIVederlaget(s)).toBe(false);
   });
 });

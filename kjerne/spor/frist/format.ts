@@ -287,11 +287,27 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
 }
 
 /**
+ * KA-U78, OV-U32: dagene innsigelsen i laget `lag` gir fristen `d`, med lagene i `virkninger`: 0
+ * for preklusjon etter § 33.4 eller § 33.6.2 og for at fremdriften ikke ble hindret, dagene
+ * byggherren måtte forstå for spesifiseringen, og de vurderte dagene i laget uten innsigelse.
+ * Utregningen regner dagene i lagene med den (`regnUtFristen`), og lesingen kontrollerer dem.
+ */
+export function dagerILaget(
+  standpunkter: readonly Standpunkt[],
+  virkninger: readonly Standpunktsvirkning[],
+  d: Extract<Standpunkt, { art: 'dager' }>,
+  lag: number
+): number | undefined {
+  const iLaget = new Set(virkninger.flatMap((v) => (v.virkning === lag ? [v.standpunkt] : [])));
+  const s = standpunkter.find((x) => iLaget.has(x.id) && erInnsigelseIFristen(x));
+  if (s?.art === 'spesifisering') return s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager;
+  return s ? 0 : d.vurdert;
+}
+
+/**
  * KA-U78, OV-U32: hver rad har ett lag for hvert lag i beslutningsgrunnlaget (`kontrollerRadene`),
- * med dagene standpunktet i laget gir fristen: 0 for preklusjon etter § 33.4 eller § 33.6.2 og for
- * at fremdriften ikke ble hindret, dagene byggherren måtte forstå for spesifiseringen, og de
- * vurderte dagene i det siste laget. Dagene er aldri upåvirket. Det første laget er
- * `godkjent_dager`, og det subsidiære står bare med mer enn ett lag.
+ * med dagene standpunktet i laget gir fristen (`dagerILaget`). Dagene er aldri upåvirket. Det
+ * første laget er `godkjent_dager`, og det subsidiære står bare med mer enn ett lag.
  */
 function kontrollerUtregningenIFristen(
   ut: Standpunkt[],
@@ -301,23 +317,13 @@ function kontrollerUtregningenIFristen(
 ): void {
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.frister: ${hva}`);
   const dagene = ut.filter((s) => s.art === 'dager');
-  const virkning = new Map(virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelsenI = (lag: number) =>
-    ut.find((s) => virkning.get(s.id) === lag && erInnsigelseIFristen(s));
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
     // OV-U100.
-    if (virkning.get(d.id) === 'upaavirket')
+    if (virkninger.find((v) => v.standpunkt === d.id)?.virkning === 'upaavirket')
       throw feil(`rad ${i + 1} har dagene upåvirket, men hver påberopelse i fristen rammer dem`);
     r.lag.forEach((l, n) => {
-      const s = innsigelsenI(n + 1);
-      const dager =
-        s?.art === 'spesifisering'
-          ? s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager
-          : s
-            ? 0
-            : d.vurdert;
-      if (l.dager !== dager)
+      if (l.dager !== dagerILaget(ut, virkninger, d, n + 1))
         throw feil(`rad ${i + 1} har ikke dagene standpunktet i lag ${n + 1} gir fristen`);
     });
     // Arbeidsvalget 15.11 i #1905 punkt 1.

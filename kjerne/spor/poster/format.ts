@@ -46,11 +46,12 @@ export function kontrollerRadene<R extends Postrad, P extends Postnoekkel>(
     raden(r, post, i);
   });
   // OV-U32, #1774: lagene i utregningen er lagene i beslutningsgrunnlaget.
-  const lagIGrunnlaget = Math.max(
-    1,
-    ...virkninger.flatMap((v) => (typeof v.virkning === 'number' ? [v.virkning] : []))
-  );
-  if (rader.length > 0 && antall !== lagIGrunnlaget)
-    throw feil(`radene har ${antall} lag, men beslutningsgrunnlaget har ${lagIGrunnlaget}`);
+  const iGrunnlaget = lagIGrunnlaget(virkninger);
+  if (rader.length > 0 && antall !== iGrunnlaget)
+    throw feil(`radene har ${antall} lag, men beslutningsgrunnlaget har ${iGrunnlaget}`);
   return antall;
 }
+
+/** Antallet lag i beslutningsgrunnlaget (OV-U32): det siste laget et standpunkt står i. */
+export const lagIGrunnlaget = (virkninger: readonly Standpunktsvirkning[]): number =>
+  Math.max(1, ...virkninger.flatMap((v) => (typeof v.virkning === 'number' ? [v.virkning] : [])));

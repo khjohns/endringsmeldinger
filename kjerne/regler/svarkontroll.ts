@@ -68,7 +68,7 @@ export function kontrollerSpesifiseringen(v: {
   if (maatteForstaaUbesvart(v)) throw feil('mangler (punkt 33.6.1)');
   if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
     throw feil('er ikke et helt antall dager');
-  // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.
+  // `kontroller` i `regler/frist.ts` har kontrollert at de vurderte dagene er høyst de krevde.
   if (d > (v.dager as number))
     throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
   return d;
