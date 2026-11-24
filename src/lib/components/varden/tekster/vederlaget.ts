@@ -83,9 +83,8 @@ export const VEDERLAGET = haerdet({
   regning: {
     oppgjoersform: 'Oppgjørsform',
     regningsarbeid: 'Regningsarbeid etter punkt 34.4.',
-    godkjent: (svar: Brevref) => `Byggherren godkjenner regningsarbeid i ${brevref(svar)}.`,
-    ikkeGodkjent: (svar: Brevref) =>
-      `Byggherren godkjenner ikke regningsarbeid i ${brevref(svar)}.`,
+    godkjent: (svar: Brevref) => `Byggherren godtar regningsarbeid i ${brevref(svar)}.`,
+    ikkeGodkjent: (svar: Brevref) => `Byggherren godtar ikke regningsarbeid i ${brevref(svar)}.`,
     varsel: 'Varsel før arbeidet',
     varselet: (b: Brevref) => `${brevrefStor(b)}, ${dato(b.registrert)} (pkt. 34.4 første ledd)`,
     overslag: 'Kostnadsoverslag',

@@ -712,8 +712,14 @@ describe('Varden med brukerforløpet BF-01', () => {
       const tekst = synlig();
       expect(tekst).not.toMatch(/§/);
       expect(tekst).not.toMatch(/hovedkrav/i);
-      // Totalentreprenøren godtar svaret; byggherren godkjenner (sprak.md, «Godkjenner og godtar»).
-      expect(tekst.replace(/TE godtar|Godtar totalentreprenøren/g, '')).not.toMatch(/\bgodtar\b/i);
+      // Totalentreprenøren godtar svaret; byggherren godkjenner (sprak.md, «Godkjenner og godtar»),
+      // men godtar en beregningsregel og justeringen av enhetsprisene (svar 2 A 24.11, #2184).
+      expect(
+        tekst.replace(
+          /TE godtar|Godtar totalentreprenøren|godtar (ikke )?(oppgjørsformen|justeringen|enhetspriser|regningsarbeid)/gi,
+          ''
+        )
+      ).not.toMatch(/\bgodtar\b/i);
       expect(tekst).not.toMatch(/(?<!total)entreprenøren/i);
       for (const f of FORKLARINGER) expect(tekst).not.toContain(f);
     };
@@ -758,7 +764,11 @@ describe('Varden med brukerforløpet BF-01', () => {
       )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
-      if (screen.queryByRole('button', { name: 'Oppdater kravet' })) iVarden.push('krav:vederlag');
+      if (
+        screen.queryByRole('button', { name: 'Oppdater kravet' }) &&
+        !iVarden.includes('krav:vederlag')
+      )
+        iVarden.push('krav:vederlag');
       // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
       // PR 1650).
       expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
@@ -884,7 +894,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     expect(await screen.findByRole('heading', { level: 1, name: 'Uten tittel' })).toBeTruthy();
-    expect(screen.getByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeTruthy();
+    expect(screen.getByText(/^Saken har en hendelse som ikke kan leses her\./)).toBeTruthy();
   });
 
   it('MM-U44: meldingen i en sak kjernen ikke forstår, sier at et varsel med frist sendes på annen måte og legges til som korrespondanse, og knappen finnes (OV-U4, #2079)', async () => {
@@ -905,7 +915,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    const melding = await screen.findByText(/^Saken har en hendelse løsningen ikke kan lese\./);
+    const melding = await screen.findByText(/^Saken har en hendelse som ikke kan leses her\./);
     expect(melding).toHaveTextContent('Brev kan ikke sendes herfra.');
     expect(melding).toHaveTextContent(
       'Et varsel med frist sender du på annen måte, og legger til i saken etterpå med «Legg til korrespondanse».'
@@ -925,7 +935,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Uten tittel');
-    expect(screen.queryByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeNull();
+    expect(screen.queryByText(/^Saken har en hendelse som ikke kan leses her\./)).toBeNull();
   });
 
   it.each([

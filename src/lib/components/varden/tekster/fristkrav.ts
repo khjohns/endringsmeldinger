@@ -21,7 +21,7 @@ export const FRISTKRAV = haerdet({
   // 1. Varselet.
   varselTittel: 'Varselet om fristforlengelse',
   varselHjelp:
-    'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
+    'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi antall dager. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
   kravetErVarselet: 'Gis i dette brevet.',
   /** Med kalenderdagene etter datoen TE oppgir at TE ble klar over forholdet, som i prototypen. */
   varseletSendt: (b: Brevref & { sendt: string | null }, etter: number | null) =>
@@ -32,7 +32,7 @@ export const FRISTKRAV = haerdet({
   bareVarsel: 'Du varsler om fristforlengelse uten å kreve et antall dager nå.',
   krevDager: 'Krev et antall dager for hver frist',
   hvaHjelp:
-    'Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Har du ikke varslet før, gis varselet i dette brevet.',
+    'Du skal varsle uten ugrunnet opphold, også før du kan angi antall dager (punkt 33.4). Har du ikke varslet før, gis varselet i dette brevet.',
   varselAleneHjelp:
     'Varsles det for sent, tapes kravet på fristforlengelse. Når du har grunnlag for å beregne omfanget, skal du uten ugrunnet opphold angi og begrunne antall dager (punkt 33.6.1).',
   hvordanVarsler: 'Hvordan varsler du?',
@@ -78,7 +78,7 @@ export const FRISTKRAV = haerdet({
   // 2. Fristene.
   fristerTittel: 'Fristforlengelse',
   fristerHjelp:
-    'Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).',
+    'Angi antall dager for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).',
   delAvArbeidene:
     'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
   fristEtikett: 'Fristen',
@@ -95,7 +95,7 @@ export const FRISTKRAV = haerdet({
   kalenderdager: 'Kalenderdager.',
   /** Raden før fristen er valgt, uten et tall som kan leses som nummeret i E.1 (U-1). */
   nyFrist: (n: number, av: number) => (av === 1 ? 'Ny frist' : `Ny frist ${n}`),
-  nyIVersjonen: 'Ny i denne versjonen',
+  nyIBrevet: 'Ny i dette brevet',
   trekkes: 'Trekkes',
   trekk: (navn: string) => `Trekk fristen ${navn}`,
   trekkTekst: 'Trekk fristen',
@@ -136,7 +136,7 @@ export const FRISTKRAV = haerdet({
   // U-5: fristene i tidslinja, med datoen den nye datoen er regnet fra.
   krevd: (d: string, fra: string | null) => `krevd forlenget ${d}${fra ? ` fra ${dato(fra)}` : ''}`,
   trekkHjelp:
-    'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
+    'En frist du tar ut, trekkes uttrykkelig. Brevet sier det. Fristen kan tas med igjen i et senere brev.',
   // 3. Begrunnelsen.
   begrunnelseTittel: 'Begrunnelse',
   begrunnelseHjelp:
@@ -167,8 +167,9 @@ export const FRISTKRAV = haerdet({
   forkastTekst:
     'Fristene og begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   // «Når du sender» (U-9, U-10).
-  virkningKravetErVarselet:
-    'Kravet er også varselet etter punkt 33.4. Varsles det for sent, tapes kravet på fristforlengelse.',
-  virkningNyVersjon: (svar: Brevref) =>
-    `Etter at den nye versjonen er sendt, kan svaret i ${brevref(svar)} ikke godtas, og byggherren er ikke lenger bundet av det.`,
+  virkningVarseletIBrevet:
+    'Varselet etter punkt 33.4 gis i dette brevet. Varsles det for sent, tapes kravet på fristforlengelse.',
+  /** MM-U34 punkt 1. */
+  virkningNyttBrev: (svar: Brevref) =>
+    `Når du sender brevet, kan du ikke godta svaret i ${brevref(svar)} her.`,
 });

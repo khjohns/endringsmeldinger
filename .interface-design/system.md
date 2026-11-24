@@ -487,9 +487,11 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   brevet eller i et innlegg, som ikke er bygget (PR 1650).
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
-  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
-  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En ny versjon av kravet sier hvilket brev den følger opp, og at svaret
-  da ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, pil og
+  skillelinjer. En linje under tittelen står bare der et vedtak krever den: virkningen av et trekk
+  (GR-U5, KA-U22) og at forsering sendes som egen sak (OV-U2). Ellers står virkningen i skjemaet og i
+  «Når du sender», også at svaret ikke kan godtas her når et nytt krav er sendt (MM-U34 punkt 1;
+  D3 A 24.11, #2186). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
   BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
   (#1646).
 - **Brevene** står i en tråd, og tråden er den samme på sidene for forholdet, vederlaget og
