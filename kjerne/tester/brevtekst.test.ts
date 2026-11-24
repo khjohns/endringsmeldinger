@@ -12404,7 +12404,14 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       frister: [{ dager: 5 }],
     };
     expect(ubesvart(s, 'frist', v)).toEqual([]);
-    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    const avvist = 'byggherren tar ikke stilling til spesifiseringen etter punkt 33.6.1';
+    expect(melding(s, 'frist', v)).toContain(avvist);
+    // KA-U78 siste setning: laget finnes ikke, så også «i tide» avvises (#1905 punkt 3).
+    expect(melding(s, 'frist', { ...v, spesifisert_krav_ok: true })).toContain(avvist);
+    expect(
+      melding(s, 'frist', { ...v, spesifisert_krav_ok: undefined }),
+      'kontrollsak: uten svar på spesifiseringen'
+    ).not.toContain(avvist);
     // #2156: skjemaet leser at spørsmålet ikke stilles, også når det er besvart.
     expect(stilt(s, v)).toEqual([
       'frist_varsel_ok',
@@ -12482,7 +12489,14 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       frister: [{ dager: 5 }],
     };
     expect(ugyldig(s, 'frist', v)).toEqual(['spesifisert_krav_ok']);
-    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    const avvist = 'byggherren tar ikke stilling til spesifiseringen etter punkt 33.6.1';
+    expect(melding(s, 'frist', v)).toContain(avvist);
+    // KA-U78 siste setning: laget finnes ikke, så også «i tide» avvises (#1905 punkt 3).
+    expect(melding(s, 'frist', { ...v, spesifisert_krav_ok: true })).toContain(avvist);
+    expect(
+      melding(s, 'frist', { ...v, spesifisert_krav_ok: undefined }),
+      'kontrollsak: uten svar på spesifiseringen'
+    ).not.toContain(avvist);
     expect(ugyldig(s, 'frist', { ...v, spesifisert_krav_ok: undefined })).toEqual([]);
   });
 

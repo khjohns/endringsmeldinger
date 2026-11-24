@@ -36,8 +36,8 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
   enighetsgrunnlag,
-  innsigelsenErOppgitt,
   innsigelsenPaaberoper,
+  innsigelsenErOppgitt,
   paaberopelserIDokumentet,
   sammenfallStemmer,
   svaretGjelderPaaberopelsen,
@@ -808,7 +808,7 @@ function partensPaaberopelser(
       // Varslingsplikten avgjør bare for en påberopelse mot påberopelsen av forholdet (GR-U11).
       let medPlikt: ReturnType<typeof innsigelsenPaaberoper> | undefined;
       const utenPlikt = innsigelsenPaaberoper(x.gjelder, dokumenter, () => false);
-      const fra = svarFraParten.length;
+      const foerste = svarFraParten.length;
       const xDag = dagenSendt({ id: x.id, dokument: d.id }, d);
       ut.push({
         id: x.id,
@@ -816,7 +816,7 @@ function partensPaaberopelser(
         // Partens svar etter påberopelsen, som i `aapneInnsigelser` (VS-U9, VS-U11, HF-U4).
         etter: () =>
           svarFraParten
-            .slice(fra)
+            .slice(foerste)
             .filter((y) => !foerDagen(y.dag, xDag))
             .map((y) => y.svar),
         hjemmel: (varslingsplikt) =>
