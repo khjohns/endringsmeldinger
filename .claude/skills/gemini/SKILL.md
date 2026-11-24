@@ -17,7 +17,8 @@ Passer:
   issues i prøven var allerede løst.
 - **Små issues med prøvbare forventninger utenfor kjernen:** tekst, dokumentasjon, verktøy
   og avhengigheter.
-- **Review med en annen modellfamilie,** i tillegg til `/code-review` og ikke i stedet.
+- **Review med en annen modellfamilie,** etter leveranseskillen («Review med en annen
+  modellfamilie»).
 - **Sparring i viktige spørsmål**, som arkitekturvurderinger, før Claude legger fram en
   anbefaling. Se «Sparring» under. Om sparringen er god, vurderes underveis.
 - **Bygging i kjernen etter et vedtak**, med de samme kontrollene som ellers: feilinnføringene,
@@ -30,8 +31,8 @@ Passer ikke:
 - Spørsmål til oppdragsgiver, vedtak, push og merge. Vedtak krever dialogen med oppdragsgiver,
   og `agy` ser ikke samtalen. Push og merge er sperrene.
 - Saksdata, nøkler og tilgangsopplysninger. `agy` sender det den får, til Google.
-- Økter uten oppdragsgiver, som orkestrerte økter og rutiner. Innloggingen gjøres for hånd i
-  hver container, og tokenet kan ikke lagres i miljøet.
+- Økter uten oppdragsgiver, som orkestrerte økter og rutiner. De bruker Gemini gjennom
+  [verktøyøkta](../verktoyokt/SKILL.md).
 
 ## Oppsett, én gang per container
 
@@ -52,6 +53,20 @@ Passer ikke:
 
 Innstillingene til `agy` har samme filnavn som hookoppsettet. Brokervakten stopper derfor
 skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
+
+## Modellen
+
+Valgt av oppdragsgiver 24.11. Modellen settes med `--model`.
+
+| Oppgave | Modell |
+| --- | --- |
+| Review og kartlegging | Neon (`gemini-4-neon-high`) |
+| Sparring | Argon, eller Carbon når den er tilgjengelig |
+| Billig kartlegging | Hydrogen |
+
+Bare `gemini-4-neon-high` er prøvd i `--model`. Navnene på de andre står i modellisten i
+`agy`. Argon brukes bare til sparring. Hydrogen prøves mot stikkprøver før den brukes alene,
+og resultatet føres i #2256.
 
 ## Arbeidsformen
 
@@ -80,7 +95,7 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" GIT_SSL_CAINFO="$GIT_SSL_CAINFO" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
   ~/.local/bin/agy -p "$(cat "$BESTILLING")" --mode accept-edits --settings "$TILLATELSER" \
-  --json-schema "$SKJEMA" --model gemini-4-neon-high --output-format json \
+  --json-schema "$SKJEMA" --model "$MODELL" --output-format json \
   --print-timeout 30m > svar.json
 ```
 

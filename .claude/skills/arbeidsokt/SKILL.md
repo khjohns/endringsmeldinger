@@ -138,6 +138,9 @@ uten at oppdraget gjentar det:
   Små oppslag gjør økta selv (`CLAUDE.md`, «Arbeidsform»), og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
+- **Review fra verktøyøkta.** Sier oppdraget at PR-en skal ha review eller sparring fra
+  verktøyøkta, ber økta om det og vurderer svaret selv, etter
+  [verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-fra-byggeøkta).
 - **`/simplify`.** Før `/code-review` ser byggeøkta om et av kriteriene i
   [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify) gjelder for
   grenen. Gjelder et, sier den fra til orkestratoren hvilket, og arbeider videre mens

@@ -170,8 +170,9 @@ som `/code-review` også fant, og bekreftet at de andre lagene holdt.
 
 **Review med en annen modellfamilie** prøves for diffene med høyest risiko:
 serverinngangene, tilgangen og reglene i kjernen. Det kommer i tillegg til `/code-review`,
-etter [Gemini-skillen](../gemini/SKILL.md), og utfallet føres i #2256. Det er ikke et krav
-før gjennomgangen der har avgjort det.
+etter [Gemini-skillen](../gemini/SKILL.md) eller [codex-skillen](../codex/SKILL.md), i en
+orkestrert runde gjennom [verktøyøkta](../verktoyokt/SKILL.md), og utfallet føres i #2256.
+Det er ikke et krav før gjennomgangen der har avgjort det.
 
 **En PR bygget av en annen agent**, for eksempel Codex, får `/code-review`, og security
 review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Byggeagenten
@@ -250,7 +251,8 @@ Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare s
 der, blir glemt. Tabellen «Funn og utfall» i PR-beskrivelsen har én rad per funn med
 prioriteten og utfallet: rettet med commit, lenke til kommentaren eller
 oppfølgingsissuet, spørsmålet under «Åpne spørsmål», eller avvisningen med begrunnelsen.
-Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3».
+Et funn prøvingen satte ned, har begge prioritetene, for eksempel «P2 → P3». Finner flere
+reviewer samme funn, får det én rad med alle kildene, så det ikke får to utfall.
 
 Reviewet kjøres én gang, og kontrollen av rettingene én gang. Fra kontrollen av
 rettingene rettes et P0, og et P1 eller prøvd P2 i linjene rettingen selv skrev. Et annet
