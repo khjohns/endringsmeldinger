@@ -789,6 +789,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+      // VS-U63: et svar lagt til leser bare svarene sendt før det.
+      'spor/vederlag/kommando.ts:innsigelseneEtter344',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
@@ -1154,6 +1156,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
     ],
   ],
+  // VS-U63: «i tide» etter § 34.4 er oppgivelsen av en innsigelse som står.
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerOppgivelsenEtter344',
+    [
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:feilIOppgjoersformen',
+    ],
+  ],
+  ['regler/vederlag.ts:kontrollerOppgivelsenEtter344', 'utsagn', 'varslet_i_tide oppgjoersform'],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
   ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
@@ -1727,6 +1740,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/frist/kommando.ts:ugyldigIFristen',
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
@@ -1756,7 +1770,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsnyttelast',
     'predikat',
-    'begrunnelse kravsperre innsigelse utdypning oppgittDatoIKravet',
+    'begrunnelse svarsperre kravsperre innsigelse utdypning oppgittDatoIKravet',
     ['kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],

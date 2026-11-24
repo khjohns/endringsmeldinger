@@ -510,7 +510,9 @@ export type SpoersmaalIKravposten =
  * (arbeidsvalget i #479), kravet om tilbud for en beregningsregel som ikke er godtatt (KA-U69,
  * KA-U71), varselet etter § 34.3.3 og § 34.4 (KA-U64, VS-U56) og justeringen for justerte
  * enhetspriser (KA-U68, VS-U56). Et svar på et spørsmål som ikke stilles, avviser
- * `kontrollerOppgjoersformen`. Kravet om tilbud sendes med `aksepterer: false` (KA-U71).
+ * `kontrollerOppgjoersformen`. Etter § 34.4 er «i tide» bare oppgivelsen av en innsigelse som
+ * står (`kontrollerOppgivelsenEtter344`, VS-U63). Kravet om tilbud sendes med `aksepterer: false`
+ * (KA-U71).
  */
 export function stiltIKravposten(
   p: { aksepterer?: unknown },
@@ -592,4 +594,25 @@ export function kontrollerOppgjoersformen(
     feil[`${navn}.godtar_justering`] =
       'mangler når byggherren godtar beregningsregelen (punkt 34.3.2)';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
+}
+
+/**
+ * VS-U63 (VS-U77 punkt 31): for varselet etter § 34.4 tilbys ikke «i tide». Byggherren kan bare
+ * gi opp innsigelsen om at varselet for kravposten ikke ble gitt eller kom for sent, og
+ * `varslet_i_tide: true` er da oppgivelsen. `innsigelsenStaar` er at byggherrens siste
+ * standpunkt til varselet for posten før svaret gjorde den gjeldende. Kontrollen leser saken og
+ * gjøres av kommandoen, ikke av utregningen (`kontrollerOppgjoersformen`). Feilen står på
+ * `<navn>.varslet_i_tide`.
+ */
+export function kontrollerOppgivelsenEtter344(
+  navn: string,
+  p: { varslet_i_tide?: unknown },
+  post: { oppgjoersform: Oppgjoersform },
+  innsigelsenStaar: boolean
+): void {
+  if (post.oppgjoersform === 'regningsarbeid' && p.varslet_i_tide === true && !innsigelsenStaar)
+    throw new UgyldigVurdering({
+      [`${navn}.varslet_i_tide`]:
+        'byggherren har ikke gjort gjeldende at varselet etter punkt 34.4 for kravposten ikke ble gitt eller kom for sent, så det er ingen innsigelse å gi opp',
+    });
 }

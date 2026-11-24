@@ -67,6 +67,11 @@ export type Svarstandpunkter = (
 export interface Sporsnyttelast {
   /** Det som hindrer svaret fordi en begrunnelse mangler (KA-U46 punkt 1–3), eller `null`. */
   begrunnelse(s: Svarutkast, krav: Krav, regler: Regelsett): Avvisning | null;
+  /**
+   * Det i svaret som strider mot partens tidligere svar i sporet, eller `null`. `sendt` er dagen et
+   * svar lagt til ble sendt, og `null` for et svar fra løsningen.
+   */
+  svarsperre(s: Svarutkast, krav: Krav, u: Utledning, sendt: string | null): Avvisning | null;
   /** Det i kravet som strider mot kravversjonene før i sporet, eller `null`. */
   kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;
   /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
@@ -148,6 +153,8 @@ function kontrollerSvar(
       return avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
     throw feil;
   }
+  const sperre = nyttelastI(s.spor).svarsperre(s, krav, u, sendt);
+  if (sperre) return sperre;
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette. Skrivingen
   // registrerer standpunktene og utregningen for brevet her (#814).
   svarstandpunkter(s, server, krav, paaberopelse);
