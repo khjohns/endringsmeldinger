@@ -440,11 +440,10 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   og [MP-U5](plans/vedtak.md#mp-u5) (gjelder
   metodeprøven): påberopelsen er en innsigelse etter § 5, atskilt fra
   innsigelsen mot omfanget.
-- **Kjernen i dag:** delvis. `beregnReduksjon` i
-  [`regler/frist.ts`](../kjerne/regler/frist.ts) finnes og gir, som Python,
-  bare en grunn og ett tall. `spesifisert_krav_ok` usann avvises (`utenforOmfanget`, #341). Ingen
-  standpunktart for spesifiseringen. Dagene har ikke eget felt i
-  standpunktet. Et fristkrav fra appen må ha en begrunnelse ([KA-U33](plans/vedtak.md#ka-u33),
+- **Kjernen i dag:** delvis. Spesifiseringen er et eget standpunkt, og når den kom for sent,
+  står dagene byggherren måtte forstå i et eget lag (`regnUtFristen` i
+  [`spor/frist/frysing.ts`](../kjerne/spor/frist/frysing.ts)). Dagene for hver frist er et eget
+  standpunkt (KA-U74). Et fristkrav fra appen må ha en begrunnelse ([KA-U33](plans/vedtak.md#ka-u33),
   `BEGRUNNELSE_MANGLER`); appen vurderer ikke om den er tilstrekkelig. De leses fra `utregning`, med `utregning.resultat` som reserve
   i `leser.ts` (rettelsen 10.10 i #309).
 
@@ -505,7 +504,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   metodeprøven). [KA-U46](plans/vedtak.md#ka-u46): begrunnelsen i svaret på fristen er
   valgfri.
 - **Kjernen i dag:** bygget for svaret med dager og de subsidiære dagene
-  (`UTREGNING.frist`, `beregnFrist`). Ikke bygget: frist og passivitet i
+  (`UTREGNING.frist`, `regnUtFristen`). Ikke bygget: frist og passivitet i
   visningen.
 
 ### § 33.8 — forsering ved uberettiget avslag

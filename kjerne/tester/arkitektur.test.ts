@@ -1214,7 +1214,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'erEndringMedVarslingsplikt foersteUnderkategori gyldigeResultater',
   ],
-  ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
+  ['regler/frist.ts', 'regelsett', 'resultatAvDager'],
   [
     'regler/vederlag.ts',
     'regelsett',
@@ -1234,7 +1234,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt godkjent_dager',
   ],
-  ['Fristberegning', 'regelsett', 'er_prekludert'],
   [
     'regler/frist.ts:beregnSynlighet',
     'regelsett',
@@ -1695,7 +1694,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #2156 punkt 1: svarene i et svarutkast kontrollene avviser når svaret sendes, lest av de
   // samme kontrollene, med feltene i feilene.
-  ['regler/frist.ts', 'regelsett', 'kontroller', ['spor/frist/kommando.ts:ugyldigIFristen']],
+  [
+    'regler/frist.ts',
+    'regelsett',
+    'kontroller',
+    ['spor/frist/kommando.ts:ugyldigIFristen', 'spor/frist/frysing.ts:regnUtFristen'],
+  ],
   [
     'spor/frist/frysing.ts',
     'regelsett',
@@ -1873,6 +1877,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'erInnsigelseIFristen',
     ['spor/frist/tekst.ts', 'spor/frist/kommando.ts'],
   ],
+  // #2242: innsigelsen i vederlagssvaret, i brevet og visningen.
+  ['spor/vederlag/format.ts', 'predikat', 'erInnsigelseIVederlaget', ['spor/vederlag/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato ukjenteFelt'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -2454,6 +2460,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
   ['Postrad', 'rad', 'lag lag.lag', ['spor/poster/format.ts:kontrollerRadene']],
   ['Postnoekkel', 'rad', 'gjelder saerskilt', ['spor/poster/format.ts:kontrollerRadene']],
+  // #2242: utregningen i fristen regner lagene og dagene i dem slik lesingen kontrollerer dem.
+  ['spor/poster/format.ts', 'rad', 'lagIGrunnlaget', ['spor/frist/frysing.ts:regnUtFristen']],
+  ['spor/frist/format.ts', 'rad', 'dagerILaget', ['spor/frist/frysing.ts:regnUtFristen']],
   [
     'spor/poster/format.ts',
     'rad',
@@ -3040,8 +3049,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
  *   og `utledning/utled.ts` utleder den av de frosne standpunktene.
  */
 const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
-  ['regler/frist.ts:beregnFrist', 'Fristkrav.er_grunnlag_subsidiaert', '#309'],
-  ['regler/frist.ts:beregnFrist', 'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag', '#309'],
   ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.hovedkategori', '#309'],
   ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.underkategori', '#309'],
   ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.resultat', '#309'],
@@ -3461,8 +3468,6 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
   it('de kjente avvikene er bare forholdsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
-      'regler/frist.ts:beregnFrist Fristkrav.er_grunnlag_subsidiaert',
-      'regler/frist.ts:beregnFrist Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
       'regler/forhold.ts:standpunkt ForholdForStandpunkt.hovedkategori',
       'regler/forhold.ts:standpunkt ForholdForStandpunkt.underkategori',
       'regler/forhold.ts:standpunkt ForholdForStandpunkt.resultat',
@@ -3681,14 +3686,14 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     ],
     [
       'et paaberopelsesfelt i en ny funksjon i samme modul som et kjent avvik',
-      join(KJERNE, 'regler', 'frist.ts'),
+      join(KJERNE, 'regler', 'forhold.ts'),
       [
         [
-          join(KJERNE, 'regler', 'frist.ts'),
-          'export const proeve = (k: Fristkrav) => k.er_hele_fristen_subsidiaer_pga_grunnlag;',
+          join(KJERNE, 'regler', 'forhold.ts'),
+          'export const proeve = (k: ForholdForStandpunkt) => k.varsletITide;',
         ],
       ],
-      'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
+      'ForholdForStandpunkt.varsletITide',
     ],
     [
       'klientens utregning utenfor nyttelastkontrollen',
@@ -3705,10 +3710,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           join(KJERNE, 'regler', 'vederlag.ts'),
-          "import type { Fristkrav } from './frist.ts';\nexport const proeve = (k: Fristkrav) => k.er_grunnlag_subsidiaert;",
+          "import type { ForholdForStandpunkt } from './forhold.ts';\nexport const proeve = (k: ForholdForStandpunkt) => k.hovedkategori;",
         ],
       ],
-      'Fristkrav.er_grunnlag_subsidiaert',
+      'ForholdForStandpunkt.hovedkategori',
     ],
     [
       'utfallet i en annen regel enn de kjente avvikene',

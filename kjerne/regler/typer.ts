@@ -16,20 +16,6 @@ export type Beloepsvurdering = (typeof BELOEPSVURDERINGER)[number];
 export const SAERSKILTE = ['produktivitet', 'rigg_og_drift'] as const;
 export type Fristvarseltype = 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
 
-export const SUBSIDIAERE_UTLOSERE = [
-  'grunnlag_avslaatt',
-  'grunnlag_prekludert_32_2',
-  'forseringsrett_avslaatt',
-  'preklusjon_hovedkrav',
-  'preklusjon_produktivitet',
-  'reduksjon_ep_justering',
-  'preklusjon_varsel',
-  'reduksjon_spesifisert',
-  'ingen_hindring',
-  'metode_avslaatt',
-] as const;
-export type SubsidiaerUtloser = (typeof SUBSIDIAERE_UTLOSERE)[number];
-
 /** Hovedkategoriene (§ 33.1 a–c, § 33.3) med underkategoriene, som kontraktens overskrifter. */
 export const KATEGORIER = {
   endring: [

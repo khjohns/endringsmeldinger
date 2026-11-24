@@ -598,6 +598,19 @@ export const utenFastBeloep = (ut: readonly Standpunkt[]): Set<string> =>
     )
   );
 
+/**
+ * En innsigelse i vederlagssvaret, som et senere lag gjelder hvis den ikke fører frem (LV-U34,
+ * OV-U32): et varsel byggherren påberoper kom for sent, en beregningsregel byggherren ikke godtar
+ * og en justering av enhetsprisene byggherren ikke godtar. Brevteksten og visningen leser den.
+ */
+export function erInnsigelseIVederlaget(s: Standpunkt): boolean {
+  return (
+    (s.art === 'rettidighet' && !s.iTide) ||
+    (s.art === 'oppgjoersform' && !s.aksepterer) ||
+    (s.art === 'justering' && !s.godtar)
+  );
+}
+
 /** Det som er vederlagets eget i lesingen av svaret (`SVARLESING` i `format/leser.ts`). */
 export const LESING_I_VEDERLAGET = {
   standpunkt: standpunktIVederlaget,

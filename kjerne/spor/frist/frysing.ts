@@ -6,7 +6,7 @@
  */
 
 import {
-  beregnFrist,
+  kontroller,
   resultatAvDager,
   type Fristkrav,
   type Fristvurdering,
@@ -23,8 +23,11 @@ import {
   type Svarsfrysing,
   type Svarsutregning,
   type Svarvurdering,
+  type Utregningsgrunnlag,
 } from '../../frosset/byggeklosser.ts';
-import { innholdIFristen, utregningIFristen } from './format.ts';
+import type { Regelsett } from '../../regler/regelsett.ts';
+import { lagIGrunnlaget } from '../poster/format.ts';
+import { dagerILaget, innholdIFristen, utregningIFristen } from './format.ts';
 import { dagenSendt } from '../../format/leser.ts';
 import { ukjenteFelt } from '../../format/skjema.ts';
 import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
@@ -131,8 +134,6 @@ export const fristkravet = (
   // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
   har_innsigelse_mot_varsel: true,
   har_tidligere_varsel_i_tide: false,
-  er_grunnlag_subsidiaert: false,
-  er_hele_fristen_subsidiaer_pga_grunnlag: false,
 });
 
 /** Vurderingen av én frist slik regelsettet leser den: vurderingene av hele kravet og dagene. */
@@ -152,28 +153,73 @@ export const dagerMaatteForstaa = (v: Svarvurdering, f: Dagvurdering): number | 
     dager: f.dager,
   });
 
+/**
+ * Standpunktene vurderingene gir fristen `f`, i rekkefølgen `STANDPUNKTER_I_FRISTEN` lagrer dem
+ * (VS-U24), så utregningen får lagene av `virkningerIForholdetOgFristen` (#2242). Lagene leser
+ * ikke `gjelder` i rettidigheten eller `resultat` i dagene, som her er kravet og «godkjent».
+ */
+function standpunkteneIUtregningen(
+  v: Svarvurdering,
+  krav: string,
+  f: Dagvurdering,
+  maatteForstaa: number | null,
+  foresporsel: Foresporselsrelasjon | null
+): Standpunkt[] {
+  const ut: Standpunkt[] = [];
+  const besvart = (x: unknown) => (typeof x === 'boolean' ? [x] : []);
+  for (const i of besvart(v.frist_varsel_ok))
+    ut.push({ id: '33.4', art: 'rettidighet', gjelder: krav, hjemmel: '33.4', iTide: i });
+  if (foresporsel)
+    for (const i of besvart(v.foresporsel_svar_ok))
+      ut.push({
+        id: '33.6.2',
+        art: 'rettidighet',
+        gjelder: foresporsel.gjelder,
+        hjemmel: '33.6.2',
+        iTide: i,
+      });
+  for (const i of besvart(v.vilkar_oppfylt))
+    ut.push({ id: 'hindring', art: 'hindring', oppfylt: i });
+  for (const i of besvart(v.spesifisert_krav_ok))
+    ut.push({
+      id: 'spesifisering',
+      art: 'spesifisering',
+      gjelder: krav,
+      hjemmel: '33.6.1',
+      iTide: i,
+      ...(maatteForstaa === null
+        ? {}
+        : { maatteForstaa: [{ frist: f.gjelder, dager: maatteForstaa }] }),
+    });
+  ut.push({
+    id: 'dager',
+    art: 'dager',
+    gjelder: f.gjelder,
+    resultat: 'godkjent',
+    vurdert: f.dager as number,
+  });
+  return ut;
+}
+
 /** Utregningen av én frist (§ 33), med vurderingene som gjelder hele kravet. */
 function regnUtFristen(
   v: Svarvurdering,
   krevd: number,
   f: Dagvurdering,
-  foresporsel: Foresporselsrelasjon | null
+  { krav, paaberopelse, foresporsel }: Utregningsgrunnlag,
+  regler: Regelsett
 ): Record<string, unknown> {
-  const fkrav = fristkravet(krevd, foresporsel);
-  const { er_prekludert: prekludert } = beregnFrist(fkrav, vurderingenAvFristen(v, f));
+  kontroller(vurderingenAvFristen(v, f), fristkravet(krevd, foresporsel));
   const maatteForstaa = dagerMaatteForstaa(v, f);
-  // KA-U78, OV-U32: dagene i hvert lag i rekkefølgen i `virkningerIForholdetOgFristen`.
-  // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
-  const dager = [
-    ...(prekludert ? [0] : []),
-    // KA-U85: innsigelsen mot svaret på forespørselen har eget lag etter § 33.4.
-    ...(v.frist_varsel_ok === false && foresporsel !== null && v.foresporsel_svar_ok === false
-      ? [0]
-      : []),
-    ...(v.vilkar_oppfylt === true ? [] : [0]),
-    ...(maatteForstaa === null ? [] : [maatteForstaa]),
-    f.dager as number,
-  ];
+  // KA-U78, OV-U32, KA-U85: dagene i hvert lag i svaret.
+  const standpunkter = standpunkteneIUtregningen(v, krav.id, f, maatteForstaa, foresporsel);
+  const svar = { spor: 'frist' as const, standpunkter, utregning: {} };
+  const virkninger = virkningerIForholdetOgFristen(svar, paaberopelse, regler);
+  const dagerI = dagerILaget(standpunkter, virkninger, {
+    gjelder: f.gjelder,
+    vurdert: f.dager as number,
+  });
+  const dager = Array.from({ length: lagIGrunnlaget(virkninger) }, (_, n) => dagerI(n + 1)!);
   const resultat = (d: number) => resultatAvDager(true, krevd, d);
   const ut: Record<string, unknown> = {
     gjelder: f.gjelder,
@@ -191,20 +237,21 @@ function regnUtFristen(
 /** Utregningen av fristen (§ 33): én rad for hver frist i kravet, uten sum (KA-U74). */
 function regnUtFrist(
   v: Svarvurdering,
-  krav: Krav,
-  foresporsel: Foresporselsrelasjon | null
+  grunnlag: Utregningsgrunnlag,
+  regler: Regelsett
 ): Record<string, unknown> {
+  const { krav } = grunnlag;
   avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');
   const krevd = innholdIFristen(krav).frister;
   return {
     frister: fristvurderinger(v, krav).map((f, i) =>
-      regnUtFristen(v, krevd[i]!.dager, f, foresporsel)
+      regnUtFristen(v, krevd[i]!.dager, f, grunnlag, regler)
     ),
   };
 }
 
 export const UTREGNING_I_FRISTEN = {
-  regnUt: (v, { krav, foresporsel }) => regnUtFrist(v, krav, foresporsel),
+  regnUt: regnUtFrist,
   utenforOmfanget: () => null,
 } satisfies Svarsutregning;
 

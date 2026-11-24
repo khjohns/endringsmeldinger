@@ -1,11 +1,6 @@
 /** Byggherrens svar på krav om fristforlengelse, NS 8407 § 33. Port av `regler/frist.py`. */
 
-import {
-  mangler,
-  type Fristresultat,
-  type Fristvarseltype,
-  type SubsidiaerUtloser,
-} from './typer.ts';
+import { mangler, type Fristresultat, type Fristvarseltype } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 
 export interface Fristkrav {
@@ -20,8 +15,6 @@ export interface Fristkrav {
   har_begrunnelse_etter_b?: boolean;
   har_innsigelse_mot_varsel: boolean;
   har_tidligere_varsel_i_tide: boolean;
-  er_grunnlag_subsidiaert: boolean;
-  er_hele_fristen_subsidiaer_pga_grunnlag: boolean;
 }
 
 /** Byggherrens vurderinger. En vurdering som ikke er gjort, er `null` eller utelatt (KA-U4). */
@@ -31,17 +24,6 @@ export interface Fristvurdering {
   foresporsel_svar_ok?: boolean | null;
   vilkar_oppfylt?: boolean | null;
   godkjent_dager?: unknown;
-}
-
-export interface Fristberegning {
-  beregnings_resultat: Fristresultat;
-  godkjent_dager: number;
-  subsidiaer_triggers: SubsidiaerUtloser[];
-  subsidiaer_resultat: Fristresultat | null;
-  subsidiaer_godkjent_dager: number | null;
-  er_prekludert: boolean;
-  er_redusert: boolean;
-  hele_fristen_subsidiaer: boolean;
 }
 
 export function beregnSynlighet(krav: Fristkrav) {
@@ -59,27 +41,6 @@ export function beregnSynlighet(krav: Fristkrav) {
     // VS-U29: etter en innsigelse mot begrunnelsen gjentar svaret den eller gir den opp.
     foresporsel_svar_ok: krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b === true,
   };
-}
-
-/** § 33.4 og § 33.6.2 tredje ledd. */
-export function beregnPreklusjon(v: Fristvurdering, krav: Fristkrav): boolean {
-  if (
-    (krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b) &&
-    v.foresporsel_svar_ok === false
-  )
-    return true;
-  if (krav.varsel_type === 'varsel') return v.frist_varsel_ok === false;
-  if (krav.varsel_type === 'spesifisert') {
-    if (krav.har_tidligere_varsel_i_tide) return false;
-    return v.frist_varsel_ok === false;
-  }
-  return false;
-}
-
-/** § 33.6.1, også ved siden av preklusjon etter § 33.4. Ved svar på forespørselen gjelder § 33.6.2 fjerde ledd. */
-export function beregnReduksjon(v: Fristvurdering, krav: Fristkrav): boolean {
-  if (krav.er_svar_paa_foresporsel) return false;
-  return krav.varsel_type === 'spesifisert' && v.spesifisert_krav_ok === false;
 }
 
 export function resultatAvDager(hindring: boolean, krevd: number, godkjent: number): Fristresultat {
@@ -139,33 +100,4 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   else if (dager < 0) feil.godkjent_dager = 'kan ikke være negativt';
   else if (dager > krav.krevd_dager) feil.godkjent_dager = 'er flere enn de krevde dagene';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
-}
-
-export function beregnFrist(krav: Fristkrav, v: Fristvurdering): Fristberegning {
-  kontroller(v, krav);
-  const prekludert = beregnPreklusjon(v, krav);
-  const redusert = beregnReduksjon(v, krav);
-  const hindring = v.vilkar_oppfylt === true;
-  const dager = v.godkjent_dager as number;
-  const prinsipalt = prekludert ? 'avslaatt' : resultatAvDager(hindring, krav.krevd_dager, dager);
-  // Dagene er et subsidiært standpunkt også når hindringen bestrides (vedtak 05.10, #211).
-  const subsidiaert = resultatAvDager(true, krav.krevd_dager, dager);
-  const visSubsidiaert = prekludert || !hindring;
-  const kandidater: [boolean, SubsidiaerUtloser][] = [
-    [krav.er_grunnlag_subsidiaert, 'grunnlag_avslaatt'],
-    [prekludert, 'preklusjon_varsel'],
-    [redusert, 'reduksjon_spesifisert'],
-    [!hindring, 'ingen_hindring'],
-  ];
-  return {
-    beregnings_resultat: prinsipalt,
-    godkjent_dager: prinsipalt === 'avslaatt' ? 0 : dager,
-    subsidiaer_triggers: kandidater.filter(([g]) => g).map(([, t]) => t),
-    subsidiaer_resultat: visSubsidiaert ? subsidiaert : null,
-    subsidiaer_godkjent_dager: visSubsidiaert && subsidiaert !== 'avslaatt' ? dager : null,
-    er_prekludert: prekludert,
-    er_redusert: redusert,
-    hele_fristen_subsidiaer:
-      krav.er_grunnlag_subsidiaert || krav.er_hele_fristen_subsidiaer_pga_grunnlag,
-  };
 }
