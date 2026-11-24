@@ -127,8 +127,8 @@ er vedtatt i sin helhet.
 mappa, ingen databasedriver og ingen server, og ingen regel når visningen eller bufferen.
 Arkitekturtesten i `kjerne/tester/` håndhever det, og hva reglene leser.
 Regelversjonsvakten i CI krever nye versjoner når kjernen endres. Hvitelisten `LESBART`
-står i `kjerne/tester/lesbart/`. Reglene for den og versjonene står i
-[`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når du arbeider i `kjerne/`. Lagringstestene mot testbasen i SQL Server står i
+og versjonene står i [`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når
+du arbeider i `kjerne/`. Lagringstestene mot testbasen i SQL Server står i
 `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke en mal.
 
 ## Miljø
