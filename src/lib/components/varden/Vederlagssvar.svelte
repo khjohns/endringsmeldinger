@@ -15,6 +15,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
+  import { varselhjemmel as varselhjemmelFor } from '#kjerne/spor/vederlag/utledning.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -57,6 +58,7 @@
     grunntekst,
     innsigelsenOmVarselet,
     leselinjene,
+    oppgivelsestekst,
     VEDERLAGET,
     standpunkttekst,
   } from './tekster';
@@ -177,6 +179,12 @@
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const postenFor = (s: Standpunkt) =>
     'gjelder' in s && s.gjelder !== undefined ? poster.find((p) => p.id === s.gjelder) : undefined;
+  // VS-U77 punkt 10: brevet med innsigelsen mot varselet for kravposten et «i tide» gir opp.
+  const oppgittI = (s: Standpunkt, post: Kravpost) => {
+    if (s.art !== 'rettidighet' || !s.iTide || s.hjemmel !== varselhjemmelFor(post)) return null;
+    const foer = varseletFoer(u, post);
+    return foer?.iTide === false ? brevet(u, foer.dokument) : null;
+  };
   const linjer = $derived(
     nyeStandpunkter.map((l) => {
       const post = 'standpunkt' in l ? postenFor(l.standpunkt) : undefined;
@@ -189,14 +197,21 @@
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
-            : standpunkttekst(
-                l.standpunkt,
-                true,
-                l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
-                  ? krevdI(post)
-                  : undefined,
-                post && flere ? post.betegnelse : undefined
-              ),
+            : post && oppgittI(l.standpunkt, post)
+              ? oppgivelsestekst(
+                  varselhjemmelFor(post)!,
+                  oppgittI(l.standpunkt, post)!,
+                  true,
+                  flere ? post.betegnelse : undefined
+                )
+              : standpunkttekst(
+                  l.standpunkt,
+                  true,
+                  l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
+                    ? krevdI(post)
+                    : undefined,
+                  post && flere ? post.betegnelse : undefined
+                ),
         lag: l.lag,
         vilkaar: l.vilkaar,
         heller: l.heller,
@@ -206,7 +221,12 @@
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = leselinjene(nyeStandpunkter, p, VEDERLAGET.lagetVilkaar);
+    const fra = leselinjene(
+      nyeStandpunkter,
+      p,
+      VEDERLAGET.lagetVilkaar,
+      varseletFoer(u, p)?.iTide === false
+    );
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);

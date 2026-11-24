@@ -257,6 +257,8 @@ describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 
   const regning = { oppgjoersform: 'regningsarbeid' };
   const justert = { oppgjoersform: 'enhetspriser', justert: true };
   const varselet = () => document.querySelector('[id$="-varsel-P1-standpunkt"]')?.textContent;
+  const punktene = () =>
+    screen.getByRole('region', { name: 'Punktene i brevet' }).textContent ?? '';
   const postvurderingen = (sendt: TilBrevkontrollen[]) =>
     (vurderingen(sendt).kravposter as Record<string, unknown>[])[0];
 
@@ -280,6 +282,10 @@ describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 
     await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
     expect(varselet()).toContain('Du gir opp innsigelsen.');
     await radio('Godtar regningsarbeid (punkt 34.4)');
+    // Panelet bruker samme ord som brevet (oppdragsgiver 24.11 i #2314).
+    expect(punktene()).toContain(
+      'Du gir opp innsigelsen i brev 3 om at varselet etter punkt\u00a034.4 ikke ble gitt eller kom for sent'
+    );
     await seBrevet();
     expect(postvurderingen(sendt)).toMatchObject({ varslet_i_tide: true });
   });
@@ -309,6 +315,10 @@ describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 
     await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
     await radio('Godtar enhetspriser (punkt 34.3)');
     await radio('Godtar justeringen');
+    expect(punktene()).toContain(
+      'Du gir opp innsigelsen i brev 3 om at varselet etter punkt\u00a034.3.3 kom for sent'
+    );
+    expect(punktene()).not.toContain('kom i tide');
     await seBrevet();
     expect(postvurderingen(sendt)).toMatchObject({ varslet_i_tide: true });
   });

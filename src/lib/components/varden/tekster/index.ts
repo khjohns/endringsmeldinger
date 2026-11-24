@@ -26,7 +26,7 @@ export {
   SPORNAVN,
   VALG,
 } from './felles';
-export { grunntekst, leselinjene, standpunkttekst } from './standpunkt';
+export { grunntekst, leselinjene, oppgivelsestekst, standpunkttekst } from './standpunkt';
 export * from './svaret';
 export * from './handlingene';
 export * from './tidslinjen';
