@@ -100,9 +100,10 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   )
     feil.foresporsel_svar_ok =
       'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at totalentreprenørens siste begrunnelse etter punkt 33.6.2 annet ledd b kom for sent';
-  if (krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false) {
+  // KA-U78 siste setning: laget etter punkt 33.6.1 finnes ikke, så ethvert svar avvises.
+  if (krav.er_svar_paa_foresporsel && !mangler(v.spesifisert_krav_ok)) {
     feil.spesifisert_krav_ok =
-      'punkt 33.6.1 kan ikke påberopes når totalentreprenøren har svart på forespørselen (punkt 33.6.2 fjerde ledd)';
+      'kravet svarer på forespørselen, så byggherren tar ikke stilling til spesifiseringen etter punkt 33.6.1 (punkt 33.6.2 fjerde ledd)';
   }
   const dager = v.godkjent_dager;
   if (mangler(dager)) feil.godkjent_dager = 'mangler (punkt 33.5)';

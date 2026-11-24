@@ -14,7 +14,7 @@ export const innsigelsenOmVarselet = haerdet(
 
 export const SKJEMA = haerdet({
   overskrift: 'Svar på kravet',
-  // Omtalen av registrert korrespondanse har datoen i seg (LV-U42).
+  // Omtalen av registrert korrespondanse har datoen i seg (LV-U45).
   svarerPaa: (b: Brevref & { avsender: Part; sendt: string | null }) =>
     b.nummer === null && b.omtale
       ? `Svarer på ${b.omtale}`
@@ -31,7 +31,7 @@ export const SKJEMA = haerdet({
   klarOver: (d: string, b: Brevref) =>
     `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den
-  // (LV-U42, #1596).
+  // (LV-U45, #1596).
   kravSendt: (d: string, b: Brevref) =>
     b.omtale && b.art === 'registrert'
       ? `Kravet om vederlagsjustering står i ${b.omtale}.`

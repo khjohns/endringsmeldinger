@@ -228,15 +228,19 @@ function risikohjemmel(krav: Krav): string {
   return `NS 8407 punkt ${f.hjemmel}`;
 }
 
-/** «påberopelse av <forholdet>» med navnet på forholdet (LV-U41, GR-U31). */
-export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
+function navnetPaaForholdet(paaberopelse: Krav): string {
   const f = forholdet(innholdIForholdet(paaberopelse).underkategori);
   if (!f) throw new KanIkkeUttrykkes('forholdet i påberopelsen har ikke noe navn');
-  return paaberopelsenAv(f.navn).toLowerCase();
+  return f.navn;
 }
 
+/** «påberopelse av <forholdet>» med navnet på forholdet (LV-U41, GR-U31). */
+export const paaberopelsenAvForholdet = (paaberopelse: Krav): string =>
+  paaberopelsenAv(navnetPaaForholdet(paaberopelse)).toLowerCase();
+
 export const BREVTEKSTEN_I_FORHOLDET = {
-  svaretGjelder: 'grunnlaget',
+  // LV-U41, aksepten: «svar på <påberopelsen>», bestemt form som i trekket.
+  svaretGjelder: (krav) => `påberopelsen av ${navnetPaaForholdet(krav).toLowerCase()}`,
   krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,

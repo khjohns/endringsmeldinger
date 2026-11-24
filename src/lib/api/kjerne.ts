@@ -90,7 +90,7 @@ const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): 
 });
 
 /**
- * Koden sakens første brev vil få og kontraktsforkortelsen (LV-U46, LV-U53).
+ * Koden sakens første brev vil få og kontraktsforkortelsen (LV-U46, LV-U44).
  * Inngangen krever skrivetilgang.
  */
 const hentForeslaattMerking = (sakId: string, prosjektId: string) =>

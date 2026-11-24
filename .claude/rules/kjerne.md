@@ -16,6 +16,13 @@ Arkitekturtesten i `kjerne/tester/` håndhever hva reglene leser: hvert felt og 
 
 Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så endres en fil der eller frysingen eller teksten i et spor (`kjerne/spor/<spor>/frysing.ts` og `tekst.ts`), økes begge. Regelversjonsvakten i CI krever det, men ikke for en flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret (#1549).
 
+Vakten sammenlikner med `main` slik den er når jobben kjører, så en annen kjerne-PR som
+merges først, kan kreve et nytt tall. Orkestratoren oppdaterer da PR-en med
+`.github/scripts/oppdater_kjerne_pr.py`, som fletter, øker og skriver de genererte
+filene i én push ([orkestreringsskillen](../skills/orkestrering/SKILL.md#4-merge)). Løs
+ikke en konflikt i `REGELVERSJON` eller `PROJEKSJONSVERSJON` ved å ta grenens tall: det
+nye tallet må være høyere enn det `main` har.
+
 ## Hvor koden hører hjemme
 
 - **En domeneregel ligger i `regler/` eller `utledning/`, ikke i `frosset/`.** En kontroll

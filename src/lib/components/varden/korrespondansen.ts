@@ -86,7 +86,7 @@ export const korrespondansefeilene = (
 };
 
 /**
- * Feltene kommandoen bærer for korrespondansen (OV-U79, LV-U42). Sendemåten følger bare et brev,
+ * Feltene kommandoen bærer for korrespondansen (OV-U79, LV-U45). Sendemåten følger bare et brev,
  * så et valg fra før typen ble endret, ikke sendes. Kjernen avviser det som mangler; skjemaet
  * sier fra ved feltet først.
  */

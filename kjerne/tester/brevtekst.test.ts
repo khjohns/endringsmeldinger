@@ -2551,6 +2551,28 @@ describe('aksepten (LV-U4 punkt 6)', () => {
     ]);
   });
 
+  it('aksepten av svaret på forholdet viser til påberopelsen av forholdet, ikke «grunnlaget» (LV-U41, #2029)', () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+    const rad = s.send('TE', {
+      type: 'aksept',
+      spor: 'forhold',
+      svar: s.u().spor.forhold.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren godtar byggherrens svar på påberopelsen av irregulær endring i brev K201-KOE-017-04 av 5. oktober 2026.',
+    ]);
+  });
+
   it('når svaret er subsidiært fordi forholdet er avslått, sier aksepten at TE ikke er enig i det (GR-U7)', () => {
     const s = sakMedKrav();
     s.send('BH', {
@@ -2575,7 +2597,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       regelversjon: KJERNE.regler.versjon,
     });
     expect(laast(rad)).toEqual([
-      'Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. Totalentreprenøren er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget.',
+      'Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. Totalentreprenøren er enig i antallet dager, men ikke i byggherrens standpunkt til forholdet.',
     ]);
   });
   it('godkjenner byggherren forholdet etter et subsidiært svar, leser aksepten saken når den sendes (GR-U1, arbeidsvalget om LV-U4 punkt 6)', () => {
@@ -2755,6 +2777,40 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         foer.u.sendtSammeDag.filter((x) => x.med === foer.innsigelse),
         'kontrollsak: sendt dagen før'
       ).toEqual([]);
+    });
+
+    it('et svar lagt til sammenliknes ikke med en innsigelse et senere svar alt har gitt opp, som brevteksten heller ikke gjentar (OV-U104, OV-U105, VS-U9, #2090)', () => {
+      const merket = (iTide: boolean) => {
+        const s = sakMedKrav();
+        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
+        const innsigelse = (rad.data.utsagn as Data[])[0].id;
+        s.send('BH', {
+          type: 'brev',
+          svar: [
+            svar('forhold', s.krav('forhold'), {
+              resultat: 'avslaatt',
+              grunnlag_varslet_i_tide: iTide,
+            }),
+          ],
+        });
+        const godkjenning = svar('forhold', s.krav('forhold'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }) as Data;
+        delete godkjenning.utdypning;
+        delete godkjenning.utdypninger;
+        s.send('BH', {
+          type: 'brev',
+          svar: [godkjenning],
+          sendt: rad.tidsstempel.slice(0, 10),
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+        expect(s.u().forstaatt, 'forutsetning: saken er forstått').toBe(true);
+        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
+      };
+      expect(merket(true), '«i tide» i svaret fra løsningen ga opp innsigelsen').toEqual([]);
+      expect(merket(false), 'kontrollsak: svaret fra løsningen gjentok den').toHaveLength(1);
     });
 
     it('i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen mot påberopelsen, som brevteksten heller ikke gjentar (VS-U24, MM-U43 punkt 8, #2050)', () => {
@@ -12370,7 +12426,14 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       frister: [{ dager: 5 }],
     };
     expect(ubesvart(s, 'frist', v)).toEqual([]);
-    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    const avvist = 'byggherren tar ikke stilling til spesifiseringen etter punkt 33.6.1';
+    expect(melding(s, 'frist', v)).toContain(avvist);
+    // KA-U78 siste setning: laget finnes ikke, så også «i tide» avvises (#1905 punkt 3).
+    expect(melding(s, 'frist', { ...v, spesifisert_krav_ok: true })).toContain(avvist);
+    expect(
+      melding(s, 'frist', { ...v, spesifisert_krav_ok: undefined }),
+      'kontrollsak: uten svar på spesifiseringen'
+    ).not.toContain(avvist);
     // #2156: skjemaet leser at spørsmålet ikke stilles, også når det er besvart.
     expect(stilt(s, v)).toEqual([
       'frist_varsel_ok',
@@ -12448,7 +12511,14 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       frister: [{ dager: 5 }],
     };
     expect(ugyldig(s, 'frist', v)).toEqual(['spesifisert_krav_ok']);
-    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    const avvist = 'byggherren tar ikke stilling til spesifiseringen etter punkt 33.6.1';
+    expect(melding(s, 'frist', v)).toContain(avvist);
+    // KA-U78 siste setning: laget finnes ikke, så også «i tide» avvises (#1905 punkt 3).
+    expect(melding(s, 'frist', { ...v, spesifisert_krav_ok: true })).toContain(avvist);
+    expect(
+      melding(s, 'frist', { ...v, spesifisert_krav_ok: undefined }),
+      'kontrollsak: uten svar på spesifiseringen'
+    ).not.toContain(avvist);
     expect(ugyldig(s, 'frist', { ...v, spesifisert_krav_ok: undefined })).toEqual([]);
   });
 

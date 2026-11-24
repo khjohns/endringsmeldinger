@@ -12,7 +12,7 @@
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
    * og utdypningene (#1824), og Vår ref., Deres ref. og tittelen kjernen fryser i raden
-   * forhåndsvisningen gir (LV-U27, LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de
+   * forhåndsvisningen gir (LV-U27, LV-U49, LV-U44). Nettleseren regner dem ikke ut selv, og de
    * er en del av det avsenderen godkjenner (LV-U2, U-4 i BF-07).
    */
   /**
