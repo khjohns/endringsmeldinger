@@ -232,9 +232,13 @@ describe('Siden for fristforlengelsen', () => {
       )
     ).toBeVisible();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
-    // Ett vilkår per lag, uten linjene om grunnlaget (D2 b i #2180, oppdragsgiver 24.11).
+    // U-4 i BF-45 (D2 b i #2180).
+    const vilkaarene = kort
+      .getByRole('region', { name: FRISTEN.perFrist })
+      .querySelector('ul.vilkaar');
+    expect(vilkaarene).not.toBeNull();
     expect(
-      within(per.getAllByRole('list')[0]!)
+      within(vilkaarene as HTMLElement)
         .getAllByRole('listitem')
         .map((l) => utenHardeMellomrom(l.textContent!.trim()))
     ).toEqual([

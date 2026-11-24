@@ -321,7 +321,7 @@ describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
     await radio('Enig i at pålegget innebærer en endring');
     const punktene = screen.getByRole('region', { name: 'Punktene i brevet' });
     const linjer = [...punktene.querySelectorAll('.punktstatus')].map((p) =>
-      [...p.children].map((c) => c.textContent!.replaceAll(' ', ' '))
+      [...p.children].map((c) => c.textContent!.replaceAll('\u00a0', ' '))
     );
     expect(linjer.slice(0, 2)).toEqual([
       ['Du gjør gjeldende at varselet etter punkt 32.2 kom for sent'],
