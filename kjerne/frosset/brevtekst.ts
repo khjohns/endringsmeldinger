@@ -588,16 +588,14 @@ function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
   const g = svaretPaaForholdet(t);
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const innsigelser: string[] = [];
+  // Varselet etter § 32.2 er det samme i hver påberopelsesversjon og nevnes uten brevet, som i
+  // `forholdetsLag` (MM-U50, LV-U41).
   const etter322 = [
-    ...(g && grunner.includes('prekludert') ? [{ gjelder: g.gjelder, dokument: g.dokument }] : []),
-    ...aapne('forhold', '32.2'),
+    ...(g && grunner.includes('prekludert') ? [g.dokument] : []),
+    ...aapne('forhold', '32.2').map((i) => i.dokument),
   ];
-  if (etter322.length) {
-    const varslene = [...new Set(etter322.map((i) => j.brevet(j.krav(i.gjelder).dokument)))];
-    innsigelser.push(
-      `at ${VARSELET_I_SVARET['32.2']} i ${liste(varslene)} kom for sent${jfInnsigelsen(etter322.map((i) => i.dokument))}`
-    );
-  }
+  if (etter322.length)
+    innsigelser.push(`at ${VARSELET_I_SVARET['32.2']} kom for sent${jfInnsigelsen(etter322)}`);
   if (g && grunner.includes('avslaatt')) {
     // MM-U50, LV-U41: det byggherren sa i svaret, med de samme ordene som i svarene (`forholdetsLag`).
     const avslaget = g.beslutningsgrunnlag.varslingsplikt
@@ -609,7 +607,8 @@ function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
   }
   const etter334 = aapne('frist', '33.4');
   const varslene = [...new Set(etter334.map((i) => i.gjelder))];
-  // Saken har ett varsel etter § 33.4 (SK-12, `VARSEL_REGISTRERT`).
+  // Saken har ett varsel etter § 33.4 (SK-12, `VARSEL_REGISTRERT`), og en innsigelse mot
+  // fristkravet er ingen påberopelse etter § 33.4 (VS-U24).
   if (varslene.length > 1)
     throw new KanIkkeUttrykkes('innsigelsene etter § 33.4 gjelder flere varsler');
   if (varslene.length)

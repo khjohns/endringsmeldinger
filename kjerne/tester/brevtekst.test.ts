@@ -4529,7 +4529,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       const rad = s.send('BH', foresporsel);
       expect(forbeholdet(rad)).toBe(
         [
-          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
+          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
           'Subsidiært fastholder byggherren avslaget av kravet på endringsordre, jf. svaret i brev K201-KOE-017-02 av 3. oktober 2026.',
           'Videre subsidiært fastholder byggherren at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.',
           'Forespørselen sendes for det tilfellet at innsigelsene ikke fører frem.',
@@ -4555,21 +4555,21 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       const rad = s.send('BH', foresporsel);
       expect(forbeholdet(rad)).toBe(
         [
-          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
+          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
           'Subsidiært fastholder byggherren at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.',
           'Forespørselen sendes for det tilfellet at innsigelsene ikke fører frem.',
         ].join(' ')
       );
     });
 
-    it('LV-U77: en egen påberopelse etter § 32.2 som svaret på forholdet gjentar, viser til begge brevene', () => {
+    it('LV-U77: en egen påberopelse etter § 32.2 som svaret på forholdet gjentar, viser til begge brevene i rekkefølgen de ble sendt', () => {
       const s = sak();
       s.send('TE', PAABEROPELSE);
       s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
       forholdssvar(s, { resultat: 'godkjent', grunnlag_varslet_i_tide: false });
       const rad = s.send('BH', foresporsel);
       expect(forbeholdet(rad)).toBe(
-        'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsene i brev K201-KOE-017-02 av 3. oktober 2026 og brev K201-KOE-017-03 av 4. oktober 2026. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'
+        'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 kom for sent, jf. innsigelsene i brev K201-KOE-017-02 av 3. oktober 2026 og brev K201-KOE-017-03 av 4. oktober 2026. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'
       );
     });
 
