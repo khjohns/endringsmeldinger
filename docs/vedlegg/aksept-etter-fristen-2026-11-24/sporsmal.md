@@ -42,4 +42,8 @@ akseptfristen?
 **Hva valget styrer:** U-4 i bestillingen og teksten i brevkontrollen. B er en presisering av designdelen
 i HF-U23 og blir en post i vedtaksregisteret, fordi den sier hva løsningen sier om bindingen.
 
-**Svar:** oppdragsgiver 24.11 i økta, ordrett: «B». B, ført som vedtak av orkestratoren.
+**Svar:** oppdragsgiver 24.11 i økta, ordrett: «B».
+
+**Merknad 24.11:** Svaret blir ikke en post i vedtaksregisteret. Orkestratoren vurderte det som design etter
+testen i vedtaksskillen, fordi budskapet følger av HF-U23 punkt 7 og 8. «Hva valget styrer» over er slik
+spørsmålet ble stilt. Valget står i [U-4](../../domenetabell/brukerforlop/BF-46.md#u-4).
