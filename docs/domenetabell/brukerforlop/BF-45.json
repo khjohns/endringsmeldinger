@@ -232,7 +232,7 @@
           ]
         },
         {
-          "tekst": "TE ser at «Revider krav» følger opp kravet og avslutter bindingen til svaret, at en frist kan tas ut i det nye kravet uten avkall, og at «Trekk kravet» er et avkall. «Anse avslaget som pålegg om forsering» står fordi byggherren prinsipalt har avslått dager, og sier at forsering sendes som egen sak.",
+          "tekst": "TE ser «Oppdater kravet» uten hjelpetekst, og at «Trekk kravet» er et avkall. Skjemaet for det nye kravet sier at svaret ikke kan godtas her når brevet er sendt, og at en frist kan tas ut uten avkall. «Anse avslaget som pålegg om forsering» står fordi byggherren prinsipalt har avslått dager, og sier at forsering sendes som egen sak.",
           "kilde": [
             "HF-U5",
             "KA-U75",
@@ -323,6 +323,11 @@
       "dato": "2026-11-19",
       "forhold": "KA-U84",
       "hva": "Brev 4 og oversikten viser hindringen i laget etter innsigelsen om varselet."
+    },
+    {
+      "dato": "2026-11-24",
+      "forhold": "#2186",
+      "hva": "Linja under hver handling i «Andre handlinger» er fjernet, unntatt ved trekket og forseringen (D3 A 24.11). Påminnelsen etter MM-U34 står i skjemaet og i «Når du sender», og sier ikke lenger at byggherren ikke er bundet av svaret."
     }
   ],
   "prototype": {

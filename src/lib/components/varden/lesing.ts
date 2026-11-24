@@ -156,10 +156,6 @@ export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
   spor === 'forhold' ? brev : brev.filter((b) => b.spor.includes(spor));
 
 /**
- * Brevet med neste versjon av kravet i samme spor, etter ID-en til brevet med den tidligere
- * versjonen. Tråden viser et eldre krav dempet med «fulgt opp i brev 5» (U-5 i BF-44).
- */
-/**
  * Hvert krav i sporet som et senere krav i et annet brev følger opp, med brevet som følger opp
  * (U-5 i BF-44).
  */
@@ -419,11 +415,6 @@ export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brev
         (b) => b.art === 'trekk' && (b.spor.includes(spor) || b.spor.includes('forhold'))
       )
     : undefined) ?? brev.filter((b) => b.spor.includes(spor)).at(-1);
-
-/** Hovedkategorien (§ 33.1 a–c, § 33.3) i gjeldende krav i forholdet, eller `null` uten krav. */
-export function hovedkategorien(u: Utledning): string | null {
-  return innholdIForholdet(u.spor.forhold.gjeldendeKrav).hovedkategori;
-}
 
 /**
  * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).

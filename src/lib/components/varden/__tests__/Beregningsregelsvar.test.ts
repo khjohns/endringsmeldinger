@@ -99,10 +99,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       within(formen)
         .getAllByRole('radio')
         .map((r) => r.closest('label')!.textContent?.trim())
-    ).toEqual([
-      'Godkjenner regningsarbeid (punkt\u00a034.4)',
-      'Mener enhetspriser (punkt\u00a034.3)',
-    ]);
+    ).toEqual(['Godtar regningsarbeid (punkt\u00a034.4)', 'Mener enhetspriser (punkt\u00a034.3)']);
     expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
   });
 
@@ -113,7 +110,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
         name: 'Krev at totalentreprenøren gir et spesifisert tilbud for P1',
       });
     expect(tilbud()).toBeInTheDocument();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
+    await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
     expect(tilbud()).toBeNull();
     await fireEvent.click(radio('Mener enhetspriser (punkt\u00a034.3)'));
     await fireEvent.click(tilbud()!);
@@ -122,11 +119,11 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       screen.getByRole('button', { name: 'Endre svaret på P1' }).closest('li')!.textContent
     ).toContain('Mener enhetspriser (punkt\u00a034.3), krever spesifisert tilbud');
     await aapne('P2');
-    await fireEvent.click(radio('Godkjenner enhetspriser (punkt\u00a034.3)'));
+    await fireEvent.click(radio('Godtar enhetspriser (punkt\u00a034.3)'));
     expect(radio('Kom i tide').closest('.kort')).not.toHaveClass('stablet');
-    expect(radio('Godkjenner justeringen').closest('.kort')).not.toHaveClass('stablet');
+    expect(radio('Godtar justeringen').closest('.kort')).not.toHaveClass('stablet');
     await fireEvent.click(radio('Kom i tide'));
-    await fireEvent.click(radio('Godkjenner justeringen'));
+    await fireEvent.click(radio('Godtar justeringen'));
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(1);
@@ -137,7 +134,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('punkt 34.4 er en setning, og lenken gjør gjeldende at varselet ikke ble gitt eller kom for sent (VS-U63)', async () => {
     const sendt = await svarskjemaet();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
+    await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
     expect(screen.getByText('Ingen innsigelse.')).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
     await fireEvent.click(
@@ -175,10 +172,10 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('godkjenner BH justerte enhetspriser, må justeringen besvares, mens svaret på varselet er valgfritt (arbeidsvalg A i #2025)', async () => {
     const sendt = await svarskjemaet();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
+    await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
     await ferdig();
     await aapne('P2');
-    await fireEvent.click(radio('Godkjenner enhetspriser (punkt\u00a034.3)'));
+    await fireEvent.click(radio('Godtar enhetspriser (punkt\u00a034.3)'));
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(0);
@@ -187,7 +184,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       within(mangler)
         .getAllByRole('link')
         .map((a) => a.textContent)
-    ).toEqual(['P2: Velg om du godkjenner justeringen av enhetsprisene.']);
+    ).toEqual(['P2: Velg om du godtar justeringen av enhetsprisene.']);
     expect(
       screen.getByRole('group', {
         name: 'Varselet om justering av enhetsprisene (punkt\u00a034.3.3), Valgfri',
@@ -223,7 +220,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('et valgfritt svar på varselet etter punkt 34.3.3 kan fjernes med «Fjern svaret», og fokus går til valget som var gjort (oppdragsgiver 17.11 i #2137, U-19 i BF-14)', async () => {
     const sendt = await svarskjemaet();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
+    await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
     await ferdig();
     await aapne('P2');
     await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));

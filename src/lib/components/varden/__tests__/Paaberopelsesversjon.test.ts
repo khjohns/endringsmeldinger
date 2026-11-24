@@ -291,7 +291,8 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
 
   it('før svaret heter handlingen også «Oppdater påberopelse» og står under «Andre handlinger», uten primærhandling (U-1, #1649, oppdragsgiver 07.11)', async () => {
     const kortet = await vis('BF-05', 'paaberopelsen-er-sendt', 'TE', 'forhold');
-    expect(kortet.queryByRole('button', { name: 'Oppdater påberopelse' })).toBeNull();
+    const andre = within(kortet.getByRole('region', { name: 'Andre handlinger' }));
+    expect(andre.getByRole('button', { name: 'Oppdater påberopelse' })).toBeTruthy();
     expect(
       kortet.queryAllByRole('button').filter((k) => k.className.includes('primaer'))
     ).toHaveLength(0);
