@@ -1,4 +1,6 @@
 import { lageneISvaret, type Innsigelsen } from './svarlagene';
+import { kravetOgSvaretIFristen } from './fristoversikt';
+import { kravetOgSvaret } from './vederlagsoversikt';
 
 /**
  * Det Varden viser av saken, lest av kjernens utledning (#1331): brevene med sporene de
@@ -18,7 +20,6 @@ import {
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { datoForDokumentet } from '#kjerne/format/leser.ts';
-import { betegnelsen, innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
 import { tilTall } from '#kjerne/regler/beloep.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
@@ -634,8 +635,10 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
 /**
  * Et krav om vederlagsjustering eller fristforlengelse i «Tilknyttede krav», som i prototypen
  * `grunnlagsoversikt.html`: det TE krevde i gjeldende kravversjon, beløpene eller dagene i
- * byggherrens gjeldende svar med lagene (`standpunktene`), og hvorfor svaret er subsidiært til
- * forholdet (`subsidiaer`, vedtaket 05.10).
+ * byggherrens svar på det i hvert lag, og hvorfor svaret er subsidiært til forholdet
+ * (`subsidiaer`, vedtaket 05.10). Lagene er de samme som på siden for kravet
+ * (`kravetOgSvaret`, `kravetOgSvaretIFristen`), og hvert lag etter det første står med vilkåret
+ * (D1 A 24.11 i #2248).
  */
 export interface TilknyttetKrav {
   spor: 'vederlag' | 'frist';
@@ -646,30 +649,125 @@ export interface TilknyttetKrav {
    */
   krevd: { tall: number | null; utenFast: number; brev: Brevref } | null;
   /**
-   * `poster` er summen av beløpene, eller dagene, i hvert lag, i lagenes rekkefølge. `utenFast`
-   * er antallet kravposter svaret ikke har et beløp for: tilbudet er ikke akseptert (KA-U72), eller
-   * posten er etter en beregningsregel (KA-U61). Det leses av standpunktene i brevet.
+   * `lagene` er beløpet eller dagene i hvert lag i sporet, og `forAlle` dagene i lagene som
+   * gjelder alle fristene når kravet har flere. `utenFast` er antallet kravposter svaret ikke har
+   * et beløp for: tilbudet er ikke akseptert (KA-U72), eller posten er etter en beregningsregel
+   * (KA-U61). `null` før byggherren har svart på kravet som gjelder.
    */
   svaret: {
-    poster: { tall: number; lag: string | null }[];
+    lagene: Lagraden[];
+    forAlle: Lagraden[];
     utenFast: number;
     brev: Brevref;
   } | null;
   /**
-   * Fristene i kravet når det har flere enn én, hver med betegnelsen i kontrakten, dagene TE
-   * krevde og dagene i byggherrens svar i hvert lag (KA-U74). Dagene legges ikke sammen, så da er
-   * `krevd.tall` `null` og `svaret.poster` tom. Tom for vederlaget og for én frist.
+   * Fristene i kravet når det har flere enn én, med dagene TE krevde og dagene i lagene som er
+   * ulike per frist (KA-U74). Dagene legges ikke sammen, så da er `krevd.tall` `null`. Tom for
+   * vederlaget og for én frist.
    */
   frister: Fristen[];
   grunner: Subsidiaergrunn[];
 }
 
-/** Én frist i «Tilknyttede krav». `svaret` er tom når svaret ikke har dagene for fristen. */
+/**
+ * Et lag i svaret med beløpet eller dagene. `vilkaar` er innsigelsene i sporet laget gjelder hvis
+ * ikke fører frem; grunnene fra forholdet står i vilkåret for hele kravet (`grunner`).
+ */
+export interface Lagraden {
+  vilkaar: Innsigelsen[];
+  heller: boolean;
+  tall: number;
+}
+
+/** Én frist i «Tilknyttede krav». */
 export interface Fristen {
   id: string;
-  betegnelse: string;
+  nummer: string | null;
+  navn: string;
   krevd: number;
-  svaret: { tall: number; lag: string | null }[];
+  lagene: Lagraden[];
+}
+
+const lagraden = (l: { vilkaar: Innsigelsen[]; heller: boolean; tall: number }): Lagraden => ({
+  vilkaar: l.vilkaar.filter((i) => i.art !== 'grunn'),
+  heller: l.heller,
+  tall: l.tall,
+});
+
+export function tilknyttetKrav(
+  u: Utledning,
+  spor: 'vederlag' | 'frist',
+  alle: Brevet[]
+): TilknyttetKrav {
+  const s = u.spor[spor];
+  const krav = s.gjeldendeKrav;
+  const kravbrev = krav && brevet(u, krav.dokument);
+  const grunner = s.subsidiaer;
+  if (spor === 'vederlag') {
+    const k = kravetOgSvaret(u, alle);
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
+    // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
+    const fast = krav ? fasteBeloepIKravet(krav) : null;
+    const svar = s.gjeldendeSvar;
+    return {
+      spor,
+      krevd:
+        k && fast
+          ? {
+              tall: fast.sum === null ? null : tilTall(fast.sum),
+              utenFast: fast.utenFastBeloep,
+              brev: ref(k.kravbrev),
+            }
+          : null,
+      svaret:
+        k?.svarbrev && svar
+          ? {
+              // Uten et beløp for noen post har svaret ikke et tall i laget (KA-U72).
+              lagene: svar.standpunkter.some((x) => x.art === 'beloep' && x.godkjent !== undefined)
+                ? k.lagene.flatMap((l) =>
+                    l.beloep === null ? [] : [lagraden({ ...l, tall: l.beloep })]
+                  )
+                : [],
+              forAlle: [],
+              utenFast: utenFastBeloep(svar.standpunkter).size,
+              brev: ref(k.svarbrev),
+            }
+          : null,
+      frister: [],
+      grunner,
+    };
+  }
+  const k = kravetOgSvaretIFristen(u, alle);
+  // KA-U74: dagene står per frist og legges ikke sammen. Med én frist står dagene for den som
+  // tallet for kravet og svaret, og med flere står de per frist.
+  const frister: Fristen[] = (k?.frister ?? []).map((f) => ({
+    id: f.id,
+    nummer: f.nummer,
+    navn: f.navn,
+    krevd: f.krevd,
+    lagene: f.lagene.map((l) => lagraden({ ...l, tall: l.dager })),
+  }));
+  const forAlle = (k?.felles ?? []).flatMap((l) =>
+    l.dager === null ? [] : [lagraden({ ...l, tall: l.dager })]
+  );
+  const enFrist = frister.length === 1;
+  return {
+    spor,
+    krevd:
+      k && kravbrev
+        ? { tall: enFrist ? frister[0]!.krevd : null, utenFast: 0, brev: ref(k.kravbrev) }
+        : null,
+    svaret: k?.svarbrev
+      ? {
+          lagene: enFrist ? [...forAlle, ...frister[0]!.lagene] : [],
+          forAlle: enFrist ? [] : forAlle,
+          utenFast: 0,
+          brev: ref(k.svarbrev),
+        }
+      : null,
+    frister: enFrist ? [] : frister,
+    grunner,
+  };
 }
 
 /**
@@ -682,74 +780,6 @@ export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]):
   return (utfall.uten_fast_beloep ?? []).map(
     (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
   );
-}
-
-/** Summen av tallene med samme lag, i rekkefølgen lagene først står i. Summeres i øre. */
-function summertPerLag(poster: { tall: number; lag: string | null }[]) {
-  const oere = new Map<string | null, number>();
-  for (const p of poster) oere.set(p.lag, (oere.get(p.lag) ?? 0) + Math.round(p.tall * 100));
-  return [...oere].map(([lag, o]) => ({ tall: o / 100, lag }));
-}
-
-export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
-  const s = u.spor[spor];
-  const krav = s.gjeldendeKrav;
-  const kravbrev = krav && brevet(u, krav.dokument);
-  const svar = s.gjeldendeSvar;
-  const svarbrev = svar && brevet(u, svar.dokument);
-  // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
-  // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
-  const fastKrevd = krav && spor === 'vederlag' ? fasteBeloepIKravet(krav) : null;
-  const linjene = svar && svarbrev ? standpunktene(svar, u) : [];
-  // KA-U74: dagene står per frist og legges ikke sammen. Med én frist står dagene for den som
-  // tallet for kravet og svaret, og med flere står de per frist i `frister`.
-  const alle = (krav && spor === 'frist' ? innholdIFristen(krav).frister : []).map((f) => ({
-    id: f.id,
-    betegnelse: betegnelsen(f),
-    krevd: f.dager,
-  }));
-  const enFrist = alle.length === 1;
-  const dageneFor = (id: string) =>
-    linjene.flatMap((l) =>
-      'standpunkt' in l && l.standpunkt.art === 'dager' && l.standpunkt.gjelder === id
-        ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
-        : []
-    );
-  return {
-    spor,
-    krevd:
-      krav && kravbrev
-        ? {
-            tall: fastKrevd
-              ? fastKrevd.sum === null
-                ? null
-                : tilTall(fastKrevd.sum)
-              : enFrist
-                ? alle[0]!.krevd
-                : null,
-            utenFast: fastKrevd?.utenFastBeloep ?? 0,
-            brev: ref(kravbrev),
-          }
-        : null,
-    svaret:
-      svar && svarbrev
-        ? {
-            poster: enFrist
-              ? summertPerLag(dageneFor(alle[0]!.id))
-              : summertPerLag(
-                  linjene.flatMap((l) =>
-                    'standpunkt' in l && l.standpunkt.art === 'beloep'
-                      ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
-                      : []
-                  )
-                ),
-            utenFast: spor === 'vederlag' ? utenFastBeloep(svar.standpunkter).size : 0,
-            brev: ref(svarbrev),
-          }
-        : null,
-    frister: alle.length > 1 ? alle.map((f) => ({ ...f, svaret: dageneFor(f.id) })) : [],
-    grunner: s.subsidiaer,
-  };
 }
 
 /**

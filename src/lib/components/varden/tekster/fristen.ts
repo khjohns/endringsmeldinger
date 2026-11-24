@@ -6,7 +6,7 @@ import type { Brevref } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
 import { VEDERLAGET } from './vederlaget';
 import { brevref } from './felles';
-import { dato, hjemmelsmerke, haerdet } from './format';
+import { dato, hjemmelsmerke, haerdet, punkt } from './format';
 import { standpunkttekst } from './standpunkt';
 
 /** Datoen uten året når året er det samme som i `ved`: «16. august» ved siden av «26. august 2027». */
@@ -30,9 +30,10 @@ export const FRISTEN = haerdet({
   /**
    * Navnet på raden for et lag per frist: vilkåret i kortform, eller «Byggherren godkjenner» for
    * laget uten vilkår (U-4, svar 2 B 19.11 i `docs/vedlegg/stabelen-2163-2026-11-19`). En grunn fra
-   * forholdet har ingen kortform og står med vilkåret i brevets ord.
+   * forholdet har ingen kortform og står med vilkåret i brevets ord. `medHjemmel` skiller varslene
+   * i vederlaget, som har flere (D1 A 24.11 i #2248).
    */
-  radnavn: (innsigelser: readonly Innsigelsen[], heller: boolean): string => {
+  radnavn: (innsigelser: readonly Innsigelsen[], heller: boolean, medHjemmel = false): string => {
     if (!innsigelser.length) return 'Byggherren godkjenner';
     if (innsigelser.some((i) => i.art === 'grunn'))
       return VEDERLAGET.lagetVilkaar(innsigelser, heller);
@@ -40,7 +41,9 @@ export const FRISTEN = haerdet({
       i.art === 'varsel'
         ? i.hjemmel === '33.6.2'
           ? 'svaret på forespørselen kom i tide'
-          : 'varselet kom i tide'
+          : medHjemmel
+            ? `varselet etter ${punkt(i.hjemmel)} kom i tide`
+            : 'varselet kom i tide'
         : i.art === 'spesifisering'
           ? 'spesifiseringen kom i tide'
           : 'fremdriften er hindret'

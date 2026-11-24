@@ -18,8 +18,10 @@
     innleggene,
     tilknyttetKrav,
     type Brevet,
+    type Lagraden,
+    type TilknyttetKrav,
   } from './lesing';
-  import { BETEGNELSE, FORHOLDET, SPORNAVN, brevref, brevrefFra } from './tekster';
+  import { BETEGNELSE, FORHOLDET, FRISTEN, SPORNAVN, brevref, brevrefFra } from './tekster';
 
   let {
     u,
@@ -29,6 +31,7 @@
   }: {
     u: Utledning;
     betegnelser: Record<Spor, Betegnelse | null>;
+    /** Brevene i saken (`brevene(u)`). */
     brev: Brevet[];
     /** Uten den står kravene uten lenke, som i komponentdemoen. */
     onspor?: (spor: Spor) => void;
@@ -42,7 +45,7 @@
       return b && siste
         ? [
             {
-              ...tilknyttetKrav(u, spor),
+              ...tilknyttetKrav(u, spor, brev),
               betegnelse: BETEGNELSE[b],
               trukket: b === 'trukket',
               siste,
@@ -68,6 +71,56 @@
         ? FORHOLDET.gjelderHvis(k.grunner)
         : forholdssvaret && FORHOLDET.blirSubsidiaert(forholdssvaret.brev);
   const tall = (spor: Spor, n: number) => (spor === 'frist' ? dager(n) : kroner(n));
+  /** Et lag etter det første heter etter vilkåret i kortform, som på siden for kravet (D1 A). */
+  const lagnavn = (spor: Spor, l: Lagraden): string | null =>
+    l.vilkaar.length ? FRISTEN.radnavn(l.vilkaar, l.heller, spor === 'vederlag') : null;
+  const fristnavn = (f: { nummer: string | null; navn: string }) =>
+    f.nummer ? `${FRISTEN.frist(f.nummer)} ${f.navn}` : f.navn;
+
+  interface Rad {
+    navn: string;
+    verdi: string | null;
+    under: boolean;
+  }
+  /**
+   * Radene under «Byggherren»: det første laget på linja med overskriften, og de andre lagene med
+   * vilkåret. Med flere frister står lagene for alle fristene først, og så hver frist (KA-U74).
+   */
+  function svarradene(k: TilknyttetKrav): { hode: string | null; rader: Rad[] } {
+    const s = k.svaret!;
+    const rad = (l: Lagraden, under = true): Rad => ({
+      navn: lagnavn(k.spor, l) ?? '',
+      verdi: tall(k.spor, l.tall),
+      under,
+    });
+    if (!k.frister.length) {
+      const [foerste, ...resten] = s.lagene;
+      const hode = foerste && !foerste.vilkaar.length ? foerste : null;
+      return {
+        hode: hode && tall(k.spor, hode.tall),
+        rader: (hode ? resten : s.lagene).map((l) => rad(l)),
+      };
+    }
+    const gruppe = (tittel: string, lagene: Lagraden[]): Rad[] => {
+      const [foerste, ...resten] = lagene;
+      if (foerste && !foerste.vilkaar.length)
+        return [
+          { navn: tittel, verdi: tall(k.spor, foerste.tall), under: false },
+          ...resten.map((l) => rad(l)),
+        ];
+      return [
+        { navn: tittel, verdi: lagene.length ? null : FORHOLDET.ikkeISvaret, under: false },
+        ...lagene.map((l) => rad(l)),
+      ];
+    };
+    return {
+      hode: null,
+      rader: [
+        ...(s.forAlle.length ? gruppe(FRISTEN.forAlle, s.forAlle) : []),
+        ...k.frister.flatMap((f) => gruppe(fristnavn(f), f.lagene)),
+      ],
+    };
+  }
 </script>
 
 <!-- Skillet står med hardt mellomrom etter beløpet, så ingen linje begynner med «·». -->
@@ -75,25 +128,20 @@
     ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
   >{/snippet}
 
-<!-- KA-U74: dagene står per frist og legges ikke sammen. -->
-{#snippet perFrist(
-  frister: { betegnelse: string; dager: { tall: number; lag: string | null }[] }[]
-)}
-  <ul class="frister">
-    {#each frister as f, i (i)}
-      <li>
-        <span class="frist">{f.betegnelse}</span>
-        {#if f.dager.length}<span class="verdi"
-            >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span><span
-                  class="visually-hidden"
-                  >,
-                </span>{/if}<span class="num">{dager(p.tall)}</span>{#if p.lag}&nbsp;<span
-                  class="lag">{p.lag}</span
-                >{/if}{/each}</span
-          >{:else}<span class="dempet">{FORHOLDET.ikkeISvaret}</span>{/if}
-      </li>
-    {/each}
-  </ul>
+{#snippet radene(rader: Rad[])}
+  {#if rader.length}
+    <ul class="rader">
+      {#each rader as r, i (i)}
+        <li class:under={r.under}>
+          <span class="rnavn">{r.navn}</span>
+          {#if r.verdi}<span
+              class:num={!r.verdi.startsWith(FORHOLDET.ikkeISvaret)}
+              class:dempet={r.verdi === FORHOLDET.ikkeISvaret}>{r.verdi}</span
+            >{/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
 {/snippet}
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
@@ -108,9 +156,12 @@
         {#each kravene as k (k.spor)}
           <li>
             <div class="kravhode">
-              <h3 class="navn">{SPORNAVN[k.spor]}</h3>
-              <span class="merke">{k.betegnelse}</span>
-              {#if k.trukket}<span class="brev">{brevrefFra(k.siste, k.siste.avsender)}</span>{/if}
+              <div class="tittel">
+                <h3 class="navn">{SPORNAVN[k.spor]}</h3>
+                <span class="merke">{k.betegnelse}</span>
+                {#if k.trukket}<span class="brev">{brevrefFra(k.siste, k.siste.avsender)}</span
+                  >{/if}
+              </div>
               {#if onspor}<Knapp
                   variant="lenke"
                   aria-label={FORHOLDET.aapneNavn(k.spor)}
@@ -118,47 +169,50 @@
                   >{FORHOLDET.aapne}<ChevronRight size={16} aria-hidden="true" /></Knapp
                 >{/if}
             </div>
-            <dl class="tall">
-              {#if k.krevd}
-                <div>
-                  <dt>{FORHOLDET.krevd}</dt>
-                  <dd>
-                    {#if k.frister.length}{@render perFrist(
-                        k.frister.map((f) => ({
-                          betegnelse: f.betegnelse,
-                          dager: [{ tall: f.krevd, lag: null }],
-                        }))
-                      )}{:else if k.krevd.tall !== null}<span class="verdi"
-                        ><span class="num">{tall(k.spor, k.krevd.tall)}</span
-                        >{#if k.krevd.utenFast}{@render utenFast(k.krevd.utenFast)}{/if}</span
-                      >{:else if k.spor === 'vederlag'}{FORHOLDET.ingenFastBeloep}{/if}
-                    <span class="brev">{brevref(k.krevd.brev)}</span>
-                  </dd>
-                </div>
-              {/if}
-              <div>
-                <dt>{FORHOLDET.byggherren}</dt>
-                <dd>
-                  {#if k.svaret}
-                    {#if k.frister.length}{@render perFrist(
-                        k.frister.map((f) => ({ betegnelse: f.betegnelse, dager: f.svaret }))
-                      )}{:else if k.svaret.poster.length}<span class="verdi"
-                        >{#each k.svaret.poster as p, i (i)}{#if i}<span aria-hidden="true">
-                              ·
-                            </span><span class="visually-hidden">, </span>{/if}<span class="num"
-                            >{tall(k.spor, p.tall)}</span
-                          >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
-                            >{/if}{/each}{#if k.svaret.utenFast}{@render utenFast(
-                            k.svaret.utenFast
-                          )}{/if}</span
-                      >{:else if k.svaret.utenFast}{FORHOLDET.ingenFastBeloep}{/if}
-                    <span class="brev">{brevref(k.svaret.brev)}</span>
-                  {:else}
-                    <span class="dempet">{FORHOLDET.ikkeSvart}</span>
-                  {/if}
-                </dd>
+            {#if k.krevd}
+              <div class="del">
+                <p class="delhode">
+                  <span class="part">{FORHOLDET.krevd}</span>
+                  <span class="brev">{brevref(k.krevd.brev)}</span>
+                  {#if !k.frister.length}<span class="verdi"
+                      >{#if k.krevd.tall !== null}<span class="num"
+                          >{tall(k.spor, k.krevd.tall)}</span
+                        >{#if k.krevd.utenFast}{@render utenFast(
+                            k.krevd.utenFast
+                          )}{/if}{:else if k.spor === 'vederlag'}{FORHOLDET.ingenFastBeloep}{/if}</span
+                    >{/if}
+                </p>
+                <!-- KA-U74: dagene står per frist og legges ikke sammen. -->
+                {@render radene(
+                  k.frister.map((f) => ({
+                    navn: fristnavn(f),
+                    verdi: dager(f.krevd),
+                    under: false,
+                  }))
+                )}
               </div>
-            </dl>
+            {/if}
+            <div class="del">
+              {#if k.svaret}
+                {@const s = svarradene(k)}
+                <p class="delhode">
+                  <span class="part">{FORHOLDET.byggherren}</span>
+                  <span class="brev">{brevref(k.svaret.brev)}</span>
+                  {#if s.hode || (!k.frister.length && k.svaret.utenFast)}<span class="verdi"
+                      >{#if s.hode}<span class="num">{s.hode}</span
+                        >{#if k.svaret.utenFast}{@render utenFast(
+                            k.svaret.utenFast
+                          )}{/if}{:else}{FORHOLDET.ingenFastBeloep}{/if}</span
+                    >{/if}
+                </p>
+                {@render radene(s.rader)}
+              {:else}
+                <p class="delhode">
+                  <span class="part">{FORHOLDET.byggherren}</span>
+                  <span class="verdi dempet">{FORHOLDET.ikkeSvart}</span>
+                </p>
+              {/if}
+            </div>
             {#if vilkaaret(k)}<p class="vilkaar">{vilkaaret(k)}</p>{/if}
           </li>
         {/each}
@@ -237,12 +291,18 @@
   }
   .kravhode {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+  }
+  .kravhode .tittel {
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-2) var(--spacing-3);
+    gap: var(--spacing-1) var(--spacing-3);
   }
   .kravhode > :global(.knapp) {
-    margin-left: auto;
+    flex: none;
   }
   .navn {
     font-size: 16px;
@@ -255,49 +315,47 @@
     border: 1px solid var(--rule-strong-color);
     border-radius: var(--r-merke);
   }
-  .tall {
+  .del {
     display: grid;
     gap: var(--spacing-1);
   }
-  .tall div {
-    display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr);
-    gap: var(--spacing-3);
-    align-items: baseline;
-  }
-  dt {
-    color: var(--ink-2);
-  }
-  dd {
+  /* Parten og brevet til venstre, tallet til høyre, så tallene står under hverandre. */
+  .delhode,
+  .rader li {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-1) var(--spacing-2);
   }
-  /* Dagene står i én kolonne, så fristene kan sammenlignes. */
-  .frister {
-    flex-basis: 100%;
+  .delhode .verdi,
+  .rader li > :last-child:not(.rnavn) {
+    margin-left: auto;
+    text-align: right;
+  }
+  .part {
+    font-weight: 600;
+  }
+  .rader {
     display: grid;
-    grid-template-columns: minmax(min-content, max-content) auto;
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-1);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .frister li {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-items: baseline;
+  .rader li.under {
+    padding-left: var(--spacing-3);
+    font-size: 14px;
+    color: var(--ink-2);
   }
-  .frist {
-    color: var(--ink);
+  .rnavn {
+    min-width: 0;
   }
   .num {
-    font-size: 16px;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-  .lag,
+  .delhode .num {
+    font-size: 16px;
+  }
   .uten {
     color: var(--ink-2);
   }
@@ -314,14 +372,5 @@
     padding: var(--spacing-3) var(--spacing-5) var(--spacing-5);
     font-size: 14px;
     color: var(--ink-2);
-  }
-  @media (max-width: 560px) {
-    .tall {
-      gap: var(--spacing-3);
-    }
-    .tall div {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
   }
 </style>
