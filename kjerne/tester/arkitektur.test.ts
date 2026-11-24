@@ -860,7 +860,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsLag',
-      'frosset/brevtekst.ts:forbeholdetIForesporselen',
+      'frosset/brevtekst.ts:innsigelseneIForesporselen',
       'kommandoer/utkastlag.ts:lageneIUtkastet',
     ],
   ],
@@ -1467,6 +1467,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -2681,7 +2682,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevtekst.ts',
     'brevtekst',
-    'lagBrevtekst lagDeresRef',
+    'lagBrevtekst lagDeresRef forbeholdetBestrider',
     ['kommandoer/skriving.ts:brevtekstFor'],
   ],
   ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises', ['kommandoer/skriving.ts:skriv']],
@@ -3031,6 +3032,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra dag svar', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
+  // LV-U76, LV-U77, LV-U49: innsigelsene forespørselen fastholder, og varslene de gjelder.
+  [
+    'frosset/brevtekst.ts:innsigelseneIForesporselen.kom',
+    'relasjon',
+    'gjelder dokument',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['Fastholdt', 'brevtekst', 'hva varslene', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
   ['frosset/standpunkt.ts', 'brevtekst', 'innsigelsenErOppgitt', ['frosset/brevtekst.ts']],

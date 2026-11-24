@@ -567,54 +567,79 @@ function forholdetsLag(
   return { forskyvning: grunner.length, ledd, henvisninger: new Map() };
 }
 
+/** En innsigelse forespørselen fastholder, og varslene den sier kom for sent (LV-U49). */
+interface Fastholdt {
+  hva: string;
+  varslene: string[];
+}
+
 /**
- * LV-U76 og LV-U77: forbeholdet i forespørselen etter § 33.6.2, med innsigelsene byggherren
- * fastholder i rekkefølgen etter OV-U32: preklusjonen etter § 32.2, avslaget av forholdet og
- * preklusjonen etter § 33.4. Hver viser til brevet der byggherren gjorde den gjeldende (LV-U4
- * punkt 5). En innsigelse byggherren har gitt opp, er ikke med. Uten innsigelser er det tomt.
- * Et ubesvart forhold er GR-U34 og ikke en del av forbeholdet.
+ * LV-U76 og LV-U77: innsigelsene byggherren fastholder i forespørselen etter § 33.6.2, i
+ * rekkefølgen etter OV-U32: preklusjonen etter § 32.2, avslaget av forholdet og preklusjonen
+ * etter § 33.4. Hver viser til varselet og til brevet der byggherren gjorde den gjeldende (LV-U4
+ * punkt 5). En innsigelse byggherren har gitt opp, er ikke med. Et ubesvart forhold er GR-U34,
+ * og avslaget leses bare av svaret på gjeldende versjon.
  */
-function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
-  const { j, nytt } = t;
+function innsigelseneIForesporselen(t: Tekst, regler: Regelsett): Fastholdt[] {
+  const { j, nytt, saken } = t;
+  const rekkefoelge = j.dokumenter.map((d) => d.id);
+  const iRekkefoelge = (ider: string[]) =>
+    [...new Set(ider)].sort((a, b) => rekkefoelge.indexOf(a) - rekkefoelge.indexOf(b));
+  const brevene = (ider: string[]) => liste(iRekkefoelge(ider).map((d) => j.brevet(d)));
+  const jfInnsigelsen = (dokumenter: string[]) =>
+    `, jf. ${new Set(dokumenter).size > 1 ? 'innsigelsene' : 'innsigelsen'} i ${brevene(dokumenter)}`;
+  const kom = (hjemmel: '32.2' | '33.4', p: { gjelder: string; dokument: string }[]) => {
+    const varslene = iRekkefoelge(p.map((x) => x.gjelder));
+    return {
+      hva: `at ${VARSELET_I_SVARET[hjemmel]} i ${brevene(varslene.map((v) => j.dokumentetTil(v)))} kom for sent${jfInnsigelsen(p.map((x) => x.dokument))}`,
+      varslene,
+    };
+  };
   const aapne = (spor: Spor, hjemmel: Hjemmel) =>
     aapneInnsigelser(spor, nytt.id, nytt.avsender, t, regler).filter((i) => i.hjemmel === hjemmel);
-  const jfInnsigelsen = (dokumenter: string[]) => {
-    const rekkefoelge = j.dokumenter.map((d) => d.id);
-    const brevene = [...new Set(dokumenter)].sort(
-      (a, b) => rekkefoelge.indexOf(a) - rekkefoelge.indexOf(b)
-    );
-    return `, jf. ${brevene.length > 1 ? 'innsigelsene' : 'innsigelsen'} i ${liste(brevene.map((d) => j.brevet(d)))}`;
-  };
+  const ut: Fastholdt[] = [];
+
+  // Byggherrens siste standpunkt etter § 32.2 i et svar på forholdet, også på en tidligere
+  // påberopelsesversjon, fordi varselet er det samme i hver versjon (arbeidsvalget 15.10 i #500).
+  // Standpunktet viser til varselet det gjelder (VS-U76 punkt 10).
+  let preklusjonen: { gjelder: string; dokument: string } | null = null;
+  for (const d of j.dokumenter) {
+    if (d.avsender !== nytt.avsender || d.id === nytt.id) continue;
+    for (const svar of d.svar) {
+      if (svar.spor !== 'forhold' || saken.utenVirkning.includes(svar.id)) continue;
+      const p = svar.standpunkter.find(
+        (x): x is Extract<Standpunkt, { art: 'rettidighet' }> =>
+          x.art === 'rettidighet' && x.hjemmel === '32.2'
+      );
+      if (p) preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
+    }
+  }
+  const etter322 = [...(preklusjonen ? [preklusjonen] : []), ...aapne('forhold', '32.2')];
+  if (etter322.length) ut.push(kom('32.2', etter322));
+
   const g = svaretPaaForholdet(t);
-  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
-  const innsigelser: string[] = [];
-  // Varselet etter § 32.2 er det samme i hver påberopelsesversjon og nevnes uten brevet, som i
-  // `forholdetsLag` (MM-U50, LV-U41).
-  const etter322 = [
-    ...(g && grunner.includes('prekludert') ? [g.dokument] : []),
-    ...aapne('forhold', '32.2').map((i) => i.dokument),
-  ];
-  if (etter322.length)
-    innsigelser.push(`at ${VARSELET_I_SVARET['32.2']} kom for sent${jfInnsigelsen(etter322)}`);
-  if (g && grunner.includes('avslaatt')) {
+  if (g && grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger).includes('avslaatt')) {
     // MM-U50, LV-U41: det byggherren sa i svaret, med de samme ordene som i svarene (`forholdetsLag`).
     const avslaget = g.beslutningsgrunnlag.varslingsplikt
       ? 'avslaget av kravet på endringsordre'
       : harRisikoen(j.krav(g.gjelder))
         ? 'at byggherren ikke har risikoen for forholdet'
         : 'avslaget av forholdet';
-    innsigelser.push(`${avslaget}, jf. svaret i ${j.brevet(g.dokument)}`);
+    ut.push({ hva: `${avslaget}, jf. svaret i ${j.brevet(g.dokument)}`, varslene: [] });
   }
+
   const etter334 = aapne('frist', '33.4');
-  const varslene = [...new Set(etter334.map((i) => i.gjelder))];
   // Saken har ett varsel etter § 33.4 (SK-12, `VARSEL_REGISTRERT`), og en innsigelse mot
   // fristkravet er ingen påberopelse etter § 33.4 (VS-U24).
-  if (varslene.length > 1)
+  if (new Set(etter334.map((i) => i.gjelder)).size > 1)
     throw new KanIkkeUttrykkes('innsigelsene etter § 33.4 gjelder flere varsler');
-  if (varslene.length)
-    innsigelser.push(
-      `at ${VARSELET_I_SVARET['33.4']} i ${j.brevet(j.dokumentetTil(varslene[0]))} kom for sent${jfInnsigelsen(etter334.map((i) => i.dokument))}`
-    );
+  if (etter334.length) ut.push(kom('33.4', etter334));
+  return ut;
+}
+
+/** Forbeholdet i forespørselen etter § 33.6.2 (LV-U76, LV-U77), eller tomt uten innsigelser. */
+function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
+  const innsigelser = innsigelseneIForesporselen(t, regler).map((i) => i.hva);
   if (!innsigelser.length) return [];
   return [
     ...innsigelser.map((hva, i) =>
@@ -624,6 +649,21 @@ function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
     ),
     `Forespørselen sendes for det tilfellet at ${innsigelser.length > 1 ? 'innsigelsene' : 'innsigelsen'} ikke fører frem.`,
   ];
+}
+
+/**
+ * LV-U49: varslene forbeholdet i en forespørsel etter § 33.6.2 i `nytt` sier kom for sent, som
+ * brevet bestrider. `lagDeresRef` tar brevene de står i.
+ */
+export function forbeholdetBestrider(
+  nytt: Dokument,
+  foer: Domenehendelse[],
+  saken: Saken,
+  regler: Regelsett
+): string[] {
+  if (!nytt.utsagn.some((u) => u.art === 'foresporsel')) return [];
+  const t: Tekst = { j: new Journalen(foer, nytt), saken, nytt, sak: '' };
+  return innsigelseneIForesporselen(t, regler).flatMap((i) => i.varslene);
 }
 
 /**
@@ -882,9 +922,10 @@ const SVARER_GODTAR_BESTRIDER = new Set<Utsagn['art']>([
  * og `gjelder` og ikke av rekkefølgen (LV-U50, LV-U51). Et eget brev står ikke, og heller ikke
  * motpartens brev uten merking, som registrert korrespondanse (LV-U27: «når de finnes»).
  */
-export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
+export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[], bestrider: string[]): string[] {
   const j = new Journalen(foer, nytt);
   const viserTil: string[] = [
+    ...bestrider,
     ...nytt.svar.map((s) => s.gjelder),
     ...nytt.svar.flatMap((s) => s.standpunkter.flatMap(detRettidighetenGjelder)),
     ...nytt.utsagn.flatMap((x) =>
