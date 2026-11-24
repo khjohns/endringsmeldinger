@@ -10,7 +10,8 @@ Reglene for hver arbeidsøkt, også grensene for kontekst, står i
 [episodefila](episoder.md), og omveiene i miljøet i
 [miljø-skillen](../miljo/SKILL.md#orkestreringen-i-skyøkta).
 
-Oppdragsgiver svarer på spørsmål, ser over skjermbildene og godkjenner merge, per PR
+Oppdragsgiver svarer på spørsmål, ser over skjermbildene for nye mønstre
+([leveranseskillen](../leveranse/SKILL.md#review-og-funn)) og godkjenner merge, per PR
 eller på forhånd for runden (punkt 4), men leser ikke koden. Orkestreringsøkta
 fordeler arbeidet, går gjennom resultatet og fører det inn der det hører hjemme. Den
 skriver ikke koden selv.

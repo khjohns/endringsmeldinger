@@ -191,11 +191,17 @@ gjelder: orkestratoren bestiller den, eller økta avgjør selv når den ikke er 
 Den kjøres før `/code-review`, slik at reviewet ser den endelige koden.
 **Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
 byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
-Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en og ber oppdragsgiver se over
-dem. Mens den venter, arbeider den videre etter «Arbeid mens CI går» i arbeidsøkt-skillen.
-Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subagent i ny
-kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
-følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
+Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en. Oppdragsgiver ser over dem
+bare når PR-en innfører et mønster som verken står i
+[systemfila](../../../.interface-design/system.md) eller i en prototype i
+`docs/design/prototyper/`, eller når avvikstabellen har en bevisst endring
+(oppdragsgiver 24.11). Da ber byggeøkta om det og venter med `/design-review` til
+oppdragsgiver har sagt fra. Mens den venter, arbeider den videre etter «Arbeid mens CI
+går» i arbeidsøkt-skillen. Kommer svaret ikke innen en time, følger den «Hold
+hurtigbufferen varm». I de andre PR-ene kjører den `/design-review` med en gang, og i en
+orkestrert runde ser orkestratoren over skjermbildene og sender dem til oppdragsgiver når
+noe er tvilsomt. `/design-review` kjøres i en subagent i ny kontekst, før `/code-review`,
+og byggeøkta retter funnene selv. Alvorligheten settes av
 `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
 Reviewet går i runder, etter steg 1–4 i
 [«Gjennomgang i runder» i `brukerforlop`](../brukerforlop/SKILL.md#gjennomgang-i-runder).
