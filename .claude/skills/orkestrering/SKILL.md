@@ -301,7 +301,11 @@ under unntaket for tekst, kan merges først uten at de andre må oppdateres på 
   `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene. Den vanlige CI-en
   kjøres fortsatt, og nattjobben kjører hele settet på `main` når kjernen er endret.
   Kontroller med `git diff --name-only` mellom de to basene, og skriv det i
-  merge-kommentaren eller til oppdragsgiver.
+  merge-kommentaren eller til oppdragsgiver. Byggeøkta venter ikke på feilinnføringene
+  i CI («Feilinnføringene i en orkestrert runde» i arbeidsøkt-skillen). Orkestratoren
+  venter på kjøringen på committen som merges. Feiler en, finner `ci-logg` hvilken, og
+  funnet går til økta som eier PR-en, eller til en ny, avgrenset økt når den har stoppet
+  (oppdragsgiver 24.11).
 - **Når CI ikke kjører.** Skyøkta kan ikke starte en kjøring på nytt. En ny kjøring
   kommer med en oppdatering mot `main` når grenen er bak; ellers trykker oppdragsgiver
   *Re-run*. Er Actions-kvoten brukt opp (kjennetegnet står i miljø-skillen), kan bare
