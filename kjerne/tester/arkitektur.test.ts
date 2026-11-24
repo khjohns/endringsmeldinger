@@ -733,6 +733,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
       'utledning/utled.ts:partensPaaberopelser',
+      // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
+      'spor/vederlag/kommando.ts:innsigelseneEtter344',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -1168,7 +1170,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['regler/vederlag.ts:kontrollerOppgivelsenEtter344', 'utsagn', 'varslet_i_tide oppgjoersform'],
   // OV-U98: svarene med innsigelsen etter § 34.4 leses i rekkefølgen de ble sendt.
-  ['spor/vederlag/kommando.ts:innsigelseneEtter344', 'relasjon', 's dag'],
+  ['spor/vederlag/kommando.ts:innsigelseneEtter344', 'relasjon', 's dag lagtTil iTide'],
+  // OV-U104: brevene lagt til, som gjør rekkefølgen samme dag ukjent.
+  ['Dokument', 'relasjon', 'id', ['spor/vederlag/kommando.ts:innsigelseneEtter344']],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
   ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
@@ -2543,7 +2547,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   // Dokumentene i journalen (#787), som var i utled.ts (#1783).
-  ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/utled.ts', 'spor/frist/utledning.ts']],
+  [
+    'format/leser.ts',
+    'rad',
+    'dokumenterI',
+    [
+      'utledning/utled.ts',
+      'spor/frist/utledning.ts',
+      'spor/vederlag/kommando.ts:innsigelseneEtter344',
+    ],
+  ],
   [
     'format/leser.ts',
     'rad',

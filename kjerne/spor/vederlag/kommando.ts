@@ -71,7 +71,7 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
-import { foerDagen } from '../../format/leser.ts';
+import { dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type {
@@ -271,20 +271,28 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
  * etter § 34.4 i svarene på vederlaget var at varselet ikke ble gitt eller kom for sent. Et svar
  * som ikke sier noe om varselet, gir ikke opp innsigelsen. Svarene leses i rekkefølgen de ble
  * sendt, også et svar lagt til utenfor rekken, som har samme virkning for påberopelsen (punkt 12,
- * OV-U103, OV-U105). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene sendt før den
- * dagen (OV-U98, OV-U104).
+ * OV-U103, OV-U105). Er to standpunkter fra samme dag, og minst ett av svarene er lagt til, er
+ * rekkefølgen ukjent (OV-U104), og innsigelsen kan stå. Et svar lagt til, sendt på dagen `sendt`,
+ * leser bare svarene sendt før den dagen (OV-U98, OV-U104).
  */
 function innsigelseneEtter344(u: Utledning, sendt: string | null): Set<string> {
   const { svar, svarUtenforRekken } = u.spor.vederlag;
+  const lagtTil = new Set(
+    [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
+  );
   const svarene = [...svar, ...svarUtenforRekken]
-    .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '' }))
+    .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '', lagtTil: lagtTil.has(s.dokument) }))
     .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
     .sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
-  const siste = new Map<string, boolean>();
-  for (const { s } of svarene)
-    for (const p of s.standpunkter)
-      if (p.art === 'rettidighet' && p.hjemmel === '34.4') siste.set(p.gjelder, p.iTide);
-  return new Set([...siste].flatMap(([post, iTide]) => (iTide ? [] : [post])));
+  const siste = new Map<string, { iTide: boolean; dag: string; lagtTil: boolean }>();
+  for (const { s, dag, lagtTil } of svarene)
+    for (const p of s.standpunkter) {
+      if (p.art !== 'rettidighet' || p.hjemmel !== '34.4') continue;
+      const foer = siste.get(p.gjelder);
+      if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
+      siste.set(p.gjelder, { iTide: p.iTide, dag, lagtTil });
+    }
+  return new Set([...siste].flatMap(([post, { iTide }]) => (iTide ? [] : [post])));
 }
 
 /** Det i svaret som strider mot byggherrens tidligere svar i vederlaget (`svarsperre`). */

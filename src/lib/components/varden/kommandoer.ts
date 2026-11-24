@@ -40,8 +40,8 @@ export interface Postvalg {
   /** Kravet om spesifisert tilbud for en kravpost etter en beregningsregel (KA-U69, KA-U71). */
   kreverTilbud: boolean;
   /**
-   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). Etter § 34.4 er
-   * `true` at BH gir opp innsigelsen, og kjernen avviser det uten en innsigelse å gi opp (VS-U63).
+   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). For § 34.4
+   * brukes bare `false` (VS-U63).
    */
   varsletITide: boolean | null;
   /** Om BH godtar justeringen av enhetsprisene etter § 34.3.2 (KA-U68). */
@@ -149,7 +149,11 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
     aksepterer: p.form === 'godtar' ? true : p.form !== null || kreverTilbud ? false : undefined,
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
-    varslet_i_tide: varslet ?? undefined,
+    // VS-U63.
+    varslet_i_tide:
+      varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
+        ? undefined
+        : varslet,
     godtar_justering: stilt.includes('godtar_justering')
       ? (p.godtarJustering ?? undefined)
       : undefined,

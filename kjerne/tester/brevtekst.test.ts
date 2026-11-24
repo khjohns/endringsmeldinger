@@ -11484,6 +11484,40 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ).toContain('P2.varslet_i_tide: byggherren har ikke gjort gjeldende');
   });
 
+  it('VS-U63: gjentar et svar lagt til innsigelsen etter punkt 34.4 og gir et annet sendt samme dag den opp, er rekkefølgen ukjent, og innsigelsen kan gis opp (OV-U104)', () => {
+    const utfall = (medGjentakelsen: boolean) => {
+      const s = sakMed(regning);
+      s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+      const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id;
+      s.send('TE', krav([{ ...regning, id: p2 }]));
+      s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+      const lagtTil = (iTide: boolean) => {
+        const sv = svaret(s, { P2: { aksepterer: true, varslet_i_tide: iTide } }).svar[0]!;
+        s.send('BH', {
+          type: 'brev',
+          svar: [utenFelt(utenFelt(sv, 'utdypning'), 'utdypninger')],
+          sendt: '2026-10-07',
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+      };
+      if (medGjentakelsen) lagtTil(false);
+      lagtTil(true);
+      expect(s.u().spor.vederlag.svarUtenforRekken, 'forutsetning').toHaveLength(
+        medGjentakelsen ? 2 : 1
+      );
+      return s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: gjeldende(s).id,
+        svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+      });
+    };
+    expect(utfall(true)).toBeNull();
+    expect(utfall(false)?.melding ?? '', 'kontrollsak: oppgivelsen uten gjentakelsen').toContain(
+      'P2.varslet_i_tide: byggherren har ikke gjort gjeldende'
+    );
+  });
+
   it('standpunktet til varselet og justeringen gjelder bare kravposter som har dem (KA-U64, KA-U68)', () => {
     const s = sakMed(regning);
     expect(

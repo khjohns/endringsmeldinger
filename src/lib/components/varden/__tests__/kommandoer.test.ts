@@ -259,14 +259,13 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
     });
   });
 
-  it('for punkt 34.4 sendes standpunktet til varselet, også subsidiært når BH mener enhetspriser, og «i tide» avgjør kjernen som oppgivelsen (VS-U63, oppdragsgiver 23.11 i #2171, #2278)', () => {
+  it('for punkt 34.4 sendes bare «ikke gitt eller kom for sent», også subsidiært når BH mener enhetspriser (VS-U63, oppdragsgiver 23.11 i #2171)', () => {
     expect(kravpostene({ form: 'godtar', varsletITide: false })[0]).toMatchObject({
       varslet_i_tide: false,
     });
-    // Kjernen avviser «i tide» uten en innsigelse å gi opp (`kontrollerOppgivelsenEtter344`).
-    expect(kravpostene({ form: 'godtar', varsletITide: true })[0]).toMatchObject({
-      varslet_i_tide: true,
-    });
+    expect(kravpostene({ form: 'godtar', varsletITide: true })[0]).not.toHaveProperty(
+      'varslet_i_tide'
+    );
     expect(kravpostene({ form: 'enhetspriser', varsletITide: false })[0]).toMatchObject({
       aksepterer: false,
       oensket_oppgjoersform: 'enhetspriser',

@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140), og F770–F773 forbeholdet i forespørselen etter § 33.6.2 og brevene det bestrider (LV-U76, LV-U77, LV-U49, #2246), og F774–F781 «i tide» etter § 34.4 som oppgivelsen av innsigelsen (VS-U63, #2278). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140), og F770–F773 forbeholdet i forespørselen etter § 33.6.2 og brevene det bestrider (LV-U76, LV-U77, LV-U49, #2246), og F774–F782 «i tide» etter § 34.4 som oppgivelsen av innsigelsen (VS-U63, #2278). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -6652,8 +6652,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (p.art === 'rettidighet' && p.hjemmel === '34.4') siste.set(p.gjelder, p.iTide);",
-        "if (p.art === 'rettidighet' && p.hjemmel === '34.4' && !p.iTide) siste.set(p.gjelder, p.iTide);",
+        'siste.set(p.gjelder, { iTide: p.iTide, dag, lagtTil });',
+        'if (!p.iTide) siste.set(p.gjelder, { iTide: p.iTide, dag, lagtTil });',
       ],
     ],
     mal: ['VS-U63: har byggherren gjort gjeldende at varselet etter punkt 34.4'],
@@ -6663,7 +6663,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar som ikke sier noe om varselet etter § 34.4, gir opp innsigelsen (VS-U77 punkt 9 og 12, #2278)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['for (const { s } of svarene)', 'for (const { s } of svarene.slice(-1))']],
+    endringer: [
+      [
+        'for (const { s, dag, lagtTil } of svarene)',
+        'for (const { s, dag, lagtTil } of svarene.slice(-1))',
+      ],
+    ],
     mal: [
       'VS-U63: et svar som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen',
     ],
@@ -6683,6 +6688,16 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['.sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0))', '']],
     mal: ['VS-U63: byggherrens siste standpunkt etter punkt 34.4 er det sist sendte'],
+  },
+  {
+    id: 'F782',
+    feilklasse:
+      'to standpunkter etter § 34.4 fra samme dag, der minst ett svar er lagt til, leses i registreringsrekkefølgen (OV-U104, #2308)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;', ''],
+    ],
+    mal: ['VS-U63: gjentar et svar lagt til innsigelsen etter punkt 34.4'],
   },
   {
     id: 'F778',
