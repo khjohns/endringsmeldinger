@@ -100,7 +100,7 @@ KJENTE_AVVIK = (
     ("kjerne/kommandoer/kommando.ts", "KA-U35", 2, "#1377"),
     ("kjerne/kommandoer/nyttelast.ts", "KA-U38", 1, "#1433"),
     ("kjerne/kommandoer/skriving.ts", "KA-U35", 1, "#1377"),
-    ("kjerne/tester/brevtekst.test.ts", "KA-U34", 1, "#1377"),
+    ("kjerne/tester/svaret.test.ts", "KA-U34", 1, "#1377"),
     ("kjerne/tester/klient.ts", "KA-U35", 1, "#1377"),
     ("kjerne/typer.ts", "KA-U34", 1, "#1377"),
     ("kjerne/utledning/utled.ts", "KA-U34", 1, "#1377"),
