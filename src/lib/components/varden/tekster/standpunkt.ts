@@ -29,7 +29,8 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
       const f = oppgjoersformEtter(s.hjemmel);
-      const verb = f === 'tilbud' ? 'Godkjenner' : 'Godtar';
+      // Svar 2 A 24.11: en beregningsregel godtas, fast sum godkjennes.
+      const verb = f === 'enhetspriser' || f === 'regningsarbeid' ? 'Godtar' : 'Godkjenner';
       return (
         (s.aksepterer
           ? `${verb} ${metodenavn(f)}`
@@ -122,7 +123,8 @@ function standpunkttekstMedVanligeMellomrom(
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
     case 'oppgjoersform': {
-      const verb = oppgjoersformEtter(s.hjemmel) === 'tilbud' ? 'godkjenner' : 'godtar';
+      const f = oppgjoersformEtter(s.hjemmel);
+      const verb = f === 'enhetspriser' || f === 'regningsarbeid' ? 'godtar' : 'godkjenner';
       return (
         (s.aksepterer
           ? sier(verb, `oppgjørsformen totalentreprenøren krever${forPosten}`)

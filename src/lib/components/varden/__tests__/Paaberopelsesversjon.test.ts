@@ -82,9 +82,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/synlig for teamet/i);
     // Brevet oppdaterer påberopelsen, ikke et krav, og byggherrens svar er ikke et tilbud
-    // (språkfila, «Brev, ikke versjon»; MM-U34 punkt 1 gjelder kravene).
+    // (språkfila, «Brev, ikke versjon»; påminnelsen om tilbudet i MM-U34 punkt 1 gjelder kravene).
+    // Svaret kan ikke godtas her når den nye påberopelsen er sendt (MM-U34 punkt 2).
     expect(
-      skjema.getByText(/^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\.$/)
+      skjema.getByText(
+        /^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\. Når du sender brevet, kan du ikke godta det svaret her\.$/
+      )
     ).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/Oppdaterer kravet|tilbud/);
     expect(skjema.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
