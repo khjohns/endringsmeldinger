@@ -42,4 +42,4 @@ akseptfristen?
 **Hva valget styrer:** U-4 i bestillingen og teksten i brevkontrollen. B er en presisering av designdelen
 i HF-U23 og blir en post i vedtaksregisteret, fordi den sier hva løsningen sier om bindingen.
 
-**Svar:** (venter)
+**Svar:** oppdragsgiver 24.11 i økta, ordrett: «B». B, ført som vedtak av orkestratoren.
