@@ -31,6 +31,10 @@ import {
 } from '../../regler/vederlag.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
+  sisteStandpunktTilVarslene,
+  type StandpunktTilVarselet,
+} from '../../frosset/standpunkt.ts';
+import {
   denAndreRegelen,
   justerteEnhetspriser,
   kravposterI,
@@ -65,13 +69,8 @@ import {
   type Kravpostvarselhjemmel,
   type Standpunkt,
 } from '../../typer.ts';
-import {
-  datoenDetBleSendt,
-  paaberopelseFor,
-  varseletForNyttSvar,
-  type Utledning,
-} from '../../utledning/utled.ts';
-import { dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
+import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type {
@@ -267,33 +266,39 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
 }
 
 /**
- * VS-U63 (VS-U77 punkt 31, 9 og 12): kravpostene der byggherrens siste standpunkt til varselet
- * etter § 34.4 i svarene på vederlaget var at varselet ikke ble gitt eller kom for sent. Et svar
- * som ikke sier noe om varselet, gir ikke opp innsigelsen. Svarene leses i rekkefølgen de ble
- * sendt, også et svar lagt til utenfor rekken, som har samme virkning for påberopelsen (punkt 12,
- * OV-U103, OV-U105). Er to standpunkter fra samme dag, og minst ett av svarene er lagt til, er
- * rekkefølgen ukjent (OV-U104), og innsigelsen kan stå. Et svar lagt til, sendt på dagen `sendt`,
- * leser bare svarene sendt før den dagen (OV-U98, OV-U104).
+ * Byggherrens siste standpunkt til varselet for hver kravpost i svarene på vederlaget
+ * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
+ * sendt før den dagen (OV-U98, OV-U104).
  */
-function innsigelseneEtter344(u: Utledning, sendt: string | null): Set<string> {
+export function standpunkteneTilVarslene(
+  u: Utledning,
+  sendt: string | null
+): StandpunktTilVarselet[] {
   const { svar, svarUtenforRekken } = u.spor.vederlag;
-  const lagtTil = new Set(
-    [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
+  const medVirkning = new Set([...svar, ...svarUtenforRekken].map((s) => s.id));
+  // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
+  return sisteStandpunktTilVarslene(
+    [...dokumenterI(u.journal)]
+      .flatMap((d) =>
+        d.svar
+          .filter((s) => medVirkning.has(s.id))
+          .map((s) => ({
+            s,
+            dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
+            lagtTil: erRegistrert(d.opplysninger),
+          }))
+      )
+      .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
   );
-  const svarene = [...svar, ...svarUtenforRekken]
-    .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '', lagtTil: lagtTil.has(s.dokument) }))
-    .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
-    .sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
-  const siste = new Map<string, { iTide: boolean; dag: string; lagtTil: boolean }>();
-  for (const { s, dag, lagtTil } of svarene)
-    for (const p of s.standpunkter) {
-      if (p.art !== 'rettidighet' || p.hjemmel !== '34.4') continue;
-      const foer = siste.get(p.gjelder);
-      if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
-      siste.set(p.gjelder, { iTide: p.iTide, dag, lagtTil });
-    }
-  return new Set([...siste].flatMap(([post, { iTide }]) => (iTide ? [] : [post])));
 }
+
+/** VS-U63: kravpostene der byggherrens innsigelse mot varselet etter § 34.4 står. */
+const innsigelseneEtter344 = (u: Utledning, sendt: string | null): Set<string> =>
+  new Set(
+    standpunkteneTilVarslene(u, sendt).flatMap((x) =>
+      x.hjemmel === '34.4' && !x.iTide ? [x.gjelder] : []
+    )
+  );
 
 /** Det i svaret som strider mot byggherrens tidligere svar i vederlaget (`svarsperre`). */
 function oppgivelseUtenInnsigelse(
@@ -721,8 +726,8 @@ function ugyldigIVederlaget(
  * Feilene `kontrollerOppgjoersformen` og `kontrollerOppgivelsenEtter344` fører for svaret på hver
  * kravpost, etter kravpostens `id` (#2171, VS-U63).
  */
-const feilIOppgjoersformen = (v: Svarvurdering, krav: Krav, u: Utledning) => {
-  const staar = innsigelseneEtter344(u, null);
+const feilIOppgjoersformen = (v: Svarvurdering, krav: Krav, u: Utledning, sendt: string | null) => {
+  const staar = innsigelseneEtter344(u, sendt);
   return new Map(
     kravpostvurderinger(v, krav).map(({ post, svar }) => [
       post.id,
@@ -786,7 +791,7 @@ export function lagIVederlaget(
   sendt: string | null
 ): LagIVederlaget {
   const krav = u.spor.vederlag.gjeldendeKrav!;
-  const iOppgjoersformen = feilIOppgjoersformen(utkast.vurderinger, krav, u);
+  const iOppgjoersformen = feilIOppgjoersformen(utkast.vurderinger, krav, u, sendt);
   const v = utenAvvisteSvar(utkast.vurderinger, krav, iOppgjoersformen);
   const svarene = kravpostvurderinger(v, krav);
   const utfylt = (fyll: (svar: Kravpostvurdering, post: Kravpost) => Kravpostvurdering) => ({

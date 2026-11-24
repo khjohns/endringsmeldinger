@@ -25,7 +25,7 @@ export const grunntekst = haerdet((grunn: Subsidiaergrunn, du: boolean, brev: Br
  * `leselinje`). Bare standpunktene til oppgjørsformen, beløpet, varselet etter § 34.3.3 eller
  * § 34.4 og justeringen gjelder én kravpost; ellers `null`.
  */
-function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
+function kortStandpunkt(s: Standpunkt, krevd?: number, oppgir = false): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
       const f = oppgjoersformEtter(s.hjemmel);
@@ -48,6 +48,9 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
           ? 'Gir opp innsigelsen om at varselet etter punkt 34.4 ikke ble gitt eller kom for sent'
           : 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
       if (s.hjemmel !== '34.3.3') return null;
+      // VS-U77 punkt 10: «i tide» etter en innsigelse som står, er at innsigelsen gis opp.
+      if (s.iTide && oppgir)
+        return 'Gir opp innsigelsen om at varselet etter punkt 34.3.3 kom for sent';
       return s.iTide
         ? 'Godkjenner at varselet etter punkt 34.3.3 kom i tide'
         : 'Gjør gjeldende at varselet etter punkt 34.3.3 kom for sent';
@@ -68,7 +71,8 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
 function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
   post: Kravpost,
-  vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string
+  vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string,
+  innsigelsenStaar = false
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182).
   let forrige: Innsigelsen[] | undefined;
@@ -78,7 +82,8 @@ function leselinjeneMedVanligeMellomrom(
     if (!('gjelder' in s) || s.gjelder !== post.id) return [];
     const t = kortStandpunkt(
       s,
-      s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
+      s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined,
+      innsigelsenStaar
     );
     if (!t) return [];
     const nytt = l.vilkaar?.length && l.vilkaar !== forrige;
@@ -240,4 +245,13 @@ export const setningene = (rader: Innlegget['standpunkter']): string[] =>
   });
 
 export const leselinjene = haerdet(leselinjeneMedVanligeMellomrom);
+
+/**
+ * VS-U77 punkt 10: byggherren gir opp innsigelsen mot varselet for kravposten fra `brev`, med
+ * samme ord som brevet (oppdragsgiver 24.11 i #2314).
+ */
+export const oppgivelsestekst = haerdet(
+  (hjemmel: '34.3.3' | '34.4', brev: Brevref, du: boolean, post?: string) =>
+    `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${hjemmel === '34.4' ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}`
+);
 export const standpunkttekst = haerdet(standpunkttekstMedVanligeMellomrom);

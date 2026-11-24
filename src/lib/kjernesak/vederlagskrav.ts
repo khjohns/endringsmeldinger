@@ -8,6 +8,8 @@ import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { kravpostvarslene, varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
+import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/kommando.ts';
+import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
 export type Kravpostutkast = Pick<Kravpost, 'oppgjoersform' | 'justert'> & { id?: string };
@@ -112,3 +114,19 @@ export function varseletFoerKravet(u: Utledning, hjemmel: '34.1.2' | '34.1.3'): 
     throw feil;
   }
 }
+
+/** Varselet kravposten trenger, etter oppgjørsformen (`varselhjemmel` i kjernen), eller `null`. */
+export const varselhjemmelFor = (post: Kravpost): Kravpostvarselhjemmel | null =>
+  varselhjemmel(post);
+
+/**
+ * Byggherrens siste standpunkt til varselet kravposten trenger, i svarene før dette, slik kjernen
+ * leser det (`standpunkteneTilVarslene`, VS-U77 punkt 8–12), eller `null`.
+ */
+export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarselet | null => {
+  const hjemmel = varselhjemmel(post);
+  return (
+    standpunkteneTilVarslene(u, null).find((x) => x.gjelder === post.id && x.hjemmel === hjemmel) ??
+    null
+  );
+};

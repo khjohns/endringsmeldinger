@@ -747,7 +747,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/frist/utledning.ts:fristkravErFremmet',
       'utledning/utled.ts:partensPaaberopelser',
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
-      'spor/vederlag/kommando.ts:innsigelseneEtter344',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -804,8 +804,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
-      // VS-U63: et svar lagt til leser bare svarene sendt før det.
-      'spor/vederlag/kommando.ts:innsigelseneEtter344',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
@@ -927,6 +925,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts',
       'utledning/utled.ts:registreringenStrider',
       'utledning/utled.ts:partensPaaberopelser',
+    ],
+  ],
+  // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost, likt i
+  // kommandoen, skjemaet og brevteksten.
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'sisteStandpunktTilVarslene',
+    [
+      'frosset/brevtekst.ts:rettidighetstekst',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
     ],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
@@ -1190,10 +1199,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   ['regler/vederlag.ts:kontrollerOppgivelsenEtter344', 'utsagn', 'varslet_i_tide oppgjoersform'],
-  // OV-U98: svarene med innsigelsen etter § 34.4 leses i rekkefølgen de ble sendt.
-  ['spor/vederlag/kommando.ts:innsigelseneEtter344', 'relasjon', 's dag lagtTil iTide'],
+  // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
+  // de ble sendt.
+  ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
+  ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
+  // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost.
+  ['StandpunktTilVarselet', 'relasjon', 'gjelder hjemmel iTide dokument'],
   // OV-U104: brevene lagt til, som gjør rekkefølgen samme dag ukjent.
-  ['Dokument', 'relasjon', 'id', ['spor/vederlag/kommando.ts:innsigelseneEtter344']],
+  ['Dokument', 'relasjon', 'id', ['spor/vederlag/kommando.ts:standpunkteneTilVarslene']],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
   ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
@@ -1513,6 +1526,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:rettidighetstekst']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -2320,6 +2334,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:datoenDetBleSendt',
       'frosset/brevtekst.ts:aapneInnsigelser',
+      // VS-U77 punkt 9 og 12: dagen et svar med standpunktet til varselet for kravposten ble sendt.
+      'frosset/brevtekst.ts:rettidighetstekst',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
       'utledning/utled.ts:partensPaaberopelser',
@@ -2580,7 +2597,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts',
       'spor/frist/utledning.ts',
-      'spor/vederlag/kommando.ts:innsigelseneEtter344',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
     ],
   ],
   [

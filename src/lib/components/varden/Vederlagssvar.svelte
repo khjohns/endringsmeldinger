@@ -15,6 +15,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
+  import { varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -55,6 +56,7 @@
     grunntekst,
     innsigelsenOmVarselet,
     leselinjene,
+    oppgivelsestekst,
     VEDERLAGET,
     standpunkttekst,
   } from './tekster';
@@ -170,6 +172,12 @@
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const postenFor = (s: Standpunkt) =>
     'gjelder' in s && s.gjelder !== undefined ? poster.find((p) => p.id === s.gjelder) : undefined;
+  // VS-U77 punkt 10: brevet med innsigelsen mot varselet for kravposten et «i tide» gir opp.
+  const oppgittI = (s: Standpunkt, post: Kravpost) => {
+    if (s.art !== 'rettidighet' || !s.iTide || s.hjemmel !== varselhjemmelFor(post)) return null;
+    const foer = varseletFoer(u, post);
+    return foer?.iTide === false ? brevet(u, foer.dokument) : null;
+  };
   const linjer = $derived(
     nyeStandpunkter.map((l) => {
       const post = 'standpunkt' in l ? postenFor(l.standpunkt) : undefined;
@@ -182,14 +190,21 @@
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
-            : standpunkttekst(
-                l.standpunkt,
-                true,
-                l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
-                  ? krevdI(post)
-                  : undefined,
-                post && flere ? post.betegnelse : undefined
-              ),
+            : post && oppgittI(l.standpunkt, post)
+              ? oppgivelsestekst(
+                  varselhjemmelFor(post)!,
+                  oppgittI(l.standpunkt, post)!,
+                  true,
+                  flere ? post.betegnelse : undefined
+                )
+              : standpunkttekst(
+                  l.standpunkt,
+                  true,
+                  l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
+                    ? krevdI(post)
+                    : undefined,
+                  post && flere ? post.betegnelse : undefined
+                ),
         lag: l.lag,
         vilkaar: l.vilkaar,
         heller: l.heller,
@@ -199,7 +214,12 @@
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = leselinjene(nyeStandpunkter, p, VEDERLAGET.lagetVilkaar);
+    const fra = leselinjene(
+      nyeStandpunkter,
+      p,
+      VEDERLAGET.lagetVilkaar,
+      varseletFoer(u, p)?.iTide === false
+    );
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
@@ -530,7 +550,27 @@
         />
       {/if}
       {#if stiltIPosten(v, p).includes('varslet_i_tide')}
-        {#if regel === 'regningsarbeid'}
+        {@const foer = varseletFoer(u, p)}
+        {@const foerBrev = foer && brevet(u, foer.dokument)}
+        {@const staar = foer?.iTide === false}
+        {#snippet innsigelsenSomStaar(tittel: string)}
+          <!-- VS-U77 punkt 9, 10 og 12: svaret gjentar innsigelsen til byggherren gir den opp. -->
+          <div class="setning">
+            <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
+              <strong>{tittel}</strong>
+              {#if foerBrev}{SKJEMA.innsigelsenStaar(foerBrev, foer!.hjemmel)}{/if}
+              {v.varsletITide === true ? SKJEMA.girOppInnsigelsen : SKJEMA.gjentarInnsigelsen}
+            </p>
+            <Knapp variant="lenke" iFlukt onclick={() => (v.varsletITide = v.varsletITide !== true)}
+              >{v.varsletITide === true
+                ? SKJEMA.gjentaInnsigelsenKnapp
+                : SKJEMA.girOppInnsigelsenKnapp}</Knapp
+            >
+          </div>
+        {/snippet}
+        {#if regel === 'regningsarbeid' && staar}
+          {@render innsigelsenSomStaar(SKJEMA.varselRegning)}
+        {:else if regel === 'regningsarbeid'}
           <div class="setning">
             <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
               <strong>{SKJEMA.varselRegning}</strong>
@@ -554,20 +594,25 @@
               liste={varselet}
               punkt={forutsetning}
             />
-            <Valg
-              navn={`${uid}-varsel-${p.betegnelse}`}
-              spoersmaal={SKJEMA.varselJusteringSpoersmaal}
-              valgfri
-              beskrevetAv={varselet.length
-                ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
-                : undefined}
-              valg={[
-                { verdi: true, tekst: SKJEMA.komITide },
-                { verdi: false, tekst: SKJEMA.komForSent },
-              ]}
-              bind:verdi={v.varsletITide}
-              lett
-            />
+            {#if staar}
+              {@render innsigelsenSomStaar(SKJEMA.varselJustering)}
+            {:else}
+              <Valg
+                navn={`${uid}-varsel-${p.betegnelse}`}
+                spoersmaal={SKJEMA.varselJusteringSpoersmaal}
+                valgfri
+                hjelp={foer && foerBrev ? SKJEMA.varseletITideFoer(foerBrev) : undefined}
+                beskrevetAv={varselet.length
+                  ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
+                  : undefined}
+                valg={[
+                  { verdi: true, tekst: SKJEMA.komITide },
+                  { verdi: false, tekst: SKJEMA.komForSent },
+                ]}
+                bind:verdi={v.varsletITide}
+                lett
+              />
+            {/if}
           </div>
           <div class="betinget">
             <Gjelderhvis
