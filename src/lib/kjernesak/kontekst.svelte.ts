@@ -428,16 +428,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
      */
     get fristdatoer(): readonly GjeldendeFristdato[] {
       const ikkeForstaatt = sak?.merking?.sakerIkkeForstaatt ?? [];
-      return (sak?.merking?.fristdatoer ?? []).map((d) => ({
-        ...d,
-        gjeldende: datoenEtterForlengelsene(
-          d.dato,
-          d.fristId,
-          (d.forlengelser ?? []).map((f) => ({ ...f, fristId: d.fristId })),
-          ikkeForstaatt,
-          sakId
-        ),
-      }));
+      return (sak?.merking?.fristdatoer ?? []).map((d) => {
+        const andre = (d.forlengelser ?? []).filter((f) => f.sakId !== sakId);
+        return {
+          ...d,
+          gjeldende: datoenEtterForlengelsene(
+            d.dato,
+            d.fristId,
+            andre.map((f) => ({ ...f, fristId: d.fristId })),
+            ikkeForstaatt,
+            sakId
+          ),
+          forlengelserIAndreSaker: andre,
+        };
+      });
     },
     get versjon() {
       return utledning?.versjon ?? null;

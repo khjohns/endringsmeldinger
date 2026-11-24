@@ -177,7 +177,7 @@ export const sakensNavn = (f: Forlengelsen): string =>
 
 /** Gjeldende frist for en frist i fristtabellen (D-9, KA-U77). */
 export type GjeldendeFrist =
-  | { art: 'kjent'; dato: string; iKontrakten: string; forlengelser: Forlengelsen[] }
+  | { art: 'kjent'; dato: string; iKontrakten: string; forlengelser: readonly Forlengelsen[] }
   /** En sak kjernen ikke forstår, kan ha forlenget fristen (MM-U2). */
   | { art: 'ukjent'; iKontrakten: string }
   /** Fristen er ikke registrert, eller fristtabellen kunne ikke hentes. */
@@ -185,13 +185,10 @@ export type GjeldendeFrist =
 
 /**
  * Gjeldende frist: datoen i kontrakten med forlengelsene partene er enige om i andre saker i samme
- * kontrakt, uten saken `sakId` (KA-U77, HF-U5). Datoen regnes av kjernen i lesepunktet
- * (`fristdatoer` i `src/lib/kjernesak/kontekst.svelte.ts`).
+ * kontrakt, uten saken siden viser (KA-U77, HF-U5). Datoen og forlengelsene står i fristtabellen
+ * fra lesepunktet (`fristdatoer` i `src/lib/kjernesak/kontekst.svelte.ts`).
  */
-export function gjeldendeFrist(
-  fristId: number | null,
-  { datoer, sakId }: Fristtabellen
-): GjeldendeFrist {
+export function gjeldendeFrist(fristId: number | null, { datoer }: Fristtabellen): GjeldendeFrist {
   const d = fristId === null ? undefined : datoer.find((x) => x.fristId === fristId);
   if (!d) return null;
   if (d.gjeldende === null) return { art: 'ukjent', iKontrakten: d.dato };
@@ -199,7 +196,7 @@ export function gjeldendeFrist(
     art: 'kjent',
     dato: d.gjeldende,
     iKontrakten: d.dato,
-    forlengelser: (d.forlengelser ?? []).filter((f) => f.sakId !== sakId),
+    forlengelser: d.forlengelserIAndreSaker,
   };
 }
 

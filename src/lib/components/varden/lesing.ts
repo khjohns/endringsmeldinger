@@ -463,9 +463,8 @@ export const betegnelsene = (
 
 /** Fristtabellen og sakene i prosjektet, som gjeldende frist regnes av (KA-U77, BF-45 U-5). */
 export interface Fristtabellen {
+  /** Fristene med gjeldende frist uten dagene i saken siden viser (KA-U77). */
   datoer: readonly GjeldendeFristdato[];
-  /** Saken siden viser, som forlengelsene i den ikke regnes med i (KA-U77). */
-  sakId: string;
   /** Lenken til en annen sak i prosjektet. */
   sakslenke?: (sakId: string) => string;
 }
@@ -476,7 +475,6 @@ export const fristtabellen = (
   sakslenke?: (sakId: string) => string
 ): Fristtabellen => ({
   datoer: kjernesak.fristdatoer,
-  sakId: kjernesak.sakId,
   sakslenke,
 });
 

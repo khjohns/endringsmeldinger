@@ -63,9 +63,12 @@ const TABELLEN: Fristtabellen = {
         { sakId: 'annen', sakskode: { kode: 'koe', loepenummer: 9 }, dager: 10 },
         { sakId: 'denne', sakskode: { kode: 'koe', loepenummer: 17 }, dager: 14 },
       ],
-      // Lesepunktet regner datoen med kjernen, uten dagene i saken selv. Utregningen prøves i
-      // `kjerne/tester/fristtabell.test.ts` og gjennom lesepunktet i `Fristkrav.test.ts`.
+      // Lesepunktet regner datoen med kjernen, og listen, uten dagene i saken selv. Utvalget prøves
+      // i `kjerne/tester/fristtabell.test.ts` og gjennom lesepunktet i `Fristkrav.test.ts`.
       gjeldende: '2027-08-26',
+      forlengelserIAndreSaker: [
+        { sakId: 'annen', sakskode: { kode: 'koe', loepenummer: 9 }, dager: 10 },
+      ],
     },
     {
       fristId: 2,
@@ -73,9 +76,9 @@ const TABELLEN: Fristtabellen = {
       dagmulktbelagt: false,
       forlengelser: [],
       gjeldende: '2027-06-01',
+      forlengelserIAndreSaker: [],
     },
   ],
-  sakId: 'denne',
   sakslenke: (id) => `/p/${id}`,
 };
 
