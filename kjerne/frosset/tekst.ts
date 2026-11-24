@@ -101,10 +101,7 @@ export const postradene = (tabell: string[][]): string[][] => tabell.slice(1, -1
 export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);
 
-/**
- * Punktene i svaret som ikke tar en utdypning (LV-U71): innledningen og oversikten, og forholdet
- * etter #2145 (LV-U41, MM-U50). Innledningen i et krav tar en (LV-U75).
- */
+/** Punktene i svaret uten utdypning (LV-U71; forholdet etter #2145, LV-U41, MM-U50; kravet LV-U75). */
 export const UTEN_BEGRUNNELSE_I_SVARET: readonly string[] = [INNLEDNINGEN, OVERSIKTEN, FORHOLDET];
 
 // Forbeholdet har sitt eget felt i svaret.
