@@ -266,7 +266,8 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne, sendt: string
         u
       ),
     (s) => u.spor[s.spor as Spor].krav.find((k) => k.id === s.gjelder),
-    standpunkteneTilVarslene(u, sendt),
+    // OV-U104: rekkefølgen samme dag er ukjent, så en innsigelse fra samme dag står.
+    standpunkteneTilVarslene(u, sendt, true),
     kjerne
   );
   return svarene;
@@ -959,7 +960,7 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     svaretPaaForholdetPaaDagen(u, dag),
     (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
     (s) => kravene.find((k) => k.id === s.gjelder),
-    standpunkteneTilVarslene(u, dag),
+    standpunkteneTilVarslene(u, dag, true),
     kjerne
   );
 }

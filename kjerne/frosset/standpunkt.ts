@@ -236,9 +236,8 @@ const FRYSING: Record<Spor, Svarsfrysing> = {
 export type StandpunktFoer = Pick<StandpunktTilVarselet, 'gjelder' | 'hjemmel' | 'iTide'>;
 
 /**
- * Standpunktene faller sammen: svaret godkjenner hele kravet, og ingen innsigelse fra et
- * tidligere svar står for et varsel svaret ikke sier noe om (VS-U77 punkt 9 og 12, OV-U115
- * punkt 25, #2316). `foer` er partens siste standpunkt til varslene i svarene før.
+ * Sammenfallet i svaret, også med innsigelsene i svarene før (`foer`) for et varsel svaret ikke
+ * sier noe om (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316).
  */
 export function sammenfallet(
   svar: Svarinnhold,
@@ -255,9 +254,9 @@ export function sammenfallet(
 
 /**
  * MM-U43 punkt 8: sammenfallet i beslutningsgrunnlaget stemmer med standpunktene og
- * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler. Svarene før
- * leses ikke her, så et svar uten sammenfall som godkjenner hele kravet, stemmer når det ikke
- * sier noe om et varsel i `krav` (`sammenfallet`).
+ * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler, og ikke av
+ * svarene før: et svar uten sammenfall som godkjenner hele kravet, godtas når det ikke sier
+ * noe om et varsel i `krav` (#2316).
  */
 export function sammenfallStemmer(svar: Svar, krav: Krav | undefined): boolean {
   const { sammenfall, virkninger } = svar.beslutningsgrunnlag;

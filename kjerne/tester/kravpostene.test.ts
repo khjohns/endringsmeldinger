@@ -1251,6 +1251,33 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       expect(gjeldende(t).beslutningsgrunnlag.sammenfall).toBe(true);
     });
 
+    it('et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet, gir ikke sammenfall (VS-U77 punkt 9, OV-U104, #2316)', () => {
+      const lagtTil = (foer: Data) => {
+        const s = sakMed(regning);
+        const forrige = svaret(s, { P2: foer }).svar[0]!;
+        s.send('BH', {
+          type: 'brev',
+          svar: [utenFelt(utenFelt(forrige, 'utdypning'), 'utdypninger')],
+          sendt: '2026-10-05',
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+        const taus = svaret(s, { P2: { aksepterer: true } }).svar[0]!;
+        s.send('BH', {
+          type: 'revisjon',
+          erstatter: gjeldende(s).id,
+          svar: utenFelt(utenFelt(taus, 'utdypning'), 'utdypninger'),
+          sendt: '2026-10-05',
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+        expect(s.u().forstaatt).toBe(true);
+        return gjeldende(s).beslutningsgrunnlag.sammenfall;
+      };
+      expect(lagtTil({ aksepterer: true, varslet_i_tide: false })).toBe(false);
+      expect(lagtTil({ aksepterer: true }), 'kontrollsak: uten innsigelsen').toBe(true);
+    });
+
     it('«i tide» etter punkt 34.3.3 står mot et senere svar som ikke sier noe om varselet (VS-U77 punkt 8 og 30)', () => {
       const s = sakMed(justert);
       s.send(

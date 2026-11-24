@@ -632,8 +632,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        'standpunkteneTilVarslene(u, dag),\n    kjerne\n',
-        'standpunkteneTilVarslene(u, dag),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
+        'standpunkteneTilVarslene(u, dag, true),\n    kjerne\n',
+        'standpunkteneTilVarslene(u, dag, true),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -6856,7 +6856,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'frysingen av svaret leser ikke innsigelsene fra svarene før (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['    standpunkteneTilVarslene(u, sendt),\n', '    [],\n']],
+    endringer: [['    standpunkteneTilVarslene(u, sendt, true),\n', '    [],\n']],
     mal: [
       'et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
       'et svar som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står',
@@ -6869,6 +6869,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['?? []).length > 0;', '?? []).length < 0;']],
     mal: ['et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall'],
+  },
+  {
+    id: 'F793',
+    feilklasse:
+      'frysingen av et svar lagt til leser ikke en innsigelse sendt samme dag (VS-U77 punkt 9, OV-U104, #2316)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['|| (medSammeDag && dag === sendt)', '|| (medSammeDag && false)']],
+    mal: ['et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet'],
   },
 ];
 /** En kopi av arbeidstreet. */
