@@ -715,6 +715,9 @@ function rettidighetstekst(
   const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
   if (erKravpostvarselhjemmel(p.hjemmel)) {
     const om = `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`;
+    // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
+    if (p.iTide && p.hjemmel === '34.4')
+      return `byggherren gir opp innsigelsen om at ${om} ikke ble gitt eller kom for sent.`;
     if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
     return p.hjemmel === '34.3.3'
       ? `byggherren gjør gjeldende at ${om} kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`

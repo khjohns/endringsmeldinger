@@ -208,6 +208,7 @@ export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett)
 /** Nyttelastkontrollen i forholdet (`nyttelastkontroll`). */
 export const NYTTELAST_I_FORHOLDET = {
   begrunnelse: begrunnelseIForholdet,
+  svarsperre: () => null,
   kravsperre: (k, u) => kategorisperre(k, u) ?? datosperre(k, u),
   innsigelse: () => null,
   utdypning: utdypningIForholdet,

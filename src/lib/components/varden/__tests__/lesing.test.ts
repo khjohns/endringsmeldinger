@@ -480,6 +480,41 @@ describe('Standpunktet etter en leddsetning (#2000)', () => {
   });
 });
 
+describe('Standpunktet til varselet etter punkt 34.4 (VS-U63, #2278)', () => {
+  const varselet = (iTide: boolean): Standpunkt => ({
+    id: 'r',
+    art: 'rettidighet',
+    gjelder: 'p1',
+    hjemmel: '34.4',
+    iTide,
+  });
+  const post = { id: 'p1', betegnelse: 'P1' } as Parameters<typeof leselinjene>[1];
+  const linjene = (s: Standpunkt) =>
+    leselinjene(
+      [{ standpunkt: s }] as unknown as Parameters<typeof leselinjene>[0],
+      post,
+      VEDERLAGET.lagetVilkaar
+    );
+
+  it('«i tide» er at byggherren gir opp innsigelsen, slik brevet sier', () => {
+    expect(standpunkttekst(varselet(true), false, undefined, 'P1')).toBe(
+      'Byggherren gir opp innsigelsen om at varselet etter punkt 34.4 for P1 ikke ble gitt eller kom for sent'
+    );
+    expect(linjene(varselet(true))).toEqual([
+      'Gir opp innsigelsen om at varselet etter punkt 34.4 ikke ble gitt eller kom for sent',
+    ]);
+  });
+
+  it('kontrollsak: innsigelsen er at varselet ikke ble gitt eller kom for sent', () => {
+    expect(standpunkttekst(varselet(false), false, undefined, 'P1')).toBe(
+      'Byggherren gjør gjeldende at varselet etter punkt 34.4 for P1 ikke ble gitt eller kom for sent'
+    );
+    expect(linjene(varselet(false))).toEqual([
+      'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent',
+    ]);
+  });
+});
+
 describe('Meldingen om oppgjørsformen (#1848)', () => {
   it('nevner oppgjørsformen med navnet og punktet i NS 8407, ikke koden (punkt 34.2.1 og 34.4, #1848)', () => {
     expect(SKJEMA.manglerForm('regningsarbeid')).toBe(

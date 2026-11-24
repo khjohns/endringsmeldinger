@@ -86,6 +86,7 @@ function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvi
 /** Nyttelastkontrollen i fristen (`NYTTELAST`). */
 export const NYTTELAST_I_FRISTEN = {
   begrunnelse: () => null,
+  svarsperre: () => null,
   kravsperre: fristsperre,
   innsigelse: () => null,
   utdypning: utdypningIFristen,

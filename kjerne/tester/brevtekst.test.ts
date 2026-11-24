@@ -11428,6 +11428,152 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     );
   });
 
+  it('VS-U63: «i tide» etter punkt 34.4 avvises når byggherren ikke har gjort gjeldende at varselet for posten ikke ble gitt eller kom for sent', () => {
+    const s = sakMed(regning, { ...regning, beskrivelse: 'Lensing' });
+    expect(
+      s.avvisning(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: true }, P3: { aksepterer: true } })
+      )?.melding,
+      'første svar'
+    ).toContain(
+      'P2.varslet_i_tide: byggherren har ikke gjort gjeldende at varselet etter punkt 34.4 for kravposten ikke ble gitt eller kom for sent'
+    );
+    s.send(
+      'BH',
+      svaret(s, {
+        P2: { aksepterer: true, varslet_i_tide: false },
+        P3: { aksepterer: true },
+      })
+    );
+    expect(
+      s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: gjeldende(s).id,
+        svar: svaret(s, {
+          P2: { aksepterer: true },
+          P3: { aksepterer: true, varslet_i_tide: true },
+        }).svar[0],
+      })?.melding,
+      'innsigelsen mot P2 gjelder ikke P3'
+    ).toContain('P3.varslet_i_tide: byggherren har ikke gjort gjeldende');
+  });
+
+  it('VS-U63: har byggherren gjort gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent, er «i tide» at innsigelsen gis opp, og brevet sier det', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+    const oppgivelse = () => ({
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+    });
+    const rad = s.send('BH', oppgivelse());
+    expect(laast(rad).join(' ')).toContain(
+      'Byggherren gir opp innsigelsen om at varselet om regningsarbeid etter NS 8407 punkt 34.4 for P2 ikke ble gitt eller kom for sent.'
+    );
+    // VS-U77 punkt 31: innsigelsen er gitt opp, så det er ingen å gi opp igjen.
+    expect(s.avvisning('BH', oppgivelse())?.melding ?? '', 'etter oppgivelsen').toContain(
+      'P2.varslet_i_tide: byggherren har ikke gjort gjeldende'
+    );
+  });
+
+  it('VS-U63: et svar som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen (VS-U77 punkt 9 og 12)', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: svaret(s, { P2: { aksepterer: true } }).svar[0],
+    });
+    expect(
+      s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: gjeldende(s).id,
+        svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+      })
+    ).toBeNull();
+  });
+
+  it('VS-U63: en innsigelse etter punkt 34.4 i et svar lagt til utenfor rekken står, også når et svar fra løsningen sendt senere ikke sier noe (VS-U77 punkt 12, OV-U103)', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+    const senere = gjeldende(s).id;
+    const innsigelsen = svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }).svar[0]!;
+    s.send('BH', {
+      type: 'brev',
+      svar: [utenFelt(utenFelt(innsigelsen, 'utdypning'), 'utdypninger')],
+      sendt: '2026-10-05',
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
+    });
+    expect(s.u().spor.vederlag.svarUtenforRekken, 'forutsetning').toHaveLength(1);
+    expect(gjeldende(s).id, 'forutsetning').toBe(senere);
+    expect(
+      s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: senere,
+        svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+      })
+    ).toBeNull();
+  });
+
+  it('VS-U63: byggherrens siste standpunkt etter punkt 34.4 er det sist sendte, også når et eldre svar legges til senere (OV-U98, VS-U77 punkt 12)', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+    const oppgivelse = () => ({
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+    });
+    s.send('BH', oppgivelse());
+    const eldre = svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }).svar[0]!;
+    s.send('BH', {
+      type: 'brev',
+      svar: [utenFelt(utenFelt(eldre, 'utdypning'), 'utdypninger')],
+      sendt: '2026-10-05',
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
+    });
+    expect(
+      s.avvisning('BH', oppgivelse())?.melding ?? '',
+      'oppgitt etter det eldre svaret'
+    ).toContain('P2.varslet_i_tide: byggherren har ikke gjort gjeldende');
+  });
+
+  it('VS-U63: gjentar et svar lagt til innsigelsen etter punkt 34.4 og gir et annet sendt samme dag den opp, er rekkefølgen ukjent, og innsigelsen kan gis opp (OV-U104)', () => {
+    const utfall = (medGjentakelsen: boolean) => {
+      const s = sakMed(regning);
+      s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+      const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id;
+      s.send('TE', krav([{ ...regning, id: p2 }]));
+      s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+      const lagtTil = (iTide: boolean) => {
+        const sv = svaret(s, { P2: { aksepterer: true, varslet_i_tide: iTide } }).svar[0]!;
+        s.send('BH', {
+          type: 'brev',
+          svar: [utenFelt(utenFelt(sv, 'utdypning'), 'utdypninger')],
+          sendt: '2026-10-07',
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+      };
+      if (medGjentakelsen) lagtTil(false);
+      lagtTil(true);
+      expect(s.u().spor.vederlag.svarUtenforRekken, 'forutsetning').toHaveLength(
+        medGjentakelsen ? 2 : 1
+      );
+      return s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: gjeldende(s).id,
+        svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+      });
+    };
+    expect(utfall(true)).toBeNull();
+    expect(utfall(false)?.melding ?? '', 'kontrollsak: oppgivelsen uten gjentakelsen').toContain(
+      'P2.varslet_i_tide: byggherren har ikke gjort gjeldende'
+    );
+  });
+
   it('standpunktet til varselet og justeringen gjelder bare kravposter som har dem (KA-U64, KA-U68)', () => {
     const s = sakMed(regning);
     expect(
@@ -12637,6 +12783,23 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(ugyldig(s, 'vederlag', v({}, { varslet_i_tide: false })), 'kontrollsak').toEqual([]);
   });
 
+  it('vederlaget: «i tide» etter § 34.4 uten en innsigelse å gi opp er et svar kjernen ikke godtar, og etter innsigelsen er det oppgivelsen (VS-U63, #2278)', () => {
+    const s = saken(medRegel('regningsarbeid'));
+    const v = (p2: Data) => ({
+      kravposter: [godkjentP1, { gjelder: 'P2', aksepterer: true, ...p2 }],
+    });
+    expect(ugyldig(s, 'vederlag', v({ varslet_i_tide: true }))).toEqual(['P2.varslet_i_tide']);
+    expect(melding(s, 'vederlag', v({ varslet_i_tide: true }))).toContain(
+      'ingen innsigelse å gi opp'
+    );
+    const innsigelsen = utkastet(s, 'vederlag', v({ varslet_i_tide: false }));
+    s.send('BH', {
+      type: 'brev',
+      svar: [{ ...innsigelsen, resultat: { resultat: 'godkjent', godkjent_beloep: 100000 } }],
+    });
+    expect(ugyldig(s, 'vederlag', v({ varslet_i_tide: true })), 'etter innsigelsen').toEqual([]);
+  });
+
   it('vederlaget: et svar på varselet etter § 34.1.2 når varslingsplikten ikke gjelder kategorien, er et svar kjernen ikke godtar (OV-U15, #2171)', () => {
     const s = saken(vederlagskravet(tilbud(100000)));
     const v = { hovedkrav_varslet_i_tide: true, kravposter: [godkjentP1] };
@@ -12904,7 +13067,8 @@ describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64
         for (const [p2, varsel, justering] of ja.flatMap((a) =>
           ja.flatMap((b) => ja.map((c) => [a, b, c]))
         ))
-          for (const [p3, p3Varsel] of ja.flatMap((a) => ja.map((b) => [a, b])))
+          // VS-U63: uten en innsigelse å gi opp er standpunktet etter § 34.4 bare «for sent», eller intet.
+          for (const [p3, p3Varsel] of ja.flatMap((a) => [false, undefined].map((b) => [a, b])))
             for (const produktivitet of ja) {
               const s = sakMedPostene(svikt);
               if (forholdet)

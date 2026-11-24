@@ -42,8 +42,11 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
     }
     // Byggherrens standpunkt, ikke løsningens konklusjon.
     case 'rettidighet':
+      // VS-U63: etter punkt 34.4 er «i tide» at byggherren gir opp innsigelsen.
       if (s.hjemmel === '34.4')
-        return 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
+        return s.iTide
+          ? 'Gir opp innsigelsen om at varselet etter punkt 34.4 ikke ble gitt eller kom for sent'
+          : 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
       if (s.hjemmel !== '34.3.3') return null;
       return s.iTide
         ? 'Godkjenner at varselet etter punkt 34.3.3 kom i tide'
@@ -106,12 +109,17 @@ function standpunkttekstMedVanligeMellomrom(
     etterLeddsetning ? `${verb} ${hvemLiten} ${resten}` : `${hvem} ${verb} ${resten}`;
   switch (s.art) {
     case 'rettidighet':
-      // VS-U63.
+      // VS-U63: etter punkt 34.4 er «i tide» at byggherren gir opp innsigelsen.
       if (s.hjemmel === '34.4')
-        return sier(
-          'gjør',
-          `gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
-        );
+        return s.iTide
+          ? sier(
+              'gir',
+              `opp innsigelsen om at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
+            )
+          : sier(
+              'gjør',
+              `gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
+            );
       if (s.hjemmel === '33.6.2')
         return s.iTide
           ? sier('godkjenner', `at svaret på forespørselen etter punkt 33.6.2 kom i tide`)
