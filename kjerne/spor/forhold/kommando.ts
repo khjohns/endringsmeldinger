@@ -360,6 +360,10 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
       : []
   );
   return {
+    // GR-U12: varselet etter § 32.2 stilles der varslingsplikten gjelder (#2279).
+    stilt: feltene
+      .filter((felt) => felt === 'resultat' || varslingsplikt)
+      .map((spoersmaal) => ({ spoersmaal })),
     ubesvart,
     ugyldig,
     standpunkter: svar.standpunkter.map((s, i) => {

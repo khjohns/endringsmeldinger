@@ -176,18 +176,12 @@ type FeltIFristen = Fristspoersmaal | 'dager' | 'dager_maatte_forstaa';
 
 /**
  * Lagene i et svarutkast på fristen, med spørsmålene om hele kravet og dagene for hver frist
- * (`gjelder`). Fristen har ingen egne felt i standpunktet.
+ * (`gjelder`). Fristen har ingen egne felt i standpunktet. Spørsmålene som stilles, er
+ * spørsmålene om hele kravet (`paakrevdeSpoersmaal`), og for hver frist dagene og, når
+ * spesifiseringen kom for sent, dagene byggherren måtte forstå. Spesifiseringen stilles ikke når
+ * kravet svarer på forespørselen (§ 33.6.2 fjerde ledd).
  */
-export type LagIFristen = Utkastlag<Forutsetning, FeltIFristen> & {
-  /**
-   * Spørsmålene regelen stiller i utkastet, besvart eller ikke, i rekkefølgen den stiller dem
-   * (#2156): spørsmålene om hele kravet (`paakrevdeSpoersmaal`), og for hver frist dagene og,
-   * når spesifiseringen kom for sent, dagene byggherren måtte forstå. `ubesvart` er de av dem
-   * som er ubesvart. Et spørsmål som ikke står her, stilles ikke for kravet, som spesifiseringen
-   * når kravet svarer på forespørselen (§ 33.6.2 fjerde ledd).
-   */
-  stilt: Utkastlag<Forutsetning, FeltIFristen>['ubesvart'];
-};
+export type LagIFristen = Utkastlag<Forutsetning, FeltIFristen>;
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
 const SPOERSMAALET: Readonly<Partial<Record<string, Fristspoersmaal>>> = {

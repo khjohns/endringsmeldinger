@@ -4031,7 +4031,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'varselet etter punkt 34.1.2 står som ubesvart i svarutkastet også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['ubesvarte.some((x) => x.post === null)', 'true']],
+    endringer: [['liste.some((x) => x.post === null)', 'true']],
     mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
   },
   {
@@ -6837,6 +6837,35 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['const gjentatt = foer && !foer.iTide && !p.iTide;', 'const gjentatt = false;']],
     mal: ['brevet som gjentar innsigelsen mot varselet for kravposten, viser til brevet'],
+  },
+  {
+    id: 'F794',
+    feilklasse:
+      'svarutkastet på forholdet stiller varselet etter punkt 32.2 også der varslingsplikten ikke gjelder (GR-U12, #2279)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [["filter((felt) => felt === 'resultat' || varslingsplikt)", 'filter(() => true)']],
+    mal: ['stiller varselet etter punkt 32.2 bare der varslingsplikten gjelder'],
+  },
+  {
+    id: 'F795',
+    feilklasse:
+      'beløpet for en kravpost stilles også når byggherren avslår tilbudet (KA-U72, #2279)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['!etterRegel && aksepterer !== false', '!etterRegel']],
+    mal: [
+      'vederlaget: spørsmålene regelen stiller, står også når de er besvart',
+      'beløpet ikke når tilbudet ikke aksepteres',
+    ],
+  },
+  {
+    id: 'F796',
+    feilklasse:
+      'et besvart spørsmål står ikke blant spørsmålene svarutkastet på vederlaget stiller (#2279)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['stilte.filter((x) => !kunUbesvart || !x.besvart)', 'stilte.filter((x) => !x.besvart)'],
+    ],
+    mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
   },
 ];
 /** En kopi av arbeidstreet. */
