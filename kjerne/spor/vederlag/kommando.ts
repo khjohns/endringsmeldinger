@@ -40,6 +40,7 @@ import {
   kravposterI,
   krevdRigg,
   OPPGJOERSHJEMMEL,
+  varselhjemmel,
   vederlagsinnhold,
 } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
@@ -49,7 +50,6 @@ import {
   saerskiltStrider,
   kravpostvarseletStrider,
   kravpostvarslene,
-  varselhjemmel,
 } from './utledning.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
@@ -268,11 +268,12 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
 /**
  * Byggherrens siste standpunkt til varselet for hver kravpost i svarene på vederlaget
  * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
- * sendt før den dagen (OV-U98, OV-U104).
+ * sendt før den dagen (OV-U98, OV-U104), eller til og med den dagen når `medSammeDag` er satt.
  */
 export function standpunkteneTilVarslene(
   u: Utledning,
-  sendt: string | null
+  sendt: string | null,
+  medSammeDag = false
 ): StandpunktTilVarselet[] {
   const { svar, svarUtenforRekken } = u.spor.vederlag;
   const medVirkning = new Set([...svar, ...svarUtenforRekken].map((s) => s.id));
@@ -288,7 +289,9 @@ export function standpunkteneTilVarslene(
             lagtTil: erRegistrert(d.opplysninger),
           }))
       )
-      .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
+      .filter(
+        ({ dag }) => sendt === null || foerDagen(dag, sendt) || (medSammeDag && dag === sendt)
+      )
   );
 }
 

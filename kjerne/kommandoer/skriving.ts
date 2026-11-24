@@ -6,7 +6,7 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { SKRIVING_I_VEDERLAGET, standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
@@ -23,6 +23,7 @@ import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { foresporselenKravetSvarerPaa } from '../spor/frist/utledning.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
 import { frys } from '../frosset/frysing.ts';
+import type { StandpunktFoer } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { forbeholdetBestrider, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
 import {
@@ -219,13 +220,15 @@ function svar(
  * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11 (opphevet av MM-U50)). Lagene i vederlag og frist
  * flyttes ned med lagene svaret på forholdet opptar foran dem: svaret i samme dokument,
  * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199). `kravet` gir kravet
- * svaret gjelder.
+ * svaret gjelder, og `foer` byggherrens siste standpunkt til varslene for kravpostene i svarene
+ * før (`sammenfallet`).
  */
 function frysSvarene(
   svarene: Data[],
   gjeldende: Svar | null,
   paaberopelse: (s: Data) => Krav | null | undefined,
   kravet: (s: Data) => Krav | undefined,
+  foer: readonly StandpunktFoer[],
   kjerne: Kjerne
 ): void {
   const g = svarene.find((s) => s.spor === 'forhold');
@@ -241,7 +244,7 @@ function frysSvarene(
   for (const s of svarene)
     if (s !== g)
       s.beslutningsgrunnlag = lagret(
-        frys(s, paaberopelse(s), kjerne.regler, forskyvning, kravet(s))
+        frys(s, paaberopelse(s), kjerne.regler, forskyvning, kravet(s), foer)
       );
 }
 
@@ -263,6 +266,8 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne, sendt: string
         u
       ),
     (s) => u.spor[s.spor as Spor].krav.find((k) => k.id === s.gjelder),
+    // OV-U104: rekkefølgen samme dag er ukjent, så en innsigelse fra samme dag står.
+    standpunkteneTilVarslene(u, sendt, true),
     kjerne
   );
   return svarene;
@@ -949,11 +954,13 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   const sendt = datoForDokumentet((rad.data.opplysninger ?? []) as Opplysning[], 'sendt');
   const dag = typeof sendt?.dato === 'string' ? kalenderdag(sendt.dato) : null;
   // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
+  const u = utledJournal(foer, kjerne);
   frysSvarene(
     (rad.data.svar ?? []) as Data[],
-    svaretPaaForholdetPaaDagen(utledJournal(foer, kjerne), dag),
+    svaretPaaForholdetPaaDagen(u, dag),
     (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
     (s) => kravene.find((k) => k.id === s.gjelder),
+    standpunkteneTilVarslene(u, dag, true),
     kjerne
   );
 }

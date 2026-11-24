@@ -22,6 +22,7 @@ import {
   SENDEMAATER,
   type Krav,
   type Kravpost,
+  type Kravpostvarselhjemmel,
   type Oppgjoersform,
   type Standpunkt,
   type Standpunktsart,
@@ -266,6 +267,12 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
 /** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
 export const justerteEnhetspriser = (post: Pick<Kravpost, 'oppgjoersform' | 'justert'>): boolean =>
   post.oppgjoersform === 'enhetspriser' && post.justert === true;
+
+/** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
+export const varselhjemmel = (
+  p: Pick<Kravpost, 'oppgjoersform' | 'justert'>
+): Kravpostvarselhjemmel | null =>
+  p.oppgjoersform === 'regningsarbeid' ? '34.4' : justerteEnhetspriser(p) ? '34.3.3' : null;
 
 /** Den andre beregningsregelen, som byggherren kan mene (OV-U115 punkt 1 og 5). */
 export const denAndreRegelen = (
