@@ -10,7 +10,7 @@ import type { Journallinje } from '#lib/api/kjerne.ts';
 
 export const SAK = 'sak-1';
 
-/** Koden og kontraktsforkortelsen serveren gir saken i prøvene (LV-U46, LV-U53). */
+/** Koden og kontraktsforkortelsen serveren gir saken i prøvene (LV-U46, LV-U44). */
 export const MERKING: Saksmerking = {
   sakskode: { kode: 'koe', loepenummer: 17 },
   kontraktsforkortelse: 'K201',

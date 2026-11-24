@@ -121,7 +121,7 @@ export const KRAVSKJEMA = haerdet({
   gjelderPost: (post: string) => `Gjelder ${post}`,
   ingenPostViserTil: 'Ingen kravpost viser til det',
   gisIBrevet: 'Gis i dette brevet.',
-  // Typen som i omtalen etter LV-U42 (arbeidsvalget 1 A 16.11 i #807).
+  // Typen som i omtalen etter LV-U45 (arbeidsvalget 1 A 16.11 i #807).
   gittIDokumentet: (type: Korrespondansetype | null, d: string) =>
     `Gitt i ${KORRESPONDANSETYPEN[type ?? 'brev'].bestemt} av ${dato(d)}, som legges ved kravet.`,
   sammeDokument: (d: string) =>

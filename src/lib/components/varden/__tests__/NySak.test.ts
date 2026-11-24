@@ -399,7 +399,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     );
   });
 
-  it('LV-U44, LV-U53: brevkontrollen viser Vår ref. med brev 1, merkingen kjernen fryser for påberopelsen, ikke versjonen, og ingen Deres ref. (U-3 i BF-07)', async () => {
+  it('LV-U44: brevkontrollen viser Vår ref. med brev 1, merkingen kjernen fryser for påberopelsen, ikke versjonen, og ingen Deres ref. (U-3 i BF-07)', async () => {
     aapne();
     await fyllIrregulaerEndring();
     await seBrevet();

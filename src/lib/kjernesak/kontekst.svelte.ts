@@ -92,7 +92,7 @@ export interface Kjernesakvalg {
    * den brukes leserens side fra serveren (#705). Uten side tilbys ingen handling.
    */
   part?: Part | null;
-  /** Saken og merkingen brevteksten lages med (LV-U53). */
+  /** Saken og merkingen brevteksten lages med (LV-U44). */
   hent?: typeof hentKjernesakMedMerking;
   send?: typeof sendKommando;
   lastOppVedlegg?: typeof lastOppKjernevedlegg;

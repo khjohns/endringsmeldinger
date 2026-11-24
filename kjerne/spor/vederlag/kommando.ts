@@ -773,8 +773,8 @@ function utenAvvisteSvar(
  * For oppgjørsformen, varselet og justeringen er `virkning` og `etikett` derfor laget i
  * utfyllingen, ikke i svaret slik det er besvart. `besvart` er `false` for et ubesvart spørsmål om
  * beløpet, oppgjørsformen, varselet etter § 34.3.3 eller § 34.4 og justeringen.
- * Lagene fra forholdet leses av gjeldende svar på forholdet, som frysingen gjør når brevet ikke
- * selv har et svar på forholdet. Beløpene påvirker ikke lagene og tas ut før standpunktene
+ * Lagene fra forholdet leses som frysingen leser dem når brevet ikke selv har et svar på
+ * forholdet (`lageneIUtkastet`). Beløpene påvirker ikke lagene og tas ut før standpunktene
  * bygges. Svarene på en kravpost `kontrollerOppgjoersformen` avviser, står i `ugyldig` og
  * tas ut før lagene regnes. Kaster `UgyldigVurdering` for svar på kravpostene som
  * `kravpostvurderinger` avviser.
@@ -782,7 +782,8 @@ function utenAvvisteSvar(
 export function lagIVederlaget(
   utkast: Svarutkast,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt: string | null
 ): LagIVederlaget {
   const krav = u.spor.vederlag.gjeldendeKrav!;
   const iOppgjoersformen = feilIOppgjoersformen(utkast.vurderinger, krav, u);
@@ -806,7 +807,7 @@ export function lagIVederlaget(
                 : denAndreRegelen(post.oppgjoersform),
           }
         : svar;
-  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler);
+  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler, sendt);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
     utfylt((_, post) =>
@@ -872,7 +873,8 @@ function lagIUtfyllingen(
   v: Svarvurdering,
   utkast: Svarutkast,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt: string | null
 ): { s: Standpunkt; lag: LagIVederlaget['standpunkter'][number] }[] {
   const utenBeloep: Svarvurdering = {
     ...v,
@@ -903,7 +905,7 @@ function lagIUtfyllingen(
     }),
     utregning: {},
   };
-  const { grunner, virket, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const { grunner, virket, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
   const svaretPaaKravpostene = new Map(
     kravpostvurderinger(utkast.vurderinger, u.spor.vederlag.gjeldendeKrav!).map(
       ({ post, svar }) => [post.id, svar]
