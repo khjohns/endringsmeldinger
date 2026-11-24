@@ -1,6 +1,6 @@
 /**
  * Byggherrens svar med tre lag og oversiktstabellen (#1433), med teksten kjernen lager for
- * tilfellet i `kjerne/tester/brevtekst.test.ts` («det særskilte kravet etter § 34.1.3 annet
+ * tilfellet i `kjerne/tester/saerskilt.test.ts` («det særskilte kravet etter § 34.1.3 annet
  * ledd»), som i prototypen `godkjenning-vederlagssvar.html`. Begrunnelsene er eksempler.
  */
 import { FORBEHOLDET, INNLEDNINGEN } from '#kjerne/frosset/tekst.ts';

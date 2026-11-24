@@ -493,9 +493,9 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | --- | --- | --- |
 | `AKSEPTFRIST_IKKE_TILLATT` | KA-59 | — |
 | `AKSEPTFRIST_UGYLDIG_DATO` | KA-59 | — |
-| `ALLEREDE_SVART` | — | Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `ALLEREDE_SVART` | — | Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/revisjonen.test.ts`. |
 | `ANNEN_BREVTEKST` | KA-51 | — |
-| `ANNEN_ENDRINGSORDRE` | — | Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `ANNEN_ENDRINGSORDRE` | — | Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9). Ingen rad sier avvisningen; den prøves i `kjerne/tester/revisjonen.test.ts`. |
 | `ANNEN_HJEMMEL` | GR-02, GR-18 | — |
 | `ANNEN_REGELVERSJON` | KA-23 | — |
 | `ANNET_RESULTAT` | — | Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, og ingen rad sier den; den prøves i `kjerne/tester/kjerne.test.ts`. |
@@ -504,15 +504,15 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `BREVTEKST_MANGLER` | — | Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`. |
 | `DATOEN_ER_UENDRET` | GR-36 | — |
 | `DATOEN_KAN_IKKE_ENDRES` | GR-37 | — |
-| `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
+| `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/varslene.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
 | `DATO_KAN_IKKE_LESES` | — | Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den. |
 | `ENIGHET_I_SPORET` | GR-24, GR-25 | — |
 | `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `FEIL_PART` | — | Kontrollen av kommandoen: en handling som bare én part kan gjøre, avvises for den andre, og bare TE kan opprette saken (#664). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/opprettelse.test.ts`. |
 | `FEIL_SVARREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
-| `FORESPORSEL_BEGRUNNET` | — | Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
-| `FORESPORSEL_BESVART` | — | Kontrollen av kommandoen: én begrunnelse etter § 33.6.2 annet ledd b per forespørsel, og ingen etter at et fristkrav har svart (KA-U1, VS-U17). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
-| `FORESPORSEL_SENDT` | — | Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `FORESPORSEL_BEGRUNNET` | — | Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
+| `FORESPORSEL_BESVART` | — | Kontrollen av kommandoen: én begrunnelse etter § 33.6.2 annet ledd b per forespørsel, og ingen etter at et fristkrav har svart (KA-U1, VS-U17). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
+| `FORESPORSEL_SENDT` | — | Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
 | `FORHOLD_AVVIST` | GR-20, VS-05 | — |
 | `FORHOLD_ER_ENDRINGSORDRE` | GR-28 | — |
 | `FRAFALL_KAN_IKKE_GODTAS` | GR-26 | — |
@@ -523,13 +523,13 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `IKKE_GJELDENDE_SVAR` | GR-01, GR-02, GR-03, GR-04, GR-05, GR-06 | — |
 | `IKKE_I_FOERSTE_VERSJON` | — | Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente. Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises. |
 | `INGEN_DATO_I_KATEGORIEN` | GR-36 | — |
-| `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
-| `KRAVET_ER_VARSELET` | — | Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `KRAVET_ER_VARSELET` | — | Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `KRAVPOSTENE` | KA-55, KA-58 | — |
 | `KRAVPOSTVARSELET` | VS-08, VS-09 | — |
-| `KRAV_FOER_FORESPORSELEN` | — | Kontrollen av kommandoen: et svar på forespørselen etter § 33.6.2 avvises når totalentreprenøren hadde sendt et krav om dager før den, lagt til etterpå (OV-U109). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `KRAV_FOER_FORESPORSELEN` | — | Kontrollen av kommandoen: et svar på forespørselen etter § 33.6.2 avvises når totalentreprenøren hadde sendt et krav om dager før den, lagt til etterpå (OV-U109). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
 | `KRAV_TRUKKET` | GR-09, GR-10, GR-11, GR-12, KA-39 | — |
 | `PAABEROPELSE_IKKE_SENDT` | VS-06 | — |
 | `PAALEGGET_IKKE_BESKREVET` | GR-35 | — |
@@ -542,13 +542,13 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_INNSIGELSE` | VS-01 | — |
 | `UGYLDIG_KORRIGERING` | GR-36 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03, KA-56 | — |
-| `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`. |
-| `VARSEL_FOER_GRUNNLAGSDATOEN` | — | Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/varslene.test.ts`. |
+| `VARSEL_FOER_GRUNNLAGSDATOEN` | — | Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VARSEL_REGISTRERT` | VS-06, VS-07 | — |
 | `VARSLINGSPLIKT_GJELDER_IKKE` | — | Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges. |
 | `VEDERLAGSKRAV_SENDT` | VS-07 | — |
-| `VEDLEGG_FINNES_IKKE` | — | Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`. |
-| `VEDLEGG_MANGLER` | — | Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `VEDLEGG_FINNES_IKKE` | — | Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts` og `server/tester/vedlegg.test.ts`. |
+| `VEDLEGG_MANGLER` | — | Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VURDERING_UTENFOR_KJERNEN` | — | Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå. |
 
 | Rad | Gjennomføres av |
