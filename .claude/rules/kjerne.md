@@ -10,7 +10,7 @@ har det som gjelder modulene i `kjerne/` og flyttinger mellom dem (#1695).
 
 ## Hva reglene leser
 
-Arkitekturtesten i `kjerne/tester/` håndhever hva reglene leser: hvert felt og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART` med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så et nytt felt eller en ny import med en oppsummering gir rød test til den er klassifisert. Testen ser ikke alt, for eksempel ikke en status som en funksjon i samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Et nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket liste med issuet som fjerner dem.
+Arkitekturtesten i `kjerne/tester/` håndhever hva reglene leser: hvert felt og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART` med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så et nytt felt eller en ny import med en oppsummering gir rød test til den er klassifisert. Testen ser ikke alt, for eksempel ikke en status som en funksjon i samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Radene i `LESBART` står i `kjerne/tester/lesbart/`, i én fil per område i kjernen (dokumentene, utledningen, utregningen, regelsettet, kommandoene, formatet, journalraden og brevteksten), og klassene i `lesbart/klasse.ts`. Et nytt felt reglene leser, klassifiseres i fila for området som leser det. Søk først etter eieren og feltet i alle filene: en rad uten `steder` tillater alle lesere, også der en annen rad har en begrensning. Kjente avvik står i en lukket liste med issuet som fjerner dem.
 
 ## Versjonene
 
@@ -61,9 +61,9 @@ nye tallet må være høyere enn det `main` har.
 
 - `fil` i feilinnføringene følger koden. Ankerstrengene beholdes, også innrykket når det
   lar seg gjøre. Endres bare innrykket, sier commiten det.
-- `LESBART` i arkitekturtesten følger funksjonen. En leser som var i samme modul, var ikke
-  oppført; når den havner i en annen modul, føres den som leser. Lista over lesere utvides
-  ikke ut over stedene som leste før flyttingen.
+- `LESBART` (`kjerne/tester/lesbart/`) følger funksjonen. En leser som var i samme modul,
+  var ikke oppført; når den havner i en annen modul, føres den som leser. Lista over lesere
+  utvides ikke ut over stedene som leste før flyttingen.
 - Referansene `fil#funksjon` i `docs/domenetabell/regler.json` oppdateres, og README
   skrives med `docs/verktoy/domenetabell.py --skriv`. Søk også i den levende
   dokumentasjonen, ikke i daterte vurderinger og auditer.
