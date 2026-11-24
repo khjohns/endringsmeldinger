@@ -281,9 +281,10 @@ under unntaket for tekst, kan merges først uten at de andre må oppdateres på 
   python3 .github/scripts/oppdater_kjerne_pr.py <gren> --push    # pusher
   ```
 
-  Den siste linja sier den nye committen, som er `expectedHeadSha`. Stopper skriptet
-  på en annen konflikt eller en rød vakt, er ingenting pushet, og økta som eier PR-en
-  fletter selv. Si fra til den før pushen, så den ikke pusher samtidig; etter pushen
+  Kjøringen uten `--push` lar worktreen stå og skriver kommandoen som fjerner den.
+  Etter `--push` sier den siste linja den nye committen, som er `expectedHeadSha`.
+  Stopper skriptet på en annen konflikt eller en rød vakt, er ingenting pushet, og
+  økta som eier PR-en fletter selv. Si fra til den før pushen, så den ikke pusher samtidig; etter pushen
   henter den grenen før den arbeider videre.
 - **Unntaket for tekst.** Er alt som er merget siden PR-ens base, Markdown i
   `.claude/skills/`, `CLAUDE.md` eller `docs/`, trengs ingen oppdatering og ny CI. Det

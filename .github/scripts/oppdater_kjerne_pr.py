@@ -13,11 +13,14 @@ for hånd:
 3. øker hver versjon vakten krever for grenens egne endringer (`flytting.py`) til
    ett over basens tall, når den ikke alt er høyere;
 4. skriver de genererte filene på nytt (`GENERATORER`);
-5. kjører regelversjonsvakten mot basen og stopper uten push når den feiler;
-6. pusher flettingen og økningen samlet, med `--push`. Uten `--push` blir worktreen
-   stående, så resultatet kan ses før det pushes.
+5. kjører regelversjonsvakten mot basen med skriptene i den flettede worktreen, som
+   CI gjør, og stopper uten push når den feiler;
+6. pusher flettingen og økningen samlet, med `--push`, og fjerner worktreen. Uten
+   `--push`, og når steg 3–5 stopper, blir worktreen stående, så resultatet kan ses.
+   Skriptet skriver kommandoen som fjerner den.
 
-Bruk, fra en klon av `main`, der `node_modules` er installert:
+Bruk, fra en klon av `main`, der `node_modules` er installert. Worktreen får en lenke
+til den, for vakten og generatorene:
 
     python3 .github/scripts/oppdater_kjerne_pr.py <gren> [--base main] [--push]
 
@@ -85,7 +88,9 @@ def los_versjonskonflikt(innhold: str, navn: str) -> str | None:
     def bare_linja(del_: str) -> bool:
         return linje.fullmatch(del_.rstrip("\n")) is not None
 
-    if not all(bare_linja(m.group(1)) and bare_linja(m.group(2)) for m in KONFLIKT.finditer(innhold)):
+    hunker = list(KONFLIKT.finditer(innhold))
+    # Uten konfliktmarkører er konflikten en annen enn i innholdet, som en sletting.
+    if not hunker or not all(bare_linja(m.group(1)) and bare_linja(m.group(2)) for m in hunker):
         return None
     lost = KONFLIKT.sub(lambda m: m.group(2), innhold)
     return None if re.search(r"^(<<<<<<<|=======|>>>>>>>)", lost, re.MULTILINE) else lost
@@ -94,11 +99,11 @@ def los_versjonskonflikt(innhold: str, navn: str) -> str | None:
 def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
     """Fletter basen inn og løser konfliktene skriptet kan løse. Returnerer filene
     som ble løst."""
-    melding = f"Merge branch '{basenavn}' into {gren}"
+    melding = f"flett {basenavn} inn i {gren}"
     svar = git(mappe, "-c", "merge.conflictStyle=merge", "merge", "--no-ff", "--no-edit", "-m", melding, base, sjekk=False)
     if svar.returncode == 0:
         return []
-    konflikter = git(mappe, "-c", "core.quotePath=false", "diff", "--name-only", "--diff-filter=U").stdout.split()
+    konflikter = git(mappe, "-c", "core.quotePath=false", "diff", "--name-only", "--diff-filter=U").stdout.splitlines()
     if not konflikter:
         raise Stopp(f"git merge feilet uten konflikter:\n{svar.stdout}{svar.stderr}".strip())
     versjon_i = {fil: navn for navn, fil in VERSJONSFILER.items()}
@@ -106,7 +111,7 @@ def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
     for fil in konflikter:
         if fil in versjon_i:
             sti = mappe / fil
-            lost = los_versjonskonflikt(sti.read_text(), versjon_i[fil])
+            lost = los_versjonskonflikt(sti.read_text(), versjon_i[fil]) if sti.is_file() else None
             if lost is None:
                 ulost.append(fil)
                 continue
@@ -128,6 +133,13 @@ def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
     return konflikter
 
 
+def skripter(mappe: Path) -> Path:
+    """Vaktens skript slik de er etter flettingen, som CI kjører dem. En klon uten
+    dem, som i testene, bruker skriptene ved siden av dette skriptet."""
+    flettet = mappe / ".github/scripts"
+    return flettet if (flettet / "regelversjon.sh").is_file() else SKRIPTER
+
+
 def kreves(mappe: Path, base: str) -> set[str]:
     """Versjonene vakten krever for grenens egne endringer mot basen."""
     diff = git(
@@ -135,7 +147,7 @@ def kreves(mappe: Path, base: str) -> set[str]:
         "--", ":(glob)kjerne/**/*.ts", ":(exclude)kjerne/tester",
     ).stdout
     svar = subprocess.run(
-        [sys.executable, str(SKRIPTER / "flytting.py"), base], cwd=mappe, input=diff, capture_output=True, text=True, check=False,
+        [sys.executable, str(skripter(mappe) / "flytting.py"), base], cwd=mappe, input=diff, capture_output=True, text=True, check=False,
     )
     if svar.returncode != 0:
         raise Stopp(f"flytting.py feilet:\n{svar.stderr.strip()}")
@@ -168,7 +180,7 @@ def generer(mappe: Path) -> None:
 
 def vakt(mappe: Path, base: str) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["bash", str(SKRIPTER / "regelversjon.sh")], cwd=mappe, env={**_miljo(), "BASE": base},
+        ["bash", str(skripter(mappe) / "regelversjon.sh")], cwd=mappe, env={**_miljo(), "BASE": base},
         capture_output=True, text=True, check=False,
     )
 
@@ -193,41 +205,60 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
     try:
         lost = flett(mappe, base, basenavn, gren)
     except Stopp:
-        git(repo, "worktree", "remove", "--force", str(mappe), sjekk=False)
+        fjern(repo, mappe)
         raise
+    # Vakten fjerner kommentarene med typescript, og generatorene kan importere pakker.
+    if (repo / "node_modules").is_dir():
+        (mappe / "node_modules").symlink_to(repo / "node_modules")
     print(f"Flettet {basenavn} ({base[:9]}) inn i {gren} ({tupp[:9]}).")
     if lost:
         print("Løste konflikter i: " + ", ".join(lost))
+    try:
+        ny = ok_og_kontroller(mappe, base, basenavn)
+    except Stopp as stopp:
+        raise Stopp(f"{stopp}\nIngenting er pushet. Worktreen står igjen: {mappe}\nFjern den med {fjerning(mappe)}") from None
 
+    if not push:
+        print(f"Ikke pushet. Ny tupp {ny}, i worktreen {mappe}.\nFjern den med {fjerning(mappe)}, og kjør med --push for å pushe.")
+        return 0
+    git(mappe, "push", "-q", remote, f"HEAD:refs/heads/{gren}")
+    fjern(repo, mappe)
+    print(f"Pushet {gren}: {tupp[:9]} -> {ny}. Bruk {ny} som expectedHeadSha.")
+    return 0
+
+
+def ok_og_kontroller(mappe: Path, base: str, basenavn: str) -> str:
+    """Øker versjonene, skriver de genererte filene, committer og kjører vakten.
+    Returnerer den nye tuppen."""
     okninger = [linje for navn in sorted(kreves(mappe, base)) if (linje := ok(mappe, base, navn))]
     generer(mappe)
-    endret = git(mappe, "-c", "core.quotePath=false", "status", "--porcelain").stdout.splitlines()
-    if endret:
-        git(mappe, "add", "-A", "--", *(f for f in [*VERSJONSFILER.values(), *GENERERTE] if (mappe / f).exists()))
-        rest = git(mappe, "-c", "core.quotePath=false", "status", "--porcelain").stdout.splitlines()
+    status = ("-c", "core.quotePath=false", "status", "--porcelain", "--untracked-files=no")
+    if git(mappe, *status).stdout.strip():
+        git(mappe, "add", "--", *(f for f in [*VERSJONSFILER.values(), *GENERERTE] if (mappe / f).exists()))
+        rest = git(mappe, *status).stdout.splitlines()
         if any(not linje.startswith(("M ", "A ")) for linje in rest):
-            raise Stopp("Andre filer enn versjonsfilene og de genererte er endret:\n" + "\n".join(rest) + f"\nWorktreen står i {mappe}.")
+            raise Stopp("Andre filer enn versjonsfilene og de genererte er endret:\n" + "\n".join(rest))
         tekst = "\n".join(okninger) or "Ingen versjon økt."
         git(mappe, "commit", "-q", "-m", f"øk versjonene og skriv de genererte filene etter fletting med {basenavn}\n\n{tekst}")
+        if not okninger:
+            print("Skrev de genererte filene på nytt.")
     for linje in okninger:
         print("Økte " + linje)
-    if endret and not okninger:
-        print("Skrev de genererte filene på nytt.")
 
     kontroll = vakt(mappe, base)
     print(kontroll.stdout.rstrip())
     if kontroll.returncode != 0:
         print(kontroll.stderr.rstrip(), file=sys.stderr)
-        raise Stopp(f"Regelversjonsvakten feiler mot {basenavn}, og ingenting er pushet. Worktreen står i {mappe}.")
+        raise Stopp(f"Regelversjonsvakten feiler mot {basenavn}.")
+    return git(mappe, "rev-parse", "HEAD").stdout.strip()
 
-    ny = git(mappe, "rev-parse", "HEAD").stdout.strip()
-    if not push:
-        print(f"Ikke pushet. Ny tupp {ny}, i worktreen {mappe}. Kjør med --push for å pushe.")
-        return 0
-    git(mappe, "push", "-q", remote, f"HEAD:refs/heads/{gren}")
+
+def fjerning(mappe: Path) -> str:
+    return f"git worktree remove --force {mappe}"
+
+
+def fjern(repo: Path, mappe: Path) -> None:
     git(repo, "worktree", "remove", "--force", str(mappe), sjekk=False)
-    print(f"Pushet {gren}: {tupp[:9]} -> {ny}. Bruk {ny} som expectedHeadSha.")
-    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

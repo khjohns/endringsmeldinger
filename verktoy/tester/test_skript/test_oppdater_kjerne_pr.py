@@ -154,7 +154,7 @@ def test_hoeyere_versjon_paa_grenen_endres_ikke(repo, tmp_path):
     assert svar.returncode == 0, svar.stderr
     assert "Økte" not in svar.stdout
     tre = tmp_path / "tre"
-    assert _git(tre, "log", "-1", "--format=%s").startswith("Merge branch 'main' into pr")
+    assert _git(tre, "log", "-1", "--format=%s")== "flett main inn i pr"
 
 
 def test_annen_konflikt_stopper_uten_endring(repo, tmp_path):
@@ -174,6 +174,28 @@ def test_konflikt_utenfor_versjonslinja_i_versjonsfila_stopper(repo, tmp_path):
     svar = _kjor(repo, tmp_path)
     assert svar.returncode == 1
     assert REGELSETT in svar.stderr
+
+
+def test_slettet_versjonsfil_i_konflikt_stopper(repo, tmp_path):
+    _pr(repo, {"kjerne/utled.ts": "export const a = 2;\n", **_versjoner(5, 3)})
+    _git(repo, "rm", "-q", VERSJON)
+    _git(repo, "commit", "-qm", "slett")
+    svar = _kjor(repo, tmp_path)
+    assert svar.returncode == 1, svar.stdout
+    assert "Traceback" not in svar.stderr
+    assert VERSJON in svar.stderr
+    assert not (tmp_path / "tre").exists()
+
+
+def test_vakt_som_feiler_stopper_og_lar_worktreen_staa(repo, tmp_path):
+    """Formatet økt uten leseren først (B-10): vakten feiler, og skriptet kan ikke rette det."""
+    _pr(repo, {"kjerne/format/format.ts": "export const FORMAT = 2;\nexport const LESERFORMAT = 2;\n", **_versjoner(5, 3)})
+    _skriv(repo, {"README.md": "b\n"})
+    svar = _kjor(repo, tmp_path, "--push")
+    assert svar.returncode == 1
+    assert "Regelversjonsvakten feiler" in svar.stderr
+    assert (tmp_path / "tre").exists()
+    assert "git worktree remove --force" in svar.stderr
 
 
 def test_konflikt_i_generert_fil_tar_basens_innhold(repo, tmp_path):
@@ -210,6 +232,7 @@ def test_grenen_som_alt_har_basen_endres_ikke(repo, tmp_path):
             None,
             id="en annen konstant",
         ),
+        pytest.param("export const X = 3;\n", None, id="uten konfliktmarkører"),
     ],
 )
 def test_versjonskonflikten_loses_bare_for_versjonslinja(innhold, ventet):
