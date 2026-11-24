@@ -1357,7 +1357,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   });
 });
 
-// Kommandoen avvises med VURDERING_UTENFOR_KJERNEN: se `brevtekst.test.ts`, som har kommandoene.
+// Kommandoen avvises med VURDERING_UTENFOR_KJERNEN: se `avvisningen.test.ts`, som har kommandoene.
 describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   it('en lagret rad med en slik vurdering leses som ikke forstått', async () => {
     const bane = minnebane();

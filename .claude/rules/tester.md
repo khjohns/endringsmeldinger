@@ -87,6 +87,19 @@ og i `kjerne/frosset/`, `kjerne/kommandoer/` og `kjerne/regler/`, med rollefilen
 som hører til dem (`kjerne/spor/`, #1783). En forventning om
 visningen kan vise til et U-punkt i bestillingen for brukerforløpet (steg 3b i #1534).
 
+## Saken testen bygger på i kjernen
+
+Kjernen har to måter å bygge en sak i minnet på (#2121). Velg etter hva testen prøver:
+
+- **Et forløp av handlinger**, slik brukeren gjør dem og bevis-sakene beskriver dem: `kjoer`
+  i `kjerne/tester/kjoerer.ts`, med handlingene fra `klient.ts` og en bane fra `bane.ts`.
+  Eksempler er `lagene.test.ts` og `forlengelser.test.ts`.
+- **Én kommando, avvisningen av den eller teksten i det frosne brevet**: `sak()` i
+  `kjerne/tester/brevsak.ts`, med kommandoene og tekstene som står der.
+
+Lag ikke en tredje. En ny test står i fila for temaet sitt, og et nytt tema får en egen fil i
+stedet for å gjøre en annen stor.
+
 ## Vis at kritiske tester oppdager feil
 
 Når endringen gir en endret tilgangsavgjørelse, statusovergang, beregningsregel,
