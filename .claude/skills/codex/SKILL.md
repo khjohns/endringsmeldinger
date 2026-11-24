@@ -1,36 +1,34 @@
 ---
 name: codex
-description: Codex (OpenAI) gjennom `codex exec` i en skyøkt i endringsmeldinger, for review og sparring med en annen modellfamilie. Oppsettet (installasjon, innlogging), kommandoen med tillatelsesprofil som bare lar Codex lese klonen og kjøremappa, skjemaet, hva som er prøvd og ikke, og forskjellene fra gemini-skillen. Brukes når reviewøkta, en orkestrator eller en direkte økt vil ha et ekstra review eller sparring av Codex, og bare i en økt der oppdragsgiver har logget inn. En orkestrert byggeøkt bruker Codex gjennom reviewøkta.
+description: Codex (OpenAI) gjennom `codex exec` i en skyøkt i endringsmeldinger, for review og sparring med en annen modellfamilie. Oppsettet (verter, installasjon, innlogging), kommandoen med tillatelsesprofil som bare lar Codex lese klonen og kjøremappa, skjemaet, hva som er prøvd og ikke, og forskjellene fra gemini-skillen. Brukes når verktøyøkta, en orkestrator eller en direkte økt vil ha et review eller sparring av Codex, i en økt der oppdragsgiver har logget inn.
 ---
 
 # Codex i skyøkta
 
 Arbeidsformen, kontrollen og håndteringen av funn er de samme som for Gemini. De står i
 [gemini-skillen](../gemini/SKILL.md) («Arbeidsformen», «Bestillingen», «Kontrollen» og
-«Funn fra `/code-review`») og bare der. Her står det som er annerledes for Codex.
-Codex er ikke en del av løsningen. Det Codex sier, er en påstand til Claude har
-kontrollert det etter [leveranseskillen](../leveranse/SKILL.md).
+«Funn fra `/code-review`») og bare der. Hvilke PR-er som får et review med en annen
+modellfamilie, står i
+[leveranseskillen](../leveranse/SKILL.md#review-og-funn) («Review med en annen
+modellfamilie»). Hvordan en orkestrert byggeøkt får et review fra en økt der oppdragsgiver
+har logget inn, står i [verktøyøkt-skillen](../verktoyokt/SKILL.md). Her står det som er
+annerledes for Codex. Codex er ikke en del av løsningen. Det Codex sier, er en påstand til
+Claude har kontrollert det.
 
 ## Når
 
-- **Ekstra review** av en PR, i tillegg til `/code-review` og ikke i stedet. Byggeøkta
-  installerer ingenting. I en orkestrert runde kjører [reviewøkta](../reviewokt/SKILL.md)
-  det mot commiten byggeøkta har pushet.
+- **Review** av en PR, mot en commit som er pushet. Byggeøkta installerer ingenting.
 - **Sparring** i et viktig spørsmål, med reglene i gemini-skillen, «Sparring».
 
 Passer ikke: det samme som for Gemini (tolkning av NS 8407, vedtak, saksdata, nøkler, push og
 merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en PR.
-Reviewøkta poster svaret som en ukontrollert kommentar, og Claude fører vurderingen
-(«Kontrollen»).
-
-Innloggingen gjøres for hånd i hver container, så Codex kjører bare i en økt der
-oppdragsgiver har logget inn: reviewøkta, orkestratoren eller en direkte økt. De orkestrerte
-byggeøktene og rutinene bruker reviewøkta.
 
 ## Oppsett, én gang per container
 
-1. **Nettverket.** `auth.openai.com` og `chatgpt.com` var tilgjengelige uten endring i
-   miljøet. Mangler en vert, foreslås den med miljøverktøyene.
+1. **Nettverket.** Miljøet må tillate `auth.openai.com` og `chatgpt.com`. Miljøet «Catenda»
+   gjør det ikke (403 fra proxyen). Verktøyøkta har sitt eget miljø med vertene
+   (verktøyøkt-skillen). Prøven i PR-en som innførte skillen, gikk i et miljø med full
+   nettverkstilgang, så det er ikke prøvd om Codex trenger flere verter.
 2. **Installasjonen.** Installer i en egen mappe i scratchpad, `$CODEX_MAPPE`, ikke globalt:
    `npm i @openai/codex`. Binæren ligger i `node_modules/.bin/codex`. Prøvd med 0.171.0.
 3. **Innloggingen.** Start `codex login --device-auth` i `tmux`, og gi oppdragsgiver
@@ -44,13 +42,10 @@ byggeøktene og rutinene bruker reviewøkta.
    må kontrolleres før saksdata eller annet sensitivt går gjennom den. Gi den ingenting
    `agy` heller ikke skulle få.
 
-Innloggingen og installasjonen forsvinner når containeren tas tilbake etter en periode uten
-aktivitet. Kontroller `codex login status` før hver kjøring.
-
 ## Kommandoen
 
 Samme klon, git-identitet og `env -i` som i gemini-skillen. Klonen settes på commiten med
-`git fetch`, fra hovedkopien eller fra `origin` i reviewøkta. Hver kjøring får en egen mappe i
+`git fetch`, fra hovedkopien eller fra `origin` i verktøyøkta. Hver kjøring får en egen mappe i
 scratchpad, `$KJOERING`, med bestillingen, skjemaet, diffen, svaret og loggen. Ingenting
 skrives i klonen.
 
@@ -86,9 +81,10 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   scenario og kilde. Svaret har i tillegg `kontrollert` og `usikkert`. `-o` skriver svaret
   alene til en fil, uten loggen.
 - **Sandkassen er en reell sperre,** i motsetning til `agy`. Den erstatter likevel ikke de
-  andre sperrene (egen klon, `no_push`, regelsettet for `main`).
+  andre sperrene i gemini-skillen, «Arbeidsformen».
 - **Ingen kommando kan skrive, og `node` ligger utenfor profilen.** Testene, `--ankre` i
-  kjernen og andre skript kjører derfor ikke. Kontrollene som må kjøre, kjører Claude selv.
+  kjernen og andre skript kjører derfor ikke. Claude kjører dem i kontrollen når diffen
+  trenger dem.
 - **Følg med uten å lese loggen:** `wc -l "$KJOERING/codex.log"` og
   `grep -A1 '^exec' "$KJOERING/codex.log" | tail`. Et review av en diff på 22 filer tok under
   ti minutter og 144 000 tokens.
@@ -96,26 +92,16 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
 
 ## Bestillingen
 
-Som i gemini-skillen, og i tillegg:
+Malen for et review står i
+[verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-til-verktøyet), også når Codex
+kjøres utenfor verktøyøkta. For Codex gjelder i tillegg at diffen ligger i
+`$KJOERING/diff.patch`, at bestillingen viser til den absolutte stien, og at Codex kan lese
+klonen og kjøremappa, ikke resten av scratchpad. Codex kjører hver kommando i `bash -lc`.
 
-- Diffen ligger i `$KJOERING/diff.patch`, og bestillingen viser til den absolutte stien.
-  Codex kan lese klonen og kjøremappa, ikke resten av scratchpad.
-- Be om én kommando per kall. Codex kjører hver kommando i `bash -lc`.
-- Be om at «kontrollert» sier hva den leste og søkte etter, og at «usikkert» sier hva den
-  ikke fikk kjørt. En tom funnliste er et gyldig svar, men bare med den begrunnelsen.
+## Svaret
 
-Malen for review-bestillingen står i [reviewøkt-skillen](../reviewokt/SKILL.md#bestillingen-til-verktøyet).
-
-## Kontrollen
-
-Som i gemini-skillen. Er funnlisten tom, kontrollerer Claude det avgjørende leddet (kallet
-eller søket) og kjører det Codex ikke fikk kjørt, som arkitekturtesten og `--ankre`.
-Funnene fra Codex følger stoppregelen i leveranseskillen, «Review og funn».
-
-Svaret er ukontrollert til Claude har vurdert det. Reviewøkta poster det ordrett som en
-kommentar merket «ukontrollert» ([reviewøkt-skillen](../reviewokt/SKILL.md#svaret)), og
-byggeøkta fører vurderingen i tabellen «Funn og utfall». Ellers poster Claude funnene etter at
-de er kontrollert. Svar på sparring postes ikke i PR-en.
+Svaret er ukontrollert til Claude har vurdert det etter gemini-skillen, «Kontrollen». Det
+postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 
 ## Ikke prøvd
 
@@ -124,6 +110,4 @@ de er kontrollert. Svar på sparring postes ikke i PR-en.
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
 - Sparring med `--conversation`-tilsvarende (`codex exec resume`).
-- Innlogging med API-nøkkel (`request_credential` for `api.openai.com` og en dummynøkkel i
-  Codex), som ville fungert uten innlogging for hånd.
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.

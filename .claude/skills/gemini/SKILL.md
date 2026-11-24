@@ -17,7 +17,8 @@ Passer:
   issues i prøven var allerede løst.
 - **Små issues med prøvbare forventninger utenfor kjernen:** tekst, dokumentasjon, verktøy
   og avhengigheter.
-- **Review med en annen modellfamilie,** i tillegg til `/code-review` og ikke i stedet.
+- **Review med en annen modellfamilie,** etter leveranseskillen («Review med en annen
+  modellfamilie»).
 - **Sparring i viktige spørsmål**, som arkitekturvurderinger, før Claude legger fram en
   anbefaling. Se «Sparring» under. Om sparringen er god, vurderes underveis.
 - **Bygging i kjernen etter et vedtak**, med de samme kontrollene som ellers: feilinnføringene,
@@ -30,9 +31,8 @@ Passer ikke:
 - Spørsmål til oppdragsgiver, vedtak, push og merge. Vedtak krever dialogen med oppdragsgiver,
   og `agy` ser ikke samtalen. Push og merge er sperrene.
 - Saksdata, nøkler og tilgangsopplysninger. `agy` sender det den får, til Google.
-- Økter uten oppdragsgiver, som orkestrerte økter og rutiner. Innloggingen gjøres for hånd i
-  hver container, og tokenet kan ikke lagres i miljøet. En orkestrert byggeøkt bruker Gemini
-  gjennom [reviewøkta](../reviewokt/SKILL.md).
+- Økter uten oppdragsgiver, som orkestrerte økter og rutiner. De bruker Gemini gjennom
+  [verktøyøkta](../verktoyokt/SKILL.md).
 
 ## Oppsett, én gang per container
 

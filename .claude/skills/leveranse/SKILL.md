@@ -170,8 +170,9 @@ som `/code-review` også fant, og bekreftet at de andre lagene holdt.
 
 **Review med en annen modellfamilie** prøves for diffene med høyest risiko:
 serverinngangene, tilgangen og reglene i kjernen. Det kommer i tillegg til `/code-review`,
-etter [Gemini-skillen](../gemini/SKILL.md), og utfallet føres i #2256. Det er ikke et krav
-før gjennomgangen der har avgjort det.
+etter [Gemini-skillen](../gemini/SKILL.md) eller [codex-skillen](../codex/SKILL.md), i en
+orkestrert runde gjennom [verktøyøkta](../verktoyokt/SKILL.md), og utfallet føres i #2256.
+Det er ikke et krav før gjennomgangen der har avgjort det.
 
 **En PR bygget av en annen agent**, for eksempel Codex, får `/code-review`, og security
 review etter kriteriene, i en Claude-økt med ny kontekst før den meldes klar. Byggeagenten

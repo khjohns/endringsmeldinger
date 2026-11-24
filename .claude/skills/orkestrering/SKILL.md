@@ -150,8 +150,8 @@ ikke de faste reglene i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). Det inneh
   «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står i PR-beskrivelsen;
 - hvem som kjører reviewet, etter «Review i byggeøkta» i arbeidsøkt-skillen, og
   `/simplify` før `/code-review` når orkestratoren har bestilt den;
-- om PR-en skal ha eksternt review eller sparring gjennom reviewøkta, med verktøyet og
-  ID-en til reviewøkta ([reviewøkt-skillen](../reviewokt/SKILL.md));
+- om PR-en skal ha review eller sparring fra verktøyøkta, med verktøyet og
+  ID-en til verktøyøkta ([verktøyøkt-skillen](../verktoyokt/SKILL.md));
 - svarene på det som ellers blir spørsmål: importlinjer i en annen økts fil kan endres
   i en egen commit uten å spørre, tekniske valg i egne filer tar økta og fører i PR-en,
   og `/simplify` står i oppdraget når et kriterium er kjent (oppdragsgiver 13.11).
@@ -310,9 +310,9 @@ nærmer seg grensene over, gjør den dette:
    videre med økta som eier den.
 2. Skriver overleveringen som kommentar i issuet bestillingen viser til, eller i et
    nytt issue med sporets milepæl eller etikett: hva som er merget, de åpne PR-ene med
-   økt-ID, ID-en til reviewøkta når den finnes, de neste issuene i rekkefølge, avgjørelsene fra oppdragsgiver ordrett eller
-   med lenke, og filene det parallelle sporet arbeider i. Har bølgeissuet en rekkefølge
-   i beskrivelsen, begynner overleveringen med trinnet runden står på, og sier hvorfor
+   økt-ID, ID-en til verktøyøkta når den finnes, de neste issuene i rekkefølge,
+   avgjørelsene fra oppdragsgiver ordrett eller med lenke, og filene det parallelle
+   sporet arbeider i. Har bølgeissuet en rekkefølge i beskrivelsen, begynner overleveringen med trinnet runden står på, og sier hvorfor
    et issue eventuelt er tatt fra et senere trinn. Rekkefølgen endres bare av
    oppdragsgiver, og da i beskrivelsen (#1065).
 3. Sletter sjekkene sine.
@@ -398,7 +398,7 @@ Bestillingen til økta sier:
 - **Mekaniske arbeidsøkter**, med rent mekanisk arbeid som infrastruktur, CI-bilder og
   ren flytting, kan gå på Haiku med innsats `high`, aldri en økt som rører kjernen,
   vedtak eller tilgang (#439). Modellen og innsatsen settes i `create_session`.
-- **Reviewøkta** ([reviewøkt-skillen](../reviewokt/SKILL.md)) går på Haiku med innsats
+- **Verktøyøkta** ([verktøyøkt-skillen](../verktoyokt/SKILL.md)) går på Haiku med innsats
   `high`. Den kjører Codex og Gemini og vurderer ingenting.
 
 ## Spørsmål og vedtak
