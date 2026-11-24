@@ -4502,8 +4502,10 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
   });
 
   describe('forbeholdet når byggherren har innsigelser (LV-U76, LV-U77)', () => {
-    const LV_U18 = (rad: Journalrad) => laast(rad)[0].split(' Byggherren fastholder')[0];
-    const forbeholdet = (rad: Journalrad) => laast(rad)[0].slice(LV_U18(rad).length + 1);
+    const setningenEtterLvU18 = (rad: Journalrad) =>
+      laast(rad)[0].split(' Byggherren fastholder')[0];
+    const forbeholdet = (rad: Journalrad) =>
+      laast(rad)[0].slice(setningenEtterLvU18(rad).length + 1);
     const forholdssvar = (s: ReturnType<typeof sak>, vurderinger: Data) =>
       s.send('BH', { type: 'brev', svar: [svar('forhold', s.krav('forhold'), vurderinger)] });
     const innsigelseMot334 = (s: ReturnType<typeof sak>) => {
@@ -4586,7 +4588,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
         }),
       });
       const rad = s.send('BH', foresporsel);
-      expect(laast(rad)[0], 'bare setningen etter LV-U18').toBe(LV_U18(rad));
+      expect(laast(rad)[0], 'bare setningen etter LV-U18').toBe(setningenEtterLvU18(rad));
       expect(laast(rad)[0]).not.toContain('fastholder');
     });
 
