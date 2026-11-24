@@ -98,8 +98,20 @@ export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarsele
  */
 export const nyPost = (u: Utledning, post: Kravpost): Postvalg => ({
   ...tomPost(),
-  varsletITide: varseletFoer(u, post)?.iTide === false ? false : null,
+  varsletITide: varseletIValgene(u, post, tomPost()),
 });
+
+/**
+ * Standpunktet til varselet i valgene for kravposten, slik saken nå er: en innsigelse som står,
+ * gjentas når valget er ubesvart (VS-U77 punkt 9), og etter § 34.4 er «i tide» bare oppgivelsen
+ * av en innsigelse som står (VS-U63). Ellers står valget.
+ */
+export function varseletIValgene(u: Utledning, post: Kravpost, v: Postvalg): boolean | null {
+  const staar = varseletFoer(u, post)?.iTide === false;
+  if (v.varsletITide === null && staar) return false;
+  if (v.varsletITide === true && regelen(post) === 'regningsarbeid' && !staar) return null;
+  return v.varsletITide;
+}
 
 /** Valgene for kravposten med betegnelsen, eller en ubesvart post. */
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>

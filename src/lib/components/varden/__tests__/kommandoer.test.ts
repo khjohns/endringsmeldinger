@@ -10,7 +10,7 @@ import { KJERNE } from '#kjerne/versjon.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import { medVederlag, opprettet, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { tomPost, tomtSvar, vederlagssvaret, type Postvalg } from '../kommandoer';
+import { tomPost, tomtSvar, varseletIValgene, vederlagssvaret, type Postvalg } from '../kommandoer';
 import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
@@ -275,6 +275,14 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
       oensket_oppgjoersform: 'enhetspriser',
       varslet_i_tide: false,
     });
+  });
+
+  it('et «i tide» for punkt 34.4 uten en innsigelse å gi opp står ikke i valgene, men for punkt 34.3.3 står det (VS-U63, VS-U77 punkt 30, review av #2314)', () => {
+    const iTide = { ...tomPost(), varsletITide: true };
+    expect(varseletIValgene(u, p1!, iTide), 'regningsarbeid').toBeNull();
+    expect(varseletIValgene(u, p2!, iTide), 'justerte enhetspriser').toBe(true);
+    expect(varseletIValgene(u, p1!, { ...tomPost(), varsletITide: false })).toBe(false);
+    expect(varseletIValgene(u, p1!, tomPost()), 'ingen innsigelse står').toBeNull();
   });
 
   it('med en annen beregningsregel står varselet etter punkt 34.3.3 og justeringen subsidiært, og kjernen tar imot svaret (VS-U56)', () => {

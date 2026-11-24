@@ -127,15 +127,11 @@ export interface StandpunktTilVarselet {
 }
 
 /**
- * VS-U77 punkt 8–12, 30 og 31: byggherrens siste standpunkt til varselet etter § 34.3.3 eller
- * § 34.4 for hver kravpost i `svarene`, svarene på vederlaget med virkning, med dagen hvert ble
- * sendt og om brevet er lagt til. Et svar som ikke sier noe om varselet, endrer ikke
- * standpunktet: en innsigelse står (punkt 9 og 12), og et «i tide» etter § 34.3.3 står mot
- * senere kravversjoner (punkt 8). Svarene leses i rekkefølgen de ble sendt, også et svar lagt til
- * utenfor rekken, som har samme virkning for påberopelsen (punkt 12, OV-U103, OV-U105). Er to
- * standpunkter fra samme dag, og minst ett av svarene er lagt til, er rekkefølgen ukjent
- * (OV-U104), og innsigelsen kan stå. `dokument` er brevet en innsigelse først ble gjort gjeldende
- * i, også når senere svar gjentar den (punkt 6). Kommandoen og brevteksten leser dem herfra.
+ * Byggherrens siste standpunkt til varselet etter § 34.3.3 eller § 34.4 for hver kravpost i
+ * `svarene`: svarene på vederlaget med virkning, med dagen hvert ble sendt og om brevet er lagt
+ * til. Svarene leses i rekkefølgen de ble sendt (VS-U77 punkt 8–12, 30 og 31, OV-U103–OV-U105).
+ * `dokument` er brevet innsigelsen først ble gjort gjeldende i (punkt 6). Kommandoen og
+ * brevteksten leser dem herfra.
  */
 export function sisteStandpunktTilVarslene(
   svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[]
@@ -148,7 +144,7 @@ export function sisteStandpunktTilVarslene(
       const noekkel = `${p.hjemmel} ${p.gjelder}`;
       const foer = siste.get(noekkel);
       if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
-      // Punkt 6: en innsigelse som gjentas, står med brevet den først ble gjort gjeldende i.
+      // VS-U77 punkt 6.
       const gjentatt = foer && !foer.iTide && !p.iTide;
       siste.set(noekkel, {
         gjelder: p.gjelder,

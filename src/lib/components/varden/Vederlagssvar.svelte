@@ -32,6 +32,7 @@
     etterRegel,
     nyPost,
     postvalget,
+    varseletIValgene,
     regelen,
     spoerOmBeloepet,
     spoerOmHovedvarselet,
@@ -108,11 +109,12 @@
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
   // Valgene for hver kravpost i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
-  // En innsigelse mot varselet som står, har ikke noe ubesvart valg i skjemaet (VS-U77 punkt 9).
+  // Standpunktet til varselet følger saken (`varseletIValgene`).
   $effect.pre(() => {
     for (const p of poster) {
       const v = (valg.poster[p.betegnelse] ??= nyPost(u, p));
-      if (v.varsletITide === null) v.varsletITide = nyPost(u, p).varsletITide;
+      const varslet = varseletIValgene(u, p, v);
+      if (v.varsletITide !== varslet) v.varsletITide = varslet;
     }
   });
   function godkjennAlleFormer() {
