@@ -45,7 +45,7 @@
       return b && siste
         ? [
             {
-              ...tilknyttetKrav(u, spor, brev),
+              ...tilknyttetKrav(u, spor),
               betegnelse: BETEGNELSE[b],
               trukket: b === 'trukket',
               siste,
@@ -72,15 +72,15 @@
         : forholdssvaret && FORHOLDET.blirSubsidiaert(forholdssvaret.brev);
   const tall = (spor: Spor, n: number) => (spor === 'frist' ? dager(n) : kroner(n));
   /** Et lag etter det første heter etter vilkåret i kortform, som på siden for kravet (D1 A). */
-  const lagnavn = (spor: Spor, l: Lagraden): string | null =>
-    l.vilkaar.length ? FRISTEN.radnavn(l.vilkaar, l.heller, spor === 'vederlag') : null;
-  const fristnavn = (f: { nummer: string | null; navn: string }) =>
-    f.nummer ? `${FRISTEN.frist(f.nummer)} ${f.navn}` : f.navn;
+  const lagnavn = (spor: Spor, l: Lagraden): string =>
+    FRISTEN.radnavn(l.vilkaar, l.heller, spor === 'vederlag');
 
   interface Rad {
     navn: string;
     verdi: string | null;
     under: boolean;
+    /** Fristen er ikke i svaret (KA-U74). */
+    dempet?: boolean;
   }
   /**
    * Radene under «Byggherren»: det første laget på linja med overskriften, og de andre lagene med
@@ -89,7 +89,7 @@
   function svarradene(k: TilknyttetKrav): { hode: string | null; rader: Rad[] } {
     const s = k.svaret!;
     const rad = (l: Lagraden, under = true): Rad => ({
-      navn: lagnavn(k.spor, l) ?? '',
+      navn: lagnavn(k.spor, l),
       verdi: tall(k.spor, l.tall),
       under,
     });
@@ -109,7 +109,9 @@
           ...resten.map((l) => rad(l)),
         ];
       return [
-        { navn: tittel, verdi: lagene.length ? null : FORHOLDET.ikkeISvaret, under: false },
+        lagene.length
+          ? { navn: tittel, verdi: null, under: false }
+          : { navn: tittel, verdi: FORHOLDET.ikkeISvaret, under: false, dempet: true },
         ...lagene.map((l) => rad(l)),
       ];
     };
@@ -117,7 +119,7 @@
       hode: null,
       rader: [
         ...(s.forAlle.length ? gruppe(FRISTEN.forAlle, s.forAlle) : []),
-        ...k.frister.flatMap((f) => gruppe(fristnavn(f), f.lagene)),
+        ...k.frister.flatMap((f) => gruppe(FRISTEN.fristnavn(f), f.lagene)),
       ],
     };
   }
@@ -134,10 +136,7 @@
       {#each rader as r, i (i)}
         <li class:under={r.under}>
           <span class="rnavn">{r.navn}</span>
-          {#if r.verdi}<span
-              class:num={!r.verdi.startsWith(FORHOLDET.ikkeISvaret)}
-              class:dempet={r.verdi === FORHOLDET.ikkeISvaret}>{r.verdi}</span
-            >{/if}
+          {#if r.verdi}<span class:num={!r.dempet} class:dempet={r.dempet}>{r.verdi}</span>{/if}
         </li>
       {/each}
     </ul>
@@ -185,7 +184,7 @@
                 <!-- KA-U74: dagene står per frist og legges ikke sammen. -->
                 {@render radene(
                   k.frister.map((f) => ({
-                    navn: fristnavn(f),
+                    navn: FRISTEN.fristnavn(f),
                     verdi: dager(f.krevd),
                     under: false,
                   }))

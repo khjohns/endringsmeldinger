@@ -53,6 +53,9 @@ export const FRISTEN = haerdet({
   ikkeSvart: 'Byggherren har ikke svart på dette kravet.',
   /** Fristen med nummeret i Del II punkt E.1, som overskrift for blokken (U-4). */
   frist: (nummer: string | null) => (nummer ? `Frist ${nummer}` : 'Frist'),
+  /** Fristen med nummeret og navnet, eller bare navnet uten nummer. */
+  fristnavn: (f: { nummer: string | null; navn: string }) =>
+    f.nummer ? `Frist ${f.nummer} ${f.navn}` : f.navn,
   /** Dagene og den nye fristen ved dagene (U-5): «20 dager · ny frist 15. september 2027». */
   nyFrist: (d: string) => `ny frist ${dato(d)}`,
   /** Dagene i kravet ved brevet i tråden, i rekkefølgen i brevet (U-12). */

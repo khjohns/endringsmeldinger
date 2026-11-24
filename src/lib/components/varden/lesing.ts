@@ -21,7 +21,6 @@ import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { datoForDokumentet } from '#kjerne/format/leser.ts';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
-import { tilTall } from '#kjerne/regler/beloep.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 import type {
@@ -694,19 +693,16 @@ const lagraden = (l: { vilkaar: Innsigelsen[]; heller: boolean; tall: number }):
   tall: l.tall,
 });
 
-export function tilknyttetKrav(
-  u: Utledning,
-  spor: 'vederlag' | 'frist',
-  alle: Brevet[]
-): TilknyttetKrav {
+export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
+  const alle = brevene(u);
   const s = u.spor[spor];
   const krav = s.gjeldendeKrav;
   const kravbrev = krav && brevet(u, krav.dokument);
   const grunner = s.subsidiaer;
   if (spor === 'vederlag') {
     const k = kravetOgSvaret(u, alle);
-    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
-    // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Visningen sier hvor
+    // mange poster som ikke har et fast beløp (#1752).
     const fast = krav ? fasteBeloepIKravet(krav) : null;
     const svar = s.gjeldendeSvar;
     return {
@@ -714,7 +710,7 @@ export function tilknyttetKrav(
       krevd:
         k && fast
           ? {
-              tall: fast.sum === null ? null : tilTall(fast.sum),
+              tall: k.krevd,
               utenFast: fast.utenFastBeloep,
               brev: ref(k.kravbrev),
             }
