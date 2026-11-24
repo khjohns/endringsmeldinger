@@ -491,8 +491,8 @@
               : modus === 'svar'
                 ? [FRISTKRAV.virkningB]
                 : [
-                    ...(varselbrev || utenfor ? [] : [FRISTKRAV.virkningKravetErVarselet]),
-                    ...(svaret ? [FRISTKRAV.virkningNyVersjon(svaret)] : []),
+                    ...(varselbrev || utenfor ? [] : [FRISTKRAV.virkningVarseletIBrevet]),
+                    ...(svaret ? [FRISTKRAV.virkningNyttBrev(svaret)] : []),
                   ],
         }),
     });
@@ -561,7 +561,7 @@
     {#if aapnet}
       <div class="frist-hode">
         <h4 id={`${sid}-tittel`}>{navnet(p)}</h4>
-        {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
+        {#if ny}<span class="merke">{FRISTKRAV.nyIBrevet}</span>{/if}
         {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
       </div>
       {#if !fastFrist(p) && tabell.length}
@@ -623,7 +623,7 @@
           <span class="visually-hidden">{navnet(p)}</span><span aria-hidden="true"
             >{#if deler.nummer}<span class="nr-smal">{deler.nummer}</span>{/if}{deler.navn}</span
           >
-          {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
+          {#if ny}<span class="merke">{FRISTKRAV.nyIBrevet}</span>{/if}
           {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
         </h4>
         <p class="dato-celle">

@@ -56,43 +56,9 @@ describe('Brevtyper', () => {
     expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 
-  it('ny versjon sier hvilket brev den erstatter, og at svaret ikke kan godtas, uten å si at det er avslått (MM-U34 punkt 1 og 2)', () => {
-    const brev = (nummer: number) => ({
-      id: `b${nummer}`,
-      nummer,
-      registrert: '2026-11-06T10:00:00Z',
-      omtale: null,
-      art: 'krav' as const,
-    });
-    expect(HANDLINGENE.virkning.nyVersjon('forhold', brev(1), brev(2))).toBe(
-      'Oppdaterer påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på det nye brevet.'
-    );
-    expect(HANDLINGENE.virkning.nyVersjon('vederlag', brev(3), null)).toBe(
-      'Oppdaterer kravet i brev 3. Byggherren svarer på det nye brevet.'
-    );
-  });
-
   it('korrigeringen av datoen har en tekst, så nøkkelen aldri vises rå (#1615)', () => {
     lag(['korrigere:abc'], []);
     expect(screen.getByText('Korriger datoen')).toBeInTheDocument();
     expect(screen.queryByText(/korrigere:/)).toBeNull();
-  });
-});
-
-describe('linja under «Oppdater påberopelse»', () => {
-  // Det TE gjør gjeldende, følger hovedkategorien: en endring (§ 33.1 a), et forhold byggherren
-  // har risikoen for (§ 33.1 b og c) eller force majeure (§ 33.3). Teksten for risikoforholdet
-  // er den oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
-  it.each([
-    ['endring', 'Redegjør nærmere for hvorfor dette er en endring.'],
-    ['svikt', 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'],
-    [
-      'andre_forhold',
-      'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.',
-    ],
-    ['force_majeure', 'Redegjør nærmere for hvorfor dette er force majeure.'],
-    [null, 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.'],
-  ])('hovedkategorien %s gir teksten «%s»', (hovedkategori, tekst) => {
-    expect(HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategori)).toBe(tekst);
   });
 });

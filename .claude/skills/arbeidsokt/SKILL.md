@@ -140,7 +140,11 @@ uten at oppdraget gjentar det:
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
 - **Review fra verktøyøkta.** Sier oppdraget at PR-en skal ha review eller sparring fra
   verktøyøkta, ber økta om det og vurderer svaret selv, etter
-  [verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-fra-byggeøkta).
+  [verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-fra-byggeøkta). Et review
+  bestilles når commiten `/code-review` skal gjelde, er pushet, altså etter `/simplify`
+  når den er bestilt. PR-en skriver at reviewet er «bestilt for `<sha>`» først når
+  `send_message` har gitt `delivered`. Fram til da står det «ikke bestilt ennå» (#1065,
+  24.11).
 - **`/simplify`.** Før `/code-review` ser byggeøkta om et av kriteriene i
   [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify) gjelder for
   grenen. Gjelder et, sier den fra til orkestratoren hvilket, og arbeider videre mens

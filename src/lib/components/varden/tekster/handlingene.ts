@@ -1,5 +1,4 @@
 import { kroner } from '#kjerne/frosset/tekst.ts';
-import type { Spor } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
 import { punkt, haerdet } from './format';
@@ -37,44 +36,11 @@ export const HANDLINGENE = haerdet({
   godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
   /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen (oppdragsgiver 06.11, #1631). */
   revidertKrav: 'Oppdater kravet',
-  /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
+  /**
+   * Linja under handlingen i «Andre handlinger», bare der et vedtak krever den: virkningen av et
+   * trekk (GR-U5, GR-U25, KA-U22). Ellers står virkningen i skjemaet og i «Når du sender».
+   */
   virkning: {
-    godta: (svar: Brevref) =>
-      `Du godtar hele svaret i ${brevref(svar)}. Du ser brevet før det sendes.`,
-    /**
-     * Etter svaret: hjemmelen, kategorien og datoen står (GR-U40 punkt 7 og MM-U55 punkt 10),
-     * så den nye versjonen utdyper begrunnelsen (oppdragsgiver 06.11, #1631). Hva TE gjør
-     * gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
-     */
-    oppdaterPaaberopelse: (hovedkategori: string | null) =>
-      hovedkategori === 'endring'
-        ? 'Redegjør nærmere for hvorfor dette er en endring.'
-        : hovedkategori === 'force_majeure'
-          ? 'Redegjør nærmere for hvorfor dette er force majeure.'
-          : hovedkategori === 'svikt' || hovedkategori === 'andre_forhold'
-            ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
-            : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
-    reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
-    /**
-     * Et nytt krav etter svaret: svaret kan ikke godtas her etterpå, og løsningen sier ikke hva
-     * det nye kravet betyr for svaret (MM-U34 punkt 1, D-6 i BF-44).
-     */
-    oppdatererKravet: (krav: Brevref) =>
-      `Det nye brevet oppdaterer kravet i ${brevref(krav)}. Når du sender det, kan du ikke godta svaret her.`,
-    /**
-     * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
-     * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,
-     * ikke «versjon» (språkfila, «Brev, ikke versjon»). Svaret på den
-     * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
-     * avslått (MM-U34 punkt 1 og 2).
-     */
-    nyVersjon: (spor: Spor, krav: Brevref | null, svar: Brevref | null) => {
-      const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
-      if (!krav) return 'Byggherren svarer på det nye brevet.';
-      if (!svar)
-        return `Oppdaterer ${hva} i ${brevref(krav)}. Byggherren svarer på det nye brevet.`;
-      return `Oppdaterer ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på det nye brevet.`;
-    },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
@@ -82,9 +48,6 @@ export const HANDLINGENE = haerdet({
     /** Etter byggherrens svar gir trekket også avkall på det byggherren har godkjent (prototypen v3). */
     trekkKravetEtterSvar:
       'Du gir avkall på hele kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen.',
-    /** Byggherrens nye svar (U-16 i BF-44). */
-    nyttSvar: (svar: Brevref) =>
-      `Svaret i ${brevref(svar)} endres ikke. Det nye svaret sendes i et nytt brev.`,
   },
 });
 

@@ -99,12 +99,8 @@ export const FRISTEN = haerdet({
    */
   avslag: (begrunnelse: string | null) =>
     `Byggherren avslår dagene for fristen.${begrunnelse ? ` ${begrunnelse}` : ''}`,
-  /** Linja under «Oppdater kravet» (U-6, svar 4 A). */
-  endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
-  /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */
+  /** Handlingen under forespørselen etter punkt 33.6.2 (U-6). */
   svarPaaForesporsel: 'Svar på forespørselen',
-  virkningForesporsel:
-    'Nytt brev med dagene for hver frist og begrunnelsen. Kan du ikke beregne dagene ennå, begrunner du det (punkt 33.6.2 annet ledd).',
   /** Linja ved «Trekk kravet», før og etter byggherrens svar (U-6, prototypen). */
   trekk: 'Du gir avkall på kravet om fristforlengelse.',
   trekkEtterSvar:

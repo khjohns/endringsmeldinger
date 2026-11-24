@@ -32,7 +32,6 @@
     brevITraaden,
     fristtabellen,
     handlingerISporet,
-    hovedkategorien,
     kravposterUtenFastBeloep,
     leveringene,
     type Brevet,
@@ -165,7 +164,6 @@
   const OMTALE: Record<string, Omtale> = {
     godta: {
       tekst: () => HANDLINGENE.godta(avslag),
-      linje: () => (svarbrevet ? HANDLINGENE.virkning.godta(svarbrevet) : null),
       ved: vedSvaret,
     },
     svare: {
@@ -180,21 +178,9 @@
     krav: {
       tekst: () =>
         spor === 'forhold' ? FORHOLDET.oppdater : kanGodta ? HANDLINGENE.revidertKrav : null,
-      linje: () => {
-        const krav = sporbrev.find((b) => b.id === kravbrevet()) ?? null;
-        if (!kanGodta) return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
-        if (spor === 'forhold')
-          return HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u));
-        if (!krav) return HANDLINGENE.virkning.reviderKrav;
-        return (
-          HANDLINGENE.virkning.oppdatererKravet(krav) +
-          (spor === 'frist' ? ` ${FRISTEN.endreEllerTaUt}` : '')
-        );
-      },
       ved: vedSvaret,
     },
     revidere: {
-      linje: () => (svarbrevet ? HANDLINGENE.virkning.nyttSvar(svarbrevet) : null),
       ved: vedSvaret,
     },
     trekke: {
@@ -212,7 +198,6 @@
     },
     svare_paa_foresporsel: {
       tekst: () => FRISTEN.svarPaaForesporsel,
-      linje: () => FRISTEN.virkningForesporsel,
       ved: () => (foresporsel ? (brevMedUtsagn(u, foresporsel.gjelder!)?.id ?? null) : null),
     },
     forsering: { linje: () => FRISTEN.forseringLinje },

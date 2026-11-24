@@ -47,7 +47,8 @@ verktøyøkta:
 
 - **Review:** PR-nummeret og SHA-en til commiten `/code-review` gjelder. Reviewet kjøres bare
   på en commit som er pushet. Verktøyøkta kan ikke lese filene i byggeøktas container.
-  Byggeøkta sender meldingen rett etter pushen og kjører `/code-review` mens den venter.
+  Byggeøkta sender meldingen rett etter pushen av commiten `/code-review` skal gjelde, altså
+  etter `/simplify` når den er bestilt, og kjører `/code-review` mens den venter.
   Funnene fra `/code-review` står ikke i meldingen.
 - **Sparring:** hele bestillingen står i meldingen, etter gemini-skillen, «Sparring». Meldingen
   sier om spørsmålet gjelder arkitektur eller er sammensatt på annen måte.

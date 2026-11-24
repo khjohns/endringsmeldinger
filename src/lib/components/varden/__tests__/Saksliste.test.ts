@@ -287,7 +287,9 @@ describe('Sakslisten i Varden', () => {
     // Et trukket krav har ordet, ikke bare fargen; i en avsluttet sak sier merket det.
     expect(vederlaget('Trukket krav').textContent).toContain('trukket');
     expect(vederlaget('Påberopelse trukket').querySelector('.merknad')).toBeNull();
-    expect(within(rad('Avslag godtatt')).getByText('Avslaget godtatt av TE')).toBeTruthy();
+    expect(
+      within(rad('Avslag godtatt')).getByText('Avslaget godtatt av totalentreprenøren')
+    ).toBeTruthy();
     expect(within(rad('Påberopelse trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
   });
 
@@ -440,7 +442,7 @@ describe('Sakslisten i Varden', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Inngår i EO' }));
     expect(titler()).toEqual(['Gammel']);
-    await fireEvent.click(screen.getByRole('button', { name: 'Avsluttet av TE' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Avsluttet av totalentreprenøren' }));
     expect(titler()).toEqual(['Trukket']);
     await fireEvent.click(screen.getByRole('button', { name: 'Alle' }));
 
