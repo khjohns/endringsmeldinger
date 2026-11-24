@@ -279,7 +279,7 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
       ),
     ]);
     const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
-    expect(svaret.poster).toEqual([{ tall: 100000, lag: null }]);
+    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 100000 }]);
     expect(svaret.utenFast).toBe(1);
   });
 
@@ -293,7 +293,7 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
       ),
     ]);
     const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
-    expect(svaret.poster).toEqual([{ tall: 130000, lag: null }]);
+    expect(svaret.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 130000 }]);
     expect(svaret.utenFast).toBe(0);
   });
 
@@ -304,7 +304,7 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
       svaretPaaPostene(ikkeAkseptert('P1')),
     ]);
     const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
-    expect(svaret.poster).toEqual([]);
+    expect(svaret.lagene).toEqual([]);
     expect(svaret.utenFast).toBe(1);
   });
 
@@ -390,55 +390,52 @@ describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () 
     });
 
   it('med to frister står dagene per frist med betegnelsen, og kravet har ikke ett tall', async () => {
-    const k = tilknyttetKrav(await utledning([PAABEROPELSE, TO_FRISTER]), 'frist');
+    const u = await utledning([PAABEROPELSE, TO_FRISTER]);
+    const k = tilknyttetKrav(u, 'frist');
     expect(k.krevd!.tall).toBeNull();
-    expect(k.frister.map((f) => [f.betegnelse, f.krevd, f.svaret])).toEqual([
-      ['5 Mekanisk ferdigstillelse', 25, []],
-      ['Sluttfristen', 10, []],
+    expect(k.frister.map((f) => [f.nummer, f.navn, f.krevd, f.lagene])).toEqual([
+      ['5', 'Mekanisk ferdigstillelse', 25, []],
+      [null, 'Sluttfristen', 10, []],
     ]);
   });
 
   it('med to frister står byggherrens dager per frist, og dagene legges ikke sammen', async () => {
-    const k = tilknyttetKrav(await utledning([PAABEROPELSE, TO_FRISTER, fristsvar(10)]), 'frist');
-    expect(k.svaret!.poster).toEqual([]);
-    expect(k.frister.map((f) => f.svaret)).toEqual([
-      [{ tall: 10, lag: null }],
-      [{ tall: 10, lag: null }],
-    ]);
+    const u = await utledning([PAABEROPELSE, TO_FRISTER, fristsvar(10)]);
+    const k = tilknyttetKrav(u, 'frist');
+    expect(k.svaret!.lagene).toEqual([]);
+    const ett = [{ vilkaar: [], heller: false, etikett: null, tall: 10 }];
+    expect(k.svaret!.forAlle).toEqual([]);
+    expect(k.frister.map((f) => f.lagene)).toEqual([ett, ett]);
   });
 
   it('etter en ny versjon med én frist står de krevde dagene for den, og svaret på den forrige versjonen gir ingen dager (KA-U74)', async () => {
-    const k = tilknyttetKrav(
-      await utledning([
-        PAABEROPELSE,
-        TO_FRISTER,
-        fristsvar(10),
-        {
-          handling: 'krav',
-          spor: 'frist',
-          navn: 'K-f2',
-          frister: [{ navn: 'Sluttfristen', dager: 10, erstatter: 'Sluttfristen' }],
-          trekker: ['Mekanisk ferdigstillelse'],
-        },
-      ]),
-      'frist'
-    );
+    const u = await utledning([
+      PAABEROPELSE,
+      TO_FRISTER,
+      fristsvar(10),
+      {
+        handling: 'krav',
+        spor: 'frist',
+        navn: 'K-f2',
+        frister: [{ navn: 'Sluttfristen', dager: 10, erstatter: 'Sluttfristen' }],
+        trekker: ['Mekanisk ferdigstillelse'],
+      },
+    ]);
+    const k = tilknyttetKrav(u, 'frist');
     expect(k.krevd!.tall).toBe(10);
     expect(k.svaret).toBeNull();
     expect(k.frister).toEqual([]);
   });
 
   it('kontrollsak: med én frist står dagene som tallet for kravet og svaret, uten `frister`', async () => {
-    const k = tilknyttetKrav(
-      await utledning([
-        PAABEROPELSE,
-        { handling: 'krav', spor: 'frist', navn: 'K-f1', dager: 25 },
-        fristsvar(10),
-      ]),
-      'frist'
-    );
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'frist', navn: 'K-f1', dager: 25 },
+      fristsvar(10),
+    ]);
+    const k = tilknyttetKrav(u, 'frist');
     expect(k.krevd!.tall).toBe(25);
-    expect(k.svaret!.poster).toEqual([{ tall: 10, lag: null }]);
+    expect(k.svaret!.lagene).toEqual([{ vilkaar: [], heller: false, etikett: null, tall: 10 }]);
     expect(k.frister).toEqual([]);
   });
 });

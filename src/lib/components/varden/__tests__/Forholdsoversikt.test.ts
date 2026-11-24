@@ -11,6 +11,9 @@ import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
 import Forholdsoversikt from '#lib/components/varden/Forholdsoversikt.svelte';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import Tidslinje from '#lib/components/varden/Tidslinje.svelte';
 import {
   brevForLinja,
@@ -302,7 +305,7 @@ describe('Siden for forholdet', () => {
     const krav = kortet.getByRole('listitem');
     expect(within(krav).getByRole('heading', { name: 'Vederlagsjustering' })).toBeTruthy();
     expect(within(krav).getByText('Svar ikke registrert', { selector: '.merke' })).toBeTruthy();
-    expect(krav.textContent?.replace(/\s+/g, ' ')).toMatch(/Krevd 420 000 kr brev 2/);
+    expect(krav.textContent?.replace(/\s+/g, ' ')).toMatch(/Krevd brev 2 420 000 kr/);
     expect(kortet.queryByText('Fristforlengelse')).toBeNull();
     // Synlig står bare «Åpne»; navnet sier hvor lenken fører (språkfila, WCAG 2.5.3).
     const aapne = kortet.getByRole('button', { name: 'Åpne vederlagsjusteringen' });
@@ -351,8 +354,8 @@ describe('Siden for forholdet', () => {
       'listitem'
     );
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
-    expect(tekst).toContain('Krevd 140 000 kr brev 2');
-    expect(tekst).toContain('Byggherren 100 000 kr · 1 post uten fast beløp brev 3');
+    expect(tekst).toContain('Krevd brev 2 140 000 kr');
+    expect(tekst).toContain('Byggherren brev 3 100 000 kr · 1 post uten fast beløp');
     expect(tekst).not.toMatch(/P2|prinsipalt/);
   });
 
@@ -370,11 +373,11 @@ describe('Siden for forholdet', () => {
       'listitem'
     );
     expect(krav.textContent?.replace(/\s+/g, ' ')).toContain(
-      'Krevd Ingen poster med fast beløp brev 2'
+      'Krevd brev 2 Ingen poster med fast beløp'
     );
   });
 
-  it('byggherrens svar på kravet står med beløpet, laget og brevet, og vilkåret når forholdet er avslått (OV-U33, vedtaket 05.10)', async () => {
+  it('byggherrens svar på kravet står med beløpet og brevet, og vilkåret når forholdet er avslått, uten etiketten for laget (OV-U33, vedtaket 05.10, D1 A 24.11 i #2248)', async () => {
     await vis([
       PAABEROPELSE,
       VEDERLAG,
@@ -389,8 +392,8 @@ describe('Siden for forholdet', () => {
       'listitem'
     );
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
-    expect(tekst).toMatch(/Krevd 420 000 kr brev 2/);
-    expect(tekst).toMatch(/Byggherren 310 000 kr subsidiært brev 4/);
+    expect(tekst).toMatch(/Krevd brev 2 420 000 kr/);
+    expect(tekst).toMatch(/Byggherren brev 4 310 000 kr/);
     expect(tekst).toContain('Gjelder hvis forholdet gir grunnlag for kravet.');
   });
 
@@ -595,5 +598,50 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       'Påberopelse av forholdet og krav om vederlagsjustering'
     );
     expect(TRAADEN.hva(brev('b1', 1, 'krav', ['forhold']))).toBe('Påberopelse av forholdet');
+  });
+});
+
+describe('«Tilknyttede krav» med lagene i svaret (D1 A 24.11 i #2248)', () => {
+  async function forholdet(forloep: string, punkt: string) {
+    const demosak = lagDemosak(finnForloep(forloep)!, punkt, 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold' });
+    const kortet = await screen.findByRole('region', { name: 'Tilknyttede krav' });
+    return (spor: string) =>
+      within(kortet)
+        .getByRole('heading', { name: spor })
+        .closest('li')!
+        .textContent!.replace(/\s+/g, ' ');
+  }
+
+  it('fristen står med det første laget for alle fristene og de andre lagene per frist med vilkåret i kortform, som på siden for fristen (BF-45 U-4, #2240)', async () => {
+    const kravet = await forholdet('BF-45', 'te-har-mottatt-svaret');
+    const tekst = kravet('Fristforlengelse');
+    // Byggherren avslår prinsipalt for alle fristene etter innsigelsen om varselet etter punkt 33.4,
+    // og godkjenner subsidiært og videre subsidiært dager per frist (startjournalen i BF-45).
+    expect(tekst).toContain('Byggherren brev 4 For alle fristene 0 dager');
+    expect(tekst).toContain(
+      'Frist 2 Overtakelse Hvis varselet kom i tide 8 dager' +
+        'Hvis også spesifiseringen kom i tide 14 dager'
+    );
+    expect(tekst).not.toMatch(/subsidiært/);
+  });
+
+  it('vederlaget står med det første laget på linja med byggherren og de andre lagene med vilkåret i kortform, med punktet for varselet (BF-44 U-2)', async () => {
+    const kravet = await forholdet('BF-44', 'te-har-mottatt-svaret');
+    const tekst = kravet('Vederlagsjustering');
+    expect(tekst).toContain(
+      'Byggherren brev 4 0 kr ' +
+        'Hvis varselet etter punkt 34.1.2 kom i tide 110 000 kr' +
+        'Hvis også varselet etter punkt 34.1.3 kom i tide 130 000 kr'
+    );
+    expect(tekst).not.toMatch(/subsidiært/);
   });
 });
