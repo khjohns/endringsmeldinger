@@ -601,7 +601,9 @@ export const utenFastBeloep = (ut: readonly Standpunkt[]): Set<string> =>
 /**
  * En innsigelse i vederlagssvaret, som et senere lag gjelder hvis den ikke fører frem (LV-U34,
  * OV-U32): et varsel byggherren påberoper kom for sent, en beregningsregel byggherren ikke godtar
- * og en justering av enhetsprisene byggherren ikke godtar. Brevteksten og visningen leser den.
+ * og en justering av enhetsprisene byggherren ikke godtar. Brevteksten leser den, og visningen
+ * skal lese den (#2242). Om innsigelsen har virkning og et lag, for eksempel etter § 34.1.2 når
+ * varslingsplikten ikke gjelder, står i virkningene (`vederlagsvirkninger`), ikke her.
  */
 export function erInnsigelseIVederlaget(s: Standpunkt): boolean {
   return (

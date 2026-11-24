@@ -2556,6 +2556,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/format.ts',
       'spor/frist/tekst.ts',
       'spor/frist/format.ts',
+      'spor/frist/frysing.ts:lest',
     ],
   ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen

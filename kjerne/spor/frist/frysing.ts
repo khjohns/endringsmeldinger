@@ -30,7 +30,7 @@ import { lagIGrunnlaget } from '../poster/format.ts';
 import { dagerILaget, innholdIFristen, utregningIFristen } from './format.ts';
 import { HJEMMEL } from '../../format/format.ts';
 import { dagenSendt, standpunkterISvaret } from '../../format/leser.ts';
-import { ukjenteFelt } from '../../format/skjema.ts';
+import { Uforstaatt, ukjenteFelt } from '../../format/skjema.ts';
 import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
@@ -211,6 +211,19 @@ export function standpunkterIFristen(
   return ut;
 }
 
+/**
+ * Standpunktene vurderingene gir, lest som et lagret svar. Kontrollene over har avvist det lesingen
+ * avviser; gjør de det ikke, er vurderingen ugyldig, ikke en feil på serveren (`UgyldigVurdering`).
+ */
+function lest(les: () => Standpunkt[]): Standpunkt[] {
+  try {
+    return les();
+  } catch (feil) {
+    if (feil instanceof Uforstaatt) throw new UgyldigVurdering({ standpunkter: feil.message });
+    throw feil;
+  }
+}
+
 /** Utregningen av én frist (§ 33): dagene i hvert lag i svaret (KA-U78, OV-U32). */
 function regnUtFristen(
   d: Extract<Standpunkt, { art: 'dager' }>,
@@ -266,10 +279,9 @@ function regnUtFrist(
     resultat: resultatAvDager(true, krevd[i]!, f.dager as number),
     godkjent_dager: f.dager,
   }));
-  const standpunkter = standpunkterISvaret('frist', {
-    standpunkter: lagret,
-    utregning: { frister: rader },
-  });
+  const standpunkter = lest(() =>
+    standpunkterISvaret('frist', { standpunkter: lagret, utregning: { frister: rader } })
+  );
   const virkninger = virkningerIForholdetOgFristen(
     { spor: 'frist', standpunkter, utregning: {} },
     paaberopelse,

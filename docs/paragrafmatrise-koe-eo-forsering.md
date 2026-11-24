@@ -538,9 +538,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   [OV-U2](plans/vedtak.md#ov-u2): første versjon.
   [B-17](plans/vedtak.md#b-17)
   (merknaden 09.10: forsering går til TS).
-- **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn. Strengen
-  `forseringsrett_avslatt` i `SUBSIDIAERE_UTLOSERE`
-  ([`regler/typer.ts`](../kjerne/regler/typer.ts)) er arvet og ubrukt.
+- **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn.
 
 ---
 
