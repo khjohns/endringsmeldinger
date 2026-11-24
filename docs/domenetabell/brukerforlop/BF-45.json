@@ -333,7 +333,7 @@
     {
       "dato": "2026-11-24",
       "forhold": "#2299",
-      "hva": "Forløpet kjøres i saksruta. Oppsettet i skriptet registrerer kontraktsfristene i `FRISTTABELLEN` fra kjøringen i minnet, i samme rekkefølge, så fristene forløpet viser til, har samme ID i basen. Akseptfristen settes som i BF-44 (#1998). Uten fristene avviste serveren fristkravet fordi fristen ikke var registrert for prosjektet."
+      "hva": "Forløpet kjøres i saksruta. Oppsettet i skriptet registrerer kontraktsfristene i `FRISTTABELLEN` fra kjøringen i minnet, i samme rekkefølge, så fristene forløpet viser til, har samme ID i basen. Akseptfristen settes som i BF-44 (#1998). Uten fristene avviste serveren fristkravet fordi fristen ikke var registrert for prosjektet. Forlengelsen av frist 1 fra en annen sak, som demoruta viser, finnes ikke i saksruta, så gjeldende frist der er datoen i kontrakten."
     }
   ],
   "prototype": {
