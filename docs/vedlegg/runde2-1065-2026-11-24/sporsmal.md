@@ -52,3 +52,9 @@ tilgangsloggen. Kravet i #1804 er at avviste innlogginger logges med grunn.
 - **B:** et tilbakekall uten et lagret forsøk logges ikke.
 
 **Svar fra oppdragsgiver 24.11**, ordrett: «A: Strup i serveren». Ført i #2251.
+
+---
+
+## Svar på spørsmål 1
+
+**Svar fra oppdragsgiver 24.11**, ordrett: «A som anbefalt». Valgt A, forkastet B.
