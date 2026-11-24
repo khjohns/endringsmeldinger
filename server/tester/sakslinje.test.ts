@@ -512,6 +512,15 @@ describe('linja i sakslisten (#1022)', () => {
     expect(vederlagTrukket.frist.kravet_staar).toBe(true);
   });
 
+  it('TE har avsluttet saken når påberopelsen er trukket eller avslaget på forholdet er godtatt, ikke når bare et krav er trukket (MM-U38, GR-U5, GR-U27)', () => {
+    expect(linje(krav, trekk('forhold')).avsluttet_av_te).toBe(true);
+    expect(linje(forloepA, aksept('forhold')).avsluttet_av_te).toBe(true);
+    expect(linje(krav, trekk('vederlag')).avsluttet_av_te, 'kontrollsak: kravet trukket').toBe(
+      false
+    );
+    expect(linje(krav).avsluttet_av_te, 'kontrollsak: kravet står').toBe(false);
+  });
+
   it('#1050, #1067: når TE godtar avslaget av forholdet alene, venter vederlag og frist ikke på svar (SK-01)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
@@ -769,7 +778,12 @@ describe('linja i sakslisten (#1022)', () => {
       sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
     };
     const varslet = linje(varsel);
-    expect(varslet.frist).toMatchObject({ betegnelse: 'varslet', har_varsel: true, krav: null });
+    expect(varslet.frist).toMatchObject({
+      betegnelse: 'varslet',
+      har_varsel: true,
+      varselet_staar: true,
+      krav: null,
+    });
     expect(varslet.vederlag.har_varsel, 'kontrollsak: sporet uten varsel').toBe(false);
 
     const etterspurt = linje(varsel, (sak) =>
@@ -779,14 +793,39 @@ describe('linja i sakslisten (#1022)', () => {
       betegnelse: 'spesifisert_krav_etterspurt',
       har_varsel: true,
       kravet_staar: false,
+      varselet_staar: true,
     });
 
     // Et varsel uten krav kan ikke trekkes alene (INGEN_KRAV), men med påberopelsen.
     const trukket = linje(varsel, trekk('forhold'));
     expect(trukket.saksbetegnelse).toBe('paaberopelsen_trukket');
-    expect(trukket.frist).toMatchObject({ betegnelse: 'trukket', har_varsel: true });
+    expect(trukket.frist).toMatchObject({
+      betegnelse: 'trukket',
+      har_varsel: true,
+      varselet_staar: false,
+    });
 
     const utenVarsel = linje(krav);
     expect(utenVarsel.frist.har_varsel, 'kontrollsak: krav uten varsel').toBe(false);
+    expect(utenVarsel.frist.varselet_staar, 'et krav er ikke et varsel uten krav').toBe(false);
+  });
+
+  it('varselet står ikke når saken ellers har et varsel som står, men kjernen ikke forstår den (MM-U38, MM-U2)', () => {
+    const sak = new Sak();
+    sak.send('TE', PAABEROPELSE);
+    sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    expect(sak.linje().frist.varselet_staar, 'kontrollsak: forstått').toBe(true);
+    const siste = sak.journal.at(-1)!;
+    sak.journal.push({
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      event_type: 'ukjent_hendelse',
+      data: {},
+    });
+    const l = sak.linje();
+    expect(l.forstaatt, 'forutsetning').toBe(false);
+    expect(l.frist.varselet_staar).toBe(false);
+    expect(l.avsluttet_av_te).toBe(false);
   });
 });

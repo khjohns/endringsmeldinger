@@ -17,11 +17,13 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     underkategori: 'irregulaer_endring',
     forstaatt: true,
     saksbetegnelse: null,
+    avsluttet_av_te: false,
     brev_utenfor_appen: false,
     forhold: { ...ingenting, svar: null },
     vederlag: {
       ...ingenting,
       kravet_staar: false,
+      varselet_staar: false,
       har_varsel: false,
       krav: null,
       svar: null,
@@ -30,6 +32,7 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     frist: {
       ...ingenting,
       kravet_staar: false,
+      varselet_staar: false,
       har_varsel: false,
       krav: null,
       svar: null,

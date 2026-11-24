@@ -233,10 +233,10 @@ export function forlengelseneISaken(u: Utledning): {
 }
 
 /** Fristen `dato` etter dagene i `forlengelser` som gjelder fristen `fristId` (GFK-U19). */
-export const fristenEtterForlengelsene = (
+export const fristenEtterForlengelsene = <F extends Pick<Forlengelse, 'fristId' | 'dager'>>(
   dato: string,
   fristId: number,
-  forlengelser: readonly Forlengelse[]
+  forlengelser: readonly F[]
 ): string =>
   forlengetFrist(
     dato,

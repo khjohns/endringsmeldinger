@@ -43,7 +43,7 @@ import type {
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
+import type { GjeldendeFristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Snippet } from 'svelte';
 
 /**
@@ -463,11 +463,8 @@ export const betegnelsene = (
 
 /** Fristtabellen og sakene i prosjektet, som gjeldende frist regnes av (KA-U77, BF-45 U-5). */
 export interface Fristtabellen {
-  datoer: readonly Fristdato[];
-  /** Saken siden viser, som forlengelsene i den ikke regnes med i (KA-U77). */
-  sakId: string;
-  /** Sakene kjernen ikke forstår, som kan ha forlenget en frist (MM-U2). */
-  ikkeForstaatt: readonly string[];
+  /** Fristene med gjeldende frist uten dagene i saken siden viser (KA-U77). */
+  datoer: readonly GjeldendeFristdato[];
   /** Lenken til en annen sak i prosjektet. */
   sakslenke?: (sakId: string) => string;
 }
@@ -478,8 +475,6 @@ export const fristtabellen = (
   sakslenke?: (sakId: string) => string
 ): Fristtabellen => ({
   datoer: kjernesak.fristdatoer,
-  sakId: kjernesak.sakId,
-  ikkeForstaatt: kjernesak.sakerIkkeForstaatt,
   sakslenke,
 });
 

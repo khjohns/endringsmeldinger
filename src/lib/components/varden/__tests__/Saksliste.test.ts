@@ -140,6 +140,7 @@ describe('Sakslisten i Varden', () => {
         venter_paa_svar: false,
         svar_ikke_godtatt: true,
         kravet_staar: true,
+        varselet_staar: false,
         har_varsel: false,
         krav: { beloep: 420000, antall_uten_fast_beloep: 0 },
         svar: {
@@ -155,6 +156,7 @@ describe('Sakslisten i Varden', () => {
         venter_paa_svar: false,
         svar_ikke_godtatt: false,
         kravet_staar: true,
+        varselet_staar: false,
         har_varsel: false,
         krav: { frister: [{ betegnelse: 'Sluttfristen', dager: 15 }] },
         svar: {
@@ -191,6 +193,7 @@ describe('Sakslisten i Varden', () => {
       ...ingenting,
       betegnelse,
       kravet_staar: krav !== null,
+      varselet_staar: betegnelse === 'varslet',
       har_varsel: betegnelse === 'varslet',
       krav,
       svar: null,
@@ -216,6 +219,7 @@ describe('Sakslisten i Varden', () => {
             ...ingenting,
             betegnelse: 'varslet',
             kravet_staar: false,
+            varselet_staar: true,
             har_varsel: true,
             krav: null,
             svar: null,
@@ -255,6 +259,7 @@ describe('Sakslisten i Varden', () => {
       ...ingenting,
       betegnelse,
       kravet_staar,
+      varselet_staar: false,
       har_varsel: false,
       krav: { beloep: 100000, antall_uten_fast_beloep: 0 },
       svar: null,
@@ -268,12 +273,14 @@ describe('Sakslisten i Varden', () => {
           sak_id: 'C',
           sakstittel: 'Avslag godtatt',
           saksbetegnelse: 'avslaget_paa_forholdet_godtatt',
+          avsluttet_av_te: true,
           vederlag: krav(false),
         }),
         lagSakslinje({
           sak_id: 'D',
           sakstittel: 'Påberopelse trukket',
           saksbetegnelse: 'paaberopelsen_trukket',
+          avsluttet_av_te: true,
           vederlag: krav(false, 'trukket'),
         }),
         lagSakslinje({ sak_id: 'E', sakstittel: 'Står', vederlag: krav(true) }),
@@ -307,6 +314,7 @@ describe('Sakslisten i Varden', () => {
     ) => ({
       ...ingenting,
       kravet_staar,
+      varselet_staar: false,
       har_varsel: false,
       krav: { beloep, antall_uten_fast_beloep: metode === 'tilbud' ? 0 : 1 },
       svar: null,
@@ -318,6 +326,7 @@ describe('Sakslisten i Varden', () => {
     const f = (dager: number) => ({
       ...ingenting,
       kravet_staar: true,
+      varselet_staar: false,
       har_varsel: false,
       krav: { frister: [{ betegnelse: 'Sluttfristen', dager }] },
       svar: null,
@@ -336,6 +345,7 @@ describe('Sakslisten i Varden', () => {
             ...v(0),
             betegnelse: 'varslet',
             kravet_staar: false,
+            varselet_staar: true,
             har_varsel: true,
             krav: null,
           },
@@ -347,6 +357,7 @@ describe('Sakslisten i Varden', () => {
           sak_id: 'G',
           vederlag: v(95000),
           saksbetegnelse: 'avslaget_paa_forholdet_godtatt',
+          avsluttet_av_te: true,
         }),
       ],
       endringsordrer: { E: 'EO-01' },
@@ -360,10 +371,13 @@ describe('Sakslisten i Varden', () => {
 
   it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, og dempet og ikke telt når sporet er trukket (MM-U37, MM-U38)', () => {
     type Betegnelse = 'spesifisert_krav_etterspurt' | 'trukket' | null;
+    // Lista leser `varselet_staar` fra serveren. Hvilke saker kjernen gir det, prøves i
+    // `kjerne/tester/betegnelse.test.ts` og `server/tester/sakslinje.test.ts`.
     const varsel = (betegnelse: Betegnelse, har_varsel = true) => ({
       ...ingenting,
       betegnelse,
       kravet_staar: false,
+      varselet_staar: har_varsel && betegnelse !== 'trukket',
       har_varsel,
       krav: null,
       svar: null,
@@ -382,6 +396,7 @@ describe('Sakslisten i Varden', () => {
           sak_id: 'C',
           sakstittel: 'Påberopelse trukket',
           saksbetegnelse: 'paaberopelsen_trukket',
+          avsluttet_av_te: true,
           frist: varsel('trukket'),
         }),
         lagSakslinje({ sak_id: 'D', sakstittel: 'Uten varsel', frist: varsel(null, false) }),
@@ -424,6 +439,7 @@ describe('Sakslisten i Varden', () => {
           sak_id: 'C',
           sakstittel: 'Trukket',
           saksbetegnelse: 'paaberopelsen_trukket',
+          avsluttet_av_te: true,
           siste_hendelse: '2026-10-01T10:00:00Z',
           siste_brev: null,
           opprettet: '2026-10-01T10:00:00Z',
@@ -472,6 +488,7 @@ describe('Sakslisten i Varden', () => {
           vederlag: {
             ...ingenting,
             kravet_staar: true,
+            varselet_staar: false,
             har_varsel: false,
             krav: { beloep: 1000, antall_uten_fast_beloep: 0 },
             svar: null,

@@ -6,8 +6,9 @@
 
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '#lib/api/client.ts';
-import { brevFor, laastTekstI, utledetMed, type Brev, type Fristdato } from './brevtekst';
+import { brevFor, laastTekstI, utledetMed, type Brev, type GjeldendeFristdato } from './brevtekst';
 import type { Registrertfrist } from '#kjerne/spor/frist/format.ts';
+import { datoenEtterForlengelsene } from '#kjerne/spor/frist/visning.ts';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
@@ -420,13 +421,27 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get kontraktsfrister(): readonly Registrertfrist[] | null {
       return sak?.merking?.kontraktsfrister ?? null;
     },
-    /** Datoen og dagmulkten for fristene i tabellen, tom når serveren ikke gir dem (demoruta). */
-    get fristdatoer(): readonly Fristdato[] {
-      return sak?.merking?.fristdatoer ?? [];
-    },
-    /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
-    get sakerIkkeForstaatt(): readonly string[] {
-      return sak?.merking?.sakerIkkeForstaatt ?? [];
+    /**
+     * Datoen og dagmulkten for fristene i tabellen, med gjeldende frist uten dagene i denne saken
+     * regnet av kjernen (`datoenEtterForlengelsene`, KA-U77, HF-U5, MM-U2). Tom når merkingen ikke
+     * har dem.
+     */
+    get fristdatoer(): readonly GjeldendeFristdato[] {
+      const ikkeForstaatt = sak?.merking?.sakerIkkeForstaatt ?? [];
+      return (sak?.merking?.fristdatoer ?? []).map((d) => {
+        const andre = (d.forlengelser ?? []).filter((f) => f.sakId !== sakId);
+        return {
+          ...d,
+          gjeldende: datoenEtterForlengelsene(
+            d.dato,
+            d.fristId,
+            andre.map((f) => ({ ...f, fristId: d.fristId })),
+            ikkeForstaatt,
+            sakId
+          ),
+          forlengelserIAndreSaker: andre,
+        };
+      });
     },
     get versjon() {
       return utledning?.versjon ?? null;

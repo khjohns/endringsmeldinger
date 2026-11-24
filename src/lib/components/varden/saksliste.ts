@@ -30,11 +30,6 @@ export const fanen = (linje: Sakslinje): Fane | null => SAKSTYPE[linje.sakstype]
 /** Dokumentkoden til endringsordren som omfatter saken, etter KOE-sakens ID (EO-U13, EO-U14). */
 export type Endringsordrer = Record<string, string>;
 
-/** Saken er avsluttet av TE: påberopelsen er trukket, eller TE har godtatt avslaget. */
-export const avsluttetAvTe = (linje: Sakslinje): boolean =>
-  linje.saksbetegnelse === 'paaberopelsen_trukket' ||
-  linje.saksbetegnelse === 'avslaget_paa_forholdet_godtatt';
-
 /** Merket under tittelen når TE har avsluttet saken. */
 export function saksmerke(linje: Sakslinje): string | null {
   if (linje.saksbetegnelse === 'paaberopelsen_trukket') return SAKSLISTE.paaberopelsenTrukket;
@@ -89,7 +84,7 @@ export function krevd(
   const l = linje[spor];
   const dempet = iEndringsordre || !l.kravet_staar;
   const trukket = l.betegnelse === 'trukket';
-  const merknad = trukket && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
+  const merknad = trukket && !linje.avsluttet_av_te ? SAKSLISTE.trukket : null;
   if (spor === 'vederlag' && linje.vederlag.krav) {
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Uten et fast beløp
     // er kravet ikke med i summene: ukjent er ikke 0 (OV-U43).
@@ -121,30 +116,12 @@ export function krevd(
     return {
       tekst: SAKSLISTE.varslet,
       tall: false,
-      dempet: !varselITallene(linje, spor, iEndringsordre),
+      // MM-U38: et varsel uten krav telles når kjernen sier at det står, utenfor en endringsordre.
+      dempet: iEndringsordre || !l.varselet_staar,
       utenFast: null,
       merknad,
     };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, utenFast: null, merknad: null };
-}
-
-/**
- * Et varsel uten krav telles for seg når sporet ikke er trukket, saken ikke inngår i en
- * endringsordre og TE ikke har avsluttet saken (MM-U38). Ellers er det dempet i lista.
- */
-function varselITallene(
-  linje: Sakslinje,
-  spor: 'vederlag' | 'frist',
-  iEndringsordre: boolean
-): boolean {
-  const s = linje[spor];
-  return (
-    !s.krav &&
-    s.har_varsel &&
-    s.betegnelse !== 'trukket' &&
-    !iEndringsordre &&
-    !avsluttetAvTe(linje)
-  );
 }
 
 export type Noekkeltall = {
@@ -156,7 +133,7 @@ export type Noekkeltall = {
 /**
  * Kravene i sakene som ikke inngår i en endringsordre (MM-U38). Et
  * krav telles når serveren sier at det står (`kravet_staar`, som utelater trukne krav og saker
- * TE har avsluttet). Et varsel uten krav telles for seg. Krav
+ * TE har avsluttet). Et varsel uten krav telles for seg (`varselet_staar`). Krav
  * etter regningsarbeid eller enhetspriser har ikke beløp i lista og telles for seg.
  * Fristdagene summeres ikke.
  */
@@ -166,7 +143,7 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
     frist: { krav: 0, varslet: 0 },
   };
   for (const l of linjer) {
-    if (!l.forstaatt || eo[l.sak_id] || avsluttetAvTe(l)) continue;
+    if (!l.forstaatt || eo[l.sak_id] || l.avsluttet_av_te) continue;
     const v = l.vederlag;
     // Et krav med faste beløp telles med summen av dem, også når det har kravposter etter en
     // beregningsregel (KA-U61, #1663).
@@ -174,9 +151,9 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
-    else if (varselITallene(l, 'vederlag', false)) n.vederlag.varslet += 1;
+    else if (v.varselet_staar) n.vederlag.varslet += 1;
     if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
-    else if (varselITallene(l, 'frist', false)) n.frist.varslet += 1;
+    else if (l.frist.varselet_staar) n.frist.varslet += 1;
   }
   return n;
 }
@@ -187,7 +164,7 @@ export type Sortering = 'siste-brev' | 'opprettet';
 export function iUtvalg(linje: Sakslinje, utvalg: Utvalg, eo: Endringsordrer): boolean {
   if (utvalg === 'eo') return Boolean(eo[linje.sak_id]);
   if (utvalg === 'ikke-eo') return !eo[linje.sak_id];
-  if (utvalg === 'avsluttet') return avsluttetAvTe(linje);
+  if (utvalg === 'avsluttet') return linje.avsluttet_av_te;
   return true;
 }
 
