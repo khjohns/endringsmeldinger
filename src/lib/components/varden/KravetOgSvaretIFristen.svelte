@@ -1,7 +1,7 @@
 <!--
   Kortet «Kravet og svaret» på siden for fristforlengelsen (BF-45, U-2–U-5 og U-13): lagene som
-  gjelder hele kravet én gang under «For alle fristene», og under «Per frist» vilkårene for lagene
-  én gang og én blokk per frist med gjeldende frist og en målestokk i dager, med kravet åpent og
+  gjelder hele kravet én gang under «For alle fristene», og under «Per frist» vilkåret for hvert lag
+  én gang (D2 b i #2180) og én blokk per frist med gjeldende frist og en målestokk i dager, med kravet åpent og
   hvert lag fylt. Alle fristene har samme skala. Dagene og standpunktene er de byggherren sendte i
   brevet (MM-U50), og den nye fristen er regnet fra gjeldende frist (G-4).
 -->
@@ -41,7 +41,7 @@
   const svart = $derived(k.svarbrev !== null);
   const stoerst = $derived(stoerstAntall(k));
   const { trinn, andel, steg, ende } = $derived(maalestokken(stoerst, true));
-  const sistePerFrist = $derived(k.perFrist.at(-1)?.lag);
+  const perFristMedVilkaar = $derived(k.perFrist.filter((l) => l.vilkaar.length));
 </script>
 
 <Kravkort tittel={FRISTEN.kortet} kilde={VEDERLAGET.kilde(k.kravbrev, k.svarbrev)} {steg}>
@@ -68,17 +68,10 @@
 
   <section class="del" aria-labelledby={svart ? `${uid}-per` : undefined}>
     {#if svart}<h3 id={`${uid}-per`}>{FRISTEN.perFrist}</h3>{/if}
-    {#if k.perFrist.length > 1 || (k.perFrist.length === 1 && k.perFrist[0]!.etikett)}
+    {#if perFristMedVilkaar.length}
       <ul class="vilkaar">
-        {#each k.perFrist as l (l.lag)}
-          {@const grunnlag = FRISTEN.grunnlaget(
-            l.standpunkter.map((s) => s.standpunkt),
-            l.lag === sistePerFrist
-          )}
-          <li>
-            {#if l.vilkaar.length}<b>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</b>{/if}
-            {#each grunnlag as tekst, i (i)}<p>{tekst}</p>{/each}
-          </li>
+        {#each perFristMedVilkaar as l (l.lag)}
+          <li>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</li>
         {/each}
       </ul>
     {/if}
@@ -177,9 +170,6 @@
     display: grid;
     gap: var(--spacing-1);
     color: var(--ink);
-  }
-  .vilkaar b {
-    font-weight: 600;
   }
   .dempet {
     margin-top: var(--spacing-2);

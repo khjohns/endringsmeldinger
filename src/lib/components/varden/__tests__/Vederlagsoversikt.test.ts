@@ -292,6 +292,19 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
       // Det tredje laget: «heller ikke», som prototypen `vederlagsoversikt-v2.html` og brevet.
       'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem',
     ]);
+    // Det første laget med standpunkt leder, og lagene under er dempet (#2180 R1-1, U-2). Kravet
+    // står først.
+    expect(
+      [...screen.getByRole('region', { name: 'Kravet og svaret' }).querySelectorAll('.lagrad')].map(
+        (r) => r.classList.contains('dempet')
+      )
+    ).toEqual([false, false, true, true]);
+    // Skalaen slutter på trinnet over kravet på 190 000 kr, som i fristen (#2180 R2-3).
+    expect(
+      kort
+        .getAllByText((_, e) => e?.classList.contains('trinn') ?? false)
+        .map((t) => [...t.children].map((c) => c.textContent))
+    ).toEqual([['0', '50\u00a0000', '100\u00a0000', '150\u00a0000', '200\u00a0000']]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(
       'Sum190 0000110 000130 000'
