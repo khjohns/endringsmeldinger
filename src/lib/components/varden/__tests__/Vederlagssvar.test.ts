@@ -331,7 +331,9 @@ describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 
         godtar_justering: true,
       })
     );
-    expect(screen.getByText('Du har sagt i brev 3 at varselet kom i tide.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Du har godkjent i brev 3 at varselet kom i tide.')
+    ).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Kom i tide' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
   });

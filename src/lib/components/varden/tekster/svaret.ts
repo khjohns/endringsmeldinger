@@ -67,7 +67,7 @@ export const SKJEMA = haerdet({
   girOppInnsigelsenKnapp: 'Gi opp innsigelsen',
   gjentaInnsigelsenKnapp: 'Gjenta innsigelsen',
   // VS-U77 punkt 8 og 30: «i tide» står mot senere kravversjoner.
-  varseletITideFoer: (b: Brevref) => `Du har sagt i ${brevref(b)} at varselet kom i tide.`,
+  varseletITideFoer: (b: Brevref) => `Du har godkjent i ${brevref(b)} at varselet kom i tide.`,
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
   godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',
