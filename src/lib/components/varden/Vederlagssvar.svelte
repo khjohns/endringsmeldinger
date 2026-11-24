@@ -318,7 +318,6 @@
               if (p.punkt === 'metode') return true;
               const post = poster.find((q) => q.betegnelse === p.punkt);
               if (!post || etterRegel(post)) return false;
-              const v = postvalget(valg, p.punkt);
               return !nyttSvar
                 ? stilt(lagene, 'vurdering', post.id)
                 : linjer.some((l) => l.punkt === p.punkt);
