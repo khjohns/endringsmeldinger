@@ -269,16 +269,21 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
 /**
  * VS-U63 (VS-U77 punkt 31, 9 og 12): kravpostene der byggherrens siste standpunkt til varselet
  * etter § 34.4 i svarene på vederlaget var at varselet ikke ble gitt eller kom for sent. Et svar
- * lagt til, sendt på dagen `sendt`, leser bare svarene sendt før den dagen. Et svar som ikke sier
- * noe om varselet, gir ikke opp innsigelsen.
+ * som ikke sier noe om varselet, gir ikke opp innsigelsen. Svarene leses i rekkefølgen de ble
+ * sendt, også et svar lagt til utenfor rekken, som har samme virkning for påberopelsen (punkt 12,
+ * OV-U103, OV-U105). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene sendt før den
+ * dagen (OV-U98, OV-U104).
  */
 function innsigelseneEtter344(u: Utledning, sendt: string | null): Set<string> {
+  const { svar, svarUtenforRekken } = u.spor.vederlag;
+  const svarene = [...svar, ...svarUtenforRekken]
+    .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '' }))
+    .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
+    .sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
   const siste = new Map<string, boolean>();
-  for (const s of u.spor.vederlag.svar) {
-    if (sendt !== null && !foerDagen(datoenDetBleSendt(u, s), sendt)) continue;
+  for (const { s } of svarene)
     for (const p of s.standpunkter)
       if (p.art === 'rettidighet' && p.hjemmel === '34.4') siste.set(p.gjelder, p.iTide);
-  }
   return new Set([...siste].flatMap(([post, iTide]) => (iTide ? [] : [post])));
 }
 

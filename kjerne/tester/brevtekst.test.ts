@@ -11438,6 +11438,52 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ).toBeNull();
   });
 
+  it('VS-U63: en innsigelse etter punkt 34.4 i et svar lagt til utenfor rekken står, også når et svar fra løsningen sendt senere ikke sier noe (VS-U77 punkt 12, OV-U103)', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+    const senere = gjeldende(s).id;
+    const innsigelsen = svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }).svar[0]!;
+    s.send('BH', {
+      type: 'brev',
+      svar: [utenFelt(utenFelt(innsigelsen, 'utdypning'), 'utdypninger')],
+      sendt: '2026-10-05',
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
+    });
+    expect(s.u().spor.vederlag.svarUtenforRekken, 'forutsetning').toHaveLength(1);
+    expect(gjeldende(s).id, 'forutsetning').toBe(senere);
+    expect(
+      s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: senere,
+        svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+      })
+    ).toBeNull();
+  });
+
+  it('VS-U63: byggherrens siste standpunkt etter punkt 34.4 er det sist sendte, også når et eldre svar legges til senere (OV-U98, VS-U77 punkt 12)', () => {
+    const s = sakMed(regning);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+    const oppgivelse = () => ({
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: svaret(s, { P2: { aksepterer: true, varslet_i_tide: true } }).svar[0],
+    });
+    s.send('BH', oppgivelse());
+    const eldre = svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }).svar[0]!;
+    s.send('BH', {
+      type: 'brev',
+      svar: [utenFelt(utenFelt(eldre, 'utdypning'), 'utdypninger')],
+      sendt: '2026-10-05',
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
+    });
+    expect(
+      s.avvisning('BH', oppgivelse())?.melding ?? '',
+      'oppgitt etter det eldre svaret'
+    ).toContain('P2.varslet_i_tide: byggherren har ikke gjort gjeldende');
+  });
+
   it('standpunktet til varselet og justeringen gjelder bare kravposter som har dem (KA-U64, KA-U68)', () => {
     const s = sakMed(regning);
     expect(
