@@ -12,8 +12,16 @@ import type { Spor } from '../typer.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
 
-/** Lagene i et svarutkast i ett spor, med sporets egen type for lagene (`Utkastlag`). */
-export type Sporslag<L> = (utkast: Svarutkast, u: Utledning, regler: Regelsett) => L;
+/**
+ * Lagene i et svarutkast i ett spor, med sporets egen type for lagene (`Utkastlag`). `sendt` er
+ * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen (`lageneIUtkastet`).
+ */
+export type Sporslag<L> = (
+  utkast: Svarutkast,
+  u: Utledning,
+  regler: Regelsett,
+  sendt: string | null
+) => L;
 
 const LAG: Record<Spor, Sporslag<LagIForholdet | LagIVederlaget | LagIFristen>> = {
   forhold: lagIForholdet,
@@ -25,28 +33,33 @@ const LAG: Record<Spor, Sporslag<LagIForholdet | LagIVederlaget | LagIFristen>> 
 export function lagForUtkastet(
   utkast: Svarutkast & { spor: 'vederlag' },
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt?: string | null
 ): LagIVederlaget;
 export function lagForUtkastet(
   utkast: Svarutkast & { spor: 'frist' },
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt?: string | null
 ): LagIFristen;
 export function lagForUtkastet(
   utkast: Svarutkast & { spor: 'forhold' },
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt?: string | null
 ): LagIForholdet;
 export function lagForUtkastet(
   utkast: Svarutkast,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt?: string | null
 ): LagIForholdet | LagIVederlaget | LagIFristen;
 export function lagForUtkastet(
   utkast: Svarutkast,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt: string | null = null
 ): LagIForholdet | LagIVederlaget | LagIFristen {
   const lag = iSporet(LAG, utkast.spor);
-  return lag(utkast, u, regler);
+  return lag(utkast, u, regler, sendt);
 }

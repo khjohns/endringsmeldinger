@@ -237,12 +237,17 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
  * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
  * ubesvart spørsmål om varselet, forespørselen, hindringen eller spesifiseringen regnes som at
  * innsigelsen ikke er gjort gjeldende, så laget kan endre seg når det besvares (S1-A), og
- * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses av gjeldende svar
- * på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen har én rad per
+ * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses av svaret på
+ * forholdet som gjaldt dagen `sendt` (`lageneIUtkastet`), som i vederlaget. Dagene påvirker ikke lagene, så utregningen har én rad per
  * frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
  * fristene ikke er én per frist i kravet.
  */
-export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIFristen {
+export function lagIFristen(
+  utkast: Svarutkast,
+  u: Utledning,
+  regler: Regelsett,
+  sendt: string | null
+): LagIFristen {
   const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u);
   const krav = u.spor.frist.gjeldendeKrav!;
   let n = 0;
@@ -259,7 +264,7 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
   const fristene = fristvurderinger(utkast.vurderinger, krav);
   const utenDager = new Set(
     fristene.filter((f) => typeof f.dager !== 'number').map((f) => f.gjelder)

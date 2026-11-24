@@ -2757,6 +2757,40 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ).toEqual([]);
     });
 
+    it('et svar lagt til sammenliknes ikke med en innsigelse et senere svar alt har gitt opp, som brevteksten heller ikke gjentar (OV-U104, OV-U105, VS-U9, #2090)', () => {
+      const merket = (iTide: boolean) => {
+        const s = sakMedKrav();
+        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
+        const innsigelse = (rad.data.utsagn as Data[])[0].id;
+        s.send('BH', {
+          type: 'brev',
+          svar: [
+            svar('forhold', s.krav('forhold'), {
+              resultat: 'avslaatt',
+              grunnlag_varslet_i_tide: iTide,
+            }),
+          ],
+        });
+        const godkjenning = svar('forhold', s.krav('forhold'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }) as Data;
+        delete godkjenning.utdypning;
+        delete godkjenning.utdypninger;
+        s.send('BH', {
+          type: 'brev',
+          svar: [godkjenning],
+          sendt: rad.tidsstempel.slice(0, 10),
+          ...SOM_BREV,
+          dokumentasjon: [randomUUID()],
+        });
+        expect(s.u().forstaatt, 'forutsetning: saken er forstått').toBe(true);
+        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
+      };
+      expect(merket(true), '«i tide» i svaret fra løsningen ga opp innsigelsen').toEqual([]);
+      expect(merket(false), 'kontrollsak: svaret fra løsningen gjentok den').toHaveLength(1);
+    });
+
     it('i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen mot påberopelsen, som brevteksten heller ikke gjentar (VS-U24, MM-U43 punkt 8, #2050)', () => {
       const merket = (innhold: Data, vurderinger: Data) => {
         const s = sak();
