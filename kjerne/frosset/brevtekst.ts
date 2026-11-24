@@ -579,18 +579,25 @@ function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
   const aapne = (spor: Spor, hjemmel: Hjemmel) =>
     aapneInnsigelser(spor, nytt.id, nytt.avsender, t, regler).filter((i) => i.hjemmel === hjemmel);
   const jfInnsigelsen = (dokumenter: string[]) => {
-    const brevene = [...new Set(dokumenter)];
+    const rekkefoelge = j.dokumenter.map((d) => d.id);
+    const brevene = [...new Set(dokumenter)].sort(
+      (a, b) => rekkefoelge.indexOf(a) - rekkefoelge.indexOf(b)
+    );
     return `, jf. ${brevene.length > 1 ? 'innsigelsene' : 'innsigelsen'} i ${liste(brevene.map((d) => j.brevet(d)))}`;
   };
   const g = svaretPaaForholdet(t);
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const innsigelser: string[] = [];
   const etter322 = [
-    ...(g && grunner.includes('prekludert') ? [g.dokument] : []),
-    ...aapne('forhold', '32.2').map((i) => i.dokument),
+    ...(g && grunner.includes('prekludert') ? [{ gjelder: g.gjelder, dokument: g.dokument }] : []),
+    ...aapne('forhold', '32.2'),
   ];
-  if (etter322.length)
-    innsigelser.push(`at ${VARSELET_I_SVARET['32.2']} kom for sent${jfInnsigelsen(etter322)}`);
+  if (etter322.length) {
+    const varslene = [...new Set(etter322.map((i) => j.brevet(j.krav(i.gjelder).dokument)))];
+    innsigelser.push(
+      `at ${VARSELET_I_SVARET['32.2']} i ${liste(varslene)} kom for sent${jfInnsigelsen(etter322.map((i) => i.dokument))}`
+    );
+  }
   if (g && grunner.includes('avslaatt')) {
     // MM-U50, LV-U41: det byggherren sa i svaret, med de samme ordene som i svarene (`forholdetsLag`).
     const avslaget = g.beslutningsgrunnlag.varslingsplikt
@@ -602,6 +609,7 @@ function forbeholdetIForesporselen(t: Tekst, regler: Regelsett): string[] {
   }
   const etter334 = aapne('frist', '33.4');
   const varslene = [...new Set(etter334.map((i) => i.gjelder))];
+  // Saken har ett varsel etter § 33.4 (SK-12, `VARSEL_REGISTRERT`).
   if (varslene.length > 1)
     throw new KanIkkeUttrykkes('innsigelsene etter § 33.4 gjelder flere varsler');
   if (varslene.length)
