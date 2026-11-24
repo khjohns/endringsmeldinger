@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
 import { entraIssuer } from '../entra.ts';
 import { synkroniserHr } from '../hrdata.ts';
 import { medLoggkontekst } from '../logg.ts';
+import { medRundt } from './rundt.ts';
 import { avvisning, settInn } from './sqlserver_migrert.ts';
 import { opprettKjoeretid, sql } from './sqlserver.ts';
 import { lagOppsett, rydd, startServer, TESTBASE_URL, type Oppsett } from './testbase.ts';
@@ -176,6 +177,115 @@ describe.skipIf(!TESTBASE_URL)('tilgangsloggen i SQL Server (OBS-01, OBS-02)', (
       }
     }
   );
+
+  it('avvisningene uten sesjon strupes til én rad per grunn og minutt, og en avvisning med forsøkt identitet strupes ikke (#2251)', async () => {
+    let naa = new Date('2026-11-24T12:00:10Z');
+    let ukjent = randomUUID();
+    const server = await startServer(o, {
+      tidspunkt: () => naa,
+      innlogging: {
+        frontend: 'https://app.example.no',
+        oauth: {
+          autorisasjonsadresse: (state) => `https://catenda.test/?state=${state}`,
+          byttKode: async () => 'token',
+          bruker: async () => ({ subjekt: catendaId(catendaSubjekt)!, epost: '', navn: '' }),
+          prosjekter: async () => new Set(),
+          medlemmer: async () => [],
+        },
+        entra: {
+          autorisasjonsadresse: (state) => `https://entra.test/?state=${state}`,
+          byttKode: async () => 'id-token',
+          valider: async () => ({
+            issuer: entraIssuer(tenant),
+            subjekt: ukjent,
+            epost: '',
+            navn: '',
+          }),
+        },
+      },
+    });
+    const uten = await startServer(o, { tidspunkt: () => naa });
+    const advarsel = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const feil = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const tilbakekall = (url: string) =>
+        fetch(`${url}/api/auth/entra/callback?state=x&code=y`, { redirect: 'manual' });
+      const radene = async (svar: Promise<Response>) => hendelser(await svar);
+
+      // Første avvisning per grunn i minuttet skrives, de neste ikke.
+      expect(await radene(tilbakekall(server.url))).toMatchObject([
+        { hendelse: 'innlogging_entra', grunn: 'ugyldig_forsoek' },
+      ]);
+      expect(await radene(tilbakekall(server.url))).toEqual([]);
+      expect(await radene(tilbakekall(server.url))).toEqual([]);
+      // En annen grunn i samme minutt har sin egen rad.
+      expect(await radene(tilbakekall(uten.url))).toMatchObject([
+        { hendelse: 'innlogging_entra', grunn: 'utilgjengelig' },
+      ]);
+      expect(await radene(tilbakekall(uten.url))).toEqual([]);
+
+      // En avvisning med forsøkt identitet skrives hver gang.
+      const kapselnavn = sesjonsnavn() + '_entra_login';
+      for (let i = 0; i < 2; i++) {
+        ukjent = randomUUID();
+        const forsoek = await fetch(`${server.url}/api/auth/entra/login`, { redirect: 'manual' });
+        const state = new URL(forsoek.headers.get('Location')!).searchParams.get('state');
+        const avvist = fetch(`${server.url}/api/auth/entra/callback?state=${state}&code=y`, {
+          redirect: 'manual',
+          headers: { Cookie: `${kapselnavn}=${verdi(forsoek, kapselnavn)}` },
+        });
+        expect(await radene(avvist)).toMatchObject([
+          { grunn: 'identitet_eller_medlemskap', forsoekt_subjekt: ukjent },
+        ]);
+      }
+      expect(advarsel).not.toHaveBeenCalled();
+
+      // Neste minutt skrives en ny rad, og antallet som ble utelatt, går til driftsloggen.
+      naa = new Date('2026-11-24T12:01:00Z');
+      expect(await radene(tilbakekall(server.url))).toMatchObject([
+        { hendelse: 'innlogging_entra', grunn: 'ugyldig_forsoek' },
+      ]);
+      expect(advarsel).toHaveBeenCalledOnce();
+      expect(JSON.parse(String(advarsel.mock.calls[0][0]))).toMatchObject({
+        sted: 'Avvisninger uten sesjon ble ikke skrevet i tilgangsloggen',
+        antall: 2,
+        utfall: 'innlogging_entra:ugyldig_forsoek',
+      });
+    } finally {
+      advarsel.mockRestore();
+      feil.mockRestore();
+      await server.stopp();
+      await uten.stopp();
+    }
+  });
+
+  // Kilde: svaret i #2251 (høyst én rad per grunn og minutt) og #1804 (avvisningen logges med
+  // grunn). Feiler skrivingen, står grunnen i driftsloggen, og minuttet forblir strupet, så en
+  // base som er nede, ikke får en forespørsel per avvisning.
+  it('en avvisning uten sesjon som ikke kunne skrives, har grunnen i driftsloggen, og minuttet forblir strupet (#2251)', async () => {
+    const naa = new Date('2026-11-24T13:00:10Z');
+    let feil = 1;
+    const datalag = medRundt(kjoeretid(), 'koe_api.logg_tilgang', async (kjoer) => {
+      if (feil-- > 0) throw new Error('Forbindelsen er brutt');
+      return kjoer();
+    });
+    const server = await startServer(o, { datalag, tidspunkt: () => naa });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const tilbakekall = () =>
+        fetch(`${server.url}/api/auth/entra/callback?state=x&code=y`, { redirect: 'manual' });
+      expect(await hendelser(await tilbakekall())).toEqual([]);
+      expect(JSON.parse(String(error.mock.calls.at(-1)![0]))).toMatchObject({
+        sted: 'Tilgangsavvisningen kunne ikke logges',
+        utfall: 'innlogging_entra:utilgjengelig',
+      });
+      expect(await hendelser(await tilbakekall())).toEqual([]);
+      expect(error).toHaveBeenCalledOnce();
+    } finally {
+      error.mockRestore();
+      await server.stopp();
+    }
+  });
 
   it('403 logger bekreftet aktør og prosjekt, og utlogging logger slettet sesjon', async () => {
     const server = await startServer(o);

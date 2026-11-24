@@ -309,20 +309,27 @@ export async function behandle(
       melding: 'Topicen, boardet eller prosjektet er ikke en UUID.',
     };
 
+  // Topickoblingen først, så et nytt forsøk etter en opprettet sak når saken også når
+  // topicboardet er byttet (#1210).
   const oppslag = await utenKontekst(avh.datalag)
     .input('catenda_prosjekt', sql.UniqueIdentifier, catendaProsjekt)
     .input('board', sql.UniqueIdentifier, board)
-    .execute<{ prosjekt_id: string }>('koe_api.topicens_prosjekt');
+    .input('topic', sql.UniqueIdentifier, topicId)
+    .execute<{ prosjekt_id: string; fra_topickoblingen: boolean }>('koe_api.topicens_prosjekt');
   const prosjektId = oppslag.recordset[0]?.prosjekt_id;
+  const sakenFinnes = oppslag.recordset[0]?.fra_topickoblingen === true;
   if (!prosjektId) return { utfall: endret ? 'ikke_behandlet_type' : 'ukjent_prosjekt', topicId };
   kjenteLoggfelter({ prosjekt_id: prosjektId });
   if (endret && !(await tittelAvvistFoer(avh.datalag, prosjektId, topicId)))
     return { utfall: 'ikke_behandlet_type' };
+  // Finnes saken alt, er et annet utfall enn saken uten boardet: `registrer_behandling` godtar
+  // det gamle boardet bare med saken, og topicen skal ikke få en kommentar om at saken ikke er
+  // opprettet (#1210).
   const ut = (utfall: Behandlingsutfall, melding?: string): Behandling => ({
     utfall,
     prosjektId,
     topicId,
-    boardId: board,
+    ...(utfall === 'sak_opprettet' || !sakenFinnes ? { boardId: board } : {}),
     ...(melding ? { melding } : {}),
   });
 
