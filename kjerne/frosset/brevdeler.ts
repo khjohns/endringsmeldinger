@@ -362,7 +362,7 @@ export interface Lagbeloep {
 /** Brevteksten i et spor med krav om vederlag eller frist. */
 export interface Kravsporsbrevtekst extends Sporsbrevtekst {
   kravetOm: string;
-  /** Det TE er enig i når aksepten ikke gjelder standpunktet til grunnlaget (GR-U7). */
+  /** Det TE er enig i når aksepten ikke gjelder standpunktet til forholdet (GR-U7, LV-U41). */
   enigI: string;
   /** Det som identifiserer kravet i trekket (KA-U22). */
   trukket(krav: Krav): string;
