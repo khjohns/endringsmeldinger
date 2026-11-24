@@ -29,12 +29,14 @@ import {
   type Svarsfrysing,
   type Svarsutregning,
   type Svarvurdering,
+  type VarselIKravet,
 } from '../../frosset/byggeklosser.ts';
 import {
   krevdIKravposten,
   krevdProduktivitet,
   kravposterI,
   utregningIVederlaget,
+  varselhjemmel,
 } from './format.ts';
 import { erKravpostvarselhjemmel } from '../../typer.ts';
 import type {
@@ -275,10 +277,27 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   return utregningIVederlaget(svar.utregning).resultat === 'godkjent';
 }
 
+/**
+ * Kravpostene i `krav` med et varsel etter § 34.3.3 eller § 34.4 som svaret ikke sier noe om.
+ * Svaret leses der med byggherrens tidligere standpunkt til varselet (VS-U77 punkt 9 og 12).
+ */
+function tausOmVarselet(svar: Svarinnhold, krav: Krav): VarselIKravet[] {
+  return kravposterI(krav).flatMap((p) => {
+    const hjemmel = varselhjemmel(p);
+    return hjemmel &&
+      !svar.standpunkter.some(
+        (s) => s.art === 'rettidighet' && s.hjemmel === hjemmel && s.gjelder === p.id
+      )
+      ? [{ gjelder: p.id, hjemmel }]
+      : [];
+  });
+}
+
 export const FRYSING_I_VEDERLAGET = {
   virkninger: vederlagsvirkninger,
   utfall: (svar, v, prekludert) => (prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v)),
   godkjennerHeleKravet,
+  tausOmVarselet,
   vilkaar: 'forhold_avklart',
   hvertITideGirOppInnsigelsen: false,
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).

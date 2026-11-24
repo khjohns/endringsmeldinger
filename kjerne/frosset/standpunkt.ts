@@ -232,13 +232,39 @@ const FRYSING: Record<Spor, Svarsfrysing> = {
   frist: FRYSING_I_FRISTEN,
 };
 
+/** Partens standpunkt til et varsel i et tidligere svar (`sisteStandpunktTilVarslene`). */
+export type StandpunktFoer = Pick<StandpunktTilVarselet, 'gjelder' | 'hjemmel' | 'iTide'>;
+
+/**
+ * Standpunktene faller sammen: svaret godkjenner hele kravet, og ingen innsigelse fra et
+ * tidligere svar står for et varsel svaret ikke sier noe om (VS-U77 punkt 9 og 12, OV-U115
+ * punkt 25, #2316). `foer` er partens siste standpunkt til varslene i svarene før.
+ */
+export function sammenfallet(
+  svar: Svarinnhold,
+  v: Standpunktsvirkning[],
+  krav: Krav | null | undefined,
+  foer: readonly StandpunktFoer[]
+): boolean {
+  if (!godkjennerHeleKravet(svar, v)) return false;
+  const taus = krav ? (frysingI(svar.spor).tausOmVarselet?.(svar, krav) ?? []) : [];
+  return !taus.some((t) =>
+    foer.some((x) => !x.iTide && x.gjelder === t.gjelder && x.hjemmel === t.hjemmel)
+  );
+}
+
 /**
  * MM-U43 punkt 8: sammenfallet i beslutningsgrunnlaget stemmer med standpunktene og
- * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler.
+ * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler. Svarene før
+ * leses ikke her, så et svar uten sammenfall som godkjenner hele kravet, stemmer når det ikke
+ * sier noe om et varsel i `krav` (`sammenfallet`).
  */
-export const sammenfallStemmer = (svar: Svar): boolean =>
-  svar.beslutningsgrunnlag.sammenfall ===
-  godkjennerHeleKravet(svar, svar.beslutningsgrunnlag.virkninger);
+export function sammenfallStemmer(svar: Svar, krav: Krav | undefined): boolean {
+  const { sammenfall, virkninger } = svar.beslutningsgrunnlag;
+  const godkjenner = godkjennerHeleKravet(svar, virkninger);
+  if (sammenfall || !godkjenner) return sammenfall === godkjenner;
+  return krav !== undefined && (frysingI(svar.spor).tausOmVarselet?.(svar, krav) ?? []).length > 0;
+}
 
 /** Enigheten om svaret slik brevet uttrykte det (MM-U9; KA-U10, MM-U3 og MM-U11, opphevet av MM-U50). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {

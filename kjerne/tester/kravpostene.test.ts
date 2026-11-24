@@ -1218,6 +1218,39 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       ]);
     });
 
+    it('et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316)', () => {
+      const s = sakMed(justert);
+      s.send(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
+      );
+      expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'innsigelsen i svaret').toBe(false);
+      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'taus om varselet').toBe(false);
+      expect(s.u().forstaatt, 'utledningen godtar brevet').toBe(true);
+      // Kontrollsak: når innsigelsen er gitt opp, faller et svar som ikke sier noe om varselet,
+      // sammen med kravet.
+      s.send(
+        'BH',
+        revisjon(s, { P2: { aksepterer: true, varslet_i_tide: true, godtar_justering: true } })
+      );
+      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'innsigelsen er gitt opp').toBe(true);
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('et svar som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9, 12 og 31, #2316)', () => {
+      const s = sakMed(regning);
+      s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+      s.send('BH', revisjon(s, { P2: { aksepterer: true } }));
+      expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
+      // Kontrollsak: uten en innsigelse fra før faller samme svar sammen med kravet.
+      const t = sakMed(regning);
+      t.send('BH', svaret(t, { P2: { aksepterer: true } }));
+      t.send('BH', revisjon(t, { P2: { aksepterer: true } }));
+      expect(gjeldende(t).beslutningsgrunnlag.sammenfall).toBe(true);
+    });
+
     it('«i tide» etter punkt 34.3.3 står mot et senere svar som ikke sier noe om varselet (VS-U77 punkt 8 og 30)', () => {
       const s = sakMed(justert);
       s.send(

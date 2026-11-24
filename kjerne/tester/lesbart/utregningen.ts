@@ -189,7 +189,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'spor/vederlag/format.ts',
     'predikat',
     'varselhjemmel',
-    ['spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
+    ['spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts', 'spor/vederlag/frysing.ts'],
   ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
