@@ -15,7 +15,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
-  import { varselhjemmel as varselhjemmelFor } from '#kjerne/spor/vederlag/utledning.ts';
+  import { varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -38,7 +38,6 @@
     stiltIPosten,
     tomPost,
     tomtSvar,
-    varseletFoer,
     vederlagssvaret,
     type Postvalg,
     type Regel,

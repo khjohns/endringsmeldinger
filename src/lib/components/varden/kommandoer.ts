@@ -18,9 +18,7 @@ import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/kommando.ts';
-import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
-import { varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
+import { varseletFoer } from '#lib/kjernesak/vederlagskrav.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -79,18 +77,6 @@ export const tomtSvar = (): Svarvalg => ({
   begrunnelser: {},
   forbehold: '',
 });
-
-/**
- * Byggherrens siste standpunkt til varselet kravposten trenger, i svarene før dette, slik kjernen
- * leser det (`standpunkteneTilVarslene`, VS-U77 punkt 8–12), eller `null`.
- */
-export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarselet | null => {
-  const hjemmel = varselhjemmel(post);
-  return (
-    standpunkteneTilVarslene(u, null).find((x) => x.gjelder === post.id && x.hjemmel === hjemmel) ??
-    null
-  );
-};
 
 /**
  * Standpunktet til varselet for kravposten i svaret, regnet av valget og saken slik den er nå:
