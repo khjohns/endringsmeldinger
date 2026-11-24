@@ -6,20 +6,10 @@
  * Satsen i kroner regnes her, ikke i kjernen.
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
-import type { Forlengelse } from '../kjerne/spor/frist/utledning.ts';
-import type {
-  Forlengelseslinje,
-  Fristtabellsvar,
-  SakIFristtabellen,
-} from '../kjerne/spor/frist/visning.ts';
+import { fristtabellsvaret } from '../kjerne/spor/frist/visning.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { tall, transaksjon, type Foresp } from './datalag.ts';
-import {
-  datoenEtterForlengelsene,
-  lesForlengelsene,
-  type Forlengelsene,
-  type SakensForlengelse,
-} from './forlengelser.ts';
+import { lesForlengelsene } from './forlengelser.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
 export type Satsgrunnlag = 'kontraktssum' | 'delens_verdi' | 'fast_beloep';
@@ -149,45 +139,6 @@ export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> 
   return fristtabell(r.recordsets as unknown as Radsett);
 }
 
-/** Fristtabellen med forlengelsene i sakene, slik inngangen gir den. */
-export function fristlinjer(
-  tabell: Fristtabell,
-  { tattMed, ikkeTattMed, ikkeForstaatt, sakskoder }: Forlengelsene
-): Fristtabellsvar {
-  const sak = (sakId: string): SakIFristtabellen => ({
-    sak_id: sakId,
-    sakskode: sakskoder.get(sakId) ?? null,
-  });
-  const linje = (x: SakensForlengelse): Forlengelseslinje => ({ ...sak(x.sakId), dager: x.dager });
-  const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');
-  const ikkeAvtalt = [...tattMed, ...ikkeTattMed].filter(
-    (f): f is SakensForlengelse & { grunnlag: Exclude<Forlengelse['grunnlag'], 'avtalt'> } =>
-      f.grunnlag !== 'avtalt'
-  );
-  return {
-    frister: tabell.frister.map((f) => {
-      const forFristen = <T extends SakensForlengelse>(l: T[]) =>
-        l.filter((x) => x.fristId === f.fristId);
-      return {
-        frist_id: f.fristId,
-        nummer: f.nummer,
-        navn: f.navn,
-        dato: f.dato,
-        dagmulktbelagt: f.dagmulktbelagt,
-        dato_etter_forlengelsene: datoenEtterForlengelsene(
-          f.dato,
-          f.fristId,
-          avtalt,
-          ikkeForstaatt
-        ),
-        forlengelser: forFristen(avtalt).map(linje),
-        ikke_tatt_med: forFristen(ikkeAvtalt).map((x) => ({ ...linje(x), grunnlag: x.grunnlag })),
-      };
-    }),
-    saker_ikke_forstaatt: ikkeForstaatt.map(sak),
-  };
-}
-
 async function fristtabellsvar(
   { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
@@ -196,7 +147,10 @@ async function fristtabellsvar(
     avh.datalag,
     lesekontekst(bruker, prosjekt.prosjektId, side),
     async (foresp) =>
-      fristlinjer(await lesKontraktsfrister(foresp), await lesForlengelsene(foresp, avh.kjerne))
+      fristtabellsvaret(
+        (await lesKontraktsfrister(foresp)).frister,
+        await lesForlengelsene(foresp, avh.kjerne)
+      )
   );
   return [200, { success: true, ...linjer }];
 }

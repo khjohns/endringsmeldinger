@@ -230,6 +230,18 @@ export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.forstaatt && u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
 
 /**
+ * Et varsel uten krav i sporet står: saken er forstått og ikke avsluttet av TE, sporet har et
+ * varsel og ikke noe krav, og det er ikke trukket. Nøkkeltallene i sakslisten teller det for seg
+ * (MM-U38).
+ */
+export const varseletStaar = (u: Utledning, spor: Kravspor): boolean =>
+  u.forstaatt &&
+  u.spor[spor].gjeldendeKrav === null &&
+  harVarsel(u, spor) &&
+  !u.spor[spor].trukket &&
+  !avsluttetAvTe(u);
+
+/**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge TE kan godta svaret
  * (`svarIkkeGodtatt`, MM-U24): det er ikke godtatt, kravet er ikke trukket, og saken er ikke
  * lukket (HF-U23 punkt 4, 6 og 9, GR-U8, GR-U27). Ellers `null`.
@@ -615,6 +627,8 @@ export interface Foreligger {
  */
 interface Staaende {
   kravet_staar: boolean;
+  /** Et varsel uten krav står (`varseletStaar`, MM-U38). */
+  varselet_staar: boolean;
   /**
    * Sporet har et varsel løsningen kjenner (OV-U5), uavhengig av betegnelsen, som kan være
    * en annen når et varsel foreligger (MM-U30). Lista viser «Varslet» av flagget (MM-U37).
@@ -657,6 +671,8 @@ export interface Sakslinje {
   underkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
+  /** TE har avsluttet saken (`avsluttetAvTe`, MM-U38). */
+  avsluttet_av_te: boolean;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
   brev_utenfor_appen: boolean;
   forhold: Forholdslinje;
@@ -689,6 +705,7 @@ function foreligger(u: Utledning, spor: Spor): Foreligger {
 
 const staaende = (u: Utledning, spor: Kravspor): Staaende => ({
   kravet_staar: kravetStaar(u, spor),
+  varselet_staar: varseletStaar(u, spor),
   har_varsel: harVarsel(u, spor),
 });
 
@@ -732,11 +749,13 @@ export function sakslinjen(u: Utledning): Omit<Sakslinje, LagretISakslinjen> {
     sakstittel: sakstittelen(u.journal),
     forstaatt: u.forstaatt,
     saksbetegnelse: saksbetegnelse(u),
+    avsluttet_av_te: avsluttetAvTe(u),
     brev_utenfor_appen: harIkkeVurdertBrev(u),
   };
   if (!u.forstaatt) {
     const ingenKrav = {
       kravet_staar: false,
+      varselet_staar: false,
       har_varsel: false,
       krav: null,
       svar: null,

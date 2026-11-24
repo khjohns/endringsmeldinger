@@ -11,7 +11,7 @@ import {
 } from '../../utledning/utled.ts';
 import type { Enighetsvirkning, Sporsvisning } from '../../utledning/visning.ts';
 import { betegnelsen, dageneILagene, innholdIFristen, type FristIKravet } from './format.ts';
-import { fristeneISporet, type Forlengelse } from './utledning.ts';
+import { fristenEtterForlengelsene, fristeneISporet, type Forlengelse } from './utledning.ts';
 import type { Sakskode } from '../../typer.ts';
 import { erUbesvart } from './frysing.ts';
 
@@ -145,8 +145,7 @@ export interface Forlengelseslinje extends SakIFristtabellen {
 
 /**
  * En frist i fristtabellen slik klienten får den, til kravskjemaet (KA-U79, BF-20 G-3 og U-2).
- * Feltnavnene er en kontrakt med klienten. Serveren lager linjen med `fristlinjer` i
- * `server/kontraktsfrister.ts`.
+ * Feltnavnene er en kontrakt med klienten. Serveren lager linjen med `fristtabellsvaret`.
  *
  * Forlengelsene er lest i alle sakene klienten kan lese i prosjektet, også saken skjemaet
  * fylles ut i. Skjemaet skal regne datoen uten dagene i den saken og ikke nevne den (KA-U77,
@@ -177,4 +176,92 @@ export interface Fristtabellinje {
 export interface Fristtabellsvar {
   frister: Fristtabellinje[];
   saker_ikke_forstaatt: SakIFristtabellen[];
+}
+
+/** Dagene i saken `sakId` for en frist i fristtabellen (`forlengelseneISaken`). */
+export interface SakensForlengelse extends Forlengelse {
+  sakId: string;
+}
+
+/** Forlengelsene i sakene i prosjektet, slik serveren leser dem med kjernen. */
+export interface Forlengelsene {
+  tattMed: SakensForlengelse[];
+  ikkeTattMed: SakensForlengelse[];
+  /** Sakene kjernen ikke forstår eller ikke har skrevet, som kan ha forlenget en frist (MM-U2). */
+  ikkeForstaatt: string[];
+  /** Koden til hver sak som er lest, for sakene som nevnes. */
+  sakskoder: ReadonlyMap<string, Sakskode | null>;
+}
+
+/** En frist i fristtabellen fra kontrakten. */
+export interface FristIKontrakten {
+  fristId: number;
+  nummer: string | null;
+  navn: string;
+  /** `ÅÅÅÅ-MM-DD`. */
+  dato: string;
+  dagmulktbelagt: boolean;
+}
+
+/**
+ * Fristen `dato` etter dagene i `forlengelser` for fristen `fristId`, uten dagene i saken
+ * `utenom` (GFK-U19, KA-U77, HF-U5), eller `null` når en annen sak kjernen ikke forstår, kan ha
+ * forlenget den (MM-U2).
+ */
+export const datoenEtterForlengelsene = (
+  dato: string,
+  fristId: number,
+  forlengelser: readonly (Pick<Forlengelse, 'fristId' | 'dager'> & { sakId: string })[],
+  ikkeForstaatt: readonly string[],
+  utenom?: string
+): string | null =>
+  ikkeForstaatt.some((s) => s !== utenom)
+    ? null
+    : fristenEtterForlengelsene(
+        dato,
+        fristId,
+        forlengelser.filter((f) => f.sakId !== utenom)
+      );
+
+/**
+ * Fristtabellen med forlengelsene i sakene (KA-U77): datoen regnes med dagene partene er enige
+ * om, og de andre dagene nevnes med grunnen (GR-U38, GR-U39). En sak kjernen ikke forstår,
+ * gjør datoen ukjent for hver frist og nevnes (MM-U2).
+ */
+export function fristtabellsvaret(
+  frister: readonly FristIKontrakten[],
+  { tattMed, ikkeTattMed, ikkeForstaatt, sakskoder }: Forlengelsene
+): Fristtabellsvar {
+  const sak = (sakId: string): SakIFristtabellen => ({
+    sak_id: sakId,
+    sakskode: sakskoder.get(sakId) ?? null,
+  });
+  const linje = (x: SakensForlengelse): Forlengelseslinje => ({ ...sak(x.sakId), dager: x.dager });
+  const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');
+  const ikkeAvtalt = [...tattMed, ...ikkeTattMed].filter(
+    (f): f is SakensForlengelse & { grunnlag: Exclude<Forlengelse['grunnlag'], 'avtalt'> } =>
+      f.grunnlag !== 'avtalt'
+  );
+  return {
+    frister: frister.map((f) => {
+      const forFristen = <T extends SakensForlengelse>(l: T[]) =>
+        l.filter((x) => x.fristId === f.fristId);
+      return {
+        frist_id: f.fristId,
+        nummer: f.nummer,
+        navn: f.navn,
+        dato: f.dato,
+        dagmulktbelagt: f.dagmulktbelagt,
+        dato_etter_forlengelsene: datoenEtterForlengelsene(
+          f.dato,
+          f.fristId,
+          avtalt,
+          ikkeForstaatt
+        ),
+        forlengelser: forFristen(avtalt).map(linje),
+        ikke_tatt_med: forFristen(ikkeAvtalt).map((x) => ({ ...linje(x), grunnlag: x.grunnlag })),
+      };
+    }),
+    saker_ikke_forstaatt: ikkeForstaatt.map(sak),
+  };
 }
