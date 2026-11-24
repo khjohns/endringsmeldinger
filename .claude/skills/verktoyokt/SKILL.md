@@ -22,7 +22,10 @@ annen modellfamilie»).
   tillater vertene til Codex og Gemini, pakkeregistrene og MCP-serverne, og har ingen
   `CATENDA_*`-variabler. Miljøet «Catenda» stopper vertene.
 - Orkestratoren starter verktøyøkta med `create_session` i det miljøet, med bare dette repoet
-  som kilde, før byggeøktene og mens oppdragsgiver er til stede. Modellen står i
+  som kilde, før byggeøktene og mens oppdragsgiver er til stede. Den setter
+  `permission_mode: "auto"`. Startet uten fikk verktøyøkta 24.11 `default` og ventet på
+  godkjenning av `send_message`. Om `auto` kan settes for en økt i et annet miljø, er ikke
+  prøvd (#2274). Modellen står i
   [orkestreringsskillen, «Modell og innsats»](../orkestrering/SKILL.md#modell-og-innsats).
   Oppdraget viser til denne skillen og sier hvilke verktøy som skal settes opp.
 - Verktøyøkta setter opp verktøyene etter «Oppsett» i codex-skillen og gemini-skillen. Lenken
@@ -51,7 +54,8 @@ verktøyøkta:
   etter `/simplify` når den er bestilt, og kjører `/code-review` mens den venter.
   Funnene fra `/code-review` står ikke i meldingen.
 - **Sparring:** hele bestillingen står i meldingen, etter gemini-skillen, «Sparring». Meldingen
-  sier om spørsmålet gjelder arkitektur eller er sammensatt på annen måte.
+  sier om spørsmålet gjelder arkitektur eller er sammensatt på annen måte, og hvilket issue
+  svaret postes i.
 
 Verktøyøkta velger modellen etter «Modellen» i skillen for verktøyet.
 
@@ -106,8 +110,15 @@ med diffen på linjene etter.
    rekkefølge, uten å kortes ned.
 3. **Meldingen** til byggeøkta er én linje: at reviewet av commiten er postet, med lenken.
 
-**Sparring** postes ikke i PR-en. Svaret sendes ordrett i en melding til økta som spurte. En
-melding tar høyst 64 KiB, og et lengre svar deles på flere meldinger.
+**Sparring** om et issue postes som kommentar i issuet, med kontrollen for tokener i punkt 1
+først (oppdragsgiver 24.11). Kommentaren begynner med denne linja, og svaret følger ordrett:
+
+> **Ukontrollert sparring fra `<verktøy og modell>`.** Teksten er modellens egen. Økta som
+> spurte, kontrollerer det de er uenige om.
+
+Økta som spurte, får én linje med lenken. Sparring som ikke gjelder et issue, sendes ordrett i
+en melding. En melding tar høyst 64 KiB. Et svar som er for langt for én kommentar eller én
+melding, deles på flere i rekkefølge, uten noe tillegg.
 
 **Feil**, som tidsavbrudd, tomt svar, en avvist kommando eller manglende innlogging, går bare
 som melding til økta som spurte, med de siste linjene i loggen, høyst 20. Verktøyøkta kjører
