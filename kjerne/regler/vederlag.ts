@@ -162,10 +162,7 @@ export type UbesvartIVederlaget =
 /** Et spørsmål regelen stiller i svaret, besvart eller ikke (`stilteSpoersmaal`). */
 export type StiltIVederlaget = UbesvartIVederlaget & { besvart: boolean };
 
-/**
- * KA-U66, KA-U72: svaret tar stilling til beløpet for en kravpost når den har fast sum og
- * byggherren ikke avslår tilbudet.
- */
+/** Om beløpet for en kravpost stilles (KA-U66, KA-U72). */
 export const beloepetStilles = (etterRegel: boolean, aksepterer: unknown): boolean =>
   !etterRegel && aksepterer !== false;
 

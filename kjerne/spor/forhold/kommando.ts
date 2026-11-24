@@ -330,7 +330,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
   const varslingsplikt = gjelderVarslingsplikten(krav, regler);
   const feil = avvisteFelt(() => kontrollerForholdet(v, hovedkategori, underkategori, regler));
   const feltene = ['grunnlag_varslet_i_tide', 'resultat'] as const;
-  // GR-U12: varselet etter § 32.2 stilles der varslingsplikten gjelder (#2279).
+  // GR-U12, #2279.
   const stilles = (felt: Forholdsfelt) => felt === 'resultat' || varslingsplikt;
   const erUbesvart = (felt: Forholdsfelt) => mangler(v[felt]) && stilles(felt);
   const ubesvart = feltene

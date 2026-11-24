@@ -322,7 +322,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'stilteSpoersmaal stiltIKravposten ubesvartIKravposten',
     [
       'spor/vederlag/kommando.ts:spoersmaaleneIVederlaget',
-      'spor/vederlag/kommando.ts:spoersmaaleneIVederlaget',
       // #2140: utfyllingen og `besvart` for oppgjørsformen byggherren mener.
       'spor/vederlag/kommando.ts:lagIVederlaget.regelGodtatt',
       'spor/vederlag/kommando.ts:besvart',
