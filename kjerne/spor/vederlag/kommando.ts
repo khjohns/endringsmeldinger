@@ -654,30 +654,27 @@ function spoersmaaleneIVederlaget(
   regler: Regelsett
 ): Pick<LagIVederlaget, 'stilt' | 'ubesvart'> {
   const stilte = stilteSpoersmaal(svaret, regler);
-  const sortert = (kunUbesvart: boolean) => {
-    const liste = stilte.filter((x) => !kunUbesvart || !x.besvart);
-    const iPosten = (gjelder: string) =>
-      liste.flatMap((x) => (iKravpost(x) && x.post.gjelder === gjelder ? [x.felt] : []));
-    return [
-      ...(liste.some((x) => x.post === null)
-        ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }]
-        : []),
-      ...kravpostvurderinger(v, krav).flatMap(({ post, svar }) =>
-        [
-          ...iPosten(post.id),
-          ...(kunUbesvart
-            ? ubesvartIKravposten(svar, post)
-            : stiltIKravposten(svar, post).filter((x) => x !== 'aksepterer')),
-        ].map((spoersmaal) => ({ spoersmaal, gjelder: post.id }))
-      ),
-      ...liste.flatMap((x) =>
-        iSaerskilt(x) && x.post.saerskilt === 'produktivitet'
-          ? [{ spoersmaal: PRODUKTIVITETSFELT[x.felt] }]
-          : []
-      ),
-    ];
+  const stilt: LagIVederlaget['stilt'] = [];
+  const ubesvart: LagIVederlaget['ubesvart'] = [];
+  const still = (spoersmaal: LagIVederlaget['stilt'][number], besvart: boolean) => {
+    stilt.push(spoersmaal);
+    if (!besvart) ubesvart.push(spoersmaal);
   };
-  return { stilt: sortert(false), ubesvart: sortert(true) };
+  for (const x of stilte)
+    if (x.post === null) still({ spoersmaal: 'hovedkrav_varslet_i_tide' }, x.besvart);
+  for (const { post, svar } of kravpostvurderinger(v, krav)) {
+    for (const x of stilte)
+      if (iKravpost(x) && x.post.gjelder === post.id)
+        still({ spoersmaal: x.felt, gjelder: post.id }, x.besvart);
+    const paakrevd = ubesvartIKravposten(svar, post);
+    for (const felt of stiltIKravposten(svar, post))
+      if (felt !== 'aksepterer')
+        still({ spoersmaal: felt, gjelder: post.id }, !paakrevd.some((x) => x === felt));
+  }
+  for (const x of stilte)
+    if (iSaerskilt(x) && x.post.saerskilt === 'produktivitet')
+      still({ spoersmaal: PRODUKTIVITETSFELT[x.felt] }, x.besvart);
+  return { stilt, ubesvart };
 }
 
 /** Feltene for en kravpost kontrollene av vederlaget fører feil for, med kravposten i nøkkelen. */

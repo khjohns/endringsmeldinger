@@ -162,7 +162,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
           : beloep === 'deler'
             ? beloepet(p.delbeloep)
             : undefined,
-    aksepterer: p.form === 'godtar' ? true : p.form !== null || kreverTilbud ? false : undefined,
+    aksepterer: akseptIValget(p) ?? (kreverTilbud ? false : undefined),
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
     varslet_i_tide: varslet ?? undefined,

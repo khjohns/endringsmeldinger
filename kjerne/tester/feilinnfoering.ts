@@ -4031,7 +4031,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'varselet etter punkt 34.1.2 står som ubesvart i svarutkastet også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['liste.some((x) => x.post === null)', 'true']],
+    endringer: [['    if (x.post === null) still(', '    if (true) still(']],
     mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
   },
   {
@@ -6843,7 +6843,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svarutkastet på forholdet stiller varselet etter punkt 32.2 også der varslingsplikten ikke gjelder (GR-U12, #2279)',
     fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [["filter((felt) => felt === 'resultat' || varslingsplikt)", 'filter(() => true)']],
+    endringer: [
+      [
+        "const stilles = (felt: Forholdsfelt) => felt === 'resultat' || varslingsplikt;",
+        'const stilles = (felt: Forholdsfelt) => true;',
+      ],
+    ],
     mal: ['stiller varselet etter punkt 32.2 bare der varslingsplikten gjelder'],
   },
   {
@@ -6862,9 +6867,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et besvart spørsmål står ikke blant spørsmålene svarutkastet på vederlaget stiller (#2279)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      ['stilte.filter((x) => !kunUbesvart || !x.besvart)', 'stilte.filter((x) => !x.besvart)'],
-    ],
+    endringer: [['    stilt.push(spoersmaal);', '    if (!besvart) stilt.push(spoersmaal);']],
     mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
   },
 ];
