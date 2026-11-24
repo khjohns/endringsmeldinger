@@ -31,13 +31,12 @@
   import {
     beloepsvalget,
     etterRegel,
-    nyPost,
     postvalget,
-    varseletIValgene,
     regelen,
     spoerOmBeloepet,
     spoerOmHovedvarselet,
     stiltIPosten,
+    tomPost,
     tomtSvar,
     varseletFoer,
     vederlagssvaret,
@@ -111,20 +110,15 @@
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
   // Valgene for hver kravpost i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
-  // Standpunktet til varselet følger saken (`varseletIValgene`).
   $effect.pre(() => {
-    for (const p of poster) {
-      const v = (valg.poster[p.betegnelse] ??= nyPost(u, p));
-      const varslet = varseletIValgene(u, p, v);
-      if (v.varsletITide !== varslet) v.varsletITide = varslet;
-    }
+    for (const p of poster) valg.poster[p.betegnelse] ??= tomPost();
   });
   function godkjennAlleFormer() {
-    for (const p of poster) (valg.poster[p.betegnelse] ??= nyPost(u, p)).form = 'godtar';
+    for (const p of poster) (valg.poster[p.betegnelse] ??= tomPost()).form = 'godtar';
   }
   function godkjennAlle() {
     for (const p of poster)
-      if (!etterRegel(p)) (valg.poster[p.betegnelse] ??= nyPost(u, p)).beloep = 'hele';
+      if (!etterRegel(p)) (valg.poster[p.betegnelse] ??= tomPost()).beloep = 'hele';
   }
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et

@@ -69,13 +69,8 @@ import {
   type Kravpostvarselhjemmel,
   type Standpunkt,
 } from '../../typer.ts';
-import {
-  datoenDetBleSendt,
-  paaberopelseFor,
-  varseletForNyttSvar,
-  type Utledning,
-} from '../../utledning/utled.ts';
-import { dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
+import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type {
@@ -280,12 +275,19 @@ export function standpunkteneTilVarslene(
   sendt: string | null
 ): StandpunktTilVarselet[] {
   const { svar, svarUtenforRekken } = u.spor.vederlag;
-  const lagtTil = new Set(
-    [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
-  );
+  const medVirkning = new Set([...svar, ...svarUtenforRekken].map((s) => s.id));
+  // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
   return sisteStandpunktTilVarslene(
-    [...svar, ...svarUtenforRekken]
-      .map((s) => ({ s, dag: datoenDetBleSendt(u, s) ?? '', lagtTil: lagtTil.has(s.dokument) }))
+    [...dokumenterI(u.journal)]
+      .flatMap((d) =>
+        d.svar
+          .filter((s) => medVirkning.has(s.id))
+          .map((s) => ({
+            s,
+            dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
+            lagtTil: erRegistrert(d.opplysninger),
+          }))
+      )
       .filter(({ dag }) => sendt === null || foerDagen(dag, sendt))
   );
 }

@@ -804,8 +804,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
-      // VS-U63: et svar lagt til leser bare svarene sendt før det.
-      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
@@ -2338,6 +2336,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts:aapneInnsigelser',
       // VS-U77 punkt 9 og 12: dagen et svar med standpunktet til varselet for kravposten ble sendt.
       'frosset/brevtekst.ts:rettidighetstekst',
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
       'utledning/utled.ts:partensPaaberopelser',

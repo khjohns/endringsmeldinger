@@ -52,7 +52,7 @@ export interface Postvalg {
 }
 
 /**
- * Det BH har valgt i skjemaet. `null` er ikke besvart. Bare en innsigelse mot varselet for en kravpost som står, er forhåndsvalgt (`nyPost`). Svaret på
+ * Det BH har valgt i skjemaet. `null` er ikke besvart. Bare en innsigelse mot varselet for en kravpost som står, gjentas uten et valg (`varseletIValgene`). Svaret på
  * hver kravpost står under betegnelsen, som er unik i kravet (KA-U53).
  */
 export interface Svarvalg {
@@ -93,22 +93,15 @@ export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarsele
 };
 
 /**
- * Valgene for en kravpost skjemaet ikke har valg for ennå. Står byggherrens innsigelse mot
- * varselet for posten, gjentar svaret den som utgangspunkt (VS-U77 punkt 9).
- */
-export const nyPost = (u: Utledning, post: Kravpost): Postvalg => ({
-  ...tomPost(),
-  varsletITide: varseletIValgene(u, post, tomPost()),
-});
-
-/**
- * Standpunktet til varselet i valgene for kravposten, slik saken nå er: en innsigelse som står,
- * gjentas når valget er ubesvart (VS-U77 punkt 9), og etter § 34.4 er «i tide» bare oppgivelsen
- * av en innsigelse som står (VS-U63). Ellers står valget.
+ * Standpunktet til varselet for kravposten i svaret, regnet av valget og saken slik den er nå:
+ * en innsigelse som står, gjentas når byggherren ikke har valgt noe (VS-U77 punkt 9), og etter
+ * § 34.4 er «i tide» bare oppgivelsen av en innsigelse som står (VS-U63). Utgangspunktet lagres
+ * ikke i valgene, så det følger ikke med til et annet varsel når kravposten skifter
+ * oppgjørsform (VS-U77 punkt 14).
  */
 export function varseletIValgene(u: Utledning, post: Kravpost, v: Postvalg): boolean | null {
   const staar = varseletFoer(u, post)?.iTide === false;
-  if (v.varsletITide === null && staar) return false;
+  if (v.varsletITide === null) return staar ? false : null;
   if (v.varsletITide === true && regelen(post) === 'regningsarbeid' && !staar) return null;
   return v.varsletITide;
 }
@@ -166,11 +159,11 @@ export const definert = <T extends object>(felt: T): T =>
  * Svaret på én kravpost. Et felt skjemaet ikke spør om i valgene, sendes ikke, så et valg som
  * står igjen etter et endret standpunkt, ikke gir et svar kjernen avviser (KA-U71, KA-U72).
  */
-function kravpostsvaret(post: Kravpost, p: Postvalg) {
+function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
   const beloep = beloepsvalget(p, post);
   const stilt = stiltIPosten(p, post);
   const kreverTilbud = stilt.includes('krever_tilbud') && p.kreverTilbud;
-  const varslet = stilt.includes('varslet_i_tide') ? p.varsletITide : null;
+  const varslet = stilt.includes('varslet_i_tide') ? varseletIValgene(u, post, p) : null;
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
@@ -197,12 +190,17 @@ export const spoerOmHovedvarselet = (u: Utledning, regler: Regelsett): boolean =
   hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler);
 
 /** Ett svar per kravpost (KA-U57). */
-function vurderingene(v: Svarvalg, krav: Krav, hovedvarselet: boolean): Svarvurdering {
+function vurderingene(
+  v: Svarvalg,
+  krav: Krav,
+  hovedvarselet: boolean,
+  u: Utledning
+): Svarvurdering {
   const poster = kravposterI(krav);
   return definert({
     hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
     kravposter: poster.length
-      ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse)))
+      ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse), u))
       : undefined,
   });
 }
@@ -262,7 +260,7 @@ export function vederlagssvaret(
   return svarbrevet(
     'vederlag',
     krav,
-    vurderingene(v, krav, spoerOmHovedvarselet(u, regler)),
+    vurderingene(v, krav, spoerOmHovedvarselet(u, regler), u),
     { paaberopelse: u.spor.forhold.gjeldendeKrav },
     v,
     regler,

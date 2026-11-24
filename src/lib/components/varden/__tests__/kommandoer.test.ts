@@ -259,14 +259,14 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
     });
   });
 
-  it('for punkt 34.4 sendes «ikke gitt eller kom for sent», også subsidiært når BH mener enhetspriser, og oppgivelsen som «i tide» (VS-U63, oppdragsgiver 23.11 i #2171, #2309)', () => {
+  it('for punkt 34.4 sendes «ikke gitt eller kom for sent», også subsidiært når BH mener enhetspriser, og «i tide» bare som oppgivelsen (VS-U63, oppdragsgiver 23.11 i #2171, #2309)', () => {
     expect(kravpostene({ form: 'godtar', varsletITide: false })[0]).toMatchObject({
       varslet_i_tide: false,
     });
-    // Skjemaet tilbyr «i tide» bare når innsigelsen står, og kjernen avviser det ellers.
-    expect(kravpostene({ form: 'godtar', varsletITide: true })[0]).toMatchObject({
-      varslet_i_tide: true,
-    });
+    // «I tide» er bare oppgivelsen av en innsigelse som står, og her står ingen (`varseletIValgene`).
+    expect(kravpostene({ form: 'godtar', varsletITide: true })[0]).not.toHaveProperty(
+      'varslet_i_tide'
+    );
     expect(kravpostene({ form: 'godtar', varsletITide: null })[0]).not.toHaveProperty(
       'varslet_i_tide'
     );
@@ -283,6 +283,39 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
     expect(varseletIValgene(u, p2!, iTide), 'justerte enhetspriser').toBe(true);
     expect(varseletIValgene(u, p1!, { ...tomPost(), varsletITide: false })).toBe(false);
     expect(varseletIValgene(u, p1!, tomPost()), 'ingen innsigelse står').toBeNull();
+  });
+
+  it('en innsigelse etter punkt 34.4 gjentas uten et valg, men ikke når kravposten etterpå krever justerte enhetspriser (VS-U77 punkt 9 og 14, review av #2314)', () => {
+    const medSvar = skrevet(
+      regelkrav,
+      'BH',
+      vederlagssvaret(
+        valgene({ form: 'godtar', varsletITide: false }, { form: 'godtar', godtarJustering: true }),
+        u,
+        KJERNE.regler
+      )
+    );
+    const etterSvaret = utledJournal(medSvar, KJERNE);
+    expect(varseletIValgene(etterSvaret, p1!, tomPost()), 'innsigelsen gjentas').toBe(false);
+    const nyForm = utledJournal(
+      skrevet(medSvar, 'TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            { id: p1!.id, beskrivelse: 'Pumping', oppgjoersform: 'enhetspriser', justert: true },
+            { id: p2!.id, beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true },
+          ],
+        },
+        utdypning: 'P1 etter enhetspriser.',
+      }),
+      KJERNE
+    );
+    const p1Ny = kravposterI(nyForm.spor.vederlag.gjeldendeKrav!)[0]!;
+    expect(
+      varseletIValgene(nyForm, p1Ny, tomPost()),
+      'ingen innsigelse etter punkt 34.3.3'
+    ).toBeNull();
   });
 
   it('med en annen beregningsregel står varselet etter punkt 34.3.3 og justeringen subsidiært, og kjernen tar imot svaret (VS-U56)', () => {
