@@ -88,6 +88,7 @@ import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
@@ -11745,6 +11746,94 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     const ny = svaret(s, { P2: { aksepterer: true, godtar_justering: true } });
     s.send('BH', { type: 'revisjon', erstatter: gjeldende(s).id, svar: (ny.svar as Data[])[0] });
     expect(visning(s.u(), KJERNE.regler).spor.vederlag.senkning).toBeNull();
+  });
+
+  describe('byggherrens siste standpunkt til varselet for kravposten (VS-U77 punkt 8–13, 30 og 31, #2177)', () => {
+    const revisjon = (s: ReturnType<typeof sakMedKrav>, svarene: Record<string, Data>) => ({
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: (svaret(s, svarene).svar as Data[])[0],
+    });
+    /** Standpunktet til varselet for kravpostene etter betegnelse, med brevet det står i. */
+    const standpunktene = (s: ReturnType<typeof sakMedKrav>) => {
+      const u = s.u();
+      const betegnelse = new Map(
+        kravposterI(u.spor.vederlag.gjeldendeKrav!).map((p) => [p.id, p.betegnelse])
+      );
+      return standpunkteneTilVarslene(u, null).map((x) => ({
+        post: betegnelse.get(x.gjelder),
+        hjemmel: x.hjemmel,
+        iTide: x.iTide,
+        dokument: x.dokument,
+      }));
+    };
+
+    it('et svar som ikke sier noe om varselet etter punkt 34.3.3, endrer ikke innsigelsen fra svaret før (VS-U77 punkt 9 og 12)', () => {
+      const s = sakMed(justert);
+      s.send(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
+      );
+      const foer = gjeldende(s).dokument;
+      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      expect(standpunktene(s)).toEqual([
+        { post: 'P2', hjemmel: '34.3.3', iTide: false, dokument: foer },
+      ]);
+    });
+
+    it('«i tide» etter punkt 34.3.3 står mot et senere svar som ikke sier noe om varselet (VS-U77 punkt 8 og 30)', () => {
+      const s = sakMed(justert);
+      s.send(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: true, godtar_justering: true } })
+      );
+      const foer = gjeldende(s).dokument;
+      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      expect(standpunktene(s)).toEqual([
+        { post: 'P2', hjemmel: '34.3.3', iTide: true, dokument: foer },
+      ]);
+    });
+
+    it('byggherren kan si at varselet etter punkt 34.3.3 kom i tide etter innsigelsen, og senere påberope det på nytt (VS-U77 punkt 10, 13 og 30)', () => {
+      const s = sakMed(justert);
+      const med = (iTide: boolean) => ({
+        P2: { aksepterer: true, varslet_i_tide: iTide, godtar_justering: true },
+      });
+      s.send('BH', svaret(s, med(false)));
+      expect(s.avvisning('BH', revisjon(s, med(true))), '«i tide» etter innsigelsen').toBeNull();
+      s.send('BH', revisjon(s, med(true)));
+      expect(standpunktene(s)).toEqual([
+        { post: 'P2', hjemmel: '34.3.3', iTide: true, dokument: gjeldende(s).dokument },
+      ]);
+      s.send('BH', revisjon(s, med(false)));
+      expect(standpunktene(s)).toEqual([
+        { post: 'P2', hjemmel: '34.3.3', iTide: false, dokument: gjeldende(s).dokument },
+      ]);
+    });
+
+    it('standpunktet til varselet etter punkt 34.3.3 for én kravpost gjelder ikke varselet etter punkt 34.4 for en annen (VS-U77 punkt 14 og 34, OV-U117)', () => {
+      const s = sakMed(justert, regning);
+      s.send(
+        'BH',
+        svaret(s, {
+          P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true },
+          P3: { aksepterer: true },
+        })
+      );
+      expect(standpunktene(s)).toEqual([
+        { post: 'P2', hjemmel: '34.3.3', iTide: false, dokument: gjeldende(s).dokument },
+      ]);
+      expect(
+        s.avvisning(
+          'BH',
+          revisjon(s, {
+            P2: { aksepterer: true, godtar_justering: true },
+            P3: { aksepterer: true, varslet_i_tide: true },
+          })
+        )?.melding,
+        'innsigelsen mot varselet etter punkt 34.3.3 for P2 er ingen innsigelse etter punkt 34.4 for P3'
+      ).toContain('P3.varslet_i_tide: byggherren har ikke gjort gjeldende');
+    });
   });
 });
 
