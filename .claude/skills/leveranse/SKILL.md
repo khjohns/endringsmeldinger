@@ -289,7 +289,9 @@ nivået for reviewet er ikke nok.
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
   likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
   vis at de representative testene oppdager relevante feil. For kjernen er beviset
-  CI-kjøringen med etiketten `feilinnfoering`. For serveren er beviset den målrettede
+  CI-kjøringen med etiketten `feilinnfoering` på committen som merges. I en orkestrert
+  runde følger orkestratoren den, og økta venter ikke på den
+  ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#pr-en-og-ci)). For serveren er beviset den målrettede
   lokale kjøringen; CI kjører bare `--ankre` der. Hva en skyøkt kjører lokalt, og
   hvordan, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig

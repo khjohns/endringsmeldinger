@@ -90,6 +90,12 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   kontrollerer `head_sha` på kjøringen; en kjøring på en eldre commit er ikke beviset.
   Hva økta kjører lokalt av
   feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
+- **Feilinnføringene i en orkestrert runde.** Økta venter ikke på feilinnføringene i CI
+  før den melder PR-en klar. Den melder fra når den vanlige CI-en er grønn og de nye
+  feilinnføringene er prøvd lokalt. Orkestratoren venter på kjøringen på committen som
+  merges, fordi en oppdatering mot `main` etter en annen kjerne-PR gir en ny kjøring
+  uansett ([orkestreringsskillen, punkt 4](../orkestrering/SKILL.md#4-merge),
+  oppdragsgiver 24.11).
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
   reviewet, rettingene eller det neste relaterte issuet i oppdraget.
   Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
@@ -165,7 +171,7 @@ uten at oppdraget gjentar det:
   og når turen ender, én linje om hva som venter. Det står i PR-en og går som melding til
   orkestratoren. Bare det oppdragsgiver må gjøre i selve økta, som å logge inn, skrives
   til oppdragsgiver (oppdragsgiver 24.11).
-- **Meld fra** med `send_message` til `@parent` når PR-en er grønn og
+- **Meld fra** med `send_message` til `@parent` når den vanlige CI-en er grønn og
   klar for gjennomgang. Økta pusher ikke etter det uten at orkestratoren
   ber om det. En push etter meldingen kan komme etter mergen og bli stående
   utenfor `main`.
