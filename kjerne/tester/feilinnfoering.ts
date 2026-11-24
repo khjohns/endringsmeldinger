@@ -1985,8 +1985,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (svaretGjelderPaaberopelsen(s.spor, x.hjemmel(varslingsplikt)))',
-        'if (true || svaretGjelderPaaberopelsen(s.spor, x.hjemmel(varslingsplikt)))',
+        '        svaretGjelderPaaberopelsen(s.spor, hjemmel) &&',
+        '        (true || svaretGjelderPaaberopelsen(s.spor, hjemmel)) &&',
       ],
     ],
     mal: [
@@ -6617,6 +6617,42 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['LV-U77: preklusjonen etter § 32.2 i svaret på en tidligere påberopelsesversjon'],
+  },
+  {
+    id: 'F781',
+    feilklasse:
+      'forhåndsvisningen av et svar lagt til leser det gjeldende svaret på forholdet, ikke det som gjaldt den dagen (OV-U33, #2090)',
+    fil: `${K}/kommandoer/utkastlag.ts`,
+    endringer: [
+      [
+        'const g = svaretPaaForholdetPaaDagen(u, sendt);',
+        'const g = u.spor.forhold.gjeldendeSvar;',
+      ],
+    ],
+    mal: [
+      'forhåndsvisningen av et svar lagt til leser lagene fra svaret på forholdet som gjaldt den dagen',
+    ],
+  },
+  {
+    id: 'F782',
+    feilklasse:
+      'et svar lagt til sammenliknes med en innsigelse parten alt har gitt opp (OV-U104, OV-U105, #2090)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['        !innsigelsenErOppgitt(s.spor, x.etter(), hjemmel)\n', '        true\n']],
+    mal: ['et svar lagt til sammenliknes ikke med en innsigelse et senere svar alt har gitt opp'],
+  },
+  {
+    id: 'F783',
+    feilklasse:
+      'regelsettet godtar «i tide» om spesifiseringen når kravet svarer på forespørselen (KA-U78 siste setning, #1905)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [
+      [
+        'krav.er_svar_paa_foresporsel && !mangler(v.spesifisert_krav_ok)',
+        'krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false',
+      ],
+    ],
+    mal: ['fristen: når kravet svarer på forespørselen, er spesifiseringen ikke et spørsmål'],
   },
 ];
 /** En kopi av arbeidstreet. */

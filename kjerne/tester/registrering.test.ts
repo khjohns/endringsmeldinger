@@ -14,6 +14,8 @@ import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import type { Klokke } from './testmiljoe.ts';
 import { varseletFoerSvaret } from '../utledning/utled.ts';
+import { lagForUtkastet } from '../kommandoer/lag.ts';
+import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -1101,26 +1103,13 @@ describe('et svar som legges til, fryses med lagene i svaret på forholdet slik 
 });
 
 describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som var gjeldende da det ble sendt (OV-U98, OV-U103, arbeidsvalget 16.11 i #2090)', () => {
-  /** Vederlagssvaret lagt til, sendt `sendt`, etter stegene `steg`: linjen og svaret på forholdet. */
-  const vederlagssvaret = async (steg: Handling[], sendt: string) => {
+  /** Svaret `svar` lagt til etter stegene `steg`: linjen og svaret på forholdet. */
+  const svaretLagtTil = async (steg: Handling[], svar: Handling) => {
     const forloep: Forloep = {
       id: 'svar-utenfor-rekken',
       rader: [],
       start: 'krav_irreg',
-      steg: [
-        ...steg,
-        {
-          handling: 'rad',
-          part: 'BH',
-          spor: 'vederlag',
-          vurdering: 'delvis',
-          godkjent_belop: 60000,
-          gjelder: 'K-v1',
-          navn: 'S-v',
-          dokument: 'D-v',
-          sendt,
-        },
-      ],
+      steg: [...steg, svar],
       kontroller: [],
     };
     // Avvises et steg, kaster kjøreren en vanlig feil; feilinnføringene teller bare assertions.
@@ -1143,6 +1132,19 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
         .map((x) => k.navn.navngi(x.med)),
     };
   };
+  /** Vederlagssvaret lagt til, sendt `sendt`, etter stegene `steg`. */
+  const vederlagssvaret = (steg: Handling[], sendt: string) =>
+    svaretLagtTil(steg, {
+      handling: 'rad',
+      part: 'BH',
+      spor: 'vederlag',
+      vurdering: 'delvis',
+      godkjent_belop: 60000,
+      gjelder: 'K-v1',
+      navn: 'S-v',
+      dokument: 'D-v',
+      sendt,
+    });
   const godkjent: Handling = {
     handling: 'brev',
     svar: [{ spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true, navn: 'S-1' }],
@@ -1204,6 +1206,145 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
       linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
       forholdssvaret: 'S-1',
       samme: [],
+    });
+  });
+
+  // Svaret på forholdet sendes 24.09. Fyllstegene er nye kravversjoner i et annet spor, så
+  // revisjonen sendes 27.09 og svaret utenfor rekken kan ha en dag mellom dem.
+  const fyll = (spor: 'vederlag' | 'frist', navn: string): Handling =>
+    spor === 'frist'
+      ? { handling: 'krav', spor, dager: 20, navn }
+      : { handling: 'krav', spor, belop: 90000, navn };
+  const revidert = (annet: 'vederlag' | 'frist'): Handling[] => [
+    godkjent,
+    fyll(annet, 'K-fyll1'),
+    fyll(annet, 'K-fyll2'),
+    {
+      handling: 'revisjon',
+      spor: 'forhold',
+      resultat: 'godkjent',
+      varslet_i_tide: true,
+      navn: 'S-2',
+    },
+    registrertSvar('K-g1', '2026-09-25'),
+  ];
+
+  it('OV-U103: et svar utenfor rekken sendt mellom svaret i rekken og revisjonen av det: vederlagssvaret sendt imellom fryses med svaret utenfor rekken', async () => {
+    expect(await vederlagssvaret(revidert('frist'), '2026-09-26')).toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-r',
+      samme: [],
+    });
+  });
+
+  it('kontrollsak: vederlagssvaret sendt etter revisjonen fryses med revisjonen', async () => {
+    expect(await vederlagssvaret(revidert('frist'), '2026-09-28')).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
+      forholdssvaret: 'S-2',
+      samme: [],
+    });
+  });
+
+  /** Fristsvaret lagt til, sendt `sendt`, etter stegene `steg`. */
+  const fristsvaret = (steg: Handling[], sendt: string) =>
+    svaretLagtTil(steg, {
+      handling: 'rad',
+      part: 'BH',
+      spor: 'frist',
+      gjelder: 'K-f1',
+      dager: 20,
+      varsel_i_tide: true,
+      spesifisering_i_tide: true,
+      hindring: true,
+      navn: 'S-f',
+      dokument: 'D-f',
+      sendt,
+    });
+
+  it('OV-U33: et avslag utenfor rekken og en godkjenning i rekken: fristsvaret sendt imellom står i lag 2', async () => {
+    expect(
+      await fristsvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-23')
+    ).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: subsidiært /),
+      forholdssvaret: 'S-r',
+      // OV-U104: fristkravet ble også sendt 23.09.
+      samme: ['K-f1'],
+    });
+  });
+
+  it('OV-U32: en godkjenning utenfor rekken med preklusjon påberopt prinsipalt: fristsvaret sendt etter den står i lag 2', async () => {
+    const prekludert: Handling = {
+      ...registrertSvar('K-g1', '2026-09-22'),
+      resultat: 'godkjent',
+      varslet_i_tide: false,
+    };
+    expect(await fristsvaret([godkjent, prekludert], '2026-09-23')).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: subsidiært /),
+      forholdssvaret: 'S-r',
+      // OV-U104: fristkravet ble også sendt 23.09.
+      samme: ['K-f1'],
+    });
+  });
+
+  it('OV-U103: fristsvaret sendt mellom svaret utenfor rekken og revisjonen fryses med svaret utenfor rekken', async () => {
+    expect(await fristsvaret(revidert('vederlag'), '2026-09-26')).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: subsidiært /),
+      forholdssvaret: 'S-r',
+      samme: [],
+    });
+  });
+
+  it('kontrollsak: fristsvaret sendt etter svaret i rekken fryses med det', async () => {
+    expect(
+      await fristsvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-25')
+    ).toEqual({
+      linje: expect.not.stringMatching(/subsidiært/),
+      forholdssvaret: 'S-1',
+      samme: [],
+    });
+  });
+
+  it('forhåndsvisningen av et svar lagt til leser lagene fra svaret på forholdet som gjaldt den dagen, som frysingen (OV-U33, #2090)', async () => {
+    const k = await kjoer(
+      {
+        id: 'forhaandsvisning-lagt-til',
+        rader: [],
+        start: 'krav_irreg',
+        steg: [godkjent, registrertSvar('K-g1', '2026-09-22')],
+        kontroller: [],
+      },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    ).catch((feil: unknown) =>
+      expect.fail(
+        `forutsetning: stegene ble ikke kjørt: ${feil instanceof Error ? feil.message : String(feil)}`
+      )
+    );
+    const u = await k.utledning();
+    expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
+    const utkast = {
+      spor: 'vederlag' as const,
+      gjelder: u.spor.vederlag.gjeldendeKrav!.id,
+      regelversjon: KJERNE.regler.versjon,
+      vurderinger: {},
+      resultat: {},
+    };
+    // Beløpet står i første lag i sporet, etter lagene fra forholdet.
+    const beloepet = (sendt: string | null) => {
+      const x = lagForUtkastet(utkast, u, KJERNE.regler, sendt).standpunkter.find(
+        (p) => p.art === 'beloep'
+      );
+      return x && { virkning: x.virkning, forutsetninger: x.forutsetninger };
+    };
+    expect(beloepet('2026-09-23'), 'sendt før godkjenningen: avslaget utenfor rekken').toEqual({
+      virkning: 2,
+      forutsetninger: [{ grunn: 'avslaatt' }],
+    });
+    expect(beloepet(null), 'kontrollsak: et svar fra løsningen leser godkjenningen').toEqual({
+      virkning: 1,
+      forutsetninger: [],
     });
   });
 });

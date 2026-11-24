@@ -721,7 +721,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
   ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
   // OV-U104, OV-U105: påberopelsene et svar lagt til sammenliknes med.
-  ['Partspaaberopelse', 'relasjon', 'id dag hjemmel', ['utledning/utled.ts:registreringenStrider']],
+  [
+    'Partspaaberopelse',
+    'relasjon',
+    'id dag hjemmel etter',
+    ['utledning/utled.ts:registreringenStrider'],
+  ],
+  // VS-U9, VS-U11, HF-U4: partens svar etter påberopelsen, i rekkefølgen de ble sendt, som i
+  // `aapneInnsigelser` (#2090).
+  [
+    'utledning/utled.ts:partensPaaberopelser',
+    'relasjon',
+    'dag svar',
+    ['utledning/utled.ts:partensPaaberopelser'],
+  ],
   [
     'Utledning',
     'utsagn',
@@ -884,6 +897,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'innsigelsenPaaberoper',
     ['frosset/brevtekst.ts', 'utledning/utled.ts:partensPaaberopelser'],
+  ],
+  // OV-U104, OV-U105: et svar lagt til sammenliknes ikke med en påberopelse parten alt har gitt
+  // opp, som brevteksten heller ikke gjentar (VS-U9, VS-U11, #2090).
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'innsigelsenErOppgitt',
+    ['utledning/utled.ts:registreringenStrider'],
   ],
   // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
   [
@@ -1433,14 +1454,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'kravversjonenPaaDagen',
-    ['kommandoer/nyttelast.ts:kontrollerSvar'],
+    ['kommandoer/nyttelast.ts:kontrollerSvar', 'kommandoer/utkastlag.ts:lageneIUtkastet'],
   ],
   // OV-U98, #2057: et svar lagt til fryses med lagene i svaret på forholdet som gjaldt da.
   [
     'utledning/utled.ts',
     'relasjon',
     'svaretPaaForholdetPaaDagen',
-    ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
+    [
+      'kommandoer/skriving.ts:frosneSvar',
+      'kommandoer/skriving.ts:frysBrev',
+      // #2090: forhåndsvisningen av et svar lagt til leser lagene fra det samme.
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
+    ],
   ],
   ['Journalrad.data', 'rad', 'opplysninger', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],

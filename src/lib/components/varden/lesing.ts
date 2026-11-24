@@ -64,13 +64,13 @@ export interface Brevet {
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'varsel' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
-  /** Vår ref., merkingen som ble frosset med brevet (LV-U53, LV-U24), eller `null`. */
+  /** Vår ref., merkingen som ble frosset med brevet (LV-U44, LV-U24), eller `null`. */
   merking: string | null;
   /** Deres ref. som ble frosset med brevet (LV-U27, LV-U49), tom når det ikke har noen. */
   deresRef: string[];
   /**
    * Omtalen av brevet slik brevteksten gir den: «brev K201-KOE-017-03 av 2. oktober 2026», eller
-   * «totalentreprenørens e-post av …» for registrert korrespondanse (LV-U53, LV-U42).
+   * «totalentreprenørens e-post av …» for registrert korrespondanse (LV-U44, LV-U45).
    */
   omtale: string | null;
   /** Tittelen som ble frosset med brevet (MM-U3, MM-U50), eller `null` når brevet ikke har en. */

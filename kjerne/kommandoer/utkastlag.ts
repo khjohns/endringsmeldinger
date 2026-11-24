@@ -11,25 +11,30 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
 import type { Standpunktsvirkning, Virkning } from '../typer.ts';
-import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
-import type { Svarutkast } from './kommando.ts';
+import {
+  kravversjonenPaaDagen,
+  svaretPaaForholdetPaaDagen,
+  type Utledning,
+} from '../utledning/utled.ts';
 
 /**
  * Lagene i svarutkastet i et spor, regnet som brevet regner dem (OV-U32, OV-U33, S1-A i #1400).
- * Grunnene fra gjeldende svar på forholdet står foran sporet, og `virkning`, `lag` og `etikett`
- * for hvert standpunkt er flyttet ned med dem. `virket` er virkningene i sporet uten forskyvning.
+ * Grunnene fra svaret på forholdet står foran sporet, og `virkning`, `lag` og `etikett` for hvert
+ * standpunkt er flyttet ned med dem. `virket` er virkningene i sporet uten forskyvning. `sendt` er
+ * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Svaret på forholdet og
+ * påberopelsen er de som gjaldt den dagen, som når svaret fryses og kontrolleres (#2057, #2011).
  */
 export function lageneIUtkastet(
   svar: Svarinnhold,
-  utkast: Svarutkast,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  sendt: string | null
 ) {
-  const g = u.spor.forhold.gjeldendeSvar;
+  const g = svaretPaaForholdetPaaDagen(u, sendt);
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const virket: Standpunktsvirkning[] = virkninger(
     svar,
-    paaberopelseFor(utkast, u),
+    kravversjonenPaaDagen(u, 'forhold', sendt),
     regler,
     grunner.length
   );
