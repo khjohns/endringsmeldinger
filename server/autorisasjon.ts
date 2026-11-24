@@ -235,13 +235,38 @@ const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering | null>>>
 /** Når aldersvarselet sist ble skrevet for prosjektet, i millisekunder. */
 const sisteVarsel = new Map<string, number>();
 
-/** Høyst ett varsel per prosjekt per terskel, så et langt brudd ikke fyller loggen. */
-function varsleOmMedlemslistensAlder(prosjekt: string, alder: number): void {
+/** Alderen i sekunder som gir driftsvarselet, eller `null` når varselet ikke er satt opp. */
+function varselgrense(): number | null {
   const verdi = process.env.AUTH_MEMBERSHIP_ALERT_AGE_SECONDS;
-  if (!verdi) return;
+  if (!verdi) return null;
   const grense = Number(verdi);
   if (!(Number.isSafeInteger(grense) && grense > 0))
     throw new Error('AUTH_MEMBERSHIP_ALERT_AGE_SECONDS må være et positivt heltall');
+  return grense;
+}
+
+/**
+ * Variablene for medlemslisten som har en ugyldig verdi, for oppstarten, så en feil i
+ * oppsettet ikke først viser seg ved et senere oppslag (#2262).
+ */
+export function ugyldigMedlemslisteoppsett(): string[] {
+  const ugyldig: string[] = [];
+  for (const [variabel, les] of [
+    ['AUTH_MEMBERSHIP_MAX_AGE_SECONDS', medlemskapsalder],
+    ['AUTH_MEMBERSHIP_ALERT_AGE_SECONDS', varselgrense],
+  ] as const)
+    try {
+      les();
+    } catch {
+      ugyldig.push(variabel);
+    }
+  return ugyldig;
+}
+
+/** Høyst ett varsel per prosjekt per terskel, så et langt brudd ikke fyller loggen. */
+function varsleOmMedlemslistensAlder(prosjekt: string, alder: number): void {
+  const grense = varselgrense();
+  if (grense === null) return;
   const naa = Date.now();
   if (alder >= grense && naa - (sisteVarsel.get(prosjekt) ?? -Infinity) >= grense * 1000) {
     sisteVarsel.set(prosjekt, naa);

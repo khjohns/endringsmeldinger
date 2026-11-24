@@ -31,6 +31,10 @@
  * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
+ * - `AUTH_MEMBERSHIP_MAX_AGE_SECONDS` (60–3600, standard 900) er hvor gammel
+ *   medlemslisten kan være før den hentes på nytt, og
+ *   `AUTH_MEMBERSHIP_ALERT_AGE_SECONDS` (et positivt heltall, valgfri) alderen som gir
+ *   driftsvarselet. En ugyldig verdi stopper oppstarten (#2262).
  * - `CATENDA_NETTADRESSE` er verten for lenken fra saken til topicen i Catenda
  *   (`sakslenkeFraMiljoe` i `catenda.ts`). Uten den har saken ingen lenke.
  */
@@ -39,7 +43,7 @@ import { createServer } from 'node:http';
 import { loggAdvarsel, loggFeil, loggInfo } from './logg.ts';
 import { constants } from 'node:os';
 import { lagServer } from './app.ts';
-import type { Catenda } from './autorisasjon.ts';
+import { ugyldigMedlemslisteoppsett, type Catenda } from './autorisasjon.ts';
 import { kontrollerSkrifter } from './brevpdf.ts';
 import {
   catendaFraMiljoe,
@@ -73,6 +77,13 @@ async function start(): Promise<void> {
     kontrollerSkrifter();
   } catch (feil) {
     loggFeil('Skriftene til brev-PDF-en kan ikke brukes', feil);
+    process.exitCode = 1;
+    return;
+  }
+
+  const ugyldig = ugyldigMedlemslisteoppsett();
+  if (ugyldig.length) {
+    loggAdvarsel('Oppsettet for medlemslisten er ugyldig', { hindringer: ugyldig });
     process.exitCode = 1;
     return;
   }
