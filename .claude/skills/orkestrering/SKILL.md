@@ -171,7 +171,11 @@ et nivå.
 
 Orkestratoren holder tilstanden i issuene og PR-ene, ikke bare i samtalen, og gjentar
 ikke lange lister der. Spørsmålene står i én fil som oppdragsgiver får, og samtalen
-viser bare det som er endret.
+viser bare det som er endret. Orkestratoren skriver til oppdragsgiver når noe må avgjøres
+eller ses på, når en PR er merget og når runden avsluttes, kort og uten forklaring av
+hvert steg. En sjekk der ingenting er endret, gir én linje eller ingenting. Mellom
+verktøykallene gjelder «Teksten i økta» i
+[arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt) (oppdragsgiver 24.11).
 
 **Meldinger.** Øktene melder fra når PR-en er klar
 ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt)).

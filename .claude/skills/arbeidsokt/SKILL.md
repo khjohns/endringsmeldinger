@@ -160,6 +160,11 @@ uten at oppdraget gjentar det:
   nummeret, et spørsmål som krever en avgjørelse, og at økta stopper, med lenke til
   overleveringen. PR-beskrivelsen er rapporten og gjentas ikke i meldingen. Ingen
   bekreftelser eller statusmeldinger (oppdragsgiver 13.11).
+- **Teksten i økta.** Oppdragsgiver leser ikke øktene mens de er orkestrert. Mellom
+  verktøykallene skriver økta ingenting, eller én kort linje når plattformen ber om det,
+  og når turen ender, én linje om hva som venter. Det står i PR-en og går som melding til
+  orkestratoren. Bare det oppdragsgiver må gjøre i selve økta, som å logge inn, skrives
+  til oppdragsgiver (oppdragsgiver 24.11).
 - **Meld fra** med `send_message` til `@parent` når PR-en er grønn og
   klar for gjennomgang. Økta pusher ikke etter det uten at orkestratoren
   ber om det. En push etter meldingen kan komme etter mergen og bli stående
