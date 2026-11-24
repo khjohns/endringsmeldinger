@@ -30,7 +30,10 @@ merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en
    (verktøyøkt-skillen). Prøven i PR-en som innførte skillen, gikk i et miljø med full
    nettverkstilgang, så det er ikke prøvd om Codex trenger flere verter.
 2. **Installasjonen.** Installer i en egen mappe i scratchpad, `$CODEX_MAPPE`, ikke globalt:
-   `npm i @openai/codex`. Binæren ligger i `node_modules/.bin/codex`. Prøvd med 0.171.0.
+   `npm i @openai/codex@0.172.0`. Binæren ligger i `node_modules/.bin/codex`. Profilen og
+   kommandoen under er prøvd med 0.171.0 og 0.172.0. En nyere versjon tas i bruk når
+   profilen er prøvd med den. Auto-modus i Claude Code kan stoppe installasjonen av en annen
+   agent. Da godkjenner oppdragsgiver den i økta, eller bytter modus der.
 3. **Innloggingen.** Start `codex login --device-auth` i `tmux`, og gi oppdragsgiver
    lenken og engangskoden. Koden gjelder i 15 minutter. Er den gått ut, startes
    kommandoen på nytt, og oppdragsgiver får den nye koden. `codex login status` bekrefter
@@ -76,10 +79,37 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   ber aldri om å kjøre en kommando utenfor sandkassen.
 - **`< /dev/null` er påkrevd.** Med `run_in_background` har kommandoen en åpen stdin-pipe, og
   Codex står og venter på den («Reading additional input from stdin...», tom logg).
-- **Skjemaet** (`--output-schema`) er et strengt JSON-skjema: `additionalProperties: false`
-  og alle felt i `required`. Raden per funn har fil, linje, prioritet P0–P3, sammendrag,
-  scenario og kilde. Svaret har i tillegg `kontrollert` og `usikkert`. `-o` skriver svaret
-  alene til en fil, uten loggen.
+- **Skjemaet** (`--output-schema`) må være strengt: `additionalProperties: false` og alle
+  felt i `required`. `-o` skriver svaret alene til en fil, uten loggen. Skriv dette til
+  `$KJOERING/skjema.json`:
+
+  ```json
+  {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["funn", "kontrollert", "usikkert"],
+    "properties": {
+      "funn": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fil", "linje", "prioritet", "sammendrag", "scenario", "kilde"],
+          "properties": {
+            "fil": { "type": "string" },
+            "linje": { "type": "integer" },
+            "prioritet": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+            "sammendrag": { "type": "string" },
+            "scenario": { "type": "string" },
+            "kilde": { "type": "string" }
+          }
+        }
+      },
+      "kontrollert": { "type": "string" },
+      "usikkert": { "type": "string" }
+    }
+  }
+  ```
 - **Sandkassen er en reell sperre,** i motsetning til `agy`. Den erstatter likevel ikke de
   andre sperrene i gemini-skillen, «Arbeidsformen».
 - **Ingen kommando kan skrive, og `node` ligger utenfor profilen.** Testene, `--ankre` i
@@ -87,7 +117,8 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   trenger dem.
 - **Følg med uten å lese loggen:** `wc -l "$KJOERING/codex.log"` og
   `grep -A1 '^exec' "$KJOERING/codex.log" | tail`. Et review av en diff på 22 filer tok under
-  ti minutter og 144 000 tokens.
+  ti minutter og 144 000 tokens. Et review av denne skillen i prøven av verktøyøkta tok 43
+  sekunder og 55 000 tokens.
 - Kontroller `git status --porcelain` i klonen og i hovedkopien etterpå. Det skal være likt.
 
 ## Bestillingen
@@ -105,8 +136,9 @@ postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 
 ## Ikke prøvd
 
-- `codex exec` med profilen `review` fra ende til ende. Profilen er prøvd med `codex sandbox`
-  og `codex debug prompt-input`, ikke i en kjøring med innlogging.
+- At profilen sperrer lesing utenfor klonen i en kjøring med `codex exec`. Sperren er prøvd
+  med `codex sandbox`. Med `codex exec` er bare reviewet prøvd, i prøven av verktøyøkta
+  (0.172.0).
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
 - Sparring med `--conversation`-tilsvarende (`codex exec resume`).

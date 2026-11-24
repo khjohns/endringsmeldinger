@@ -32,7 +32,8 @@ annen modellfamilie»).
 
 **Innloggingen varer bare så lenge containeren.** Når containeren tas tilbake etter en periode
 uten aktivitet, forsvinner innloggingen, installasjonen og scratchpad. Før hvert oppdrag
-kontrollerer verktøyøkta innloggingen: `codex login status` for Codex. For Gemini er ingen
+kontrollerer verktøyøkta at verktøyet er installert og innlogget: binæren i installasjonsmappa
+og `codex login status` for Codex. For Gemini er ingen
 statuskommando prøvd, så en kjøring som feiler på innloggingen, er kjennetegnet. Mangler
 innloggingen, installerer verktøyøkta på nytt og sender én melding til økta som ba om
 oppdraget og til orkestratoren: at innloggingen mangler, og at oppdraget ikke er kjørt.
