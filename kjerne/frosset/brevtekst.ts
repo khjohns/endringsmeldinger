@@ -820,12 +820,12 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
-      const godtar = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
+      const godtar = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder(j.krav(svar.gjelder))} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
       const aksept =
         svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length
           ? godtar
-          : `${godtar} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+          : `${godtar} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til forholdet.`;
       // HF-U23 punkt 7: brevet sier bare at aksepten er sendt etter fristen (punkt 5).
       return etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))
         ? `${aksept} Aksepten er sendt etter akseptfristen ${norskDato(svar.akseptfrist!)} i byggherrens svar.`
@@ -883,7 +883,7 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.
       const svar = j.svar(u.gjelder);
-      return `Byggherren begrunner sitt svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}:`;
+      return `Byggherren begrunner sitt svar på ${brevtekstI(svar.spor).svaretGjelder(j.krav(svar.gjelder))} i ${j.brevet(svar.dokument)}:`;
     }
   }
 }
