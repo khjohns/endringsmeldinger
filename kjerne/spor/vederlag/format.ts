@@ -155,7 +155,7 @@ export function vederlagsinnhold(lagret: boolean): {
  * `STANDPUNKT` i `format/format.ts`.
  */
 export const STANDPUNKT_I_VEDERLAGET: Record<'beloep' | 'oppgjoersform' | 'justering', Skjema> = {
-  // OV-U26, OV-U31: beløpet byggherren godtar for posten uten begrensningen etter § 34.1.3.
+  // OV-U26, OV-U31: beløpet byggherren godkjenner for posten uten begrensningen etter § 34.1.3.
   // Posten er kravposten `gjelder` eller den særskilte `saerskilt`, ikke begge (`standpunktIVederlaget`).
   // Uten `beloep` når tilbudet for kravposten ikke er akseptert (KA-U72, `kontrollerVederlagsstandpunktene`).
   beloep: objekt(
@@ -320,7 +320,7 @@ export function fasteBeloepIKravet(krav: Krav): FasteBeloep {
 }
 
 /**
- * Det byggherren godtar om ingen påberopelse fører fram: summen av beløpene i standpunktene, som
+ * Det byggherren godkjenner om ingen påberopelse fører fram: summen av beløpene i standpunktene, som
  * leseren har kontrollert mot utregningen (OV-U31), og kravpostene uten fast beløp
  * (`utenFastBeloep`, KA-U72). Uten et standpunkt med beløp er summen `null`.
  */
@@ -433,7 +433,7 @@ function standpunktIVederlaget(
  * OV-U27, OV-U28, KA-U57: i vederlaget står § 34.1.2, oppgjørsformen og beløpet for hver kravpost,
  * § 34.1.3 og posten etter § 34.1.3 annet ledd i den rekkefølgen. § 34.1.2, § 34.1.3 og posten
  * står høyst én gang, og hver kravpost har høyst ett standpunkt til oppgjørsformen, rett foran
- * beløpet, og ett beløp. OV-U31: postene summerer til det byggherren godtar om ingen påberopelse
+ * beløpet, og ett beløp. OV-U31: postene summerer til det byggherren godkjenner om ingen påberopelse
  * fører fram.
  */
 function kontrollerVederlagsstandpunktene(
@@ -508,7 +508,7 @@ function kontrollerVederlagsstandpunktene(
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
     throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
-  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godtar for posten.
+  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godkjenner for posten.
   const begrenset = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3');
   const post = ut.find((s) => s.art === 'beloep' && s.saerskilt);
   if (
@@ -519,7 +519,7 @@ function kontrollerVederlagsstandpunktene(
     // Skjemaet har alt avvist et negativt beløp.
     if (beloep(begrenset.begrenset)! > beloep(post.godkjent)!)
       throw new Uforstaatt(
-        `${sti}: beløpet etter begrensningen er høyere enn det byggherren godtar for posten`
+        `${sti}: beløpet etter begrensningen er høyere enn det byggherren godkjenner for posten`
       );
   }
   const poster = ut.flatMap((s) =>
@@ -529,17 +529,17 @@ function kontrollerVederlagsstandpunktene(
   const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;
   if (samlet !== beloep(total))
     throw new Uforstaatt(
-      `${sti}: postene summerer ikke til det byggherren godtar om ingen påberopelse fører fram`
+      `${sti}: postene summerer ikke til det byggherren godkjenner om ingen påberopelse fører fram`
     );
 }
 
 /**
  * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
  * samme post, og like mange lag i hver rad. Antallet lag er det høyeste laget i
- * beslutningsgrunnlaget (`kontrollerRadene`). Beløpet i det siste laget er det byggherren godtar
+ * beslutningsgrunnlaget (`kontrollerRadene`). Beløpet i det siste laget er det byggherren godkjenner
  * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert, og en
  * slik kravpost har 0 kr i laget for § 34.1.2 når påberopelsen har virkning, og ellers ikke
- * beløp (KA-U72, OV-U27). Det byggherren godtar prinsipalt og subsidiært, er summen av det
+ * beløp (KA-U72, OV-U27). Det byggherren godkjenner prinsipalt og subsidiært, er summen av det
  * første og det siste laget, og det subsidiære står bare med mer enn ett lag.
  */
 function kontrollerUtregningenPerPost(
@@ -559,7 +559,7 @@ function kontrollerUtregningenPerPost(
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.poster: ${hva}`);
   const antall = kontrollerRadene(rader, beloepene, virkninger, 'beløpet', feil, (r, b, i) => {
     if (beloep(r.lag.at(-1)!.beloep) !== beloep(b.godkjent))
-      throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
+      throw feil(`rad ${i + 1} har ikke beløpet byggherren godkjenner i det siste laget`);
     if (!utenAksept.has(r.gjelder!)) {
       if (r.lag.some((l) => !('beloep' in l)))
         throw feil(
@@ -573,11 +573,11 @@ function kontrollerUtregningenPerPost(
   const summen = (n: number) =>
     rader.map((r) => r.lag.at(n)!).reduce((a, l) => a + (beloep(l.beloep) ?? 0n), 0n);
   if (summen(0) !== beloep(utregning.godkjent_beloep))
-    throw feil('det første laget summerer ikke til det byggherren godtar prinsipalt');
+    throw feil('det første laget summerer ikke til det byggherren godkjenner prinsipalt');
   if (antall > 1 !== 'subsidiaert_godkjent_beloep' in utregning)
     throw feil('det subsidiære beløpet står ikke nøyaktig når svaret har mer enn ett lag');
   if (antall > 1 && summen(-1) !== beloep(utregning.subsidiaert_godkjent_beloep))
-    throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
+    throw feil('det siste laget summerer ikke til det byggherren godkjenner subsidiært');
 }
 
 /** OV-U115 punkt 5: oppgjørsformen TE krever etter en beregningsregel, i hjemmelen. */

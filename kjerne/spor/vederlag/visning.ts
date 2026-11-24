@@ -128,7 +128,7 @@ export interface Beloepene {
 /** Kravet, svaret og enigheten om vederlaget i sakslisten (#1022). */
 export interface VederlagetISakslisten {
   krav: Beloepene | null;
-  /** Beløpet er det byggherren godtar om ingen påberopelse fører fram (OV-U31). */
+  /** Beløpet er det byggherren godkjenner om ingen påberopelse fører fram (OV-U31). */
   svar: (Beloepene & { resultat: Vederlagsresultat; subsidiaert: boolean }) | null;
   /**
    * `uten_fast_beloep` er betegnelsene på kravpostene uten fast beløp i det første laget, som

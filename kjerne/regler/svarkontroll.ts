@@ -70,6 +70,6 @@ export function kontrollerSpesifiseringen(v: {
     throw feil('er ikke et helt antall dager');
   // `kontroller` i `regler/frist.ts` har kontrollert at de vurderte dagene er høyst de krevde.
   if (d > (v.dager as number))
-    throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
+    throw feil('er flere enn dagene byggherren godkjenner om kravet kom i tide');
   return d;
 }

@@ -69,7 +69,7 @@ export interface Vederlagssvar {
 export const postnoekkel = (p: Postsvar): string => ('gjelder' in p ? p.gjelder : p.saerskilt);
 
 /**
- * Det byggherren godtar for posten i ett lag i sporet, fra 1 (OV-U32). `beloep` er `null` når
+ * Det byggherren godkjenner for posten i ett lag i sporet, fra 1 (OV-U32). `beloep` er `null` når
  * posten ikke har et fast beløp i laget, fordi byggherren ikke aksepterer tilbudet (KA-U72).
  */
 export interface Postlag {
@@ -77,12 +77,12 @@ export interface Postlag {
   beloep: Oere | null;
 }
 
-/** Det byggherren godtar for én post, i øre. */
+/** Det byggherren godkjenner for én post, i øre. */
 export interface Postresultat {
   post: Postsvar;
   krevd: Oere;
   /**
-   * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godtar uten
+   * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godkjenner uten
    * begrensningen etter § 34.1.3 (OV-U26). Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663.
    * Uten beløp for en kravpost der tilbudet ikke er akseptert (KA-U72).
    */
@@ -163,7 +163,7 @@ export type UbesvartIVederlaget =
  * Spørsmålene i svaret regelen krever svar på, og som er ubesvart (#2025), i rekkefølgen
  * `kontroller` fører dem: varselet etter § 34.1.2 der varslingsplikten gjelder (OV-U15), og for
  * hver post beløpet når posten har et fast beløp å vurdere (KA-U66, KA-U72), med beløpet
- * byggherren godtar ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en kravpost
+ * byggherren godkjenner ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en kravpost
  * (§ 34.2.2, KA-U57 (d)) og for posten etter annet ledd varselet etter § 34.1.3 og beløpet etter
  * begrensningen når den er påberopt. Svaret på varselet etter § 34.3.3 og § 34.4 er ikke påkrevd
  * (VS-U57, VS-U77).
@@ -176,7 +176,7 @@ export function ubesvarteSpoersmaal(
   if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) && mangler(svar.varslet_i_tide))
     ut.push({ post: null, felt: 'varslet_i_tide' });
   for (const p of svar.poster) {
-    // Beløpet byggherren godtar ved en delvis godkjenning er en del av svaret på beløpet.
+    // Beløpet byggherren godkjenner ved en delvis godkjenning er en del av svaret på beløpet.
     const beloepet = mangler(p.vurdering)
       ? ('vurdering' as const)
       : !erKravlinjeGyldig(p.vurdering, p.godkjent_beloep)
@@ -263,7 +263,7 @@ function lagene(p: Preklusjon, svar: Vederlagssvar): { foerste: number; antall: 
 }
 
 /**
- * Postene med det byggherren godtar i hvert lag. OV-U27: påberopelsen etter § 34.1.2 gjelder
+ * Postene med det byggherren godkjenner i hvert lag. OV-U27: påberopelsen etter § 34.1.2 gjelder
  * hele kravet, også de særskilte, og står i det første laget. VS-U5, OV-U22: en påberopelse
  * etter § 34.1.3 avviser aldri hele kravet; den særskilte posten står med beløpet etter
  * begrensningen i laget for begrensningen. KA-U72: uten aksept av tilbudet har kravposten
@@ -381,7 +381,7 @@ export function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
           `er ${String(godkjent)}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${String(krevd)}`;
     }
   };
-  // Valg 2 i #1047: 0 ≤ beløpet etter begrensningen ≤ det byggherren godtar for posten.
+  // Valg 2 i #1047: 0 ≤ beløpet etter begrensningen ≤ det byggherren godkjenner for posten.
   const kontrollerBegrensningen = (navn: string, p: Produktivitetssvar) => {
     const felt = `${navn}.begrenset_beloep`;
     const begrenset = p.begrenset_beloep;
@@ -400,7 +400,7 @@ export function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
       const krevd = beloep(p.krevd)!;
       const godkjent = beregnGodkjentBeloep(p.vurdering, krevd, beloep(p.godkjent_beloep));
       if (b < NULL_OERE) feil[felt] = 'kan ikke være negativt';
-      else if (b > godkjent) feil[felt] = 'er høyere enn det byggherren godtar for posten';
+      else if (b > godkjent) feil[felt] = 'er høyere enn det byggherren godkjenner for posten';
     }
   };
   if (ubesvart(null, 'varslet_i_tide')) feil.varslet_i_tide = 'mangler (punkt 34.1.2)';

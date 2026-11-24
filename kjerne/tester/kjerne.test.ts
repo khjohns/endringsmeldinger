@@ -1034,7 +1034,7 @@ describe('leddene ordnes etter laget (OV-U32, OV-U33)', () => {
 /**
  * KA-U78 og OV-U32: dagene for hver frist i hvert lag. Varselet etter § 33.4 står før alle,
  * så at fremdriften ikke ble hindret, så dagene byggherren måtte forstå, og til sist dagene
- * byggherren godtar hvis spesifiseringen kom i tide. Lagene i utregningen er lagene i
+ * byggherren godkjenner hvis spesifiseringen kom i tide. Lagene i utregningen er lagene i
  * beslutningsgrunnlaget.
  */
 describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
@@ -2752,7 +2752,7 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
 
   // OV-U25, OV-U35: kravet om rigg og drift etter § 34.1.3 første ledd har ingen særskilt
   // varslingsplikt, så svaret spør ikke om varselet, og posten prekluderes ikke (#1576).
-  it('rigg og drift uten spørsmål om særskilt varsel står med beløpet byggherren godtar', () => {
+  it('rigg og drift uten spørsmål om særskilt varsel står med beløpet byggherren godkjenner', () => {
     const r = rigg('godkjent');
     expect(r.preklusjon).toEqual({ hovedkrav: false, produktivitet: false });
     expect(r.subsidiaer_resultat).toBeNull();
@@ -2903,13 +2903,13 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     expect(les([justering, rettidighet, { ...posten, beloep: 29000 }])).toThrow(/summerer ikke/);
   });
 
-  it('et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått (valg 2 i #1047)', () => {
+  it('et beløp etter begrensningen over det byggherren godkjenner for posten, er ikke forstått (valg 2 i #1047)', () => {
     expect(
       les([justering, { ...rettidighet, begrenset_beloep: 30000 }, posten]),
       'kontroll'
     ).not.toThrow();
     expect(les([justering, { ...rettidighet, begrenset_beloep: 30001 }, posten])).toThrow(
-      /høyere enn det byggherren godtar for posten/
+      /høyere enn det byggherren godkjenner for posten/
     );
   });
 
