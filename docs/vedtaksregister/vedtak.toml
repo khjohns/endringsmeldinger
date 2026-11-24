@@ -25639,9 +25639,12 @@ Spørsmål 1 i [`docs/vedlegg/runde1-1065-2026-11-24/sporsmal.md`](../vedlegg/ru
 valgt = "B"
 svar = '''
 Oppdragsgiver 24.11, ordrett: «ja til alle anbefalingene». Valgt: B.'''
-forhold = [{ art = "utvider", vedtak = "lv-u76" }]
+forhold = [
+  { art = "utvider", vedtak = "lv-u76" },
+  { art = "presiserer", vedtak = "lv-u76" },
+]
 folge = '''
-Utvider og presiserer LV-U76: innsigelsen etter punkt 33.4 står prinsipalt bare når ingen innsigelse mot forholdet står foran den. Bygges i #2246.'''
+Utvider LV-U76 til avslaget av forholdet og påberopelsen etter punkt 32.2, også når innsigelsen etter punkt 33.4 ikke er gjort gjeldende. Presiserer LV-U76: innsigelsen etter punkt 33.4 står prinsipalt bare når ingen innsigelse mot forholdet står foran den. Bygges i #2246.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
