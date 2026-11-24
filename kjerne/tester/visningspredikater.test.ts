@@ -178,7 +178,10 @@ describe('akseptfristen står så lenge totalentreprenøren kan godta svaret (HF
 // OV-U32 og lagslinjen i LV-U34: et senere lag gjelder hvis innsigelsene i laget foran ikke fører
 // frem. Brevteksten i vederlaget leser predikatet, og visningen skal lese det samme (#2242).
 describe('innsigelsen i vederlagssvaret (#2242)', () => {
-  const rettidighet = (hjemmel: '34.1.2' | '34.1.3' | '34.3.3', iTide: boolean): Standpunkt => ({
+  const rettidighet = (
+    hjemmel: '34.1.2' | '34.1.3' | '34.3.3' | '34.4',
+    iTide: boolean
+  ): Standpunkt => ({
     id: 's',
     art: 'rettidighet',
     gjelder: 'v',
@@ -212,6 +215,7 @@ describe('innsigelsen i vederlagssvaret (#2242)', () => {
 
   it.each([
     ['varselet etter § 34.1.2 kom i tide', rettidighet('34.1.2', true)],
+    ['varselet etter § 34.4 kom for sent (KA-U64: ingen virkning)', rettidighet('34.4', false)],
     ['byggherren godtar beregningsregelen', regel(true)],
     ['byggherren godtar justeringen av enhetsprisene', justering(true)],
     [

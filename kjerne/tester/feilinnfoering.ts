@@ -6557,6 +6557,14 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["    (s.art === 'justering' && !s.godtar)", '    false']],
     mal: ['er en innsigelse når byggherren godtar ikke justeringen av enhetsprisene'],
   },
+  {
+    id: 'F763',
+    feilklasse:
+      'et for sent varsel etter § 34.4 er en innsigelse i vederlagssvaret, enda det ikke har virkning (KA-U64, #2242)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [["!s.iTide && s.hjemmel !== '34.4')", '!s.iTide)']],
+    mal: ['er ikke en innsigelse når varselet etter § 34.4 kom for sent'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {
