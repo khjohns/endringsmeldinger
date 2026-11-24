@@ -42,9 +42,9 @@ export const SKJEMA = haerdet({
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   formSpoersmaalRegel: 'Oppgjørsformen',
   metodeTittel: 'Beregningsmetode',
-  godkjenner: (m: Oppgjoersform) => `Godkjenner ${metodenavn(m)}`,
+  godkjenner: (m: Oppgjoersform) => `${m === 'tilbud' ? 'Godkjenner' : 'Godtar'} ${metodenavn(m)}`,
   menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
-  godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
+  godkjennerIkkeRegel: (m: Regel) => `Godtar ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
   kreverTilbud: (post: string | null) =>
@@ -59,7 +59,7 @@ export const SKJEMA = haerdet({
   gjoerGjeldendeVarsel: 'Varselet ble ikke gitt eller kom for sent',
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
-  godkjennerJustering: 'Godkjenner justeringen',
+  godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',
   /** Til høyre på linja med labelen eller spørsmålet over et valgfritt felt (`Valgfri`). */
   valgfri: 'Valgfri',
@@ -70,7 +70,8 @@ export const SKJEMA = haerdet({
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
   // Med en kravpost etter en beregningsregel (U-9 i BF-14).
-  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen totalentreprenøren krever for alle kravpostene',
+  godkjennAlleFormerRegel: 'Godta oppgjørsformen totalentreprenøren krever for alle kravpostene',
+  godkjennAlleFormerBlandet: 'Godkjenn fast sum og godta beregningsreglene for alle kravpostene',
   godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
   teKrever: (beloep: number, pns?: string) =>
     `Totalentreprenøren krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
@@ -118,8 +119,9 @@ export const SKJEMA = haerdet({
   mangler: 'Dette mangler før brevet kan lages:',
   lagfeil: 'Vi kunne ikke beregne vilkårene for svaret. Prøv å laste saken på nytt.',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerForm: (m: Oppgjoersform) => `Velg om du godkjenner ${metodenavn(m)}.`,
-  manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
+  manglerForm: (m: Oppgjoersform) =>
+    `Velg om du ${m === 'tilbud' ? 'godkjenner' : 'godtar'} ${metodenavn(m)}.`,
+  manglerJustering: 'Velg om du godtar justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
   manglerDelbeloep: 'Skriv beløpet du godkjenner.',
   /** Med flere kravposter sier meldingen hvilken den gjelder. */
@@ -204,10 +206,12 @@ export const FRISTSVAR = haerdet({
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
   maatteForstaaHoeyst: (grense: number) => `Skriv høyst ${dager(grense)}.`,
   leselinjeDager: (n: number, krevd: number) =>
-    n === krevd
-      ? `${dager(n)}, godkjent som krevd`
-      : n === 0
-        ? 'Avslått'
+    n === 0
+      ? 'Avslått'
+      : n === krevd
+        ? n === 1
+          ? '1 dag godkjent'
+          : `Alle ${n} dagene godkjent`
         : `${n} av ${dager(krevd)} godkjent`,
 });
 

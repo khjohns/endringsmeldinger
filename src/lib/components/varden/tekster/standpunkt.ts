@@ -28,13 +28,16 @@ export const grunntekst = haerdet((grunn: Subsidiaergrunn, du: boolean, brev: Br
 function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
-      const form = metodenavn(oppgjoersformEtter(s.hjemmel));
+      const f = oppgjoersformEtter(s.hjemmel);
+      // Svar 2 A 24.11: en beregningsregel godtas, fast sum godkjennes.
+      const verb = f === 'enhetspriser' || f === 'regningsarbeid' ? 'Godtar' : 'Godkjenner';
       return (
         (s.aksepterer
-          ? `Godkjenner ${form}`
+          ? `${verb} ${metodenavn(f)}`
           : s.oensket
             ? `Mener ${metodenavn(s.oensket)}`
-            : `Godkjenner ikke ${form}`) + (s.kreverTilbud ? `, ${SKJEMA.kreverTilbudKort}` : '')
+            : `${verb} ikke ${metodenavn(f)}`) +
+        (s.kreverTilbud ? `, ${SKJEMA.kreverTilbudKort}` : '')
       );
     }
     // Byggherrens standpunkt, ikke løsningens konklusjon.
@@ -46,12 +49,12 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
         ? 'Godkjenner at varselet etter punkt 34.3.3 kom i tide'
         : 'Gjør gjeldende at varselet etter punkt 34.3.3 kom for sent';
     case 'justering':
-      return s.godtar ? 'Godkjenner justeringen' : 'Bestrider justeringen';
+      return s.godtar ? 'Godtar justeringen' : 'Bestrider justeringen';
     case 'beloep':
       // KA-U72: uten aksept av tilbudet står ingen linje for beløpet.
       if (s.godkjent === undefined) return null;
       if (krevd === undefined) return `${kroner(s.godkjent)} godkjent`;
-      if (s.godkjent === krevd) return `${kroner(s.godkjent)}, godkjent som krevd`;
+      if (s.godkjent === krevd) return `Hele beløpet på ${kroner(s.godkjent)} godkjent`;
       return `${kroner(s.godkjent)} av ${kroner(krevd)} godkjent`;
     default:
       return null;
@@ -119,18 +122,21 @@ function standpunkttekstMedVanligeMellomrom(
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
-    case 'oppgjoersform':
+    case 'oppgjoersform': {
+      const f = oppgjoersformEtter(s.hjemmel);
+      const verb = f === 'enhetspriser' || f === 'regningsarbeid' ? 'godtar' : 'godkjenner';
       return (
         (s.aksepterer
-          ? sier('godkjenner', `oppgjørsformen totalentreprenøren krever${forPosten}`)
-          : sier('godkjenner', `ikke oppgjørsformen totalentreprenøren krever${forPosten}`) +
+          ? sier(verb, `oppgjørsformen totalentreprenøren krever${forPosten}`)
+          : sier(verb, `ikke oppgjørsformen totalentreprenøren krever${forPosten}`) +
             (s.oensket
               ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}`
               : '')) + (s.kreverTilbud ? `, og krever et spesifisert tilbud (punkt 34.2.1)` : '')
       );
+    }
     case 'justering':
       return s.godtar
-        ? sier('godkjenner', `justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`)
+        ? sier('godtar', `justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`)
         : sier('bestrider', `justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`);
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
@@ -155,8 +161,8 @@ function standpunkttekstMedVanligeMellomrom(
     case 'dager': {
       const hva = `Fristforlengelse${forPosten}`;
       if (s.resultat === 'avslaatt') return `${hva}: ${hvemLiten} avslår dagene`;
-      if (s.vurdert === krevd)
-        return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}, som krevd`;
+      if (s.vurdert === krevd && s.vurdert > 0)
+        return `${hva}: ${hvemLiten} godkjenner ${s.vurdert === 1 ? dager(1) : `alle ${s.vurdert} dagene`}`;
       return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}${krevd !== undefined ? ` av ${dager(krevd)}` : ''}`;
     }
     default:

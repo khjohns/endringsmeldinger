@@ -95,6 +95,13 @@
   // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift.
   const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
   const harRegel = $derived(poster.some(etterRegel));
+  const godkjennAlleFormerTekst = $derived(
+    !harRegel
+      ? SKJEMA.godkjennAlleFormer
+      : poster.every(etterRegel)
+        ? SKJEMA.godkjennAlleFormerRegel
+        : SKJEMA.godkjennAlleFormerBlandet
+  );
   const stoppet = $derived(harPost || hinder !== null);
 
   let valgtPost = $state<string | null>(null);
@@ -632,9 +639,7 @@
       {#if flere}
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
         <div class="snarveier">
-          <Knapp variant="lenke" onclick={godkjennAlleFormer}
-            >{harRegel ? SKJEMA.godkjennAlleFormerRegel : SKJEMA.godkjennAlleFormer}</Knapp
-          >
+          <Knapp variant="lenke" onclick={godkjennAlleFormer}>{godkjennAlleFormerTekst}</Knapp>
           <Knapp variant="lenke" onclick={godkjennAlle}
             >{harRegel ? SKJEMA.godkjennAlleFaste : SKJEMA.godkjennAlle}</Knapp
           >

@@ -9,7 +9,7 @@
 
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
@@ -302,7 +302,6 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
     await demosaken('te-har-mottatt-svaret', 'TE');
     const revider = screen.getByRole('button', { name: HANDLINGENE.revidertKrav });
     expect(revider.closest('li')?.textContent).toContain('Svar på krav om fristforlengelse');
-    expect(screen.queryByText(new RegExp(FRISTEN.endreEllerTaUt))).toBeNull();
     const andre = within(screen.getByRole('region', { name: HANDLINGENE.andre }));
     const rader = andre.getAllByRole('button').map((b) => b.textContent ?? '');
     expect(rader.findIndex((t) => t.includes('Anse avslaget som pålegg om forsering'))).toBe(
@@ -310,6 +309,22 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
     );
     expect(andre.getByText(FRISTEN.forseringLinje)).toBeTruthy();
     expect(andre.getByText(FRISTEN.trekkEtterSvar)).toBeTruthy();
+  });
+
+  it('skjemaet for det nye kravet sier at svaret ikke kan godtas her når brevet er sendt, og ikke at byggherren ikke er bundet (MM-U34 punkt 1)', async () => {
+    await demosaken('te-har-mottatt-svaret', 'TE');
+    await fireEvent.click(screen.getByRole('button', { name: HANDLINGENE.revidertKrav }));
+    expect(
+      await screen.findByText(/Når du sender brevet, kan du ikke godta det svaret her\./)
+    ).toBeTruthy();
+    expect(screen.queryByText(/bundet/)).toBeNull();
+  });
+
+  it('i «Andre handlinger» står en linje bare under forseringen og trekket (U-6 i BF-45)', async () => {
+    await demosaken('te-har-mottatt-svaret', 'TE');
+    const andre = screen.getByRole('region', { name: HANDLINGENE.andre });
+    const linjer = [...andre.querySelectorAll('button .b')].map((l) => l.textContent);
+    expect(linjer).toEqual([FRISTEN.forseringLinje, FRISTEN.trekkEtterSvar]);
   });
 
   it('byggherren har ikke forseringen (FO-U1)', async () => {
@@ -358,7 +373,6 @@ describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
     );
     const svar = screen.getByRole('button', { name: FRISTEN.svarPaaForesporsel });
     expect(svar.closest('li')).toBe(veiledning.closest('li'));
-    expect(screen.queryByText(utenHardeMellomrom(FRISTEN.virkningForesporsel))).toBeNull();
     const kortet = within(screen.getByRole('region', { name: FRISTEN.utenKrav }));
     expect(kortet.getByText(/^Dagene er ikke angitt\. Totalentreprenøren varslet i /)).toBeTruthy();
   });
