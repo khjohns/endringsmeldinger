@@ -40,6 +40,7 @@ import {
   kravposterI,
   krevdRigg,
   OPPGJOERSHJEMMEL,
+  varselhjemmel,
   vederlagsinnhold,
 } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
@@ -49,7 +50,6 @@ import {
   saerskiltStrider,
   kravpostvarseletStrider,
   kravpostvarslene,
-  varselhjemmel,
 } from './utledning.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';

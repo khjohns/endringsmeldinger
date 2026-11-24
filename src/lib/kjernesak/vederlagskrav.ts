@@ -5,7 +5,8 @@
  */
 
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { kravpostvarslene, varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
+import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
+import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/kommando.ts';

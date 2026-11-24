@@ -185,7 +185,12 @@ export const UTREGNINGEN: Lesbar[] = [
   // #2025 punkt 6: vurderingen av beløpet for hver særskilt post i utkastet.
   ['VURDERINGEN_AV_SAERSKILT', 'kommando', 'produktivitet', ['spor/vederlag/kommando.ts:besvart']],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
-  ['spor/vederlag/utledning.ts', 'predikat', 'varselhjemmel', ['spor/vederlag/kommando.ts']],
+  [
+    'spor/vederlag/format.ts',
+    'predikat',
+    'varselhjemmel',
+    ['spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
+  ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
     'spor/vederlag/format.ts',
