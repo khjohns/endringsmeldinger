@@ -23,7 +23,7 @@ export const SAKSLISTE = haerdet({
   utenTittel: 'Uten tittel',
   inngaarIEo: (kode: string) => `Inngår i ${kode}`,
   paaberopelsenTrukket: 'Påberopelsen trukket',
-  avslagetGodtatt: 'Avslaget godtatt av TE',
+  avslagetGodtatt: 'Avslaget godtatt av totalentreprenøren',
   // Nøkkeltallene
   tallene: 'Tallene for kravene',
   vederlag: 'Vederlag',
@@ -37,7 +37,7 @@ export const SAKSLISTE = haerdet({
   alle: 'Alle',
   iEo: 'Inngår i EO',
   ikkeIEo: 'Ikke i EO',
-  avsluttet: 'Avsluttet av TE',
+  avsluttet: 'Avsluttet av totalentreprenøren',
   sorterEtter: 'Sorter etter',
   opprettet: 'Opprettet',
   soek: 'Søk i sakene',
@@ -45,7 +45,7 @@ export const SAKSLISTE = haerdet({
   ingenTreff: {
     eo: 'Ingen saker inngår i en endringsordre.',
     'ikke-eo': 'Alle sakene inngår i en endringsordre.',
-    avsluttet: 'Ingen saker er avsluttet av TE.',
+    avsluttet: 'Ingen saker er avsluttet av totalentreprenøren.',
   } as Record<string, string>,
   visAlle: 'Vis alle sakene',
   // Tilstandene
@@ -55,5 +55,5 @@ export const SAKSLISTE = haerdet({
   tomKoe: 'Ingen krav om endringsordre ennå.',
   tomKoeTe: 'Ingen krav om endringsordre ennå. Et nytt krav begynner med påberopelsen.',
   tomEo: 'Ingen endringsordrer ennå.',
-  tomEoForklaring: 'Endringsordrene vises her når de kan føres i løsningen.',
+  tomEoForklaring: 'Endringsordrene kan ikke føres her ennå.',
 });

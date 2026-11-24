@@ -3323,6 +3323,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "Ordet for partens standpunkt («godtar») er ordlyd. Ordet i brevene og visningen står i språkfila, raden «Godkjenner og godtar» (svar 3 A 24.11, #2184)"
 id = "KA-U78"
 dato = 2026-11-12
 hvem = "oppdragsgiver"
@@ -11182,6 +11183,7 @@ og for § 33.3 første, tredje og femte ledd 11.10 av [VS-U13](#vs-u13) og
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "Ordet for partens standpunkt («godtar») er ordlyd. Ordet i brevene og visningen står i språkfila, raden «Godkjenner og godtar» (svar 3 A 24.11, #2184)"
 anker = "vs-u4"
 vedtak = '''
 VS-U4: påberoper parten som mottar kravet eller varselet, at kravet ble spesifisert for
@@ -14116,6 +14118,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "I svar 3: ordet for partens standpunkt («godtar») er ordlyd. Ordet i brevene og visningen står i språkfila, raden «Godkjenner og godtar» (svar 3 A 24.11, #2184)"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "VS-U47"
 dato = 2026-11-05
@@ -14291,7 +14294,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket. I punkt 8: ordet for partens standpunkt («godtar») er ordlyd. Ordet i brevene og visningen står i språkfila, raden «Godkjenner og godtar» (svar 3 A 24.11, #2184)"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, og punkt 16, som viser til den"
 id = "OV-U89"
 dato = 2026-11-04
@@ -25623,6 +25626,37 @@ Byggherren velger i skjemaet om forbeholdet tas med.'''
 navn = "C"
 tekst = '''
 Ingen endring.'''
+
+
+[[gruppe.vedtak]]
+id = "LV-U77"
+dato = 2026-11-24
+hvem = "oppdragsgiver"
+kilde = ["#2246", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1 i [`docs/vedlegg/runde1-1065-2026-11-24/sporsmal.md`](../vedlegg/runde1-1065-2026-11-24/sporsmal.md): hvilke innsigelser forbeholdet i forespørselen etter punkt 33.6.2 omfatter. LV-U76 gir forbeholdet når byggherren har påberopt at varselet etter punkt 33.4 kom for sent. Har byggherren også avslått forholdet eller påberopt at varselet etter punkt 32.2 kom for sent, står disse standpunktene først (OV-U32), og innsigelsen etter punkt 33.4 står da ikke prinsipalt. Avgrensninger som følger av vedtakene uansett svar: forbeholdet viser til varselet og til brevet der byggherren gjorde innsigelsen gjeldende, i formen fra LV-U4 punkt 5; en innsigelse byggherren har gitt opp, tas ikke med; om brevet skriver «prinsipalt», er design; er forholdet ubesvart, gjelder GR-U34. Styrer LV-U76 og brevteksten for forespørselen i #2246.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 24.11, ordrett: «ja til alle anbefalingene». Valgt: B.'''
+forhold = [
+  { art = "utvider", vedtak = "lv-u76" },
+  { art = "presiserer", vedtak = "lv-u76" },
+]
+folge = '''
+Utvider LV-U76 til avslaget av forholdet og påberopelsen etter punkt 32.2, også når innsigelsen etter punkt 33.4 ikke er gjort gjeldende. Presiserer LV-U76: innsigelsen etter punkt 33.4 står prinsipalt bare når ingen innsigelse mot forholdet står foran den. Bygges i #2246.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forbeholdet i forespørselen etter punkt 33.6.2 gjelder bare innsigelsen etter punkt 33.4, som i LV-U76. Har byggherren også avslått forholdet eller påberopt at varselet etter punkt 32.2 kom for sent, sier forespørselen ikke at innsigelsen etter punkt 33.4 står prinsipalt, og den nevner ikke innsigelsene mot forholdet. Forhold: presiserer LV-U76.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Har byggherren avslått forholdet, påberopt at varselet etter punkt 32.2 kom for sent eller påberopt at varselet etter punkt 33.4 kom for sent, sier forespørselen etter punkt 33.6.2 at byggherren fastholder disse innsigelsene, i den rekkefølgen svaret har dem (OV-U32). Den sier også at forespørselen sendes for det tilfellet at innsigelsene ikke fører frem. Forhold: utvider LV-U76 til avslaget av forholdet og påberopelsen etter punkt 32.2, også når innsigelsen etter punkt 33.4 ikke er gjort gjeldende. Presiserer LV-U76: innsigelsen etter punkt 33.4 står prinsipalt bare når ingen innsigelse mot forholdet står foran den.'''
+anbefalt = true
 
 
 [[gruppe.vedtak]]

@@ -332,7 +332,7 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     expect(kort.queryByRole('table')).toBeNull();
     expect(kort.queryByText('Totalentreprenøren krever')).toBeNull();
     expect(kort.getByText('Oppgjørsform').nextElementSibling?.textContent?.trim()).toBe(
-      'Regningsarbeid etter punkt\u00a034.4. Byggherren godkjenner regningsarbeid i brev 3.'
+      'Regningsarbeid etter punkt\u00a034.4. Byggherren godtar regningsarbeid i brev 3.'
     );
   });
 });

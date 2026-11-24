@@ -50,7 +50,7 @@ export const SAKEN = haerdet({
   /** OV-U86. */
   dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
   /** MM-U44, OV-U4. */
-  ikkeForstaatt: `Saken har en hendelse løsningen ikke kan lese. Kravene, svarene og fristene i saken vises derfor ikke. Brev kan ikke sendes herfra. Et varsel med frist sender du på annen måte, og legger til i saken etterpå med «${LEGG_TIL.tittel}».`,
+  ikkeForstaatt: `Saken har en hendelse som ikke kan leses her. Kravene, svarene og fristene i saken vises derfor ikke. Brev kan ikke sendes herfra. Et varsel med frist sender du på annen måte, og legger til i saken etterpå med «${LEGG_TIL.tittel}».`,
   /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */
   nyttKrav: 'Nytt krav om endringsordre',
   iCatenda: 'Åpne saken i Catenda',

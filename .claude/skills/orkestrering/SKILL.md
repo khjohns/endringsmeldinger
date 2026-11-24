@@ -40,6 +40,11 @@ lukket og oppdragsgiver har fått avslutningen (punkt 5).
    «Forhåndsgodkjenning» er sjekket (punkt 4).
 3. PR-en er oppdatert mot `main`, eller et unntak gjelder, CI er grønn på siste
    commit, og mergen bruker `expectedHeadSha` (punkt 4).
+4. Har oppdraget bestilt review fra verktøyøkta, står kommentaren «Ukontrollert review
+   fra …» i PR-en for commiten `/code-review` gjelder, og utfallet står i «Funn og
+   utfall». Ellers sier PR-en hvorfor reviewet ikke er kjørt
+   ([verktøyøkt-skillen](../verktoyokt/SKILL.md#i-byggeøkta)). En linje om at reviewet er
+   bestilt, er ikke nok (#1065, 24.11).
 
 ## 1. Kartlegg før du fordeler
 
@@ -151,7 +156,9 @@ ikke de faste reglene i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). Det inneh
 - hvem som kjører reviewet, etter «Review i byggeøkta» i arbeidsøkt-skillen, og
   `/simplify` før `/code-review` når orkestratoren har bestilt den;
 - om PR-en skal ha review eller sparring fra verktøyøkta, med verktøyet og
-  ID-en til verktøyøkta ([verktøyøkt-skillen](../verktoyokt/SKILL.md));
+  ID-en til verktøyøkta ([verktøyøkt-skillen](../verktoyokt/SKILL.md)). Et review
+  bestilles når commiten `/code-review` skal gjelde, er pushet, etter `/simplify` når
+  den er bestilt. Oppdraget skriver ikke «rett etter pushen»;
 - svarene på det som ellers blir spørsmål: importlinjer i en annen økts fil kan endres
   i en egen commit uten å spørre, tekniske valg i egne filer tar økta og fører i PR-en,
   og `/simplify` står i oppdraget når et kriterium er kjent (oppdragsgiver 13.11).

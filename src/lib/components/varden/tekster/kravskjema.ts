@@ -18,7 +18,7 @@ export const KRAVSKJEMA = haerdet({
     `Oppdaterer kravet i ${brevref(krav)}.${svar ? ` Byggherren svarte i ${brevref(svar)}. Når du sender brevet, kan du ikke godta det svaret her. Har byggherren gitt et tilbud? Skriv i begrunnelsen om du godtar tilbudet, avslår det eller tar forbehold.` : ''}`,
   /** Den nye påberopelsen: påminnelsen om tilbudet gjelder kravene (MM-U34 punkt 1). */
   folgerOppPaaberopelsen: (paaberopelse: Brevref, svar: Brevref | null) =>
-    `Oppdaterer påberopelsen i ${brevref(paaberopelse)}.${svar ? ` Byggherren svarte i ${brevref(svar)}.` : ''}`,
+    `Oppdaterer påberopelsen i ${brevref(paaberopelse)}.${svar ? ` Byggherren svarte i ${brevref(svar)}. Når du sender brevet, kan du ikke godta det svaret her.` : ''}`,
   // 1. Vederlagsjusteringen.
   postene: 'Vederlagsjustering',
   posteneHjemmel: ['34.1.1', '34.1.2'],

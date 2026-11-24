@@ -82,9 +82,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/synlig for teamet/i);
     // Brevet oppdaterer påberopelsen, ikke et krav, og byggherrens svar er ikke et tilbud
-    // (språkfila, «Brev, ikke versjon»; MM-U34 punkt 1 gjelder kravene).
+    // (språkfila, «Brev, ikke versjon»; påminnelsen om tilbudet i MM-U34 punkt 1 gjelder kravene).
+    // Svaret kan ikke godtas her når den nye påberopelsen er sendt (MM-U34 punkt 2).
     expect(
-      skjema.getByText(/^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\.$/)
+      skjema.getByText(
+        /^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\. Når du sender brevet, kan du ikke godta det svaret her\.$/
+      )
     ).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/Oppdaterer kravet|tilbud/);
     expect(skjema.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
@@ -291,7 +294,8 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
 
   it('før svaret heter handlingen også «Oppdater påberopelse» og står under «Andre handlinger», uten primærhandling (U-1, #1649, oppdragsgiver 07.11)', async () => {
     const kortet = await vis('BF-05', 'paaberopelsen-er-sendt', 'TE', 'forhold');
-    expect(kortet.queryByRole('button', { name: 'Oppdater påberopelse' })).toBeNull();
+    const andre = within(kortet.getByRole('region', { name: 'Andre handlinger' }));
+    expect(andre.getByRole('button', { name: 'Oppdater påberopelse' })).toBeTruthy();
     expect(
       kortet.queryAllByRole('button').filter((k) => k.className.includes('primaer'))
     ).toHaveLength(0);

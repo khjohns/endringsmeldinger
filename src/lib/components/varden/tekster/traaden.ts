@@ -34,7 +34,7 @@ export const TRAADEN = haerdet({
     b.art === 'registrert'
       ? `${stor(PARTEN[b.avsender])} la til korrespondanse ${dato(b.registrert)}.`
       : `${stor(PARTEN[b.avsender])} sendte siste brev ${dato(b.registrert)}.`,
-  /** Et eldre krav, fulgt opp av et nytt brev med kravet (U-5 i BF-44). */
+  /** Et eldre krav, oppdatert i et nytt brev med kravet (U-5 i BF-44). */
   fulgtOpp: (b: Brevref) => ` · oppdatert i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
   fra: (part: Part) => ` fra ${PARTEN[part]}`,
