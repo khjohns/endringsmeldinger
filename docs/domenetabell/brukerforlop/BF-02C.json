@@ -9,7 +9,8 @@
   },
   "bevis_saker": [],
   "visninger": [
-    "demoruta"
+    "demoruta",
+    "saksruta"
   ],
   "endringer": [
     {
@@ -41,6 +42,11 @@
       "dato": "2026-11-06",
       "forhold": "oppdragsgiver 06.11, tekstene i #1646",
       "hva": "Forståelsen kaller ikke den nye versjonen en ny kravversjon."
+    },
+    {
+      "dato": "2026-11-24",
+      "forhold": "#2299",
+      "hva": "Forløpet kjøres i saksruta. Ingenting hindret det: `saksruta` var ikke ført i `visninger`."
     }
   ],
   "steg": [
