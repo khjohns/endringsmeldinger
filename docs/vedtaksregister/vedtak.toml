@@ -4953,6 +4953,31 @@ tekst = '''
 Påberoper byggherren bare at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter uten vilkår.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "OV-U117"
+dato = 2026-11-24
+hvem = "oppdragsgiver"
+kilde = ["#2280", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1 i [`docs/vedlegg/runde2-1065-2026-11-24/sporsmal.md`](../vedlegg/runde2-1065-2026-11-24/sporsmal.md), ordrett slik det ble stilt 24.11: «Kan en innsigelse mot én kravpost være vilkår for standpunktet til en annen kravpost?» Bakgrunnen og alternativene står ordrett i spørsmålsfila. A ble anbefalt.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 24.11, ordrett: «A som anbefalt» ([svaret i #2280](https://github.com/khjohns/endringsmeldinger/issues/2280#issuecomment-7138813504)). Valgt: A.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u32" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En innsigelse som gjelder én kravpost, rammer bare standpunktet til den kravposten. Den er ikke vilkår for standpunktet til en annen kravpost.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En innsigelse som gjelder én kravpost, er også vilkår for standpunktet til en annen kravpost når den rammer den andre posten.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
@@ -25814,6 +25839,63 @@ navn = "Ja"
 tekst = '''
 Utkastet til A1 gjelder som samlevedtaket for brev sendt utenfor løsningen, med punkt 1–24, beslutningsdelen, designdelen og «Endret innhold» E1–E3, slik det står i vurderingsfila under «Utkastet til A1».'''
 anbefalt = true
+
+[[gruppe.vedtak]]
+id = "MM-U57"
+dato = 2026-11-24
+hvem = "oppdragsgiver"
+kilde = ["#2286", "#1065"]
+klasse = "beslutning"
+bindende_i = ["mm-u50"]
+sporsmal = '''
+Spørsmål A, ordrett slik det ble stilt 24.11 i [kommentaren i #2286](https://github.com/khjohns/endringsmeldinger/issues/2286#issuecomment-7137025935): «Skal lesingen av et sendt brev være uavhengig av dagens ordlyd? Gjelder hvordan løsningen lagrer et brev.» A1 ble anbefalt av alle tre vurderingene.'''
+valgt = "A1"
+svar = '''
+Oppdragsgiver 24.11, ordrett: «A1, B1» ([svaret i #2286](https://github.com/khjohns/endringsmeldinger/issues/2286#issuecomment-7137207833)). Valgt: A1.'''
+forhold = [{ art = "presiserer", vedtak = "mm-u50" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A1"
+tekst = '''
+Et sendt brev leses uten dagens ordlyd. Det løsningen trenger å vite om oppbygningen av et sendt brev, som hva som er en lagslinje, hvilket forhold tittelen nevner, og hvilken sak brevet gjelder, lagres som egne opplysninger i brevet når det sendes. En senere endring i ordlyden endrer verken hvordan et sendt brev vises, eller om saken er forstått. Forhold: presiserer MM-U50 punkt 1.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A2"
+tekst = '''
+Løsningen kjenner igjen oppbygningen av et sendt brev på ordene i teksten. Endres disse ordene, må løsningen fortsatt kjenne igjen de gamle.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U58"
+dato = 2026-11-24
+hvem = "oppdragsgiver"
+kilde = ["#2286", "#1065"]
+klasse = "beslutning"
+bindende_i = ["lv-u2", "mm-u50"]
+sporsmal = '''
+Spørsmål B, ordrett slik det ble stilt 24.11 i [kommentaren i #2286](https://github.com/khjohns/endringsmeldinger/issues/2286#issuecomment-7137025935): «Hva skal hindre at et brev sendes med en annen ordlyd enn avsenderen har sett? Kan vente til issue 5 er bygget.» Med spørsmålet sto, ordrett: «Forskjellen mellom B1 og B2 er godkjenningspakken: med B1 kan en pakke godkjent før en ordendring sendes etter den, hvis akkurat dette brevet får samme tekst. Med B2 må den godkjennes på nytt.» B1 ble anbefalt av Gemini og vurderingsøkta, B2 av Codex.'''
+valgt = "B1"
+svar = '''
+Oppdragsgiver 24.11, ordrett: «A1, B1» ([svaret i #2286](https://github.com/khjohns/endringsmeldinger/issues/2286#issuecomment-7137207833)). Valgt: B1.'''
+forhold = [{ art = "endrer", vedtak = "b-13-regelversjon" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "B1"
+tekst = '''
+Regelversjonen angir reglene og sammensetningen av brevet: hvilke utsagn, standpunkter, lag, beløp og dager brevet har. En endring som bare gjelder ordene, gir ikke ny regelversjon. Et brev sendes bare når tittelen, merkingen, henvisningene og teksten avsenderen har sett, er lik det serveren lager, og det er den teksten som fryses (LV-U2). Forhold: endrer B-13 regelversjon.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B2"
+tekst = '''
+Som B1, og tekstene har i tillegg en egen versjon. Et brev eller en godkjent pakke laget med en annen versjon av tekstene avvises, også når teksten er den samme. Forhold: endrer B-13 regelversjon. Kommandoen og pakken får et nytt felt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B3"
+tekst = '''
+Regelversjonen angir reglene og tekstgeneratorene, og hver endring i ordlyden gir ny regelversjon. Forhold: ingen endring.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
