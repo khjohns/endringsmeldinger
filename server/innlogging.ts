@@ -284,7 +284,11 @@ async function loggInn(
   leverandoer: Leverandoer
 ): Promise<Svar> {
   const avvist = () =>
-    loggAvvisning(avh.datalag, { hendelse: leverandoer.hendelse, grunn: 'utilgjengelig' });
+    loggAvvisning(
+      avh.datalag,
+      { hendelse: leverandoer.hendelse, grunn: 'utilgjengelig' },
+      { eier: avh, naa: avh.tidspunkt() }
+    );
   if (!avh.innlogging || !leverandoer.sattOpp(avh.innlogging)) {
     await avvist();
     return utilgjengelig();
@@ -319,7 +323,11 @@ async function tilbakekall(
   const innlogging = avh.innlogging;
   let identitet: ForsoektIdentitet | undefined;
   const avvis = (grunn: Innloggingsavvisning) =>
-    loggAvvisning(avh.datalag, { hendelse: leverandoer.hendelse, grunn, identitet });
+    loggAvvisning(
+      avh.datalag,
+      { hendelse: leverandoer.hendelse, grunn, identitet },
+      { eier: avh, naa: avh.tidspunkt() }
+    );
   if (!innlogging || !leverandoer.sattOpp(innlogging)) {
     await avvis('utilgjengelig');
     return [503, { error: 'AUTH_UNAVAILABLE' }];
