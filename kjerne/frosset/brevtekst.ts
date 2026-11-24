@@ -826,8 +826,7 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
   switch (u.art) {
     case 'varsel': {
       const hjemmel = uttrykkbar(u.hjemmel);
-      // VS-U15: et brev med bare varselet er selve varselet. LV-U19: varselet etter § 34.1.2 har
-      // samme form. Et varsel sendt før kravet står i et eget registrert brev (VS-U34).
+      // VS-U15, LV-U19: varselet står alene i brevet. Ellers VS-U34.
       if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
         return `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
       throw new KanIkkeUttrykkes('et varsel i et brev fra løsningen står alene i brevet (VS-U15)');
