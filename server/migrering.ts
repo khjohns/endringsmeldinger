@@ -32,6 +32,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sql from 'mssql';
 import { reservasjon, type Forbindelse } from './datalag.ts';
+import { skann, uavsluttet, type Tilstand } from './sqlleser.ts';
 
 export const MIGRASJONSMAPPE = fileURLToPath(new URL('../database/migrasjoner/', import.meta.url));
 
@@ -73,46 +74,6 @@ export class MigreringAvvist extends Error {
   override name = 'MigreringAvvist';
 }
 
-type Tilstand =
-  | { i: 'kode' }
-  | { i: 'tekst' | 'navn' | 'sitert'; slutt: string; linje: number }
-  | { i: 'kommentar'; dybde: number; linje: number };
-
-/** Tilstanden etter `linje` (nummer `nr`), fra tilstanden før den. */
-function skann(linje: string, nr: number, foer: Tilstand): Tilstand {
-  let t = foer;
-  for (let k = 0; k < linje.length; k++) {
-    const to = linje.slice(k, k + 2);
-    if (t.i === 'kode') {
-      if (to === '--') return t;
-      if (to === '/*') {
-        t = { i: 'kommentar', dybde: 1, linje: nr };
-        k++;
-      } else if (linje[k] === "'") t = { i: 'tekst', slutt: "'", linje: nr };
-      else if (linje[k] === '[') t = { i: 'navn', slutt: ']', linje: nr };
-      else if (linje[k] === '"') t = { i: 'sitert', slutt: '"', linje: nr };
-    } else if (t.i === 'kommentar') {
-      if (to === '/*' || to === '*/') {
-        const dybde = t.dybde + (to === '/*' ? 1 : -1);
-        t = dybde === 0 ? { i: 'kode' } : { ...t, dybde };
-        k++;
-      }
-    } else if (linje[k] === t.slutt) {
-      // `''`, `]]` og `""` er tegnet selv, ikke slutten.
-      if (linje[k + 1] === t.slutt) k++;
-      else t = { i: 'kode' };
-    }
-  }
-  return t;
-}
-
-const BESKRIVELSE = {
-  tekst: 'Teksten',
-  navn: 'Navnet i hakeparentes',
-  sitert: 'Navnet i anførselstegn',
-  kommentar: 'Kommentaren',
-};
-
 /**
  * Teksten delt på linjer med bare `GO`, uten tomme satser. `GO` i en tekst, et
  * navn eller en kommentar er en del av satsen. `GO` med noe annet etter enn en
@@ -136,10 +97,7 @@ export function delPaaGo(tekst: string): string[] {
     linjer.push(linje);
     t = skann(linje, i + 1, t);
   }
-  if (t.i !== 'kode')
-    throw new MigreringAvvist(
-      `${BESKRIVELSE[t.i]} som begynner på linje ${t.linje}, er ikke avsluttet.`
-    );
+  if (t.i !== 'kode') throw new MigreringAvvist(uavsluttet(t));
   satser.push(linjer.join('\n'));
   return satser.filter((s) => s.trim() !== '');
 }

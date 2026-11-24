@@ -393,7 +393,7 @@ const KRAVET_OM = 'justering av vederlaget';
 
 /** Brevteksten i vederlagssporet. */
 export const BREVTEKSTEN_I_VEDERLAGET = {
-  svaretGjelder: `kravet om ${KRAVET_OM}`,
+  svaretGjelder: () => `kravet om ${KRAVET_OM}`,
   krav: vederlagstekst,
   // LV-U74: utdypningen for hele kravet er begrunnelsen, foran «Forbehold».
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
