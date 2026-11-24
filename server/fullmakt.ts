@@ -12,11 +12,8 @@ import { hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { lesKontraktsfrister, type Fristtabell } from './kontraktsfrister.ts';
-import {
-  datoenEtterForlengelsene,
-  lesForlengelsene,
-  type SakensForlengelse,
-} from './forlengelser.ts';
+import { lesForlengelsene } from './forlengelser.ts';
+import { datoenEtterForlengelsene, type SakensForlengelse } from '../kjerne/spor/frist/visning.ts';
 import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
@@ -51,7 +48,7 @@ export interface Fristgrunnlag {
   sats: number | null;
   /**
    * Dagene for fristen i de andre sakene som forlenger den for fullmakten: avtalt og godkjent
-   * (GFK-U26). Skjemaet tar bare med de avtalte (`fristlinjer` i `server/kontraktsfrister.ts`).
+   * (GFK-U26). Skjemaet tar bare med de avtalte (`fristtabellsvaret` i `kjerne/spor/frist/visning.ts`).
    */
   tattMed: SakensForlengelse[];
   /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4 i

@@ -6576,6 +6576,51 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['som verken er true eller false, avvises'],
   },
   {
+    id: 'F765',
+    feilklasse:
+      'datoen i fristtabellen tar med dager byggherren har godkjent uten enighet (KA-U77, GR-U38, #2277)',
+    fil: `${K}/spor/frist/visning.ts`,
+    endringer: [
+      ["const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');", 'const avtalt = tattMed;'],
+    ],
+    mal: ['KA-U77, GR-U38: dager byggherren har godkjent uten enighet'],
+  },
+  {
+    id: 'F766',
+    feilklasse:
+      'en sak kjernen ikke forstår, gjør ikke datoen i fristtabellen ukjent (MM-U2, #2277)',
+    fil: `${K}/spor/frist/visning.ts`,
+    endringer: [['  ikkeForstaatt.some((s) => s !== utenom)', '  false']],
+    mal: [
+      'MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist',
+      'MM-U2: en annen sak kjernen ikke forstår, gjør datoen ukjent',
+    ],
+  },
+  {
+    id: 'F767',
+    feilklasse: 'dagene i saken siden viser, forlenger gjeldende frist (KA-U77, HF-U5, #2277)',
+    fil: `${K}/spor/frist/visning.ts`,
+    endringer: [['forlengelser.filter((f) => f.sakId !== utenom)', 'forlengelser']],
+    mal: ['KA-U77, HF-U5: dagene i saken siden viser, er ikke med'],
+  },
+  {
+    id: 'F768',
+    feilklasse:
+      'saken siden viser, gjør gjeldende frist ukjent når kjernen ikke forstår den (MM-U2, #2277)',
+    fil: `${K}/spor/frist/visning.ts`,
+    endringer: [['  ikkeForstaatt.some((s) => s !== utenom)', '  ikkeForstaatt.length > 0']],
+    mal: [
+      'MM-U2: en annen sak kjernen ikke forstår, gjør datoen ukjent, men ikke saken siden viser',
+    ],
+  },
+  {
+    id: 'F769',
+    feilklasse: 'et varsel står når sporet har et krav (MM-U38, #2277)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['u.spor[spor].gjeldendeKrav === null && harVarsel', 'harVarsel']],
+    mal: ['et krav er ikke et varsel uten krav'],
+  },
+  {
     id: 'F770',
     feilklasse:
       'forespørselen tar ikke med påberopelsen etter § 33.4 i forbeholdet (LV-U76, #2246)',

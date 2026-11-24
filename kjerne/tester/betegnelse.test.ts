@@ -18,6 +18,7 @@ import {
   betegnelse,
   harVarsel,
   kravetStaar,
+  varseletStaar,
   visning,
 } from '../utledning/visning.ts';
 import { fasteBeloepIKravet, fasteBeloepISvaret } from '../spor/vederlag/format.ts';
@@ -425,6 +426,20 @@ describe('det sakslisten leser av kjernen (#1779)', () => {
     const u = utledet(paaberopelse, varselIFristen, foresporsel);
     expect(betegnelse(u, 'frist')).toBe('spesifisert_krav_etterspurt');
     expect([harVarsel(u, 'frist'), harVarsel(u, 'vederlag')]).toEqual([true, false]);
+  });
+
+  it('et varsel uten krav står til TE har avsluttet saken, og et krav er ikke et varsel uten krav (MM-U38)', () => {
+    const varslet = utledet(paaberopelse, varselIFristen, foresporsel);
+    expect([varseletStaar(varslet, 'frist'), varseletStaar(varslet, 'vederlag')]).toEqual([
+      true,
+      false,
+    ]);
+    expect(varseletStaar(utledet(paaberopelse, varselIFristen, trekk('forhold')), 'frist')).toBe(
+      false
+    );
+    const medKrav = utledet(paaberopelse, varselIFristen, fristkrav);
+    expect(harVarsel(medKrav, 'frist'), 'forutsetning').toBe(true);
+    expect(varseletStaar(medKrav, 'frist'), 'kravet står').toBe(false);
   });
 
   it('kravet og svaret har summen av de faste beløpene og antallet kravposter uten fast beløp (OV-U31, KA-U61, KA-U72, arbeidsvalget 12.11 i #1779)', () => {
