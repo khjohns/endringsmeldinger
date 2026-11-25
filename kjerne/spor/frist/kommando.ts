@@ -457,7 +457,7 @@ function varseldokumentetISaken(
   const brevene = foer.lest.filter(
     (h): h is Brevet =>
       h.art === 'dokument' &&
-      h.dokument.avsender === 'TE' &&
+      h.dokument.lagtTilAv === 'TE' &&
       erRegistrert(h.dokument.opplysninger) &&
       !rettet.has(h.id)
   );
