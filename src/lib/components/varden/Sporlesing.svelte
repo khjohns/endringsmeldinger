@@ -227,21 +227,21 @@
   // Svaret på hvert varsel som står alene, står ved brevet med varselet (U-16 i BF-44,
   // oppdragsgiver 25.11 i #2360). Det første er primærhandlingen når saken ikke har annet.
   const varselVed = $derived.by(() => {
-    const ved = new Map<string, string[]>();
+    const ved: Record<string, string[]> = {};
     // Et svar uten skjema, eller et brev utenfor tråden, står fortsatt under «Andre handlinger».
     const iTraaden = new Set(brevITraaden(alleBrev, spor).map((b) => b.id));
     for (const h of varselsvarene) {
       if (h.noekkel === primaer || !bygget.includes(h.noekkel)) continue;
       const b = brevMedUtsagn(u, h.gjelder!)?.id;
-      if (b && iTraaden.has(b)) ved.set(b, [...(ved.get(b) ?? []), h.noekkel]);
+      if (b && iTraaden.has(b)) ved[b] = [...(ved[b] ?? []), h.noekkel];
     }
     return ved;
   });
   const handlingerVed = $derived([
     ...(handlingVed === null ? [] : [handlingVed]),
-    ...[...varselVed.keys()].filter((b) => b !== handlingVed),
+    ...Object.keys(varselVed).filter((b) => b !== handlingVed),
   ]);
-  const vedVarslene = $derived(new Set([...varselVed.values()].flat()));
+  const vedVarslene = $derived(Object.values(varselVed).flat());
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
   // Kjernen sier om forseringen kan velges (`forseringKanVelges`, FO-U1, U-6 i BF-45), og
   // `kanGodta` om serveren lar totalentreprenøren svare på svaret. «Andre handlinger» setter den
@@ -251,7 +251,8 @@
   );
   const andre = $derived([
     ...menyvalg.filter(
-      (n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere && !vedVarslene.has(n)
+      (n) =>
+        !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere && !vedVarslene.includes(n)
     ),
     ...(forsering ? [FORSERING] : []),
   ]);
@@ -419,9 +420,9 @@
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
   {#if id === handlingVed}{@render vedBrevet()}{/if}
-  {#if varselVed.get(id)?.length}
+  {#if varselVed[id]?.length}
     <div class="knapper">
-      {#each varselVed.get(id)! as n (n)}
+      {#each varselVed[id] as n (n)}
         <Knapp variant={utkast ? 'sekundaer' : 'primaer'} onclick={() => velg(n)}
           >{innsigelsestekst(n)}</Knapp
         >
