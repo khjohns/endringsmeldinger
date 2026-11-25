@@ -123,7 +123,6 @@
   const brevMed = (dokument: string | null | undefined): Brevet | null =>
     dokument ? (alleBrev.find((b) => b.id === dokument) ?? null) : null;
   const kravbrevet = $derived(brevMed(forrige?.dokument));
-  const sistebrevet = $derived(brevMed(u.spor.vederlag.gjeldendeKrav?.dokument));
   const svarbrevet = $derived(eldre ? null : brevMed(u.spor.vederlag.gjeldendeSvar?.dokument));
   const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
   const forholdet = $derived(forholdetISaken(u));
@@ -843,8 +842,8 @@
   {kjernesak}
   {u}
   avsender="TE"
-  oppfolging={eldre && sistebrevet
-    ? { tekst: KRAVSKJEMA.eldre(sistebrevet, kravbrevet), brev: kravbrevet ?? sistebrevet }
+  oppfolging={eldre
+    ? { tekst: KRAVSKJEMA.eldre(kravbrevet), brev: kravbrevet }
     : kravbrevet
       ? { tekst: KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet), brev: lesbart }
       : forholdet && paaberopelsen

@@ -144,7 +144,6 @@
     alleBrev.find((b) => b.id === dokument) ?? null;
   const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
   const forrige = $derived(brevMed(utgangspunkt?.dokument));
-  const sistebrevet = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
   const svaret = $derived(eldre ? null : brevMed(u.spor.frist.gjeldendeSvar?.dokument));
   // Varselet etter punkt 33.4 er det registrerte varselet, ellers det første kravet i sporet
   // (`varselVedKravet` i kjernen). Uten noen av dem er dette kravet varselet (U-6).
@@ -689,8 +688,8 @@
   {onvedsiden}
   oppfolging={foresporselsbrev
     ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
-    : eldre && sistebrevet
-      ? { tekst: FRISTKRAV.eldre(sistebrevet, forrige), brev: forrige ?? sistebrevet }
+    : eldre
+      ? { tekst: FRISTKRAV.eldre(forrige), brev: forrige }
       : forrige
         ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
         : paaberopelsen

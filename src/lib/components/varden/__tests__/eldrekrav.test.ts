@@ -178,7 +178,11 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
 
   it('tar utgangspunkt i kravet sendt før det, og trekker bare en post derfra', async () => {
     const { tilServeren } = await skjemaet('2026-10-12');
-    expect(screen.getByText(/^Dokumentet er sendt før kravet i brev/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /^Kravpostene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før dokumentet\./
+      )
+    ).toBeInTheDocument();
     // Montering står bare i kravet sendt etter, så skjemaet har den ikke, og trekker den ikke.
     expect(betegnelsene()).toEqual(['P1 Riving', 'P2 Stillas']);
     expect(screen.queryByRole('button', { name: /Ta med igjen/ })).not.toBeInTheDocument();
@@ -223,7 +227,7 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
 
   it('et krav sendt før alle kravene i sporet har ingen poster å trekke', async () => {
     const { tilServeren } = await skjemaet('2026-10-05');
-    expect(screen.getByText(/Ingen krav i saken var sendt før dokumentet\./)).toBeInTheDocument();
+    expect(screen.getByText(/^Ingen krav var sendt før dokumentet/)).toBeInTheDocument();
     const sporsmaal = screen.getByRole('group', {
       name: /Er dette en kravpost i et annet krav i saken\?/,
     });
@@ -247,7 +251,7 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
 
   it('et krav lagt til, sendt etter det siste, følger gjeldende krav som før', async () => {
     await skjemaet('2026-10-20');
-    expect(screen.queryByText(/^Dokumentet er sendt før kravet/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/er hentet fra/)).not.toBeInTheDocument();
     expect(betegnelsene()).toEqual(['P1 Riving', 'P3 Montering']);
   });
 });
@@ -264,7 +268,11 @@ describe('fristkravet sendt før det siste kravet i sporet (OV-U118)', () => {
       lagtTil: korrespondansen('2026-10-12'),
       onlagttil: () => {},
     });
-    expect(screen.getByText(/^Dokumentet er sendt før kravet i brev/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /^Fristene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før dokumentet\./
+      )
+    ).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: /^Endre 5/ }));
     await fireEvent.click(screen.getByRole('button', { name: /^Trekk fristen 5/ }));
     await leggTil();
