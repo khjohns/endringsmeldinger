@@ -13,6 +13,7 @@ import {
   erInnsigelseIFristen,
   gjelderHeleFristkravet,
   innholdIFristen,
+  innsigelsenIFristen,
   utregningIFristen,
 } from '#kjerne/spor/frist/format.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
@@ -115,7 +116,7 @@ export function kravetOgSvaretIFristen(
 
   const rader = new Map(utregningIFristen(svar.utregning).frister.map((r) => [r.gjelder, r]));
   const sporlag = Math.max(0, ...[...rader.values()].map((r) => r.lag.length));
-  const lagene = lageneISvaret(u, svar, alle, sporlag, 'dager', erInnsigelseIFristen);
+  const lagene = lageneISvaret(u, svar, alle, sporlag, 'dager', innsigelsenIFristen);
   const dagerI = (gjelder: string, l: Svarlaget) =>
     l.iSporet < 1 ? undefined : rader.get(gjelder)?.lag[l.iSporet - 1]?.dager;
   const felles = lagene.flatMap((l): Felleslaget[] => {

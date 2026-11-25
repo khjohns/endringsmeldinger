@@ -207,7 +207,6 @@ export const UTREGNINGEN: Lesbar[] = [
   ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['spor/vederlag/frysing.ts:beregningsregelLag', 'relasjon', 'gjelder'],
-  ['spor/vederlag/kommando.ts:innenforKravposten', 'relasjon', 'gjelder'],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
   [
     'spor/vederlag/format.ts',

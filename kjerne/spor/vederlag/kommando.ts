@@ -8,7 +8,6 @@
 
 import { HJEMMEL } from '../../format/format.ts';
 import {
-  beregningsregelLag,
   kravpostvurderinger,
   kontrollerProduktivitetsposten,
   PRODUKTIVITETSFELT,
@@ -30,13 +29,15 @@ import {
   type UbesvartIVederlaget,
   type Vederlagssvar,
 } from '../../regler/vederlag.ts';
-import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
+import { hjemmelenGjelder, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   sisteStandpunktTilVarslene,
   type StandpunktTilVarselet,
 } from '../../frosset/standpunkt.ts';
 import {
   denAndreRegelen,
+  innsigelsenIVederlaget,
+  rammerKravposten,
   justerteEnhetspriser,
   kravposterI,
   krevdRigg,
@@ -62,7 +63,6 @@ import {
   type Avvisning,
   type Dokument,
   type Domenehendelse,
-  type Hjemmel,
   type Journalrad,
   type Krav,
   type Kravpost,
@@ -83,7 +83,12 @@ import type {
   Utfall,
 } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
+import {
+  avvisteFelt,
+  forutsetningene,
+  lageneIUtkastet,
+  utenom,
+} from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -611,6 +616,21 @@ export type Forutsetning =
   | { innsigelse: '34.1.2' | '34.1.3' | '34.3.3' }
   | { oppgjoersform: string };
 
+/**
+ * Det standpunktet `s` i et tidligere lag rammer standpunktet `t` med i skjemaet (OV-U22, VS-U5,
+ * `rammerKravposten`). Beregningsregelen og varselet etter § 34.3.3 står foran beløpet i
+ * kravposten, ikke som vilkår for det (VS-U4, VS-U56).
+ */
+function rammerIVederlaget(s: Standpunkt, t: Standpunkt): Forutsetning | null {
+  const i = innsigelsenIVederlaget(s);
+  if (i === null) return null;
+  const f: Forutsetning = 'oppgjoersform' in i ? i : { innsigelse: i.innsigelse };
+  if ('innsigelse' in i && i.innsigelse !== '34.3.3')
+    return i.innsigelse === '34.1.2' || (t.art === 'beloep' && t.saerskilt) ? f : null;
+  const post = t.art === 'beloep' || !('gjelder' in t) ? undefined : t.gjelder;
+  return post !== undefined && rammerKravposten(i, post) ? f : null;
+}
+
 /** Spørsmålene i vederlaget regelen krever svar på, med feltet i vurderingene. */
 export type Vederlagsspoersmaal =
   | 'hovedkrav_varslet_i_tide'
@@ -919,29 +939,19 @@ function lagIUtfyllingen(
     }),
     utregning: {},
   };
-  const { grunner, virket, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
   const svaretPaaKravpostene = new Map(
     kravpostvurderinger(utkast.vurderinger, u.spor.vederlag.gjeldendeKrav!).map(
       ({ post, svar }) => [post.id, svar]
     )
   );
-  // Innsigelsene i sporet som er gjort gjeldende og har virkning (OV-U27, OV-U22).
-  const paaberopt = (h: Hjemmel) =>
-    svar.standpunkter.some(
-      (s, i) => s.art === 'rettidighet' && s.hjemmel === h && laget(virket[i].virkning) !== null
-    );
+  const forutsetninger = forutsetningene<Forutsetning>(
+    svar.standpunkter,
+    lag,
+    grunner.map((grunn) => ({ grunn })),
+    rammerIVederlaget
+  );
   return svar.standpunkter.map((s, i) => {
-    const l = lag[i];
-    const rammer: Forutsetning[] = [];
-    if (l !== null) {
-      rammer.push(...grunner.map((grunn) => ({ grunn })));
-      const egen = s.art === 'rettidighet' ? s.hjemmel : null;
-      // § 34.1.2 rammer hele kravet; § 34.1.3 bare posten etter annet ledd (OV-U22, VS-U5).
-      if (egen !== '34.1.2' && paaberopt('34.1.2')) rammer.push({ innsigelse: '34.1.2' });
-      if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))
-        rammer.push({ innsigelse: '34.1.3' });
-      rammer.push(...innenforKravposten(svar.standpunkter, i));
-    }
     const lagt = {
       art: s.art,
       ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
@@ -956,26 +966,9 @@ function lagIUtfyllingen(
       besvart: besvart(svaretPaaKravpostene, utkast.vurderinger, u, s),
       virkning: virkning[i]!,
       etikett: etikett[i]!,
-      forutsetninger: rammer,
+      forutsetninger: forutsetninger[i]!,
     };
     return { s, lag: lagt };
-  });
-}
-
-/**
- * Standpunktene foran standpunktet `i` for samme kravpost etter en beregningsregel som åpner et
- * lag (`beregningsregelLag`): beregningsregelen byggherren ikke godtar, og innsigelsen etter
- * § 34.3.3 (VS-U4, VS-U56).
- */
-function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning[] {
-  const g = (standpunkter[i] as { gjelder?: string }).gjelder;
-  if (g === undefined || standpunkter[i]!.art === 'beloep') return [];
-  const lagene = beregningsregelLag(standpunkter, 1);
-  return standpunkter.slice(0, i).flatMap((s): Forutsetning[] => {
-    if ((s as { gjelder?: string }).gjelder !== g || !lagene.has(s.id)) return [];
-    if (s.art === 'oppgjoersform') return [{ oppgjoersform: g }];
-    if (s.art === 'rettidighet') return [{ innsigelse: '34.3.3' }];
-    return [];
   });
 }
 

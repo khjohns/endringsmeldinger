@@ -27,7 +27,7 @@ import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import { cleanup, render, screen, within } from '@testing-library/svelte';
 import { brevene, standpunktene } from '#lib/components/varden/lesing.ts';
-import { erInnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
+import { innsigelsenIFristen } from '#kjerne/spor/frist/format.ts';
 
 vi.mock('#kjerne/spor/frist/format.ts', { spy: true });
 
@@ -55,7 +55,7 @@ describe('Lagene i vederlagssvaret (#2242)', () => {
       })
     ).utledning();
     // Byttes etter kjøringen, så bare lesingen i visningen rammes, ikke kjernen.
-    vi.mocked(erInnsigelseIFristen).mockReturnValue(false);
+    vi.mocked(innsigelsenIFristen).mockReturnValue(null);
     expect(kravetOgSvaret(u, brevene(u))!.lagene.map((l) => l.vilkaar)).toEqual([
       [],
       [{ art: 'varsel', hjemmel: '34.1.2' }],
