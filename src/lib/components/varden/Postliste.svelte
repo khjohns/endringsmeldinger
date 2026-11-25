@@ -60,11 +60,10 @@
     kontrollerVedFerdig?: (p: P) => string | null;
   } = $props();
 
+  const lesing = $derived(!valgene);
   // Lista til lesing står i rader med overskriftene, også med én post.
-  const flere = $derived(poster.length > 1 || !valgene);
-  const aapen = $derived(
-    !valgene ? undefined : poster.length > 1 ? (valgt ?? poster[0]?.id) : poster[0]?.id
-  );
+  const flere = $derived(poster.length > 1 || lesing);
+  const aapen = $derived(lesing ? undefined : flere ? (valgt ?? poster[0]?.id) : poster[0]?.id);
 
   export const erAapen = (id: string) => aapen === id;
 
@@ -116,7 +115,7 @@
 
 {#if flere}
   <!-- Overskriftene over de lukkede postene; hver rad sier det samme for skjermleseren. -->
-  <div class="kolonner" class:lesing={!valgene} aria-hidden="true">
+  <div class="kolonner" class:lesing aria-hidden="true">
     <span>{kolonne}</span>
     <span>{SVARSKJEMA.kravetKolonne}</span>
     <span>{svarkolonne}</span>
@@ -138,7 +137,7 @@
         {/if}
       {:else}
         {@const lest = leselinje(p)}
-        <div class="postlinje" class:lesing={!valgene}>
+        <div class="postlinje" class:lesing>
           {@render tittel(p, false)}
           <p class="krav">
             <span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>

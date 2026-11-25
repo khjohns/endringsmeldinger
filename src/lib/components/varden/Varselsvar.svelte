@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
-  import { FORHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
+  import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
@@ -21,7 +21,7 @@
   import Svarskjema from './Svarskjema.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
-    etterRegel,
+    kravetIKortform,
     tomtVarselsvar,
     varselsvaret,
     varseletISvaret,
@@ -33,7 +33,6 @@
   import {
     grunntekst,
     HANDLINGENE,
-    KRAVSKJEMA,
     leselinjene,
     SKJEMA,
     SVARSKJEMA,
@@ -222,8 +221,7 @@
         svarkolonne={VARSELSVARET.svaretI(f.brev)}
         navn={(p) => p.betegnelse}
         beskrivelse={(p) => p.beskrivelse}
-        kravet={(p) =>
-          etterRegel(p) ? KRAVSKJEMA.formnavn[p.oppgjoersform] : kroner(p.beloep ?? 0)}
+        kravet={kravetIKortform}
         leselinje={(p) => leselinjene(f.linjer, p, VEDERLAGET.lagetVilkaar)}
       />
       {#if nyttSvarPaaKravet}
@@ -263,7 +261,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
-  etterBrevet={forrigeSvar ? svareneFoer : undefined}
+  etterBrevet={svareneFoer}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet vilkaaret(i: Innsigelsen)}
