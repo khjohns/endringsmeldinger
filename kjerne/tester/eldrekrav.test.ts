@@ -124,6 +124,14 @@ describe('et vederlagskrav sendt før det siste prøves mot kravversjonene sendt
     });
   });
 
+  it('et brev sendt samme dag som kravversjonen som tok med Montering, prøves mot den (OV-U104)', async () => {
+    const { utfall } = await leggTil(tre, riving, '2026-09-24');
+    expect(utfall).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'KRAVPOSTENE', melding: expect.stringContaining('mangler P2') },
+    });
+  });
+
   it('sier brevet at Montering trekkes, tas det imot, og trekket registreres som brevet sier', async () => {
     const { utfall, u } = await leggTil(
       tre,
@@ -266,7 +274,10 @@ describe('en påberopelse sendt før den siste (OV-U121, OV-U122)', () => {
       paaberopelse('irregulaer_endring', '2026-09-10'),
       '2026-09-12'
     );
-    expect(utfall).toMatchObject({ godtatt: false, avvisning: { regel: 'DATOEN_ETTER_BREVET' } });
+    expect(utfall).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'OPPLYSNINGEN_ETTER_BREVET' },
+    });
   });
 
   it('kontrollsak: når opplysningen er korrigert til en dato før brevet, tas det imot (OV-U122)', async () => {

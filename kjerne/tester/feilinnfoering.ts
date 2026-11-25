@@ -7406,8 +7406,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    if (foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });',
-        '    if (true) foer.push({ k, sendt });',
+        '    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });',
+        '    if (sendt !== null) foer.push({ k, sendt });',
       ],
     ],
     mal: ['et brev sendt før Montering ble tatt med, prøves ikke mot den'],
@@ -7493,6 +7493,19 @@ const MUTASJONER: Mutasjon[] = [
       ["  const eldre = sendtFoerSisteKrav(u, 'forhold', sendt);", '  const eldre = false;'],
     ],
     mal: ['en påberopelse med en annen gruppe tas ikke imot'],
+  },
+  {
+    id: 'F2011k',
+    feilklasse:
+      'et krav sendt før det siste prøves ikke mot en kravversjon sendt samme dag (OV-U104, OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });',
+        '    if (sendt !== null && foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });',
+      ],
+    ],
+    mal: ['et brev sendt samme dag som kravversjonen som tok med Montering, prøves mot den'],
   },
 ];
 /** En kopi av arbeidstreet. */

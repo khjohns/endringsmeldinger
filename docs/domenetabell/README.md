@@ -504,7 +504,6 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `BESKRIVELSE_MANGLER` | GR-34 | — |
 | `BREVTEKST_MANGLER` | — | Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`. |
 | `DATOEN_ER_UENDRET` | GR-36 | — |
-| `DATOEN_ETTER_BREVET` | KA-60 | — |
 | `DATOEN_KAN_IKKE_ENDRES` | GR-37 | — |
 | `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/varslene.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
 | `DATO_KAN_IKKE_LESES` | — | Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den. |
@@ -534,6 +533,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `KRAVPOSTVARSELET` | VS-08, VS-09 | — |
 | `KRAV_FOER_FORESPORSELEN` | — | Kontrollen av kommandoen: et svar på forespørselen etter § 33.6.2 avvises når totalentreprenøren hadde sendt et krav om dager før den, lagt til etterpå (OV-U109). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
 | `KRAV_TRUKKET` | GR-09, GR-10, GR-11, GR-12, KA-39 | — |
+| `OPPLYSNINGEN_ETTER_BREVET` | KA-60 | — |
 | `PAABEROPELSE_IKKE_SENDT` | VS-06 | — |
 | `PAALEGGET_IKKE_BESKREVET` | GR-35 | — |
 | `REGISTRERINGEN_ER_RETTET` | KA-52 | — |

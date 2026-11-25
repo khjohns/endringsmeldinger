@@ -453,7 +453,7 @@ function medKravposter(
   nyId: () => string
 ): Record<string, unknown> {
   if (!innhold.kravposter) return innhold;
-  // OV-U119: også kravpostene i et krav utenfor rekken har betegnelsen sin i sporet.
+  // OV-U119.
   const tidligere = [...u.spor.vederlag.krav, ...u.spor.vederlag.kravUtenforRekken];
   const betegnelsen = new Map(
     tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])

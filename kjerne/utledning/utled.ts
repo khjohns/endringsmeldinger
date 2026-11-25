@@ -559,12 +559,10 @@ export function sendtFoerSisteKrav(
 }
 
 /**
- * OV-U118, OV-U119: kravversjonene i sporet et krav sendt på dagen `dag` prøves mot (`tidligere`),
- * og de andre kravversjonene i sporet, som en kravpost eller en frist i kravet kan være den samme som
- * (`andre`). Et krav sendt før totalentreprenørens siste krav i sporet prøves mot kravversjonene
- * sendt før det, også de utenfor rekken, i rekkefølgen de ble sendt. Ellers prøves det mot rekken.
- * Kommandoen og `kravetStrider` leser regelen herfra. `samme` får hver kravversjon sendt samme dag
- * (OV-U104).
+ * OV-U118, OV-U119: kravversjonene i sporet et krav sendt på dagen `dag` prøves mot (`tidligere`), i
+ * rekkefølgen de ble sendt, og resten (`andre`). For et krav sendt før det siste er `tidligere` de
+ * sendt til og med `dag`, også utenfor rekken (OV-U104); ellers er det rekken. Kommandoen og
+ * `kravetStrider` leser regelen herfra. `samme` får hver kravversjon sendt samme dag.
  */
 export function kravversjoneneKravetProevesMot(
   u: Utledning,
@@ -577,8 +575,8 @@ export function kravversjoneneKravetProevesMot(
   const foer: { k: Krav; sendt: string }[] = [];
   const andre: Krav[] = [];
   for (const k of [...krav, ...kravUtenforRekken]) {
-    const sendt = datoenDetBleSendt(u, k) ?? '';
-    if (foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });
+    const sendt = datoenDetBleSendt(u, k);
+    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });
     else andre.push(k);
   }
   foer.sort((a, b) => a.sendt.localeCompare(b.sendt));

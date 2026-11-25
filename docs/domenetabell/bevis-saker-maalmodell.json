@@ -12907,7 +12907,7 @@
             "dato": "2026-09-10",
             "sendt": "2026-09-12"
           },
-          "forventet": { "avvist": true, "regel": "DATOEN_ETTER_BREVET" }
+          "forventet": { "avvist": true, "regel": "OPPLYSNINGEN_ETTER_BREVET" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"

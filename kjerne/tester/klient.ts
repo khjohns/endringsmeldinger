@@ -271,7 +271,7 @@ const INNHOLD = {
   forhold: (h: Handling) => {
     const hovedkategori = h.hovedkategori ?? 'endring';
     // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke, i feltet formatet har.
-    // `dato` gir en annen dato enn 15.09 (OV-U122).
+    // `dato` gir en annen dato enn 15.09.
     const dato = oppgittDato(hovedkategori, h.underkategori);
     return {
       hovedkategori,
@@ -326,7 +326,7 @@ const INNHOLD = {
 /** Kravpostene i vederlagskravet for handlingen; se `INNHOLD.vederlag`. */
 function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) {
   if (Array.isArray(h.kravposter)) {
-    // OV-U119: også en kravpost som bare står i et krav utenfor rekken.
+    // Også kravene utenfor rekken (OV-U119).
     const tidligere = [
       ...(u?.spor.vederlag.krav ?? []),
       ...(u?.spor.vederlag.kravUtenforRekken ?? []),

@@ -122,7 +122,7 @@ function kategorisperre(
 ): Avvisning | null {
   if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;
   const forrige = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
-  // OV-U121: en påberopelse sendt før den siste tas ikke imot med et annet forhold.
+  // OV-U121.
   const eldre = sendtFoerSisteKrav(u, 'forhold', sendt);
   const somDokumentasjon =
     'Brevet kan legges til som dokumentasjon eller som varsel etter punkt 32.2, og et annet forhold påberopes i en ny sak.';
@@ -149,8 +149,7 @@ function kategorisperre(
 /**
  * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
- * OV-U122: en påberopelse sendt før den siste kan oppgi en annen dato, men tas ikke imot når TEs
- * siste opplysning er senere enn dagen den ble sendt.
+ * En påberopelse sendt før den siste prøves etter OV-U122.
  */
 function datosperre(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -165,7 +164,7 @@ function datosperre(
     const opplysningen = kalenderdag(siste.dato);
     return opplysningen !== null && foerDagen(sendt, opplysningen)
       ? avvis(
-          'DATOEN_ETTER_BREVET',
+          'OPPLYSNINGEN_ETTER_BREVET',
           `Påberopelsen er oppgitt sendt ${norskDato(sendt!)}, før datoen ${DATOEN_GJELDER[felt]}, ${norskDato(opplysningen)}, slik totalentreprenøren sist har oppgitt den. Korriger datoen i et eget brev før påberopelsen legges til.`
         )
       : null;
