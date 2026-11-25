@@ -27,6 +27,8 @@ import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import { cleanup, render, screen, within } from '@testing-library/svelte';
 import { brevene, standpunktene } from '#lib/components/varden/lesing.ts';
+import { leselinjene } from '#lib/components/varden/tekster/index.ts';
+import { VEDERLAGET } from '#lib/components/varden/tekster/vederlaget.ts';
 import { innsigelsenIFristen } from '#kjerne/spor/frist/format.ts';
 
 vi.mock('#kjerne/spor/frist/format.ts', { spy: true });
@@ -137,5 +139,39 @@ describe('Vilkåret ved posten etter en innsigelse mot beregningsregelen (svar A
     });
     expect(k.lagene).toHaveLength(1);
     expect(k.poster.map((p) => p.innsigelser)).toEqual([[]]);
+  });
+});
+
+/** Leselinjen for den lukkede kravposten i svarskjemaet, slik `Vederlagssvar.svelte` lager den. */
+function leselinjenFor(u: Awaited<ReturnType<typeof medBeregningsregel>>['u']) {
+  const b = Object.values(u.svar).find((x) => x.svar.spor === 'vederlag')!.svar;
+  const post = kravposterI(u.spor.vederlag.gjeldendeKrav!)[0]!;
+  return leselinjene(standpunktene(b, u), post, VEDERLAGET.lagetVilkaar);
+}
+
+describe('Leselinjen for en lukket kravpost med en innsigelse mot beregningsregelen (#2338)', () => {
+  it('byggherren mener regningsarbeid og gjør subsidiært gjeldende at varselet etter punkt 34.3.3 kom for sent: varselinnsigelsen står under vilkåret om beregningsregelen (VS-U56, OV-U32)', async () => {
+    const { u, k } = await medBeregningsregel({
+      aksepterer: false,
+      oensket_oppgjoersform: 'regningsarbeid',
+      varslet_i_tide: false,
+    });
+    const linjer = leselinjenFor(u);
+    const vilkaar = linjer.indexOf('Hvis innsigelsen mot beregningsregelen ikke fører frem');
+    expect(vilkaar).toBeGreaterThan(0);
+    expect(linjer.slice(vilkaar + 1).some((l) => l.includes('34.3.3'))).toBe(true);
+    // Laget i kortet har fortsatt ikke vilkåret; det står ved posten (svar A 24.11 i #2242).
+    expect(k.lagene.every((l) => l.vilkaar.every((i) => i.art !== 'beregningsregel'))).toBe(true);
+  });
+
+  it('byggherren godtar beregningsregelen: leselinjen har ikke vilkåret (kontrollsak)', async () => {
+    const { u } = await medBeregningsregel({
+      aksepterer: true,
+      godtar_justering: true,
+      varslet_i_tide: false,
+    });
+    expect(leselinjenFor(u)).not.toContain(
+      'Hvis innsigelsen mot beregningsregelen ikke fører frem'
+    );
   });
 });
