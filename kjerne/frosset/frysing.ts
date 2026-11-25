@@ -42,7 +42,7 @@ export function beslutningsgrunnlag(
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),
+    linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet, staar),
     sammenfall: sammenfallet(svar, v, staar),
     ...(svar.spor === 'forhold'
       ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }

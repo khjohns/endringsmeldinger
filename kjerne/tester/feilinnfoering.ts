@@ -3360,8 +3360,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),',
-        'linje: beslutningslinje(svar, v, paaberopelse, 0, kravet),',
+        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet, staar),',
+        'linje: beslutningslinje(svar, v, paaberopelse, 0, kravet, staar),',
       ],
     ],
     mal: [
@@ -7267,6 +7267,22 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [["    spor === 'vederlag' && d", "    spor === 'vederlag' && !d"]],
     mal: ['visningen sier ikke at regelen er endret for et svar lagt til'],
+  },
+  {
+    id: 'F2333g',
+    feilklasse:
+      'linjen i et svar som ikke sier noe om varselet for kravposten, mangler innsigelsen fra svaret før som står prinsipalt (VS-U81, #2333)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [['    if (!b.saerskilt && forSentFoer(b.gjelder))', '    if (false)']],
+    mal: ['fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)'],
+  },
+  {
+    id: 'F2333h',
+    feilklasse:
+      'utregningen leser innsigelsen etter § 34.3.3 for en kravpost som ikke lenger har justerte enhetspriser (VS-U80, KA-U64, #2333)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [["      varselhjemmel(post) === '34.3.3' &&\n", '']],
+    mal: ['står ikke mot en kravpost som ikke lenger har justerte enhetspriser'],
   },
 ];
 /** En kopi av arbeidstreet. */

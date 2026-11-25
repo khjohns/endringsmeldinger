@@ -485,7 +485,8 @@ export function svaretFraVurderingene(
     const regel = beregningsregelen(
       post,
       svar,
-      staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === post.id)
+      varselhjemmel(post) === '34.3.3' &&
+        staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === post.id)
     );
     poster.push({
       gjelder: post.id,

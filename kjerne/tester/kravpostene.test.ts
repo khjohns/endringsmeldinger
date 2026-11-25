@@ -1353,6 +1353,21 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       }
     );
 
+    it('innsigelsen etter punkt 34.3.3 står ikke mot en kravpost som ikke lenger har justerte enhetspriser (VS-U80, KA-U64)', () => {
+      const s = sakMed(justert);
+      s.send(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
+      );
+      const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id;
+      s.send('TE', krav([{ ...justert, justert: false, id: p2 }]));
+      const staar = standpunkteneTilVarslene(s.u(), null, true).filter((x) => !x.iTide);
+      expect(staar, 'forutsetning: innsigelsen står for posten').toHaveLength(1);
+      s.send('BH', svaret(s, { P2: { aksepterer: true } }, staar));
+      expect(gjeldende(s).utregning.resultat).toBe('godkjent');
+      expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(true);
+    });
+
     it('visningen sier ikke at regelen er endret for et svar lagt til som er lest med innsigelsen fra svaret før (VS-U81, MM-U9)', () => {
       const s = sakMed(justert);
       s.send(
@@ -1381,6 +1396,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
           poster: (sv.utregning.poster as Data[]).map((p) => p.lag),
           resultat: sv.utregning.resultat,
           sammenfall: sv.beslutningsgrunnlag.sammenfall,
+          linje: sv.beslutningsgrunnlag.linje,
         };
       };
       // Innsigelsen står ikke i svaret, så oppgjørsformen står i det første laget og ikke som
@@ -1394,6 +1410,9 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
         poster: [[{ lag: 1 }, { lag: 2 }]],
         resultat: expect.not.stringMatching(/^godkjent$/),
         sammenfall: false,
+        // Linjen har innsigelsen prinsipalt (VS-U81).
+        linje:
+          'Byggherrens standpunkt: varselet etter punkt\u00a034.3.3 kom for sent, som gjort gjeldende i et tidligere svar.',
       });
       // Kontrollsak: når byggherren sa at varselet kom i tide, står justeringen prinsipalt.
       expect(lesMed({ varslet_i_tide: true })).toMatchObject({

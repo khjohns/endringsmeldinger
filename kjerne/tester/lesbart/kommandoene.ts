@@ -379,7 +379,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'VarselIKravet',
     'relasjon',
     'gjelder hjemmel',
-    ['frosset/standpunkt.ts', 'spor/vederlag/frysing.ts'],
+    ['frosset/standpunkt.ts', 'spor/vederlag/frysing.ts', 'spor/vederlag/tekst.ts'],
   ],
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],

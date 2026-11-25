@@ -185,6 +185,22 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     ).toEqual([['justering', 1]]);
   });
 
+  it('linjen i et nytt svar på varselet lagt til, som ikke sier noe om varselet, har innsigelsen fra svaret før prinsipalt (VS-U81)', () => {
+    const { s, varsel } = medVarsel('34.3.3');
+    s.send(
+      'BH',
+      lagtTil(dagen(s), [
+        svar('vederlag', varsel, { varslet_i_tide: false, godtar_justering: false }, {}, null),
+      ])
+    );
+    const foerste = s.u().spor.vederlag.svarPaaVarsler[0].id;
+    const taus = svar('vederlag', varsel, { godtar_justering: false }, {}, null);
+    s.send('BH', lagtTil(dagen(s), [taus], foerste));
+    expect(s.u().spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a034.3.3 kom for sent, som gjort gjeldende i et tidligere svar, subsidiært justeringen av enhetsprisene bestridt (punkt\u00a034.3.2).'
+    );
+  });
+
   it('et nytt svar på varselet etter punkt 34.3.3 fra løsningen som ikke sier noe om varselet der innsigelsen står, avvises (VS-U80, VS-U77 punkt 9)', () => {
     const nyttSvar = (foer: Data) => {
       const { s, varsel } = medVarsel('34.3.3');
