@@ -15,7 +15,7 @@ import collections
 import json
 import re
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 
@@ -102,12 +102,20 @@ def kontekst_i(resultat):
     )
 
 
+def tidspunkt(tekst):
+    try:
+        return datetime.fromisoformat(tekst.replace("Z", "+00:00"))
+    except (AttributeError, ValueError):
+        return None
+
+
 def les_kostnad(stier):
     """Kostnad, cache_read og kontekst per økt, fra list_events i transkripsjonene.
 
-    Kostnaden er den høyeste `total_cost_usd`, og cache_read tas fra samme
-    hendelse. Summen kan nullstilles når en økt startes på nytt, så tallet er et
-    nedre anslag. Konteksten tas fra den nyeste hendelsen.
+    `total_cost_usd` er summen for prosessen og begynner på nytt når økta startes
+    igjen. Kostnaden er derfor summen av siste verdi før hvert fall, og cache_read
+    tas fra de samme hendelsene. Konteksten tas fra den nyeste hendelsen med et
+    API-kall.
     """
     kall, svar = {}, {}
     for sti in stier:
@@ -117,13 +125,18 @@ def les_kostnad(stier):
             except (json.JSONDecodeError, AttributeError):
                 continue
             for blokk in innhold if isinstance(innhold, list) else []:
-                if blokk.get("type") == "tool_use" and blokk.get("name", "").endswith(
-                    "list_events"
-                ):
-                    kall[blokk["id"]] = (blokk.get("input") or {}).get("session_id")
+                if not isinstance(blokk, dict):
+                    continue
+                if blokk.get("type") == "tool_use" and str(
+                    blokk.get("name") or ""
+                ).endswith("list_events"):
+                    kall[blokk.get("id")] = (blokk.get("input") or {}).get("session_id")
                 elif blokk.get("type") == "tool_result":
                     svar[blokk.get("tool_use_id")] = blokk.get("content")
-    kostnad = {}
+    if not kall:
+        raise SystemExit("fant ingen kall til list_events i transkripsjonene")
+
+    hendelser = collections.defaultdict(dict)
     for bruk_id, okt in kall.items():
         tekst = svartekst(svar.get(bruk_id))
         if not okt or not tekst:
@@ -133,20 +146,30 @@ def les_kostnad(stier):
         except json.JSONDecodeError:
             continue
         for hendelse in (finn_svar(data) or {}).get("data", []):
+            tid = tidspunkt(hendelse.get("created_at"))
             for r in resultater(hendelse):
-                tid = hendelse.get("created_at") or ""
-                k = kostnad.setdefault(
-                    okt,
-                    {"cost_usd": 0.0, "cache_read_tokens": 0, "tid": "", "kontekst": 0},
+                if tid is not None:
+                    hendelser[okt][(tid, r.get("total_cost_usd") or 0)] = r
+
+    kostnad = {}
+    for okt, rader in hendelser.items():
+        sum_usd, cache_read, forrige, kontekst = 0.0, 0, None, 0
+        ordnet = sorted(rader.items(), key=lambda x: x[0][0])
+        for (_, usd), r in ordnet + [((None, -1), None)]:
+            if forrige is not None and usd < forrige[0]:
+                sum_usd += forrige[0]
+                cache_read += sum(
+                    m.get("cacheReadInputTokens") or 0
+                    for m in (forrige[1].get("modelUsage") or {}).values()
                 )
-                if (r.get("total_cost_usd") or 0) >= k["cost_usd"]:
-                    k["cost_usd"] = r.get("total_cost_usd") or 0
-                    k["cache_read_tokens"] = sum(
-                        m.get("cacheReadInputTokens") or 0
-                        for m in (r.get("modelUsage") or {}).values()
-                    )
-                if tid >= k["tid"]:
-                    k["tid"], k["kontekst"] = tid, kontekst_i(r)
+            forrige = (usd, r)
+            if r is not None and kontekst_i(r):
+                kontekst = kontekst_i(r)
+        kostnad[okt] = {
+            "cost_usd": sum_usd,
+            "cache_read_tokens": cache_read,
+            "kontekst": kontekst,
+        }
     return kostnad
 
 
@@ -177,6 +200,8 @@ def main():
     )
     p.add_argument("filer", nargs="+")
     a = p.parse_args()
+    if not a.ider and not a.transkripsjon:
+        p.error("mangler --transkripsjon; kostnaden står ikke i list_sessions (#2401)")
 
     alle, eldste, har_mer, usortert = les_okter(a.filer)
     if not alle:

@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 SKRIPT = Path(__file__).resolve().parents[3] / ".claude/skills/forbruk/oversikt.py"
 _spec = importlib.util.spec_from_file_location("forbruk_oversikt", SKRIPT)
 oversikt = importlib.util.module_from_spec(_spec)
@@ -55,7 +57,7 @@ def transkripsjon(sti, kall):
     return sti
 
 
-def test_hoeyeste_kostnad_og_nyeste_kontekst_per_oekt_ogsaa_fra_svar_lagret_til_fil(
+def test_kostnaden_summeres_over_omstarter_og_leses_ogsaa_fra_svar_lagret_til_fil(
     tmp_path,
 ):
     lagret = tmp_path / "svar.txt"
@@ -69,8 +71,9 @@ def test_hoeyeste_kostnad_og_nyeste_kontekst_per_oekt_ogsaa_fra_svar_lagret_til_
                     {
                         "type": "text",
                         "text": svar(
-                            resultat("2026-11-20T12:00:00Z", 1.0, 100, 80_000),
-                            resultat("2026-11-20T11:00:00Z", 4.0, 400, 60_000),
+                            resultat("2026-11-20T13:00:00Z", 1.0, 100, 80_000),
+                            resultat("2026-11-20T11:30:00.5Z", 4.0, 400, 60_000),
+                            resultat("2026-11-20T11:00:00Z", 2.0, 200, 40_000),
                         ),
                     }
                 ],
@@ -79,8 +82,8 @@ def test_hoeyeste_kostnad_og_nyeste_kontekst_per_oekt_ogsaa_fra_svar_lagret_til_
         ],
     )
     kostnad = oversikt.les_kostnad([sti])
-    assert kostnad["session_a"]["cost_usd"] == 4.0
-    assert kostnad["session_a"]["cache_read_tokens"] == 400
+    assert kostnad["session_a"]["cost_usd"] == 5.0
+    assert kostnad["session_a"]["cache_read_tokens"] == 500
     assert kostnad["session_a"]["kontekst"] == 80_000
     assert kostnad["session_b"]["cost_usd"] == 3.5
 
@@ -117,3 +120,32 @@ def test_sammendraget_bruker_kostnaden_fra_hendelsene_og_melder_oekter_uten(
     monkeypatch.setattr(sys, "argv", [*argv, "--ider", str(side)])
     oversikt.main()
     assert capsys.readouterr().out.split() == ["session_b", "session_a"]
+
+
+def test_en_tur_uten_api_kall_nuller_ikke_konteksten(tmp_path):
+    uten_kall = resultat("2026-11-20T13:00:00Z", 2.0, 0, 0)
+    uten_kall["result"]["internal_anthropic_catchall"]["usage"] = {}
+    sti = transkripsjon(
+        tmp_path / "agent.jsonl",
+        [
+            (
+                "session_a",
+                svar(uten_kall, resultat("2026-11-20T12:00:00Z", 1.0, 0, 70_000)),
+            )
+        ],
+    )
+    assert oversikt.les_kostnad([sti])["session_a"]["kontekst"] == 70_000
+
+
+def test_uten_transkripsjon_avvises_kjoeringen_i_stedet_for_aa_vise_null(
+    tmp_path, monkeypatch
+):
+    side = tmp_path / "side.txt"
+    side.write_text(json.dumps({"data": [], "has_more": False}))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["oversikt.py", "--fra", "2026-11-19", "--til", "2026-11-26", str(side)],
+    )
+    with pytest.raises(SystemExit):
+        oversikt.main()

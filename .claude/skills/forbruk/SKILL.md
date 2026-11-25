@@ -15,7 +15,8 @@ Gjennomgangen ser derfor etter kontekst som vokser, ikke etter enkeltkall.
 
 Gjennomgangen skal selv koste lite: om lag 3 USD og under 150 000 tokens. Store
 rå-svar, fra `list_sessions`, `list_events` og sidene fra `gh api`, lagres til fil
-og leses med et skript, og transkripsjonene leses bare av subagenten i punkt 2.
+og leses med et skript. Transkripsjonen til subagenten i punkt 1 leses bare av
+skriptet, og transkripsjonene til øktene bare av subagenten i punkt 2.
 
 ## 1. Oversikten
 
@@ -30,18 +31,20 @@ og leses med et skript, og transkripsjonene leses bare av subagenten i punkt 2.
    `python3 .claude/skills/forbruk/oversikt.py --fra <dato> --til <dato> --ider <fil> ... > ider.txt`.
 4. Kostnaden står ikke i `list_sessions`, men i result-hendelsene (#2401). La en
    subagent på Haiku kalle `list_events` med `kinds` `["result"]` og `limit` 100
-   for hver ID i `ider.txt`. Den leser ikke svarene, skriver dem ikke av og svarer
-   bare med antall kall. Skriptet leser svarene i transkripsjonen til subagenten,
+   for hver ID i `ider.txt`. Har siden ingen hendelser og `has_more`, henter den
+   neste side bakover med `before_id` satt til `first_id`, høyst tre sider per økt.
+   Den leser ikke svarene ellers, skriver dem ikke av og svarer bare med antall kall. Skriptet leser svarene i transkripsjonen til subagenten,
    `~/.claude/projects/*/*/subagents/agent-*.jsonl`, også når et svar er lagret til
    fil.
 5. Kjør skriptet på transkripsjonen og alle sidene:
    `python3 .claude/skills/forbruk/oversikt.py --fra <dato> --til <dato> --transkripsjon <agent-….jsonl> -- <fil> ...`.
    Det skriver sum, dag, rolle, kontekst over grensene og de dyreste øktene.
-   Kostnaden er den høyeste `total_cost_usd` per økt, et nedre anslag fordi summen
-   kan nullstilles når en økt startes på nytt, og konteksten er den i siste kall før
-   den nyeste result-hendelsen. Øktene uten result-hendelse står på en egen linje.
+   `total_cost_usd` begynner på nytt når en økt startes igjen, så kostnaden er
+   summen av siste verdi før hvert fall. Den er et nedre anslag når result-hendelsene
+   på sidene ikke dekker hele økta. Konteksten er den i siste kall før den nyeste
+   result-hendelsen. Øktene uten result-hendelse står på en egen linje.
    Rollen leses av tittelen, og en økt som har barneøkter, regnes som orkestrator.
-   Kostnaden er samlet over hele økta, så en økt telles i uka den ble opprettet,
+   Kostnaden gjelder hele økta, så en økt telles i uka den ble opprettet,
    og aldri i to uker. Økter som er opprettet før perioden og endret i den, står
    på en egen linje utenfor summen. Skriptet advarer når sidene ikke når tre
    dager før `--fra`, og når en side ikke er sortert etter opprettelse (sorteringen
