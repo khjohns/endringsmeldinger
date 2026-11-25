@@ -356,7 +356,7 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
 });
 
 describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
-  /** Byggherren ber om dagene etter varselet (VS-U47). */
+  /** Byggherren ber om dagene etter varselet (VS-U88). */
   const medForesporsel = skrevet(medFristvarsel, 'BH', {
     type: 'foresporsel',
     spor: 'frist',
