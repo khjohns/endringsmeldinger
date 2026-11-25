@@ -47,7 +47,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 
 ## Avgrensningen
 
-- Rettingen av varseldatoen etter punkt 8 i MM-U52 og MM-U59 hører til #1309.
+- Rettingen av varseldatoen etter punkt 8 i MM-U52 og MM-U59 hører til #1309 og [BF-50](BF-50.md).
 - Et krav sendt utenfor løsningen og lagt til som korrespondanse med kategorien krav, og en
   korrigering sendt utenfor løsningen, venter på registreringen i #807. Kjernen kan i dag
   ikke legge til et krav med datofeltene, og en registrert korrigering står som dokumentasjon
