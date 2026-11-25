@@ -35,6 +35,23 @@ export function erInnsigelseIFristen(s: Standpunkt): boolean {
   );
 }
 
+/** En innsigelse i fristen som rammer et senere lag (KA-U78, KA-U81). */
+export type InnsigelseIFristen = { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
+
+/**
+ * Det standpunktet `s` i et tidligere lag rammer et senere lag i fristen med (OV-U32), etter
+ * sporets predikat (`erInnsigelseIFristen`). Innsigelsene i fristen gjelder hele kravet (KA-U78),
+ * så skjemaet (`lagIFristen` i `kommando.ts`) og brevet (`svarlagene.ts` i visningen) leser det samme.
+ */
+export function innsigelsenIFristen(s: Standpunkt): InnsigelseIFristen | null {
+  if (!erInnsigelseIFristen(s)) return null;
+  if (s.art === 'rettidighet')
+    return s.hjemmel === '33.4' || s.hjemmel === '33.6.2' ? { innsigelse: s.hjemmel } : null;
+  if (s.art === 'spesifisering') return { innsigelse: '33.6.1' };
+  if (s.art === 'hindring') return { innsigelse: 'hindring' };
+  return null;
+}
+
 /** Et standpunkt som vises én gang for hele fristkravet (BF-45, U-3 og U-4). */
 export function gjelderHeleFristkravet(s: Standpunkt): boolean {
   return (

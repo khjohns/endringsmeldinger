@@ -10,7 +10,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
-import type { Standpunktsvirkning, Virkning } from '../typer.ts';
+import type { Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 import {
   kravversjonenPaaDagen,
   svaretPaaForholdetPaaDagen,
@@ -20,9 +20,9 @@ import {
 /**
  * Lagene i svarutkastet i et spor, regnet som brevet regner dem (OV-U32, OV-U33, S1-A i #1400).
  * Grunnene fra svaret på forholdet står foran sporet, og `virkning`, `lag` og `etikett` for hvert
- * standpunkt er flyttet ned med dem. `virket` er virkningene i sporet uten forskyvning. `sendt` er
- * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Svaret på forholdet og
- * påberopelsen er de som gjaldt den dagen, som når svaret fryses og kontrolleres (#2057, #2011).
+ * standpunkt er flyttet ned med dem. `sendt` er dagen et svar lagt til ble sendt, og `null` for et
+ * svar fra løsningen. Svaret på forholdet og påberopelsen er de som gjaldt den dagen, som når svaret
+ * fryses og kontrolleres (#2057, #2011).
  */
 export function lageneIUtkastet(
   svar: Svarinnhold,
@@ -45,11 +45,35 @@ export function lageneIUtkastet(
   const flereLag = lag.some((l) => l !== null && l > 1);
   return {
     grunner,
-    virket,
     virkning,
     lag,
     etikett: lag.map((l) => (l !== null && flereLag ? etikett(l) : null)),
   };
+}
+
+/**
+ * Forutsetningene for hvert standpunkt i skjemaets form (OV-U32): grunnene fra forholdet, og det
+ * hvert standpunkt i et tidligere lag rammer standpunktet med, etter sporets `rammer`. Brevet har
+ * bare laget rett foran (`svarlagene.ts` i visningen). Et standpunkt uten lag har ingen.
+ */
+export function forutsetningene<F>(
+  standpunkter: readonly Standpunkt[],
+  lag: readonly (number | null)[],
+  grunner: readonly F[],
+  rammer: (s: Standpunkt, t: Standpunkt) => F | null
+): F[][] {
+  return standpunkter.map((t, i) => {
+    const l = lag[i]!;
+    if (l === null) return [];
+    return [
+      ...grunner,
+      ...standpunkter.flatMap((s, j) => {
+        const lj = lag[j]!;
+        const f = lj !== null && lj < l ? rammer(s, t) : null;
+        return f === null ? [] : [f];
+      }),
+    ];
+  });
 }
 
 /**

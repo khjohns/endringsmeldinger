@@ -36,7 +36,12 @@ import {
   fristkravErFremmet,
   fristnoekkel,
 } from './utledning.ts';
-import { erInnsigelseIFristen, fristinnhold, innholdIFristen } from './format.ts';
+import {
+  fristinnhold,
+  innholdIFristen,
+  innsigelsenIFristen,
+  type InnsigelseIFristen,
+} from './format.ts';
 import {
   dagerMaatteForstaa,
   fristkravet,
@@ -57,7 +62,12 @@ import {
 } from '../../kommandoer/vedlegg.ts';
 import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
+import {
+  avvisteFelt,
+  forutsetningene,
+  lageneIUtkastet,
+  utenom,
+} from '../../kommandoer/utkastlag.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
@@ -167,9 +177,7 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) =>
  * Det i et foregående lag som rammer standpunktet (OV-U32): en grunn fra forholdet, en innsigelse
  * etter § 33.4, § 33.6.2 eller § 33.6.1, eller at fremdriften ikke ble hindret (KA-U78, KA-U81).
  */
-export type Forutsetning =
-  | { grunn: Subsidiaergrunn }
-  | { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
+export type Forutsetning = { grunn: Subsidiaergrunn } | InnsigelseIFristen;
 
 /** Feltet i vurderingene hvert spørsmål i svarutkastet på fristen gjelder. */
 type FeltIFristen = Fristspoersmaal | 'dager' | 'dager_maatte_forstaa';
@@ -264,15 +272,12 @@ export function lagIFristen(
   const utenDager = new Set(
     fristene.filter((f) => typeof f.dager !== 'number').map((f) => f.gjelder)
   );
-  // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
-  const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
-    if (!erInnsigelseIFristen(f)) return [];
-    if (f.art === 'rettidighet')
-      return f.hjemmel === '33.4' || f.hjemmel === '33.6.2' ? [{ innsigelse: f.hjemmel }] : [];
-    if (f.art === 'spesifisering') return [{ innsigelse: '33.6.1' }];
-    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];
-    return [];
-  };
+  const forutsetninger = forutsetningene<Forutsetning>(
+    svar.standpunkter,
+    lag,
+    grunner.map((grunn) => ({ grunn })),
+    innsigelsenIFristen
+  );
   const stilt: LagIFristen['stilt'] = [];
   const ubesvarte: LagIFristen['ubesvart'] = [];
   const still = (spoersmaal: LagIFristen['stilt'][number], besvart: boolean) => {
@@ -297,27 +302,15 @@ export function lagIFristen(
     stilt,
     ubesvart: ubesvarte,
     ugyldig: utenom(ugyldigIFristen(utkast.vurderinger, fristene, krav, u), ubesvarte),
-    standpunkter: svar.standpunkter.map((s, i) => {
-      const l = lag[i]!;
-      return {
-        art: s.art,
-        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
-        ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
-        besvart: s.art === 'dager' ? !utenDager.has(s.gjelder) : !ubesvart.has(spoersmaaletFor(s)!),
-        virkning: virkning[i]!,
-        etikett: etikett[i]!,
-        forutsetninger:
-          l === null
-            ? []
-            : [
-                ...grunner.map((grunn) => ({ grunn })),
-                ...svar.standpunkter.slice(0, i).flatMap((f, j) => {
-                  const lj = lag[j]!;
-                  return lj !== null && lj < l ? aapnetLaget(f) : [];
-                }),
-              ],
-      };
-    }),
+    standpunkter: svar.standpunkter.map((s, i) => ({
+      art: s.art,
+      ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
+      ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
+      besvart: s.art === 'dager' ? !utenDager.has(s.gjelder) : !ubesvart.has(spoersmaaletFor(s)!),
+      virkning: virkning[i]!,
+      etikett: etikett[i]!,
+      forutsetninger: forutsetninger[i]!,
+    })),
   };
 }
 
