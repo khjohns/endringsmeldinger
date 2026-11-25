@@ -11,6 +11,7 @@
  * testene og ikke først i nettleseren.
  */
 
+import { createRequire } from 'node:module';
 import type { Forloep } from '../../../kjerne/tester/kjoerer.ts';
 import type { Handling } from '../../../kjerne/tester/klient.ts';
 
@@ -283,6 +284,16 @@ export const TESTSAKER: Record<string, Testsak> = {
       await samme.getByRole('radio', { name: /^Ja, P3 / }).check();
       await te.getByRole('radio', { name: /^Fast sum/ }).check();
       await te.getByRole('textbox', { name: /^Beløpet du krever/ }).fill('30000');
+      // WCAG 2.1 A og AA med axe på skjemaet med valget, som `uu.mjs` gjør i demoruta.
+      await te.addScriptTag({ path: createRequire(import.meta.url).resolve('axe-core/axe.min.js') });
+      const brudd = await te.evaluate(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const r = await (window as any).axe.run(document, {
+          runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+        });
+        return r.violations.map((v: { id: string; nodes: unknown[] }) => `${v.id} (${v.nodes.length})`);
+      });
+      console.log(`TE  axe på skjemaet: ${brudd.length ? brudd.join(', ') : 'ingen brudd'}`);
       await samme.scrollIntoViewIfNeeded();
       await te.screenshot({ path: `${ut}/eldre-krav-samme-kravpost.png`, fullPage: true });
       await te.setViewportSize({ width: 390, height: 844 });

@@ -619,6 +619,7 @@
         spoersmaal={KRAVSKJEMA.sammeKravpost}
         hjelp={KRAVSKJEMA.sammeKravpostHjelp}
         stablet
+        lett
         valg={[
           { verdi: 'ny', tekst: KRAVSKJEMA.sammeNy },
           ...kandidater.map((q) => ({
