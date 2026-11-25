@@ -13,7 +13,7 @@ import { avvisteFelt, forutsetningene } from '../../kommandoer/utkastlag.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { KRAVINNHOLD } from '../../format/format.ts';
 import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
-import { kalenderdag } from '../../format/leser.ts';
+import { foerDagen, kalenderdag } from '../../format/leser.ts';
 import { norskDato } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
 import { BEGRUNNELSESPUNKTENE, begrunnelseskravet } from '../../regler/forhold.ts';
@@ -21,6 +21,7 @@ import {
   datoenDetBleSendt,
   paaberopelseFor,
   kravSomVarsler,
+  sendtFoerSisteKrav,
   varseletFoerSvaret,
   varseletForNyttSvar,
   type Utledning,
@@ -114,21 +115,33 @@ function utdypningIForholdet(
  * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
-function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+function kategorisperre(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
   if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;
   const forrige = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
+  // OV-U121.
+  const eldre = sendtFoerSisteKrav(u, 'forhold', sendt);
+  const somDokumentasjon =
+    'Brevet kan legges til som dokumentasjon eller som varsel etter punkt 32.2, og et annet forhold påberopes i en ny sak.';
   if (
     tekst(k.innhold.hovedkategori) !== forrige.hovedkategori ||
     tekst(k.innhold.underkategori) !== forrige.underkategori
   )
     return avvis(
       'ANNEN_HJEMMEL',
-      'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre forholdet eller gruppen det hører til. Et annet forhold påberopes i en ny sak.'
+      eldre
+        ? `Påberopelsen er sendt før totalentreprenørens siste påberopelse i saken og gjelder et annet forhold eller en annen gruppe. ${somDokumentasjon}`
+        : 'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre forholdet eller gruppen det hører til. Et annet forhold påberopes i en ny sak.'
     );
   if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)
     return avvis(
       'ANNEN_ENDRINGSORDRE',
-      `Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak.`
+      eldre
+        ? `Påberopelsen er sendt før totalentreprenørens siste påberopelse i saken og gjelder en annen endringsordre enn «${forrige.endringsordre}». ${somDokumentasjon}`
+        : `Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak.`
     );
   return null;
 }
@@ -136,12 +149,27 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
 /**
  * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
+ * En påberopelse sendt før den siste prøves etter OV-U122.
  */
-function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+function datosperre(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
   if (k.spor !== 'forhold') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   const siste = felt === null ? null : sisteDatoopplysning(u, felt);
-  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;
+  if (felt === null || siste === null) return null;
+  if (sendtFoerSisteKrav(u, 'forhold', sendt)) {
+    const opplysningen = kalenderdag(siste.dato);
+    return opplysningen !== null && foerDagen(sendt, opplysningen)
+      ? avvis(
+          'OPPLYSNINGEN_ETTER_BREVET',
+          `Påberopelsen er oppgitt sendt ${norskDato(sendt!)}, før datoen ${DATOEN_GJELDER[felt]}, ${norskDato(opplysningen)}, slik totalentreprenøren sist har oppgitt den. Korriger datoen i et eget brev før påberopelsen legges til.`
+        )
+      : null;
+  }
+  if (k.innhold[felt] === siste.dato) return null;
   return avvis(
     'DATOEN_KAN_IKKE_ENDRES',
     `En oppdatert påberopelse kan ikke endre datoen ${DATOEN_GJELDER[felt]}. Totalentreprenørens siste opplysning er ${norskDato(siste.dato)}. Datoen korrigeres i et eget brev.`
@@ -216,7 +244,7 @@ export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett)
 export const NYTTELAST_I_FORHOLDET = {
   begrunnelse: begrunnelseIForholdet,
   svarsperre: () => null,
-  kravsperre: (k, u) => kategorisperre(k, u) ?? datosperre(k, u),
+  kravsperre: (k, u, sendt) => kategorisperre(k, u, sendt) ?? datosperre(k, u, sendt),
   innsigelse: () => null,
   utdypning: utdypningIForholdet,
   oppgittDatoIKravet: oppgittDatoIForholdet,

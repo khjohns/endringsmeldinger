@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `401b13f787e91ecab8dbf84ecf50f982442ca1768d4562d42b57097e43bfb3dd`
+Kontrollsum (SHA-256 over utdraget visningen leser): `103484e3722f65cb645591ea1f22f300d2f6f69ae1218cd584a60c8b13227e35`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -427,7 +427,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-55](#rad-ka-55)
 
-**Bevis-saker som viser til vedtaket:** F-MM-KA-U56 (målmodellen), F-MM-KA-U75 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U56 (målmodellen), F-MM-KA-U75 (målmodellen), F-MM-OV-U118 (målmodellen)
 
 ### <a id="ka-u57"></a>KA-U57
 
@@ -821,7 +821,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-57](#rad-ka-57)
 
-**Bevis-saker som viser til vedtaket:** F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen), F-MM-OV-U118-frist (målmodellen)
 
 ### <a id="ka-u77"></a>KA-U77
 
@@ -3581,9 +3581,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Snevrer inn [OV-U114](#ov-u114). Presiserer [OV-U114](#ov-u114). Utvider [OV-U115](#ov-u115). Utvider [KA-U76](#ka-u76). Forholdet slik det sto i alternativet A: «snevrer inn OV-U114 punkt 14, presiserer OV-U114 punkt 10 og 15, og utvider OV-U115 punkt 21 og KA-U76 til et krav sendt før det siste kravet i sporet.» Bygges i #2011.
 
-**Regelrader:** —
+**Regelrader:** [KA-60](#rad-ka-60)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-OV-U118 (målmodellen), F-MM-OV-U118-frist (målmodellen)
 
 ### <a id="ov-u119"></a>OV-U119
 
@@ -3593,7 +3593,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [OV-U115](#ov-u115). Presiserer [OV-U114](#ov-u114). Forholdet slik det sto i alternativet A: «presiserer OV-U115 punkt 19 og 21 og OV-U114 punkt 15.» Bygges i #2011.
 
-**Regelrader:** —
+**Regelrader:** [KA-60](#rad-ka-60)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -3617,9 +3617,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [GR-U40](#gr-u40). Forholdet slik det sto i alternativet A: «presiserer GR-U40 punkt 7 og 9 og avgrenser OV-U114 punkt 15.» Bygges i #2011.
 
-**Regelrader:** —
+**Regelrader:** [KA-60](#rad-ka-60)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-OV-U121 (målmodellen)
 
 ### <a id="ov-u122"></a>OV-U122
 
@@ -3629,9 +3629,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [MM-U55](#mm-u55). Presiserer [VS-U76](#vs-u76). Presiserer [OV-U114](#ov-u114). Forholdet slik det sto i alternativet A: «presiserer MM-U55 punkt 10, VS-U76 punkt 5 og OV-U114 punkt 15.» Bygges i #2011.
 
-**Regelrader:** —
+**Regelrader:** [KA-60](#rad-ka-60)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-OV-U121 (målmodellen)
 
 ### <a id="gfk-u2"></a>GFK-U2
 
@@ -4541,7 +4541,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [OV-U80](#ov-u80). Snevrer inn [OV-U84](#ov-u84). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [HF-U23](#hf-u23). Presiserer [MM-U55](#mm-u55). Lagt til grunn 15.11 av [OV-U101](#ov-u101). Presisert 15.11 av [OV-U102](#ov-u102). Presisert 15.11 av [OV-U103](#ov-u103). Presisert 15.11 av [OV-U104](#ov-u104). Presisert 15.11 av [OV-U109](#ov-u109). Snevret inn 16.11 av [OV-U113](#ov-u113). Samlet 17.11 av [OV-U114](#ov-u114). Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3. Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon (oppdragsgiver 15.11).
 
-**Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33), [KA-36](#rad-ka-36), [KA-37](#rad-ka-37), [KA-38](#rad-ka-38), [KA-40](#rad-ka-40), [KA-41](#rad-ka-41), [VS-02](#rad-vs-02), [KA-48](#rad-ka-48), [KA-49](#rad-ka-49), [KA-50](#rad-ka-50)
+**Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33), [KA-36](#rad-ka-36), [KA-37](#rad-ka-37), [KA-38](#rad-ka-38), [KA-40](#rad-ka-40), [KA-41](#rad-ka-41), [VS-02](#rad-vs-02), [KA-48](#rad-ka-48), [KA-49](#rad-ka-49), [KA-50](#rad-ka-50), [KA-60](#rad-ka-60)
 
 **Bevis-saker som viser til vedtaket:** F-MM-G44 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G46 (målmodellen), F-MM-U326n (målmodellen), F-MM-G20 (målmodellen), F-MM-S342 (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-V3c (målmodellen), F-MM-OV-U4-registrert-svar (målmodellen), F-MM-G37 (målmodellen), F-MM-G38 (målmodellen), F-MM-G41 (målmodellen), F-MM-G42x (målmodellen)
 
@@ -4595,9 +4595,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [OV-U98](#ov-u98). Utvider [VS-U43](#vs-u43). Utvider [VS-U66](#vs-u66). Utvider [VS-U70](#vs-u70). Utvidet 15.11 av [OV-U109](#ov-u109). Samlet 17.11 av [OV-U114](#ov-u114). Forholdet slik det sto i alternativet 2 a: «presiserer OV-U98; utvider VS-U43 punkt 6, VS-U66 og VS-U70 til et krav utenfor rekken; i tråd med MM-U50 punkt 1 og VS-U43 punkt 10. Ved samme dato gjelder det egne varselet, som i dag, og etter punkt 32.2 gjelder det registrerte varselet til #1600 er bygget.» Alternativ B i spørsmål 2 står i sin helhet i 2 a og føres ikke som eget alternativ. Bygges i #2011.
 
-**Regelrader:** [KA-50](#rad-ka-50)
+**Regelrader:** [KA-50](#rad-ka-50), [KA-60](#rad-ka-60)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-OV-U118 (målmodellen), F-MM-OV-U121 (målmodellen)
 
 ### <a id="ov-u103"></a>OV-U103
 
@@ -4623,9 +4623,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [OV-U98](#ov-u98). Samlet 17.11 av [OV-U114](#ov-u114). Forholdet slik det sto i alternativet 4 b: «presiserer OV-U98; i tråd med MM-U50 punkt 8.» Alternativ A i spørsmål 4 står i sin helhet i 4 a og 4 b og føres ikke som eget alternativ. Bygges i #2011.
 
-**Regelrader:** [KA-50](#rad-ka-50)
+**Regelrader:** [KA-50](#rad-ka-50), [KA-60](#rad-ka-60)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-OV-U118 (målmodellen), F-MM-OV-U118-frist (målmodellen)
 
 ### <a id="ov-u105"></a>OV-U105
 
@@ -4848,3 +4848,4 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-57"></a>KA-57 | TE har sendt et fristkrav med dager for én eller flere frister i kontrakten. TE sender en ny kravversjon som utelater en frist uten å trekke den, en som trekker den, en som tar den med igjen etter trekket, en som bytter en registrert frist med en annen, og en som erstatter en frist som ikke er registrert, med den registrerte fristen. TE sender også et krav om en frist som ikke står i fristtabellen for prosjektet. | [KA-U76](#ka-u76), [KA-U79](#ka-u79) | F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen), F-MM-KA-U79-tilbake (målmodellen), F-MM-GFK-U23 (målmodellen) |
 | <a id="rad-ka-58"></a>KA-58 | TE har sendt et vederlagskrav med den særskilte vederlagsjusteringen etter § 34.1.3 annet ledd. TE sender en ny kravversjon som verken tar med eller trekker posten, en som trekker den, og en som tar den med igjen etter trekket. TE trekker også posten når den er den eneste i kravet. | [KA-U83](#ka-u83) | F-MM-KA-U83 (målmodellen) |
 | <a id="rad-ka-59"></a>KA-59 | Byggherren setter en akseptfrist i et svar: på vederlag eller frist, som godkjenner en del av kravet prinsipalt eller subsidiært, som avslår helt eller godkjenner hele kravet, eller på forholdet. Fristen ligger før svaret, på svarets dato, på en lørdag, en søndag eller en helligdag. TE godtar svaret senest den dagen fristen gjelder, eller senere. | [HF-U23](#hf-u23) | F-MM-HF-U23-akseptfrist (målmodellen) |
+| <a id="rad-ka-60"></a>KA-60 | En part legger til et brev sendt utenfor appen med et krav eller en påberopelse, sendt før totalentreprenørens siste krav i sporet, med annet innhold enn de andre kravversjonene: færre eller andre kravposter eller frister, et annet forhold eller en annen dato for pålegget eller kunnskapen. | [OV-U98](#ov-u98), [OV-U102](#ov-u102), [OV-U104](#ov-u104), [OV-U118](#ov-u118), [OV-U119](#ov-u119), [OV-U121](#ov-u121), [OV-U122](#ov-u122) | F-MM-OV-U118 (målmodellen), F-MM-OV-U118-frist (målmodellen), F-MM-OV-U121 (målmodellen) |
