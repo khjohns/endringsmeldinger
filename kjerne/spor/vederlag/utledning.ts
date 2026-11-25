@@ -162,7 +162,7 @@ export function kravpostvarslene(
     const iEldre = eldre.find((k) => postenMed(k, p.id, hjemmel));
     if (gitt) ut[p.id] = { art: 'gitt', varsel: gitt };
     else if (!iEldre) ut[p.id] = { art: 'kravet' };
-    else if (![iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))
+    else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))
       ut[p.id] = { art: 'gitt', varsel: iEldre.id };
   }
   return ut;
@@ -222,8 +222,8 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
     return kravposterI(k).flatMap((p) => {
       const v = varslene[p.id];
       const e = v?.art === 'gitt' ? eldre.get(v.varsel) : undefined;
-      // OV-U120 vilkår 3 gjelder også kravversjonene i rekken etter `k`.
-      return e && !krav.some((x) => viserTilEtVarsel(x, p.id))
+      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken.
+      return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))
         ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }]
         : [];
     });

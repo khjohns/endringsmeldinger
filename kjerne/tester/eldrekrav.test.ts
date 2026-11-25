@@ -411,6 +411,17 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     expect(tekst).not.toContain(GITT_344);
   });
 
+  it('viser P1 i et annet eldre krav til et varsel, er det første eldre kravet ikke varselet (OV-U120 vilkår 3)', async () => {
+    const { etter } = await leggTil(
+      [{ ...varselet, hjemmel: '34.3.3', sendt: '2026-09-19' }],
+      medP1('enhetspriser', { justert: true, varsel: 'V' }),
+      '2026-09-20',
+      [{ ...medP1('regningsarbeid'), sendt: '2026-09-21' }, medP1('regningsarbeid')]
+    );
+    expect(etter[0], 'det andre eldre kravet er lagt til').toMatchObject({ godtatt: true });
+    expect(brevteksten(etter[1]!)).not.toContain(GITT_344);
+  });
+
   it('en lagret versjon som viser til et annet varsel for P1 enn brevet før den, gjør saken ikke forstått (OV-U120, MM-U2)', async () => {
     const { utfall, journal } = await leggTil(
       [varselet],

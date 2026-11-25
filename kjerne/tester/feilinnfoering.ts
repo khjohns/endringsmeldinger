@@ -7584,8 +7584,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        'else if (![iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
-        'else if ([iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if ([...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
       ],
     ],
     mal: ['viser P1 i brevet til et varsel, er brevet ikke varselet'],
@@ -7595,8 +7595,26 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'vilkår 3 i OV-U120 prøves ikke mot kravversjonene i rekken etter den som ellers er varselet, så innsigelsen faller bort',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['return e && !krav.some((x) => viserTilEtVarsel(x, p.id))', 'return e']],
+    endringer: [
+      [
+        'return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))',
+        'return e',
+      ],
+    ],
     mal: ['viser P1 i en senere kravversjon til et varsel, står innsigelsen'],
+  },
+  {
+    id: 'F2011t',
+    feilklasse:
+      'vilkår 3 i OV-U120 prøves ikke mot de andre kravene utenfor rekken (OV-U120 vilkår 3)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if (![eldre.find((k) => postenMed(k, p.id, hjemmel))!, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+      ],
+    ],
+    mal: ['viser P1 i et annet eldre krav til et varsel, er det første eldre kravet ikke varselet'],
   },
 ];
 /** En kopi av arbeidstreet. */

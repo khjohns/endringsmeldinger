@@ -5,10 +5,18 @@
  */
 
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { eldreKravFoer, kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
+import {
+  eldreKravFoer,
+  kravpostvarslene,
+  varslerIEldreKrav,
+} from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
-import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
+import {
+  kravversjoneneKravetProevesMot,
+  varseletForNyttSvar,
+  type Utledning,
+} from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
@@ -27,20 +35,26 @@ export type Varselet =
   | { art: 'gitt'; hjemmel: Kravpostvarselhjemmel; varsel: string; dokument: string }
   | { art: 'foer'; hjemmel: Kravpostvarselhjemmel; krav: string; varsel: string | null };
 
-/** Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et. */
+/**
+ * Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et.
+ * `sendt` er dagen et krav som legges til, ble sendt, og `null` for et krav fra løsningen. Kravet
+ * prøves mot kravversjonene og de eldre kravene sendt før det, som i kommandoen (OV-U118, OV-U120).
+ */
 export function varslenePerKravpost(
   u: Utledning,
-  poster: readonly Kravpostutkast[]
+  poster: readonly Kravpostutkast[],
+  sendt: string | null = null
 ): (Varselet | null)[] {
-  const krav = u.spor.vederlag.krav;
+  const krav = kravversjoneneKravetProevesMot(u, 'vederlag', sendt).tidligere;
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
   const etter = kravpostvarslene(
     { innhold: { kravposter: lest } },
     krav,
     u.spor.vederlag.kravpostvarsler,
-    eldreKravFoer(u, null)
+    eldreKravFoer(u, sendt)
   );
+  const iEldre = varslerIEldreKrav(u);
   return lest.map((p) => {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null) return null;
@@ -48,6 +62,9 @@ export function varslenePerKravpost(
     if (v?.art === 'kravet') return { art: 'kravet', hjemmel };
     if (v?.art === 'gitt')
       return { art: 'gitt', hjemmel, varsel: v.varsel, dokument: dokumentet(u, v.varsel) };
+    // OV-U120: et eldre krav er varselet for posten.
+    const eldre = iEldre.find((x) => x.gjelder === p.id && x.hjemmel === hjemmel);
+    if (eldre) return { art: 'foer', hjemmel, krav: eldre.dokument, varsel: null };
     // Posten hadde oppgjørsformen før: det første kravet med den, og varselet posten viste til der.
     const foerste = krav.find((k) =>
       kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel)
