@@ -234,7 +234,14 @@ describe('strukturen i byggherrens svar (#2337, LV-U78–LV-U82)', () => {
     const etter = [...avsnitt]
       .reverse()
       .find((a) => a.gjelder === vederlag && a.punkt !== PUNKTET_FORBEHOLD)!;
-    expect(lesMed([...avsnitt.filter((a) => a !== etter), etter])).toMatchObject({
+    // Punktet flyttes rett etter forbeholdet for samme svar, sist i brevet.
+    const uten = avsnitt.filter((a) => a !== etter);
+    const etterForbeholdet =
+      uten.findIndex((a) => a.gjelder === vederlag && a.punkt === PUNKTET_FORBEHOLD) + 1;
+    expect(etterForbeholdet, 'forutsetning').toBeGreaterThan(0);
+    expect(
+      lesMed([...uten.slice(0, etterForbeholdet), etter, ...uten.slice(etterForbeholdet)])
+    ).toMatchObject({
       art: 'ukjent',
       grunn: expect.stringContaining('et avsnitt i brevteksten gjelder ikke ett element i brevet'),
     });

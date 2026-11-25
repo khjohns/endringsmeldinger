@@ -270,8 +270,9 @@ export function lagBrevtekst(
       ),
     });
   }
-  // LV-U81: høyst ett punkt «Forbehold», sist i brevet. Først forbeholdet om forholdet (GR-U34),
-  // så byggherrens forbehold for hvert svar, med navnet på kravet når brevet har flere svar.
+  for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
+  for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
+  // LV-U81, GR-U34, 4 A i #2337. Linjen med vedleggene står etter, som i hvert brev (A4).
   if (omForholdet && !forbeholdene.length) forbeholdene.push({ s: omForholdet.s });
   if (forbeholdene.length) {
     const overskrift = medHardeMellomrom(`${++nummer}. ${FORBEHOLDSPUNKTET.overskrift}`);
@@ -287,8 +288,6 @@ export function lagBrevtekst(
       });
     });
   }
-  for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
-  for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
   // A4: vedleggene står i teksten med filnavnet, så det som fryses, er teksten og
   // vedleggene (LV-U2, arbeidsvalg 10 i #790).
   if (nytt.dokumentasjon.length)
