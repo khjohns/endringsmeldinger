@@ -18,6 +18,7 @@ import {
   type Svarlesing,
 } from '../../format/skjema.ts';
 import {
+  erKravpostvarselhjemmel,
   KORRESPONDANSETYPER,
   SENDEMAATER,
   type Krav,
@@ -41,8 +42,20 @@ export const TILLATTE_STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd
   { art: 'rettidighet', paakrevd: false },
   { art: 'oppgjoersform', paakrevd: false },
   { art: 'justering', paakrevd: false },
-  { art: 'beloep', paakrevd: true },
+  // Påkrevd i et svar på kravet, ikke i et svar på et varsel (`kontrollerVederlagsstandpunktene`).
+  { art: 'beloep', paakrevd: false },
 ];
+
+/**
+ * Svaret gjelder et varsel etter § 34.3.3 eller § 34.4 som står alene, ikke en kravversjon: det
+ * har ikke standpunktet til beløpet (VS-U79). Formatet kontrollerer formen, og utledningen at
+ * svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
+ */
+export const svaretGjelderEtVarsel = (svar: Pick<Svar, 'standpunkter'>): boolean =>
+  svar.standpunkter.length > 0 &&
+  svar.standpunkter.every(
+    (s) => s.art === 'justering' || (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
+  );
 
 /** Hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform (KA-U57 (d), KA-U54). */
 export const OPPGJOERSHJEMMEL = {
@@ -220,7 +233,10 @@ export const UTREGNINGSSKJEMA_I_VEDERLAGET: Skjema = objekt(
       )
     ),
   },
-  ['resultat', 'godkjent_beloep', 'poster']
+  [],
+  // VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 har ingen utregning
+  // (`svaretGjelderEtVarsel`).
+  [{ required: ['resultat', 'godkjent_beloep', 'poster'] }, objekt({}, [])]
 );
 
 /** Vederlagskravet, etter `KRAVINNHOLD.vederlag`: kravpostene, postene utenfor dem og trekket. */
@@ -445,9 +461,44 @@ function standpunktIVederlaget(
  */
 function kontrollerVederlagsstandpunktene(
   ut: Standpunkt[],
+  utregning: Record<string, unknown>,
+  sti: string
+): void {
+  if (svaretGjelderEtVarsel({ standpunkter: ut }))
+    return kontrollerSvaretPaaVarselet(ut, utregning, sti);
+  kontrollerSvaretPaaKravet(ut, utregningIVederlaget(utregning), sti);
+}
+
+/**
+ * VS-U79, VS-U77 punkt 30 og 31: i svaret på et varsel etter § 34.3.3 eller § 34.4 står
+ * rettidigheten og justeringen, i den rekkefølgen og hver høyst én gang, og begge gjelder samme
+ * varsel. Svaret har ingen utregning.
+ */
+function kontrollerSvaretPaaVarselet(
+  ut: Standpunkt[],
+  utregning: Record<string, unknown>,
+  sti: string
+): void {
+  const arter = ut.map((s) => s.art).join(' ');
+  const varselet = 'gjelder' in ut[0]! ? ut[0].gjelder : undefined;
+  if (
+    !['rettidighet', 'justering', 'rettidighet justering'].includes(arter) ||
+    ut.some((s) => !('gjelder' in s) || s.gjelder !== varselet)
+  )
+    throw new Uforstaatt(
+      `${sti}: standpunktene i svaret på varselet står ikke i rekkefølgen varselet og justeringen, eller gjelder ikke samme varsel`
+    );
+  if (Object.keys(utregning).length)
+    throw new Uforstaatt(`${sti}: svaret på et varsel har en utregning`);
+}
+
+function kontrollerSvaretPaaKravet(
+  ut: Standpunkt[],
   utregning: Vederlagsutregning,
   sti: string
 ): void {
+  if (!ut.some((s) => s.art === 'beloep'))
+    throw new Uforstaatt(`${sti}: svaret på vederlag mangler standpunktet beloep`);
   const plass = (s: Standpunkt) =>
     s.art === 'rettidighet'
       ? s.hjemmel === '34.1.2'
@@ -663,14 +714,16 @@ export const LESING_I_VEDERLAGET = {
   // for en kravpost.
   rettidighet: ['34.1.3', '34.3.3', '34.4'],
   subsidiaertVerdi: 'subsidiaert_godkjent_beloep',
-  kontrollerStandpunktene: (ut: Standpunkt[], utregning: Record<string, unknown>, sti: string) =>
-    kontrollerVederlagsstandpunktene(ut, utregningIVederlaget(utregning), sti),
+  kontrollerStandpunktene: kontrollerVederlagsstandpunktene,
   kontrollerUtregningen: (
     ut: Standpunkt[],
     utregning: Record<string, unknown>,
     virkninger: Standpunktsvirkning[],
     sti: string
-  ) => kontrollerUtregningenPerPost(ut, utregningIVederlaget(utregning), virkninger, sti),
+  ) =>
+    svaretGjelderEtVarsel({ standpunkter: ut })
+      ? undefined
+      : kontrollerUtregningenPerPost(ut, utregningIVederlaget(utregning), virkninger, sti),
   // OV-U32, OV-U33: en beregningsregel byggherren ikke godtar og et tilbud byggherren ikke
   // aksepterer, er innsigelser som rammer bare posten (arbeidsvalg 1 punkt 2 i spørsmålsfila
   // 09.11 for #1663, #1760).

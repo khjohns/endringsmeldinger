@@ -12,7 +12,7 @@ import {
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
-import type { Oppgjoersform } from '../typer.ts';
+import type { Kravpostvarselhjemmel, Oppgjoersform } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
@@ -609,6 +609,40 @@ export function kontrollerOppgjoersformen(
     feil[`${navn}.godtar_justering`] =
       'mangler når byggherren godtar beregningsregelen (punkt 34.3.2)';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
+}
+
+/**
+ * VS-U79, VS-U77 punkt 30 og 31: vurderingene i byggherrens svar på et varsel etter § 34.3.3 eller
+ * § 34.4 som står alene. Svaret på varselet etter § 34.3.3 har standpunktet til justeringen, som
+ * en kravpost med justerte enhetspriser der beregningsregelen er godtatt, og kan si at varselet kom
+ * for sent eller uttrykkelig i tide (svar 3 A). Svaret på varselet etter § 34.4 har bare
+ * standpunktet til varselet, og «i tide» er oppgivelsen av en innsigelse som står
+ * (`kontrollerOppgivelsenEtter344`). Feilene står på `varselet.<felt>`.
+ */
+export function kontrollerSvaretPaaVarselet(
+  hjemmel: Kravpostvarselhjemmel,
+  v: Record<string, unknown>,
+  innsigelsenStaar: boolean
+): void {
+  const navn = 'varselet';
+  const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide' && f !== 'godtar_justering');
+  if (ukjent.length)
+    throw new UgyldigVurdering(
+      Object.fromEntries(
+        ukjent.map((f) => [`${navn}.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
+      )
+    );
+  const post =
+    hjemmel === '34.4'
+      ? ({ oppgjoersform: 'regningsarbeid' } as const)
+      : ({ oppgjoersform: 'enhetspriser', justert: true } as const);
+  kontrollerOppgjoersformen(navn, { ...v, aksepterer: true }, post);
+  if (hjemmel === '34.4' && v.varslet_i_tide == null)
+    throw new UgyldigVurdering({
+      [`${navn}.varslet_i_tide`]:
+        'mangler: svaret på varselet etter punkt 34.4 har bare standpunktet til varselet',
+    });
+  kontrollerOppgivelsenEtter344(navn, v, post, innsigelsenStaar);
 }
 
 /**

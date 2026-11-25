@@ -35,6 +35,7 @@ import {
   krevdIKravposten,
   krevdProduktivitet,
   kravposterI,
+  svaretGjelderEtVarsel,
   utregningIVederlaget,
   varselhjemmel,
 } from './format.ts';
@@ -66,6 +67,7 @@ function vederlagsvirkninger(
   regler: Regelsett,
   forskyvning: number
 ): Standpunktsvirkning[] {
+  if (svaretGjelderEtVarsel(svar)) return virkningerISvaretPaaVarselet(svar);
   const sent = (hjemmel: Hjemmel) =>
     svar.standpunkter.some(
       (s) =>
@@ -109,6 +111,30 @@ function vederlagsvirkninger(
     };
     return { standpunkt: s.id, art: s.art, virkning: virkning() };
   });
+}
+
+/**
+ * VS-U79, VS-U77 punkt 30: i svaret på varselet etter § 34.3.3 står innsigelsen prinsipalt og
+ * standpunktet til justeringen subsidiært, i lagene etter `lagIKravposten` (VS-U4). Uten
+ * innsigelse står justeringen i det første laget. Standpunktet til varselet etter § 34.4 har
+ * ingen virkning (KA-U64).
+ */
+function virkningerISvaretPaaVarselet(svar: Svarinnhold): Standpunktsvirkning[] {
+  const varselet = svar.standpunkter.find((s) => s.art === 'rettidighet');
+  const lag = lagIKravposten(
+    {
+      godtarRegelen: true,
+      varselForSent:
+        varselet?.art === 'rettidighet' && varselet.hjemmel === '34.3.3' && !varselet.iTide,
+      justering: svar.standpunkter.some((s) => s.art === 'justering'),
+    },
+    1
+  );
+  return svar.standpunkter.map((s) => ({
+    standpunkt: s.id,
+    art: s.art,
+    virkning: s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
+  }));
 }
 
 /**
@@ -258,6 +284,8 @@ export const tilbudetIkkeAkseptert = (svar: Svarinnhold): boolean =>
  * (`godkjennerHeleKravet` i `frosset/standpunkt.ts`).
  */
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  // VS-U79: svaret på et varsel gjelder ikke et krav.
+  if (svaretGjelderEtVarsel(svar)) return false;
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2) gir aldri
   // sammenfall. Leses av standpunktene.
   if (tilbudetIkkeAkseptert(svar)) return false;

@@ -5,11 +5,11 @@
  */
 
 import { iSporet, type Svarvurdering } from '../frosset/byggeklosser.ts';
-import { STANDPUNKTER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { STANDPUNKTER_I_VEDERLAGET, standpunkterPaaVarselet } from '../spor/vederlag/kommando.ts';
 import type { Svarutkast } from './kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import { STANDPUNKTER_I_FRISTEN } from '../spor/frist/kommando.ts';
-import type { Krav, Spor } from '../typer.ts';
+import type { Krav, Kravpostvarselhjemmel, Spor } from '../typer.ts';
 import { STANDPUNKTER_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 
 type Data = Record<string, unknown>;
@@ -22,9 +22,24 @@ export type Sporsstandpunkter = (
   nyId: () => string
 ) => Data[];
 
-/** Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er gjort, utelates (KA-U4). */
-export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => string): Data[] {
-  return iSporet(STANDPUNKTER, s.spor)(s.vurderinger, krav, u, nyId);
+/** Varselet etter § 34.3.3 eller § 34.4 et svar gjelder (VS-U79). */
+export interface Svaretsvarsel {
+  id: string;
+  hjemmel: Kravpostvarselhjemmel;
+}
+
+/**
+ * Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er
+ * gjort, utelates (KA-U4). `maal` er kravversjonen eller varselet svaret gjelder.
+ */
+export function standpunkter(
+  s: Svarutkast,
+  maal: Krav | Svaretsvarsel,
+  u: Utledning,
+  nyId: () => string
+): Data[] {
+  if ('hjemmel' in maal) return standpunkterPaaVarselet(s.vurderinger, maal, nyId);
+  return iSporet(STANDPUNKTER, s.spor)(s.vurderinger, maal, u, nyId);
 }
 
 /** Standpunktene i hvert spor. */

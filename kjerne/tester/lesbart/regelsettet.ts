@@ -82,7 +82,10 @@ export const REGELSETTET: Lesbar[] = [
     'regler/vederlag.ts',
     'regelsett',
     'lagIKravposten',
-    ['spor/vederlag/frysing.ts:beregningsregelLag'],
+    [
+      'spor/vederlag/frysing.ts:beregningsregelLag',
+      'spor/vederlag/frysing.ts:virkningerISvaretPaaVarselet',
+    ],
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [

@@ -74,6 +74,7 @@ describe('Tidslinje', () => {
       kravUtenforRekken: [],
       svar: [],
       svarUtenforRekken: [],
+      svarPaaVarsler: [],
       varsler: {},
       kravpostvarsler: [],
       foresporsler: [],

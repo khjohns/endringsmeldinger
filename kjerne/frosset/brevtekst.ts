@@ -43,6 +43,7 @@ import {
   type Tekst,
   type Brevpunkt,
   type Lagbeloep,
+  type Oversikten,
   type Tema,
   type Utdypninger,
   PARTENS,
@@ -54,7 +55,12 @@ import {
   paaberopelsenAvForholdet,
   STANDPUNKTENE_I_FORHOLDET,
 } from '../spor/forhold/tekst.ts';
-import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
+import {
+  BREVTEKSTEN_I_VEDERLAGET,
+  justeringstekst,
+  STANDPUNKTENE_I_VEDERLAGET,
+} from '../spor/vederlag/tekst.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
 import {
   FORBEHOLDET,
@@ -74,6 +80,7 @@ import type {
   Hjemmel,
   Kravspor,
   Krav,
+  Kravpost,
   Opplysning,
   Part,
   Spor,
@@ -340,17 +347,15 @@ interface Svarledd {
  */
 function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Brevpunkt[] {
   const { j, nytt } = t;
+  // VS-U79: svaret på et varsel som står alene har `gjelder` lik varselet.
+  if (j.element(s.gjelder).art === 'utsagn') return svarpunkterPaaVarselet(s, t, nr);
   const krav = j.krav(s.gjelder);
-  const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];
   const beloepene: Lagbeloep[] = [];
-  const plassen = (id: string) => {
-    const lag = laget(virkning.get(id)!);
-    return lag === null ? null : lag + fra.forskyvning;
-  };
+  const plassen = plassenI(s, fra.forskyvning);
   for (const p of s.standpunkter.filter(harTekst)) {
     const plass = plassen(p.id);
     const punkt = punktetFor(p, sporet, krav);
@@ -393,9 +398,49 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     if (varselet && sporet.ingenBeloep)
       varselet.tekst = `${varselet.tekst as string} ${sporet.ingenBeloep(krav)}`;
   }
+  return punkteneISvaret(s, t, nr, {
+    ledd,
+    fra,
+    temaene: sporet.temaer(krav, t, regler),
+    innledning: innledningen(s, krav, t),
+    oversikten,
+  });
+}
+
+/** Plassen standpunktet har i svaret: laget i sporet, etter lagene forholdet opptar (OV-U32). */
+function plassenI(s: Svar, forskyvning: number): (standpunkt: string) => number | null {
+  const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
+  return (standpunkt) => {
+    const lag = laget(virkning.get(standpunkt)!);
+    return lag === null ? null : lag + forskyvning;
+  };
+}
+
+/**
+ * Punktene i byggherrens svar etter LV-U34 og LV-U72, med standpunktene `ledd` i temaene i
+ * skjemaets rekkefølge: innledningen, ett punkt per tema med en lagslinje ved hvert standpunkt
+ * med etikett, tabellen etter OV-U73, forbeholdet etter GR-U34 og akseptfristen sist.
+ */
+function punkteneISvaret(
+  s: Svar,
+  t: Tekst,
+  nr: Nummerering,
+  {
+    ledd,
+    fra,
+    temaene,
+    innledning,
+    oversikten,
+  }: {
+    ledd: Svarledd[];
+    fra: ReturnType<typeof forholdetsLag>;
+    temaene: Tema[];
+    innledning: string;
+    oversikten: Oversikten | null;
+  }
+): Brevpunkt[] {
   const ordnet = ledd.some((l) => l.plass !== null && l.plass > 1);
 
-  const temaene = sporet.temaer(krav, t, regler);
   // MM-U2: et standpunkt uten et tema i svaret avvises, i stedet for å falle ut av brevet.
   const utenTema = ledd.find((l) => !temaene.some((tema) => tema.punkt === l.punkt));
   if (utenTema)
@@ -445,7 +490,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   };
 
   const brevpunkter: Brevpunkt[] = [
-    { punkt: INNLEDNINGEN, overskrift: null, avsnitt: [innledningen(s, krav, t)] },
+    { punkt: INNLEDNINGEN, overskrift: null, avsnitt: [utenGjentattNs(innledning, nr.ns)] },
   ];
   for (const p of punkter) {
     const avsnitt: string[] = p.foerst ? [p.foerst] : [];
@@ -477,16 +522,74 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       ...(p.punkt === OVERSIKTEN ? { poster: oversikten!.poster } : {}),
     });
   }
-  // HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
-  // å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
-  if (s.akseptfrist !== null)
-    brevpunkter.push({
-      punkt: AKSEPTFRISTEN,
-      overskrift: null,
-      avsnitt: [`Akseptfrist: ${norskDato(s.akseptfrist)}.`],
-    });
+  brevpunkter.push(...akseptfristpunktet(s));
   return brevpunkter;
 }
+
+/** Temaene i svaret på varselet etter § 34.3.3 første ledd og § 34.4 (VS-U77 punkt 30 og 31). */
+const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
+  { punkt: FORHOLDET, overskrift: 'Forholdet' },
+  { punkt: '34.3.3', overskrift: 'Varselet om justering av enhetsprisene (punkt 34.3.3)' },
+  { punkt: '34.4', overskrift: 'Varselet om regningsarbeid (punkt 34.4)' },
+  { punkt: 'justering', overskrift: 'Justering av enhetsprisene (punkt 34.3.2)' },
+];
+
+/**
+ * Byggherrens svar på et varsel etter § 34.3.3 første ledd eller § 34.4 som står alene (VS-U77
+ * punkt 30 og 31, VS-U79), i punkter som svaret på kravet (LV-U34). Innsigelsen står
+ * prinsipalt og justeringen subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene
+ * svaret på forholdet opptar (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
+ */
+function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Nummerering): Brevpunkt[] {
+  const { j } = t;
+  const hjemmel = varselhjemmel(s.gjelder, j);
+  if (hjemmel !== '34.3.3' && hjemmel !== '34.4')
+    throw new KanIkkeUttrykkes(`svaret gjelder et varsel etter § ${hjemmel}, som står i kravet`);
+  const fra = forholdetsLag(s, t, nr);
+  const plassen = plassenI(s, fra.forskyvning);
+  const ledd: Svarledd[] = [
+    ...fra.ledd,
+    ...s.standpunkter.map((p): Svarledd => {
+      if (p.art === 'rettidighet')
+        return {
+          punkt: hjemmel,
+          plass: plassen(p.id),
+          innsigelse: !p.iTide,
+          tekst: stor(varseltekst(p, 'varselet', [], t)),
+        };
+      if (p.art === 'justering')
+        return {
+          punkt: 'justering',
+          plass: plassen(p.id),
+          innsigelse: false,
+          tekst: stor(justeringstekst(p.godtar, null)),
+        };
+      throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret på varselet`);
+    }),
+  ];
+  return punkteneISvaret(s, t, nr, {
+    ledd,
+    fra,
+    temaene: TEMAENE_I_SVARET_PAA_VARSELET,
+    innledning: `Byggherren svarer på ${beskriv(s.gjelder, j)}.${forrigeSvar(s, j)}`,
+    oversikten: null,
+  });
+}
+
+/**
+ * HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
+ * å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
+ */
+const akseptfristpunktet = (s: Svar): Brevpunkt[] =>
+  s.akseptfrist === null
+    ? []
+    : [
+        {
+          punkt: AKSEPTFRISTEN,
+          overskrift: null,
+          avsnitt: [`Akseptfrist: ${norskDato(s.akseptfrist)}.`],
+        },
+      ];
 
 /**
  * LV-U34: «NS 8407» står bare første gang i brevet. En henvisning til et punkt med bare ett
@@ -504,11 +607,14 @@ function utenGjentattNs(tekst: string, ns: { nevnt: boolean }): string {
 
 /** Innledningen i svaret (LV-U34, LV-U41), med setningene om byggherrens forrige svar (LV-U73). */
 function innledningen(s: Svar, krav: Krav, { j }: Tekst): string {
-  const innledning = brevtekstI(s.spor).innledning(krav, { j });
-  return s.erstatter
-    ? `${innledning} Dette er byggherrens nye svar. Byggherrens forrige svar står i ${j.brevet(j.svar(s.erstatter).dokument)}.`
-    : innledning;
+  return `${brevtekstI(s.spor).innledning(krav, { j })}${forrigeSvar(s, j)}`;
 }
+
+/** LV-U73: setningene om byggherrens forrige svar, med mellomrom foran, eller ingenting. */
+const forrigeSvar = (s: Svar, j: Journalen): string =>
+  s.erstatter
+    ? ` Dette er byggherrens nye svar. Byggherrens forrige svar står i ${j.brevet(j.svar(s.erstatter).dokument)}.`
+    : '';
 
 /** Punktet standpunktet står i (LV-U34): punktet i sporet, eller bestemmelsen for rettidigheten. */
 function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
@@ -714,35 +820,13 @@ function rettidighetstekst(
   const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
   const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
   const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
-  if (erKravpostvarselhjemmel(p.hjemmel)) {
-    const om = `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`;
-    // VS-U77 punkt 9 og 10: innsigelsen fra et tidligere svar som står for posten, som svaret
-    // gjentar eller gir opp.
-    const foer = sisteStandpunktTilVarslene(
-      j.dokumenter
-        .filter((d) => d.id !== nytt.id)
-        .flatMap((d) =>
-          d.svar
-            .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
-            .map((x) => ({
-              s: x,
-              dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
-              lagtTil: erRegistrert(d.opplysninger),
-            }))
-        )
-    ).find((x) => x.gjelder === p.gjelder && x.hjemmel === p.hjemmel && !x.iTide);
-    const brevet = foer && j.brevet(foer.dokument);
-    const jf = brevet ? `, jf. innsigelsen i ${brevet}` : '';
-    // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
-    if (p.iTide && p.hjemmel === '34.4')
-      return `byggherren gir opp innsigelsen${brevet ? ` i ${brevet}` : ''} om at ${om} ikke ble gitt eller kom for sent.`;
-    if (p.iTide && brevet)
-      return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${om} kom for sent.`;
-    if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
-    return p.hjemmel === '34.3.3'
-      ? `byggherren gjør gjeldende at ${om} kom for sent${jf}, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
-      : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent${jf}.`;
-  }
+  if (erKravpostvarselhjemmel(p.hjemmel))
+    return varseltekst(
+      p,
+      `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`,
+      kravposterI(krav),
+      { j, saken, nytt }
+    );
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide && p.hjemmel === '34.1.3')
@@ -751,6 +835,56 @@ function rettidighetstekst(
   return aapne.length
     ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`
     : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+}
+
+/**
+ * Standpunktet til varselet etter § 34.3.3 første ledd eller § 34.4 (VS-U77 punkt 30 og 31), i
+ * svaret på kravposten eller på varselet. `om` er varselet slik brevet nevner det. Innsigelsen
+ * fra et tidligere svar på varselet eller kravposten står for posten, og svaret gjentar den
+ * eller gir den opp (VS-U77 punkt 9, 10, 33 og 34). Etter § 34.4 sier svaret på kravposten
+ * «ikke ble gitt eller kom for sent», og svaret på varselet «kom for sent» (punkt 31).
+ */
+function varseltekst(
+  p: Extract<Standpunkt, { art: 'rettidighet' }>,
+  om: string,
+  poster: readonly Kravpost[],
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+): string {
+  const foer = sisteStandpunktTilVarslene(
+    j.dokumenter
+      .filter((d) => d.id !== nytt.id)
+      .flatMap((d) =>
+        d.svar
+          .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
+          .map((x) => ({
+            s: x,
+            dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
+            lagtTil: erRegistrert(d.opplysninger),
+          }))
+      ),
+    poster
+  ).find((x) => x.gjelder === p.gjelder && x.hjemmel === p.hjemmel && !x.iTide);
+  const brevet = foer && j.brevet(foer.dokument);
+  const jf = brevet ? `, jf. innsigelsen i ${brevet}` : '';
+  const forSent =
+    p.hjemmel === '34.4' && poster.some((x) => x.id === p.gjelder)
+      ? 'ikke ble gitt eller kom for sent'
+      : 'kom for sent';
+  // MM-U50: innsigelsen i svaret på varselet sa «kom for sent» (punkt 31).
+  const iSvaretPaaVarselet =
+    foer !== undefined &&
+    j.dokumenter.some(
+      (d) => d.id === foer.dokument && d.svar.some((x) => j.element(x.gjelder).art === 'utsagn')
+    );
+  // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
+  if (p.iTide && p.hjemmel === '34.4')
+    return `byggherren gir opp innsigelsen${brevet ? ` i ${brevet}` : ''} om at ${om} ${iSvaretPaaVarselet ? 'kom for sent' : forSent}.`;
+  if (p.iTide && brevet)
+    return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${om} kom for sent.`;
+  if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
+  return p.hjemmel === '34.3.3'
+    ? `byggherren gjør gjeldende at ${om} kom for sent${jf}, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
+    : `byggherren gjør gjeldende at ${om} ${forSent}${jf}.`;
 }
 
 /** KA-U72: standpunktet til beløpet for en kravpost der tilbudet ikke er akseptert, står ikke i brevet. */

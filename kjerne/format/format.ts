@@ -143,9 +143,14 @@ export const UTREGNINGSSKJEMA: Record<Spor, Skjema | null> = {
 export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
   {
     regelversjon: { type: 'integer' },
-    virkninger: liste(
-      objekt({ standpunkt: ID, lag: { type: 'integer', minimum: 1 } }, ['standpunkt', 'lag'])
-    ),
+    // Tom når ingen standpunkter har et lag, som i svaret på varselet etter § 34.4 (KA-U64, VS-U79).
+    virkninger: {
+      type: 'array',
+      items: objekt({ standpunkt: ID, lag: { type: 'integer', minimum: 1 } }, [
+        'standpunkt',
+        'lag',
+      ]),
+    },
     upaavirket: liste(ID),
     uten_virkning: liste(ID),
     linje: TEKST,

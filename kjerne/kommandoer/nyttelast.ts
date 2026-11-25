@@ -5,7 +5,12 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
-import { NYTTELAST_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import {
+  NYTTELAST_I_VEDERLAGET,
+  varseletSvaretGjelder,
+  vurderingeneISvaretPaaVarselet,
+} from '../spor/vederlag/kommando.ts';
+import type { Svaretsvarsel } from './standpunkter.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
@@ -57,8 +62,8 @@ import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts
 export type Svarstandpunkter = (
   s: Svarutkast,
   utregning: Record<string, unknown>,
-  /** Kravversjonen svaret gjelder. */
-  krav: Krav,
+  /** Kravversjonen svaret gjelder, eller varselet etter § 34.3.3 eller § 34.4 (VS-U79). */
+  krav: Krav | Svaretsvarsel,
   /** Påberopelsen svaret er regnet mot (#342), `null` i forholdet. */
   paaberopelse: Krav | null
 ) => Standpunkt[];
@@ -111,11 +116,15 @@ function kontrollerSvar(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor[s.spor];
-  const krav = sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
-  if (!krav || s.gjelder !== krav.id)
+  const varselet = s.spor === 'vederlag' ? varseletSvaretGjelder(u, s.gjelder) : null;
+  const funnet =
+    sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
+  const krav = varselet ? null : funnet;
+  if (!varselet && (!krav || s.gjelder !== krav.id))
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
   // OV-U103 for en eldre kravversjon. Forutsetningene prøver bare den gjeldende.
   if (
+    krav &&
     krav !== sporet.gjeldendeKrav &&
     sporet.svar.some((x) => x.gjelder === krav.id) &&
     !sendtFoerGjeldendeSvar(u, s.spor, krav.id, sendt)
@@ -132,6 +141,9 @@ function kontrollerSvar(
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
+  if (varselet)
+    return kontrollerSvaretPaaVarselet(s, varselet, u, svarstandpunkter, paaberopelse!, sendt);
+  if (!krav) throw new Error('Svaret gjelder verken et krav eller et varsel.');
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
@@ -165,6 +177,31 @@ function kontrollerSvar(
       `Serveren regner ut ${avvik.map((a) => `${a.sti}=${a.serveren}`).join(', ')}.`
     );
   return utdypningKreves ? nyttelastI(s.spor).begrunnelse(s, krav, regler) : null;
+}
+
+/**
+ * VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene, regnes mot påberopelsen
+ * som et svar på kravet, men har ingen utregning. Vurderingene prøves etter VS-U77 punkt 30 og 31
+ * (`vurderingeneISvaretPaaVarselet`). Når svaret kan gis, prøver forutsetningene (punkt 33).
+ */
+function kontrollerSvaretPaaVarselet(
+  s: Svarutkast,
+  varselet: Svaretsvarsel,
+  u: Utledning,
+  svarstandpunkter: Svarstandpunkter,
+  paaberopelse: Krav,
+  sendt: string | null
+): Avvisning | null {
+  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
+  if (feil) return feil;
+  svarstandpunkter(s, {}, varselet, paaberopelse);
+  const avvik = avvikIResultatet(s.spor, s.resultat, {});
+  return avvik.length
+    ? avvis(
+        'ANNET_RESULTAT',
+        `Serveren regner ut ${avvik.map((a) => `${a.sti}=${a.serveren}`).join(', ')}.`
+      )
+    : null;
 }
 
 /**
@@ -488,7 +525,11 @@ export function nyttelastkontroll(
       }
       return null;
     case 'revisjon': {
-      const forrige = u.spor[k.svar.spor].gjeldendeSvar;
+      const sporet = u.spor[k.svar.spor];
+      // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
+      const forrige = varseletSvaretGjelder(u, k.svar.gjelder)
+        ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
+        : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
       if (k.svar.gjelder !== forrige.gjelder)

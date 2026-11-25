@@ -50,7 +50,10 @@ export const KOMMANDOENE: Lesbar[] = [
     'frosset/utregning.ts:avvikIResultatet',
     'regelsett',
     'sti serveren',
-    ['kommandoer/nyttelast.ts:kontrollerSvar'],
+    [
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet',
+    ],
   ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
@@ -203,7 +206,7 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
-  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:rettidighetstekst']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:varseltekst']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -273,6 +276,19 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
+  // VS-U79: et svar på et varsel gjelder varselet.
+  ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'relasjon', 'spor gjelder'],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'varseletSvaretGjelder',
+    [
+      'kommandoer/avvisning.ts:handlingsnoekler.paaVarselet',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
+  ],
+  ['Svaretsvarsel', 'relasjon', 'id hjemmel'],
   [
     'typer.ts',
     'relasjon',
@@ -469,6 +485,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
