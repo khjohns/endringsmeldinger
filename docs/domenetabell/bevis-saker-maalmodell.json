@@ -12776,6 +12776,141 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U118",
+      "forslag": "OV-U118: et vederlagskrav lagt til, sendt før totalentreprenørens siste krav i sporet, prøves mot kravversjonene sendt før det. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 60000 }, { "belop": 40000 }],
+          "navn": "K-v2"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 60000 }],
+          "sendt": "2026-09-19",
+          "navn": "K-v0"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 60000 }],
+            "sendt": "2026-09-20"
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U102"],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_krav.vederlag": "K-v2",
+            "krav_utenfor_rekken.vederlag": ["K-v0"]
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U118-frist",
+      "forslag": "OV-U118: et fristkrav lagt til, sendt før kravet som tok med en frist til, tas imot uten den. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 10 }],
+          "navn": "K-f2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 15 }],
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 15 }],
+            "sendt": "2026-09-20"
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U121",
+      "forslag": "OV-U121, OV-U122: en påberopelse lagt til, sendt før totalentreprenørens siste påberopelse, med en annen gruppe avvises, og med samme forhold tas den imot. Den avvises når totalentreprenørens siste opplysning om datoen er senere enn dagen den ble sendt",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U121"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "endringsordre",
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": true, "regel": "ANNEN_HJEMMEL" }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U121", "OV-U102"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring",
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U122"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring",
+            "dato": "2026-09-10",
+            "sendt": "2026-09-12"
+          },
+          "forventet": { "avvist": true, "regel": "OPPLYSNINGEN_ETTER_BREVET" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {

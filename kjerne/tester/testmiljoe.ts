@@ -55,5 +55,20 @@ export function testklokke(start: string): Klokke {
   };
 }
 
+/**
+ * Klokka går én dag fram per hendelse fra 21.09 kl. 10 norsk tid. Etter `tiden_gaar` til en dag
+ * kommer neste hendelse dagen etter.
+ */
+export function dagklokke(): Klokke {
+  let t = Date.parse('2026-09-20T08:00:00.000Z');
+  return {
+    naa: () => new Date(t),
+    neste: () => new Date((t += 86_400_000)),
+    flytt: (til) => {
+      t = til.getTime();
+    },
+  };
+}
+
 /** Klokka på maskinen, når en server stempler tidspunktet, som i saksruta. */
 export const veggklokke: Klokke = { naa: () => new Date(), neste: () => new Date() };

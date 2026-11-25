@@ -9,7 +9,12 @@ import { omtalen } from '../../frosset/brevdeler.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
-import { rettedeBrev, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import {
+  kravversjoneneKravetProevesMot,
+  rettedeBrev,
+  varseletForNyttSvar,
+  type Utledning,
+} from '../../utledning/utled.ts';
 import {
   avvis,
   type Avvisning,
@@ -83,12 +88,21 @@ export const KRAVFORM_I_FRISTEN = {
 const utdypningIFristen = (): Avvisning | null =>
   avvis('BEGRUNNELSE_MANGLER', 'Kravet om fristforlengelse må begrunne antallet dager.');
 
-/** KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene. */
-function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+/**
+ * KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene, og for et krav lagt til mot
+ * kravversjonene sendt før det (OV-U118).
+ */
+function fristsperre(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
+  const { tidligere, andre } = kravversjoneneKravetProevesMot(u, 'frist', sendt);
   const strid = fristeneStrider(
     k.innhold as Parameters<typeof fristeneStrider>[0],
-    u.spor.frist.krav,
-    false
+    tidligere,
+    false,
+    andre
   );
   return strid ? avvis('FRISTENE', `Kravversjonen ${strid}.`) : null;
 }
@@ -366,7 +380,7 @@ function fristeneSomLagres(
   u: Utledning,
   kontekst: Pick<Kontekst, 'nyId' | 'kontraktsfrister'>
 ): Record<string, unknown> {
-  const { eier } = fristeneISporet(u.spor.frist.krav);
+  const { eier } = fristeneISporet(u.spor.frist.krav, u.spor.frist.kravUtenforRekken);
   const frister = (innhold.frister as Record<string, unknown>[]).map((p) => {
     const id = (p.id as string | undefined) ?? eier.get(fristnoekkel(p)) ?? kontekst.nyId();
     const f = kontekst.kontraktsfrister.find((x) => x.fristId === p.frist_id);

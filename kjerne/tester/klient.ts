@@ -271,13 +271,14 @@ const INNHOLD = {
   forhold: (h: Handling) => {
     const hovedkategori = h.hovedkategori ?? 'endring';
     // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke, i feltet formatet har.
+    // `dato` gir en annen dato enn 15.09.
     const dato = oppgittDato(hovedkategori, h.underkategori);
     return {
       hovedkategori,
       underkategori: h.underkategori,
       // GR-U16: TE identifiserer endringsordren kravet følger av.
       ...(h.underkategori === 'endringsordre' ? { endringsordre: 'EO 1' } : {}),
-      ...(dato ? { [dato]: '2026-09-15' } : {}),
+      ...(dato ? { [dato]: typeof h.dato === 'string' ? h.dato : '2026-09-15' } : {}),
     };
   },
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U115 punkt 19, arbeidsvalget 07.11 i domenetabellen).
@@ -325,7 +326,11 @@ const INNHOLD = {
 /** Kravpostene i vederlagskravet for handlingen; se `INNHOLD.vederlag`. */
 function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) {
   if (Array.isArray(h.kravposter)) {
-    const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
+    // Også kravene utenfor rekken (OV-U119).
+    const tidligere = [
+      ...(u?.spor.vederlag.krav ?? []),
+      ...(u?.spor.vederlag.kravUtenforRekken ?? []),
+    ].flatMap((k) => kravposterI(k));
     const idFor = (betegnelse: unknown) =>
       tidligere.find((p) => p.betegnelse === betegnelse)?.id ?? 'ukjent-kravpost';
     return {
@@ -414,7 +419,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
               ? INNHOLD.forhold(h)
               : INNHOLD.frist(h, u),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
-        ...(spor === 'vederlag' ? {} : utdypning(h)),
+        // OV-U80, OV-U98: med `sendt` er kravet lagt til, uten tekst fra løsningen.
+        ...(typeof h.sendt === 'string'
+          ? { sendt: h.sendt, ...lagtTil(h), dokumentasjon: [navn.nyId()] }
+          : spor === 'vederlag'
+            ? {}
+            : utdypning(h)),
       };
     case 'brev':
       return {
