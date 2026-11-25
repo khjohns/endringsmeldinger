@@ -2388,8 +2388,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        'const funnet = vedlegg.get(id.toLowerCase());',
-        "const funnet = vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) };",
+        'const funnet = vedlegg.get(vedleggsnoekkel(id));',
+        "const funnet = vedlegg.get(vedleggsnoekkel(id)) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) };",
       ],
     ],
     mal: ['et vedlegg serveren ikke fant i saken, avvises'],
@@ -3990,8 +3990,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/vedlegg.ts`,
     endringer: [
       [
-        'oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`',
-        '`id:${id.toLowerCase()}`',
+        'return oppslag.get(noekkel)?.innhold_sha256 ?? `id:${noekkel}`;',
+        'return `id:${noekkel}`;',
       ],
     ],
     mal: ['samme fil lastet opp på nytt som brevet med varselet'],
@@ -4525,9 +4525,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et vedlegg ved kravet som alt ligger ved et varsel for en kravpost, tar varselet bort fra kravposten (VS-U55, #1823)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      ["return varselet ? vedleggVedEtVarsel('ved kravet', varselet) : null;", 'return null;'],
-    ],
+    endringer: [['  if (!varselet) return null;', '  if (!varselet || true) return null;']],
     mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
   },
   {
@@ -4536,7 +4534,10 @@ const MUTASJONER: Mutasjon[] = [
       'et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken, tar varselet bort fra en annen kravpost (VS-U55, #1993)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      ['  if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))', '  if (false)'],
+      [
+        '    dokumentet.dokumentasjon.some((id) => iVarslene.has(vedleggsnoekkel(id))) ||',
+        '    false ||',
+      ],
     ],
     mal: [
       'et dokument fra kravskjemaet med et vedlegg som alt ligger ved et varsel i saken, avvises',
@@ -5339,7 +5340,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F543',
     feilklasse: 'samme dokument med ulik dato for to kravposter godtas (VS-U53)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['if ((dokumentene.get(id) ?? like) !== like)', 'if (false)']],
+    endringer: [['if (noekler.some((n) => (kart.get(n) ?? like) !== like))', 'if (false)']],
     mal: ['samme dokument med ulik dato eller med andre vedlegg'],
   },
   {
@@ -7152,6 +7153,53 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['i et brev fra løsningen gjør datoen for varselet i samme brev saken ikke forstått'],
+  },
+  {
+    id: 'F2126a',
+    feilklasse:
+      'dokumentene fra kravskjemaet i vederlaget skilles på ID-en, så samme fil lastet opp på nytt for en annen kravpost blir et annet brev (VS-U52, OV-U80, #2126)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '  [...innholdetIVedleggene(d.dokumentasjon, oppslag)].sort();',
+        '  [...new Set(d.dokumentasjon.map((id) => `id:${id.toLowerCase()}`))].sort();',
+      ],
+    ],
+    mal: ['samme fil lastet opp på nytt for to kravposter er ett brev'],
+  },
+  {
+    id: 'F2144a',
+    feilklasse:
+      'dokumentet fra kravskjemaet prøves mot varslene for en kravpost i saken på ID-en, så samme fil lastet opp på nytt registreres to ganger (VS-U55, OV-U80, #2144)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '    varseldokumentene(saken).some(({ dokument }) => sammeDokument(dokument, new Set(innholdet)))',
+        '    false',
+      ],
+    ],
+    mal: ['avvises som dokument fra kravskjemaet, og en annen fil godtas'],
+  },
+  {
+    id: 'F2144b',
+    feilklasse:
+      'et vedlegg ved kravet som ligger ved varselet fra samme kravskjema, omtales som et varsel i saken, ikke med kravposten (VS-U51, VS-U75, #2144)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (iSaken.has(varselet.id))', '  if (iSaken.size >= 0)']],
+    mal: ['avvises med kravposten'],
+  },
+  {
+    id: 'F2126b',
+    feilklasse:
+      'to ulike dokumenter fra kravskjemaet som har samme fil lastet opp hver for seg, avvises som ett dokument med ulik dato (VS-U53, #2100, #2126)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '    const ider = p.varsel.dokumentasjon.map(vedleggsnoekkel);',
+        '    const ider = JSON.parse(noekkel) as string[];',
+      ],
+    ],
+    mal: ['to ulike dokumenter fra kravskjemaet med samme fil lastet opp hver for seg'],
   },
   {
     id: 'F2333a',
