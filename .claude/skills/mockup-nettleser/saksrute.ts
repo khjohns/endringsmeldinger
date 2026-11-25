@@ -61,7 +61,7 @@ import { FRISTTABELLEN, kjoer } from '../../../kjerne/tester/kjoerer.ts';
 import { vedleggI, type Kommando } from '../../../kjerne/kommandoer/kommando.ts';
 import { veggklokke, type Klokke } from '../../../kjerne/tester/testmiljoe.ts';
 import { erHverdag, erLoerdag } from '../../../kjerne/regler/hverdager.ts';
-import { TESTSAKER, somForloep as testsaken } from './testsaker.ts';
+import { TESTSAKER, testsakSomForloep } from './testsaker.ts';
 
 const { values } = parseArgs({
   options: {
@@ -135,11 +135,11 @@ function tilbakedatering(forloep: ReturnType<typeof finn>) {
  */
 let FORLOEP: ReturnType<typeof finn> | null = null;
 let TILBAKEDATERT: ReturnType<typeof tilbakedatering> = null;
-/** Testsaken i `--testsak` (#2349), med akseptfristen som i et forløp. */
-let TESTSAK: ReturnType<typeof testsaken> | null = null;
+/** Stegene i testsaken i `--testsak` (#2349), med akseptfristen som i et forløp. */
+let TESTSAK: ReturnType<typeof testsakSomForloep> | null = null;
 try {
   if (values.testsak && values.forlop) throw new Error('--testsak og --forlop kan ikke brukes sammen');
-  if (values.testsak) TESTSAK = medAkseptfrist(testsaken(values.testsak), hverdagFra(14, 1));
+  if (values.testsak) TESTSAK = medAkseptfrist(testsakSomForloep(values.testsak), hverdagFra(14, 1));
   if (values.forlop) {
     TILBAKEDATERT = tilbakedatering(finn(values.forlop));
     FORLOEP = medAkseptfrist(finn(values.forlop), TILBAKEDATERT?.frist ?? hverdagFra(14, 1));
@@ -160,7 +160,8 @@ try {
   process.exit(1);
 }
 mkdirSync(UT, { recursive: true });
-const SPOR = values.spor ?? (values.testsak ? TESTSAKER[values.testsak]!.spor : undefined);
+const TESTSAKEN = values.testsak ? TESTSAKER[values.testsak] : undefined;
+const SPOR = values.spor ?? TESTSAKEN?.spor;
 
 const FRONTEND = 'http://localhost:5173';
 const SERVERPORT = 8090;
@@ -858,7 +859,7 @@ try {
 
   const OPPRETTES = !!FORLOEP?.utgangspunkt.opprettes;
   const te = await loggInn('te', `/${katalog.prosjekt}`);
-  const tittel = FORLOEP?.tittel ?? (values.testsak ? TESTSAKER[values.testsak]!.tittel : 'Ny peling ved akse C');
+  const tittel = FORLOEP?.tittel ?? TESTSAKEN?.tittel ?? 'Ny peling ved akse C';
   let sak = '';
   if (!OPPRETTES) {
     const opprettet = await opprettSak(te, tittel);
@@ -879,7 +880,6 @@ try {
 
   const forloep = FORLOEP ? somForloep(FORLOEP) : TESTSAK;
   if (forloep) {
-    const id = FORLOEP?.id ?? `Testsaken ${values.testsak}`;
     const til = FORLOEP && values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     const ny = OPPRETTES ? nySaksbane(tittel) : null;
@@ -893,10 +893,10 @@ try {
     const tilbake = TILBAKEDATERT ? await tilbakedatertBane(bane, TILBAKEDATERT.start) : null;
     await kjoer(forloep, tilbake?.bane ?? bane, { til, valg: { klokke: tilbake?.klokke ?? veggklokke } });
     if (ny) {
-      if (!ny.sak()) throw new Error(`${id}: saken ble ikke opprettet i skjemaet (--til)`);
+      if (!ny.sak()) throw new Error(`${forloep.id}: saken ble ikke opprettet i skjemaet (--til)`);
       sak = ny.sak()!;
     }
-    console.log(`${id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
+    console.log(`${forloep.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert. De
     // tilbakedaterte radene har ingen oppdrag (G-3), så da venter den bare når et steg gikk gjennom
     // serveren.
@@ -957,7 +957,7 @@ try {
   await te.screenshot({ path: join(UT, 'saksliste-te.png'), fullPage: true });
   klippet.push(...(await klipperInnhold(te)).map((k) => `TE: ${k} i sakslisten`));
   if (klippet.length) throw new Error(`Saken klipper innhold brukeren ikke kan rulle til: ${klippet.join(', ')}`);
-  if (values.testsak) await TESTSAKER[values.testsak]!.iNettleseren?.({ te, bh, saksrute: `${FRONTEND}${saksrute}`, ut: UT });
+  await TESTSAKEN?.iNettleseren?.({ te, bh, saksrute: `${FRONTEND}${saksrute}`, ut: UT });
   if (values.feil) {
     // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
     // brevkontrollen, og `page.route` svarer på kommandoruta i stedet for serveren. Kroppene har

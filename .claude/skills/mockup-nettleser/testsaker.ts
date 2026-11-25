@@ -80,15 +80,13 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.getByRole('radio', { name: 'Varslet for sent' }).check();
       const post = (b: string) =>
         bh.getByRole('listitem').filter({ has: bh.getByRole('heading', { name: new RegExp(`^${b} `) }) });
-      await post('P1').getByRole('radio', { name: /^Godtar enhetspriser/ }).check();
-      await post('P1').getByRole('radio', { name: 'Kom for sent' }).check();
-      await post('P1').getByRole('radio', { name: 'Bestrider justeringen' }).check();
-      await post('P1').getByRole('button', { name: 'Ferdig' }).click();
+      const svar = async (b: string, valg: (string | RegExp)[]) => {
+        for (const name of valg) await post(b).getByRole('radio', { name }).check();
+        await post(b).getByRole('button', { name: 'Ferdig' }).click();
+      };
+      await svar('P1', [/^Godtar enhetspriser/, 'Kom for sent', 'Bestrider justeringen']);
       await bh.getByRole('button', { name: 'Svar på P2' }).click();
-      await post('P2').getByRole('radio', { name: /^Mener regningsarbeid/ }).check();
-      await post('P2').getByRole('radio', { name: 'Kom i tide' }).check();
-      await post('P2').getByRole('radio', { name: 'Bestrider justeringen' }).check();
-      await post('P2').getByRole('button', { name: 'Ferdig' }).click();
+      await svar('P2', [/^Mener regningsarbeid/, 'Kom i tide', 'Bestrider justeringen']);
       const leselinjen = async (b: string) => {
         const linjer = post(b).getByRole('list').getByRole('listitem');
         await linjer.first().waitFor({ timeout: 10_000 });
@@ -115,7 +113,7 @@ export const TESTSAKER: Record<string, Testsak> = {
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
-export function somForloep(navn: string): Forloep {
+export function testsakSomForloep(navn: string): Forloep {
   const t = TESTSAKER[navn];
   if (!t)
     throw new Error(`Testsaken ${navn} finnes ikke. Testsakene: ${Object.keys(TESTSAKER).join(', ')}`);
