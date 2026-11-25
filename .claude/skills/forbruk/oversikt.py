@@ -1,7 +1,12 @@
-"""Oversikt over tokenforbruket i skyøktene, fra lagrede svar fra list_sessions.
+"""Oversikt over tokenforbruket i skyøktene, fra list_sessions og list_events (#2401).
 
-Bruk: python3 oversikt.py --fra 2026-10-15 --til 2026-10-22 side1.txt side2.txt ...
+  python3 oversikt.py --fra 2026-10-15 --til 2026-10-22 --ider side1.txt ...
+  python3 oversikt.py --fra 2026-10-15 --til 2026-10-22 \\
+      --transkripsjon agent-1.jsonl ... -- side1.txt ...
 
+Sidene er lagrede svar fra list_sessions. Med `--ider` skriver skriptet bare
+ID-ene til øktene som telles. Kostnaden står ikke lenger i list_sessions; den leses
+av result-hendelsene som list_events med `kinds` ["result"] ga i transkripsjonene.
 Skriver bare sammendraget, så rå-svarene aldri havner i konteksten.
 """
 
@@ -9,6 +14,7 @@ import argparse
 import collections
 import json
 import re
+import sys
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -57,12 +63,95 @@ def les_okter(stier):
     return okter, eldste, har_mer, usortert
 
 
+def resultater(verdi):
+    """Hvert objekt med `total_cost_usd` i et svar fra list_events."""
+    if isinstance(verdi, dict):
+        if "total_cost_usd" in verdi:
+            yield verdi
+        for v in verdi.values():
+            yield from resultater(v)
+    elif isinstance(verdi, list):
+        for v in verdi:
+            yield from resultater(v)
+
+
+def svartekst(innhold):
+    """Teksten i et verktøysvar, også når svaret er lagret til fil."""
+    if isinstance(innhold, list):
+        innhold = "\n".join(b.get("text", "") for b in innhold if isinstance(b, dict))
+    if not isinstance(innhold, str):
+        return ""
+    if innhold.lstrip()[:1] in "{[":
+        return innhold
+    for sti in re.findall(r"(/[^\s'\"`]+\.(?:txt|json))", innhold):
+        if Path(sti).is_file():
+            return Path(sti).read_text(encoding="utf-8")
+    return ""
+
+
+def kontekst_i(resultat):
+    """Konteksten i siste API-kall i turen resultatet avslutter."""
+    kall = ((resultat.get("usage") or {}).get("iterations") or [{}])[-1]
+    return sum(
+        kall.get(k) or 0
+        for k in (
+            "input_tokens",
+            "cache_read_input_tokens",
+            "cache_creation_input_tokens",
+        )
+    )
+
+
+def les_kostnad(stier):
+    """Kostnad, cache_read og kontekst per økt, fra list_events i transkripsjonene.
+
+    Kostnaden er den høyeste `total_cost_usd`, og cache_read tas fra samme
+    hendelse. Summen kan nullstilles når en økt startes på nytt, så tallet er et
+    nedre anslag. Konteksten tas fra den nyeste hendelsen.
+    """
+    kall, svar = {}, {}
+    for sti in stier:
+        for linje in Path(sti).read_text(encoding="utf-8").splitlines():
+            try:
+                innhold = (json.loads(linje).get("message") or {}).get("content")
+            except (json.JSONDecodeError, AttributeError):
+                continue
+            for blokk in innhold if isinstance(innhold, list) else []:
+                if blokk.get("type") == "tool_use" and blokk.get("name", "").endswith(
+                    "list_events"
+                ):
+                    kall[blokk["id"]] = (blokk.get("input") or {}).get("session_id")
+                elif blokk.get("type") == "tool_result":
+                    svar[blokk.get("tool_use_id")] = blokk.get("content")
+    kostnad = {}
+    for bruk_id, okt in kall.items():
+        tekst = svartekst(svar.get(bruk_id))
+        if not okt or not tekst:
+            continue
+        try:
+            data = json.loads(tekst)
+        except json.JSONDecodeError:
+            continue
+        for hendelse in (finn_svar(data) or {}).get("data", []):
+            for r in resultater(hendelse):
+                tid = hendelse.get("created_at") or ""
+                k = kostnad.setdefault(
+                    okt,
+                    {"cost_usd": 0.0, "cache_read_tokens": 0, "tid": "", "kontekst": 0},
+                )
+                if (r.get("total_cost_usd") or 0) >= k["cost_usd"]:
+                    k["cost_usd"] = r.get("total_cost_usd") or 0
+                    k["cache_read_tokens"] = sum(
+                        m.get("cacheReadInputTokens") or 0
+                        for m in (r.get("modelUsage") or {}).values()
+                    )
+                if tid >= k["tid"]:
+                    k["tid"], k["kontekst"] = tid, kontekst_i(r)
+    return kostnad
+
+
 def tittel(okt):
     return okt.get("title") or ""
-
-
-def metadata(okt):
-    return okt.get("external_metadata") or {}
 
 
 def rolle(okt, foreldre):
@@ -79,12 +168,19 @@ def main():
     p.add_argument("--fra", required=True, help="første dato, ÅÅÅÅ-MM-DD")
     p.add_argument("--til", required=True, help="dagen etter siste dato, ÅÅÅÅ-MM-DD")
     p.add_argument("--topp", type=int, default=10)
+    p.add_argument("--ider", action="store_true", help="skriv bare ID-ene som telles")
+    p.add_argument(
+        "--transkripsjon",
+        nargs="+",
+        default=[],
+        help="transkripsjoner med kallene til list_events",
+    )
     p.add_argument("filer", nargs="+")
     a = p.parse_args()
 
     alle, eldste, har_mer, usortert = les_okter(a.filer)
     if not alle:
-        print("ingen økter i sidene")
+        print("ingen økter i sidene", file=sys.stderr)
         return
     foreldre = {o.get("parent_session_id") for o in alle.values()}
     # Kostnaden er samlet over hele økta, så en økt telles i uka den ble opprettet.
@@ -95,11 +191,17 @@ def main():
         if o["created_at"][:10] < a.fra and o["updated_at"][:10] >= a.fra
     ]
 
+    if a.ider:
+        for o in okter + for_perioden:
+            print(o["id"])
+        return
+    kostnad = les_kostnad(a.transkripsjon)
+
     def bruk(o):
-        return o.get("usage") or metadata(o).get("usage") or {}
+        return kostnad.get(o["id"]) or {}
 
     def kontekst(o):
-        return (metadata(o).get("context_usage") or {}).get("used_tokens") or 0
+        return bruk(o).get("kontekst") or 0
 
     print(
         f"{len(okter)} økter opprettet fra {a.fra} til {a.til} "
@@ -121,7 +223,9 @@ def main():
         )
     uten = [o for o in okter if not bruk(o)]
     if uten:
-        print(f"{len(uten)} økter uten usage")
+        print(
+            f"{len(uten)} økter uten result-hendelse: {', '.join(o['id'] for o in uten)}"
+        )
     print(f"sum USD {sum(bruk(o).get('cost_usd') or 0 for o in okter):.0f}")
 
     per_dag = collections.defaultdict(lambda: [0, 0.0])
