@@ -3,7 +3,8 @@
   svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
   svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
   (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
-  mellom to krav, står svarene på kravpostene fra forrige brev under, uten «Endre» (VS-U65).
+  mellom to krav, viser kortet under brevet svarene på kravpostene fra forrige brev, bare til
+  lesing (VS-U65).
 -->
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
@@ -192,8 +193,7 @@
       },
     ])
   );
-  // VS-U65: svaret på et varsel lagt til mellom to krav gjelder bare varselet, og svarene på
-  // kravpostene i forrige brev står uendret under det.
+  // Svaret på kravet som gjelder, med brevet og kravpostene, til kortet under brevet (VS-U65).
   let ikkeBygget = $state(false);
   const forrigeSvar = $derived.by(() => {
     const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
