@@ -5627,8 +5627,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
-        '    const kjent = id === undefined ? undefined : sist.get(id);',
+        '    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);',
+        '    const kjent = id === undefined ? undefined : sistITidligere.get(id);',
       ],
     ],
     mal: ['F-MM-KA-U79-tilbake'],
@@ -7509,6 +7509,19 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et brev sendt samme dag som kravversjonen som tok med Montering, prøves mot den'],
+  },
+  {
+    id: 'F2011l',
+    feilklasse:
+      'et brev sendt før en frist ble registrert, prøves mot den registrerte formen (OV-U118, KA-U79)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);',
+        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
+      ],
+    ],
+    mal: ['et brev sendt før fristen ble registrert, kan angi den med navnet'],
   },
 ];
 /** En kopi av arbeidstreet. */

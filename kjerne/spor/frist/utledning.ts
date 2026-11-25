@@ -298,6 +298,8 @@ export function fristeneStrider(
   andre: readonly Pick<Krav, 'innhold'>[]
 ): string | null {
   const { forrige, sist, eier } = fristeneISporet(tidligere, andre);
+  // KA-U79 og OV-U118: en frist er registrert når den var det i en kravversjon i `tidligere`.
+  const sistITidligere = fristeneISporet(tidligere, []).sist;
   const trekker = (ny.trekker ?? []) as string[];
   const trekket = trekketStrider(trekker, forrige, (id) => {
     const f = forrige.get(id);
@@ -317,7 +319,7 @@ export function fristeneStrider(
     const sto = eier.get(noekkel);
     // KA-U79: en frist uten `id` er raden den har stått i, og den raden kan være erstattet siden.
     const rad = id ?? sto;
-    const kjent = rad === undefined ? undefined : sist.get(rad);
+    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);
     if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)
       return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist`;
     // KA-U76: en frist som har stått i sporet, beholder raden sin.

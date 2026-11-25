@@ -222,6 +222,33 @@ describe('et fristkrav sendt før det siste (OV-U118)', () => {
   });
 });
 
+describe('en frist som er registrert etter et brev (OV-U118, KA-U79)', () => {
+  /** Fristen fra 23.09, angitt med navnet, erstattes 24.09 med en registrert frist på samme rad. */
+  const registrert: Handling = {
+    handling: 'krav',
+    spor: 'frist',
+    frister: [{ erstatter: 'Sluttfristen', frist_id: 1, dager: 20 }],
+  };
+  const medNavnet: Handling = {
+    handling: 'krav',
+    spor: 'frist',
+    frister: [{ navn: 'Sluttfristen', dager: 15 }],
+  };
+
+  it('et brev sendt før fristen ble registrert, kan angi den med navnet', async () => {
+    const { utfall, u } = await leggTil([registrert], medNavnet, '2026-09-22');
+    staarUtenforRekken(u, kravetIRaden(utfall, u));
+  });
+
+  it('kontrollsak: et brev sendt etter at fristen ble registrert, kan ikke bytte den', async () => {
+    const { utfall } = await leggTil([registrert], medNavnet, '2026-09-25');
+    expect(utfall).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'FRISTENE', melding: expect.stringContaining('bytter den registrerte') },
+    });
+  });
+});
+
 describe('en påberopelse sendt før den siste (OV-U121, OV-U122)', () => {
   /** `dato` er datoen pålegget ble mottatt, i stedet for 15.09 som påberopelsen har. */
   const paaberopelse = (underkategori: string, dato?: string): Handling => ({
