@@ -361,8 +361,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet);',
-        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning, kravet);',
+        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet, foer);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning, kravet, foer);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -632,8 +632,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        'kravene.find((k) => k.id === s.gjelder),\n    kjerne\n',
-        'kravene.find((k) => k.id === s.gjelder),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
+        'standpunkteneTilVarslene(u, dag, true),\n    kjerne\n',
+        'standpunkteneTilVarslene(u, dag, true),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -799,7 +799,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren kontrollerer ikke at sammenfallet stemmer med standpunktene (MM-U43 punkt 8, #326)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    if (!sammenfallStemmer(s))', '    if (!sammenfallStemmer(s) && !s)']],
+    endringer: [
+      [
+        '    if (!sammenfallStemmer(s, alleKrav.get(s.gjelder)))',
+        '    if (!sammenfallStemmer(s, alleKrav.get(s.gjelder)) && !s)',
+      ],
+    ],
     mal: ['et avslag lagret med sammenfall er ikke forstått'],
   },
   {
@@ -4783,7 +4788,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F483',
     feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [["=== 'regningsarbeid' ? '34.4' :", "=== 'regningsarbeid' ? '34.3.3' :"]],
     mal: ['et varsel registrert før det første kravet'],
   },
@@ -6837,6 +6842,41 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['const gjentatt = foer && !foer.iTide && !p.iTide;', 'const gjentatt = false;']],
     mal: ['brevet som gjentar innsigelsen mot varselet for kravposten, viser til brevet'],
+  },
+  {
+    id: 'F790',
+    feilklasse:
+      'et svar som ikke sier noe om varselet, faller ikke sammen med kravet når innsigelsen er gitt opp (VS-U77 punkt 9 og 12, #2316)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['    foer.some((x) => !x.iTide && x.gjelder', '    foer.some((x) => x.gjelder']],
+    mal: ['et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall'],
+  },
+  {
+    id: 'F791',
+    feilklasse:
+      'frysingen av svaret leser ikke innsigelsene fra svarene før (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['    standpunkteneTilVarslene(u, sendt, true),\n', '    [],\n']],
+    mal: [
+      'et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
+      'et svar som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står',
+    ],
+  },
+  {
+    id: 'F792',
+    feilklasse:
+      'utledningen avviser et svar uten sammenfall som ikke sier noe om varselet (MM-U43 punkt 8, #2316)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['?? []).length > 0;', '?? []).length < 0;']],
+    mal: ['et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall'],
+  },
+  {
+    id: 'F793',
+    feilklasse:
+      'frysingen av et svar lagt til leser ikke en innsigelse sendt samme dag (VS-U77 punkt 9, OV-U104, #2316)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['|| (medSammeDag && dag === sendt)', '|| (medSammeDag && false)']],
+    mal: ['et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet'],
   },
   {
     id: 'F802',

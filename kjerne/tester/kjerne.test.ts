@@ -2616,8 +2616,8 @@ describe('upåvirket hos leserne (OV-U33)', () => {
     }) as unknown as Svar;
 
   it('en upåvirket spesifisering hindrer ikke sammenfall, men en i et lag gjør det', () => {
-    expect(sammenfallStemmer(fristsvar('upaavirket', true))).toBe(true);
-    expect(sammenfallStemmer(fristsvar(1, true)), 'kontrollsak').toBe(false);
+    expect(sammenfallStemmer(fristsvar('upaavirket', true), undefined)).toBe(true);
+    expect(sammenfallStemmer(fristsvar(1, true), undefined), 'kontrollsak').toBe(false);
   });
 
   const utledning = (subsidiaer: string[], virkning: Standpunktsvirkning['virkning']) =>
