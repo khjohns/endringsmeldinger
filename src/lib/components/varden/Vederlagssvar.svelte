@@ -420,7 +420,11 @@
   {:else if 'oppgjoersform' in f}
     <a href={`#${uid}-form-${post!.betegnelse}`}>{SKJEMA.standpunktetTilFormen}</a>
   {:else if f.innsigelse === '34.3.3'}
-    <a href={`#${uid}-varsel-${post!.betegnelse}`}>{innsigelsenOmVarselet('34.3.3')}</a>
+    <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
+    <a
+      href={`#${uid}-varsel-${post!.betegnelse}${varseletFoer(u, post!)?.iTide === false ? '-standpunkt' : ''}`}
+      >{innsigelsenOmVarselet('34.3.3')}</a
+    >
   {:else if f.innsigelse === '34.1.3'}
     {innsigelsenOmVarselet('34.1.3')}
   {:else}
