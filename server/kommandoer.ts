@@ -51,7 +51,7 @@ import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
   lesJournal,
-  lesDagensDato,
+  lesKlokkaIBasen,
   lesKontraktsforkortelse,
   lesLeveringsmaal,
   SakFinnesIkke,
@@ -401,7 +401,7 @@ export async function lesNesteSakskode(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string
-): Promise<Sakskode & { kontraktsforkortelse: string | null; dagensDato: string }> {
+): Promise<Sakskode & { kontraktsforkortelse: string | null; klokkaIBasen: string }> {
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
@@ -409,7 +409,7 @@ export async function lesNesteSakskode(
       return {
         ...sakskode,
         kontraktsforkortelse: await lesKontraktsforkortelse(foresp, kontekst),
-        dagensDato: await lesDagensDato(foresp),
+        klokkaIBasen: await lesKlokkaIBasen(foresp),
       };
     });
   } catch (feil) {

@@ -8,7 +8,6 @@
  * (#705, #712). `skrevetAvKjernen` avgjør det for både lesingen og skrivingen.
  */
 
-import { kalenderdag } from '../kjerne/format/leser.ts';
 import type { Journalrad, Part, Sakskode } from '../kjerne/typer.ts';
 import {
   sql,
@@ -145,8 +144,8 @@ export interface LestSak {
   oppdrag: LagretOppdrag[];
   sakskode: Sakskode | null;
   kontraktsforkortelse: string | null;
-  /** Dagens dato i norsk tid etter basens klokke, med `merking`; ellers `null` (U-5 i BF-46). */
-  dagensDato: string | null;
+  /** Tidspunktet i basen i UTC, med `merking`; ellers `null` (U-5 i BF-46). */
+  klokkaIBasen: string | null;
   /** Navnet bak hver aktør med navn; tomt uten `navn`, og når oppslaget feilet. */
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
@@ -188,7 +187,7 @@ export async function lesSaken(
       oppdrag,
       sakskode,
       kontraktsforkortelse,
-      dagensDato: merking ? await lesDagensDato(foresp) : null,
+      klokkaIBasen: merking ? await lesKlokkaIBasen(foresp) : null,
       navn: new Map<string, string>(),
     };
     if (!navn) return lest;
@@ -201,15 +200,13 @@ export async function lesSaken(
 }
 
 /**
- * Dagens dato i norsk tid etter basens klokke, som brevet dateres med når serveren skriver det
+ * Tidspunktet i basen i UTC, klokka brevet dateres med når serveren skriver det
  * (`koe_api.skrivetidspunkt`). Brevkontrollen lager teksten med den, ikke med nettleserens klokke
- * (U-5 i BF-46).
+ * (U-5 i BF-46, svar C 25.11 i #2340).
  */
-export async function lesDagensDato(foresp: Foresp): Promise<string> {
+export async function lesKlokkaIBasen(foresp: Foresp): Promise<string> {
   const svar = await foresp().query<{ naa: Date }>('SELECT SYSUTCDATETIME() AS naa');
-  const dato = kalenderdag(svar.recordset[0].naa.toISOString());
-  if (dato === null) throw new Error('Basens klokke ga ikke en dato.');
-  return dato;
+  return svar.recordset[0].naa.toISOString();
 }
 
 /** Kontraktsforkortelsen for merkingen av brevet (LV-U44), eller `null` når den mangler. */

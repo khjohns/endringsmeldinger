@@ -4,7 +4,7 @@
  */
 
 import { ApiError, apiFetch } from '#lib/api/client.ts';
-import { osloDato, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '#kjerne/typer.ts';
 import type { Fristtabellsvar } from '#kjerne/spor/frist/visning.ts';
 import type { Visning } from '#kjerne/utledning/visning.ts';
@@ -32,8 +32,8 @@ export interface Kjernesak {
   part: Part | null;
   sakskode: Sakskode | null;
   kontraktsforkortelse: string | null;
-  /** Dagens dato i norsk tid etter basens klokke, som brevkontrollen lager teksten med (U-5 i BF-46). */
-  dagens_dato: string;
+  /** Tidspunktet i basen i UTC, som brevkontrollen lager teksten med (U-5 i BF-46). */
+  klokka_i_basen: string;
   kan_foreslaa_sakskode: boolean;
   visning: Visning;
   journal: Journallinje[];
@@ -84,19 +84,18 @@ interface Sakskodesvar {
   loepenummer: number;
   tildelt: boolean;
   kontraktsforkortelse: string | null;
-  dagens_dato: string;
+  klokka_i_basen: string;
 }
 
 const somMerking = ({
   kode,
   loepenummer,
   kontraktsforkortelse,
-  dagens_dato,
+  klokka_i_basen,
 }: Sakskodesvar): Saksmerking => ({
   sakskode: { kode, loepenummer },
   kontraktsforkortelse,
-  dagensDato: dagens_dato,
-  nettleserdatoVedLastingen: osloDato(),
+  klokka: { iBasen: klokka_i_basen, iNettleserenVedLastingen: Date.now() },
 });
 
 /**
@@ -156,7 +155,7 @@ export const hentSaksmerkingForNySak = (prosjektId: string) =>
  * Saken med merkingen brevteksten lages med. `null` når saken ikke har fått kode, og leseren
  * ikke kan få et forslag til koden.
  */
-export interface LastetKjernesak extends Omit<Kjernesak, 'dagens_dato'> {
+export interface LastetKjernesak extends Omit<Kjernesak, 'klokka_i_basen'> {
   merking: Saksmerking | null;
 }
 
@@ -168,14 +167,13 @@ export async function hentKjernesakMedMerking(
   sakId: string,
   prosjektId: string
 ): Promise<LastetKjernesak> {
-  const { dagens_dato, ...sak } = await hentKjernesak(sakId, prosjektId);
+  const { klokka_i_basen, ...sak } = await hentKjernesak(sakId, prosjektId);
   if (sak.sakskode) {
     const merking = await medFristtabell(
       {
         sakskode: sak.sakskode,
         kontraktsforkortelse: sak.kontraktsforkortelse,
-        dagensDato: dagens_dato,
-        nettleserdatoVedLastingen: osloDato(),
+        klokka: { iBasen: klokka_i_basen, iNettleserenVedLastingen: Date.now() },
       },
       prosjektId
     );

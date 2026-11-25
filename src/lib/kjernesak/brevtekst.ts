@@ -57,12 +57,10 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
     /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
     sakerIkkeForstaatt?: readonly string[];
     /**
-     * Dagens dato i norsk tid etter basens klokke, som serveren daterer brevet med (U-5 i BF-46).
-     * Uten den, som i demoruta, brukes nettleserens klokke.
+     * Klokka i basen, som serveren daterer brevet med, og nettleserens klokke da den ble lest
+     * (U-5 i BF-46, svar C 25.11 i #2340). Uten den, som i demoruta, brukes nettleserens klokke.
      */
-    dagensDato?: string;
-    /** Nettleserens dato i norsk tid da `dagensDato` ble lest, så en side over midnatt følger med. */
-    nettleserdatoVedLastingen?: string;
+    klokka?: { iBasen: string; iNettleserenVedLastingen: number };
   };
 
 /**
@@ -87,28 +85,15 @@ export type GjeldendeFristdato = Fristdato & {
   forlengelserIAndreSaker: NonNullable<Fristdato['forlengelser']>;
 };
 
-/** Datoen i norsk tid for tidspunktet. */
-export const osloDato = (tidspunkt = new Date()) =>
-  tidspunkt.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
-
-const DOEGN = 86_400_000;
-const middag = (dato: string) => new Date(`${dato}T12:00:00Z`);
-
 /**
- * Tidspunktet brevkontrollen lager teksten med: 12.00 UTC på datoen fra serveren, som er samme
- * dato i norsk tid hele året (U-5 i BF-46). Står siden åpen over midnatt, legges dagene nettleseren
- * har talt siden lastingen til, så datoen er dagens også uten en ny lasting. Klokkeslettet står
- * ikke i teksten.
+ * Tidspunktet brevkontrollen lager teksten med: klokka i basen ved lastingen pluss tiden som har
+ * gått i nettleseren siden (U-5 i BF-46, svar C 25.11 i #2340). En maskinklokke som går feil,
+ * flytter da ikke datoen.
  */
-function tidspunktFor({ dagensDato, nettleserdatoVedLastingen }: Saksmerking): Date {
-  if (!dagensDato) return new Date();
-  const dager = nettleserdatoVedLastingen
-    ? Math.round(
-        (middag(osloDato()).getTime() - middag(nettleserdatoVedLastingen).getTime()) / DOEGN
-      )
-    : 0;
-  return new Date(middag(dagensDato).getTime() + dager * DOEGN);
-}
+const tidspunktFor = ({ klokka }: Saksmerking): Date =>
+  klokka
+    ? new Date(Date.parse(klokka.iBasen) + Date.now() - klokka.iNettleserenVedLastingen)
+    : new Date();
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, klokkeslettet og ID-ene settes av serveren og endrer ikke den låste teksten.

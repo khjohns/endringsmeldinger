@@ -1,13 +1,7 @@
 /** Typevakten for et brev med tekst (#2071 punkt 2), og datoen brevkontrollen lager teksten med. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  brevFor,
-  harTekst,
-  osloDato,
-  type Brev,
-  type BrevMedTekst,
-} from '#lib/kjernesak/brevtekst.ts';
+import { brevFor, harTekst, type Brev, type BrevMedTekst } from '#lib/kjernesak/brevtekst.ts';
 import type { Avsnitt } from '#kjerne/typer.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import { KOE_17, SAK, VEDERLAG_DELVIS, sakMedKrav, svar } from '#kjerne/tester/brevsak.ts';
@@ -33,11 +27,14 @@ describe('harTekst', () => {
 
 /**
  * U-5 i BF-46 og svar 1 A (oppdragsgiver 24.11): brevkontrollen bruker datoen i basen, i norsk
- * tid, og klokka på brukerens maskin avgjør ikke teksten. Setningen om aksept etter akseptfristen
- * kommer fra HF-U23 punkt 7.
+ * tid, og klokka på brukerens maskin avgjør ikke teksten. Svar C 25.11 i #2340: klokka i basen
+ * pluss tiden som har gått i nettleseren siden lastingen. Setningen om aksept etter akseptfristen
+ * kommer fra HF-U23 punkt 7. Midnatt 6. oktober 2026 i norsk tid er 22.00 UTC.
  */
 describe('datoen brevkontrollen lager teksten med (U-5 i BF-46)', () => {
   afterEach(() => vi.useRealTimers());
+
+  const SETNINGEN = 'Aksepten er sendt etter akseptfristen 5. oktober 2026 i byggherrens svar.';
 
   // Byggherrens svar sendes 5. oktober med akseptfrist samme dag.
   const sakMedFrist = () => {
@@ -46,14 +43,11 @@ describe('datoen brevkontrollen lager teksten med (U-5 i BF-46)', () => {
     s.send('BH', { type: 'brev', svar: [{ ...delvis, akseptfrist: '2026-10-05' }] });
     return s;
   };
-  const akseptMed = (
-    nettleserklokke: string,
-    dagensDato: string,
-    nettleserdatoVedLastingen = osloDato(new Date(nettleserklokke))
-  ) => {
-    vi.useFakeTimers({ now: new Date(nettleserklokke), toFake: ['Date'] });
+  /** Aksepten med klokka i basen og nettleserens klokke ved lastingen, og nettleserens klokke nå. */
+  const aksept = (iBasen: string, nettleserenVedLastingen: string, nettleserenNaa: string) => {
+    vi.useFakeTimers({ now: new Date(nettleserenNaa), toFake: ['Date'] });
     const s = sakMedFrist();
-    const aksept = {
+    const kommando = {
       type: 'aksept',
       spor: 'vederlag',
       svar: s.u().spor.vederlag.gjeldendeSvar!.id,
@@ -62,28 +56,33 @@ describe('datoen brevkontrollen lager teksten med (U-5 i BF-46)', () => {
     const merking = {
       sakskode: KOE_17,
       kontraktsforkortelse: 'K201',
-      dagensDato,
-      nettleserdatoVedLastingen,
+      klokka: { iBasen, iNettleserenVedLastingen: Date.parse(nettleserenVedLastingen) },
     };
-    const brev = brevFor(aksept, SAK, 'TE', merking, s.journal, KJERNE, new Map(), true);
+    const brev = brevFor(kommando, SAK, 'TE', merking, s.journal, KJERNE, new Map(), true);
     expect(harTekst(brev), 'Forutsetning: kjernen lager brevet').toBe(true);
     return (brev as BrevMedTekst).avsnitt.map((a) => a.laast).join('\n');
   };
 
   it('nettleseren viser akseptfristen og basen dagen etter: brevet sier at aksepten er sendt etter fristen', () => {
-    expect(akseptMed('2026-10-05T21:00:00Z', '2026-10-06')).toContain(
-      'Aksepten er sendt etter akseptfristen 5. oktober 2026 i byggherrens svar.'
-    );
+    const t = '2026-10-05T21:00:00Z';
+    expect(aksept('2026-10-06T08:00:00Z', t, t)).toContain(SETNINGEN);
   });
 
   it('nettleseren viser dagen etter akseptfristen og basen fristen: brevet sier ingenting om fristen (kontrollsak)', () => {
-    expect(akseptMed('2026-10-06T08:00:00Z', '2026-10-05')).not.toContain('akseptfristen');
+    const t = '2026-10-06T08:00:00Z';
+    expect(aksept('2026-10-05T08:00:00Z', t, t)).not.toContain('akseptfristen');
   });
 
-  // Funn 1b i reviewet av #2319: saken er lastet før midnatt, og datoen skifter før sendingen.
+  // Funn 1b i reviewet av #2340: saken er lastet før midnatt, og datoen skifter før sendingen.
   it('siden står åpen over midnatt: brevet får den nye datoen uten en ny lasting', () => {
-    expect(akseptMed('2026-10-05T23:30:00Z', '2026-10-05', '2026-10-05')).toContain(
-      'Aksepten er sendt etter akseptfristen 5. oktober 2026 i byggherrens svar.'
-    );
+    const lastet = '2026-10-05T21:50:00Z';
+    expect(aksept(lastet, lastet, '2026-10-05T22:10:00Z')).toContain(SETNINGEN);
+  });
+
+  // Funnet fra Codex i #2340: maskinklokka går 20 minutter foran basen.
+  it('maskinklokka går foran og har passert midnatt, basen ikke: brevet sier ingenting om fristen', () => {
+    expect(
+      aksept('2026-10-05T21:30:00Z', '2026-10-05T21:50:00Z', '2026-10-05T22:05:00Z')
+    ).not.toContain('akseptfristen');
   });
 });
