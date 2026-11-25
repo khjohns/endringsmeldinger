@@ -185,6 +185,25 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     ).toEqual([['justering', 1]]);
   });
 
+  it('et nytt svar på varselet etter punkt 34.3.3 fra løsningen som ikke sier noe om varselet der innsigelsen står, avvises (VS-U80, VS-U77 punkt 9)', () => {
+    const nyttSvar = (foer: Data) => {
+      const { s, varsel } = medVarsel('34.3.3');
+      s.send('BH', lagtTil(dagen(s), [svar('vederlag', varsel, foer, {}, null)]));
+      return s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+        svar: svar('vederlag', varsel, { godtar_justering: true }, {}, null),
+      });
+    };
+    expect(nyttSvar({ varslet_i_tide: false, godtar_justering: true })?.melding).toContain(
+      'varselet.varslet_i_tide: mangler'
+    );
+    expect(
+      nyttSvar({ varslet_i_tide: true, godtar_justering: true }),
+      'kontrollsak: uten en innsigelse som står'
+    ).toBeNull();
+  });
+
   it('et nytt svar lagt til samme dag som svaret det erstatter, kan gi opp innsigelsen (punkt 31 og 33, OV-U104)', () => {
     const { s, varsel } = medVarsel('34.4');
     s.send('BH', brev(varsel, { varslet_i_tide: false }));

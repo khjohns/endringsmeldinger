@@ -9,7 +9,7 @@ import { innsigelserSvaretLesesMed, virkninger } from '../frosset/standpunkt.ts'
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
-import { standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
 import type { Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 import {

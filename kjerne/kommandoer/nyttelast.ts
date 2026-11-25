@@ -7,7 +7,6 @@
 
 import {
   NYTTELAST_I_VEDERLAGET,
-  standpunkteneTilVarslene,
   varseletSvaretGjelder,
   vurderingeneISvaretPaaVarselet,
 } from '../spor/vederlag/kommando.ts';
@@ -36,6 +35,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { godkjennerDagerIEtLag } from '../spor/frist/format.ts';
 import { godkjennerBeloepIEtLag } from '../spor/vederlag/format.ts';

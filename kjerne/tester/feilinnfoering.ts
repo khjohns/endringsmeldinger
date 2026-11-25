@@ -6726,14 +6726,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'VS-U63: et svar som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen',
+      'VS-U63: et svar lagt til som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen',
     ],
   },
   {
     id: 'F780',
     feilklasse:
       'innsigelsen etter § 34.4 i et svar lagt til utenfor rekken telles ikke (VS-U77 punkt 12, OV-U103, OV-U105, #2278)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       ['[...svar, ...svarUtenforRekken, ...svarPaaVarsler]', '[...svar, ...svarPaaVarsler]'],
     ],
@@ -6826,7 +6826,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'et svar som ikke sier noe om varselet etter punkt 34.3.3, endrer ikke innsigelsen fra svaret før',
+      'et svar lagt til som ikke sier noe om varselet etter punkt 34.3.3, endrer ikke innsigelsen fra svaret før',
       '«i tide» etter punkt 34.3.3 står mot et senere svar som ikke sier noe om varselet',
     ],
   },
@@ -6862,7 +6862,9 @@ const MUTASJONER: Mutasjon[] = [
       'et svar som ikke sier noe om varselet, faller ikke sammen med kravet når innsigelsen er gitt opp (VS-U77 punkt 9 og 12, #2316)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['    foer.some((x) => !x.iTide && x.gjelder', '    foer.some((x) => x.gjelder']],
-    mal: ['et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall'],
+    mal: [
+      'et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
+    ],
   },
   {
     id: 'F791',
@@ -6871,8 +6873,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['    standpunkteneTilVarslene(u, sendt, true),\n', '    [],\n']],
     mal: [
-      'et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
-      'et svar som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står',
+      'et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
+      'et svar lagt til som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står',
     ],
   },
   {
@@ -6881,13 +6883,15 @@ const MUTASJONER: Mutasjon[] = [
       'utledningen avviser et svar uten sammenfall som ikke sier noe om varselet (MM-U43 punkt 8, #2316)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['?? []).length > 0;', '?? []).length < 0;']],
-    mal: ['et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall'],
+    mal: [
+      'et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
+    ],
   },
   {
     id: 'F793',
     feilklasse:
       'frysingen av et svar lagt til leser ikke en innsigelse sendt samme dag (VS-U77 punkt 9, OV-U104, #2316)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['|| (medSammeDag && dag === sendt)', '|| (medSammeDag && false)']],
     mal: ['et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet'],
   },
@@ -7109,7 +7113,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2177o',
     feilklasse:
       'innsigelsen i svaret på varselet står ikke mot en kravpost som er trukket i den gjeldende versjonen, når svaret gjelder en eldre versjon (VS-U77 punkt 34, OV-U103, #2177)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '[...kravUtenforRekken, ...krav].flatMap(kravposterI)',
@@ -7234,6 +7238,35 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['fryser justeringen subsidiært når innsigelsen står'],
+  },
+  {
+    id: 'F2333d',
+    feilklasse:
+      'et svar fra løsningen som ikke sier noe om varselet for kravposten der innsigelsen står, godtas (VS-U80, #2333)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['      if (sendt === null && hjemmel)', '      if (false && hjemmel)']],
+    mal: ['der innsigelsen står, avvises (VS-U80, VS-U77 punkt 9)'],
+  },
+  {
+    id: 'F2333e',
+    feilklasse:
+      'et nytt svar på varselet fra løsningen som ikke sier noe om varselet der innsigelsen står, godtas (VS-U80, #2333)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
+        "    if (false) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
+      ],
+    ],
+    mal: ['fra løsningen som ikke sier noe om varselet der innsigelsen står, avvises'],
+  },
+  {
+    id: 'F2333f',
+    feilklasse:
+      'visningen regner virkningene av et svar lest med innsigelsen fra svaret før uten den, og sier at regelen er endret (VS-U81, MM-U9, #2333)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["    spor === 'vederlag' && d", "    spor === 'vederlag' && !d"]],
+    mal: ['visningen sier ikke at regelen er endret for et svar lagt til'],
   },
 ];
 /** En kopi av arbeidstreet. */

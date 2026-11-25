@@ -14,7 +14,7 @@ import { handlinger } from '../kommandoer/handlinger.ts';
 import { P1, medP1 } from './klient.ts';
 import type { Avsnitt } from '../typer.ts';
 import { visning } from '../utledning/visning.ts';
-import { standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import type { VarselIKravet } from '../frosset/byggeklosser.ts';
 import { KJERNE } from '../versjon.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -896,7 +896,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
         type: 'revisjon',
         erstatter: gjeldende(s).id,
         svar: svaret(s, {
-          P2: { aksepterer: true },
+          P2: { aksepterer: true, varslet_i_tide: false },
           P3: { aksepterer: true, varslet_i_tide: true },
         }).svar[0],
       })?.melding,
@@ -923,13 +923,19 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     );
   });
 
-  it('VS-U63: et svar som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen (VS-U77 punkt 9 og 12)', () => {
+  it('VS-U63: et svar lagt til som ikke sier noe om varselet etter punkt 34.4, gir ikke opp innsigelsen (VS-U77 punkt 9 og 12)', () => {
     const s = sakMed(regning);
     s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
     s.send('BH', {
       type: 'revisjon',
       erstatter: gjeldende(s).id,
-      svar: svaret(s, { P2: { aksepterer: true } }).svar[0],
+      svar: utenFelt(
+        utenFelt(svaret(s, { P2: { aksepterer: true } }).svar[0]!, 'utdypning'),
+        'utdypninger'
+      ),
+      sendt: s.journal.at(-1)!.tidsstempel.slice(0, 10),
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
     });
     expect(
       s.avvisning('BH', {
@@ -986,13 +992,27 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ).toContain('P2.varslet_i_tide: byggherren har ikke gjort gjeldende');
   });
 
+  /** Et brev med svaret lagt til, uten utdypningene, som brevet sendt utenfor løsningen. */
+  const lagtTilSvar = (s: ReturnType<typeof sakMedKrav>, svarene: Record<string, Data>) => ({
+    type: 'brev',
+    svar: [utenFelt(utenFelt(svaret(s, svarene).svar[0]!, 'utdypning'), 'utdypninger')],
+    ...SOM_BREV,
+    dokumentasjon: [randomUUID()],
+  });
+
   it('VS-U63: gjentar et svar lagt til innsigelsen etter punkt 34.4 og gir et annet sendt samme dag den opp, er rekkefølgen ukjent, og innsigelsen kan gis opp (OV-U104)', () => {
     const utfall = (medGjentakelsen: boolean) => {
       const s = sakMed(regning);
       s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
       const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id;
       s.send('TE', krav([{ ...regning, id: p2 }]));
-      s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+      // VS-U80: et svar fra løsningen gjentar innsigelsen, så svaret som ikke sier noe om
+      // varselet, er lagt til.
+      const dagenEtter = new Date(Date.parse(s.journal.at(-1)!.tidsstempel) + 86_400_000);
+      s.send('BH', {
+        ...lagtTilSvar(s, { P2: { aksepterer: true } }),
+        sendt: dagenEtter.toISOString().slice(0, 10),
+      });
       const lagtTil = (iTide: boolean) => {
         const sv = svaret(s, { P2: { aksepterer: true, varslet_i_tide: iTide } }).svar[0]!;
         s.send('BH', {
@@ -1213,27 +1233,27 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       }));
     };
 
-    it('et svar som ikke sier noe om varselet etter punkt 34.3.3, endrer ikke innsigelsen fra svaret før (VS-U77 punkt 9 og 12)', () => {
+    it('et svar lagt til som ikke sier noe om varselet etter punkt 34.3.3, endrer ikke innsigelsen fra svaret før (VS-U77 punkt 9 og 12)', () => {
       const s = sakMed(justert);
       s.send(
         'BH',
         svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
       );
       const foer = gjeldende(s).dokument;
-      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      s.send('BH', lagtTil(s, { P2: { aksepterer: true, godtar_justering: true } }, dagen(s)));
       expect(standpunktene(s)).toEqual([
         { post: 'P2', hjemmel: '34.3.3', iTide: false, dokument: foer },
       ]);
     });
 
-    it('et svar som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316)', () => {
+    it('et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316)', () => {
       const s = sakMed(justert);
       s.send(
         'BH',
         svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
       );
       expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'innsigelsen i svaret').toBe(false);
-      s.send('BH', revisjon(s, { P2: { aksepterer: true, godtar_justering: true } }));
+      s.send('BH', lagtTil(s, { P2: { aksepterer: true, godtar_justering: true } }, dagen(s)));
       expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'taus om varselet').toBe(false);
       expect(s.u().forstaatt, 'utledningen godtar brevet').toBe(true);
       // Kontrollsak: når innsigelsen er gitt opp, faller et svar som ikke sier noe om varselet,
@@ -1247,10 +1267,10 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       expect(s.u().forstaatt).toBe(true);
     });
 
-    it('et svar som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9, 12 og 31, #2316)', () => {
+    it('et svar lagt til som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står, gir ikke sammenfall (VS-U77 punkt 9, 12 og 31, #2316)', () => {
       const s = sakMed(regning);
       s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
-      s.send('BH', revisjon(s, { P2: { aksepterer: true } }));
+      s.send('BH', lagtTil(s, { P2: { aksepterer: true } }, dagen(s)));
       expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
       // Kontrollsak: uten en innsigelse fra før faller samme svar sammen med kravet.
       const t = sakMed(regning);
@@ -1307,6 +1327,47 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       };
     };
     const dagen = (s: ReturnType<typeof sakMedKrav>) => s.journal.at(-1)!.tidsstempel.slice(0, 10);
+
+    it.each([
+      ['34.3.3', justert, { godtar_justering: true }],
+      ['34.4', regning, {}],
+    ] as const)(
+      'et svar fra løsningen som ikke sier noe om varselet etter punkt %s der innsigelsen står, avvises (VS-U80, VS-U77 punkt 9)',
+      (_, post, rest) => {
+        const s = sakMed(post);
+        s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, ...rest } }));
+        expect(s.avvist('BH', revisjon(s, { P2: { aksepterer: true, ...rest } }))).toBe(
+          'UGYLDIG_VURDERING'
+        );
+        expect(
+          s.avvisning(
+            'BH',
+            revisjon(s, { P2: { aksepterer: true, varslet_i_tide: false, ...rest } })
+          ),
+          'kontrollsak: svaret gjentar innsigelsen'
+        ).toBeNull();
+        // Kontrollsak: uten en innsigelse fra før kan svaret være taust om varselet.
+        const t = sakMed(post);
+        t.send('BH', svaret(t, { P2: { aksepterer: true, ...rest } }));
+        expect(t.avvisning('BH', revisjon(t, { P2: { aksepterer: true, ...rest } }))).toBeNull();
+      }
+    );
+
+    it('visningen sier ikke at regelen er endret for et svar lagt til som er lest med innsigelsen fra svaret før (VS-U81, MM-U9)', () => {
+      const s = sakMed(justert);
+      s.send(
+        'BH',
+        svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
+      );
+      s.send('BH', lagtTil(s, { P2: { aksepterer: true, godtar_justering: true } }, dagen(s)));
+      expect(lagene(s), 'forutsetning: justeringen står subsidiært').toContainEqual([
+        'justering',
+        2,
+      ]);
+      expect(visning(s.u(), KJERNE.regler).spor.vederlag.etiketter).not.toContain(
+        'regel_endret_etter_brevet'
+      );
+    });
 
     it('et svar lagt til som ikke sier noe om varselet der innsigelsen etter punkt 34.3.3 står, fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)', () => {
       const lesMed = (foer: Data) => {
@@ -1434,7 +1495,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
         s.avvisning(
           'BH',
           revisjon(s, {
-            P2: { aksepterer: true, godtar_justering: true },
+            P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true },
             P3: { aksepterer: true, varslet_i_tide: true },
           })
         )?.melding,

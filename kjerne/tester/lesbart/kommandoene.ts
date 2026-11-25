@@ -483,12 +483,17 @@ export const KOMMANDOENE: Lesbar[] = [
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   // VS-U77 punkt 9 og 12: innsigelsene fra svarene før, når svaret fryses (#2316).
   [
-    'spor/vederlag/kommando.ts',
+    'spor/vederlag/utledning.ts',
     'relasjon',
     'standpunkteneTilVarslene',
     [
       'kommandoer/skriving.ts:frosneSvar',
       'kommandoer/skriving.ts:frysBrev',
+      // Leserne i kommandoen før flyttingen til utledningen (VS-U81).
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:innsigelseneEtter344',
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:lagIVederlaget',
       // VS-U81: utregningen og lagene i utkastet leser innsigelsene som frysingen.
       'kommandoer/nyttelast.ts:kontrollerSvar',
       'kommandoer/utkastlag.ts:lageneIUtkastet',
