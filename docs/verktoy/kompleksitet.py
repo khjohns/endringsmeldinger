@@ -41,7 +41,7 @@ def kjoer_eslint(repo: pathlib.Path) -> list[dict]:
             "npx", "eslint", "--no-inline-config", "--no-warn-ignored", "--format", "json",
             "--rule", '{"complexity": ["warn", 0]}', *MAPPER,
         ],
-        cwd=repo, capture_output=True, text=True,
+        cwd=repo, capture_output=True, text=True, check=False,
     )
     if not resultat.stdout.strip():
         raise RuntimeError(f"eslint ga ingen rapport (exit {resultat.returncode}): {resultat.stderr[-2000:]}")
@@ -82,13 +82,15 @@ def filstorrelser(repo: pathlib.Path) -> list[tuple[str, int, int]]:
     ).stdout.split("\0")
     storrelser = []
     for sti in filter(KILDEFIL.search, sporet):
+        if not (repo / sti).is_file():
+            continue
         innhold = (repo / sti).read_bytes()
         storrelser.append((sti, innhold.count(b"\n"), len(innhold)))
     return sorted(storrelser, key=lambda rad: (-rad[1], rad[0]))
 
 
 def _funksjonsnavn(rad: dict) -> str:
-    return f"`{rad['navn']}`" if rad["navn"] else f"`{rad['sted']}`"
+    return f"`{rad['navn']}` (`{rad['sted']}`)" if rad["navn"] else f"`{rad['sted']}`"
 
 
 def tabell(rader: list[dict], storrelser: list[tuple[str, int, int]], antall_filer: int) -> str:
@@ -115,7 +117,7 @@ def tabell(rader: list[dict], storrelser: list[tuple[str, int, int]], antall_fil
         "| Fil | Linjer | kB |",
         "| --- | --- | --- |",
     ]
-    linjer += [f"| `{sti}` | {n} | {byte // 1024} |" for sti, n, byte in storrelser[:antall_filer]]
+    linjer += [f"| `{sti}` | {n} | {round(byte / 1024)} |" for sti, n, byte in storrelser[:antall_filer]]
     return "\n".join(linjer)
 
 
@@ -126,8 +128,8 @@ def main(argv: list[str]) -> int:
     repo = rot()
     rader, uleste = funksjoner(kjoer_eslint(repo), repo)
     print(tabell(rader, filstorrelser(repo), args.filer))
-    if uleste:
-        print(f"\neslint kunne ikke lese {len(uleste)} filer: {', '.join(sorted(set(uleste)))}")
+    if uleste := sorted(set(uleste)):
+        print(f"\neslint kunne ikke lese {len(uleste)} filer: {', '.join(uleste)}")
     return 0
 
 

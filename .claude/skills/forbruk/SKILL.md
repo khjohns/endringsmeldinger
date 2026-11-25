@@ -39,7 +39,7 @@ og leses med et skript, og transkripsjonene leses bare av subagenten i punkt 2.
    sammenlign. Sidene hentes med `gh api` som i miljø-skillen.
 5. Kjør `python3 docs/verktoy/kompleksitet.py` og ta tabellene med i issuet, som et
    signal uten grense (#2268). Står noen av de største filene blant verktøysvarene i
-   punkt 2, er det et funn.
+   avsnitt 2, er det et funn i issuet.
 
 ## 2. Én økt nærmere
 
