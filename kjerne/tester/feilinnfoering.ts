@@ -152,7 +152,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
-        '      virkninger: regn(s, spor.forhold.krav.find((k) => k.id === s.gjelder) ?? spor.forhold.krav.at(-1), regler),',
+        '      virkninger: regn(s, spor.forhold.krav.find((k) => k.id === s.gjelder) ?? spor.forhold.krav.at(-1), regler, 0, []),',
       ],
     ],
     mal: [
