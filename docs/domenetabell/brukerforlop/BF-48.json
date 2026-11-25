@@ -13,6 +13,8 @@
     "MM-U55",
     "VS-U82",
     "VS-U83",
+    "VS-U84",
+    "VS-U85",
     "VS-U58",
     "OV-U89",
     "OV-U114",
@@ -40,6 +42,11 @@
       "dato": "2026-11-25",
       "forhold": "#2012",
       "hva": "S-1 og S-2 er besvart med A og ført i bestillingen: utsagnet godtas også i en lukket sak og endrer ikke utfallet, og datoen endres bare i det egne brevet."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "VS-U84, VS-U85",
+      "hva": "Svarene på S-1 og S-2 er ført som VS-U84 og VS-U85, og bestillingen viser til dem."
     }
   ]
 }

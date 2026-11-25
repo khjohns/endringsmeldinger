@@ -362,3 +362,5 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U79](../../plans/vedtak.md#vs-u79) | — | — | BF-14 |
 | [VS-U82](../../plans/vedtak.md#vs-u82) | — | — | BF-48 |
 | [VS-U83](../../plans/vedtak.md#vs-u83) | — | — | BF-48 |
+| [VS-U84](../../plans/vedtak.md#vs-u84) | — | — | BF-48 |
+| [VS-U85](../../plans/vedtak.md#vs-u85) | — | — | BF-48 |
