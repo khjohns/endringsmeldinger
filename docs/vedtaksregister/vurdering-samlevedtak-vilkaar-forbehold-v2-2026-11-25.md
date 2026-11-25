@@ -26,7 +26,7 @@ av postene KA-U49 samler (KA-U45, OV-U46).
 | OV-U115 (17.11) | presiserer KA-U49 | Punkt 8: når enighet registreres uten aksept (OV-U115 punkt 25) |
 | LV-U81 (25.11, design) | presiserer KA-U49 og GR-U34 | Designdelen: «sist i brevet» er sist i hele brevet, høyst ett punkt «Forbehold» |
 | GR-U36 (12.11) | presiserer og utvider OV-U46 | Ingen setning i KA-U49. Gjelder henvisningen og det nye svaret etter den, som etter tabellen «Postene i kjeden» 04.11 hører til kjeden for svar gitt utenfor løsningen |
-| EO-U39 (05.11) | endrer KA-U45 (overtatt fra EO-U34) | Ingen setning i KA-U49. Forholdet er E11 i EO-U34 (KA-U45 s2), som KA-U49 alt holdt utenfor |
+| EO-U39 (05.11) | endrer KA-U45 (overtatt fra EO-U38, som EO-U34) | Ingen setning i KA-U49. KA-U49 punkt 10 bruker bare KA-U45 s1 og s3; s2 er E11 i EO-U34, som KA-U49 alt holdt utenfor |
 | OV-U124 (#2395, kommer) | endrer OV-U46 og OV-U12 | Ingen setning i KA-U49. Gjelder «henvisningen til OV-U12» i OV-U46: hvilket krav en endringsordre lagt til som svar kan svare på |
 
 ## Motsigelser og hull
@@ -50,19 +50,21 @@ Punktene som ikke nevnes, står som i KA-U49, og nummereringen står. Ny tekst m
 ### Vilkår og forbehold i krav og svar, versjon 2 (foreløpig KA-U87)
 
 - **Tittelen.** «Samlevedtaket for vilkår og forbehold i krav og svar». (KA-U82; E9)
-- **Punkt 1.** Som i KA-U49, med «det TE godtar» som «det totalentreprenøren godtar», «(MM-U12)» som
-  «(MM-U50)», og siste setning: «Vilkår og forbehold totalentreprenøren knytter til et krav, står i
-  punkt 12.» (KA-U50; KA-U82, forholdet «endrer siste setning i KA-U50»; E9, E14)
+- **Punkt 1.** KA-U50 med E14, uten anførselstegn fordi teksten ikke lenger er ordrett: «det TE
+  godtar» blir «det totalentreprenøren godtar», «(MM-U12)» blir «(MM-U50)», og siste setning blir
+  «Vilkår og forbehold totalentreprenøren knytter til et krav om fristforlengelse eller
+  vederlagsjustering, står i punkt 12.» (KA-U50; KA-U82, forholdet «endrer siste setning i KA-U50»;
+  E9, E14)
 - **Punkt 6.** «(MM-U12)» blir «(MM-U50)». (E14)
 - **Punkt 7.** «TEs aksept» blir «Totalentreprenørens aksept». (E14)
 - **Punkt 8.** «Godkjenner byggherren oppgjør som fast sum, sier brevet at byggherren godkjenner
   oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Brevet betegner ikke
-  tilbudet som akseptert. Om partene er enige, følger av punkt 25 i samlevedtaket for
-  vederlagsmetoden, ikke av setningen.» (LV-U32 s1, s3 og s4; OV-U69 s13; OV-U115 punkt 25; E11,
-  E12)
-- **Punkt 11.** «Utgått. Byggherren bekrefter ikke i et brev fra løsningen et svar gitt utenfor
-  løsningen. Et slikt svar legges til som svar etter punkt 7 i samlevedtaket for brev sendt utenfor
-  løsningen, og et forbehold i det tolkes ikke (punkt 6 der).» (OV-U101; OV-U123 punkt 6–7; E10)
+  tilbudet som akseptert. Om partene er enige, følger av at svaret godkjenner hele kravet (GR-U7,
+  HF-U7), slik punkt 25 i samlevedtaket for vederlagsmetoden presiserer, ikke av setningen.»
+  (LV-U32 s1, s3 og s4; OV-U69 s13; OV-U115 punkt 25; E11, E12)
+- **Punkt 11.** «Utgått (OV-U101, samlet i punkt 7 i samlevedtaket for brev sendt utenfor
+  løsningen). Et forbehold i et svar byggherren har lagt til, tolkes ikke (punkt 4 og 10).»
+  (OV-U101 s1 og s6; OV-U123 punkt 6–7; E10)
 - **D. Totalentreprenørens krav. Punkt 12, nytt.** KA-U82 ordrett, uten forholdet: «Vilkår og
   forbehold totalentreprenøren knytter til et krav om fristforlengelse eller vederlagsjustering,
   skrives i kravet: i utdypningen for punktet de gjelder, eller under «Forbehold» når de gjelder
@@ -86,7 +88,7 @@ Punktene som ikke nevnes, står som i KA-U49, og nummereringen står. Ny tekst m
   setningen OV-U69 la til om bekreftelsen (tabellen «Postene i kjeden» 04.11), og den er punkt 11.
 - **E11** Punkt 8: enigheten følger OV-U115 punkt 25 (M3).
 - **E12** Punkt 8: ordlyden flyttes til designdelen, og punktet sier budskapet (prinsippet 14.11).
-  OV-U115 punkt 6 viser fortsatt hit for brevteksten.
+  OV-U115 punkt 6 viser fortsatt hit for brevteksten, og punkt 7 der for enigheten.
 - **E13** Designdelen: LV-U81.
 - **E14** Språket: «TE» blir «totalentreprenøren», og MM-U12 blir MM-U50 (M4).
 - **Hovedregelen** (OV-U92): (a). Henvisningene til KA-U49 gjelder versjon 2.
@@ -100,8 +102,9 @@ forhold, fordi de også endrer OV-U46, OV-U99, GR-U34 og andre temaer, og forhol
 gjelder versjon 2 (OV-U92 (a)).
 
 **OV-U124.** Står og samles ikke. Den endrer bare henvisningen til OV-U12 i OV-U46, som ikke står i
-samlevedtaket. Når versjon 2 ikke lenger samler OV-U46, blir OV-U124 ikke en endring av temaet, og
-#2395 trenger ingen ny versjon etter merge.
+samlevedtaket, og etter OV-U101 står ingen setning fra OV-U46 der. #2395 trenger ingen ny versjon
+etter merge. Verktøyet teller den ikke i noe tilfelle, fordi den har samme dato som versjon 2;
+grunnen til A er innholdet.
 
 ## Spørsmålene
 
@@ -110,12 +113,12 @@ samlevedtaket. Når versjon 2 ikke lenger samler OV-U46, blir OV-U124 ikke en en
 > Svar «ja» eller rett enkeltpunkter. Styrer: den nye posten.
 
 > **2. Forholdene og OV-U124.** Bakgrunn: svar 4 A og OV-U92. Alternativer: **A (anbefalt)** som
-> «Forholdene» over: versjon 2 samler ikke OV-U46, og OV-U124 står. **B:** «Som A, men versjon 2
-> samler fortsatt OV-U46, og OV-U124 samles i versjon 2 når #2395 er merget, med en setning om
-> endringsordren i punkt 11.» Anbefaling: A. Ingen setning fra OV-U46 står igjen i samlevedtaket
-> etter OV-U101, og OV-U124 hører til endringsordren og brev sendt utenfor løsningen (OV-U12,
-> OV-U123 punkt 8). Med B får samlevedtaket en regel fra et annet tema og telles på nytt ved neste
-> endring av OV-U46. Styrer: `folge` i den nye posten og om #2395 må vente på en ny versjon.
+> «Forholdene» over: versjon 2 samler ikke OV-U46, og OV-U124 står. **B:** «Som A, men når #2395
+> er merget, samles OV-U124 i en versjon 3, med regelen om endringsordren lagt til som svar som et
+> nytt punkt.» Anbefaling: A. Etter OV-U101 står ingen setning fra OV-U46 igjen i samlevedtaket.
+> OV-U124 hører til endringsordren og brev sendt utenfor løsningen (OV-U12, OV-U123 punkt 8). Med
+> B får samlevedtaket en regel fra et annet tema og en ny versjon rett etter denne. Styrer: `folge`
+> i den nye posten, og om #2395 må etterfølges av en ny versjon.
 
 ### Svaret
 
@@ -127,6 +130,8 @@ Venter.
   `kjerne/frosset/brevtekst.ts` (to kommentarer, ingen versjonsøkning, #1549),
   `src/lib/components/varden/` (tre filer), `docs/domenetabell/brukerforlop/BF-08.md`,
   `BF-08.json` og `dekning.md`. Vedleggene og de daterte vurderingene står (historiske).
+- **`bindende_i` i LV-U81** er `ka-u49` og `gr-u34`. Når versjon 2 opphever KA-U49, gir `--sjekk`
+  feil til feltet er `ka-u87` (README for registeret, `bindende_i`). Rettes i vedtaks-PR-en.
 - **Forløpene.** BF-08 viser til punkt 6 og samlevedtaket, og BF-01 er hjemmet for designdelen.
   Innholdet endres ikke, fordi versjon 2 bare fører inn poster som er vedtatt. KA-U82 bygges i
   #1823.
@@ -137,11 +142,14 @@ Venter.
 
 - **Kjørt og observert:** `vedtaksregister.py --sjekk` og `--kjede KA-U49`, og `--vis` for postene i
   tabellen, på `01c0842`. Hvilke seks endringer verktøyet teller, med logikken i
-  `varsler` kjørt mot registeret. OV-U124 lest fra grenen til #2395. Henvisningene
+  `varsler` kjørt mot registeret, og simulert med en KA-U87 i minnet: GR-U36, EO-U39 og OV-U124
+  telles ikke, med eller uten «samler OV-U46». OV-U124 lest fra grenen til #2395. Henvisningene
   talt med `grep`.
 - **Lest:** KA-U49 i `vedtak.md`, tabellen «Postene i kjeden» i vurderingen 04.11, OV-U115 punkt 6–7
   og 25, OV-U123 punkt 6–7, og Følge i OV-U101 og EO-U39.
 - **Ikke kontrollert:** sitatene fra NS 8407 (teksten er ikke klonet), om koden i `kjerne/` og
-  `src/` følger punktene, og om verktøyet slutter å telle GR-U36, EO-U39 og OV-U124 når KA-U49 er
-  opphevet. Det prøves når posten føres. Prøvingen mot vedtakene og kontrollen av klassen gjøres av
-  subagenter.
+  `src/` følger punktene, og om postene etter 04.11 som rører MM-U34, endrer punkt 12 eller 16 der,
+  som punkt 6 og 7 viser til (bare forholdene er lest).
+- **Kontrollert av subagenter 25.11:** prøvingen mot vedtakene og kontrollen av klassen og
+  påstandene. Fem indre feil i punkt 1, 8 og 11 og i alternativ B er rettet. Klassen er
+  som foreslått, og `bindende_i` i LV-U81 er føyd til.
