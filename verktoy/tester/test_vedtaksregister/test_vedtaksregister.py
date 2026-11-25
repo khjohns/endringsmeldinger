@@ -617,7 +617,7 @@ def test_vakta_melder_id_som_er_i_bruk(grunnregister, grunnplan, hovedplan, id_)
         med(grunnregister, ny_post(id=id_, forhold=[])),
         grunnplan,
         None,
-        "\n".join([hovedplan, arkiv, grunnplan]),
+        "\n".join([hovedplan, arkiv]),
     )
     assert f"{id_}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før" in feil
 
@@ -633,6 +633,18 @@ def test_en_id_som_bare_er_nevnt_i_en_annen_post_paa_main_er_ledig(grunnregister
     assert "XX-U2" in vr.logisk(merget)
     senere = med(merget, ny_post(id="XX-U2", forhold=[]))
     assert vr.mot_grunnlag(senere, vr.logisk(merget), merget, "") == []
+
+
+@pytest.mark.parametrize("id_", ["BF-99", "U-99"])
+def test_en_id_paa_en_annen_form_kan_ikke_staa_i_teksten_paa_main(grunnregister, id_):
+    """Kontrollsaken: bare en ID på formen til et nytt vedtak kan være holdt av i en annen
+    post. En forløps- eller punkt-ID i teksten er brukt."""
+    merget = med(grunnregister, ny_post(folge=f"Ikke bygget. Se {id_}."))
+    assert id_ in vr.logisk(merget)
+    feil = vr.mot_grunnlag(
+        med(merget, ny_post(id=id_, forhold=[])), vr.logisk(merget), merget, ""
+    )
+    assert f"{id_}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før" in feil
 
 
 def test_en_id_som_er_en_rad_i_vedtaksfila_paa_main_kan_ikke_gjenbrukes(grunnregister):

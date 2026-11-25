@@ -135,6 +135,7 @@ SITATKILDER = ("ns8407", "hovedplanen")
 # Filer som er omdøpt eller slettet. Et sitat fra dem står slik det ble skrevet.
 HISTORISKE_FILER = ("AGENTS.md",)  # nå CLAUDE.md (#1765)
 ID = re.compile(r"[A-ZÆØÅ]+(-[A-Z0-9]+)+")
+VEDTAKS_ID = re.compile(r"[A-ZÆØÅ]+-U\d+")
 ANKER = re.compile(r'<a id="([^"]+)"></a>')
 KODENAVN = (
     (re.compile(r"`"), "backtick"),
@@ -1572,9 +1573,10 @@ def mot_grunnlag(
     eller endre spørsmålet, alternativene eller svaret til en post som er merget.
 
     `gammel_plan` har 3.1 på main, og `soketekst` er teksten en ny ID ikke kan stå i fra før:
-    hovedplanen og arkivet på main. Fra vedtaksfila teller bare ID-en en rad står under, ikke en
-    ID som er nevnt i teksten til en annen post, som en ID som er holdt av for en åpen
-    vedtaks-PR (OV-U124 i KA-U87)."""
+    hovedplanen og arkivet på main. En ID på formen til et nytt vedtak (`XX-U<n>`) er brukt i
+    3.1 bare når en rad står under den. Er den bare nevnt i teksten til en annen post, er den
+    holdt av for en vedtaks-PR og ledig (OV-U124 i KA-U87). En ID på en annen form, som en
+    funn-, punkt- eller forløps-ID, kan ikke stå noe sted i 3.1."""
     feil = []
     importerte = [p for p in poster(register) if not er_ny(p)]
     paret = {id(n) for _, n in _par(_rader(gammel_plan), importerte) if n is not None}
@@ -1585,10 +1587,15 @@ def mot_grunnlag(
         if id(p) not in paret
     ]
     gamle_nye = {p["id"]: p for p in _nye(gammel_register)}
-    brukt = "\n".join([soketekst or "", *(etikett(p) for p in _rader(gammel_plan))])
+    rader = _rader(gammel_plan)
+    radenes_ider = {p["anker"].upper() for p in rader if "anker" in p} | {
+        m.group() for p in rader if (m := ID.match(etikett(p)))
+    }
     for p in _nye(register):
-        if p["id"] not in gamle_nye and re.search(
-            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", brukt
+        tekst = (soketekst or "") + ("" if VEDTAKS_ID.fullmatch(p["id"]) else "\n" + gammel_plan)
+        if p["id"] not in gamle_nye and (
+            p["id"] in radenes_ider
+            or re.search(rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", tekst)
         ):
             feil.append(f"{p['id']}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før")
     naa = {p["id"]: p for p in _nye(register)}
