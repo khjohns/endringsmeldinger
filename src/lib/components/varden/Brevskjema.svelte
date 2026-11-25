@@ -57,6 +57,7 @@
     tidslinje,
     kompakt = null,
     children,
+    etterBrevet,
   }: {
     /** ID-en til overskriften i utkastkortet; resten av ID-ene i skallet bygges av den. */
     id: string;
@@ -97,6 +98,8 @@
       innhold?: Snippet<[knappen: Snippet, tilPanelet: () => void]>;
     } | null;
     children: Snippet;
+    /** Det som står under brevet uten å være en del av det, som svarene fra forrige brev. */
+    etterBrevet?: Snippet;
   } = $props();
 
   const uid = $props.id();
@@ -203,6 +206,7 @@
         <Forkastutkast tekst={forkastTekst} {onforkast} />
       </div>
     </Utkastkort>
+    {@render etterBrevet?.()}
   {/snippet}
 
   {#snippet hoeyre()}

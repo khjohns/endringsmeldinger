@@ -17,6 +17,7 @@ import {
   SAK,
   linje,
   medGrunnlag,
+  medVederlagssvar,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
@@ -349,5 +350,48 @@ describe('lenken i «Gjelder hvis» når innsigelsen står (Codex-reviewet)', ()
     const lenken = screen.getByRole('link', { name: /^innsigelsen om at varselet etter punkt/ });
     const maal = document.getElementById(lenken.getAttribute('href')!.slice(1));
     expect(maal?.textContent).toMatch(/Svaret gjentar innsigelsen\./);
+  });
+});
+
+describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', () => {
+  const mellom = skrevet(medVederlagssvar, 'TE', {
+    type: 'send_varsel',
+    spor: 'vederlag',
+    hjemmel: '34.3.3',
+  });
+
+  it('svarene på kravpostene fra forrige brev står under brevet uten «Endre», og kommandoen gjelder bare varselet', async () => {
+    const sendt = await svarskjemaet(mellom);
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(within(svarene).getByText('250 000 kr')).toBeInTheDocument();
+    expect(within(svarene).getAllByRole('listitem').length).toBeGreaterThan(0);
+    expect(within(svarene).queryByRole('button', { name: /Endre|Svar på/ })).toBeNull();
+    // Uten tilbudt handling er det ingen lenke til et nytt svar på kravet.
+    expect(within(svarene).queryByRole('button', { name: 'Nytt svar på kravet' })).toBeNull();
+    await radio('Kom i tide');
+    await radio('Godtar justeringen');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    const k = svaret(sendt[0]!);
+    expect(k.svar).toHaveLength(1);
+    expect((k.svar as Record<string, unknown>[])[0]).toMatchObject({ gjelder: varselI(mellom) });
+  });
+
+  it('uten forrige svar på kravet står ingen svar under brevet', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
+  });
+
+  it('i Varden sier lenken til et nytt svar på kravet at skjemaet ikke er bygget', async () => {
+    const kjernesak = kjernesakFor(mellom);
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' })
+    );
+    const lenke = await screen.findByRole('button', { name: 'Nytt svar på kravet' });
+    await fireEvent.click(lenke);
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(within(svarene).getByRole('status')).toHaveTextContent(/ikke bygget/);
   });
 });

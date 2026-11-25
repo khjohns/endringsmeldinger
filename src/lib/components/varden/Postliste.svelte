@@ -1,7 +1,8 @@
 <!--
   Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik
   det står i brevet (#1739, system.md). Lista er felles for sporene med poster, og valgene i
-  den åpne posten er sporets eget (#1778).
+  den åpne posten er sporets eget (#1778). Uten `valgene` er lista bare til lesing, som svarene
+  fra forrige brev i svaret på et varsel lagt til mellom to krav (VS-U65).
 -->
 <script lang="ts" generics="P extends { id: string }">
   import type { Snippet } from 'svelte';
@@ -24,7 +25,17 @@
     foersteFelt,
     kontrollerVedFerdig,
     valgene,
-  }: {
+  }: (
+    | {
+        /** Kravet i posten, som en setning under navnet i den åpne posten. */
+        krever: (p: P) => string;
+        /** Feltet som får fokus når posten åpnes. */
+        foersteFelt: (p: P) => string;
+        /** Valgene i den åpne posten. */
+        valgene: Snippet<[P]>;
+      }
+    | { krever?: undefined; foersteFelt?: undefined; valgene?: undefined }
+  ) & {
     poster: readonly P[];
     /** Starten på ID-ene i lista, så feltene i posten kan nås fra oppsummeringen. */
     prefiks: string;
@@ -38,22 +49,19 @@
     aktiv?: (p: P) => boolean;
     /** Det TE kalte posten, etter navnet. Med én post står den alene. */
     beskrivelse?: (p: P) => string;
-    /** Kravet i posten, som en setning under navnet i den åpne posten. */
-    krever: (p: P) => string;
     /** Kravet i kortform, i kolonnen «Kravet» i en lukket post. */
     kravet: (p: P) => string;
     /** Svaret i en lukket post, én linje per standpunkt. Tom før posten er besvart. */
     leselinje: (p: P) => string[];
-    /** Feltet som får fokus når posten åpnes. */
-    foersteFelt: (p: P) => string;
     /** ID-en til et felt som må rettes før posten kan lukkes. */
     kontrollerVedFerdig?: (p: P) => string | null;
-    /** Valgene i den åpne posten. */
-    valgene: Snippet<[P]>;
   } = $props();
 
-  const flere = $derived(poster.length > 1);
-  const aapen = $derived(flere ? (valgt ?? poster[0]?.id) : poster[0]?.id);
+  // Lista til lesing står i rader med overskriftene, også med én post.
+  const flere = $derived(poster.length > 1 || !valgene);
+  const aapen = $derived(
+    !valgene ? undefined : poster.length > 1 ? (valgt ?? poster[0]?.id) : poster[0]?.id
+  );
 
   export const erAapen = (id: string) => aapen === id;
 
@@ -66,7 +74,7 @@
     valgt = id;
     await fokuser(() => {
       const p = poster.find((x) => x.id === id);
-      return document.getElementById(fokus ?? (p ? foersteFelt(p) : ''));
+      return document.getElementById(fokus ?? (p && foersteFelt ? foersteFelt(p) : ''));
     });
   }
   async function kanLukkes(p: P) {
@@ -114,7 +122,7 @@
 <ul class="poster" class:flere>
   {#each poster as p (p.id)}
     <li class="post" class:aapen={aapen === p.id} class:aktiv={aktiv?.(p)}>
-      {#if aapen === p.id}
+      {#if aapen === p.id && valgene && krever}
         <div class="posthode">
           {@render tittel(p, !flere)}
           <p class="dempet">{krever(p)}</p>
@@ -143,12 +151,14 @@
               <span class="dempet">{SKJEMA.ikkeBesvart}</span>
             {/if}
           </div>
-          <Knapp
-            variant="lenke"
-            id={`${prefiks}-endre-${p.id}`}
-            aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
-            onclick={() => aapneFraRad(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
-          >
+          {#if valgene}
+            <Knapp
+              variant="lenke"
+              id={`${prefiks}-endre-${p.id}`}
+              aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
+              onclick={() => aapneFraRad(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
+            >
+          {/if}
         </div>
       {/if}
     </li>

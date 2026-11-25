@@ -66,6 +66,7 @@
     onforkast,
     onvedsiden,
     spoersmaal,
+    etterBrevet,
     lagtTil = null,
     svarerPaa = null,
     onendre = () => {},
@@ -111,6 +112,8 @@
         overskrift: (punkt: string) => string | undefined,
       ]
     >;
+    /** Det som står under brevet uten å være en del av det (`Brevskjema`). */
+    etterBrevet?: Snippet;
     /**
      * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
      * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (OV-U80), og løsningen lager
@@ -317,6 +320,7 @@
   skilt
   knapp={stopp === null ? knapp : null}
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
+  {etterBrevet}
 >
   {#snippet panel(sendeknapp)}
     <Hovedlinjer {linjer} {alternativer} punkter={feltpunktene} handling={sendeknapp} />

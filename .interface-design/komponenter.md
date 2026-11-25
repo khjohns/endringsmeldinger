@@ -30,7 +30,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Gjelderhvis`](../src/lib/components/varden/Gjelderhvis.svelte) | 4 | «Gjelder hvis» over et spørsmål i svaret: det i et foregående lag som rammer standpunktet, én forutsetning per linje i brevets rekkefølge (oppdragsgiver 30.10, #1391, #1400). |
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
 | [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 4 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
-| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 24 | Knappen i Varden: 6 px radius, minst 44 px høy. |
+| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 25 | Knappen i Varden: 6 px radius, minst 44 px høy. |
 | [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
 | [`Lagttilmerknader`](../src/lib/components/varden/Lagttilmerknader.svelte) | 4 | Det kjernen sier om et krav, et svar eller en aksept lagt til, før det legges til: kravet eller svaret blir ikke gjeldende fordi det er sendt før det siste (OV-U102, OV-U103), og brevene det er sendt samme dag som (OV-U104). |
@@ -39,7 +39,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Manglene`](../src/lib/components/varden/Manglene.svelte) | 3 | Oppsummeringen øverst i et krav- eller svarskjema av det som mangler før brevet kan lages, med en lenke til hvert felt (MM-U32). |
 | [`Melding`](../src/lib/components/varden/Melding.svelte) | 11 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
-| [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
+| [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 3 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
 | [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 4 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |
 | [`Sitat`](../src/lib/components/varden/Sitat.svelte) | 2 | Et sitat fra et brev utenfor brevet, med etiketten for hva det er: utdraget i tråden og setningen om endringsordren i svarskjemaet for forholdet (#2035). |
 | [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 5 | Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), feltene under (#1925, #2035). |

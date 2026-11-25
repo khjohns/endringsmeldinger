@@ -2,28 +2,43 @@
   BH svarer på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14), i samme
   svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
   svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
-  (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar.
+  (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
+  mellom to krav, står svarene på kravpostene fra forrige brev under, uten «Endre» (VS-U65).
 -->
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
-  import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
+  import { FORHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
+  import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
+  import Knapp from './Knapp.svelte';
+  import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
-  import { tomtVarselsvar, varselsvaret, varseletISvaret, type Varselsvalg } from './kommandoer';
+  import {
+    etterRegel,
+    tomtVarselsvar,
+    varselsvaret,
+    varseletISvaret,
+    type Varselsvalg,
+  } from './kommandoer';
   import { brevMedUtsagn, brevet, standpunktene } from './lesing';
   import type { Innsigelsen } from './svarlagene';
   import { manglene } from './svarskjema';
   import {
     grunntekst,
+    HANDLINGENE,
+    KRAVSKJEMA,
+    leselinjene,
     SKJEMA,
+    SVARSKJEMA,
     VARSELSVARET,
+    VEDERLAGET,
     innsigelsenOmVarselet,
     oppgivelsestekst,
     standpunkttekst,
@@ -38,6 +53,7 @@
     onforkast,
     onvedsiden,
     onforholdet,
+    nyttSvarPaaKravet = null,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -52,6 +68,11 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Åpner siden for forholdet uten å forkaste svarutkastet. */
     onforholdet?: () => void;
+    /**
+     * Åpner et nytt svar på kravet når kjernen tilbyr det (VS-U65), `'ikke bygget'` når Varden
+     * ikke har skjemaet for det (#1636), og `null` når kjernen ikke tilbyr det.
+     */
+    nyttSvarPaaKravet?: (() => void) | 'ikke bygget' | null;
   } = $props();
   const uid = $props.id();
 
@@ -172,9 +193,52 @@
       },
     ])
   );
+  // VS-U65: svaret på et varsel lagt til mellom to krav gjelder bare varselet, og svarene på
+  // kravpostene i forrige brev står uendret under det.
+  let ikkeBygget = $state(false);
+  const forrigeSvar = $derived.by(() => {
+    const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
+    if (!krav || !svar || svar.gjelder !== krav.id) return null;
+    const brev = brevet(u, svar.dokument);
+    return brev && { brev, poster: kravposterI(krav), linjer: standpunktene(svar, u) };
+  });
   // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.
   const virkninger: string[] = [];
 </script>
+
+{#snippet svareneFoer()}
+  {#if forrigeSvar}
+    {@const f = forrigeSvar}
+    <section class="svarene-foer" aria-labelledby={`${uid}-svarene-foer`}>
+      <h3 id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h3>
+      <p class="dempet">{VARSELSVARET.svareneStaar}</p>
+      <Postliste
+        poster={f.poster}
+        prefiks={`${uid}-foer`}
+        kolonne={SVARSKJEMA.postKolonne}
+        navn={(p) => p.betegnelse}
+        beskrivelse={(p) => p.beskrivelse}
+        kravet={(p) =>
+          etterRegel(p) ? KRAVSKJEMA.formnavn[p.oppgjoersform] : kroner(p.beloep ?? 0)}
+        leselinje={(p) => leselinjene(f.linjer, p, VEDERLAGET.lagetVilkaar)}
+      />
+      {#if nyttSvarPaaKravet}
+        {@const aapne = nyttSvarPaaKravet}
+        <div>
+          <Knapp
+            variant="lenke"
+            onclick={() => (aapne === 'ikke bygget' ? (ikkeBygget = true) : aapne())}
+            >{VARSELSVARET.nyttSvarPaaKravet}</Knapp
+          >
+        </div>
+        {#if aapne === 'ikke bygget'}
+          <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+          <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
+        {/if}
+      {/if}
+    </section>
+  {/if}
+{/snippet}
 
 <Svarskjema
   {kjernesak}
@@ -193,6 +257,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
+  etterBrevet={forrigeSvar ? svareneFoer : undefined}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet vilkaaret(i: Innsigelsen)}
@@ -265,3 +330,24 @@
     {/if}
   {/snippet}
 </Svarskjema>
+
+<style>
+  /* Under brevet, i et eget kort, fordi svarene ikke er en del av brevet (VS-U65). */
+  .svarene-foer {
+    padding: var(--spacing-5) var(--spacing-6);
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  .svarene-foer h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .svarene-foer .dempet {
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+</style>
