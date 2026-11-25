@@ -14723,6 +14723,89 @@ kilde = "hovedplanen"
 tekst = "også når datoen er senere"
 utdrag = true
 
+[[gruppe.vedtak]]
+id = "VS-U84"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2012"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1, ordrett slik det står i [kommentaren i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7168057280), stilt som spørsmål 23 og besvart 25.11.
+
+### Spørsmål 1 (juridisk). Godtas den nye kunnskapsdatoen når saken er lukket, i et spor med enighet og når kravene er avgjort?
+
+
+**Bakgrunn.** Totalentreprenøren kan senere supplere eller endre datoen for når totalentreprenøren ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, i et eget utsagn (VS-U76 punkt 14, MM-U55 punkt 12). For korrigeringen av datoen i påberopelsen av forholdet sier MM-U55 punkt 10 og 24 at den godtas også i et spor med enighet, når kravene er avgjort og i en lukket sak, uten å endre utfallet (MM-U51), og svaret på spørsmål 1 i MM-U55 at avvisningen etter punkt 10 gjelder også der. GR-U27 tillater ellers bare innlegg og dokumentasjon i en lukket sak. Punkt 12 og punkt 24 sier ikke dette for kunnskapsdatoen.
+
+- **A.** «Totalentreprenørens utsagn etter VS-U76 punkt 14, som supplerer eller endrer datoen totalentreprenøren ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, godtas også i et spor med enighet, når kravene er avgjort, i en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter. Det endrer ikke utfallet. Et svar byggherren alt har gitt, står med virkningen det hadde, og en påberopelse byggherren alt har fremsatt, bevares med tidspunktet. I en lukket sak kan byggherren ta stilling i et innlegg, og saken står lukket. Avvisningen etter VS-U83 gjelder også her.» Forhold: utvider GR-U27 og MM-U55 punkt 12 og 24, som MM-U51 gjorde for punkt 10.
+- **B.** «Totalentreprenørens utsagn etter VS-U76 punkt 14 godtas i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises det.» Forhold: presiserer MM-U55 punkt 12 for et spor med enighet; snevrer inn VS-U76 punkt 14; i tråd med GR-U27.
+
+**Anbefaling: A.** Det er samme regel som for datoen i påberopelsen av forholdet, så totalentreprenøren har samme vei for begge datoene. Utsagnet er en opplysning, ikke et krav, og det endrer ikke noe byggherren har svart. Med B kan totalentreprenøren ikke få opplysningen inn i saken etter at den er lukket, bare som et innlegg som løsningen ikke leser.
+
+**Hva valget styrer:** avvisningene for utsagnet i kjernen og stegene i forløpet for en lukket sak.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7168131814)): «23 A, 24 A». Valgt i spørsmål 23 (1 i kommentaren): A.'''
+forhold = [
+  { art = "utvider", vedtak = "gr-u27" },
+  { art = "utvider", vedtak = "mm-u55" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «utvider GR-U27 og MM-U55 punkt 12 og 24, som MM-U51 gjorde for punkt 10.» Bygges i #2012.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Totalentreprenørens utsagn etter VS-U76 punkt 14, som supplerer eller endrer datoen totalentreprenøren ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, godtas også i et spor med enighet, når kravene er avgjort, i en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter. Det endrer ikke utfallet. Et svar byggherren alt har gitt, står med virkningen det hadde, og en påberopelse byggherren alt har fremsatt, bevares med tidspunktet. I en lukket sak kan byggherren ta stilling i et innlegg, og saken står lukket. Avvisningen etter VS-U83 gjelder også her.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenørens utsagn etter VS-U76 punkt 14 godtas i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises det.'''
+
+[[gruppe.vedtak]]
+id = "VS-U85"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2012"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2, ordrett slik det står i [kommentaren i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7168057280), stilt som spørsmål 24 og besvart 25.11.
+
+### Spørsmål 2 (juridisk). Hvilken dato er totalentreprenørens siste opplysning når datoen står i to brev?
+
+
+**Bakgrunn.** Datoen kan stå i det særskilte varselet etter punkt 34.1.3 annet ledd, i vederlagskravet når det er det første varselet løsningen kjenner om det kravet, og i et særskilt varsel sendt utenfor løsningen som legges til (VS-U76 punkt 12). Totalentreprenøren kan sende eller legge til det særskilte varselet også etter vederlagskravet (OV-U89 punkt 4, VS-U76 punkt 9). Da kan datoen stå i to brev. Et utsagn etter punkt 14 gjelder straks som totalentreprenørens siste opplysning (MM-U55 punkt 12). For datoen i påberopelsen av forholdet sier MM-U55 punkt 10 at en ny versjon av påberopelsen ikke kan endre datoen, og OV-U122 at datoen i en påberopelse sendt før den siste står som opplysningen i det brevet og ikke endrer den siste opplysningen.
+
+- **A.** «Har totalentreprenøren oppgitt datoen totalentreprenøren ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, i løsningen, endres den bare i utsagnet etter VS-U76 punkt 14. En ny versjon av vederlagskravet kan ikke endre datoen, og et særskilt varsel sendt fra løsningen etter det, oppgir ikke en ny dato. Et særskilt varsel sendt utenfor løsningen som legges til etter det, kan ha datoen det oppga, og den står som opplysningen i det brevet og endrer ikke totalentreprenørens siste opplysning, som OV-U122 sier for datoen i påberopelsen av forholdet. Et slikt varsel avvises ikke fordi det er sendt før datoen i totalentreprenørens siste opplysning (VS-U83). Datoen i vederlagskravet står som totalentreprenørens siste opplysning også når et varsel som legges til senere, blir det første varselet etter VS-U76 punkt 9, og et utsagn etter punkt 14 viser da til det varselet. Er datoen ikke oppgitt i løsningen før, gjelder datoen i varselet som totalentreprenørens siste opplysning.» Forhold: snevrer inn VS-U76 punkt 12; presiserer VS-U76 punkt 14 og MM-U55 punkt 12; i tråd med MM-U55 punkt 10 og to av setningene i OV-U122.
+- **B.** «Totalentreprenørens siste opplysning er datoen i det av brevene med opplysningen som er sendt sist, regnet etter datoen brevet ble sendt, også et særskilt varsel sendt utenfor løsningen som legges til senere. Er to brev sendt samme dag, gjelder det som er sendt fra eller lagt til i løsningen sist. Et utsagn etter VS-U76 punkt 14 regnes på samme måte. En ny versjon av vederlagskravet kan ikke endre datoen.» Forhold: presiserer VS-U76 punkt 12 og 14 og MM-U55 punkt 12.
+
+**Anbefaling: A.** Totalentreprenøren har én vei for å endre datoen, som for datoen i påberopelsen av forholdet, og brevet om endringen nevner den tidligere datoen. Med B kan et brev som legges til senere, endre den siste opplysningen uten at byggherren får et brev fra løsningen som nevner den tidligere datoen. Med A må totalentreprenøren sende utsagnet etter punkt 14 i tillegg når et varsel som legges til, har en annen dato. Skjemaet sier det og tilbyr utsagnet (arbeidsvalg i bestillingen). Alle datoene beholdes og vises som totalentreprenørens utsagn med begge alternativene (VS-U76, designdelen).
+
+**Hva valget styrer:** utledningen av den siste opplysningen i kjernen, om datofeltet står i skjemaet for det særskilte varselet når datoen er oppgitt før, og hva visningen sier ved et varsel som legges til.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7168131814)): «23 A, 24 A». Valgt i spørsmål 24 (2 i kommentaren): A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "vs-u76" },
+  { art = "presiserer", vedtak = "vs-u76" },
+  { art = "presiserer", vedtak = "mm-u55" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «snevrer inn VS-U76 punkt 12; presiserer VS-U76 punkt 14 og MM-U55 punkt 12; i tråd med MM-U55 punkt 10 og to av setningene i OV-U122.» Bygges i #2012.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Har totalentreprenøren oppgitt datoen totalentreprenøren ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, i løsningen, endres den bare i utsagnet etter VS-U76 punkt 14. En ny versjon av vederlagskravet kan ikke endre datoen, og et særskilt varsel sendt fra løsningen etter det, oppgir ikke en ny dato. Et særskilt varsel sendt utenfor løsningen som legges til etter det, kan ha datoen det oppga, og den står som opplysningen i det brevet og endrer ikke totalentreprenørens siste opplysning, som OV-U122 sier for datoen i påberopelsen av forholdet. Et slikt varsel avvises ikke fordi det er sendt før datoen i totalentreprenørens siste opplysning (VS-U83). Datoen i vederlagskravet står som totalentreprenørens siste opplysning også når et varsel som legges til senere, blir det første varselet etter VS-U76 punkt 9, og et utsagn etter punkt 14 viser da til det varselet. Er datoen ikke oppgitt i løsningen før, gjelder datoen i varselet som totalentreprenørens siste opplysning.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenørens siste opplysning er datoen i det av brevene med opplysningen som er sendt sist, regnet etter datoen brevet ble sendt, også et særskilt varsel sendt utenfor løsningen som legges til senere. Er to brev sendt samme dag, gjelder det som er sendt fra eller lagt til i løsningen sist. Et utsagn etter VS-U76 punkt 14 regnes på samme måte. En ny versjon av vederlagskravet kan ikke endre datoen.'''
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
