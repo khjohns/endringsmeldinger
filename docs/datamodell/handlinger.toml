@@ -186,7 +186,7 @@ status = "naa"
 noekler = ["registrere_brev"]
 kommandoer = ["registrert_brev", "ikke_i_saken"]
 skjema = ["registrere_brev"]
-mangler = "Rettingen av registreringen (`retter`, `ikke_i_saken`) i Varden. Korrespondanse motparten har sendt (#2069)."
+mangler = "Rettingen av registreringen (`retter`, `ikke_i_saken`) i Varden. Feltet for avsenderen i skjemaet, for korrespondanse motparten har sendt (#2334)."
 
 [[handling]]
 id = "U6"

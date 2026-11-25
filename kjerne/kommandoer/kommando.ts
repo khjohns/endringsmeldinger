@@ -29,6 +29,7 @@ import {
   VARSELSPOR,
   type Kravspor,
   type Opplysningsslag,
+  type Part,
   type Spor,
   type Kravvarselhjemmel,
   type Varselhjemmel,
@@ -204,6 +205,7 @@ export type Kommando = (
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
    * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
    * hører det til saken. Med `retter` er det en retting av den registreringen (OV-U17).
+   * `avsender` er parten som sendte brevet; uten den er det parten som legger det til (OV-U79).
    */
   | {
       type: 'registrert_brev';
@@ -214,6 +216,7 @@ export type Kommando = (
       beskrivelse: string;
       dokumentasjon: string[];
       retter?: string;
+      avsender?: Part;
     }
   /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
   | { type: 'ikke_i_saken'; retter: string }
@@ -390,6 +393,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
       retter: ID,
+      avsender: { enum: ['TE', 'BH'] },
     },
     ['type', 'sendt', 'korrespondansetype', 'beskrivelse', 'dokumentasjon']
   ),

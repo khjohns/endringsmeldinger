@@ -324,7 +324,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar en aksept eller et svar fra feil part',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      ['if (part !== null && avsender !== part)', 'if (part !== null && avsender === undefined)'],
+      ['if (part !== null && lagtTilAv !== part)', 'if (part !== null && lagtTilAv === undefined)'],
     ],
     mal: ['en rad fra feil part er ikke forstått'],
   },
@@ -2764,7 +2764,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F358',
     feilklasse: 'motparten kan rette en registrering (OV-U17)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['  if (brev.avsender !== part)', '  if (false)']],
+    endringer: [['  if (brev.lagtTilAv !== part)', '  if (false)']],
     mal: ['OV-U17: bare samme side retter'],
   },
   {
@@ -2780,7 +2780,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {',
+        '      if (!rettet || rettet.lagtTilAv !== d.lagtTilAv || rettet.rettetAv !== null) {',
         '      if (!rettet || rettet.rettetAv !== null) {',
       ],
     ],
@@ -6227,7 +6227,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlaget og fristen gir et felt for begrunnelsen av forholdet fra et tidligere svar (#2145, LV-U41, MM-U50)',
     fil: `${K}/frosset/tekst.ts`,
-    endringer: [['FORBEHOLDET, FORHOLDET]);', 'FORBEHOLDET]);']],
+    endringer: [['  FORHOLDET,\n  AKSEPTFRISTEN,\n];', '  AKSEPTFRISTEN,\n];']],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
   },
   {
@@ -6237,8 +6237,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))',
-        '    if (perPunkt[FORHOLDET] && false)',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && perPunkt[p.punkt])',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && false)',
       ],
     ],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
@@ -6916,7 +6916,73 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
   },
   {
-    id: 'F797',
+    id: 'F800',
+    feilklasse:
+      'en utdypning for innledningen eller oversikten i svaret godtas og står under punktet (LV-U71, #2153)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['      UTEN_BEGRUNNELSE_I_SVARET', '      [FORHOLDET]']],
+    mal: ['i svaret avvises, fordi skjemaet ikke har noe felt for den'],
+  },
+  {
+    id: 'F801',
+    feilklasse:
+      'skjemaet tilbyr et felt for akseptfristen, og brevet avviser utdypningen (HF-U23 punkt 5, LV-U71, #2153)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['  FORHOLDET,\n  AKSEPTFRISTEN,\n];', '  FORHOLDET,\n];']],
+    mal: [
+      'linjen med akseptfristen står etter utdypningen under «Forbehold», og har ingen utdypning',
+    ],
+  },
+  {
+    id: 'F810',
+    feilklasse:
+      'leseren gir parten som la til brevet som avsender, ikke den oppgitte (OV-U79, OV-U80, #2069)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['    avsender: data.avsender ?? lagtTilAv,', '    avsender: lagtTilAv,']],
+    mal: [
+      'aktøren er totalentreprenøren, avsenderen byggherren',
+      'brevet omtales med den oppgitte avsenderen',
+    ],
+  },
+  {
+    id: 'F811',
+    feilklasse: 'avsenderen av et brev motparten la til, kan rette registreringen (OV-U17, #2069)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.lagtTilAv !== part)', '  if (brev.avsender !== part)']],
+    mal: ['bare parten som la til brevet, kan rette registreringen'],
+  },
+  {
+    id: 'F812',
+    feilklasse:
+      'leseren godtar en oppgitt avsender som er parten som la til brevet, en andre form (MM-U2, #2069)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  if (data.avsender === lagtTilAv)', '  if (false)']],
+    mal: ['en rad der avsenderen er parten som la til brevet'],
+  },
+  {
+    id: 'F813',
+    feilklasse: 'kommandoen skriver avsenderen også når den er egen side, en andre form (#2069)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '        ...(k.avsender && k.avsender !== kontekst.part ? { avsender: k.avsender } : {}),',
+        '        ...(k.avsender ? { avsender: k.avsender } : {}),',
+      ],
+    ],
+    mal: ['en avsender lik egen side skrives ikke'],
+  },
+  {
+    id: 'F814',
+    feilklasse:
+      'et brev byggherren har lagt til med totalentreprenøren som avsender, hindrer fristkravet med samme brev (#2069, V1)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ["      h.dokument.lagtTilAv === 'TE' &&", "      h.dokument.avsender === 'TE' &&"],
+    ],
+    mal: ['totalentreprenørens brev som byggherren har lagt til som dokumentasjon'],
+  },
+  {
+    id: 'F815',
     feilklasse:
       'innsigelsen mot varselet etter § 34.3.3 for én kravpost står som forutsetning for en annen kravpost i utkastet (OV-U117, #2280)',
     fil: `${K}/spor/vederlag/format.ts`,

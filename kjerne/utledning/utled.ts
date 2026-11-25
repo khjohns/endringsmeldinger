@@ -234,7 +234,10 @@ export interface Bestridelse {
  */
 export interface RegistrertBrev {
   dokument: string;
+  /** Parten som sendte brevet (OV-U79). */
   avsender: Part;
+  /** Parten som la til brevet og kan rette registreringen (OV-U17). */
+  lagtTilAv: Part;
   sendt: string;
   beskrivelse: string;
   spor: Spor[];
@@ -416,7 +419,7 @@ function registreringer(journal: Domenehendelse[]): {
   for (const d of dokumenterI(journal)) {
     if (d.retter !== null) {
       const rettet = brev.find((b) => b.dokument === d.retter);
-      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {
+      if (!rettet || rettet.lagtTilAv !== d.lagtTilAv || rettet.rettetAv !== null) {
         feil.push({
           hendelse: d.id,
           grunn: 'rettingen viser ikke til en gjeldende registrering fra samme side (OV-U17)',
@@ -432,6 +435,7 @@ function registreringer(journal: Domenehendelse[]): {
       brev.push({
         dokument: d.id,
         avsender: d.avsender,
+        lagtTilAv: d.lagtTilAv,
         sendt: sendt.dato,
         beskrivelse: d.beskrivelse,
         spor: d.spor,
@@ -1054,7 +1058,7 @@ function utledSporene(
     const d = h.dokument;
     const dokumentasjon = dokumentasjonIBrevet(d);
     const harVirkning = (id: string) => !uten.has(id) && !dokumentasjon.has(id);
-    registrer(h.id, h, d.avsender, 'dokument');
+    registrer(h.id, h, d.lagtTilAv, 'dokument');
     for (const k of d.krav) {
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
@@ -1082,7 +1086,7 @@ function utledSporene(
     }
     for (const o of d.opplysninger) {
       plasser(o.id, h);
-      registrer(o.id, h, d.avsender, 'opplysning');
+      registrer(o.id, h, d.lagtTilAv, 'opplysning');
     }
     opplysninger.push(...d.opplysninger);
   };

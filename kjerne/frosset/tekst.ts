@@ -101,9 +101,22 @@ export const postradene = (tabell: string[][]): string[][] => tabell.slice(1, -1
 export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);
 
-// Innledningen og oversikten har ingen begrunnelse, og forbeholdet har sitt eget felt i svaret.
-// Forholdet har ingen begrunnelse etter #2145 (LV-U41, MM-U50).
-const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET, FORHOLDET]);
+/** Punktet med akseptfristen sist i svaret (HF-U23 punkt 2, arbeidsvalget 14.11 i #502). */
+export const AKSEPTFRISTEN = 'akseptfrist';
+
+/**
+ * Punktene i svaret uten utdypning (LV-U71; forholdet etter #2145, LV-U41, MM-U50; akseptfristen
+ * etter HF-U23 punkt 5; kravet LV-U75).
+ */
+export const UTEN_BEGRUNNELSE_I_SVARET: readonly string[] = [
+  INNLEDNINGEN,
+  OVERSIKTEN,
+  FORHOLDET,
+  AKSEPTFRISTEN,
+];
+
+// Forbeholdet har sitt eget felt i svaret.
+const UTEN_BEGRUNNELSE = new Set([...UTEN_BEGRUNNELSE_I_SVARET, FORBEHOLDET]);
 
 /** Et punkt i brevet som tar en begrunnelse (`punkteneMedBegrunnelse`). */
 export interface PunktMedBegrunnelse {
