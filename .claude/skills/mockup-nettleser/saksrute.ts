@@ -639,6 +639,13 @@ try {
     }));
   }
 
+  /** Sakskoden serveren gir saken, som teksten i brevet må ha (LV-U46). */
+  async function sakskodeFor(sak: string): Promise<Sakskode> {
+    const lest = await kjerneKall<Sakskode>(te, 'GET', `/api/kjerne/saker/${sak}/sakskode`);
+    if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
+    return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
+  }
+
   /**
    * Banen gjennom TS-serveren for brukerforløpet: kjøreren lager kommandoen med den låste
    * teksten mot journalen fra `GET`, som skjemaet gjør (LV-U2), og sender den fra siden til
@@ -805,7 +812,7 @@ try {
         throw new Error('Saksruta skriver bare gjennom skjemaet og kommandoene til TS-serveren');
       },
       async kommando(kommando, part, forventet) {
-        if (sak) return serverbane(sak).kommando!(kommando, part, forventet);
+        if (sak) return serverbane(sak, await sakskodeFor(sak)).kommando!(kommando, part, forventet);
         const k = kommando as { type: string; spor?: string; innhold: Record<string, unknown>; utdypning?: string };
         const felt = SKJEMAETS_FORHOLD[String(k.innhold?.underkategori)];
         if (part !== 'TE' || k.type !== 'krav' || k.spor !== 'forhold' || !felt)
@@ -883,13 +890,7 @@ try {
     const til = FORLOEP && values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     const ny = OPPRETTES ? nySaksbane(tittel) : null;
-    // Teksten lages med koden saken får av serveren, som skjemaet gjør (LV-U46).
-    const kode = async () => {
-      const lest = await kjerneKall<Sakskode>(te, 'GET', `/api/kjerne/saker/${sak}/sakskode`);
-      if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
-      return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
-    };
-    const bane = ny ? ny.bane : serverbane(sak, await kode());
+    const bane = ny ? ny.bane : serverbane(sak, await sakskodeFor(sak));
     const tilbake = TILBAKEDATERT ? await tilbakedatertBane(bane, TILBAKEDATERT.start) : null;
     await kjoer(forloep, tilbake?.bane ?? bane, { til, valg: { klokke: tilbake?.klokke ?? veggklokke } });
     if (ny) {
