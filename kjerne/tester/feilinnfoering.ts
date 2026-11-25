@@ -6879,7 +6879,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet'],
   },
   {
-    id: 'F796',
+    id: 'F810',
     feilklasse:
       'leseren gir parten som la til brevet som avsender, ikke den oppgitte (OV-U79, OV-U80, #2069)',
     fil: `${K}/format/leser.ts`,
@@ -6890,14 +6890,14 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F797',
+    id: 'F811',
     feilklasse: 'avsenderen av et brev motparten la til, kan rette registreringen (OV-U17, #2069)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['  if (brev.lagtTilAv !== part)', '  if (brev.avsender !== part)']],
     mal: ['bare parten som la til brevet, kan rette registreringen'],
   },
   {
-    id: 'F798',
+    id: 'F812',
     feilklasse:
       'leseren godtar en oppgitt avsender som er parten som la til brevet, en andre form (MM-U2, #2069)',
     fil: `${K}/format/leser.ts`,
@@ -6905,7 +6905,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en rad der avsenderen er parten som la til brevet'],
   },
   {
-    id: 'F799',
+    id: 'F813',
     feilklasse: 'kommandoen skriver avsenderen også når den er egen side, en andre form (#2069)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
@@ -6917,7 +6917,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en avsender lik egen side skrives ikke'],
   },
   {
-    id: 'F803',
+    id: 'F814',
     feilklasse:
       'et brev byggherren har lagt til med totalentreprenøren som avsender, hindrer fristkravet med samme brev (#2069, V1)',
     fil: `${K}/spor/frist/kommando.ts`,
