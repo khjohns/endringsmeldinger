@@ -6839,7 +6839,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['brevet som gjentar innsigelsen mot varselet for kravposten, viser til brevet'],
   },
   {
-    id: 'F791',
+    id: 'F802',
     feilklasse:
       'leseren godtar datoen for et varsel i samme brev som et krav fra løsningen (VS-U34, C1 i #2056, #2070)',
     fil: `${K}/format/leser.ts`,
