@@ -8,13 +8,17 @@ for hånd:
 1. fletter basen inn i grenen, i en egen worktree, så arbeidskopien ikke røres;
 2. løser en konflikt bare når den gjelder linja med versjonskonstanten i de to
    versjonsfilene, eller en generert fil. Versjonslinja tar basens tall, og den
-   genererte fila tar basens innhold og skrives på nytt i steg 4. Annen konflikt
-   avbryter flettingen, og ingenting pushes;
+   genererte fila tar basens innhold og skrives på nytt i steg 4. En konflikt i
+   feilinnføringslista (#2342) løses med basens liste og så grenens nye poster, og en
+   ny post med en ID basen alt har, nummereres om. Endrer eller fjerner grenen en post
+   som fantes i forfaren, stopper skriptet. Annen konflikt avbryter flettingen, og
+   ingenting pushes;
 3. øker hver versjon vakten krever for grenens egne endringer (`flytting.py`) til
    ett over basens tall, når den ikke alt er høyere;
 4. skriver de genererte filene på nytt (`GENERATORER`);
 5. kjører regelversjonsvakten mot basen med skriptene i den flettede worktreen, som
-   CI gjør, og stopper uten push når den feiler;
+   CI gjør, og `--ankre` for feilinnføringene når steg 2 flettet lista, og stopper
+   uten push når en av dem feiler;
 6. pusher flettingen og økningen samlet, med `--push`, og fjerner worktreen. Uten
    `--push`, og når steg 3–5 stopper, blir worktreen stående, så resultatet kan ses.
    Skriptet skriver kommandoen som fjerner den.
@@ -36,6 +40,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import NamedTuple
 
 SKRIPTER = Path(__file__).resolve().parent
 
@@ -56,6 +61,13 @@ GENERATORER = [
     ),
 ]
 GENERERTE = {fil for _, filer in GENERATORER for fil in filer}
+
+# Lista over feilinnføringer, der to kjerne-PR-er legger nye poster til på slutten (#2342).
+FEILINNFOERINGER = "kjerne/tester/feilinnfoering.ts"
+LISTESTART = "const MUTASJONER: Mutasjon[] = [\n"
+POST_ID = re.compile(r"^    id: '([^']*)',$", re.MULTILINE)
+PLASSHOLDER = "  // oppdater_kjerne_pr.py: feilinnføringene flettes inn her\n"
+ANKRE = ["node", FEILINNFOERINGER, "--ankre"]
 
 KONFLIKT = re.compile(r"^<<<<<<< [^\n]*\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]*\n", re.MULTILINE | re.DOTALL)
 
@@ -96,18 +108,121 @@ def los_versjonskonflikt(innhold: str, navn: str) -> str | None:
     return None if re.search(r"^(<<<<<<<|=======|>>>>>>>)", lost, re.MULTILINE) else lost
 
 
-def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
+class Liste(NamedTuple):
+    """Feilinnføringsfila delt i teksten før lista, postene og teksten etter."""
+
+    for_: str
+    poster: list[tuple[str, str]]
+    etter: str
+
+
+def del_liste(innhold: str) -> Liste:
+    """Postene i `MUTASJONER` som (ID, tekst). En post er linjene til og med `  },`,
+    med kommentarene foran den."""
+    start = innhold.find(LISTESTART)
+    slutt = innhold.find("\n];\n", start)
+    if start < 0 or slutt < 0:
+        raise Stopp(f"Fant ikke `{LISTESTART.strip()}` … `];` i {FEILINNFOERINGER}.")
+    start += len(LISTESTART)
+    poster, linjer = [], []
+    for linje in innhold[start : slutt + 1].splitlines(keepends=True):
+        linjer.append(linje)
+        if linje == "  },\n":
+            tekst = "".join(linjer)
+            ider = POST_ID.findall(tekst)
+            if len(ider) != 1:
+                raise Stopp(f"En post i {FEILINNFOERINGER} har ikke nøyaktig én `id`:\n{tekst}")
+            poster.append((ider[0], tekst))
+            linjer = []
+    if "".join(linjer).strip():
+        raise Stopp(f"Lista i {FEILINNFOERINGER} slutter ikke med `  }},`:\n{''.join(linjer)}")
+    return Liste(innhold[:start], poster, innhold[slutt + 1 :])
+
+
+def ny_id(gammel: str, brukt: set[str]) -> str:
+    """Neste ledige ID: neste bokstav for samme issue (F2280a -> F2280b), eller én over
+    det høyeste tallet for en ID med bare tall (F797 -> F815)."""
+    treff = re.fullmatch(r"F(\d+)([a-z]*)", gammel)
+    if not treff:
+        raise Stopp(f"Feilinnføringen {gammel} kolliderer, og ID-en har ikke formen F<tall><bokstaver>.")
+    if not treff.group(2):
+        tall = [int(i[1:]) for i in brukt if re.fullmatch(r"F\d+", i)]
+        return f"F{max(tall, default=0) + 1}"
+    bokstaver = "abcdefghijklmnopqrstuvwxyz"
+    for suffiks in [*bokstaver, *(a + b for a in bokstaver for b in bokstaver)]:
+        if (kandidat := f"F{treff.group(1)}{suffiks}") not in brukt:
+            return kandidat
+    raise Stopp(f"Fant ingen ledig ID for {gammel}.")
+
+
+def flett_feilinnfoeringer(forfar: str, gren: str, base: str) -> tuple[str, list[str]]:
+    """Basens liste, så grenens poster som ikke finnes i forfaren. Teksten rundt lista
+    flettes med `git merge-file`. Returnerer fila og omnummereringene."""
+    lister = [del_liste(t) for t in (forfar, gren, base)]
+    i_forfar, i_gren, i_base = (dict(liste.poster) for liste in lister)
+    endret = sorted(i for i, tekst in i_forfar.items() if i_gren.get(i) != tekst)
+    if endret:
+        raise Stopp(
+            f"Grenen endrer eller fjerner feilinnføringer som finnes i forfaren: {', '.join(endret)}. "
+            "Skriptet fletter bare nye poster."
+        )
+    forfar_rundt, gren_rundt, base_rundt = (f"{liste.for_}{PLASSHOLDER}{liste.etter}" for liste in lister)
+    rundt = flett_tekst(gren_rundt, forfar_rundt, base_rundt)
+    brukt = set(i_base)
+    poster = [tekst for _, tekst in lister[2].poster]
+    omnummerert = []
+    for id_, tekst in lister[1].poster:
+        if id_ in i_forfar or i_base.get(id_) == tekst:
+            continue
+        if id_ in brukt:
+            ny = ny_id(id_, brukt | set(i_gren))
+            tekst = POST_ID.sub(f"    id: '{ny}',", tekst, count=1)
+            omnummerert.append(f"{id_} -> {ny}")
+            id_ = ny
+        brukt.add(id_)
+        poster.append(tekst)
+    return rundt.replace(PLASSHOLDER, "".join(poster), 1), omnummerert
+
+
+def flett_tekst(gren: str, forfar: str, base: str) -> str:
+    with tempfile.TemporaryDirectory() as mappe:
+        stier = []
+        for navn, tekst in (("gren", gren), ("forfar", forfar), ("base", base)):
+            (sti := Path(mappe) / navn).write_text(tekst)
+            stier.append(str(sti))
+        svar = subprocess.run(["git", "merge-file", "-p", *stier], capture_output=True, text=True, check=False)
+    if svar.returncode != 0:
+        raise Stopp(f"Grenen og basen endrer {FEILINNFOERINGER} utenfor lista over feilinnføringer.")
+    return svar.stdout
+
+
+def los_feilinnfoeringskonflikt(mappe: Path) -> list[str]:
+    """Skriver den flettede feilinnføringsfila fra stegene i indeksen og returnerer
+    omnummereringene. Konfliktmarkørene brukes ikke, fordi git legger hunkene midt i
+    postene."""
+    steg = []
+    for nr in (1, 2, 3):
+        svar = git(mappe, "show", f":{nr}:{FEILINNFOERINGER}", sjekk=False)
+        if svar.returncode != 0:
+            raise Stopp(f"{FEILINNFOERINGER} mangler på en av sidene i flettingen.")
+        steg.append(svar.stdout)
+    tekst, omnummerert = flett_feilinnfoeringer(*steg)
+    (mappe / FEILINNFOERINGER).write_text(tekst)
+    return omnummerert
+
+
+def flett(mappe: Path, base: str, basenavn: str, gren: str) -> tuple[list[str], list[str]]:
     """Fletter basen inn og løser konfliktene skriptet kan løse. Returnerer filene
-    som ble løst."""
+    som ble løst, og omnummereringene av feilinnføringer."""
     melding = f"flett {basenavn} inn i {gren}"
     svar = git(mappe, "-c", "merge.conflictStyle=merge", "merge", "--no-ff", "--no-edit", "-m", melding, base, sjekk=False)
     if svar.returncode == 0:
-        return []
+        return [], []
     konflikter = git(mappe, "-c", "core.quotePath=false", "diff", "--name-only", "--diff-filter=U").stdout.splitlines()
     if not konflikter:
         raise Stopp(f"git merge feilet uten konflikter:\n{svar.stdout}{svar.stderr}".strip())
     versjon_i = {fil: navn for navn, fil in VERSJONSFILER.items()}
-    ulost = []
+    ulost, omnummerert, stopp = [], [], []
     for fil in konflikter:
         if fil in versjon_i:
             sti = mappe / fil
@@ -118,6 +233,13 @@ def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
             sti.write_text(lost)
         elif fil in GENERERTE:
             git(mappe, "checkout", "--theirs", "--", fil)
+        elif fil == FEILINNFOERINGER:
+            try:
+                omnummerert = los_feilinnfoeringskonflikt(mappe)
+            except Stopp as grunn:
+                ulost.append(fil)
+                stopp.append(str(grunn))
+                continue
         else:
             ulost.append(fil)
             continue
@@ -127,10 +249,13 @@ def flett(mappe: Path, base: str, basenavn: str, gren: str) -> list[str]:
         raise Stopp(
             "Flettingen har konflikter skriptet ikke løser, og ingenting er endret på grenen:\n"
             + "\n".join(f"  {fil}" for fil in ulost)
+            + "".join(f"\n{grunn}" for grunn in stopp)
             + "\nØkta som eier PR-en fletter for hånd."
         )
-    git(mappe, "commit", "--no-edit")
-    return konflikter
+    if omnummerert:
+        melding += f"\n\nOmnummererte feilinnføringer fra {gren}: " + ", ".join(omnummerert)
+    git(mappe, "commit", "-q", "-m", melding)
+    return konflikter, omnummerert
 
 
 def skripter(mappe: Path) -> Path:
@@ -203,7 +328,7 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
 
     git(repo, "worktree", "add", "-q", "--detach", str(mappe), tupp)
     try:
-        lost = flett(mappe, base, basenavn, gren)
+        lost, omnummerert = flett(mappe, base, basenavn, gren)
     except Stopp:
         fjern(repo, mappe)
         raise
@@ -213,8 +338,10 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
     print(f"Flettet {basenavn} ({base[:9]}) inn i {gren} ({tupp[:9]}).")
     if lost:
         print("Løste konflikter i: " + ", ".join(lost))
+    for linje in omnummerert:
+        print(f"Omnummererte feilinnføringen {linje} ({FEILINNFOERINGER}).")
     try:
-        ny = ok_og_kontroller(mappe, base, basenavn)
+        ny = ok_og_kontroller(mappe, base, basenavn, ankre=FEILINNFOERINGER in lost)
     except Stopp as stopp:
         raise Stopp(f"{stopp}\nIngenting er pushet. Worktreen står igjen: {mappe}\nFjern den med {fjerning(mappe)}") from None
 
@@ -227,9 +354,9 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
     return 0
 
 
-def ok_og_kontroller(mappe: Path, base: str, basenavn: str) -> str:
-    """Øker versjonene, skriver de genererte filene, committer og kjører vakten.
-    Returnerer den nye tuppen."""
+def ok_og_kontroller(mappe: Path, base: str, basenavn: str, ankre: bool = False) -> str:
+    """Øker versjonene, skriver de genererte filene, committer og kjører vakten, og
+    `--ankre` når skriptet har flettet feilinnføringslista. Returnerer den nye tuppen."""
     okninger = [linje for navn in sorted(kreves(mappe, base)) if (linje := ok(mappe, base, navn))]
     generer(mappe)
     status = ("-c", "core.quotePath=false", "status", "--porcelain", "--untracked-files=no")
@@ -250,6 +377,11 @@ def ok_og_kontroller(mappe: Path, base: str, basenavn: str) -> str:
     if kontroll.returncode != 0:
         print(kontroll.stderr.rstrip(), file=sys.stderr)
         raise Stopp(f"Regelversjonsvakten feiler mot {basenavn}.")
+    if ankre:
+        svar = subprocess.run(ANKRE, cwd=mappe, env=_miljo(), capture_output=True, text=True, check=False)
+        if svar.returncode != 0:
+            raise Stopp(f"{' '.join(ANKRE)} feiler etter flettingen:\n{(svar.stderr or svar.stdout).strip()}")
+        print(svar.stdout.rstrip())
     return git(mappe, "rev-parse", "HEAD").stdout.strip()
 
 
