@@ -1157,7 +1157,8 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     post et gjeldende samlevedtak samler, telles fra samlevedtaket (S2 A 17.11 i #2143). Er posten
     samlet av flere, telles den fra det nyeste. En endring av posten som er nyere enn samlevedtaket,
     telles som en endring av samlevedtaket (S3 A 17.11 i #2143). Hver post telles én gang, som i
-    eksemplet i #1726."""
+    eksemplet i #1726. Et samlevedtak som er samlet av et annet, varsles ikke: tellingen begynner
+    på null for det nye, som når det opphever det gamle (svar 2 A i #2356, svar 10 i #1534)."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1193,7 +1194,7 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
                     til = samlet_av[til][1]
                 if fra != til:
                     endrer[til].append((fra, f["art"], til))
-    for a in sorted(telles):
+    for a in sorted(telles - samlet_av.keys()):
         sett = {a} | {post for post, _, _ in endrer[a]}
         kjede, aapne = [], sorted(sett - {a} - telles)
         while aapne:
