@@ -137,6 +137,12 @@ export function avvisUkjenteFelt(
     );
 }
 
+/** Varselet etter `hjemmel` posten `gjelder` i kravet trenger. */
+export interface VarselIKravet {
+  gjelder: string;
+  hjemmel: Hjemmel;
+}
+
 /** Frysingen i ett spor, som `frosset/standpunkt.ts` slår opp gjennom `FRYSING` (#1783). */
 export interface Svarsfrysing {
   /** Virkningen av hvert standpunkt (`virkninger` i `frosset/standpunkt.ts`). */
@@ -150,6 +156,11 @@ export interface Svarsfrysing {
   utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
   /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
+  /**
+   * Varslene i `krav` svaret ikke sier noe om, der svaret leses med partens tidligere standpunkt
+   * (`sammenfallet` i `frosset/standpunkt.ts`).
+   */
+  tausOmVarselet?(svar: Svarinnhold, krav: Krav): VarselIKravet[];
   /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
   vilkaar: Enighetsgrunnlag['vilkaar'];
   /**

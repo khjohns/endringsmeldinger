@@ -8,7 +8,7 @@
 import { standpunkterISvaret } from '../format/leser.ts';
 import { Uforstaatt } from '../format/skjema.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { godkjennerHeleKravet, virkninger } from './standpunkt.ts';
+import { sammenfallet, virkninger, type StandpunktFoer } from './standpunkt.ts';
 import { gjelderVarslingsplikten, type Svarinnhold, type Svarvurdering } from './byggeklosser.ts';
 import { beslutningslinje } from './linje.ts';
 import type { Beslutningsgrunnlag, Krav, Spor } from '../typer.ts';
@@ -20,21 +20,23 @@ type Data = Record<string, unknown>;
  * Brevet frosset når det sendes (MM-U9, MM-U11 (opphevet av MM-U50)). For forholdet fryses også om
  * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
  * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv. `kravet` er
- * kravet svaret gjelder, som linjen navngir kravpostene i.
+ * kravet svaret gjelder, som linjen navngir kravpostene i. `foer` er partens siste standpunkt til
+ * varslene i svarene før (`sammenfallet`).
  */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning: number,
-  kravet?: Krav | null
+  kravet?: Krav | null,
+  foer: readonly StandpunktFoer[] = []
 ): Beslutningsgrunnlag {
   const v = virkninger(svar, paaberopelse, regler, forskyvning);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
     linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),
-    sammenfall: godkjennerHeleKravet(svar, v),
+    sammenfall: sammenfallet(svar, v, kravet, foer),
     ...(svar.spor === 'forhold'
       ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }
       : {}),
@@ -45,15 +47,16 @@ export function beslutningsgrunnlag(
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11 (opphevet av MM-U50), GR-U12).
  * `paaberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
  * påberopelse. `forskyvning` er lagene svaret på forholdet opptar foran sporet
- * (`lagFraForholdet`), og `kravet` kravet svaret gjelder. Kaster `Uforstaatt` når
- * standpunktene ikke kan leses.
+ * (`lagFraForholdet`), og `kravet` kravet svaret gjelder. `foer` er partens siste standpunkt
+ * til varslene i svarene før. Kaster `Uforstaatt` når standpunktene ikke kan leses.
  */
 export function frys(
   svar: Data,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning: number,
-  kravet?: Krav | null
+  kravet?: Krav | null,
+  foer: readonly StandpunktFoer[] = []
 ) {
   const spor = svar.spor as Spor;
   const innhold = {
@@ -61,7 +64,7 @@ export function frys(
     standpunkter: standpunkterISvaret(spor, svar),
     utregning: (svar.utregning ?? {}) as Data,
   };
-  return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet);
+  return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet, foer);
 }
 
 /**
