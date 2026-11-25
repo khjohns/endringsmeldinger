@@ -3,7 +3,8 @@
   punkt 34.3.3, i svaret på kravposten og i svaret på et varsel som står alene (designdelen i
   VS-U77: samme svarskjema). Punkt 34.4 er en setning med en lenke (`system.md`, «Normalsvaret er
   en setning, unntaket en lenke»), og en innsigelse fra et tidligere svar gjentas til byggherren
-  gir den opp (VS-U77 punkt 9, 10 og 12).
+  gir den opp (VS-U77 punkt 9, 10 og 12). I svaret på varselet står varselet og justeringen i
+  hvert sitt punkt i brevet (`vis`), med punktet som overskrift og spørsmålet kort.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -29,6 +30,7 @@
     beskrevetAvJusteringen,
     etterVarselet,
     etterJusteringen,
+    vis = 'begge',
   }: {
     /** Navnet på valget om varselet; standpunktet står i `${varselId}-standpunkt`. */
     varselId: string;
@@ -53,17 +55,22 @@
     /** Begrunnelsen for punktet i brevet, under spørsmålet. */
     etterVarselet?: Snippet;
     etterJusteringen?: Snippet;
+    /** Bare varselet eller bare justeringen, i et punkt med egen overskrift. */
+    vis?: 'begge' | 'varselet' | 'justeringen';
   } = $props();
 
   const staar = $derived(foer?.iTide === false);
-  const varselTittel = $derived(hjemmel === '34.4' ? SKJEMA.varselRegning : SKJEMA.varselJustering);
+  const egetPunkt = $derived(vis !== 'begge');
+  const varselTittel = $derived(
+    egetPunkt ? null : hjemmel === '34.4' ? SKJEMA.varselRegning : SKJEMA.varselJustering
+  );
 </script>
 
 {#snippet innsigelsenSomStaar()}
   <!-- VS-U77 punkt 9, 10 og 12: svaret gjentar innsigelsen til byggherren gir den opp. -->
   <div class="setning">
     <p id={`${varselId}-standpunkt`} aria-live="polite">
-      <strong>{varselTittel}</strong>
+      {#if varselTittel}<strong>{varselTittel}</strong>{/if}
       {#if foer?.brev}{SKJEMA.innsigelsenStaar(foer.brev, hjemmel, ikkeGitt)}{/if}
       {varsletITide === true ? SKJEMA.girOppInnsigelsen : SKJEMA.gjentarInnsigelsen}
     </p>
@@ -81,7 +88,7 @@
 {:else if hjemmel === '34.4'}
   <div class="setning">
     <p id={`${varselId}-standpunkt`} aria-live="polite">
-      <strong>{varselTittel}</strong>
+      {#if varselTittel}<strong>{varselTittel}</strong>{/if}
       {varsletITide === false
         ? ikkeGitt
           ? SKJEMA.ikkeGittEllerForSent
@@ -101,44 +108,48 @@
   </div>
   {@render etterVarselet?.()}
 {:else}
-  <div class="betinget">
-    {@render foranVarselet?.()}
-    {#if staar}
-      {@render innsigelsenSomStaar()}
-    {:else}
+  {#if vis !== 'justeringen'}
+    <div class="betinget">
+      {@render foranVarselet?.()}
+      {#if staar}
+        {@render innsigelsenSomStaar()}
+      {:else}
+        <Valg
+          navn={varselId}
+          spoersmaal={egetPunkt ? SKJEMA.varselSpoersmaalKort : SKJEMA.varselJusteringSpoersmaal}
+          valgfri
+          hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}
+          beskrevetAv={beskrevetAvVarselet}
+          valg={[
+            { verdi: true, tekst: SKJEMA.komITide },
+            { verdi: false, tekst: SKJEMA.komForSent },
+          ]}
+          bind:verdi={varsletITide}
+          lett
+        />
+      {/if}
+      {@render etterVarselet?.()}
+    </div>
+  {/if}
+  {#if vis !== 'varselet'}
+    <div class="betinget">
+      {@render foranJusteringen?.()}
       <Valg
-        navn={varselId}
-        spoersmaal={SKJEMA.varselJusteringSpoersmaal}
-        valgfri
-        hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}
-        beskrevetAv={beskrevetAvVarselet}
+        navn={justeringId}
+        spoersmaal={egetPunkt ? SKJEMA.justeringSpoersmaalKort : SKJEMA.justeringSpoersmaal}
+        valgfri={justeringValgfri}
+        beskrevetAv={beskrevetAvJusteringen}
         valg={[
-          { verdi: true, tekst: SKJEMA.komITide },
-          { verdi: false, tekst: SKJEMA.komForSent },
+          { verdi: true, tekst: SKJEMA.godkjennerJustering },
+          { verdi: false, tekst: SKJEMA.bestriderJustering },
         ]}
-        bind:verdi={varsletITide}
+        bind:verdi={godtarJustering}
+        feil={justeringFeil}
         lett
       />
-    {/if}
-    {@render etterVarselet?.()}
-  </div>
-  <div class="betinget">
-    {@render foranJusteringen?.()}
-    <Valg
-      navn={justeringId}
-      spoersmaal={SKJEMA.justeringSpoersmaal}
-      valgfri={justeringValgfri}
-      beskrevetAv={beskrevetAvJusteringen}
-      valg={[
-        { verdi: true, tekst: SKJEMA.godkjennerJustering },
-        { verdi: false, tekst: SKJEMA.bestriderJustering },
-      ]}
-      bind:verdi={godtarJustering}
-      feil={justeringFeil}
-      lett
-    />
-    {@render etterJusteringen?.()}
-  </div>
+      {@render etterJusteringen?.()}
+    </div>
+  {/if}
 {/if}
 
 <style>

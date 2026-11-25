@@ -72,6 +72,9 @@ export const SKJEMA = haerdet({
   // VS-U77 punkt 8 og 30: «i tide» står mot senere kravversjoner.
   varseletITideFoer: (b: Brevref) => `Du har godkjent i ${brevref(b)} at varselet kom i tide.`,
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
+  // Spørsmålene i et punkt med egen overskrift, i svaret på varselet som står alene.
+  varselSpoersmaalKort: 'Kom varselet i tide?',
+  justeringSpoersmaalKort: 'Godtar du justeringen av enhetsprisene?',
   godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',
   /** Til høyre på linja med labelen eller spørsmålet over et valgfritt felt (`Valgfri`). */
@@ -163,8 +166,6 @@ export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = tru
 
 /** Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14, VS-U79). */
 export const VARSELSVARET = haerdet({
-  // Prototype v4, `#svar-varsel`: samme skjema som svaret på kravet, med bare «Varslene».
-  tittel: 'Varslene',
   punktet: (h: Kravpostvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
   manglerInnsigelse:

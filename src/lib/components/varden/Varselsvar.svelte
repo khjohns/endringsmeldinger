@@ -159,7 +159,7 @@
   {onforkast}
   {onvedsiden}
 >
-  {#snippet spoersmaal(feil, begrunnelse)}
+  {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet foranJusteringen()}
       <Gjelderhvis id={`${uid}-justering-forutsetninger`} liste={justeringenGjelderHvis}>
         {#snippet punkt(i: Innsigelsen)}
@@ -171,7 +171,7 @@
     {/snippet}
     {#snippet etterVarselet()}{@render begrunnelse(hjemmel)}{/snippet}
     {#snippet etterJusteringen()}{@render begrunnelse('justering')}{/snippet}
-    <Spoersmaal id={`${uid}-sp-varslene`} tittel={VARSELSVARET.tittel}>
+    {#snippet standpunktet(vis: 'varselet' | 'justeringen')}
       <Varselstandpunkt
         varselId={`${uid}-varsel`}
         justeringId={`${uid}-justering`}
@@ -188,7 +188,26 @@
           : undefined}
         {etterVarselet}
         {etterJusteringen}
+        {vis}
       />
+    {/snippet}
+    <!-- Punktene i brevet, med samme nummer, og blekkstreken ved punktet som venter på svar
+       (`system.md`, «Utkastet er brevet mens det skrives»). -->
+    <Spoersmaal
+      id={`${uid}-sp-varselet`}
+      aktiv={hjemmel === '34.4' && iTide === null}
+      tittel={overskrift(hjemmel) ?? varselpunktet}
+    >
+      {@render standpunktet('varselet')}
     </Spoersmaal>
+    {#if hjemmel === '34.3.3'}
+      <Spoersmaal
+        id={`${uid}-sp-justeringen`}
+        aktiv={valg.godtarJustering === null}
+        tittel={overskrift('justering') ?? SKJEMA.justeringSpoersmaal}
+      >
+        {@render standpunktet('justeringen')}
+      </Spoersmaal>
+    {/if}
   {/snippet}
 </Svarskjema>
