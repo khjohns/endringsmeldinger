@@ -72,17 +72,20 @@ fått etter at grenen ble laget, som slettet.
 
 ```bash
 git -C "$KLON" diff "origin/$BASE...$SHA" > "$KJOERING/diff.patch"
-LESBART="permissions.review.filesystem={\":minimal\"=\"read\",\"$CODEX_MAPPE\"=\"read\",\"$KLON\"=\"read\",\"$KJOERING\"=\"read\"}"
 cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
   SSL_CERT_FILE="$SSL_CERT_FILE" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
   timeout 1500 "$CODEX_MAPPE/node_modules/.bin/codex" exec \
   -m "$MODELL" -c "model_reasoning_effort=\"$INNSATS\"" \
-  -c 'default_permissions="review"' -c "$LESBART" --ephemeral \
+  -c 'default_permissions="review"' \
+  -c "permissions.review.filesystem={\":minimal\"=\"read\",\"$CODEX_MAPPE\"=\"read\",\"$KLON\"=\"read\",\"$KJOERING\"=\"read\"}" \
+  --ephemeral \
   --output-schema "$KJOERING/skjema.json" -o "$KJOERING/svar.json" \
   "$(cat "$KJOERING/bestilling.md")" \
   < /dev/null > "$KJOERING/codex.log" 2>&1
 ```
+
+Sparring som kan få oppfølging, kjøres uten `--ephemeral` (se «Oppfølging i samme samtale»).
 
 - **Tillatelsesprofilen avgrenser lesingen.** Med `--sandbox read-only` kan kommandoene til
   Codex lese hele filsystemet, også `~/.codex/auth.json` og innloggingen til `agy` i
@@ -90,8 +93,14 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   installasjonen av Codex, klonen og kjøremappa, og ingen skrivetilgang. Bruk ikke
   `--sandbox` sammen med profilen. Prøvd med `codex sandbox` i 0.171.0: hjemmemappa og
   passordfila til testbasen var usynlige, `git diff` og `rg` virket i klonen, og skriving i
-  klonen ble avvist. `codex debug prompt-input` viste at profilen ble valgt. `codex exec`
-  ber aldri om å kjøre en kommando utenfor sandkassen.
+  klonen ble avvist. `codex exec` ber aldri om å kjøre en kommando utenfor sandkassen.
+- **Kontroller profilen før kallet.** Kjør `codex debug prompt-input` med de to `-c`-flaggene
+  for profilen fra blokken, og se at profilen `review` er valgt. `prompt-input` avviser `-m`,
+  `--ephemeral`, `--output-schema` og `-o`, som bare `codex exec` tar. Prøvd 25.11 med blokken
+  over (#2256). Loggen er ikke et
+  bevis, for den viser `sandbox: read-only` både med og uten profilen. Kopier hele kallet, og
+  samle ikke flaggene i en variabel. I #2337 falt `-c 'default_permissions="review"'` ut på den
+  måten.
 - **`< /dev/null` er påkrevd.** Med `run_in_background` har kommandoen en åpen stdin-pipe, og
   Codex står og venter på den («Reading additional input from stdin...», tom logg).
 - **Skjemaet** (`--output-schema`) må være strengt: `additionalProperties: false` og alle
@@ -136,6 +145,7 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   sekunder og 55 000 tokens.
 - Kontroller `git status --porcelain` i klonen og i hovedkopien etterpå. Det skal være likt.
 - **Oppfølging i samme samtale.** `codex exec resume <id>` er prøvd og virker, og `-o` virker med den. Id-en står i loggen som «session id» (#2256).
+  Etter en kjøring med `--ephemeral` kan samtalen ikke fortsettes (#2337).
 
 ## Bestillingen
 
@@ -158,4 +168,4 @@ postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.
-- Om `codex exec resume` virker etter en kjøring med `--ephemeral`, er ikke prøvd.
+- Oppfølging med `codex exec resume` av en sparring som er kjørt uten `--ephemeral`.

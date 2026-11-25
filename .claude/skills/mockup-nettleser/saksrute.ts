@@ -639,6 +639,13 @@ try {
     }));
   }
 
+  /** Sakskoden serveren gir saken, som teksten i brevet må ha (LV-U46). */
+  async function sakskodeFor(sak: string): Promise<Sakskode> {
+    const lest = await kjerneKall<Sakskode>(te, 'GET', `/api/kjerne/saker/${sak}/sakskode`);
+    if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
+    return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
+  }
+
   /**
    * Banen gjennom TS-serveren for brukerforløpet: kjøreren lager kommandoen med den låste
    * teksten mot journalen fra `GET`, som skjemaet gjør (LV-U2), og sender den fra siden til
@@ -780,6 +787,7 @@ try {
    */
   const nySaksbane = (tittel: string) => {
     let sak: string | null = null;
+    let kode: Sakskode | undefined;
     const opprettet = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, 'TE');
     if (!opprettet.godtatt) throw new Error(`Opprettelsen ble avvist: ${opprettet.avvisning.melding}`);
     const foer: Journalrad[] = [
@@ -799,13 +807,16 @@ try {
     ];
     const bane: Bane = {
       sakId: 'ny-sak',
+      get sakskode() {
+        return kode;
+      },
       aktor: (part) => part.toLowerCase(),
       journal: async () => (sak ? lesJournal(sak) : foer),
       skriv: async () => {
         throw new Error('Saksruta skriver bare gjennom skjemaet og kommandoene til TS-serveren');
       },
       async kommando(kommando, part, forventet) {
-        if (sak) return serverbane(sak).kommando!(kommando, part, forventet);
+        if (sak) return serverbane(sak, kode!).kommando!(kommando, part, forventet);
         const k = kommando as { type: string; spor?: string; innhold: Record<string, unknown>; utdypning?: string };
         const felt = SKJEMAETS_FORHOLD[String(k.innhold?.underkategori)];
         if (part !== 'TE' || k.type !== 'krav' || k.spor !== 'forhold' || !felt)
@@ -833,6 +844,7 @@ try {
         // S1 i #1414: TE kommer til saken, med kvitteringen.
         await te.waitForURL(new RegExp(`/${katalog.prosjekt}/[0-9a-f-]{36}$`), { timeout: 30_000 });
         sak = new URL(te.url()).pathname.split('/').at(-1)!;
+        kode = await sakskodeFor(sak);
         await te.getByText('Brevet sendes til Catenda.').waitFor({ timeout: 30_000 });
         await te.getByRole('heading', { name: tittel, level: 1 }).waitFor();
         await te.screenshot({ path: join(UT, 'ny-sak-sendt.png'), fullPage: true });
@@ -883,13 +895,7 @@ try {
     const til = FORLOEP && values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     const ny = OPPRETTES ? nySaksbane(tittel) : null;
-    // Teksten lages med koden saken får av serveren, som skjemaet gjør (LV-U46).
-    const kode = async () => {
-      const lest = await kjerneKall<Sakskode>(te, 'GET', `/api/kjerne/saker/${sak}/sakskode`);
-      if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
-      return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
-    };
-    const bane = ny ? ny.bane : serverbane(sak, await kode());
+    const bane = ny ? ny.bane : serverbane(sak, await sakskodeFor(sak));
     const tilbake = TILBAKEDATERT ? await tilbakedatertBane(bane, TILBAKEDATERT.start) : null;
     await kjoer(forloep, tilbake?.bane ?? bane, { til, valg: { klokke: tilbake?.klokke ?? veggklokke } });
     if (ny) {

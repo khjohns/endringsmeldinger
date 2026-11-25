@@ -51,10 +51,19 @@ Passer ikke:
 4. **Datainnsamlingen.** Haken på siden «Terms of Service & Data Use» er satt på forhånd.
    Enter veksler haken. Fjern den, og gå til «Done» med Down, Right og Enter. Kontroller i
    `/settings` at «Enable Telemetry» er `off`.
-5. **Arbeidsmappa.** Godkjenn en egen, tom mappe i scratchpad, og avslutt med Escape. Legg
-   klonene utenfor den. I prøven lå klonene under den godkjente mappa, og `agy` skrev og
-   committet uten å spørre, selv om «Tool Permission» sto på `request-review`. Godkjenningen
-   gjelder trolig alt under mappa. Klonene utenfor mappa er ikke prøvd.
+5. **Arbeidsmappa.** Godkjenn en egen, tom mappe i scratchpad, og avslutt med Escape. Start
+   alltid `agy` interaktivt i den mappa. Startet i repoet spør `agy` om hovedkopien skal
+   godkjennes, og svaret er nei (#2337). Legg klonene utenfor mappa. I prøven lå klonene under
+   den godkjente mappa, og `agy` skrev og committet uten å spørre, selv om «Tool Permission»
+   sto på `request-review`. Godkjenningen gjelder trolig alt under mappa. `agy -p` i en klon
+   utenfor mappa er prøvd og virker uten spørsmål (#2337).
+6. **Statusprøven.** Kjør i arbeidsmappa, med `env -i`
+   som i «Arbeidsformen»:
+   `agy -p "Svar med ordet OK og ingenting annet." --mode plan --model gemini-4-neon-high --output-format json --print-timeout 5m`.
+   `status` `SUCCESS` og svaret `OK` bekrefter innloggingen. Prøvd i verktøyøkta 25.11 med
+   `--mode default`: svaret kom, men stderr hadde advarselen
+   «unrecognized --mode value "default" (valid: accept-edits, auto, plan)». Med `--mode plan`
+   er statusprøven ikke kjørt (#2337).
 
 Innstillingene til `agy` har samme filnavn som hookoppsettet. Brokervakten stopper derfor
 skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
@@ -146,7 +155,7 @@ Gemini 4 Argon er en annen modellfamilie og har andre blindsoner.
    forankres i den. Kjør med `--json-schema`: anbefaling, antakelser, risiko og hva som må
    undersøkes. `--mode plan` avviser `git grep`, så sparringen kjøres som en kartlegging: i en
    egen klon, med `--mode accept-edits`, en liste over lesekommandoer som `command(git)`, og
-   `git status` etterpå (se «Kartlegging og review uten skriving»). Bestillingen ber om ett JSON-objekt, med stier relative til repoet, høyst fem punkter i runde 1 og en grense for antall ord. Gjelder spørsmålet visningen, tas designnotatene og `.interface-design/system.md` med blant filene (#2256).
+   `git status` etterpå (se «Kartlegging og review uten skriving»). Bestillingen ber om ett JSON-objekt, høyst fem punkter i runde 1 og en grense for antall ord. Stiene står som i «Bestillingen». Er svaret over grensen, går det tilbake i samme samtale med «Kort ned til <n> ord.», og den kortede versjonen postes (#2337). Gjelder spørsmålet visningen, tas designnotatene og `.interface-design/system.md` med blant filene (#2256).
 2. **Deretter skal Argon kritisere Claudes vurdering**, i samme samtale med `--conversation`. Runden er fast, ikke valgfri. Argon bes følge en anbefaling om å avvise noe helt til der kjernen leser feltet.
    Hurtigbufferen treffer innenfor én samtale, men ikke mellom samtaler: en ny samtale betaler
    hele prefikset ved første kall (målt 24.11, #2274). Fortsett derfor i samme samtale innenfor
@@ -163,7 +172,11 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 
 ## Bestillingen
 
-- Issueteksten med kommentarene, hentet med `gh api`. `agy` har ikke tilgang til GitHub.
+- Issueteksten med kommentarene, hentet med `mcp__github__issue_read` (`get` og
+  `get_comments`). `agy` har ikke tilgang til GitHub. Et stort svar lagres til fil, og teksten
+  og kommentar-ID-ene leses fra fila (#2337).
+- Svaret har stier relative til repoet og ingen lenker til lokale filer, som `file:///tmp/…`.
+  Slike lenker virker ikke på GitHub (#2337).
 - Be den lese filene oppgaven trenger, ved sti, så de har ett hjem og ikke gjengis i
   bestillingen. Det gjelder alltid `CLAUDE.md`, [leveranseskillen](../leveranse/SKILL.md) og
   [miljø-skillen](../miljo/SKILL.md) for testkommandoene, og i tillegg reglene i
