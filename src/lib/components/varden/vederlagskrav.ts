@@ -18,6 +18,7 @@ import {
   tomKorrespondanse,
   type Korrespondansevalg,
 } from './korrespondansen';
+import { utgangspunktet, utgangspunktnoekkel, type Eldrekrav } from './eldrekrav';
 import { KRAVSKJEMA } from './tekster';
 import type { Mangel } from './mangler';
 
@@ -63,6 +64,8 @@ export interface Kravvalg {
   forbehold: string;
   /** Teller for nøklene til nye poster. */
   nye: number;
+  /** Utgangspunktet for et krav sendt før det siste i sporet (`utgangspunktnoekkel`, OV-U118). */
+  utgangspunkt?: string;
 }
 
 export const tomtVarselvalg = (): Varselvalg => ({
@@ -113,11 +116,18 @@ export const fraKravpost = (p: Kravpost): Kravpostvalg => ({
 /**
  * Skjemaet når det åpnes: alle kravpostene i gjeldende krav og den særskilte
  * vederlagsjusteringen, så ingen post forsvinner av at TE lar den stå (KA-U56, D-4), eller én
- * tom kravpost i det første kravet.
+ * tom kravpost i det første kravet. Et krav sendt før det siste i sporet tar utgangspunkt i den
+ * siste kravversjonen det prøves mot (OV-U118).
  */
-export function startvalg(u: Utledning): Kravvalg {
-  const krav = u.spor.vederlag.gjeldendeKrav;
-  const v: Kravvalg = { poster: [], saerskilt: null, forbehold: '', nye: 0 };
+export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Kravvalg {
+  const krav = utgangspunktet(u, 'vederlag', eldre);
+  const v: Kravvalg = {
+    poster: [],
+    saerskilt: null,
+    forbehold: '',
+    nye: 0,
+    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(u, 'vederlag', eldre) } : {}),
+  };
   if (!krav) {
     v.poster.push(nyKravpost(v));
     return v;
@@ -141,6 +151,20 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
   const sist = new Map<string, Kravpost>();
   for (const k of u.spor.vederlag.krav) for (const p of kravposterI(k)) sist.set(p.id, p);
   return [...sist.values()].filter((p) => !gjeldende.has(p.id));
+}
+
+/**
+ * Kravpostene i sporet en kravpost i et krav sendt før det siste kan være den samme som (OV-U119),
+ * som de sto sist, uten postene i utgangspunktet, som skjemaet har eller trekker.
+ */
+export function kravposteneISporet(eldre: Eldrekrav): Kravpost[] {
+  const utgangspunktet = new Set(
+    (eldre.tidligere.at(-1) ? kravposterI(eldre.tidligere.at(-1)!) : []).map((p) => p.id)
+  );
+  const sist = new Map<string, Kravpost>();
+  for (const k of [...eldre.tidligere, ...eldre.andre])
+    for (const p of kravposterI(k)) if (!utgangspunktet.has(p.id)) sist.set(p.id, p);
+  return [...sist.values()];
 }
 
 /** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */

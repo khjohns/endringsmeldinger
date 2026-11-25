@@ -36,6 +36,7 @@
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
+  import { eldreKrav, utgangspunktet, utgangspunktnoekkel } from './eldrekrav';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
@@ -109,7 +110,13 @@
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
 
-  if (!untrack(() => valg)) valg = startvalg(untrack(() => u));
+  // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
+  const eldre = $derived(eldreKrav(u, 'frist', lagtTil));
+  const utgangspunkt = $derived(utgangspunktet(u, 'frist', eldre));
+  untrack(() => {
+    if (!valg || valg.utgangspunkt !== utgangspunktnoekkel(u, 'frist', eldre))
+      valg = startvalg(u, eldre);
+  });
   const v = $derived(valg!);
 
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
@@ -131,15 +138,14 @@
   // frist i fristtabellen (`fristeneStrider` i kjernen).
   const fastFrist = (p: Fristpostvalg) =>
     p.id !== null &&
-    innholdIFristen(u.spor.frist.gjeldendeKrav!).frister.some(
-      (f) => f.id === p.id && f.frist_id !== undefined
-    );
+    innholdIFristen(utgangspunkt!).frister.some((f) => f.id === p.id && f.frist_id !== undefined);
   const alleBrev = $derived(brevene(u));
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
   const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
-  const forrige = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
-  const svaret = $derived(brevMed(u.spor.frist.gjeldendeSvar?.dokument));
+  const forrige = $derived(brevMed(utgangspunkt?.dokument));
+  const sistebrevet = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
+  const svaret = $derived(eldre ? null : brevMed(u.spor.frist.gjeldendeSvar?.dokument));
   // Varselet etter punkt 33.4 er det registrerte varselet, ellers det første kravet i sporet
   // (`varselVedKravet` i kjernen). Uten noen av dem er dette kravet varselet (U-6).
   const varselbrev = $derived(
@@ -683,11 +689,13 @@
   {onvedsiden}
   oppfolging={foresporselsbrev
     ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
-    : forrige
-      ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
-      : paaberopelsen
-        ? { tekst: KRAVSKJEMA.paaberoptI(paaberopelsen), brev: paaberopelsen }
-        : null}
+    : eldre && sistebrevet
+      ? { tekst: FRISTKRAV.eldre(sistebrevet, forrige), brev: forrige ?? sistebrevet }
+      : forrige
+        ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
+        : paaberopelsen
+          ? { tekst: KRAVSKJEMA.paaberoptI(paaberopelsen), brev: paaberopelsen }
+          : null}
   {lagtTil}
   part={kjernesak.part}
   {onendre}
