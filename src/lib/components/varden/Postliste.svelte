@@ -14,6 +14,7 @@
     poster,
     prefiks,
     kolonne,
+    svarkolonne = SVARSKJEMA.svaretKolonne,
     valgt = $bindable(null),
     navn,
     brevoverskrift,
@@ -41,6 +42,8 @@
     prefiks: string;
     /** Overskriften over navnene, som «Post» eller «Frist» (prototypen `fristkrav-te.html#svar`). */
     kolonne: string;
+    /** Overskriften over svaret, når svaret ikke står i brevet som skrives (VS-U65). */
+    svarkolonne?: string;
     /** `id` til den åpne posten: `null` er den første, og en tom streng er ingen. */
     valgt?: string | null;
     /** Navnet posten står med, som betegnelsen på kravposten eller fristen. */
@@ -116,7 +119,7 @@
   <div class="kolonner" class:lesing={!valgene} aria-hidden="true">
     <span>{kolonne}</span>
     <span>{SVARSKJEMA.kravetKolonne}</span>
-    <span>{SVARSKJEMA.svaretKolonne}</span>
+    <span>{svarkolonne}</span>
   </div>
 {/if}
 <ul class="poster" class:flere>

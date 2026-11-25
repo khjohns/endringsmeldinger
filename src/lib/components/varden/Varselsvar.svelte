@@ -211,11 +211,15 @@
     {@const f = forrigeSvar}
     <section class="svarene-foer" aria-labelledby={`${uid}-svarene-foer`}>
       <h3 id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h3>
-      <p class="dempet">{VARSELSVARET.svareneStaar}</p>
+      <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
+      <p class="dempet">
+        {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
+      </p>
       <Postliste
         poster={f.poster}
         prefiks={`${uid}-foer`}
         kolonne={SVARSKJEMA.postKolonne}
+        svarkolonne={VARSELSVARET.svaretI(f.brev)}
         navn={(p) => p.betegnelse}
         beskrivelse={(p) => p.beskrivelse}
         kravet={(p) =>
@@ -224,17 +228,19 @@
       />
       {#if nyttSvarPaaKravet}
         {@const aapne = nyttSvarPaaKravet}
-        <div>
+        <div class="nytt-svar">
           <Knapp
             variant="lenke"
+            kompakt
+            iFlukt
             onclick={() => (aapne === 'ikke bygget' ? (ikkeBygget = true) : aapne())}
             >{VARSELSVARET.nyttSvarPaaKravet}</Knapp
           >
+          {#if aapne === 'ikke bygget'}
+            <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+            <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
+          {/if}
         </div>
-        {#if aapne === 'ikke bygget'}
-          <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
-          <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
-        {/if}
       {/if}
     </section>
   {/if}
@@ -345,6 +351,11 @@
   .svarene-foer h3 {
     font-size: 16px;
     font-weight: 600;
+  }
+  .nytt-svar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
   .svarene-foer .dempet {
     color: var(--ink-3);

@@ -368,6 +368,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     expect(within(svarene).queryByRole('button', { name: /Endre|Svar på/ })).toBeNull();
     // Uten tilbudt handling er det ingen lenke til et nytt svar på kravet.
     expect(within(svarene).queryByRole('button', { name: 'Nytt svar på kravet' })).toBeNull();
+    expect(within(svarene).queryByText(/Vil du endre dem/)).toBeNull();
     await radio('Kom i tide');
     await radio('Godtar justeringen');
     await seBrevet();
@@ -390,6 +391,9 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
       await screen.findByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' })
     );
     const lenke = await screen.findByRole('button', { name: 'Nytt svar på kravet' });
+    expect(
+      screen.getByText(/Vil du endre dem, sender du et nytt svar på kravet\./)
+    ).toBeInTheDocument();
     await fireEvent.click(lenke);
     const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
     expect(within(svarene).getByRole('status')).toHaveTextContent(/ikke bygget/);
