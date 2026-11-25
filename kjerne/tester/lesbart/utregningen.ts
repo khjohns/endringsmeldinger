@@ -392,7 +392,6 @@ export const UTREGNINGEN: Lesbar[] = [
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
   ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
   // VS-U79: varselet svaret på et varsel gjelder, og dagen kravene ble sendt.
-  ['spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet', 'relasjon', 'dag k'],
   [
     'spor/vederlag/kommando.ts',
     'relasjon',
@@ -400,7 +399,6 @@ export const UTREGNINGEN: Lesbar[] = [
     ['kommandoer/forutsetninger.ts:henvisning'],
   ],
   // VS-U79, VS-U77 punkt 30 og 31: standpunktene i svaret på et varsel som står alene.
-  ['spor/vederlag/kommando.ts:standpunkterPaaVarselet', 'relasjon', 'id hjemmel'],
   [
     'spor/vederlag/kommando.ts:standpunkterPaaVarselet(v)',
     'utsagn',
@@ -412,7 +410,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'standpunkterPaaVarselet',
     ['kommandoer/standpunkter.ts:standpunkter'],
   ],
-  ['spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet', 'relasjon', 'id hjemmel'],
   [
     'spor/vederlag/kommando.ts',
     'relasjon',

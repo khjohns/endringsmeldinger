@@ -10,6 +10,7 @@
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
+import { varseletSvaretGjelder } from '../spor/vederlag/kommando.ts';
 import { erRegistrering, type Kommando } from './kommando.ts';
 import { kalenderdag } from '../format/leser.ts';
 import { nyttelastkontroll, oppgittDatoEtterBrevet, type Svarstandpunkter } from './nyttelast.ts';
@@ -21,7 +22,7 @@ import type { Avvisning, Part } from '../typer.ts';
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
   // VS-U79: et svar på et varsel etter § 34.3.3 eller § 34.4 gjelder varselet.
   const paaVarselet = (s: { spor: string; gjelder: string }) =>
-    s.spor === 'vederlag' && u.spor.vederlag.kravpostvarsler.some((v) => v.id === s.gjelder);
+    s.spor === 'vederlag' && varseletSvaretGjelder(u, s.gjelder) !== null;
   switch (k.type) {
     case 'krav':
       return [{ type: 'krav', spor: k.spor }];

@@ -7,6 +7,7 @@
 
 import {
   NYTTELAST_I_VEDERLAGET,
+  varseletSvaretGjelder,
   vurderingeneISvaretPaaVarselet,
 } from '../spor/vederlag/kommando.ts';
 import type { Svaretsvarsel } from './standpunkter.ts';
@@ -41,13 +42,11 @@ import { ugyldigAkseptfrist, utenAkseptfrist } from '../regler/akseptfrist.ts';
 import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import {
   avvis,
-  erKravpostvarselhjemmel,
   SPOR,
   VARSELSPOR,
   varseletSendt,
   type Avvisning,
   type Krav,
-  type Varselhjemmel,
   type Kravspor,
   type OppgittDatofelt,
   type Part,
@@ -117,7 +116,7 @@ function kontrollerSvar(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor[s.spor];
-  const varselet = paaVarselet(s, sporet.kravpostvarsler);
+  const varselet = s.spor === 'vederlag' ? varseletSvaretGjelder(u, s.gjelder) : null;
   const funnet =
     sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
   const krav = varselet ? null : funnet;
@@ -178,15 +177,6 @@ function kontrollerSvar(
       `Serveren regner ut ${avvik.map((a) => `${a.sti}=${a.serveren}`).join(', ')}.`
     );
   return utdypningKreves ? nyttelastI(s.spor).begrunnelse(s, krav, regler) : null;
-}
-
-/** VS-U79: varselet etter § 34.3.3 eller § 34.4 svaret gjelder, eller `null` for et svar på et krav. */
-function paaVarselet(
-  s: Pick<Svarutkast, 'gjelder'>,
-  varslene: readonly { id: string; hjemmel: Varselhjemmel }[]
-): Svaretsvarsel | null {
-  const v = varslene.find((x) => x.id === s.gjelder);
-  return v && erKravpostvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
 }
 
 /**
@@ -537,7 +527,7 @@ export function nyttelastkontroll(
     case 'revisjon': {
       const sporet = u.spor[k.svar.spor];
       // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
-      const forrige = sporet.kravpostvarsler.some((v) => v.id === k.svar.gjelder)
+      const forrige = varseletSvaretGjelder(u, k.svar.gjelder)
         ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
         : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)

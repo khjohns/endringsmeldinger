@@ -278,7 +278,17 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   // VS-U79: et svar på et varsel gjelder varselet.
   ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'relasjon', 'spor gjelder'],
-  ['kommandoer/nyttelast.ts:paaVarselet', 'relasjon', 'id hjemmel'],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'varseletSvaretGjelder',
+    [
+      'kommandoer/avvisning.ts:handlingsnoekler.paaVarselet',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
+  ],
+  ['Svaretsvarsel', 'relasjon', 'id hjemmel'],
   [
     'typer.ts',
     'relasjon',

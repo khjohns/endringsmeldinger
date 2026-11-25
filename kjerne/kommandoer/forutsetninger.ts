@@ -113,9 +113,16 @@ function henvisning(
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
     case 'svare':
-      return hindrerSvaretPaaVarselet(u, h.gjelder, 'Svaret', sendt);
     case 'revidere':
-      return hindrerSvaretPaaVarselet(u, h.gjelder, 'Revisjonen', sendt);
+      // GR-U27, som for svaret på kravet.
+      return u.forholdAvvist
+        ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)
+        : hindrerSvaretPaaVarselet(
+            u,
+            h.gjelder,
+            h.type === 'svare' ? 'Svaret' : 'Revisjonen',
+            sendt
+          );
     case 'innsigelse':
       if (kanFaaInnsigelse(maal, part))
         for (const spor of SPOR) {

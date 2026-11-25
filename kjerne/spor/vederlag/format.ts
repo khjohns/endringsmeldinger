@@ -52,6 +52,7 @@ export const TILLATTE_STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd
  * svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
  */
 export const svaretGjelderEtVarsel = (svar: Pick<Svar, 'standpunkter'>): boolean =>
+  svar.standpunkter.length > 0 &&
   svar.standpunkter.every(
     (s) => s.art === 'justering' || (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
   );

@@ -91,7 +91,7 @@ import {
   utenom,
 } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
-import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
+import type { Sporsstandpunkter, Svaretsvarsel } from '../../kommandoer/standpunkter.ts';
 
 type Data = Record<string, unknown>;
 
@@ -316,39 +316,40 @@ export function hindrerSvaretPaaVarselet(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor.vederlag;
-  if (!sporet.kravpostvarsler.some((v) => v.id === gjelder))
+  if (!varseletSvaretGjelder(u, gjelder))
     return avvis(
       'INGEN_VARSEL',
       `${hva} må gjelde et varsel etter punkt 34.3.3 eller 34.4 fra totalentreprenøren.`
     );
-  if (u.forholdAvvist)
-    return avvis(
-      'FORHOLD_AVVIST',
-      'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.'
-    );
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  const kravene = [...dokumenterI(u.journal)].flatMap((d) =>
-    d.krav
-      .filter((k) => k.spor === 'vederlag')
-      .map((k) => ({ k, dag: dagenSendt({ id: k.id, dokument: d.id }, d) ?? '' }))
-  );
-  if (
-    kravene.some(
-      ({ k, dag }) =>
-        (sendt === null || !foerDagen(sendt, dag)) &&
-        kravposterI(k).some((p) => p.varsel === gjelder)
-    )
-  )
-    return avvis(
-      'VARSELET_GJELDER_EN_KRAVPOST',
-      `${hva} kan ikke gjelde varselet, fordi en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
-    );
   const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
   if (hva === 'Svaret' && forrige)
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
-  return null;
+  const besvaresIKravet = [...dokumenterI(u.journal)].some((d) =>
+    d.krav.some(
+      (k) =>
+        k.spor === 'vederlag' &&
+        kravposterI(k).some((p) => p.varsel === gjelder) &&
+        (sendt === null || !foerDagen(sendt, dagenSendt({ id: k.id, dokument: d.id }, d) ?? ''))
+    )
+  );
+  return besvaresIKravet
+    ? avvis(
+        'VARSELET_GJELDER_EN_KRAVPOST',
+        `${hva} kan ikke gjelde varselet, fordi en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
+      )
+    : null;
+}
+
+/**
+ * VS-U79: varselet etter § 34.3.3 eller § 34.4 i vederlaget et svar med `gjelder` gjelder, eller
+ * `null` når svaret gjelder et krav. Kommandoene slår det opp her.
+ */
+export function varseletSvaretGjelder(u: Utledning, gjelder: string): Svaretsvarsel | null {
+  const v = u.spor.vederlag.kravpostvarsler.find((x) => x.id === gjelder);
+  return v && erKravpostvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
 }
 
 /**
@@ -357,7 +358,7 @@ export function hindrerSvaretPaaVarselet(
  */
 export function standpunkterPaaVarselet(
   v: Svarvurdering,
-  varselet: { id: string; hjemmel: Kravpostvarselhjemmel },
+  varselet: Svaretsvarsel,
   nyId: () => string
 ): Data[] {
   const iTide = (v as Data).varslet_i_tide;
@@ -388,7 +389,7 @@ export function standpunkterPaaVarselet(
  */
 export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
-  varselet: { id: string; hjemmel: Kravpostvarselhjemmel },
+  varselet: Svaretsvarsel,
   u: Utledning,
   sendt: string | null
 ): Avvisning | null {
@@ -695,11 +696,11 @@ function svarPerKravpost(krav: Krav): Avvisning | null {
 /** Forutsetningene i vederlaget (`forutsetninger`). */
 export const FORUTSETNINGER_I_VEDERLAGET = {
   innsigelsenErIkkeBygget: (u, gjelder) =>
-    // Byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 bygges i økt 2 i #1663 (G-9 i BF-14).
+    // VS-U79: standpunktet til varselet står i svaret på varselet (arbeidsvalg 3 A i #2177).
     u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)
       ? avvis(
           'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 kan ikke sendes ennå.'
+          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 står i byggherrens svar på varselet, ikke i et eget brev.'
         )
       : null,
   svaret: (u) => svarPerKravpost(u.spor.vederlag.gjeldendeKrav!),
