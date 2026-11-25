@@ -7153,6 +7153,40 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['i et brev fra løsningen gjør datoen for varselet i samme brev saken ikke forstått'],
   },
+  {
+    id: 'F2333a',
+    feilklasse:
+      'lagene i et svar som ikke sier noe om varselet for kravposten, leses uten innsigelsen etter § 34.3.3 fra svaret før (VS-U81, #2333)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['          : forSentFoer.has(regel.gjelder),', '          : false,']],
+    mal: ['fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)'],
+  },
+  {
+    id: 'F2333b',
+    feilklasse:
+      'utregningen av et svar som ikke sier noe om varselet for kravposten, regnes uten innsigelsen etter § 34.3.3 fra svaret før (VS-U81, #2333)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        '      (svar.varslet_i_tide == null ? staar : svar.varslet_i_tide === false),',
+        '      svar.varslet_i_tide === false,',
+      ],
+    ],
+    mal: ['fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)'],
+  },
+  {
+    id: 'F2333c',
+    feilklasse:
+      'et nytt svar på varselet som ikke sier noe om varselet, leses uten innsigelsen fra svaret før (VS-U80, VS-U81, #2333)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        "        : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),",
+        '        : false,',
+      ],
+    ],
+    mal: ['fryser justeringen subsidiært når innsigelsen står'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {
