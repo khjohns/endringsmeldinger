@@ -617,10 +617,9 @@ export type Forutsetning =
   | { oppgjoersform: string };
 
 /**
- * Det standpunktet `s` i et tidligere lag rammer standpunktet `t` med i skjemaet. § 34.1.2 rammer
- * hele kravet, og § 34.1.3 bare posten etter annet ledd (OV-U22, VS-U5). Beregningsregelen og
- * varselet etter § 34.3.3 rammer bare standpunktene for samme kravpost foran beløpet (VS-U4,
- * VS-U56, OV-U117).
+ * Det standpunktet `s` i et tidligere lag rammer standpunktet `t` med i skjemaet (OV-U22, VS-U5,
+ * `rammerKravposten`). Beregningsregelen og varselet etter § 34.3.3 står foran beløpet i
+ * kravposten, ikke som vilkår for det (VS-U4, VS-U56).
  */
 function rammerIVederlaget(s: Standpunkt, t: Standpunkt): Forutsetning | null {
   const i = innsigelsenIVederlaget(s);

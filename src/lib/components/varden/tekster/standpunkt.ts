@@ -68,6 +68,16 @@ function kortStandpunkt(s: Standpunkt, krevd?: number, oppgir = false): string |
   }
 }
 
+/** Om innsigelsen i et vilkår rammer kravposten `post` (`rammerKravposten` i kjernen). */
+function rammerPosten(i: Innsigelsen, post: string): boolean {
+  if (i.art !== 'varsel') return true;
+  if (i.hjemmel === '34.3.3' && i.gjelder !== undefined)
+    return rammerKravposten({ innsigelse: '34.3.3', gjelder: i.gjelder }, post);
+  if (i.hjemmel === '34.1.2' || i.hjemmel === '34.1.3')
+    return rammerKravposten({ innsigelse: i.hjemmel }, post);
+  return true;
+}
+
 /** Leselinjene for kravposten med vilkåret for hvert standpunkt. */
 function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
@@ -91,16 +101,7 @@ function leselinjeneMedVanligeMellomrom(
     if (!t) return [];
     const nytt = l.vilkaar !== forrige;
     forrige = l.vilkaar;
-    const iPosten = (l.vilkaar ?? []).filter(
-      (i) =>
-        i.art !== 'varsel' ||
-        rammerKravposten(
-          i.gjelder === undefined
-            ? { innsigelse: i.hjemmel as '34.1.2' | '34.1.3' }
-            : { innsigelse: '34.3.3', gjelder: i.gjelder },
-          post.id
-        )
-    );
+    const iPosten = (l.vilkaar ?? []).filter((i) => rammerPosten(i, post.id));
     if (!nytt || !iPosten.length) return [t];
     const linje = vilkaar(iPosten, vist && l.heller);
     vist = true;
