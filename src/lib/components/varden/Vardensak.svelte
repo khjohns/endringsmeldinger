@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { Spor } from '#kjerne/typer.ts';
+  import type { Spor, Svar } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { page } from '$app/state';
   import { ChevronLeft } from 'lucide-svelte';
@@ -401,15 +401,14 @@
       // siste brev (U-11 i BF-44, U-6 i BF-46).
       const frist = u && s !== 'forhold' ? akseptfristen(u, s)?.dato : null;
       const oversittet = kjernesak.saksbilde?.spor.find((x) => x.spor === s)?.akseptEtterFristen;
+      const akseptlinje = frist
+        ? SAKEN.akseptfrist(frist)
+        : oversittet
+          ? SAKEN.akseptEtterFristen(oversittet)
+          : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        siste: frist
-          ? SAKEN.akseptfrist(frist)
-          : oversittet
-            ? SAKEN.akseptEtterFristen(oversittet)
-            : b
-              ? SAKEN.siste(b, b.avsender)
-              : null,
+        siste: akseptlinje ?? (b ? SAKEN.siste(b, b.avsender) : null),
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
@@ -570,6 +569,31 @@
     skjema: Snippet<[Utledning]>;
   };
   /**
+   * Svaret på kravet i `spor` og det nye svaret som erstatter det gjeldende (HF-U29). `utkastet`
+   * leser svaret utkastet erstatter, og `fyll` fyller utkastet fra et svar, eller tomt.
+   */
+  function svaretPaaKravet(
+    spor: 'vederlag' | 'frist',
+    skjema: Snippet<[Utledning]>,
+    utkastet: { erstatter: () => string | undefined; fyll: (forrige: Svar | null) => void }
+  ): Skjema {
+    const noekler = [`svare:${spor}`, `revidere:${spor}`];
+    return {
+      noekler,
+      aapne: (n) => {
+        const forrige = u?.spor[spor].gjeldendeSvar;
+        // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
+        // med handlingen, så skjemaet åpner med svaret det erstatter, eller tomt.
+        const erstatter = n === `revidere:${spor}` ? forrige?.id : undefined;
+        if (utkastet.erstatter() !== erstatter) utkastet.fyll(erstatter ? forrige! : null);
+        aapneUtkast({ art: 'svar' });
+      },
+      vises: (a) =>
+        a.art === 'svar' && valgt === spor && noekler.some((n) => kjernesak.handlinger.includes(n)),
+      skjema,
+    };
+  }
+  /**
    * Skjemaene i arbeidsflaten, med det tomme utkastet i `tommeUtkast`. Varden åpner dem fra «Det
    * du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en nøkkel her blir en knapp som åpner
    * noe; resten sier at handlingen ikke er bygget (#1636, #1663).
@@ -632,47 +656,21 @@
           (!!lagtTilI('forhold', 'svar') && !!u?.spor.forhold.gjeldendeKrav)),
       skjema: forholdssvar,
     },
-    vederlagssvar: {
-      // Det nye svaret på kravet har samme skjema som svaret (HF-U29).
-      noekler: ['svare:vederlag', 'revidere:vederlag'],
-      aapne: (n) => {
-        const forrige = u?.spor.vederlag.gjeldendeSvar;
-        // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
-        // med handlingen, så skjemaet åpner med svaret det erstatter, eller tomt.
-        const erstatter = n === 'revidere:vederlag' ? forrige?.id : undefined;
-        if (utkastene.vederlagssvar.erstatter !== erstatter)
-          utkastene.vederlagssvar =
-            forrige && erstatter
-              ? valgFraSvaret(forrige, u!.spor.vederlag.gjeldendeKrav!)
-              : tomtSvar();
-        aapneUtkast({ art: 'svar' });
-      },
-      vises: (a) =>
-        a.art === 'svar' &&
-        valgt === 'vederlag' &&
-        ['svare:vederlag', 'revidere:vederlag'].some((n) => kjernesak.handlinger.includes(n)),
-      skjema: vederlagssvar,
-    },
-    fristsvar: {
-      // HF-U29, G-8 i BF-46: det nye svaret på kravet har samme skjema som svaret.
-      noekler: ['svare:frist', 'revidere:frist'],
-      aapne: (n) => {
-        const forrige = u?.spor.frist.gjeldendeSvar;
-        // Som for vederlaget: skjemaet åpner med svaret det erstatter, eller tomt.
-        const erstatter = n === 'revidere:frist' ? forrige?.id : undefined;
-        if (utkastene.fristsvar.erstatter !== erstatter)
-          utkastene.fristsvar =
-            forrige && erstatter
-              ? valgFraFristsvaret(forrige, u!.spor.frist.gjeldendeKrav!)
-              : tomtFristsvar();
-        aapneUtkast({ art: 'svar' });
-      },
-      vises: (a) =>
-        a.art === 'svar' &&
-        valgt === 'frist' &&
-        ['svare:frist', 'revidere:frist'].some((n) => kjernesak.handlinger.includes(n)),
-      skjema: fristsvar,
-    },
+    // Det nye svaret på kravet har samme skjema som svaret (HF-U29, G-8 i BF-46).
+    vederlagssvar: svaretPaaKravet('vederlag', vederlagssvar, {
+      erstatter: () => utkastene.vederlagssvar.erstatter,
+      fyll: (f) =>
+        (utkastene.vederlagssvar = f
+          ? valgFraSvaret(f, u!.spor.vederlag.gjeldendeKrav!)
+          : tomtSvar()),
+    }),
+    fristsvar: svaretPaaKravet('frist', fristsvar, {
+      erstatter: () => utkastene.fristsvar.erstatter,
+      fyll: (f) =>
+        (utkastene.fristsvar = f
+          ? valgFraFristsvaret(f, u!.spor.frist.gjeldendeKrav!)
+          : tomtFristsvar()),
+    }),
     varselsvar: {
       // G-9 i BF-14, VS-U79: svaret på et varsel som står alene, og et nytt svar på det.
       noekler: ['svare:*', 'revidere:*'],

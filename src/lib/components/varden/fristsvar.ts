@@ -10,7 +10,7 @@ import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import { innholdIFristen, type FristIKravet } from '#kjerne/spor/frist/format.ts';
 import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { definert, svarbrevet } from './kommandoer';
+import { definert, standpunktet, svarbrevet } from './kommandoer';
 import type { Krav, Svar } from '#kjerne/typer.ts';
 import { HJEMMEL } from '#kjerne/format/format.ts';
 
@@ -165,30 +165,14 @@ export function fristsvaret(
  * byggherren vurderte, også når de står subsidiært. Begrunnelsene og forbeholdet skrives på nytt.
  */
 export function valgFraFristsvaret(svar: Svar, krav: Krav): Fristsvarvalg {
-  const rettidighet = (hjemmel: string) =>
-    svar.standpunkter.find((s) => s.art === 'rettidighet' && s.hjemmel === hjemmel);
-  const iTide = (hjemmel: string) => {
-    const s = rettidighet(hjemmel);
-    return s?.art === 'rettidighet' ? s.iTide : null;
-  };
-  const hindring = svar.standpunkter.find((s) => s.art === 'hindring');
-  const spesifisering = svar.standpunkter.find((s) => s.art === 'spesifisering');
+  const iTide = (hjemmel: string) =>
+    standpunktet(svar, 'rettidighet', (s) => s.hjemmel === hjemmel)?.iTide ?? null;
+  const spesifisering = standpunktet(svar, 'spesifisering');
   const frister: Record<string, Fristvalg> = {};
   for (const f of innholdIFristen(krav).frister) {
-    const d = svar.standpunkter.find((s) => s.art === 'dager' && s.gjelder === f.id);
-    const vurdert = d?.art === 'dager' ? d.vurdert : undefined;
-    const maatte =
-      spesifisering?.art === 'spesifisering'
-        ? spesifisering.maatteForstaa?.find((m) => m.frist === f.id)?.dager
-        : undefined;
-    const dager: Dagevalg | null =
-      vurdert === undefined
-        ? null
-        : vurdert === f.dager
-          ? 'alle'
-          : vurdert === 0
-            ? 'avslaatt'
-            : 'deler';
+    const vurdert = standpunktet(svar, 'dager', (s) => s.gjelder === f.id)?.vurdert;
+    const maatte = spesifisering?.maatteForstaa?.find((m) => m.frist === f.id)?.dager;
+    const dager = dagevalget(vurdert, f.dager);
     frister[f.id] = {
       dager,
       deldager: dager === 'deler' ? String(vurdert) : '',
@@ -200,8 +184,12 @@ export function valgFraFristsvaret(svar: Svar, krav: Krav): Fristsvarvalg {
     erstatter: svar.id,
     varselITide: iTide(HJEMMEL.frist),
     foresporselITide: iTide('33.6.2'),
-    hindret: hindring?.art === 'hindring' ? hindring.oppfylt : null,
-    spesifisertITide: spesifisering?.art === 'spesifisering' ? spesifisering.iTide : null,
+    hindret: standpunktet(svar, 'hindring')?.oppfylt ?? null,
+    spesifisertITide: spesifisering?.iTide ?? null,
     frister,
   };
 }
+
+/** Valget for dagene byggherren vurderte, av `krevd` dager. */
+const dagevalget = (vurdert: number | undefined, krevd: number): Dagevalg | null =>
+  vurdert === undefined ? null : vurdert === krevd ? 'alle' : vurdert === 0 ? 'avslaatt' : 'deler';

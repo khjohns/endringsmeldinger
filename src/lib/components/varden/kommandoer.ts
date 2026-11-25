@@ -281,6 +281,14 @@ export function somNyttSvar(
   return erstatter ? { type: 'revisjon', erstatter, svar: brev.svar[0] } : brev;
 }
 
+/** Det første standpunktet av arten `art` i svaret som `hvis` gjelder for, med typen for arten. */
+export const standpunktet = <A extends Standpunkt['art']>(
+  svar: Svar,
+  art: A,
+  hvis: (s: Extract<Standpunkt, { art: A }>) => boolean = () => true
+): Extract<Standpunkt, { art: A }> | undefined =>
+  svar.standpunkter.filter((s): s is Extract<Standpunkt, { art: A }> => s.art === art).find(hvis);
+
 /**
  * Valgene i skjemaet for et nytt svar, fylt ut med standpunktene i svaret det erstatter, så
  * byggherren endrer det byggherren vil (HF-U29). Svaret på varselet for kravposten fylles ut som
@@ -291,8 +299,7 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
   const finn = <A extends Standpunkt['art']>(
     art: A,
     hvis: (s: Extract<Standpunkt, { art: A }>) => boolean
-  ) =>
-    svar.standpunkter.filter((s): s is Extract<Standpunkt, { art: A }> => s.art === art).find(hvis);
+  ) => standpunktet(svar, art, hvis);
   const varselet = (hjemmel: string, gjelder?: string) =>
     finn(
       'rettidighet',
