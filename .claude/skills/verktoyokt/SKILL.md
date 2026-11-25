@@ -35,10 +35,9 @@ annen modellfamilie»).
 
 **Innloggingen varer bare så lenge containeren.** Når containeren tas tilbake etter en periode
 uten aktivitet, forsvinner innloggingen, installasjonen og scratchpad. Før hvert oppdrag
-kontrollerer verktøyøkta at verktøyet er installert og innlogget: binæren i installasjonsmappa
-og `codex login status` for Codex. For Gemini er ingen
-statuskommando prøvd, så en kjøring som feiler på innloggingen, er kjennetegnet. Mangler
-innloggingen, installerer verktøyøkta på nytt og sender én melding til økta som ba om
+kontrollerer verktøyøkta at verktøyet er installert og innlogget. For Codex er det binæren i
+installasjonsmappa og `codex login status`. For Gemini er det statusprøven i gemini-skillen,
+«Oppsett». Mangler innloggingen, installerer verktøyøkta på nytt og sender én melding til økta som ba om
 oppdraget og til orkestratoren: at innloggingen mangler, og at oppdraget ikke er kjørt.
 Orkestratoren ber oppdragsgiver logge inn på nytt.
 
@@ -76,9 +75,11 @@ denne skillen.
    sparring. Verktøyøkta fyller inn feltene og legger ikke til noe. Codex leser
    diffen fra `diff.patch` i kjøremappa (codex-skillen, «Kommandoen»). For Gemini står den
    i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»). Viser bestillingen
-   til tekst på GitHub, som kommentarer i et issue, legges teksten i filer i klonens rot, og
-   bestillingen peker på filene. Verktøyene når ikke GitHub (#2337). Kommentarene hentes etter
-   gemini-skillen, «Bestillingen».
+   til tekst på GitHub, som kommentarer i et issue, legges teksten i filer, og bestillingen
+   peker på filene. Verktøyene når ikke GitHub (#2337). Kommentarene hentes etter
+   gemini-skillen, «Bestillingen». For Gemini legges filene i klonens rot, og de fjernes før
+   `git status` kontrolleres etterpå. For Codex legges de i kjøremappa, fordi ingenting
+   skrives i klonen.
 4. **Kjør** med `run_in_background`, etter «Kommandoen» i codex-skillen eller
    «Arbeidsformen» i gemini-skillen. Uavhengige oppdrag kjøres samtidig, hver i sin klon.
 

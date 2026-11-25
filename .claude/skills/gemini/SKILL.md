@@ -57,6 +57,13 @@ Passer ikke:
    den godkjente mappa, og `agy` skrev og committet uten å spørre, selv om «Tool Permission»
    sto på `request-review`. Godkjenningen gjelder trolig alt under mappa. `agy -p` i en klon
    utenfor mappa er prøvd og virker uten spørsmål (#2337).
+6. **Statusprøven.** Kjør i arbeidsmappa, med `env -i`
+   som i «Arbeidsformen»:
+   `agy -p "Svar med ordet OK og ingenting annet." --mode plan --model gemini-4-neon-high --output-format json --print-timeout 5m`.
+   `status` `SUCCESS` og svaret `OK` bekrefter innloggingen. Prøvd i verktøyøkta 25.11 med
+   `--mode default`: svaret kom etter 3 sekunder, men stderr hadde advarselen
+   «unrecognized --mode value "default" (valid: accept-edits, auto, plan)». Med `--mode plan`
+   er statusprøven ikke kjørt (#2337).
 
 Innstillingene til `agy` har samme filnavn som hookoppsettet. Brokervakten stopper derfor
 skallkommandoer som nevner det filnavnet. Les fila med Read (#1764).
