@@ -363,7 +363,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     hjemmel: '34.3.3',
   });
 
-  it('svarene på kravpostene fra forrige brev står under brevet uten «Endre», og kommandoen gjelder bare varselet', async () => {
+  it('svarene på kravpostene fra forrige brev står i et kort i høyre kolonne uten «Endre», og kommandoen gjelder bare varselet', async () => {
     const sendt = await svarskjemaet(mellom);
     const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
     expect(within(svarene).getByText('250 000 kr')).toBeInTheDocument();
@@ -381,7 +381,44 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     expect((k.svar as Record<string, unknown>[])[0]).toMatchObject({ gjelder: varselI(mellom) });
   });
 
-  it('uten forrige svar på kravet står ingen svar under brevet', async () => {
+  it('et varsel fra før det første kravet står alene, uten svarene på kravet (#2358, Codex-reviewet)', async () => {
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'tilbud', belop: 100000 }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+          },
+        ],
+      },
+    ];
+    const k = await kjoer(
+      { id: 'foer', rader: [], start: null, steg, kontroller: [] },
+      minnebane()
+    );
+    await svarskjemaet(await k.bane.journal());
+    expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
+  });
+
+  it('uten forrige svar på kravet står ingen svar i høyre kolonne', async () => {
     await svarskjemaet(medVarsel('34.3.3'));
     expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
   });

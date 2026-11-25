@@ -17,11 +17,11 @@
     type VarseletAlene,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kravpost } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
-  import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
@@ -32,7 +32,7 @@
     varseletISvaret,
     type Varselsvalg,
   } from './kommandoer';
-  import { brevMedUtsagn, brevet, standpunktene } from './lesing';
+  import { brevMedUtsagn, brevene, brevet, standpunktene } from './lesing';
   import type { Innsigelsen } from './svarlagene';
   import { manglene } from './svarskjema';
   import {
@@ -202,9 +202,25 @@
   const forrigeSvar = $derived.by(() => {
     const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
     if (!krav || !svar || svar.gjelder !== krav.id) return null;
+    // Bare et varsel lagt til etter kravet står mellom to krav (#2358).
+    const alle = brevene(u);
+    const plass = (id: string | undefined) => alle.findIndex((b) => b.id === id);
+    if (plass(varselbrevet?.id) < plass(krav.dokument)) return null;
     const brev = brevet(u, svar.dokument);
     return brev && { brev, poster: kravposterI(krav), linjer: standpunktene(svar, u) };
   });
+
+  /** Svaret på kravposten med ordene brevet brukte om varselet, etter standpunktet før (MM-U50). */
+  const leselinje = (f: NonNullable<typeof forrigeSvar>, p: Kravpost) => {
+    const foer = varseletFoerBrevet(u, p, f.brev.id);
+    return leselinjene(
+      f.linjer,
+      p,
+      VEDERLAGET.lagetVilkaar,
+      foer?.iTide === false,
+      !erSvarPaaVarsel(u, foer?.dokument ?? '')
+    );
+  };
   // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.
   const virkninger: string[] = [];
 </script>
@@ -212,35 +228,36 @@
 {#snippet svareneFoer()}
   {#if forrigeSvar}
     {@const f = forrigeSvar}
-    <section class="svarene-foer" aria-labelledby={`${uid}-svarene-foer`}>
-      <h3 id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h3>
-      <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
-      <p class="dempet">
-        {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
-      </p>
-      <Postliste
-        poster={f.poster}
-        prefiks={`${uid}-foer`}
-        kolonne={SVARSKJEMA.postKolonne}
-        svarkolonne={VARSELSVARET.svaretI(f.brev)}
-        navn={(p) => p.betegnelse}
-        beskrivelse={(p) => p.beskrivelse}
-        kravet={kravetIKortform}
-        leselinje={(p) => {
-          // Ordene brevet brukte om varselet, etter standpunktet før svaret (MM-U50).
-          const foer = varseletFoerBrevet(u, p, f.brev.id);
-          return leselinjene(
-            f.linjer,
-            p,
-            VEDERLAGET.lagetVilkaar,
-            foer?.iTide === false,
-            !erSvarPaaVarsel(u, foer?.dokument ?? '')
-          );
-        }}
-      />
+    <!-- Et lite kort i høyre kolonne, fordi svarene ikke er en del av brevet (VS-U65,
+       oppdragsgiver 25.11 i #2358). -->
+    <section class="kort" aria-labelledby={`${uid}-svarene-foer`}>
+      <h2 class="hode" id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h2>
+      <div class="innhold">
+        <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
+        <p class="dempet">
+          {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
+        </p>
+        <ul>
+          {#each f.poster as p (p.id)}
+            {@const lest = leselinje(f, p)}
+            <li>
+              <strong
+                ><span class="betegnelse">{p.betegnelse}</span>
+                {p.beskrivelse}</strong
+              >
+              <span class="krav"
+                ><span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
+                {kravetIKortform(p)}</span
+              >
+              <span class="visually-hidden">{VARSELSVARET.svaretI(f.brev)}:</span>
+              {#each lest.length ? lest : [SKJEMA.ikkeBesvart] as l, i (i)}<span>{l}</span>{/each}
+            </li>
+          {/each}
+        </ul>
+      </div>
       {#if nyttSvarPaaKravet}
         {@const aapne = nyttSvarPaaKravet}
-        <div class="nytt-svar">
+        <div class="bunn">
           <Knapp
             variant="lenke"
             kompakt
@@ -275,7 +292,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
-  etterBrevet={svareneFoer}
+  stoettekort={svareneFoer}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet vilkaaret(i: Innsigelsen)}
@@ -350,27 +367,64 @@
 </Svarskjema>
 
 <style>
-  /* Under brevet, i et eget kort, fordi svarene ikke er en del av brevet (VS-U65). */
-  .svarene-foer {
-    padding: var(--spacing-5) var(--spacing-6);
+  .kort {
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
   }
-  .svarene-foer h3 {
+  .hode {
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: var(--rule);
     font-size: 16px;
     font-weight: 600;
   }
-  .nytt-svar {
+  .innhold {
+    padding: var(--spacing-4) var(--spacing-5);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: var(--spacing-2);
   }
-  .svarene-foer .dempet {
+  .dempet {
     color: var(--ink-3);
     font-size: 14px;
+  }
+  ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* Posten, kravet og svaret under hverandre, som de lukkede postene på smal skjerm. */
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--spacing-3) 0;
+    border-bottom: var(--rule-subtle);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  li strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .betegnelse,
+  .krav {
+    font-variant-numeric: tabular-nums;
+  }
+  .betegnelse {
+    margin-inline-end: var(--spacing-2);
+  }
+  .krav {
+    color: var(--ink-3);
+  }
+  .bunn {
+    padding: var(--spacing-3) var(--spacing-5) var(--spacing-4);
+    border-top: var(--rule);
   }
 </style>

@@ -39,7 +39,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Manglene`](../src/lib/components/varden/Manglene.svelte) | 3 | Oppsummeringen øverst i et krav- eller svarskjema av det som mangler før brevet kan lages, med en lenke til hvert felt (MM-U32). |
 | [`Melding`](../src/lib/components/varden/Melding.svelte) | 11 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
-| [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 3 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
+| [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
 | [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 4 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |
 | [`Sitat`](../src/lib/components/varden/Sitat.svelte) | 2 | Et sitat fra et brev utenfor brevet, med etiketten for hva det er: utdraget i tråden og setningen om endringsordren i svarskjemaet for forholdet (#2035). |
 | [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 5 | Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), feltene under (#1925, #2035). |

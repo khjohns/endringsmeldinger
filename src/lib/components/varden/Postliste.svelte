@@ -1,8 +1,7 @@
 <!--
   Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik
   det står i brevet (#1739, system.md). Lista er felles for sporene med poster, og valgene i
-  den åpne posten er sporets eget (#1778). Uten `valgene` er lista bare til lesing, som svarene
-  fra forrige brev i svaret på et varsel lagt til mellom to krav (VS-U65).
+  den åpne posten er sporets eget (#1778).
 -->
 <script lang="ts" generics="P extends { id: string }">
   import type { Snippet } from 'svelte';
@@ -14,7 +13,6 @@
     poster,
     prefiks,
     kolonne,
-    svarkolonne = SVARSKJEMA.svaretKolonne,
     valgt = $bindable(null),
     navn,
     brevoverskrift,
@@ -26,24 +24,12 @@
     foersteFelt,
     kontrollerVedFerdig,
     valgene,
-  }: (
-    | {
-        /** Kravet i posten, som en setning under navnet i den åpne posten. */
-        krever: (p: P) => string;
-        /** Feltet som får fokus når posten åpnes. */
-        foersteFelt: (p: P) => string;
-        /** Valgene i den åpne posten. */
-        valgene: Snippet<[P]>;
-      }
-    | { krever?: undefined; foersteFelt?: undefined; valgene?: undefined }
-  ) & {
+  }: {
     poster: readonly P[];
     /** Starten på ID-ene i lista, så feltene i posten kan nås fra oppsummeringen. */
     prefiks: string;
     /** Overskriften over navnene, som «Post» eller «Frist» (prototypen `fristkrav-te.html#svar`). */
     kolonne: string;
-    /** Overskriften over svaret, når svaret ikke står i brevet som skrives (VS-U65). */
-    svarkolonne?: string;
     /** `id` til den åpne posten: `null` er den første, og en tom streng er ingen. */
     valgt?: string | null;
     /** Navnet posten står med, som betegnelsen på kravposten eller fristen. */
@@ -52,18 +38,22 @@
     aktiv?: (p: P) => boolean;
     /** Det TE kalte posten, etter navnet. Med én post står den alene. */
     beskrivelse?: (p: P) => string;
+    /** Kravet i posten, som en setning under navnet i den åpne posten. */
+    krever: (p: P) => string;
     /** Kravet i kortform, i kolonnen «Kravet» i en lukket post. */
     kravet: (p: P) => string;
     /** Svaret i en lukket post, én linje per standpunkt. Tom før posten er besvart. */
     leselinje: (p: P) => string[];
+    /** Feltet som får fokus når posten åpnes. */
+    foersteFelt: (p: P) => string;
     /** ID-en til et felt som må rettes før posten kan lukkes. */
     kontrollerVedFerdig?: (p: P) => string | null;
+    /** Valgene i den åpne posten. */
+    valgene: Snippet<[P]>;
   } = $props();
 
-  const lesing = $derived(!valgene);
-  // Lista til lesing står i rader med overskriftene, også med én post.
-  const flere = $derived(poster.length > 1 || lesing);
-  const aapen = $derived(lesing ? undefined : flere ? (valgt ?? poster[0]?.id) : poster[0]?.id);
+  const flere = $derived(poster.length > 1);
+  const aapen = $derived(flere ? (valgt ?? poster[0]?.id) : poster[0]?.id);
 
   export const erAapen = (id: string) => aapen === id;
 
@@ -76,7 +66,7 @@
     valgt = id;
     await fokuser(() => {
       const p = poster.find((x) => x.id === id);
-      return document.getElementById(fokus ?? (p && foersteFelt ? foersteFelt(p) : ''));
+      return document.getElementById(fokus ?? (p ? foersteFelt(p) : ''));
     });
   }
   async function kanLukkes(p: P) {
@@ -115,16 +105,16 @@
 
 {#if flere}
   <!-- Overskriftene over de lukkede postene; hver rad sier det samme for skjermleseren. -->
-  <div class="kolonner" class:lesing aria-hidden="true">
+  <div class="kolonner" aria-hidden="true">
     <span>{kolonne}</span>
     <span>{SVARSKJEMA.kravetKolonne}</span>
-    <span>{svarkolonne}</span>
+    <span>{SVARSKJEMA.svaretKolonne}</span>
   </div>
 {/if}
 <ul class="poster" class:flere>
   {#each poster as p (p.id)}
     <li class="post" class:aapen={aapen === p.id} class:aktiv={aktiv?.(p)}>
-      {#if aapen === p.id && valgene && krever}
+      {#if aapen === p.id}
         <div class="posthode">
           {@render tittel(p, !flere)}
           <p class="dempet">{krever(p)}</p>
@@ -137,7 +127,7 @@
         {/if}
       {:else}
         {@const lest = leselinje(p)}
-        <div class="postlinje" class:lesing>
+        <div class="postlinje">
           {@render tittel(p, false)}
           <p class="krav">
             <span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
@@ -153,14 +143,12 @@
               <span class="dempet">{SKJEMA.ikkeBesvart}</span>
             {/if}
           </div>
-          {#if valgene}
-            <Knapp
-              variant="lenke"
-              id={`${prefiks}-endre-${p.id}`}
-              aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
-              onclick={() => aapneFraRad(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
-            >
-          {/if}
+          <Knapp
+            variant="lenke"
+            id={`${prefiks}-endre-${p.id}`}
+            aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
+            onclick={() => aapneFraRad(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
+          >
         </div>
       {/if}
     </li>
@@ -227,13 +215,6 @@
     border-bottom: var(--rule-strong);
     color: var(--ink-3);
     font-size: 12px;
-  }
-  /* Uten handling får svaret plassen. */
-  @media (min-width: 641px) {
-    .kolonner.lesing,
-    .postlinje.lesing {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
-    }
   }
   /* Overskriften har ingen celle over handlingen. */
   .kolonner span:last-child {
