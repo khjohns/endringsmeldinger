@@ -1,0 +1,83 @@
+{
+  "id": "BF-51",
+  "tittel": "Vederlag og frist uten varsel eller krav fra totalentreprenøren",
+  "brukerhistorie": "Byggherren har svart på påberopelsen av forholdet. Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse. TE ser at sporene ikke har varsel eller krav, og sender det første varselet eller kravet som hovedvalg. BH ser i saken at TE ikke har sendt eller lagt til et varsel eller krav i sporet, uten at løsningen sier hva som er sendt utenfor den. Når kravene er avgjort og fristsporet fortsatt er tomt, kan TE sende det første fristkravet.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "En ny sak. TE påberoper svikt i BHs medvirkning, og BH svarer at byggherren har risikoen for forholdet. Vederlag og frist er tomme. Senere krever TE 100 000 kr i vederlag, BH godkjenner kravet fullt ut, så partene er enige, mens fristsporet står tomt."
+  },
+  "bestilling": "BF-51.md",
+  "steg": [
+    { "handling": "krav", "spor": "forhold", "hovedkategori": "svikt", "underkategori": "medvirkning", "navn": "K-g1", "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid." },
+    { "handling": "brev", "navn": "D2", "svar": [{ "spor": "forhold", "navn": "S-g1", "resultat": "godkjent", "utdypning": "Byggherren erkjenner at tegningene kom for sent." }] },
+    { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+    { "handling": "brev", "navn": "D4", "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "godkjent", "godkjent_belop": 100000, "varslet_i_tide": true }] }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "sporene-er-tomme",
+      "etter": 2,
+      "beskrivelse": "BH har svart på påberopelsen. TE har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": ["KA-U2"],
+          "forventet": {
+            "gjeldende_krav.vederlag": null,
+            "gjeldende_krav.frist": null,
+            "varsel.vederlag": null,
+            "varsel.frist": null
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["OV-U97", "OV-U99"],
+          "forventet": {
+            "handlinger.TE": { "inneholder": ["krav:vederlag", "krav:frist"] }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["OV-U3"],
+          "forventet": { "kravene_avgjort": false }
+        }
+      ],
+      "forstaaelse": [
+        { "tekst": "TE ser ved hvert spor at saken ikke har et varsel eller krav fra TE, og finner det første kravet som hovedvalg på siden for sporet (U-1, U-2).", "kilde": ["OV-U97", "OV-U3"] },
+        { "tekst": "BH ser ved sporene og på siden for forholdet at TE ikke har sendt eller lagt til et varsel eller krav i sporene. Teksten sier ikke at ingenting er sendt utenfor løsningen, at kravet er tapt, eller hvem som skal handle (U-5, U-6).", "kilde": ["OV-U4", "OV-U3", "HF-U11"] },
+        { "tekst": "Begge partene ser at et brev lagt til som dokumentasjon ikke gjør sporet til et spor med varsel, mens et varsel lagt til med virkning gjør det, og sporet da står som varslet (D-3, D-4).", "kilde": ["MM-U30", "OV-U80", "OV-U5", "KA-U2"] }
+      ]
+    },
+    {
+      "id": "fristsporet-er-tomt",
+      "etter": 4,
+      "beskrivelse": "BH har godkjent vederlagskravet fullt ut, og partene er enige. Kravene i saken er avgjort, og fristsporet har ikke varsel eller krav.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["OV-U3"],
+          "forventet": {
+            "kravene_avgjort": true,
+            "gjeldende_krav.frist": null,
+            "handlinger.TE": { "inneholder": ["krav:frist"] }
+          }
+        }
+      ],
+      "forstaaelse": [
+        { "tekst": "TE ser at fristsporet ikke har et varsel eller krav, og kan sende det første fristkravet, selv om kravene som er sendt, er avgjort (U-4).", "kilde": ["OV-U3"] },
+        { "tekst": "TE ser i skjemaet for det første kravet at det er det første kravet i sporet, og hvilke varsler sporet har (U-3).", "kilde": ["OV-U3", "OV-U5"] },
+        { "tekst": "BH ser at fristsporet ikke har varsel eller krav. At kravene som er sendt, er avgjort, sier ikke at TE ikke har flere krav (U-6).", "kilde": ["OV-U3", "OV-U10"] }
+      ]
+    }
+  ],
+  "bevis_saker": [],
+  "visninger": ["demoruta", "saksruta", "varden"],
+  "endringer": [
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2410",
+      "hva": "Forløpet er opprettet med bestillingen, kartleggingen G-1–G-9 og spørsmålene S-1–S-3, som ikke er besvart. Kontrollpunktene viser dagens kjerne; tilstanden for et tomt spor venter på S-1."
+    }
+  ]
+}
