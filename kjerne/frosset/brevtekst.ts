@@ -910,7 +910,6 @@ function varseltekst(
   { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
 ): string {
   const plass = new Map(j.dokumenter.map((d, i) => [d.id, i]));
-  const foran = (a: string, b: string) => plass.get(a)! < plass.get(b)!;
   const foer = sisteStandpunktTilVarslene(
     j.dokumenter
       .filter((d) => d.id !== nytt.id)
@@ -918,7 +917,7 @@ function varseltekst(
         d.svar
           .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
           .map((x) => ({
-            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, foran),
+            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),
             dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
           }))

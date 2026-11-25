@@ -96,6 +96,10 @@ export function saerskiltStrider(
 const postenMed = (k: Pick<Krav, 'innhold'>, id: string, hjemmel: Kravpostvarselhjemmel) =>
   kravposterI(k).find((q) => q.id === id && varselhjemmel(q) === hjemmel);
 
+/** Om kravposten `id` i kravet `k` viser til et varsel, etter hvilken som helst bestemmelse. */
+const viserTilEtVarsel = (k: Pick<Krav, 'innhold'>, id: string) =>
+  kravposterI(k).some((q) => q.id === id && q.varsel !== undefined);
+
 /** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
 const hattFoer = (
   p: ReturnType<typeof kravposterI>[number],
@@ -136,7 +140,7 @@ export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
   tidligere: readonly Pick<Krav, 'innhold'>[],
   varsler: readonly { id: string; hjemmel: string }[],
-  eldre: readonly Pick<Krav, 'id' | 'innhold'>[] = []
+  eldre: readonly Pick<Krav, 'id' | 'innhold'>[]
 ): Record<string, Kravpostvarselet> {
   const ut: Record<string, Kravpostvarselet> = {};
   for (const p of kravposterI(krav)) {
@@ -147,32 +151,25 @@ export function kravpostvarslene(
     const iEldre = eldre.find((k) => postenMed(k, p.id, hjemmel));
     if (gitt) ut[p.id] = { art: 'gitt', varsel: gitt };
     else if (!iEldre) ut[p.id] = { art: 'kravet' };
-    else if (
-      ![iEldre, ...tidligere].some((k) =>
-        kravposterI(k).some((q) => q.id === p.id && q.varsel !== undefined)
-      )
-    )
+    else if (![iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))
       ut[p.id] = { art: 'gitt', varsel: iEldre.id };
   }
   return ut;
 }
 
 /**
- * Varslene etter § 34.3.3 og § 34.4 i `varsler` som står før dokumentet `nytt`, uten dokumentene
- * med et vedlegg som ligger ved `nytt`: kravskjemaet la dem til i samme handling, og de gjelder
- * bare kravposten som viser til dem (VS-U51, VS-U53). `foran` sier om et dokument står før.
+ * Varslene etter § 34.3.3 og § 34.4 i `varsler` uten dokumentene med et vedlegg som ligger ved
+ * kravet i dokumentet `nytt`: kravskjemaet la dem til i samme handling, og de gjelder bare
+ * kravposten som viser til dem (VS-U51, VS-U53).
  */
 export function varsleneForanKravet(
   varsler: readonly LestVarsel[],
   nytt: Pick<Dokument, 'dokumentasjon'>,
-  dokumentet: (id: string) => Pick<Dokument, 'dokumentasjon'> | undefined,
-  foran: (dokument: string) => boolean
+  dokumentet: (id: string) => Pick<Dokument, 'dokumentasjon'> | undefined
 ): LestVarsel[] {
   const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   return varsler.filter(
-    (v) =>
-      foran(v.dokument) &&
-      !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
+    (v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
   );
 }
 
@@ -189,10 +186,9 @@ export function varslerIEldreKrav(u: Utledning): VarselIEtEldreKrav[] {
   return krav.flatMap((k, i) => {
     const nytt = dokumenter[plass.get(k.dokument)!];
     const varsler = varsleneForanKravet(
-      kravpostvarsler,
+      kravpostvarsler.filter((v) => plass.get(v.dokument)! < plass.get(k.dokument)!),
       nytt,
-      (id) => dokumenter[plass.get(id) ?? -1],
-      (d) => (plass.get(d) ?? Infinity) < plass.get(k.dokument)!
+      (id) => dokumenter[plass.get(id)!]
     );
     const varslene = kravpostvarslene(
       k,
@@ -219,7 +215,7 @@ export function kravpostvarseletStrider(
   ny: Pick<Krav, 'innhold'>,
   iRekken: readonly Pick<Krav, 'innhold'>[],
   varsler: readonly { id: string; hjemmel: string }[],
-  eldre: readonly Pick<Krav, 'innhold'>[] = []
+  eldre: readonly Pick<Krav, 'innhold'>[]
 ): string | null {
   const tidligere = [...eldre, ...iRekken];
   for (const [i, p] of kravposterI(ny).entries()) {
@@ -361,7 +357,6 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  const foran = (a: string, b: string) => plass.get(a)! < plass.get(b)!;
   // OV-U120: bare de eldre kravene som var i journalen.
   const eldre = varslerIEldreKrav(u).filter((v) => plass.get(v.dokument)! < slutt);
   return sisteStandpunktTilVarslene(
@@ -371,7 +366,7 @@ export function standpunkteneTilVarslene(
         d.svar
           .filter((s) => medVirkning.has(s.id))
           .map((s) => ({
-            s: utenStandpunkterForanEldreKrav(s, eldre, foran),
+            s: utenStandpunkterForanEldreKrav(s, eldre, plass),
             dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
           }))

@@ -628,12 +628,7 @@ function foranKravet(nytt: Dokument, lest: readonly Domenehendelse[], u: Utledni
   const dokumenter = new Map(
     lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
-  return varsleneForanKravet(
-    u.spor.vederlag.kravpostvarsler,
-    nytt,
-    (id) => dokumenter.get(id),
-    () => true
-  );
+  return varsleneForanKravet(u.spor.vederlag.kravpostvarsler, nytt, (id) => dokumenter.get(id));
 }
 
 /**

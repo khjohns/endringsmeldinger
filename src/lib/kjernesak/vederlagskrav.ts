@@ -92,7 +92,8 @@ export function varslerUtenKravpost(u: Utledning): Kravpostvarsel[] {
   const foerst = (a: string, b: string) => (plass.get(a) ?? -1) < (plass.get(b) ?? -1);
   for (const k of u.spor.vederlag.krav) {
     const foer = u.spor.vederlag.kravpostvarsler.filter((v) => foerst(v.dokument, k.dokument));
-    for (const v of Object.values(kravpostvarslene(k, tidligere, foer)))
+    // Et eldre krav er ikke et varsel i saken, så `eldre` endrer ikke hvilke som er brukt.
+    for (const v of Object.values(kravpostvarslene(k, tidligere, foer, [])))
       if (v.art === 'gitt') brukt.add(v.varsel);
     tidligere.push(k);
   }

@@ -143,18 +143,21 @@ export interface VarselIEtEldreKrav {
 
 /**
  * OV-U120: standpunktene til varselet for en kravpost som har et eldre krav som varsel, i svarene
- * som står i journalen før det eldre kravet, følger ikke med til det. `foran(a, b)` sier om
- * dokumentet `a` står før `b` i journalen.
+ * som står i journalen før det eldre kravet, følger ikke med til det. `plass` er plassen til hvert
+ * dokument i journalen.
  */
 export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' | 'standpunkter'>>(
   s: T,
   varsler: readonly VarselIEtEldreKrav[],
-  foran: (a: string, b: string) => boolean
+  plass: ReadonlyMap<string, number>
 ): T {
   const gjelderIkke = (p: Standpunkt) =>
     p.art === 'rettidighet' &&
     varsler.some(
-      (v) => v.gjelder === p.gjelder && v.hjemmel === p.hjemmel && foran(s.dokument, v.dokument)
+      (v) =>
+        v.gjelder === p.gjelder &&
+        v.hjemmel === p.hjemmel &&
+        plass.get(s.dokument)! < plass.get(v.dokument)!
     );
   return s.standpunkter.some(gjelderIkke)
     ? { ...s, standpunkter: s.standpunkter.filter((p) => !gjelderIkke(p)) }

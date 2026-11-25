@@ -5316,8 +5316,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '      !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
-        '      !!v',
+        '(v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
+        '(v) => !!v',
       ],
     ],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
@@ -7529,7 +7529,7 @@ const MUTASJONER: Mutasjon[] = [
       'brevet for en kravversjon fra løsningen leser bare rekken, så kravet sier at det er varselet for en kravpost et eldre krav er varselet for (OV-U120, VS-U49)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      ['foranKravet(nytt, lest, u), eldreKravFoer(u, null));', 'foranKravet(nytt, lest, u));'],
+      ['foranKravet(nytt, lest, u), eldreKravFoer(u, null));', 'foranKravet(nytt, lest, u), []);'],
     ],
     mal: [
       'har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet',
@@ -7540,7 +7540,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'innsigelsen mot varselet for en kravpost i et svar før det eldre kravet ble lagt til, følger med til det eldre kravet (OV-U120 andre ledd)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['s: utenStandpunkterForanEldreKrav(s, eldre, foran),', 's,']],
+    endringer: [['s: utenStandpunkterForanEldreKrav(s, eldre, plass),', 's,']],
     mal: ['innsigelsen i et svar før brevet ble lagt til, følger ikke med til det eldre kravet'],
   },
   {
@@ -7548,7 +7548,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svarbrevet viser til innsigelsen i et svar før det eldre kravet ble lagt til (OV-U120 andre ledd)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, foran),', 's: x,']],
+    endringer: [['s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),', 's: x,']],
     mal: ['et svar etter brevet viser ikke til innsigelsen før det'],
   },
   {
@@ -7559,7 +7559,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '    u.spor.vederlag.kravpostvarsler,\n    eldreKravFoer(u, sendt)\n',
-        '    u.spor.vederlag.kravpostvarsler\n',
+        '    u.spor.vederlag.kravpostvarsler,\n    []\n',
       ],
     ],
     mal: ['er brevet varselet for P1, kan den neste versjonen ikke vise til et annet varsel'],
@@ -7572,7 +7572,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         'kravpostvarseletStrider(k, krav.slice(0, i), foer, eldre(k));',
-        'kravpostvarseletStrider(k, krav.slice(0, i), foer);',
+        'kravpostvarseletStrider(k, krav.slice(0, i), foer, []);',
       ],
     ],
     mal: ['en lagret versjon som viser til et annet varsel for P1 enn brevet før den'],
@@ -7584,8 +7584,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '    else if (\n      ![iEldre, ...tidligere]',
-        '    else if (\n      [iEldre, ...tidligere]',
+        'else if (![iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if ([iEldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
       ],
     ],
     mal: ['viser P1 i brevet til et varsel, er brevet ikke varselet'],

@@ -189,6 +189,7 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
   ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
   ['Krav', 'relasjon', 'dokument', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  ['Utsagn', 'relasjon', 'dokument', [VARSLER_I_ELDRE_KRAV]],
   [ELDRE_KRAV, 'relasjon', 'k sendt', [ELDRE_KRAV]],
   [`${VARSLER_I_ELDRE_KRAV}(varslene)`, 'relasjon', '*', [VARSLER_I_ELDRE_KRAV]],
   ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV]],
