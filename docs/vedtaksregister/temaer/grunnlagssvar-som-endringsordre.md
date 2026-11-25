@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a257efd3281e279f8a55e128c537368e89e925b8d97269b04fd5b323901f1367`
+Kontrollsum (SHA-256 over utdraget visningen leser): `a297cc65c8de5f4184b15e4298d67ddab8180c318895dbaafddcf09075c24a0a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -3654,7 +3654,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U77](#vs-u77). Presiserer [VS-U80](#vs-u80). Presiserer [OV-U114](#ov-u114). Presiserer [VS-U76](#vs-u76). Samlet 25.11 av [VS-U87](#vs-u87). Forholdet slik det sto i alternativet A: «presiserer VS-U77 punkt 22 og 26 og VS-U80, og presiserer OV-U114 punkt 15 og VS-U76 punkt 6a.» Bygges i #2011.
 
-**Regelrader:** —
+**Regelrader:** [KA-60](#rad-ka-60)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -4953,4 +4953,4 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-57"></a>KA-57 | TE har sendt et fristkrav med dager for én eller flere frister i kontrakten. TE sender en ny kravversjon som utelater en frist uten å trekke den, en som trekker den, en som tar den med igjen etter trekket, en som bytter en registrert frist med en annen, og en som erstatter en frist som ikke er registrert, med den registrerte fristen. TE sender også et krav om en frist som ikke står i fristtabellen for prosjektet. | [KA-U76](#ka-u76), [KA-U79](#ka-u79) | F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen), F-MM-KA-U79-tilbake (målmodellen), F-MM-GFK-U23 (målmodellen) |
 | <a id="rad-ka-58"></a>KA-58 | TE har sendt et vederlagskrav med den særskilte vederlagsjusteringen etter § 34.1.3 annet ledd. TE sender en ny kravversjon som verken tar med eller trekker posten, en som trekker den, og en som tar den med igjen etter trekket. TE trekker også posten når den er den eneste i kravet. | [KA-U83](#ka-u83) | F-MM-KA-U83 (målmodellen) |
 | <a id="rad-ka-59"></a>KA-59 | Byggherren setter en akseptfrist i et svar: på vederlag eller frist, som godkjenner en del av kravet prinsipalt eller subsidiært, som avslår helt eller godkjenner hele kravet, eller på forholdet. Fristen ligger før svaret, på svarets dato, på en lørdag, en søndag eller en helligdag. TE godtar svaret senest den dagen fristen gjelder, eller senere. | [HF-U23](#hf-u23) | F-MM-HF-U23-akseptfrist (målmodellen) |
-| <a id="rad-ka-60"></a>KA-60 | En part legger til et brev sendt utenfor appen med et krav eller en påberopelse, sendt før totalentreprenørens siste krav i sporet, med annet innhold enn de andre kravversjonene: færre eller andre kravposter eller frister, et annet forhold eller en annen dato for pålegget eller kunnskapen. | [OV-U98](#ov-u98), [OV-U102](#ov-u102), [OV-U104](#ov-u104), [OV-U118](#ov-u118), [OV-U119](#ov-u119), [OV-U121](#ov-u121), [OV-U122](#ov-u122) | F-MM-OV-U118 (målmodellen), F-MM-OV-U118-frist (målmodellen), F-MM-OV-U121 (målmodellen) |
+| <a id="rad-ka-60"></a>KA-60 | En part legger til et brev sendt utenfor appen med et krav eller en påberopelse, sendt før totalentreprenørens siste krav i sporet, med annet innhold enn de andre kravversjonene: færre eller andre kravposter eller frister, et annet forhold eller en annen dato for pålegget eller kunnskapen. | [OV-U98](#ov-u98), [OV-U102](#ov-u102), [OV-U104](#ov-u104), [OV-U118](#ov-u118), [OV-U119](#ov-u119), [OV-U120](#ov-u120), [OV-U121](#ov-u121), [OV-U122](#ov-u122) | F-MM-OV-U118 (målmodellen), F-MM-OV-U118-frist (målmodellen), F-MM-OV-U121 (målmodellen) |

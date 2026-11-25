@@ -1508,6 +1508,13 @@
       "radetikett": "OV-U119: Når totalentreprenøren legger til et vederlagskrav sendt før det siste kravet i sporet, oppgir totalentreprenøren for"
     },
     {
+      "id": "OV-U120",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u120",
+      "radetikett": "OV-U120: Et vederlagskrav sendt før totalentreprenørens siste krav i sporet regnes som varselet etter punkt 34.3.3 eller"
+    },
+    {
       "id": "OV-U121",
       "type": "vedtak",
       "dato": "2026-11-25",
@@ -4030,7 +4037,7 @@
     {
       "id": "KA-60",
       "tilfelle": "En part legger til et brev sendt utenfor appen med et krav eller en påberopelse, sendt før totalentreprenørens siste krav i sporet, med annet innhold enn de andre kravversjonene: færre eller andre kravposter eller frister, et annet forhold eller en annen dato for pålegget eller kunnskapen.",
-      "forventet": "Et vederlagskrav eller fristkrav prøves mot kravversjonene sendt før det, også de utenfor rekken, og ikke mot dem sendt etter ([OV-U118](../plans/vedtak.md#ov-u118)). Mangler en kravpost eller frist fra en av dem, avvises det uten trekk i brevet. Totalentreprenøren oppgir hvilke kravposter som er de samme som i sporet, og en ny kravpost får neste betegnelse. En senere kravversjon kan ta den med under betegnelsen uten å måtte ta den med eller trekke den ([OV-U119](../plans/vedtak.md#ov-u119)). En påberopelse med et annet forhold, en annen gruppe eller en annen endringsordre avvises ([OV-U121](../plans/vedtak.md#ov-u121)). En påberopelse med en annen dato tas imot, og totalentreprenørens siste opplysning står, men den avvises når opplysningen er senere enn dagen brevet ble sendt ([OV-U122](../plans/vedtak.md#ov-u122)).",
+      "forventet": "Et vederlagskrav eller fristkrav prøves mot kravversjonene sendt før det, også de utenfor rekken, og ikke mot dem sendt etter ([OV-U118](../plans/vedtak.md#ov-u118)). Mangler en kravpost eller frist fra en av dem, avvises det uten trekk i brevet. Totalentreprenøren oppgir hvilke kravposter som er de samme som i sporet, og en ny kravpost får neste betegnelse. En senere kravversjon kan ta den med under betegnelsen uten å måtte ta den med eller trekke den ([OV-U119](../plans/vedtak.md#ov-u119)). Et vederlagskrav lagt til er varselet etter punkt 34.3.3 eller 34.4 for en kravpost når vilkårene i [OV-U120](../plans/vedtak.md#ov-u120) er oppfylt, og en innsigelse mot varselet for posten i et svar før kravet ble lagt til, følger ikke med til det. En påberopelse med et annet forhold, en annen gruppe eller en annen endringsordre avvises ([OV-U121](../plans/vedtak.md#ov-u121)). En påberopelse med en annen dato tas imot, og totalentreprenørens siste opplysning står, men den avvises når opplysningen er senere enn dagen brevet ble sendt ([OV-U122](../plans/vedtak.md#ov-u122)).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kravet blir ikke gjeldende (OV-U102). Et trekk i brevet registreres som brevet sier, og partene vurderer hva det betyr.",
       "rettidighet": "Ikke vurdert av løsningen.",
@@ -4041,6 +4048,7 @@
         "OV-U104",
         "OV-U118",
         "OV-U119",
+        "OV-U120",
         "OV-U121",
         "OV-U122"
       ],
@@ -4048,6 +4056,8 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#kravversjoneneKravetProevesMot",
         "kjerne/spor/vederlag/kommando.ts#kravpostsperre",
+        "kjerne/spor/vederlag/utledning.ts#kravpostvarslene",
+        "kjerne/spor/vederlag/utledning.ts#varslerIEldreKrav",
         "kjerne/spor/frist/kommando.ts#fristsperre",
         "kjerne/spor/forhold/kommando.ts#kategorisperre",
         "kjerne/spor/forhold/kommando.ts#datosperre"

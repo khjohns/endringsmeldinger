@@ -1009,12 +1009,16 @@ export interface Sporskontroller {
    * de andre kravversjonene i sporet (`kravversjoneneKravetProevesMot`).
    */
   kravet(k: Krav, tidligere: readonly Krav[], andre: readonly Krav[]): string | null;
-  /** Kravversjonene i sporet mot varslene. */
+  /**
+   * Kravversjonene i sporet mot varslene. `eldre` gir kravene utenfor rekken sendt før
+   * kravversjonen og lagt til før den, i rekkefølgen de ble sendt.
+   */
   kravene(
     krav: readonly Krav[],
     varsler: readonly LestVarsel[],
     bakover: Bakover,
-    ugyldig: Ugyldig
+    ugyldig: Ugyldig,
+    eldre: (k: Krav) => readonly Krav[]
   ): void;
   /** Svaret `s` mot kravversjonen det gjelder. */
   svaret(s: Svar, krav: Krav, ugyldig: Ugyldig): void;
@@ -1189,7 +1193,6 @@ function utledSporene(
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   kontrollerKravkjedene(spor, ugyldig);
-  for (const n of SPOR) kontrollerI(n).kravene(spor[n].krav, varsler, bakover, ugyldig);
   // Lesingen kaster ikke for en dato den ikke kan lese; uten dato gjelder det egne varselet.
   const dokumentet = new Map([...dokumenter.values()].map((d) => [d.id, d]));
   const sendt = (v: Pick<Krav, 'id' | 'dokument'>): string | null => {
@@ -1198,6 +1201,13 @@ function utledSporene(
     const oppgitt = datoFor(v, 'sendt', d.opplysninger);
     return kalenderdag(oppgitt ? oppgitt.dato : d.registrert);
   };
+  for (const n of SPOR) {
+    const eldre = (k: Krav) =>
+      spor[n].kravUtenforRekken
+        .filter((e) => bakover(k.id, e.id) && foerDagen(sendt(e), sendt(k)))
+        .sort((a, b) => (sendt(a) ?? '').localeCompare(sendt(b) ?? ''));
+    kontrollerI(n).kravene(spor[n].krav, varsler, bakover, ugyldig, eldre);
+  }
   kontrollerSvarene(
     svareneSomKontrolleres,
     alleKrav,

@@ -53,9 +53,11 @@ import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
   saerskiltStrider,
+  eldreKravFoer,
   kravpostvarseletStrider,
   kravpostvarslene,
   standpunkteneTilVarslene,
+  varsleneForanKravet,
 } from './utledning.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
@@ -267,7 +269,8 @@ function kravpostsperre(
   const varselet = kravpostvarseletStrider(
     { innhold: k.innhold },
     tidligere,
-    u.spor.vederlag.kravpostvarsler
+    u.spor.vederlag.kravpostvarsler,
+    eldreKravFoer(u, sendt)
   );
   return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
 }
@@ -622,23 +625,23 @@ function medVarslene(
  * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
  */
 function foranKravet(nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   const dokumenter = new Map(
     lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
-  return u.spor.vederlag.kravpostvarsler.filter(
-    (v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
-  );
+  return varsleneForanKravet(u.spor.vederlag.kravpostvarsler, nytt, (id) => dokumenter.get(id));
 }
 
-/** Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). */
+/**
+ * Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). Et krav
+ * utenfor rekken kan være varselet (OV-U120).
+ */
 const kravpostvarslerIBrevet = (
   k: Krav,
   nytt: Dokument,
   lest: readonly Domenehendelse[],
   u: Utledning
 ): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
+  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u), eldreKravFoer(u, null));
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken

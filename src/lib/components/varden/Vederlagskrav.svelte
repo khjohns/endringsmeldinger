@@ -140,7 +140,8 @@
         id: p.id ?? undefined,
         oppgjoersform: p.form ?? 'tilbud',
         justert: p.justert ?? undefined,
-      }))
+      })),
+      lagtTil?.dato ?? null
     )
   );
   const varselPerPost = $derived(new Map(med.map((p, i) => [p.noekkel, varslene[i] ?? null])));

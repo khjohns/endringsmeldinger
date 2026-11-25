@@ -301,13 +301,15 @@ describe('varselet for en kravpost i et krav sendt før det siste (OV-U118)', ()
 
   it('prøves mot kravene sendt før det, så kravet gis som varselet for posten', () => {
     const eldre = eldreKrav(u, 'vederlag', '2026-10-12')!;
-    expect(varslenePerKravpost(u, eldre.tidligere, posten)).toEqual([
+    expect(varslenePerKravpost(u, eldre.tidligere, posten, '2026-10-12')).toEqual([
       { art: 'kravet', hjemmel: '34.4' },
     ]);
   });
 
   it('kontrollsak: prøvd mot hele rekken er varselet gitt i K-v2', () => {
-    expect(varslenePerKravpost(u, u.spor.vederlag.krav, posten)[0]).toMatchObject({ art: 'foer' });
+    expect(varslenePerKravpost(u, u.spor.vederlag.krav, posten, null)[0]).toMatchObject({
+      art: 'foer',
+    });
   });
 });
 

@@ -25,7 +25,9 @@ import type {
 import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
 import {
   sisteStandpunktTilVarslene,
+  utenStandpunkterForanEldreKrav,
   type StandpunktTilVarselet,
+  type VarselIEtEldreKrav,
 } from '../../frosset/standpunkt.ts';
 import {
   posteneStrider,
@@ -37,6 +39,7 @@ import {
   erKravpostvarselhjemmel,
   type Krav,
   type Kravpostvarselet,
+  type Dokument,
   type Kravpostvarselhjemmel,
   type Standpunkt,
   type Svar,
@@ -89,13 +92,45 @@ export function saerskiltStrider(
   );
 }
 
+/** Kravposten `id` med varselhjemmelen `hjemmel` i kravet `k`. */
+const postenMed = (k: Pick<Krav, 'innhold'>, id: string, hjemmel: Kravpostvarselhjemmel) =>
+  kravposterI(k).find((q) => q.id === id && varselhjemmel(q) === hjemmel);
+
+/** Om kravposten `id` i kravet `k` viser til et varsel, etter hvilken som helst bestemmelse. */
+const viserTilEtVarsel = (k: Pick<Krav, 'innhold'>, id: string) =>
+  kravposterI(k).some((q) => q.id === id && q.varsel !== undefined);
+
 /** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
 const hattFoer = (
   p: ReturnType<typeof kravposterI>[number],
   hjemmel: Kravpostvarselhjemmel,
   tidligere: readonly Pick<Krav, 'innhold'>[]
-) =>
-  tidligere.some((k) => kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel));
+) => tidligere.some((k) => postenMed(k, p.id, hjemmel) !== undefined);
+
+/**
+ * OV-U120: kravene utenfor rekken i vederlaget sendt før dagen `dag`, i rekkefølgen de ble sendt.
+ * Uten dag, for et krav fra løsningen, alle.
+ */
+export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
+  const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
+  return sendtFoer(
+    u.spor.vederlag.kravUtenforRekken,
+    (k) => dagenSendt(k, dokumenter.get(k.dokument)!),
+    dag
+  );
+}
+
+/** Kravene i `krav` sendt før dagen `dag`, i rekkefølgen de ble sendt; uten dag alle. */
+const sendtFoer = (
+  krav: readonly Krav[],
+  sendt: (k: Krav) => string | null,
+  dag: string | null
+): Krav[] =>
+  krav
+    .map((k) => ({ k, sendt: sendt(k) }))
+    .filter((x) => dag === null || foerDagen(x.sendt, dag))
+    .sort((a, b) => (a.sendt ?? '').localeCompare(b.sendt ?? ''))
+    .map(({ k }) => k);
 
 /**
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
@@ -105,14 +140,18 @@ const hattFoer = (
  * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
  *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
  *   det første av dem og er ikke varselet selv.
- * `tidligere` er versjonene før `krav` i sporet, og `varsler` varslene etter § 34.3.3 og
- * § 34.4 før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en
- * kravpost i samme handling, som gjelder bare den posten (VS-U51, VS-U53).
+ * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
+ *   vilkår 3 prøvd mot det og `tidligere`.
+ * `tidligere` er versjonene før `krav` i rekken, `eldre` kravene utenfor rekken sendt før `krav`
+ * i rekkefølgen de ble sendt (`eldreKravFoer`), og `varsler` varslene etter § 34.3.3 og § 34.4
+ * før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en kravpost i
+ * samme handling, som gjelder bare den posten (VS-U51, VS-U53).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
   tidligere: readonly Pick<Krav, 'innhold'>[],
-  varsler: readonly { id: string; hjemmel: string }[]
+  varsler: readonly { id: string; hjemmel: string }[],
+  eldre: readonly Pick<Krav, 'id' | 'innhold'>[]
 ): Record<string, Kravpostvarselet> {
   const ut: Record<string, Kravpostvarselet> = {};
   for (const p of kravposterI(krav)) {
@@ -120,22 +159,87 @@ export function kravpostvarslene(
     if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;
     const gitt =
       p.varsel ?? (tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel)?.id);
-    ut[p.id] = gitt ? { art: 'gitt', varsel: gitt } : { art: 'kravet' };
+    const iEldre = eldre.find((k) => postenMed(k, p.id, hjemmel));
+    if (gitt) ut[p.id] = { art: 'gitt', varsel: gitt };
+    else if (!iEldre) ut[p.id] = { art: 'kravet' };
+    else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))
+      ut[p.id] = { art: 'gitt', varsel: iEldre.id };
   }
   return ut;
+}
+
+/**
+ * Varslene etter § 34.3.3 og § 34.4 i `varsler` uten dokumentene med et vedlegg som ligger ved
+ * kravet i dokumentet `nytt`: kravskjemaet la dem til i samme handling, og de gjelder bare
+ * kravposten som viser til dem (VS-U51, VS-U53).
+ */
+export function varsleneForanKravet(
+  varsler: readonly LestVarsel[],
+  nytt: Pick<Dokument, 'dokumentasjon'>,
+  dokumentet: (id: string) => Pick<Dokument, 'dokumentasjon'> | undefined
+): LestVarsel[] {
+  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
+  return varsler.filter(
+    (v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
+  );
+}
+
+/**
+ * OV-U120: kravpostene som har et krav utenfor rekken som varsel, for hver kravversjon i rekken
+ * som ellers ville vært varselet for posten (`kravpostvarslene`). Bare brevene i `u.journal` før
+ * brevet `kjentFoer` leses, slik kjernen kjente saken da (VS-U81).
+ */
+export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEldreKrav[] {
+  const alle = [...dokumenterI(u.journal)];
+  const slutt = kjentFoer === undefined ? alle.length : alle.findIndex((d) => d.id === kjentFoer);
+  if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
+  const dokumenter = alle.slice(0, slutt);
+  const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
+  const kjent = (x: { dokument: string }) => plass.has(x.dokument);
+  const krav = u.spor.vederlag.krav.filter(kjent);
+  const kravUtenforRekken = u.spor.vederlag.kravUtenforRekken.filter(kjent);
+  if (!kravUtenforRekken.length) return [];
+  const sendt = (k: Krav) => dagenSendt(k, dokumenter[plass.get(k.dokument)!]);
+  const eldre = new Map(kravUtenforRekken.map((k) => [k.id, k]));
+  return krav.flatMap((k, i) => {
+    const varsler = varsleneForanKravet(
+      u.spor.vederlag.kravpostvarsler.filter(
+        (v) => kjent(v) && plass.get(v.dokument)! < plass.get(k.dokument)!
+      ),
+      dokumenter[plass.get(k.dokument)!],
+      (id) => dokumenter[plass.get(id)!]
+    );
+    const varslene = kravpostvarslene(
+      k,
+      krav.slice(0, i),
+      varsler,
+      sendtFoer(kravUtenforRekken, sendt, sendt(k))
+    );
+    return kravposterI(k).flatMap((p) => {
+      const v = varslene[p.id];
+      const e = v?.art === 'gitt' ? eldre.get(v.varsel) : undefined;
+      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken.
+      return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))
+        ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }]
+        : [];
+    });
+  });
 }
 
 /**
  * Hvorfor en kravpost i den nye kravversjonen viser til et varsel den ikke kan vise til, eller
  * `null` (VS-U50, VS-U54). Kravposten må trenge varselet etter § 34.3.3 eller § 34.4 og være
  * varsel for seg (VS-U49), og varselet må stå i saken før kravet med samme bestemmelse.
- * `varsler` er varslene etter § 34.3.3 og § 34.4 før kravet.
+ * `varsler` er varslene etter § 34.3.3 og § 34.4 før kravet, og `eldre` kravene utenfor rekken
+ * sendt før det, som også er tidligere versjoner (OV-U118, OV-U120).
  */
 export function kravpostvarseletStrider(
   ny: Pick<Krav, 'innhold'>,
-  tidligere: readonly Pick<Krav, 'innhold'>[],
-  varsler: readonly { id: string; hjemmel: string }[]
+  iRekken: readonly Pick<Krav, 'innhold'>[],
+  varsler: readonly { id: string; hjemmel: string }[],
+  eldre: readonly Pick<Krav, 'innhold'>[]
 ): string | null {
+  const tidligere = [...eldre, ...iRekken];
   for (const [i, p] of kravposterI(ny).entries()) {
     if (p.varsel === undefined) continue;
     const posten = p.betegnelse ? `kravposten ${p.betegnelse}` : `kravpost nr. ${i + 1}`;
@@ -155,16 +259,20 @@ export function kravpostvarseletStrider(
   return null;
 }
 
-/** VS-U50, VS-U54: en kravpost viser bare til et varsel for posten som står før kravet. */
+/**
+ * VS-U50, VS-U54: en kravpost viser bare til et varsel for posten som står før kravet. `eldre`
+ * gir kravene utenfor rekken sendt før kravversjonen og lagt til før den (OV-U120, MM-U50).
+ */
 function kontrollerKravpostvarslene(
   krav: readonly Krav[],
   varsler: readonly LestVarsel[],
   bakover: Bakover,
-  ugyldig: Ugyldig
+  ugyldig: Ugyldig,
+  eldre: (k: Krav) => readonly Krav[]
 ): void {
   krav.forEach((k, i) => {
     const foer = varsler.filter((v) => erKravpostvarselhjemmel(v.hjemmel) && bakover(k.id, v.id));
-    const strid = kravpostvarseletStrider(k, krav.slice(0, i), foer);
+    const strid = kravpostvarseletStrider(k, krav.slice(0, i), foer, eldre(k));
     if (strid) ugyldig(k.id, strid);
   });
 }
@@ -270,6 +378,8 @@ export function standpunkteneTilVarslene(
   const slutt =
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
+  const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
+  const eldre = varslerIEldreKrav(u, kjentFoer);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)
@@ -277,7 +387,7 @@ export function standpunkteneTilVarslene(
         d.svar
           .filter((s) => medVirkning.has(s.id))
           .map((s) => ({
-            s,
+            s: utenStandpunkterForanEldreKrav(s, eldre, plass),
             dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
           }))
