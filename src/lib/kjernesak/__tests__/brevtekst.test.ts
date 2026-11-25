@@ -26,10 +26,8 @@ describe('harTekst', () => {
 });
 
 /**
- * U-5 i BF-46 og svar 1 A (oppdragsgiver 24.11): brevkontrollen bruker datoen i basen, i norsk
- * tid, og klokka på brukerens maskin avgjør ikke teksten. Svar C 25.11 i #2340: klokka i basen
- * pluss tiden som har gått i nettleseren siden lastingen. Setningen om aksept etter akseptfristen
- * kommer fra HF-U23 punkt 7. Midnatt 6. oktober 2026 i norsk tid er 22.00 UTC.
+ * Kilde: U-5 i BF-46, med svar C 25.11 i #2340. Setningen om aksept etter akseptfristen kommer fra
+ * HF-U23 punkt 7. Midnatt 6. oktober 2026 i norsk tid er 22.00 UTC.
  */
 describe('datoen brevkontrollen lager teksten med (U-5 i BF-46)', () => {
   afterEach(() => vi.useRealTimers());
