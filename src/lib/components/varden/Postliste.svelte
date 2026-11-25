@@ -113,7 +113,7 @@
 
 {#if flere}
   <!-- Overskriftene over de lukkede postene; hver rad sier det samme for skjermleseren. -->
-  <div class="kolonner" aria-hidden="true">
+  <div class="kolonner" class:lesing={!valgene} aria-hidden="true">
     <span>{kolonne}</span>
     <span>{SVARSKJEMA.kravetKolonne}</span>
     <span>{SVARSKJEMA.svaretKolonne}</span>
@@ -135,7 +135,7 @@
         {/if}
       {:else}
         {@const lest = leselinje(p)}
-        <div class="postlinje">
+        <div class="postlinje" class:lesing={!valgene}>
           {@render tittel(p, false)}
           <p class="krav">
             <span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
@@ -225,6 +225,13 @@
     border-bottom: var(--rule-strong);
     color: var(--ink-3);
     font-size: 12px;
+  }
+  /* Uten handling får svaret plassen. */
+  @media (min-width: 641px) {
+    .kolonner.lesing,
+    .postlinje.lesing {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
+    }
   }
   /* Overskriften har ingen celle over handlingen. */
   .kolonner span:last-child {
