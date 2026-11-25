@@ -1576,7 +1576,7 @@ def mot_grunnlag(
     hovedplanen og arkivet på main. En ID på formen til et nytt vedtak (`XX-U<n>`) er brukt i
     3.1 bare når en rad står under den. Er den bare nevnt i teksten til en annen post, er den
     holdt av for en vedtaks-PR og ledig (OV-U124 i KA-U87). En ID på en annen form, som en
-    funn-, punkt- eller forløps-ID, kan ikke stå noe sted i 3.1."""
+    funn-, punkt- eller forløps-ID, kan ikke stå noe sted i 3.1. Uten `soketekst` prøves bare 3.1."""
     feil = []
     importerte = [p for p in poster(register) if not er_ny(p)]
     paret = {id(n) for _, n in _par(_rader(gammel_plan), importerte) if n is not None}
