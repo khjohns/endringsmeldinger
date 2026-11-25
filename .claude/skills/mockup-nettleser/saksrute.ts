@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--klokke] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>] | --testsak <navn>] [--spor <spor>] [--feil] [--klokke] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -22,6 +22,10 @@
  * skjemaet på `/{prosjekt}/ny` i nettleseren, og saken og påberopelsen lagres i én handling.
  * Kontrollene før sendingen prøves mot opprettelsen alene, som i minnet, og kontrollene etter
  * den mot journalen serveren gir. Til slutt avbryter TE et nytt skjema og kommer til sakslisten.
+ *
+ * Med `--testsak` sendes stegene i en testsak fra `testsaker.ts` på samme måte som stegene i et
+ * forløp, for en tilstand ingen forløp når (#2349). Testsaken kan drive en side videre i
+ * nettleseren etter skjermbildene av saksruta (`iNettleseren`).
  *
  * Med `--feil` framkalles feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar,
  * og `page.route` svarer på kommandoruta med 409, 403, 500 og et avbrudd.
@@ -57,12 +61,14 @@ import { FRISTTABELLEN, kjoer } from '../../../kjerne/tester/kjoerer.ts';
 import { vedleggI, type Kommando } from '../../../kjerne/kommandoer/kommando.ts';
 import { veggklokke, type Klokke } from '../../../kjerne/tester/testmiljoe.ts';
 import { erHverdag, erLoerdag } from '../../../kjerne/regler/hverdager.ts';
+import { TESTSAKER, somForloep as testsaken } from './testsaker.ts';
 
 const { values } = parseArgs({
   options: {
     utdata: { type: 'string', default: '/tmp/saksrute-skjermbilder' },
     behold: { type: 'boolean', default: false },
     forlop: { type: 'string' },
+    testsak: { type: 'string' },
     til: { type: 'string' },
     feil: { type: 'boolean', default: false },
     klokke: { type: 'boolean', default: false },
@@ -129,7 +135,11 @@ function tilbakedatering(forloep: ReturnType<typeof finn>) {
  */
 let FORLOEP: ReturnType<typeof finn> | null = null;
 let TILBAKEDATERT: ReturnType<typeof tilbakedatering> = null;
+/** Testsaken i `--testsak` (#2349), med akseptfristen som i et forløp. */
+let TESTSAK: ReturnType<typeof testsaken> | null = null;
 try {
+  if (values.testsak && values.forlop) throw new Error('--testsak og --forlop kan ikke brukes sammen');
+  if (values.testsak) TESTSAK = medAkseptfrist(testsaken(values.testsak), hverdagFra(14, 1));
   if (values.forlop) {
     TILBAKEDATERT = tilbakedatering(finn(values.forlop));
     FORLOEP = medAkseptfrist(finn(values.forlop), TILBAKEDATERT?.frist ?? hverdagFra(14, 1));
@@ -150,6 +160,7 @@ try {
   process.exit(1);
 }
 mkdirSync(UT, { recursive: true });
+const SPOR = values.spor ?? (values.testsak ? TESTSAKER[values.testsak]!.spor : undefined);
 
 const FRONTEND = 'http://localhost:5173';
 const SERVERPORT = 8090;
@@ -847,7 +858,7 @@ try {
 
   const OPPRETTES = !!FORLOEP?.utgangspunkt.opprettes;
   const te = await loggInn('te', `/${katalog.prosjekt}`);
-  const tittel = FORLOEP?.tittel ?? 'Ny peling ved akse C';
+  const tittel = FORLOEP?.tittel ?? (values.testsak ? TESTSAKER[values.testsak]!.tittel : 'Ny peling ved akse C');
   let sak = '';
   if (!OPPRETTES) {
     const opprettet = await opprettSak(te, tittel);
@@ -866,9 +877,10 @@ try {
   console.log(`BH  POST /api/kjerne/saker: ${avvist.status} ${JSON.stringify(avvist.kropp)}`);
   if (avvist.status !== 400 || avvist.kropp?.rule !== 'FEIL_PART') throw new Error('Kjernen avviste ikke BH ved opprettelsen');
 
-  if (FORLOEP) {
-    const forloep = somForloep(FORLOEP);
-    const til = values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
+  const forloep = FORLOEP ? somForloep(FORLOEP) : TESTSAK;
+  if (forloep) {
+    const id = FORLOEP?.id ?? `Testsaken ${values.testsak}`;
+    const til = FORLOEP && values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     const ny = OPPRETTES ? nySaksbane(tittel) : null;
     // Teksten lages med koden saken får av serveren, som skjemaet gjør (LV-U46).
@@ -881,10 +893,10 @@ try {
     const tilbake = TILBAKEDATERT ? await tilbakedatertBane(bane, TILBAKEDATERT.start) : null;
     await kjoer(forloep, tilbake?.bane ?? bane, { til, valg: { klokke: tilbake?.klokke ?? veggklokke } });
     if (ny) {
-      if (!ny.sak()) throw new Error(`${FORLOEP.id}: saken ble ikke opprettet i skjemaet (--til)`);
+      if (!ny.sak()) throw new Error(`${id}: saken ble ikke opprettet i skjemaet (--til)`);
       sak = ny.sak()!;
     }
-    console.log(`${FORLOEP.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
+    console.log(`${id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert. De
     // tilbakedaterte radene har ingen oppdrag (G-3), så da venter den bare når et steg gikk gjennom
     // serveren.
@@ -909,7 +921,7 @@ try {
 
   if (!sak) throw new Error('Ingen sak å vise');
   // Med `--spor` åpner skjermbildene siden for sporet (`?spor=` i saksruta).
-  const saksrute = `/${katalog.prosjekt}/${sak}${values.spor ? `?spor=${encodeURIComponent(values.spor)}` : ''}`;
+  const saksrute = `/${katalog.prosjekt}/${sak}${SPOR ? `?spor=${encodeURIComponent(SPOR)}` : ''}`;
   const klippet: string[] = [];
   for (const [navn, side] of [
     ['te', te],
@@ -945,6 +957,7 @@ try {
   await te.screenshot({ path: join(UT, 'saksliste-te.png'), fullPage: true });
   klippet.push(...(await klipperInnhold(te)).map((k) => `TE: ${k} i sakslisten`));
   if (klippet.length) throw new Error(`Saken klipper innhold brukeren ikke kan rulle til: ${klippet.join(', ')}`);
+  if (values.testsak) await TESTSAKER[values.testsak]!.iNettleseren?.({ te, bh, saksrute: `${FRONTEND}${saksrute}`, ut: UT });
   if (values.feil) {
     // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
     // brevkontrollen, og `page.route` svarer på kommandoruta i stedet for serveren. Kroppene har
