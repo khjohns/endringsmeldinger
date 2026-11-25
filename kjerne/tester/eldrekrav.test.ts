@@ -501,6 +501,17 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     expect(forSent(u!)).toHaveLength(1);
   });
 
+  it('med journalen kuttet foran det eldre kravet, som skjemaet leser et brev, står innsigelsen (VS-U81, MM-U50)', async () => {
+    const { utfall, u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21'
+    );
+    const lagtTil = kravetIRaden(utfall, u).dokument;
+    const i = u!.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === lagtTil);
+    expect(forSent({ ...u!, journal: u!.journal.slice(0, i) })).toHaveLength(1);
+  });
+
   it('kontrollsak: har brevet P1 med fast sum, står innsigelsen (OV-U120 vilkår 1, VS-U80)', async () => {
     const { u } = await leggTil(
       [medP1('regningsarbeid'), svaretForSent],

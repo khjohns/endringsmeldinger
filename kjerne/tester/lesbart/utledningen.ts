@@ -185,12 +185,23 @@ export const UTLEDNINGEN: Lesbar[] = [
   // OV-U120: et krav utenfor rekken som varsel for en kravpost, og standpunktene i svarene før
   // det eldre kravet ble lagt til.
   ['format/leser.ts', 'rad', 'dokumenterI', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['format/leser.ts', 'kontekst', 'dagenSendt', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  ['format/leser.ts', 'kontekst', 'dagenSendt', [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`]],
   ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
   ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['Krav', 'relasjon', 'dokument', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  [
+    'Krav',
+    'relasjon',
+    'dokument',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`],
+  ],
+  [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
   ['Utsagn', 'relasjon', 'dokument', [VARSLER_I_ELDRE_KRAV]],
-  [ELDRE_KRAV, 'relasjon', 'k sendt', [ELDRE_KRAV]],
+  [
+    'spor/vederlag/utledning.ts:sendtFoer',
+    'relasjon',
+    'k sendt',
+    ['spor/vederlag/utledning.ts:sendtFoer'],
+  ],
   [`${VARSLER_I_ELDRE_KRAV}(varslene)`, 'relasjon', '*', [VARSLER_I_ELDRE_KRAV]],
   ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV]],
   [
@@ -214,12 +225,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     'varslerIEldreKrav',
     ['kommandoer/skriving.ts:brevtekstFor'],
   ],
-  [
-    'VarselIEtEldreKrav',
-    'relasjon',
-    'gjelder hjemmel dokument',
-    ['frosset/standpunkt.ts', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
-  ],
+  ['VarselIEtEldreKrav', 'relasjon', 'gjelder hjemmel dokument', ['frosset/standpunkt.ts']],
   [
     'frosset/standpunkt.ts',
     'relasjon',

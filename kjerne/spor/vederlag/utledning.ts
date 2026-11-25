@@ -113,12 +113,24 @@ const hattFoer = (
  */
 export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
-  return u.spor.vederlag.kravUtenforRekken
-    .map((k) => ({ k, sendt: dagenSendt(k, dokumenter.get(k.dokument)!) }))
-    .filter(({ sendt }) => dag === null || foerDagen(sendt, dag))
+  return sendtFoer(
+    u.spor.vederlag.kravUtenforRekken,
+    (k) => dagenSendt(k, dokumenter.get(k.dokument)!),
+    dag
+  );
+}
+
+/** Kravene i `krav` sendt før dagen `dag`, i rekkefølgen de ble sendt; uten dag alle. */
+const sendtFoer = (
+  krav: readonly Krav[],
+  sendt: (k: Krav) => string | null,
+  dag: string | null
+): Krav[] =>
+  krav
+    .map((k) => ({ k, sendt: sendt(k) }))
+    .filter((x) => dag === null || foerDagen(x.sendt, dag))
     .sort((a, b) => (a.sendt ?? '').localeCompare(b.sendt ?? ''))
     .map(({ k }) => k);
-}
 
 /**
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
@@ -174,26 +186,38 @@ export function varsleneForanKravet(
 
 /**
  * OV-U120: kravpostene som har et krav utenfor rekken som varsel, for hver kravversjon i rekken
- * som ellers ville vært varselet for posten (`kravpostvarslene`).
+ * som ellers ville vært varselet for posten (`kravpostvarslene`). Bare brevene i `u.journal` før
+ * brevet `kjentFoer` leses, slik kjernen kjente saken da (VS-U81).
  */
-export function varslerIEldreKrav(u: Utledning): VarselIEtEldreKrav[] {
-  const { krav, kravUtenforRekken, kravpostvarsler } = u.spor.vederlag;
-  if (!kravUtenforRekken.length) return [];
-  const dokumenter = [...dokumenterI(u.journal)];
+export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEldreKrav[] {
+  const alle = [...dokumenterI(u.journal)];
+  const dokumenter =
+    kjentFoer === undefined
+      ? alle
+      : alle.slice(
+          0,
+          alle.findIndex((d) => d.id === kjentFoer)
+        );
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
+  const kjent = (x: { dokument: string }) => plass.has(x.dokument);
+  const krav = u.spor.vederlag.krav.filter(kjent);
+  const kravUtenforRekken = u.spor.vederlag.kravUtenforRekken.filter(kjent);
+  if (!kravUtenforRekken.length) return [];
+  const sendt = (k: Krav) => dagenSendt(k, dokumenter[plass.get(k.dokument)!]);
   const eldre = new Map(kravUtenforRekken.map((k) => [k.id, k]));
   return krav.flatMap((k, i) => {
-    const nytt = dokumenter[plass.get(k.dokument)!];
     const varsler = varsleneForanKravet(
-      kravpostvarsler.filter((v) => plass.get(v.dokument)! < plass.get(k.dokument)!),
-      nytt,
+      u.spor.vederlag.kravpostvarsler.filter(
+        (v) => kjent(v) && plass.get(v.dokument)! < plass.get(k.dokument)!
+      ),
+      dokumenter[plass.get(k.dokument)!],
       (id) => dokumenter[plass.get(id)!]
     );
     const varslene = kravpostvarslene(
       k,
       krav.slice(0, i),
       varsler,
-      eldreKravFoer(u, dagenSendt(k, nytt))
+      sendtFoer(kravUtenforRekken, sendt, sendt(k))
     );
     return kravposterI(k).flatMap((p) => {
       const v = varslene[p.id];
@@ -359,8 +383,7 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  // OV-U120: bare de eldre kravene som var i journalen.
-  const eldre = varslerIEldreKrav(u).filter((v) => plass.get(v.dokument)! < slutt);
+  const eldre = varslerIEldreKrav(u, kjentFoer);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)
