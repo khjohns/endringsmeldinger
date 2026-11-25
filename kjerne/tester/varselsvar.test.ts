@@ -6,7 +6,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { handlinger } from '../kommandoer/handlinger.ts';
+import { handlinger, tilbudte } from '../kommandoer/handlinger.ts';
 import { laast, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
@@ -135,6 +135,18 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     const [svaret] = s.u().spor.vederlag.svarPaaVarsler;
     // KA-U64: standpunktet til varselet etter § 34.4 har ingen virkning.
     expect(svaret.beslutningsgrunnlag.virkninger.map((v) => v.virkning)).toEqual(['uten_virkning']);
+  });
+
+  it('totalentreprenørens innsigelse mot svaret på varselet hører til vederlaget (#1713, VS-U79)', () => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send(
+      'BH',
+      lagtTil(dagen(s), [svar('vederlag', varsel, { varslet_i_tide: false }, {}, null)])
+    );
+    const svaret = s.u().spor.vederlag.svarPaaVarsler[0].id;
+    expect(tilbudte(s.u(), 'TE').find((h) => h.noekkel === `innsigelse:${svaret}`)?.spor).toBe(
+      'vederlag'
+    );
   });
 
   it('et nytt svar på varselet erstatter det forrige og kan gi opp innsigelsen (punkt 31 og 33)', () => {
@@ -297,8 +309,33 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
         { resultat: 'godkjent', godkjent_beloep: 0 }
       )
     );
+    // MM-U50: med ordene i svaret på varselet, som sa «kom for sent».
     expect(laast(s.journal.at(-1)!)[1]).toContain(
-      'Byggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 om at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
+      'Byggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 om at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P1 kom for sent.'
+    );
+  });
+});
+
+describe('svaret på varselet etter et avslått forhold (VS-U4, OV-U32, LV-U34)', () => {
+  it('lagene i svaret på varselet står etter avslaget av forholdet, i brevet som i linjen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    s.send('TE', sendVarsel('34.3.3'));
+    const varsel = s.u().spor.vederlag.kravpostvarsler.at(-1)!.id;
+    s.send('BH', brev(varsel, { varslet_i_tide: false, godtar_justering: false }));
+    expect(laast(s.journal.at(-1)!).slice(1)).toEqual([
+      '1. Forholdet\n\nPrinsipalt\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-02 av 3. oktober 2026.',
+      '2. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.',
+      '3. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).',
+    ]);
+    expect(s.u().spor.vederlag.svarPaaVarsler[0].beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: subsidiært varselet etter punkt\u00a034.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (punkt\u00a034.3.2).'
     );
   });
 });

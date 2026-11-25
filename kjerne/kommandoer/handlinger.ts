@@ -73,6 +73,8 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
       ...s.kravUtenforRekken,
       ...s.svar,
       ...s.svarUtenforRekken,
+      // VS-U79: svaret på et varsel som står alene.
+      ...s.svarPaaVarsler,
       ...Object.values(s.varsler),
       ...s.kravpostvarsler,
     ])

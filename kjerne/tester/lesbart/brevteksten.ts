@@ -334,11 +334,11 @@ export const BREVTEKSTEN: Lesbar[] = [
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
   ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
   ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
-  // VS-U77 punkt 30 og 31: punktene og lagene i svaret på varselet.
+  // VS-U77 punkt 30 og 31: svaret på kravet og på varselet skrives med de samme punktene.
   [
-    'frosset/brevtekst.ts:svarpunkterPaaVarselet',
+    'frosset/brevtekst.ts:punkteneISvaret',
     'brevtekst',
-    'punkt plass tekst',
+    'ledd fra temaene innledning oversikten',
     ['frosset/brevtekst.ts'],
   ],
   [
