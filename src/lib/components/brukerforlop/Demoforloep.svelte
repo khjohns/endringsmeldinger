@@ -74,12 +74,12 @@
 
   /** G-12 i BF-46. En aksept eller et trekk har sporet til kravet eller svaret det gjelder. */
   function sisteSpor(demosak: Demosak): Spor | undefined {
-    const sporFor = new Map<string, Spor>();
+    const sporFor: Record<string, Spor> = {};
     let spor: Spor | undefined;
     for (const d of dokumenterI(lesJournal(demosak.journal(), KJERNE.leserformat))) {
-      for (const k of [...d.krav, ...d.svar]) sporFor.set(k.id, (spor = k.spor));
+      for (const k of [...d.krav, ...d.svar]) sporFor[k.id] = spor = k.spor;
       for (const u of d.utsagn)
-        if (u.art === 'aksept' || u.art === 'trekk') spor = sporFor.get(u.gjelder) ?? spor;
+        if (u.art === 'aksept' || u.art === 'trekk') spor = sporFor[u.gjelder] ?? spor;
     }
     return spor;
   }
