@@ -10,7 +10,16 @@ import { KJERNE } from '#kjerne/versjon.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import { medVederlag, opprettet, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { tomPost, tomtSvar, varseletIValgene, vederlagssvaret, type Postvalg } from '../kommandoer';
+import {
+  somNyttSvar,
+  tomPost,
+  tomtSvar,
+  valgFraSvaret,
+  varseletIValgene,
+  vederlagssvaret,
+  type Postvalg,
+  type Svarvalg,
+} from '../kommandoer';
 import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
@@ -367,5 +376,132 @@ describe('varselet etter punkt 34.1.2 i svaret (#1842)', () => {
     expect(svar(medKrav(100000), {}).svar[0]!.vurderinger).toMatchObject({
       hovedkrav_varslet_i_tide: true,
     });
+  });
+});
+
+describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
+  const toPoster = skrevet(grunnforhold, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100_000 },
+        { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40_000 },
+      ],
+    },
+    utdypning: 'To kravposter med fast sum.',
+  });
+  const foerste: Svarvalg = {
+    ...tomtSvar(),
+    iTide: true,
+    poster: {
+      P1: { ...tomPost(), form: 'godtar', beloep: 'hele' },
+      // Beløpet med hardt mellomrom som tusenskille, som `visKroner` skriver det.
+      P2: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '30\u00a0000' },
+    },
+  };
+  const medSvar = skrevet(
+    toPoster,
+    'BH',
+    vederlagssvaret(foerste, utledJournal(toPoster, KJERNE), KJERNE.regler)
+  );
+  const u = utledJournal(medSvar, KJERNE);
+
+  it('skjemaet åpner med standpunktene i svaret det erstatter, og begrunnelsene skrives på nytt (prototypen `forholdssvar.html`: «Det forrige svaret er fylt ut, og du endrer det du vil»)', () => {
+    expect(valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!)).toEqual({
+      ...foerste,
+      erstatter: u.spor.vederlag.gjeldendeSvar!.id,
+    });
+  });
+
+  it('det nye svaret er en revisjon av det gjeldende svaret, og kjernen tar det imot (HF-U29, VS-U65)', () => {
+    const fylt = valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!);
+    const endret = {
+      ...fylt,
+      poster: { ...fylt.poster, P2: { ...fylt.poster.P2!, delbeloep: '35 000' } },
+    };
+    const kommando = somNyttSvar(vederlagssvaret(endret, u, KJERNE.regler)!, endret.erstatter);
+    expect(kommando).toMatchObject({
+      type: 'revisjon',
+      erstatter: u.spor.vederlag.gjeldendeSvar!.id,
+    });
+    const etter = utledJournal(skrevet(medSvar, 'BH', kommando), KJERNE).spor.vederlag
+      .gjeldendeSvar!;
+    expect(etter.erstatter).toBe(u.spor.vederlag.gjeldendeSvar!.id);
+    expect(etter.standpunkter.filter((s) => s.art === 'beloep').map((s) => s.godkjent)).toEqual([
+      100_000, 35_000,
+    ]);
+  });
+
+  it('uten et svar det erstatter er svaret et brev (kontrollsak)', () => {
+    const uten = utledJournal(toPoster, KJERNE);
+    expect(somNyttSvar(vederlagssvaret(foerste, uten, KJERNE.regler)!, undefined).type).toBe(
+      'brev'
+    );
+  });
+
+  it('et nytt svar fylt ut fra et svar som ikke lenger er det gjeldende, avvises av kjernen og erstatter ikke det nyere svaret (Codex-reviewet av #2374)', () => {
+    const fylt = valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!);
+    const kollega = somNyttSvar(
+      vederlagssvaret(
+        {
+          ...fylt,
+          poster: {
+            ...fylt.poster,
+            P1: { ...fylt.poster.P1!, beloep: 'deler', delbeloep: '90 000' },
+          },
+        },
+        u,
+        KJERNE.regler
+      )!,
+      fylt.erstatter
+    );
+    const etterKollegaen = skrevet(medSvar, 'BH', kollega);
+    const sent = somNyttSvar(
+      vederlagssvaret(fylt, utledJournal(etterKollegaen, KJERNE), KJERNE.regler)!,
+      fylt.erstatter
+    );
+    expect(() => skrevet(etterKollegaen, 'BH', sent)).toThrow(/Svaret er endret/);
+  });
+
+  it('en annen oppgjørsform, kravet om tilbud, varselet og justeringen fylles ut som de ble sendt, uten beløp der det ikke ble spurt om det (KA-U71, KA-U72, VS-U77 punkt 9)', () => {
+    const regelkrav = skrevet(grunnforhold, 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [
+          { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' },
+          { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true },
+          { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40_000 },
+        ],
+      },
+      utdypning: 'Tre kravposter.',
+    });
+    const svaret: Svarvalg = {
+      ...tomtSvar(),
+      iTide: false,
+      poster: {
+        P1: { ...tomPost(), form: 'godtar', varsletITide: false },
+        P2: {
+          ...tomPost(),
+          form: null,
+          kreverTilbud: true,
+          varsletITide: true,
+          godtarJustering: false,
+        },
+        P3: { ...tomPost(), form: 'regningsarbeid' },
+      },
+    };
+    const sendt = utledJournal(
+      skrevet(
+        regelkrav,
+        'BH',
+        vederlagssvaret(svaret, utledJournal(regelkrav, KJERNE), KJERNE.regler)
+      ),
+      KJERNE
+    );
+    expect(
+      valgFraSvaret(sendt.spor.vederlag.gjeldendeSvar!, sendt.spor.vederlag.gjeldendeKrav!)
+    ).toEqual({ ...svaret, erstatter: sendt.spor.vederlag.gjeldendeSvar!.id });
   });
 });

@@ -11,7 +11,7 @@
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
   import { BREVTEKSTEN_I_VEDERLAGET, svartemaerIVederlaget } from '#kjerne/spor/vederlag/tekst.ts';
-  import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
+  import { FORHOLDET, medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
@@ -35,6 +35,7 @@
     kravetIKortform,
     postvalget,
     regelen,
+    somNyttSvar,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -42,8 +43,15 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, standpunktene } from './lesing';
-  import { begrunnelserForTemaene, manglene, stilt, ubesvart, ugyldig } from './svarskjema';
+  import { brevet, brevMedElement, standpunktene } from './lesing';
+  import {
+    begrunnelserForTemaene,
+    temanavn,
+    manglene,
+    stilt,
+    ubesvart,
+    ugyldig,
+  } from './svarskjema';
   import {
     BREVKONTROLL,
     VIRKNING,
@@ -120,16 +128,23 @@
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
   // tekstfelt (#1925).
-  const utkast = $derived(
+  const brevutkast = $derived(
     vederlagssvaret(
       { iTide: valg.iTide, poster: valg.poster, begrunnelser: {}, forbehold: '' },
       u,
       kjernesak.regler
     )!
   );
+  // Revisjonen av det gjeldende svaret når kravversjonen har et (HF-U29).
+  const utkast = $derived(somNyttSvar(brevutkast, valg.erstatter));
+  const forrigeSvar = $derived(
+    utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
+  );
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
-  const lagene = $derived(stoppet ? null : kjernesak.lagForUtkastet(utkast.svar[0], 'vederlag'));
+  const lagene = $derived(
+    stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag')
+  );
   const beloepSporsmaal = (felt: string) => felt === 'vurdering' || felt === 'godkjent_beloep';
   const foerstePunkt = $derived.by(() => {
     const sporsmaalene = lagene?.ubesvart ?? [];
@@ -263,16 +278,16 @@
   };
   const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
   const svartemaene = $derived(
-    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((tema) => {
+    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((t) => {
+      // Med harde mellomrom, som overskriften i brevet (sprak.md).
+      const tema = { ...t, overskrift: t.overskrift && medHardeMellomrom(t.overskrift) };
       if (tema.punkt === '34.1.2' || tema.punkt === 'metode') return [tema];
       const post = poster.find((p) => p.betegnelse === tema.punkt);
       if (!post) return [];
       return [
         {
           ...tema,
-          overskrift: flere
-            ? SKJEMA.iPosten(post.betegnelse, SKJEMA.beloepTittel)
-            : tema.overskrift,
+          overskrift: flere ? `${tema.overskrift} · ${post.betegnelse}` : tema.overskrift,
         },
       ];
     })
@@ -349,7 +364,7 @@
                       : [];
               return {
                 ...p,
-                beholdNavn: flere && post !== undefined,
+                tillegg: flere && post ? post.betegnelse : undefined,
                 aktiv: foerstePunkt === p.punkt,
                 linjer: fraBrevet.length
                   ? fraBrevet
@@ -438,7 +453,9 @@
   {u}
   spor="vederlag"
   {utkast}
-  medTekstene={(punktene) => vederlagssvaret(valg, u, kjernesak.regler, punktene)!}
+  {forrigeSvar}
+  medTekstene={(punktene) =>
+    somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
   bind:tekster={valg}
   {linjer}
   {alternativer}
@@ -600,8 +617,7 @@
       <Spoersmaal
         id={`${uid}-sp-varsel`}
         aktiv={foerstePunkt === '34.1.2'}
-        tittel={overskrift('34.1.2') ?? SKJEMA.varselTittel}
-        hjemmel={overskrift('34.1.2') ? undefined : ['34.1.2']}
+        tittel={overskrift('34.1.2') ?? temanavn(svartemaene, '34.1.2')}
       >
         <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Gjelderhvis
@@ -635,7 +651,7 @@
     <Spoersmaal
       id={`${uid}-sp-metode`}
       aktiv={foerstePunkt === 'metode'}
-      tittel={overskrift('metode') ?? SKJEMA.metodeTittel}
+      tittel={overskrift('metode') ?? temanavn(svartemaene, 'metode')}
     >
       {#if flere}
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
@@ -677,7 +693,7 @@
       {#if v && stilt(lagene, 'vurdering', p.id)}
         <Spoersmaal
           id={`${uid}-sp-beloep`}
-          tittel={overskrift(p.betegnelse) ?? SKJEMA.beloepTittel}
+          tittel={overskrift(p.betegnelse) ?? temanavn(svartemaene, p.betegnelse)}
           aktiv={foerstePunkt === p.betegnelse}
         >
           {@render beloepsvalgene(p, v, forutsetningene(p, 'oppgjoersform').length > 0)}

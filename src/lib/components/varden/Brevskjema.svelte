@@ -65,7 +65,7 @@
     kjernesak: Kjernesakkontekst;
     u: Utledning;
     avsender: Part;
-    oppfolging?: { tekst: string; brev: Brevet | null } | null;
+    oppfolging?: { tekst: string; brev: Brevet | null; forrige?: string } | null;
     onvedsiden?: (vedSiden: boolean) => void;
     sendes?: boolean;
     /** Korrespondansen kravet eller svaret legges til fra (OV-U80), eller `null`. */
@@ -177,6 +177,7 @@
     >
       {#snippet referanse()}
         {#if oppfolging}<span>{oppfolging.tekst}</span>{/if}
+        {#if oppfolging?.forrige}<span>{oppfolging.forrige}</span>{/if}
       {/snippet}
       {#if lesebrev && leser && side.smal}
         <div class="innebrev" id={leseId}>{@render brevet(lesebrev, 'kant')}</div>

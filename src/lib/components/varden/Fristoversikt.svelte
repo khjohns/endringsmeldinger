@@ -35,7 +35,7 @@
     smal = false,
     onles,
     onspor,
-    handlingVed = null,
+    handlingerVed = [],
     handling,
     brevet,
     leggTilKorrespondanse,
@@ -93,7 +93,7 @@
     {vist}
     {smal}
     {onles}
-    {handlingVed}
+    {handlingerVed}
     {handling}
     {brevet}
   />

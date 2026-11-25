@@ -72,6 +72,7 @@
     onendre = () => {},
     onlagttil = () => {},
     tittel = SVARTITTEL[spor],
+    forrigeSvar = null,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -128,6 +129,8 @@
     onlagttil?: () => void;
     /** Tittelen på brevet, når svaret ikke gjelder kravet i sporet (VS-U79). */
     tittel?: string;
+    /** Brevet med byggherrens forrige svar, når svaret er et nytt svar på kravet (HF-U29). */
+    forrigeSvar?: Brevet | null;
   } = $props();
   const uid = $props.id();
 
@@ -277,9 +280,12 @@
   {#if p.punkt === fellesHjelpVed}
     <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
   {/if}
+  <!-- Ved punktet står navnet i overskriften over, så etiketten sier at feltet er begrunnelsen,
+     og navnet sier hvilket punkt den gjelder (WCAG 2.4.6, 2.5.3). -->
   <Tekstomraade
     {id}
-    etikett={p.navn}
+    etikett={vedPunktet ? SKJEMA.begrunnelse : p.navn}
+    skjultTillegg={vedPunktet ? `, ${p.navn}` : undefined}
     underordnet
     valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
     hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
@@ -305,7 +311,11 @@
   {kjernesak}
   {u}
   avsender="BH"
-  oppfolging={{ tekst: SKJEMA.svarerPaa(kravbrevet), brev: kravbrevet }}
+  oppfolging={{
+    tekst: SKJEMA.svarerPaa(kravbrevet),
+    brev: kravbrevet,
+    forrige: forrigeSvar ? SKJEMA.forrigeSvar(forrigeSvar) : undefined,
+  }}
   {onvedsiden}
   {lagtTil}
   part={kjernesak.part}

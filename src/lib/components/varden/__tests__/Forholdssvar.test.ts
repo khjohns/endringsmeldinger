@@ -129,8 +129,9 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     const forholdspunktet = within(forholdet.closest('section')!);
     expect(varselpunktet.queryByRole('textbox')).toBeNull();
     expect(forholdspunktet.queryByRole('textbox')).toBeNull();
-    // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
-    expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
+    // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte, med ordet brevet
+    // bruker (#2359).
+    expect(screen.getByLabelText('Forbehold, Valgfri')).toBeInTheDocument();
     await radio('Nei');
     const grunn = varselpunktet.getByRole('textbox', { name: /Varselet etter punkt 32\.2/ });
     await fireEvent.input(grunn, { target: { value: 'Varselet kom samme dag.' } });
@@ -139,7 +140,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
     expect(varselpunktet.getByRole('textbox')).toHaveValue('Varselet kom samme dag.');
     expect(forholdspunktet.getByRole('textbox', { name: /Forholdet/ })).toBeInTheDocument();
-    expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
+    expect(screen.getByLabelText('Forbehold, Valgfri')).toBeInTheDocument();
     // Hjemmelen står til høyre på linja med overskriften, som tekst og ikke som merke («Høyst tre
     // nivåer» i `system.md`, oppdragsgiver 16.11).
     expect(forholdet.parentElement).toHaveTextContent(/pkt\. 32\.3$/);

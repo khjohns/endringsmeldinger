@@ -83,6 +83,8 @@ export interface Brevet {
   beskrivelse: string | null;
   /** Filnavnene på vedleggene brevet binder, i brevets rekkefølge (LV-U14). */
   vedlegg: string[];
+  /** Bestemmelsene for varslene i brevet, tom for et brev uten varsel (OV-U25, VS-U48, VS-U52). */
+  varselhjemler: Varselhjemmel[];
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -111,6 +113,7 @@ export function brevene(u: Utledning): Brevet[] {
         spor: Object.freeze(b.spor),
         avsnitt: b.avsnitt && Object.freeze([...b.avsnitt]),
         vedlegg: Object.freeze(b.vedlegg),
+        varselhjemler: Object.freeze(b.varselhjemler),
       })
     )
   ) as Brevet[];
@@ -152,6 +155,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         // OV-U79: også et varsel, krav eller svar lagt til har beskrivelsen (krav fra #2074 i #807).
         beskrivelse: d.beskrivelse,
         vedlegg: d.dokumentasjon.map((v) => v.filnavn),
+        varselhjemler: d.utsagn.flatMap((x) => (x.art === 'varsel' ? [x.hjemmel] : [])),
       },
     ];
   });
@@ -525,9 +529,10 @@ export interface Sideprops {
   /** Brukeren går til et annet spor, som forholdet fra forbeholdet. */
   onspor?: (spor: Spor) => void;
   onkorriger?: (opplysning: string) => void;
-  /** Brevet handlingen svarer på (U-16 i BF-44). */
-  handlingVed?: string | null;
-  handling?: Snippet;
+  /** Brevene som har en handling ved seg, den brevet svarer på (U-16 i BF-44). */
+  handlingerVed?: readonly string[];
+  /** Handlingene ved brevet med ID-en. */
+  handling?: Snippet<[string]>;
   /** Brevet slik det ble sendt, i raden. */
   brevet?: Snippet<[Brevet]>;
   /** Leveringen av brevene sendt herfra til Catenda (`leveringene`). */

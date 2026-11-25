@@ -19,11 +19,13 @@ export const SKJEMA = haerdet({
     b.nummer === null && b.omtale
       ? `Svarer på ${b.omtale}`
       : `Svarer på ${brevref(b)} fra ${PARTEN[b.avsender]}, ${dato(b.sendt ?? b.registrert)}`,
+  // U-13 og T-2 i BF-08.
+  forrigeSvar: (b: Brevref) =>
+    `Det forrige svaret er ${brevref(b)}, og det står som det ble sendt.`,
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevet: 'Les brevet ved siden av',
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
-  varselTittel: 'Varselet om kravet',
   varselPunktTittel: 'Varselet om vederlagsjustering',
   varselSpoersmaal: 'Kom varselet om kravet i tide?',
   iTide: 'Varslet i tide',
@@ -41,7 +43,6 @@ export const SKJEMA = haerdet({
   // Svaret på oppgjørsformen, for fast sum og for en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   formSpoersmaalRegel: 'Oppgjørsformen',
-  metodeTittel: 'Beregningsmetode',
   godkjenner: (m: Oppgjoersform) => `${m === 'tilbud' ? 'Godkjenner' : 'Godtar'} ${metodenavn(m)}`,
   menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   godkjennerIkkeRegel: (m: Regel) => `Godtar ikke ${metodenavn(m)}`,
@@ -126,7 +127,8 @@ export const SKJEMA = haerdet({
   begrunnelse: 'Begrunnelse',
   begrunnelseHjelp:
     'Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
-  forbehold: 'Forbehold for hele svaret',
+  // #2359: ordet brevet bruker (`FORBEHOLDSPUNKTET` i `kjerne/frosset/brevtekst.ts`).
+  forbehold: 'Forbehold',
   skrevet: 'Skrevet',
   staarIBrevet: 'Står i brevet',
   ikkeSkrevet: 'Ikke skrevet',
@@ -167,6 +169,8 @@ export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = tru
 /** Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14, VS-U79). */
 export const VARSELSVARET = haerdet({
   punktet: (h: Kravpostvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
+  // #2359: ordene brevet bruker (`TEMAENE_I_SVARET_PAA_VARSELET` i `kjerne/frosset/brevtekst.ts`).
+  justeringen: 'Justering av enhetsprisene (punkt 34.3.2)',
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
@@ -189,13 +193,11 @@ export const VARSELSVARET = haerdet({
  * står i `SKJEMA`.
  */
 export const FRISTSVAR = haerdet({
-  varselTittel: 'Varselet om fristforlengelse',
   varselSpoersmaal: 'Kom varselet i tide?',
   kravSendt: (d: string, b: Brevref) =>
     b.omtale && b.art === 'registrert'
       ? `Kravet om fristforlengelse står i ${b.omtale}.`
       : `Kravet om fristforlengelse ble sendt ${dato(d)} (${brevref(b)}).`,
-  foresporselTittel: 'Svaret på forespørselen',
   foresporselSpoersmaal: 'Kom svaret på forespørselen om dagene i tide?',
   foresporselITide: 'Svarte i tide',
   foresporselForSent: 'Svarte for sent',
@@ -207,7 +209,6 @@ export const FRISTSVAR = haerdet({
   ikkeHindret: 'Nei, fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet',
   hindringHjelp:
     'Svaret gjelder hele kravet. Mener du at fremdriften ikke er hindret for én av fristene, avslår du dagene for den fristen og begrunner det.',
-  spesifiseringTittel: 'Spesifiseringen av kravet',
   spesifiseringSpoersmaal: 'Ble kravet spesifisert i tide?',
   spesifisertITide: 'Spesifisert i tide',
   spesifisertForSent: 'Spesifisert for sent',
