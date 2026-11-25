@@ -3,13 +3,14 @@ import type { Brevet, Brevref } from '../lesing';
 import { FORHOLDET } from './forholdet';
 import { KRAVET, SAKSDELEN, brevref, brevrefStor, brevtittel } from './felles';
 import { dato, haerdet } from './format';
+import { KRAVSKJEMA } from './kravskjema';
 
 export const TIDSLINJE = haerdet({
   tittel: 'Tidslinje',
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
   /** Hva brevet gjør, kort, som i prototypen `grunnlagsoversikt.html`: «Krav om fristforlengelse». */
-  hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel'>) => {
+  hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'varselhjemmel'>) => {
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     const om = (navn: Record<Spor, string>) => spor.map((s) => navn[s]).join(' og ');
     if (b.art === 'registrert') return FORHOLDET.registrertTittel(b.avsender);
@@ -20,7 +21,10 @@ export const TIDSLINJE = haerdet({
       return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
     if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;
     if (b.art === 'innsigelse') return 'Innsigelse';
-    // Brevet med varselet har ingen frossen tittel (BF-45 U-8).
+    // Brevet med varselet har ingen frossen tittel (BF-45 U-8). Varselet for en kravpost heter
+    // som i kravskjemaet (prototype v4, #2360).
+    if (b.art === 'varsel' && (b.varselhjemmel === '34.3.3' || b.varselhjemmel === '34.4'))
+      return KRAVSKJEMA.varselnavn[b.varselhjemmel];
     if (b.art === 'varsel' && spor.length) return `Varsel om ${om(KRAVET)}`;
     return brevtittel(b);
   },

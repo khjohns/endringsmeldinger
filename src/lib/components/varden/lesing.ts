@@ -83,6 +83,8 @@ export interface Brevet {
   beskrivelse: string | null;
   /** Filnavnene på vedleggene brevet binder, i brevets rekkefølge (LV-U14). */
   vedlegg: string[];
+  /** Bestemmelsen for varselet i brevet, og `null` for et brev uten varsel (OV-U25, VS-U48). */
+  varselhjemmel: Varselhjemmel | null;
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -152,6 +154,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         // OV-U79: også et varsel, krav eller svar lagt til har beskrivelsen (krav fra #2074 i #807).
         beskrivelse: d.beskrivelse,
         vedlegg: d.dokumentasjon.map((v) => v.filnavn),
+        varselhjemmel: d.utsagn.find((x) => x.art === 'varsel')?.hjemmel ?? null,
       },
     ];
   });

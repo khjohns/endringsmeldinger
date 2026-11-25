@@ -553,6 +553,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       forhold: null,
       beskrivelse: null,
       vedlegg: [],
+      varselhjemmel: null,
     }) as Brevet;
 
   it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U55 punkt 10–11)', () => {

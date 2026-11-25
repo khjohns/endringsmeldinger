@@ -121,6 +121,7 @@ describe('Tidslinje', () => {
       avsnitt: null,
       beskrivelse: null,
       vedlegg: [],
+      varselhjemmel: null,
     });
     const { container } = render(Tidslinje, {
       brev: [
