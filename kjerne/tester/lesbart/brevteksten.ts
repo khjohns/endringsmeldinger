@@ -124,7 +124,12 @@ export const BREVTEKSTEN: Lesbar[] = [
     ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // LV-U71, #2153: punktene i svaret som ikke tar en utdypning.
-  ['frosset/tekst.ts', 'brevtekst', 'UTEN_BEGRUNNELSE_I_SVARET', ['frosset/brevtekst.ts']],
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'UTEN_BEGRUNNELSE_I_SVARET AKSEPTFRISTEN',
+    ['frosset/brevtekst.ts'],
+  ],
   // Svaret 16.11 i #1997: leseren kontrollerer nøklene i punktet med tabellen.
   ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],

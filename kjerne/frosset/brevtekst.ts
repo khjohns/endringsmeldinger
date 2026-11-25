@@ -64,6 +64,7 @@ import {
   medHardeMellomrom,
   OVERSIKTEN,
   UTEN_BEGRUNNELSE_I_SVARET,
+  AKSEPTFRISTEN,
 } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
@@ -160,11 +161,10 @@ export function lagBrevtekst(
     for (const p of brevpunkter)
       if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && perPunkt[p.punkt])
         throw new UtdypningUtenPunkt(
-          `Punktet «${p.punkt === INNLEDNINGEN ? 'Innledningen' : p.overskrift}» i brevet har ingen begrunnelse.`
+          p.punkt === AKSEPTFRISTEN
+            ? 'Linjen med akseptfristen har ingen utdypning.'
+            : `Punktet «${p.punkt === INNLEDNINGEN ? 'Innledningen' : p.overskrift}» i brevet har ingen begrunnelse.`
         );
-    // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
-    if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
-      throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
     const punktene: Brevpunkt[] = [
       ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),
       ...[egen, forbehold ? FORBEHOLDSPUNKTET : undefined]
@@ -317,8 +317,6 @@ const SPORENE: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 
 /** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
 const FORBEHOLDSPUNKTET = { punkt: FORBEHOLDET, overskrift: 'Forbehold' } as const;
-/** Punktet med akseptfristen sist i svaret (HF-U23 punkt 2, arbeidsvalget 14.11 i #502). */
-const AKSEPTFRISTEN = 'akseptfrist';
 
 const punktnoekkel = (gjelder: string, punkt: string) => `${gjelder}\u0000${punkt}`;
 
