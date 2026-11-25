@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Innlegget i Varden</title>
+<!--
+  Prototype av innlegget i fritekst for begge parter, bestillingen BF-03
+  (docs/domenetabell/brukerforlop/BF-03.md, #1377), versjon 5. Versjon 1–4 var bf-03-uenig.html,
+  et helt forløp på det gamle konseptstilarket. Versjon 5 viser bare det nye mønsteret: «Send innlegg»
+  øverst i brevtråden, skjemaet, brevkontrollen, innlegget i tråden med merknaden i kortets hode,
+  og innleggene i brevkontrollen for aksepten. Brevtråden er fra brevtraaden.html, og skjemaet og
+  brevkontrollen er fra utkastet-som-brev.html. Tilstandene er ankrene #<part>-<steg>: part te eller
+  bh, steg traad, skjema, brevet, sendt og (bare te) godta. Teksten er prototypetekst; budskapet i
+  brevet står i D-3 i bestillingen. «Vis sporbarhet» viser punktene i bestillingen på elementene.
+  Fargene og målene er .tema-varden i src/lib/components/kontraktsbord/theme.css. Ingenting sendes,
+  og ingenting lagres.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Noto+Sans:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --on-brand:#ffffff;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --rule:1px solid var(--rule-color); --rule-subtle:1px solid var(--rule-subtle-color);
+  --danger:#b33e33; --draft:#5f4a00; --draft-bg:#fff3c4; --control-focus:#2457d6;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-brev:'Source Serif 4','Noto Sans',serif;
+  --font-brev-bh:'Oslo Sans','Noto Sans',sans-serif;
+  --r-kort:12px; --r-merke:2px; --r-felt:4px; --r-innfelt:6px; --r-knapp:6px;
+  --varden-ark:760px; --varden-stoette:360px;
+  --sperring-20:-0.01em;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --danger:#f2a39b; --draft:#f3d675; --draft-bg:#2f2810; --control-focus:#8fb0ff;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --danger:#f2a39b; --draft:#f3d675; --draft-bg:#2f2810; --control-focus:#8fb0ff;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,dl,dd,ol,ul{margin:0}
+a{color:inherit;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Prototypelinja, ikke en del av designet. */
+.mockup{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:8px 16px;background:var(--surface-inset);border-bottom:var(--rule);font-size:13px;color:var(--ink-2)}
+.mockup .gruppe{display:flex;gap:6px;align-items:center}
+.mockup a{padding:2px 10px;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);background:var(--surface);color:var(--ink);text-decoration:none}
+.mockup a[aria-current="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.mockup label{display:flex;gap:6px;align-items:center}
+
+/* Skallet over arbeidet, som i Varden mellom 1181 og 1899 px. */
+.topp{background:var(--surface);border-bottom:var(--rule)}
+.topp-inne{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:0 auto;padding:12px 16px 0}
+.sti{font-size:14px;color:var(--ink-3)}
+.sti b{color:var(--ink);font-weight:600}
+.faner{display:flex;flex-wrap:wrap;gap:4px 24px;margin-top:8px}
+.faner span{padding:6px 0 8px;color:var(--ink-2)}
+.faner .valgt{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--ink)}
+.hvem{margin-left:auto;color:var(--ink-3)}
+
+.tilstand{display:none}
+.tilstand.vist{display:block}
+.arbeid{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:16px auto 64px;padding:0 16px;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) var(--varden-stoette);gap:24px;align-items:start}
+@media (max-width:1180px){.arbeid{grid-template-columns:minmax(0,1fr)}}
+.tilbakerad{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:16px auto 0;padding:0 16px;min-height:32px;display:flex;align-items:center;font-size:14px}
+.tilbakerad a{display:inline-flex;align-items:center;min-height:44px}
+
+/* Kortet med brevtråden (brevtraaden.html). */
+.kort{background:var(--surface);border:var(--rule);border-radius:var(--r-kort);min-width:0}
+.kort-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding:16px 20px 12px;border-bottom:var(--rule-subtle)}
+.kort-hode h2{font-size:20px;font-weight:600;letter-spacing:var(--sperring-20)}
+.betegnelse{font-weight:600}
+.linja{flex-basis:100%;color:var(--ink-3);display:grid;gap:2px}
+.traadhode{display:flex;gap:12px;align-items:center;padding:12px 20px;border-bottom:var(--rule-subtle)}
+.traadhode h3{font-size:16px;font-weight:600}
+.traadhode .knapp{margin-left:auto}
+.traadhode .lenke{min-height:44px}
+.traad{list-style:none;padding:0 0 8px}
+.brev{position:relative;padding:14px 20px 14px 68px}
+.brev + .brev{border-top:var(--rule-subtle)}
+.brev::before{content:'';position:absolute;left:36px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.brev:first-child::before{top:22px}
+.brev:last-child::before{bottom:auto;height:22px}
+.part{position:absolute;left:20px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1.5px solid var(--ink);font-size:12px;font-weight:600}
+.part.bh{background:var(--ink);color:var(--surface)}
+.brev.nytt{box-shadow:inset 3px 0 0 var(--ink)}
+.metalinje{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:13px;color:var(--ink-3)}
+.metalinje .type{color:var(--ink-2)}
+.brev h4{font-size:16px;font-weight:600;line-height:24px;text-wrap:balance}
+.brev.eldre h4{font-weight:500;color:var(--ink-2)}
+.viser-til{color:var(--ink-3);margin-top:2px}
+.lag{margin-top:6px;display:grid;gap:4px}
+.lag .forste{font-size:16px}
+.lag .under{color:var(--ink-3)}
+.utdrag{margin-top:8px;padding-left:12px;border-left:2px solid var(--rule-strong-color);font-family:var(--font-brev);font-size:15px;line-height:1.55;color:var(--ink-2)}
+.utdrag.bh{font-family:var(--font-brev-bh)}
+.handlinger{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fil{display:inline-flex;gap:6px;align-items:center;margin-top:8px;padding:4px 10px;border:var(--rule);border-radius:var(--r-felt);font-size:13px;color:var(--ink);text-decoration:none}
+.kvittering{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:16px auto 0;padding:0 16px}
+.kvittering p{padding:12px 16px;border:var(--rule);border-left:3px solid var(--ink);border-radius:var(--r-innfelt);background:var(--surface)}
+.kvittering p + p{margin-top:8px}
+
+/* Støttekolonnen. */
+.stoette{display:grid;gap:16px}
+.stoette .kort{padding:16px 20px}
+.stoette h3{font-size:14px;font-weight:600;margin-bottom:6px}
+.stoette p + p{margin-top:6px}
+.dempet{color:var(--ink-3)}
+
+/* Arket: skjemaet og brevet (utkastet-som-brev.html). */
+.ark{background:var(--surface);border:var(--rule);border-radius:var(--r-kort);min-width:0}
+.utkast .ark{border:1px dashed var(--draft)}
+.brevhode{position:relative;padding:32px 40px 0;font-family:var(--brev);font-size:16px;line-height:1.6}
+.utkast .brevhode{padding:24px 40px 20px;border-bottom:var(--rule)}
+.stempel{position:absolute;top:24px;right:40px;border:1px dashed var(--draft);background:var(--draft-bg);color:var(--draft);border-radius:var(--r-merke);padding:1px 8px;font:500 12px/20px var(--font-sans)}
+.brevtittel{font-family:var(--brev);font-weight:600;font-size:20px;line-height:1.3;letter-spacing:var(--sperring-20);margin-top:24px;padding-right:150px;text-wrap:balance}
+.utkast .brevtittel{margin-top:0}
+.meta{display:flex;flex-wrap:wrap;gap:2px 16px;margin-top:6px;font-family:var(--font-sans);font-size:13px;color:var(--ink-3)}
+.parter{display:grid;grid-template-columns:1fr;gap:12px;padding-right:150px}
+.parter b{display:block;font-weight:600}
+.rolle{color:var(--ink-3);font-size:14px}
+.refs{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin-top:20px;padding-bottom:20px;border-bottom:var(--rule);font-size:14px}
+.refs dt{color:var(--ink-3);font-size:13px}
+.settes{color:var(--ink-3)}
+.punkt{padding:20px 40px;border-top:var(--rule-subtle)}
+.punkt:first-of-type{border-top:0}
+.etikett{display:block;font-weight:600;font-size:16px;margin:4px 0 6px}
+.etikett .valgfri{float:right;font-weight:400;color:var(--ink-3);font-size:14px}
+.hjelp{color:var(--ink-3);margin:-2px 0 8px;max-width:62ch}
+.felt{display:block;width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);background:var(--surface);color:var(--ink);font:inherit}
+textarea.felt{min-height:160px;resize:vertical}
+.filer{list-style:none;padding:0;display:grid;gap:6px;margin-bottom:8px}
+.brevtekst{padding:8px 40px 24px;font-family:var(--brev);font-size:16px;line-height:1.6}
+.brevtekst p + p{margin-top:12px}
+.brevtekst .vedlegg{font-family:var(--font-sans);font-size:14px;color:var(--ink-2);margin-top:16px}
+.hilsen{padding:24px 40px;border-top:var(--rule);font-family:var(--brev);font-size:16px}
+.hilsen b{font-weight:600}
+.hilsen .settes{font-family:var(--font-sans);font-size:13px;margin-top:4px}
+[data-part="te"]{--brev:var(--font-brev)}
+[data-part="bh"]{--brev:var(--font-brev-bh)}
+
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:var(--r-knapp);border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);font:600 14px var(--font-sans);cursor:pointer;text-decoration:none}
+.knapp:hover{background:var(--ink-2)}
+.knapp.sek{background:var(--surface);color:var(--ink)}
+.knapp.sek:hover{background:var(--surface-inset)}
+.knapp.full{width:100%;min-height:48px;font-size:15px}
+.lenke{display:inline-flex;align-items:center;background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+
+/* Panelet til høyre i skjemaet og brevkontrollen. */
+.panel{position:sticky;top:16px;background:var(--surface);border:var(--rule);border-radius:var(--r-kort)}
+.panel > *{padding:16px 20px}
+.panel > * + *{border-top:var(--rule-subtle)}
+.stegviser{list-style:none;display:flex;gap:20px;font-size:13px;color:var(--ink-3);padding:12px 20px!important}
+.stegviser b{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border:1px solid var(--rule-strong-color);border-radius:999px;font-weight:500;font-size:12px;margin-right:4px}
+.stegviser [aria-current="step"]{color:var(--ink);font-weight:600}
+.stegviser [aria-current="step"] b{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.felt-par{display:grid;grid-template-columns:96px 1fr;gap:4px 12px}
+.felt-par dt{color:var(--ink-3)}
+.virkning{border-left:3px solid var(--ink)!important;background:var(--surface-inset)}
+.virkning h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.virkning p + p{margin-top:6px}
+.avkrysning{display:flex;gap:10px;align-items:center;min-height:48px;padding:0 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);margin-bottom:12px}
+.feil{color:var(--danger);margin-bottom:8px}
+.innleggsliste{list-style:none;padding:0;display:grid;gap:8px;margin-top:8px}
+.innleggsliste li{padding-left:10px;border-left:2px solid var(--rule-strong-color)}
+
+/* Sporbarheten: punktene i bestillingen på elementene. */
+[data-spor]{position:relative}
+[data-vis-spor="ja"] [data-spor]{outline:1px dashed #b36b00;outline-offset:2px}
+[data-vis-spor="ja"] [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:0;font:500 11px var(--font-sans);background:#b36b00;color:#fff;padding:0 4px;border-radius:2px;z-index:1}
+
+@media (max-width:720px){
+  .brevhode,.punkt,.brevtekst,.hilsen{padding-left:20px;padding-right:20px}
+  .stempel{position:static;display:inline-block;margin-bottom:8px}
+  .brevtittel,.parter{padding-right:0}
+  .refs{grid-template-columns:1fr}
+}
+@media (max-width:480px){.brev{padding-left:60px}.part{left:14px}.brev::before{left:30px}}
+</style>
+</head>
+<body>
+<div id="skall" data-part="te" data-vis-spor="nei">
+
+<div class="mockup" role="region" aria-label="Prototypevalg">
+  <b>Prototype · Innlegget · v5</b>
+  <div class="gruppe" role="group" aria-label="Vis som"><span>Vis som</span>
+    <a href="#te-traad" data-vis-som="te">Totalentreprenøren</a>
+    <a href="#bh-traad" data-vis-som="bh">Byggherren</a>
+  </div>
+  <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
+</div>
+
+<header class="topp">
+  <div class="topp-inne">
+    <p class="sti">Varden › Operatunnelen — Parsell 3 › <b>KOE-5 · Endrede tegninger for tunnelportalen</b></p>
+    <div class="faner" aria-hidden="true"><span>Forholdet</span><span class="valgt">Vederlagsjustering</span><span>Fristforlengelse</span><span class="hvem te-tekst">Du er totalentreprenøren</span><span class="hvem bh-tekst">Du er byggherren</span></div>
+  </div>
+</header>
+
+<!-- ============ Brevtråden (begge parter) ============ -->
+<!-- te-traad, te-sendt, bh-traad og bh-sendt har samme kort; tråden skrives av skriptet. -->
+<template id="mal-traad">
+  <div class="arbeid">
+    <section class="kort" aria-label="Vederlagsjusteringen">
+      <div class="kort-hode" data-spor="D-9">
+        <h2>Vederlagsjustering</h2>
+        <span class="betegnelse">Byggherren har svart</span>
+        <div class="linja">
+          <span>Prinsipalt: varslet for sent. Subsidiært: <span class="num">60 000</span> av <span class="num">100 000</span> kr.</span>
+          <span class="merknad"></span>
+        </div>
+      </div>
+      <div class="traadhode">
+        <h3>Brevene, nyeste først</h3>
+        <a class="knapp sek send-innlegg" href="#" data-spor="U-2 · D-2 · D-6">Send innlegg</a>
+      </div>
+      <ol class="traad"></ol>
+    </section>
+    <aside class="stoette" aria-label="Om saken">
+      <div class="kort">
+        <h3>Kravet</h3>
+        <p><span class="num">100 000</span> kr eks. mva., fast sum. Krevd i brev 4, 1. oktober 2026.</p>
+      </div>
+    </aside>
+  </div>
+</template>
+
+<section class="tilstand" id="te-traad" aria-label="Vederlagsjusteringen, totalentreprenøren" data-spor="U-1"><div class="plass"></div></section>
+<section class="tilstand" id="te-sendt" aria-label="Innlegget er sendt" data-spor="U-6 · D-4">
+  <div class="kvittering"><p><span class="kvittering-tekst"></span> Svaret i brev 5 står uendret. Du kan fortsatt godta det eller sende en ny versjon av kravet.</p></div>
+  <div class="plass"></div>
+</section>
+<section class="tilstand" id="bh-traad" aria-label="Vederlagsjusteringen, byggherren" data-spor="U-8"><div class="plass"></div></section>
+<section class="tilstand" id="bh-sendt" aria-label="Innlegget er sendt" data-spor="D-10">
+  <div class="kvittering"><p><span class="kvittering-tekst"></span> Svaret i brev 5 står uendret. Vil du endre standpunktene, sender du et nytt svar.</p></div>
+  <div class="plass"></div>
+</section>
+
+<!-- ============ Skjemaet og brevkontrollen (malen fylles for hver part) ============ -->
+<template id="mal-skjema">
+  <div class="tilbakerad"><a class="tilbake-traad" href="#">‹ Tilbake til vederlagsjusteringen</a></div>
+  <div class="arbeid">
+    <form class="utkast" novalidate onsubmit="return false">
+      <div class="ark">
+        <div class="brevhode">
+          <span class="stempel">Utkast · ikke sendt</span>
+          <h2 class="brevtittel tittel-vist">Innlegg</h2>
+          <p class="meta"><span class="nummer"></span><span>Datoen settes ved sending</span></p>
+        </div>
+        <section class="punkt" data-spor="U-2 · D-3">
+          <label class="etikett" for="">Brevet innlegget viser til</label>
+          <select class="felt viser-til-felt" id=""></select>
+        </section>
+        <section class="punkt" data-spor="D-2">
+          <label class="etikett tittel-etikett" for="">Tittel</label>
+          <input class="felt tittel-felt" id="" autocomplete="off">
+          <label class="etikett tekst-etikett" for="" style="margin-top:16px">Tekst</label>
+          <textarea class="felt tekst-felt" id=""></textarea>
+        </section>
+        <section class="punkt" data-spor="G-6">
+          <span class="etikett">Vedlegg <span class="valgfri">Valgfri</span></span>
+          <ul class="filer"></ul>
+          <button type="button" class="lenke legg-til">Legg til fil</button>
+        </section>
+        <div class="hilsen">
+          <p>Med vennlig hilsen</p>
+          <p><b class="avsender"></b></p>
+          <p class="settes">Navnet ditt settes inn når brevet sendes.</p>
+        </div>
+      </div>
+    </form>
+    <aside class="panel" aria-label="Panelet">
+      <ol class="stegviser" aria-label="Stegene"><li aria-current="step"><b>1</b> Skriv brevet</li><li><b>2</b> Kontroller og send</li></ol>
+      <div><a class="knapp full til-brevet" href="#" data-spor="U-5">Se brevet før sending</a></div>
+    </aside>
+  </div>
+</template>
+
+<template id="mal-brevet">
+  <div class="tilbakerad"><a class="tilbake-skjema" href="#" data-spor="U-5 · D-7">‹ Tilbake til utkastet</a></div>
+  <div class="arbeid">
+    <article class="brevet ark" data-spor="U-4 · D-3">
+      <div class="brevhode">
+        <span class="stempel">Utkast · ikke sendt</span>
+        <div class="parter"><div><b class="avsender"></b><span class="rolle avsender-rolle"></span></div><div><b class="mottaker"></b><span class="rolle mottaker-rolle"></span></div></div>
+        <dl class="refs">
+          <div><dt>Sak</dt><dd>KOE-5 · Endrede tegninger for tunnelportalen</dd></div>
+          <div><dt>Deres ref.</dt><dd class="deres-ref"></dd></div>
+          <div><dt>Vår ref.</dt><dd class="vaar-ref"></dd></div>
+          <div><dt>Dato</dt><dd class="settes">Settes ved sending</dd></div>
+        </dl>
+        <h2 class="brevtittel tittel-vist"></h2>
+      </div>
+      <div class="brevtekst">
+        <p class="henvisning"></p>
+        <p class="tekst-vist"></p>
+        <p class="vedlegg"></p>
+      </div>
+      <div class="hilsen">
+        <p>Med vennlig hilsen</p>
+        <p><b class="avsender"></b></p>
+        <p class="settes">Navnet ditt settes inn når brevet sendes.</p>
+      </div>
+    </article>
+    <aside class="panel" aria-label="Panelet">
+      <ol class="stegviser" aria-label="Stegene"><li><b>1</b> Skriv brevet</li><li aria-current="step"><b>2</b> Kontroller og send</li></ol>
+      <div><dl class="felt-par"><dt>Mottaker</dt><dd class="mottaker"></dd><dt>Viser til</dt><dd class="viser-til-kort"></dd></dl></div>
+      <div class="virkning" data-spor="U-3 · D-4"><h3>Når du sender</h3><p>Innlegget står i saken som ditt brev. Det endrer ikke svaret i brev 5, og løsningen leser ikke innholdet.</p><p class="virkning-part"></p></div>
+      <div>
+        <p class="feil" hidden role="alert">Kryss av for at du har kontrollert brevet.</p>
+        <label class="avkrysning"><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label>
+        <a class="knapp full send" href="#"></a>
+      </div>
+    </aside>
+  </div>
+</template>
+
+<section class="tilstand" id="te-skjema" aria-label="Innlegg, totalentreprenøren"></section>
+<section class="tilstand" id="te-brevet" aria-label="Brevkontroll for innlegget, totalentreprenøren"></section>
+<section class="tilstand" id="bh-skjema" aria-label="Innlegg, byggherren"></section>
+<section class="tilstand" id="bh-brevet" aria-label="Brevkontroll for innlegget, byggherren"></section>
+
+<!-- ============ Brevkontrollen for aksepten, med innleggene ============ -->
+<section class="tilstand" id="te-godta" aria-label="Godta svaret">
+  <div class="tilbakerad"><a href="#te-traad">‹ Tilbake til vederlagsjusteringen</a></div>
+  <div class="arbeid">
+    <article class="ark" data-part="te" style="--brev:var(--font-brev)">
+      <div class="brevhode">
+        <span class="stempel">Utkast · ikke sendt</span>
+        <h2 class="brevtittel" style="margin-top:0">Aksept av svaret i brev 5</h2>
+      </div>
+      <div class="brevtekst" data-spor="D-1">
+        <p>Totalentreprenøren godtar byggherrens svar på kravet om vederlagsjustering i brev K201-KOE-005-05 av 1. oktober 2026.</p>
+      </div>
+      <div class="hilsen"><p>Med vennlig hilsen</p><p><b>Veidekke Entreprenør AS</b></p><p class="settes">Navnet ditt settes inn når brevet sendes.</p></div>
+    </article>
+    <aside class="panel" aria-label="Panelet">
+      <ol class="stegviser" aria-label="Stegene"><li aria-current="step"><b>1</b> Kontroller og send</li></ol>
+      <div data-spor="U-7 · D-8">
+        <h3 style="font-size:14px;font-weight:600">Innlegg som viser til brev 5</h3>
+        <ul class="innleggsliste"></ul>
+      </div>
+      <div class="virkning" data-spor="U-9 · D-1">
+        <h3>Når du sender</h3>
+        <p>Aksepten gjelder hele svaret i brev 5, også at varselet kom for sent. Beløpet etter svaret er da 0 kr.</p>
+        <p>Innleggene inngår ikke i aksepten.</p>
+      </div>
+      <div>
+        <label class="avkrysning"><input type="checkbox"> Jeg har kontrollert brevet.</label>
+        <button type="button" class="knapp full" disabled title="Ikke en del av prototypen">Send til byggherren</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+
+</div>
+
+<script>
+  const skall = document.getElementById('skall');
+  const DOK = { 4: 'K201-KOE-005-04', 5: 'K201-KOE-005-05' };
+  const PART = {
+    te: { navn: 'Veidekke Entreprenør AS', rolle: 'Totalentreprenøren', kort: 'TE', motpart: 'bh', send: 'Send til byggherren',
+          virkning: 'Du kan fortsatt godta svaret eller sende en ny versjon av kravet.' },
+    bh: { navn: 'Oslobygg KF', rolle: 'Byggherren', kort: 'BH', motpart: 'te', send: 'Send til totalentreprenøren',
+          virkning: 'Et innlegg er ikke en påberopelse i svaret. Vil du endre standpunktene i svaret, sender du et nytt svar.' },
+  };
+  // Brevene i saken. Brev 6 er totalentreprenørens innlegg når byggherren åpner prototypen direkte.
+  const fast = [
+    { nr: 4, part: 'te', dato: '1. oktober 2026', type: 'Krav', tittel: 'Krav om vederlagsjustering', eldre: true },
+    { nr: 5, part: 'bh', dato: '1. oktober 2026', type: 'Svar', tittel: 'Svar på kravet om vederlagsjustering' },
+  ];
+  const forvalgt = { nr: 6, part: 'te', dato: '1. november 2026', type: 'Innlegg', tittel: 'Varselet om vederlagsjustering kom i tide',
+    tekst: 'Varselet ble sendt samme dag som tegningene kom.', viserTil: 5, filer: [] };
+  const sendt = [];
+  const utkast = { te: { tittel: '', tekst: '', viserTil: 5, filer: [] }, bh: { tittel: '', tekst: '', viserTil: 6, filer: [] } };
+
+  const brevene = (part) => {
+    const innlegg = sendt.length ? sendt : part === 'bh' ? [forvalgt] : [];
+    return [...fast, ...innlegg].sort((a, b) => b.nr - a.nr);
+  };
+  const omtale = (b) => `brev ${DOK[b.nr] ?? 'K201-KOE-005-0' + b.nr} av ${b.dato}`;
+  const finn = (part, nr) => brevene(part).find((b) => b.nr === nr);
+  const nesteNr = (part) => Math.max(...brevene(part).map((b) => b.nr)) + 1;
+
+  function tegnTraad(rot, part) {
+    rot.querySelector('.plass').replaceChildren(document.getElementById('mal-traad').content.cloneNode(true));
+    const liste = rot.querySelector('.traad');
+    const alle = brevene(part);
+    for (const b of alle) {
+      const li = document.createElement('li');
+      li.className = 'brev' + (b.eldre ? ' eldre' : '') + (b.type === 'Innlegg' ? ' nytt' : '');
+      const egen = b.part === part;
+      let innhold = `<span class="part ${b.part}" aria-hidden="true">${PART[b.part].kort}</span>
+        <p class="metalinje"><span>${b.dato}</span><span>·</span><span>brev ${b.nr}</span><span>·</span><span class="type">${b.type}</span></p>
+        <h4>${b.tittel}<span class="visually-hidden"> fra ${PART[b.part].rolle.toLowerCase()}</span></h4>`;
+      if (b.type === 'Innlegg') {
+        innhold += `<p class="viser-til">Viser til brev ${b.viserTil}</p><p class="utdrag ${b.part}">${b.tekst}</p>`;
+        for (const f of b.filer) innhold += `<a class="fil" href="#${part}-traad">${f}</a>`;
+      }
+      if (b.nr === 5) {
+        innhold += `<div class="lag"><p class="forste">Byggherren gjør gjeldende at varselet om vederlagsjustering etter punkt 34.1.2 i brev 4 kom for sent.</p>
+          <p class="under">Hvis innsigelsen om varselet ikke fører frem: byggherren godkjenner <span class="num">60 000</span> av de krevde <span class="num">100 000</span> kr.</p></div>`;
+        if (part === 'te') innhold += `<div class="handlinger"><a class="knapp" href="#te-traad" onclick="return false" data-spor="D-5">Send ny versjon av kravet</a><a class="knapp sek" href="#te-godta">Godta svaret</a></div>`;
+        else innhold += `<div class="handlinger"><a class="lenke" href="#bh-traad" onclick="return false">Send nytt svar</a></div>`;
+      }
+      li.innerHTML = innhold;
+      liste.append(li);
+    }
+    const siste = alle[0];
+    const merknad = rot.querySelector('.merknad');
+    if (siste.type === 'Innlegg') merknad.textContent = `Innlegg fra ${PART[siste.part].rolle.toLowerCase()} etter siste brev, ${siste.dato}.`;
+    rot.querySelector('.send-innlegg').setAttribute('href', `#${part}-skjema`);
+  }
+
+  function tegnSkjema(rot, part) {
+    if (rot.dataset.tegnet) return;
+    rot.dataset.tegnet = 'ja';
+    rot.dataset.part = part;
+    rot.replaceChildren(document.getElementById('mal-skjema').content.cloneNode(true));
+    const u = utkast[part];
+    rot.querySelector('.tilbake-traad').setAttribute('href', `#${part}-traad`);
+    rot.querySelector('.til-brevet').setAttribute('href', `#${part}-brevet`);
+    rot.querySelector('.avsender').textContent = PART[part].navn;
+    for (const [klasse, navn] of [['viser-til-felt', 'viser'], ['tittel-felt', 'tittel'], ['tekst-felt', 'tekst']]) rot.querySelector('.' + klasse).id = `${part}-${navn}`;
+    rot.querySelector('label.etikett[for=""]').setAttribute('for', `${part}-viser`);
+    rot.querySelector('.tittel-etikett').setAttribute('for', `${part}-tittel`);
+    rot.querySelector('.tekst-etikett').setAttribute('for', `${part}-tekst`);
+    const velg = rot.querySelector('.viser-til-felt');
+    for (const b of brevene(part)) {
+      const o = new Option(`Brev ${b.nr} · ${b.tittel} · ${PART[b.part].rolle} · ${b.dato}`, b.nr);
+      velg.append(o);
+    }
+    velg.value = String(u.viserTil);
+    velg.addEventListener('change', () => { u.viserTil = Number(velg.value); });
+    const tittel = rot.querySelector('.tittel-felt'), tekst = rot.querySelector('.tekst-felt');
+    tittel.addEventListener('input', () => { u.tittel = tittel.value; rot.querySelector('.tittel-vist').textContent = tittel.value || 'Innlegg'; });
+    tekst.addEventListener('input', () => { u.tekst = tekst.value; });
+    rot.querySelector('.legg-til').addEventListener('click', () => {
+      const navn = part === 'te' ? 'Epost med varselet 12.09.2026.pdf' : 'Referat fra byggemøte 14.pdf';
+      if (!u.filer.includes(navn)) u.filer.push(navn);
+      rot.querySelector('.filer').innerHTML = u.filer.map((f) => `<li>${f}</li>`).join('');
+    });
+  }
+  function oppdaterSkjema(rot, part) {
+    const nr = rot.querySelector('.nummer');
+    nr.textContent = `Brev ${nesteNr(part)} til ${PART[PART[part].motpart].rolle.toLowerCase()}`;
+  }
+
+  function tegnBrevet(rot, part) {
+    rot.dataset.part = part;
+    rot.replaceChildren(document.getElementById('mal-brevet').content.cloneNode(true));
+    const u = utkast[part], p = PART[part], m = PART[p.motpart];
+    const ref = finn(part, u.viserTil);
+    rot.querySelector('.tilbake-skjema').setAttribute('href', `#${part}-skjema`);
+    rot.querySelectorAll('.avsender').forEach((e) => (e.textContent = p.navn));
+    rot.querySelector('.avsender-rolle').textContent = p.rolle;
+    rot.querySelectorAll('.mottaker').forEach((e) => (e.textContent = m.navn));
+    rot.querySelector('.mottaker-rolle').textContent = m.rolle;
+    rot.querySelector('.deres-ref').textContent = ref.part === p.motpart ? (DOK[ref.nr] ?? `K201-KOE-005-0${ref.nr}`) : '';
+    rot.querySelector('.vaar-ref').textContent = `K201-KOE-005-0${nesteNr(part)}`;
+    rot.querySelector('.tittel-vist').textContent = u.tittel || 'Innlegg';
+    rot.querySelector('.henvisning').textContent = `${p.rolle} viser til ${omtale(ref)}:`;
+    rot.querySelector('.tekst-vist').textContent = u.tekst;
+    rot.querySelector('.vedlegg').textContent = u.filer.length ? `Vedlegg: ${u.filer.join(', ')}` : '';
+    rot.querySelector('.viser-til-kort').textContent = `Brev ${ref.nr}`;
+    const vp = rot.querySelector('.virkning-part');
+    vp.textContent = p.virkning;
+    if (part === 'bh') vp.dataset.spor = 'U-10 · D-10';
+    const send = rot.querySelector('.send');
+    send.textContent = p.send;
+    send.setAttribute('href', `#${part}-sendt`);
+    send.addEventListener('click', (e) => {
+      if (!rot.querySelector('.kontrollert').checked) { e.preventDefault(); rot.querySelector('.feil').hidden = false; return; }
+      const b = { nr: nesteNr(part), part, dato: part === 'te' ? '1. november 2026' : '3. november 2026', type: 'Innlegg',
+        tittel: u.tittel || 'Innlegg', tekst: u.tekst, viserTil: u.viserTil, filer: [...u.filer] };
+      if (!sendt.length && part === 'bh') sendt.push(forvalgt);
+      sendt.push(b);
+      kvittering = `Brev ${b.nr} er sendt til ${m.rolle.toLowerCase()}.`;
+      Object.assign(u, { tittel: '', tekst: '', filer: [] });
+      for (const id of ['te-skjema', 'bh-skjema']) delete document.getElementById(id).dataset.tegnet;
+    });
+  }
+  let kvittering = '';
+
+  function tegnGodta() {
+    const liste = document.querySelector('#te-godta .innleggsliste');
+    const innlegg = brevene('te').filter((b) => b.type === 'Innlegg' && b.viserTil === 5);
+    liste.innerHTML = innlegg.length
+      ? innlegg.map((b) => `<li>Brev ${b.nr} · ${PART[b.part].rolle} · ${b.dato} · ${b.tittel}</li>`).join('')
+      : '<li>Ingen innlegg viser til brev 5.</li>';
+  }
+
+  function vis() {
+    const id = (location.hash || '#te-traad').slice(1);
+    const el = document.getElementById(id);
+    if (!el || !el.classList.contains('tilstand')) return;
+    const part = id.slice(0, 2);
+    skall.dataset.part = part;
+    document.querySelectorAll('.te-tekst').forEach((e) => (e.hidden = part !== 'te'));
+    document.querySelectorAll('.bh-tekst').forEach((e) => (e.hidden = part !== 'bh'));
+    document.querySelectorAll('[data-vis-som]').forEach((a) => a.setAttribute('aria-current', String(a.dataset.visSom === part)));
+    if (/-(traad|sendt)$/.test(id)) tegnTraad(el, part);
+    if (id.endsWith('-sendt')) el.querySelector('.kvittering-tekst').textContent = kvittering || `Brev ${brevene(part)[0].nr} er sendt.`;
+    if (id.endsWith('-skjema')) { tegnSkjema(el, part); oppdaterSkjema(el, part); }
+    if (id.endsWith('-brevet')) tegnBrevet(el, part);
+    if (id === 'te-godta') tegnGodta();
+    document.querySelectorAll('.tilstand').forEach((t) => t.classList.toggle('vist', t === el));
+    scrollTo(0, 0);
+  }
+  document.getElementById('vis-spor').addEventListener('change', (e) => { skall.dataset.visSpor = e.target.checked ? 'ja' : 'nei'; });
+  addEventListener('hashchange', vis);
+  // Alle tilstandene tegnes ved start, så sporbarheten og ankrene finnes uansett hvor prototypen åpnes.
+  for (const part of ['te', 'bh']) {
+    tegnTraad(document.getElementById(`${part}-traad`), part);
+    tegnTraad(document.getElementById(`${part}-sendt`), part);
+    tegnSkjema(document.getElementById(`${part}-skjema`), part);
+    oppdaterSkjema(document.getElementById(`${part}-skjema`), part);
+    tegnBrevet(document.getElementById(`${part}-brevet`), part);
+  }
+  tegnGodta();
+  vis();
+</script>
+</body>
+</html>
