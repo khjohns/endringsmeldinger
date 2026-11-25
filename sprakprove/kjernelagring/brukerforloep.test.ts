@@ -28,7 +28,8 @@ describe.skipIf(!TESTBASE_URL)('brukerforløpene gjennom testbasen', () => {
       paastand: (holder, melding) => expect(holder, melding).toBe(true),
     });
     const skrevet = (await bane.journal()).filter((r) => k.skrevet.includes(r.event_id));
-    expect(skrevet.length).toBe(b.steg!.length);
+    // Steget tiden_gaar flytter bare klokka og skriver ingen rad (BF-46 G-1).
+    expect(skrevet.length).toBe(b.steg!.filter((h) => h.handling !== 'tiden_gaar').length);
     expect(skrevet.flatMap(avvikFraFormatet)).toEqual([]);
     expect(skrevet.flatMap(utenAvsnitt)).toEqual([]);
   });

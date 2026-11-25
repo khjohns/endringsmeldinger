@@ -29,7 +29,7 @@ Ett forløp per fil, `BF-<nummer>.json`, med ID-en som filnavn. ID-en endres ikk
 | `tittel`, `brukerhistorie` | Hva brukerne gjør og forstår, med partene og handlingene |
 | `status` | `kjørbar` eller `planlagt`. Et planlagt forløp har ingen steg, kjøres ikke og etterlignes ikke med en annen handling |
 | `utgangspunkt` | `start` er et prefiks fra bevis-sakene eller `null`, og `beskrivelse` sier hvor saken står |
-| `steg` | Handlingene, i samme format som bevis-sakene (`Handling` i `kjerne/tester/klient.ts`) |
+| `steg` | Handlingene, i samme format som bevis-sakene (`Handling` i `kjerne/tester/klient.ts`). `{ "handling": "tiden_gaar", "til": "ÅÅÅÅ-MM-DD" }` lar tid gå til datoen, kl. 08.00 UTC, uten å skrive noe (BF-46 G-1). Startjournalen har da klokka ved kontrollpunktene etter steget, og demoruta fortsetter derfra. I saksruta skrives stegene før det tilbakedatert i testbasen ([skillen `mockup-nettleser`](../../../.claude/skills/mockup-nettleser/SKILL.md)) |
 | `kontrollpunkter` | Navngitte punkter etter et steg (`etter`), med `kontrollsett`, egne `kontroller` og `forstaaelse` med `tekst` og `kilde` |
 | `kilder`, `venter_paa` | For et planlagt forløp: vedtakene det bygger på, og issuene det venter på. Et kjørbart forløp har ikke `kilder`; vedtakene står i kontrollene og forståelsen (#1363) |
 | `bestilling` | Valgfri. Markdown-fila i samme mappe med ønsket arbeidsmåte, skjermtilstandene i prototypen, forventningene og de åpne spørsmålene, skrevet før byggingen. Metoden står i skillen [`brukerforlop`](../../../.claude/skills/brukerforlop/SKILL.md) |

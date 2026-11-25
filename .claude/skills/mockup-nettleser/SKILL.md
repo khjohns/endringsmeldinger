@@ -12,7 +12,7 @@ for en diff i saksvisningen, etter leveranseskillen, «Review og funn». Den kj�
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--klokke] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -80,9 +80,21 @@ ikke er det forventede:
    `feil-409.png`, `feil-403.png`, `feil-500.png` og `feil-avbrutt.png`, med meldingen rullet
    inn i bildet. Det stopper med exit 1 hvis skjemaet ikke sender, eller ikke viser den
    forventede meldingen i `role="alert"`.
+9. Et forløp med steget `tiden_gaar` (BF-46) får akseptfristen den siste hverdagen før i dag,
+   og stegene før `tiden_gaar` dateres 14 dager før den (G-2 i
+   [BF-46](../../../docs/domenetabell/brukerforlop/BF-46.md)). Kjøreren vurderer dem med kjernen,
+   og skriptet skriver radene tilbakedatert i `koe.hendelse` med eieren av testbasen, med
+   aktøren, prosjektet, siden og teamet i transaksjonskonteksten (G-3). Stegene etter
+   `tiden_gaar` går gjennom serveren som i punkt 6. De tilbakedaterte radene har ingen
+   leveringsoppdrag, og de beviser ikke aktørstemplingen og tilgangen (G-9). Med `--klokke`
+   (krever et slikt forløp og `--til`, som `--forlop BF-46 --til te-etter-akseptfristen`)
+   settes nettleserens klokke til akseptfristen (`page.clock`) mens basen er etter den. TE godtar
+   svaret på fristkravet, og skriptet krever at brevkontrollen sier at aksepten er sendt etter
+   akseptfristen, at sendingen gir 201, og at journalen har den samme teksten (U-5, #2319). Det
+   tar `klokke-brevkontroll.png` og `klokke-sendt.png`.
 
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
-med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
+med et eget Playwright-skript. Send aldri rett i tabellene; unntaket er de tilbakedaterte radene i punkt 9. Slik drives skjemaene videre:
 
 1. Start med `--forlop` og `--til` for det saken skal ha før skjemaet du vil vise. Mangler
    forløpet, skriv det i `docs/domenetabell/brukerforlop/`. Med `--behold`

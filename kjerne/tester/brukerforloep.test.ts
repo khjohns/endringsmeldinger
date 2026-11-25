@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import regler from '../../docs/domenetabell/regler.json' with { type: 'json' };
 import { avvikFraFormatet, utenAvsnitt } from './formatprove.ts';
-import { MAALMODELL } from './kjoerer.ts';
+import { les, MAALMODELL } from './kjoerer.ts';
 import {
   BRUKERFORLOEP,
   demonavnerom,
@@ -26,6 +26,7 @@ import {
   sammenliknbar,
   stemmer,
   somForloep,
+  startjournal,
   vedtakIBestilling,
   type Brukerforloep,
 } from './brukerforloep.ts';
@@ -75,6 +76,45 @@ describe('brukerforløpene i minnet', () => {
         expect(del).toEqual(hele.slice(0, del.length));
       }
     }
+  });
+
+  // BF-46 G-1: tiden_gaar flytter klokka, og aksepten er datert dagen etter akseptfristen.
+  // HF-U23 punkt 2 og 7: fristen er ute ved utgangen av datoen, så en aksept på fristdatoen har
+  // ikke setningen og ikke etiketten, og en aksept dagen etter har begge.
+  it.each([
+    ['2026-10-15', false],
+    ['2026-10-16', true],
+  ])(
+    'tiden_gaar til %s: aksepten etter akseptfristen er %s (BF-46 G-1, HF-U23)',
+    async (til, etter) => {
+      const b = structuredClone(finn('BF-46'));
+      b.steg = b.steg!.map((h) => (h.handling === 'tiden_gaar' ? { ...h, til } : h));
+      b.kontrollpunkter = [];
+      const { k, bane } = await kjoerBrukerforloep(b);
+      const aksepten = (await bane.journal()).at(-1)!;
+      expect(aksepten.tidsstempel.slice(0, 10)).toBe(til);
+      const tekst = (aksepten.data.brevtekst as { laast: string }[]).map((a) => a.laast).join(' ');
+      expect(tekst.includes('Aksepten er sendt etter akseptfristen 15. oktober 2026')).toBe(etter);
+      const etiketter = les('visning.etiketter.frist', await k.utledning(), k) as string[];
+      expect(etiketter.includes('aksept_etter_akseptfristen')).toBe(etter);
+    }
+  );
+
+  it('tiden_gaar til en dato før klokka stopper kjøringen', async () => {
+    const b = structuredClone(finn('BF-46'));
+    b.steg = b.steg!.map((h) => (h.handling === 'tiden_gaar' ? { ...h, til: '2026-09-30' } : h));
+    await expect(kjoerBrukerforloep(b)).rejects.toThrow(/kan ikke flyttes/);
+  });
+
+  it('startjournalen har klokka ved et kontrollpunkt etter tiden_gaar, og ikke ellers (BF-46 G-1)', async () => {
+    const b = finn('BF-46');
+    const punktene = (await startjournal(b)).kontrollpunkter;
+    expect(punktene.map((p) => [p.id, p.klokke])).toEqual([
+      ['te-etter-akseptfristen', '2026-10-16T08:00:00.000Z'],
+      ['bh-har-mottatt-aksepten', '2026-10-16T08:01:00.000Z'],
+    ]);
+    const uten = await startjournal(finn('BF-45'));
+    expect(uten.kontrollpunkter.every((p) => p.klokke === undefined)).toBe(true);
   });
 
   it('et planlagt forløp kjøres ikke', () => {
