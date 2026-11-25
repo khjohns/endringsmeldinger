@@ -2688,6 +2688,7 @@
           "versjon": 5,
           "forstaaelse": [
             "TE ser akseptfristen ved byggherrens svar som før fristen, med datoen og leveringskvitteringen, uten «utløpt», farge eller relativ tid (U-1).",
+            "Siden viser ikke dagens dato og sier ikke at akseptfristen er ute. I demoruta står dagens dato i demopanelet (U-9, G-11).",
             "TE ser «Godta svaret» ved byggherrens svar som før fristen, og knappen går rett til brevkontrollen (U-2).",
             "I brevkontrollen sier brevet at aksepten er sendt etter akseptfristen, med datoen, og «Når du sender» sier at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret (U-3, U-4).",
             "Brevkontrollen lager brevet med datoen i basen, i norsk tid, ikke med klokka på TEs maskin. Teksten TE godkjenner, er teksten som sendes; er serverens tekst en annen, sendes brevet ikke (U-5, D-4).",
@@ -2707,6 +2708,7 @@
           "forstaaelse": [
             "Partene ser aksepten i tråden med setningen om at den er sendt etter akseptfristen (U-3).",
             "Ved kravet står «Enige», og linja under sier at aksepten er sendt etter akseptfristen, med datoen og uten tolkning (U-6).",
+            "Etter aksepten står akseptfristen ikke lenger over handlingene ved byggherrens svar. Datoen står i brevet og i linja ved kravet (U-8).",
             "Byggherren har ingen handling for å svare på aksepten, men kan sende et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen (U-7, D-5).",
             "Aksepten er sendt med «Godta svaret». En aksept sendt utenfor løsningen og lagt til etterpå er ikke en del av forløpet."
           ],
