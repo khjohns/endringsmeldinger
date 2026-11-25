@@ -375,3 +375,34 @@ describe('brevet med varselet etter punkt 34.3.3 og 34.4 heter som varselet (#23
     );
   });
 });
+
+describe('handlingen står ved hvert varsel som står alene (#2360 punkt 1, U-16 i BF-44)', () => {
+  it('svaret på varselet etter punkt 34.4 i brev 3 står ved brev 3, ikke under «Andre handlinger»', async () => {
+    const journal = skrevet(medVarsel('34.3.3'), 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.4',
+    });
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    const ved = async (tittel: string, knapp: string) => {
+      const rad = (await screen.findAllByRole('listitem')).find((li) =>
+        within(li).queryByText(tittel)
+      )!;
+      return within(rad).getByRole('button', { name: knapp });
+    };
+    expect(
+      await ved(
+        'Varsel om justering av enhetsprisene',
+        'Svar på varselet om justering av enhetsprisene'
+      )
+    ).toBeInTheDocument();
+    expect(
+      await ved('Varsel før regningsarbeidet settes i gang', 'Svar på varselet om regningsarbeid')
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: 'Svar på varselet om regningsarbeid' })
+    ).toHaveLength(1);
+  });
+});

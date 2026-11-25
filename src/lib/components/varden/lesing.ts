@@ -528,9 +528,10 @@ export interface Sideprops {
   /** Brukeren går til et annet spor, som forholdet fra forbeholdet. */
   onspor?: (spor: Spor) => void;
   onkorriger?: (opplysning: string) => void;
-  /** Brevet handlingen svarer på (U-16 i BF-44). */
-  handlingVed?: string | null;
-  handling?: Snippet;
+  /** Brevene som har en handling ved seg, den brevet svarer på (U-16 i BF-44). */
+  handlingerVed?: readonly string[];
+  /** Handlingene ved brevet med ID-en. */
+  handling?: Snippet<[string]>;
   /** Brevet slik det ble sendt, i raden. */
   brevet?: Snippet<[Brevet]>;
   /** Leveringen av brevene sendt herfra til Catenda (`leveringene`). */

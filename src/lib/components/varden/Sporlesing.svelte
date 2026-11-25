@@ -123,9 +123,8 @@
     h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
       ? hjemmelenForVarselet(u, h.gjelder)
       : null;
-  const svarPaaVarselet = $derived(
-    iSporet.find((h) => h.type === 'svare' && varselhjemmel(h)) ?? null
-  );
+  const varselsvarene = $derived(iSporet.filter((h) => h.type === 'svare' && varselhjemmel(h)));
+  const svarPaaVarselet = $derived(varselsvarene[0] ?? null);
   // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
   // byggherrens svar TEs nye versjon (oppdragsgiver 06.11, #1649).
   const primaer = $derived(
@@ -225,6 +224,21 @@
     const n = primaer ?? (kanGodta ? `godta:${spor}` : revidere);
     return n ? (omtalen(n)?.ved?.() ?? null) : null;
   });
+  // Svaret på hvert varsel som står alene, står ved brevet med varselet (U-16 i BF-44,
+  // oppdragsgiver 25.11 i #2360). Det første er primærhandlingen når saken ikke har annet.
+  const varselVed = $derived.by(() => {
+    const ved = new Map<string, string[]>();
+    for (const h of varselsvarene) {
+      const b = h.noekkel === primaer ? null : brevMedUtsagn(u, h.gjelder!)?.id;
+      if (b) ved.set(b, [...(ved.get(b) ?? []), h.noekkel]);
+    }
+    return ved;
+  });
+  const handlingerVed = $derived([
+    ...(handlingVed === null ? [] : [handlingVed]),
+    ...[...varselVed.keys()].filter((b) => b !== handlingVed),
+  ]);
+  const vedVarslene = $derived(new Set([...varselVed.values()].flat()));
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
   // Kjernen sier om forseringen kan velges (`forseringKanVelges`, FO-U1, U-6 i BF-45), og
   // `kanGodta` om serveren lar totalentreprenøren svare på svaret. «Andre handlinger» setter den
@@ -233,7 +247,9 @@
     spor === 'frist' && part === 'TE' && kanGodta && forseringKanVelges(u)
   );
   const andre = $derived([
-    ...menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere),
+    ...menyvalg.filter(
+      (n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere && !vedVarslene.has(n)
+    ),
     ...(forsering ? [FORSERING] : []),
   ]);
   const avslag = $derived(
@@ -397,6 +413,22 @@
   {/if}
 {/snippet}
 
+<!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
+{#snippet vedBrevene(id: string)}
+  {#if id === handlingVed}{@render vedBrevet()}{/if}
+  {#if varselVed.get(id)?.length}
+    <div class="knapper">
+      {#each varselVed.get(id)! as n (n)}
+        <Knapp
+          variant={utkast ? 'sekundaer' : 'primaer'}
+          onclick={() => (bygget.includes(n) ? velg(n) : (primaerIkkeBygget = true))}
+          >{innsigelsestekst(n)}</Knapp
+        >
+      {/each}
+    </div>
+  {/if}
+{/snippet}
+
 {#snippet lestBrevet(b: Brevet)}
   <Brevpanel brev={b} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
 {/snippet}
@@ -422,8 +454,8 @@
       {onspor}
       {korrigerbare}
       {onkorriger}
-      {handlingVed}
-      handling={vedBrevet}
+      {handlingerVed}
+      handling={vedBrevene}
       brevet={lestBrevet}
       {levering}
       {leggTilKorrespondanse}

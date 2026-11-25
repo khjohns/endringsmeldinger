@@ -28,7 +28,7 @@
     onles,
     onspor,
     onkorriger,
-    handlingVed = null,
+    handlingerVed = [],
     handling,
     brevet,
     leggTilKorrespondanse,
@@ -67,7 +67,7 @@
     {korrigerbare}
     {onkorriger}
     lukket={u.forholdAvvist}
-    {handlingVed}
+    {handlingerVed}
     {handling}
     {brevet}
   />
