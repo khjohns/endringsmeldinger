@@ -22,6 +22,7 @@ import {
   KLAR_OVER,
   KR,
   METODE_JA,
+  MOT,
   PAABEROPELSE,
   kr,
   laast,
@@ -328,20 +329,19 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['beloep', 2],
     ]);
     // Ordlyden er OV-U28: hver post for seg, og etikettene følger innsigelsene.
-    // LV-U34, LV-U40 og OV-U73: begrensningen står i punktet om den særskilte justeringen.
+    // LV-U78 og OV-U73: varselet etter punkt 34.1.3 og beløpet etter begrensningen står i
+    // punktet om den særskilte justeringen, i samme avsnitt. LV-U79: lagslinjen nevner innsigelsen.
     expect(laast(rad).slice(1)).toEqual([
-      `1. Varselet om særskilt vederlagsjustering (punkt\u00a034.1.3)\n\nPrinsipalt\n\n${saerskiltForSent}`,
-      `2. Beregningsmetode (punkt\u00a034.2)\n\n${METODE_JA}`,
-      `3. Vederlagsjustering (punkt\u00a034.1.1)\n\nByggherren godkjenner ${kr('100 000')} av de krevde ${kr('150 000')}.`,
-      `4. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nPrinsipalt\n\nByggherren godkjenner ${kr('10 000')} etter begrensningen i punkt\u00a01 ovenfor.\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
+      `1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('150 000')}.`,
+      `2. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nPrinsipalt\n\n${saerskiltForSent} Byggherren godkjenner etter dette ${kr('10 000')} av de krevde ${kr('40 000')}.\n\nSubsidiært, hvis ${MOT.varselet('34.1.3')} ikke fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
       oversikt(
-        5,
+        3,
         'Post\tKrevd\tPrinsipalt\tSubsidiært',
         `Vederlagsjustering\t${kr('150 000')}\t${kr('100 000')}\t${kr('100 000')}`,
         `Særskilt vederlagsjustering\t${kr('40 000')}\t${kr('10 000')}\t${kr('30 000')}`,
         `Sum\t${kr('190 000')}\t${kr('110 000')}\t${kr('130 000')}`
       ),
-      forbeholdet(6),
+      forbeholdet(4),
     ]);
     // Svaret 16.11 i #1997: avsnittet med tabellen har nøkkelen til posten i hver rad, i samme
     // rekkefølge, og bare det avsnittet har den.
@@ -461,12 +461,12 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['rettidighet', 1],
       ['beloep', 2],
     ]);
-    // LV-U40 og OV-U32: to innsigelser i det første laget gir flertall i lagslinjen.
+    // LV-U79 og OV-U117: lagslinjen for den særskilte posten nevner bare innsigelsen som rammer
+    // den, ikke tilbudet for P1.
     expect(laast(rad).slice(1)).toEqual([
-      `1. Varselet om særskilt vederlagsjustering (punkt\u00a034.1.3)\n\nPrinsipalt\n\n${saerskiltForSent}`,
-      '2. Beregningsmetode (punkt\u00a034.2)\n\nPrinsipalt\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).',
-      `3. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nPrinsipalt\n\nByggherren godkjenner ${kr('10 000')} etter begrensningen i punkt\u00a01 ovenfor.\n\nSubsidiært, hvis innsigelsene i punkt\u00a01 og 2 ovenfor ikke fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
-      forbeholdet(4),
+      '1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\nPrinsipalt\n\nByggherren aksepterer ikke totalentreprenørens tilbud (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).',
+      `2. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nPrinsipalt\n\n${saerskiltForSent.replace('NS 8407 ', '')} Byggherren godkjenner etter dette ${kr('10 000')} av de krevde ${kr('40 000')}.\n\nSubsidiært, hvis ${MOT.varselet('34.1.3')} ikke fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
+      forbeholdet(3),
     ]);
     expect(laast(rad).join(' ')).not.toContain('justeringen ellers');
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
@@ -523,10 +523,9 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       `Byggherrens standpunkt: tilbudet ikke akseptert (punkt\u00a034.2.2), godkjent med ${kroner(30000)} for særskilt justering (punkt\u00a034.1.3 annet ledd).`
     );
     expect(laast(rad).slice(1)).toEqual([
-      '1. Varselet om særskilt vederlagsjustering (punkt\u00a034.1.3)\n\nByggherren gjør ikke gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt\u00a034.1.3 tredje ledd i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent.',
-      '2. Beregningsmetode (punkt\u00a034.2)\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).',
-      `3. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
-      forbeholdet(4),
+      '1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\nByggherren aksepterer ikke totalentreprenørens tilbud (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).',
+      `2. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nByggherren gjør ikke gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt\u00a034.1.3 tredje ledd i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent. Byggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
+      forbeholdet(3),
     ]);
   });
 
@@ -571,21 +570,20 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['beloep', 3],
     ]);
     // LV-U40, LV-U39 og OV-U73: med tabellen står ikke setningen om at ingenting er godkjent.
-    const sub = 'Subsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem';
+    // LV-U79: lagslinjen nevner innsigelsene i det nærmeste laget foran.
+    const sub = `Subsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem`;
     expect(laast(rad).slice(1)).toEqual([
       '1. Varselet om vederlagsjustering (punkt\u00a034.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.',
-      `2. Varselet om særskilt vederlagsjustering (punkt\u00a034.1.3)\n\n${sub}\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt\u00a034.1.3 tredje ledd i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`,
-      `3. Beregningsmetode (punkt\u00a034.2)\n\n${sub}\n\n${METODE_JA}`,
-      `4. Vederlagsjustering (punkt\u00a034.1.2)\n\n${sub}\n\nByggherren godkjenner ${kr('100 000')} av de krevde ${kr('150 000')}.`,
-      `5. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\n${sub}\n\nByggherren godkjenner ${kr('10 000')} etter begrensningen i punkt\u00a02 ovenfor.\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
+      `2. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.2)\n\n${sub}\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('150 000')}.`,
+      `3. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\n${sub}\n\n${saerskiltForSent.replace('NS 8407 ', '')} Byggherren godkjenner etter dette ${kr('10 000')} av de krevde ${kr('40 000')}.\n\nVidere subsidiært, hvis heller ikke ${MOT.varselet('34.1.3')} fører frem\n\nByggherren godkjenner ${kr('30 000')} av de krevde ${kr('40 000')}.`,
       oversikt(
-        6,
+        4,
         'Post\tKrevd\tPrinsipalt\tSubsidiært\tVidere subsidiært',
         `Vederlagsjustering\t${kr('150 000')}\t${kr('0')}\t${kr('100 000')}\t${kr('100 000')}`,
         `Særskilt vederlagsjustering\t${kr('40 000')}\t${kr('0')}\t${kr('10 000')}\t${kr('30 000')}`,
         `Sum\t${kr('190 000')}\t${kr('0')}\t${kr('110 000')}\t${kr('130 000')}`
       ),
-      `7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av uforutsette forhold ved grunnen i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.`,
+      `5. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av uforutsette forhold ved grunnen i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.`,
     ]);
     // OV-U32: standpunktene i samme lag står under én etikett, også i linjen.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
@@ -662,8 +660,9 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         })
       ).toBe('UGYLDIG_VURDERING');
     const rad = brevet(s, uten, { resultat: 'godkjent', godkjent_beloep: 40000 });
-    expect(laast(rad)[2]).toBe(
-      `2. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nByggherren godkjenner ${kr('40 000')}.`
+    // LV-U78: varselet etter punkt 34.1.3 står i punktet for den særskilte justeringen.
+    expect(laast(rad)[1]).toBe(
+      `1. Særskilt vederlagsjustering (punkt\u00a034.1.3 annet ledd)\n\nByggherren gjør ikke gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt\u00a034.1.3 tredje ledd i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent.\n\nByggherren godkjenner ${kr('40 000')}.`
     );
   });
 

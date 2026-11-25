@@ -31,7 +31,7 @@ import {
   avvikITittelen,
   ulikSakIMerkingenOgTittelen,
 } from '../frosset/brevtittel.ts';
-import { OVERSIKTEN, postradene, tabellenIAvsnittet } from '../frosset/tekst.ts';
+import { FORBEHOLDET, OVERSIKTEN, postradene, tabellenIAvsnittet } from '../frosset/tekst.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -606,14 +606,20 @@ function lesDokument(h: Journalrad): Dokument {
       ...dokument.opplysninger.map((o) => o.id),
     ]);
     // LV-U70: et element har ett avsnitt, eller ett avsnitt per punkt etter hverandre.
-    // Overskriften står først i den låste delen og har et punkt.
+    // Overskriften står først i den låste delen og har et punkt. LV-U81: avsnittet for punktet
+    // «Forbehold» i et svar kan stå i punktet «Forbehold» sist i brevet, etter de andre
+    // elementene, og er da det siste avsnittet for svaret.
     const sett = new Set<string>();
+    const forbeholdetSist = new Set<string>();
+    const svarene = new Set(dokument.svar.map((s) => s.id));
     let forrige: (typeof data.brevtekst)[number] | undefined;
     for (const a of data.brevtekst) {
       const fortsetter = forrige?.gjelder === a.gjelder;
+      const forbeholdet = a.punkt === FORBEHOLDET && svarene.has(a.gjelder);
       if (
         !elementer.has(a.gjelder) ||
-        (sett.has(a.gjelder) && !fortsetter) ||
+        forbeholdetSist.has(a.gjelder) ||
+        (sett.has(a.gjelder) && !fortsetter && !forbeholdet) ||
         (fortsetter && (a.punkt === undefined || forrige!.punkt === undefined))
       )
         throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
@@ -650,6 +656,7 @@ function lesDokument(h: Journalrad): Dokument {
       )
         throw new Uforstaatt('nøklene til postene i brevteksten svarer ikke til radene i tabellen');
       sett.add(a.gjelder);
+      if (forbeholdet && !fortsetter) forbeholdetSist.add(a.gjelder);
       forrige = a;
     }
   }

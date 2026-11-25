@@ -6,6 +6,7 @@
 
 import {
   gitt,
+  helt,
   KanIkkeUttrykkes,
   kravetErstatter,
   opplistet,
@@ -19,18 +20,27 @@ import {
 } from '../../frosset/brevdeler.ts';
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
-import { dager, FORHOLDET, INNLEDNINGEN } from '../../frosset/tekst.ts';
+import { dager, FORHOLDET, INNLEDNINGEN, INNSIGELSEN_MOT } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
 import {
   betegnelsen,
-  erInnsigelseIFristen,
   hindringenEtter,
+  innsigelsenIFristen,
+  type InnsigelseIFristen,
   innholdIFristen,
   type FristIKravet,
 } from './format.ts';
 import { svarPaaForesporsler } from './frysing.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
+
+/** Navnet på innsigelsen i lagslinjen (LV-U79, LV-U34). */
+const INNSIGELSENE_I_FRISTEN: Record<InnsigelseIFristen['innsigelse'], string> = {
+  '33.4': INNSIGELSEN_MOT.varselet('33.4'),
+  '33.6.2': INNSIGELSEN_MOT.forespoerselssvaret,
+  '33.6.1': INNSIGELSEN_MOT.spesifiseringen,
+  hindring: INNSIGELSEN_MOT.hindringen,
+};
 
 /** Fristen `gjelder` i kravet (KA-U74). */
 function fristenI(krav: Krav, gjelder: string): FristIKravet {
@@ -190,8 +200,11 @@ export const BREVTEKSTEN_I_FRISTEN = {
         return undefined;
     }
   },
-  // KA-U78: hindringen og spesifiseringen står i et eget lag når byggherren påberoper dem.
-  erInnsigelse: erInnsigelseIFristen,
+  // KA-U78: innsigelsene i fristen gjelder hele kravet.
+  vilkaaret: (p) => {
+    const i = innsigelsenIFristen(p);
+    return i && helt(INNSIGELSENE_I_FRISTEN[i.innsigelse]);
+  },
   rettidighetUtenVarsel: { '33.6.2': foresporselenTil },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,

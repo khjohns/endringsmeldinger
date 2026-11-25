@@ -351,6 +351,32 @@ export const INNLEDNING_VEDERLAG =
 /** GR-U34 og GR-U33: forbeholdet i punktet «Forbehold» når forholdet i brev 1 ikke er besvart. */
 export const FORBEHOLDET =
   'Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.';
+/** LV-U80: overskriften på svaret på hvert krav, når brevet svarer på flere krav. */
+export const DELEN = {
+  forhold: 'Svar på forholdet',
+  vederlag: 'Svar på kravet om vederlagsjustering',
+  frist: 'Svar på kravet om fristforlengelse',
+} as const;
+/** LV-U80: innledningen under overskriften på svaret, når brevet svarer på flere krav. */
+export const iDelen = (spor: keyof typeof DELEN, innledning: string) =>
+  `${DELEN[spor]}\n\n${innledning}`;
+/** LV-U81, 4 A: byggherrens forbehold for hvert svar, med navnet på kravet, i et brev med flere svar. */
+export const FORBEHOLD_FOR = {
+  forhold: 'Forbehold for svaret på forholdet:',
+  vederlag: 'Forbehold for svaret på kravet om vederlagsjustering:',
+  frist: 'Forbehold for svaret på kravet om fristforlengelse:',
+} as const;
+/** LV-U79: navnene på innsigelsene i lagslinjen. */
+export const MOT = {
+  forholdet: 'innsigelsen mot forholdet',
+  varselet: (hjemmel: string, post?: string) =>
+    `innsigelsen mot varselet etter punkt\u00a0${hjemmel}${post ? ` for ${post}` : ''}`,
+  hindringen: 'innsigelsen mot hindringen og årsaken til den',
+  spesifiseringen: 'innsigelsen mot spesifiseringen etter punkt\u00a033.6.1',
+  forespoerselssvaret: 'innsigelsen mot svaret på forespørselen etter punkt\u00a033.6.2',
+  beregningsregelen: (post: string) => `innsigelsen mot beregningsregelen for ${post}`,
+  tilbudet: (post: string) => `innsigelsen mot tilbudet for ${post}`,
+} as const;
 /** LV-U34 og LV-U41: innledningen i svaret på påberopelsen i brev 1. */
 export const INNLEDNING_FORHOLDET =
   'Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.';

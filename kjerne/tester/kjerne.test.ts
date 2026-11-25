@@ -37,6 +37,7 @@ import { avvikFraFormatet } from './formatprove.ts';
 import { innholdssummen, mellomlager, type Handling } from './klient.ts';
 import { Forutsetning, les, type Kjoering } from './kjoerer.ts';
 import { SOM_BREV } from './brevet.ts';
+import { MOT } from './brevsak.ts';
 
 type Data = Record<string, unknown>;
 
@@ -2535,13 +2536,12 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
   it('avslått forhold gir beløpet etiketten for andre lag, som brevet', async () => {
     const { linje, brevtekst } = await linjene({ resultat: 'avslaatt' });
     expect(linje('S-v1')).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`);
-    // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten. LV-U34, LV-U40:
-    // lagslinjen viser til punktet om forholdet i samme brev.
-    const lagslinje = 'Subsidiært, hvis innsigelsen i punkt\u00a02 ovenfor ikke fører frem';
+    // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten. LV-U78: metoden og
+    // beløpet står i samme avsnitt. LV-U79: lagslinjen nevner innsigelsen mot forholdet.
+    const lagslinje = `Subsidiært, hvis ${MOT.forholdet} ikke fører frem`;
     expect(brevtekst).toContain(
-      `${lagslinje}\\n\\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.`
+      `${lagslinje}\\n\\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60`
     );
-    expect(brevtekst).toContain(`${lagslinje}\\n\\nByggherren godkjenner 60`);
   });
 
   it('prinsipalt § 32.2 og subsidiært avslag gir beløpet etiketten for tredje lag', async () => {

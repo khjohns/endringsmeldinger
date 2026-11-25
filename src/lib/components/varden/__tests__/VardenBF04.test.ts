@@ -77,7 +77,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt\u00a034.4)' })
     );
     expect(beloepet()).toBeNull();
-    expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(false);
+    expect(linjer().some((l) => l.includes('Vederlagsjustering:'))).toBe(false);
     expect(linjer().some((l) => l.includes('regningsarbeid'))).toBe(true);
 
     await fireEvent.click(
@@ -85,7 +85,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     );
     expect(beloepet()).not.toBeNull();
     expect(screen.getByRole('radio', { name: 'Ingenting' })).toBeChecked();
-    expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(true);
+    expect(linjer().some((l) => l.includes('Vederlagsjustering:'))).toBe(true);
   });
 
   it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om at varselet etter punkt 34.1.2 kom for sent etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {

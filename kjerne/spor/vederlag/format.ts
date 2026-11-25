@@ -705,6 +705,16 @@ export function rammerKravposten(i: InnsigelseIVederlaget, post: string): boolea
   return i.innsigelse === '34.3.3' ? i.gjelder === post : i.innsigelse === '34.1.2';
 }
 
+/**
+ * Om innsigelsen `i` rammer standpunktene til posten `post`: kravposten med id-en, eller den
+ * særskilte justeringen etter § 34.1.3 annet ledd (`null`), som varselet etter § 34.1.2 og
+ * § 34.1.3 rammer (OV-U22, OV-U117).
+ */
+export function rammerPosten(i: InnsigelseIVederlaget, post: string | null): boolean {
+  if (post !== null) return rammerKravposten(i, post);
+  return 'innsigelse' in i && (i.innsigelse === '34.1.2' || i.innsigelse === '34.1.3');
+}
+
 /** Det som er vederlagets eget i lesingen av svaret (`SVARLESING` i `format/leser.ts`). */
 export const LESING_I_VEDERLAGET = {
   standpunkt: standpunktIVederlaget,

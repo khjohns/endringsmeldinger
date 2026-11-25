@@ -47,14 +47,15 @@ describe('akseptfristen (HF-U23)', () => {
     expect(s.u().spor.vederlag.gjeldendeSvar!.akseptfrist).toBe('2026-10-09');
   });
 
-  it('svarbrevet meddeler akseptfristen med datoen, sist i svaret (punkt 2, LV-U2, LV-U3, arbeidsvalget 14.11 i #502)', () => {
+  it('svarbrevet meddeler akseptfristen med datoen, sist i svaret og foran punktet «Forbehold» sist i brevet (punkt 2, LV-U2, LV-U3, LV-U81)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
-    expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
-    expect(tekst(rad).at(-1)?.overskrift, 'linjen har ingen overskrift').toBeUndefined();
+    expect(laast(rad).at(-2)).toBe('Akseptfrist: 9. oktober 2026.');
+    expect(tekst(rad).at(-2)?.overskrift, 'linjen har ingen overskrift').toBeUndefined();
+    expect(tekst(rad).at(-1)).toMatchObject({ punkt: 'forbehold' });
   });
 
-  it('linjen med akseptfristen står etter utdypningen under «Forbehold», og har ingen utdypning (punkt 5, arbeidsvalget 14.11 i #502)', () => {
+  it('linjen med akseptfristen står foran utdypningen under «Forbehold», og har ingen utdypning (punkt 5, LV-U81)', () => {
     const s = sakMedKrav();
     expect(
       s.avvisning(
@@ -63,8 +64,8 @@ describe('akseptfristen (HF-U23)', () => {
       )?.melding
     ).toBe('Linjen med akseptfristen har ingen utdypning.');
     const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
-    expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
-    expect(tekst(rad).at(-2)).toMatchObject({ punkt: 'forbehold', utdypning: BEGRUNNELSE });
+    expect(laast(rad).at(-2)).toBe('Akseptfrist: 9. oktober 2026.');
+    expect(tekst(rad).at(-1)).toMatchObject({ punkt: 'forbehold', utdypning: BEGRUNNELSE });
     // LV-U71, #2153: skjemaet har ikke noe felt for linjen.
     const punktene = punkteneMedBegrunnelse(tekst(rad)).map((p) => p.punkt);
     expect(punktene, 'kontrollsak: andre punkter har et felt').not.toEqual([]);
