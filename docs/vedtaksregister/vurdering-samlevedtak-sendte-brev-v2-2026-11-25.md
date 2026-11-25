@@ -43,13 +43,14 @@ Ingen av endringene er en motsigelse versjonene selv løser. Innholdet er avgjor
 
 Punkt 1–24, designdelen og beslutningsdelen står som i MM-U50. Ny tekst med kilde:
 
-- **E1 Punkt 3, ny siste setning.** «Det gjelder også virkningen byggherrens innsigelse mot
-  varselet etter punkt 34.3.3 første ledd fra et tidligere svar gir standpunktene i svaret (punkt 36
-  i samlevedtaket for varslene, versjon 3).» (VS-U81 s1–s2)
+- **E1 Punkt 3, ny siste setning.** «Står byggherrens innsigelse mot varselet etter punkt 34.3.3
+  første ledd for en kravpost når byggherren sender et svar som ikke sier noe om varselet, fryser
+  svaret også virkningen innsigelsen gir standpunktene til posten (punkt 36 i samlevedtaket for
+  varslene, versjon 3).» (VS-U81 s1–s2)
 - **E2 Punkt 11, ny siste setning.** «Unntatt er virkningen etter punkt 3, siste setning, som
   fryses med svaret.» (VS-U81, forholdet til punkt 11; M1)
 - **E3 Punkt 19, ny siste setning.** «For innsigelsen etter punkt 3, siste setning, er det svarene
-  løsningen kjente ved registreringen.» (VS-U81 s3)
+  som var sendt før svaret, slik løsningen kjente dem ved registreringen.» (VS-U81 s3)
 - **E4 Beslutningsdelen, nytt punkt.** «Et sendt brev leses uten dagens ordlyd. Det løsningen
   trenger å vite om oppbygningen av et sendt brev, som hva som er en lagslinje, hvilket forhold
   tittelen nevner, og hvilken sak brevet gjelder, lagres som egne opplysninger i brevet når det
@@ -63,18 +64,19 @@ er endret, av punkt 3. Den står (spørsmål 4).
 
 Punkt 1–35, designdelen og beslutningsdelen står som i VS-U77. Ny tekst med kilde:
 
-- **E5 Punkt 12, etter sjette setning.** «Et svar sendt før svaret med oppgivelsen ble lagt til,
-  beholder virkningen det hadde (punkt 36).» (VS-U81, forholdet til punkt 12; M2)
-- **E6 Punkt 31, ny siste del.** VS-U78 s1–s3 ordrett. (M3)
+- **E5 Punkt 12, etter sjette setning.** «Et svar sendt før oppgivelsen ble lagt til, beholder
+  virkningen innsigelsen mot varselet etter punkt 34.3.3 første ledd ga det (punkt 36).» (VS-U81,
+  forholdet til punkt 12; M2) Etter VS-U81 gjelder setningen bare den innsigelsen.
+- **E6 Punkt 31, ny siste del.** VS-U78 s1–s2 ordrett. (M3) VS-U78 s3 står i punkt 21.
 - **E7 Punkt 7, etter «(punkt 34)».** «Har byggherren i svaret på kravet gjort gjeldende at
   varselet etter punkt 34.3.3 første ledd for en kravpost kom for sent, står innsigelsen mot hver
   senere kravversjon, men bare mot kravpostene som gjelder det samme varselet (punkt 22 og 23), også
   når varselet var selve kravet. Den står til byggherren uttrykkelig gir den opp eller sier at
   varselet kom i tide (punkt 10 og 30). Den står mot svar sendt etter svaret med innsigelsen. Er to
   svar sendt samme dag, følger rekkefølgen OV-U104.» (VS-U80 s1–s4) VS-U80 s5 står alt i punkt 9 og
-  12, og s7 i punkt 20 og i punkt 8 i MM-U50 versjon 2.
-- **E8 Punkt 34, ny siste setning.** «Det gjelder også når byggherren sender et nytt svar på
-  varselet etter punkt 33.» (VS-U80 s6)
+  12, s6 i punkt 33, og s7 i punkt 5 og 20 og i punkt 8 i MM-U50 versjon 2.
+- **E8** Ingen ny tekst i punkt 34: VS-U80 s6 står i punkt 33 («En påberopelse i et tidligere svar
+  bevares»).
 - **E9 Punkt 22, ny siste setning.** OV-U120 s1 ordrett. (presiserer punkt 22 og 26)
 - **E10 Nytt avsnitt I, «Innsigelsen i et tidligere svar».**
   - **36.** VS-U81 s1–s5 ordrett, med «VS-U77 punkt 30» som «punkt 30» og «MM-U50» som
@@ -86,11 +88,19 @@ VS-U79 står, med `bindende_i` til VS-U77 (spørsmål 4).
 ## Forholdene
 
 Versjon 2 **samler** MM-U50 og MM-U57. Versjon 3 **samler** VS-U77, VS-U78, VS-U80, VS-U81 og
-OV-U120. Forholdene i MM-U50 og VS-U77 føres videre, også forholdene til OV-U114 (A3 kartlegges
-parallelt; opphever A3 OV-U114, leses de som forhold til A3 etter README). VS-U81 og OV-U120 har
-også forhold til poster utenfor (OV-U114, VS-U76); de står i de samlede postene. Versjon 2 og 3
-nevner hverandre bare med punkt. GFK-U28 og VS-U79 står med sine forhold. (OV-U92 (c) gjelder ikke:
-ingen samlet post har et forhold som faller bort.)
+OV-U120. Forholdene i MM-U50 og VS-U77 føres videre. Versjon 3 fører selv forholdene fra de
+samlede postene til poster utenfor (OV-U92 (c), og det forkastede alternativet B i VS-U77 spørsmål
+2): presiserer OV-U114 punkt 15 og VS-U76 punkt 6a (OV-U120), og bygger på VS-U56 (VS-U78). A3
+merges først, så forholdene til OV-U114 og VS-U76 føres til OV-U123 og VS-U86 der A3 opphever dem.
+GFK-U28 og VS-U79 står med sine forhold.
+
+**(a) eller (b)** (OV-U92): forholdene fra VS-U81 til MM-U50 og VS-U77, fra VS-U80 og OV-U120 til
+VS-U77, og fra OV-U120 til VS-U80 er tatt inn i E1–E3, E5, E7, E9 og E10. Postene samles, så
+forholdene står i dem med merket «samlet» (c); ingen fjernes.
+
+HF-U28 (07.11) snevrer inn HF-U9, som MM-U50 punkt 14 og 17 samler delvis. Den gjelder når
+løsningen registrerer enighet uten aksept, ikke innholdet i en enighet, og er samlet i OV-U115.
+Versjon 2 endres ikke av den.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -101,13 +111,14 @@ ingen samlet post har et forhold som faller bort.)
 2. **Samle eller oppheve den forrige versjonen.** Bakgrunn: svar 4 A i #1534 («Løser samlevedtaket
    en motsigelse og endrer innholdet, opphever det») og OV-U92 (a). MM-U50 står i 137 henvisninger
    i koden, VS-U77 i 132, og MM-U50 også i `CLAUDE.md` og skillene. `bindende_i` i MM-U57 og VS-U79
-   viser til dem. Alternativer: **A** «Versjon 2 og 3 samler MM-U50 og VS-U77. En henvisning til
-   dem gjelder den nye versjonen, med samme nummerering.» **B** «Versjon 2 og 3 opphever MM-U50 og
+   viser til dem. Hittil har en ny versjon opphevet
+   den forrige (VS-U77 opphever VS-U46, MM-U55 opphever MM-U52); A bryter med den praksisen.
+   Alternativer: **A** «Versjon 2 og 3 samler MM-U50 og VS-U77, og nummereringen står.» **B** «Versjon 2 og 3 opphever MM-U50 og
    VS-U77, og henvisningene skrives om (OV-U92 (a)).» Anbefaling: A; versjonene løser ingen
-   motsigelse selv, og B gir om lag 270 rettinger i filer som #2333, #2347 og #2389 også endrer.
+   motsigelse selv, en henvisning til en samlet post gjelder samlevedtaket (README), og B gir om lag 270 rettinger i filer som #2333, #2347 og #2389 også endrer.
    Styrer: forholdene og om koden endres.
 3. **Hjemmet for VS-U81.** Alternativer: **A** «VS-U81 samles i VS-U77 versjon 3, punkt 36.
-   MM-U50 versjon 2 viser til punktet i punkt 3, 11 og 19.» **B** «VS-U81 samles i MM-U50 versjon
+   MM-U50 versjon 2 viser til punktet i punkt 3, og punkt 11 og 19 viser til punkt 3.» **B** «VS-U81 samles i MM-U50 versjon
    2, og VS-U77 versjon 3 viser dit.» Anbefaling: A; regelen gjelder én innsigelse, og MM-U50 har
    den generelle regelen. Styrer: E1–E3, E5 og E10.
 4. **Postene som står.** Alternativer: **A** som «Forholdene»: GFK-U28 og VS-U79 står, OV-U120
@@ -134,7 +145,9 @@ når postene føres.
 ## Verifikasjon og grenser
 
 Kjørt: `--sjekk`, `--kjede MM-U50`, `--kjede VS-U77`, `--vis` for de sju postene og
-`--vis OV-U92`. Lest i `vedtak.md`: MM-U50 punkt 1–24 og E1–E10 (overskriftene), VS-U77 punkt 7–10,
+`--vis OV-U92`. Prøvd én gang mot vedtakene, med kontrollen av klassene (svar 8), av en subagent
+25.11; funnene er rettet i E1, E3, E5, E6, E8, «Forholdene» og spørsmål 2 og 3. Klassene: «vedtak
+med designdel og beslutningsdel» for begge, med E4 i beslutningsdelen. Lest i `vedtak.md`: MM-U50 punkt 1–24 og E1–E10 (overskriftene), VS-U77 punkt 7–10,
 12, 20, 22, 23, 26, 30, 31 og 33–35. Telt med `grep`: henvisningene i spørsmål 2. Ikke kontrollert:
 tellemåten i `vedtaksregister.py`; om
 frysingen i E1 også burde gjelde en innsigelse etter punkt 33.4 som et senere svar leses med (VS-U77
