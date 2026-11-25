@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
+  import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -20,6 +21,7 @@
   import { manglene } from './svarskjema';
   import {
     BREVSTEG,
+    grunntekst,
     SKJEMA,
     VARSELSVARET,
     innsigelsenOmVarselet,
@@ -65,7 +67,11 @@
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
     const s = etter?.spor.vederlag.svarPaaVarsler.findLast((x) => x.gjelder === varselet.id);
-    return s && s.id !== varselet.forrigeSvar ? standpunktene(s, etter!) : [];
+    // Svaret sendes fra løsningen, så det fryses med det gjeldende svaret på forholdet
+    // (`svaretPaaForholdetPaaDagen` uten dag, OV-U32).
+    return s && s.id !== varselet.forrigeSvar
+      ? standpunktene(s, etter!, etter!.spor.forhold.gjeldendeSvar)
+      : [];
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
@@ -89,22 +95,28 @@
   const oppgir = $derived(iTide === true && foer?.iTide === false && foer.brev ? foer : null);
 
   const linjer = $derived(
-    nyeStandpunkter.flatMap((l) => {
-      if (!('standpunkt' in l)) return [];
+    nyeStandpunkter.map((l) => {
+      // OV-U32: lagene svaret på forholdet opptar, står foran, i punktet «Forholdet».
+      if ('grunn' in l)
+        return {
+          punkt: FORHOLDET,
+          tekst: grunntekst(l.grunn, true, l.brev),
+          lag: l.lag,
+          vilkaar: l.vilkaar,
+          heller: l.heller,
+        };
       const s = l.standpunkt;
       const tekst =
         s.art === 'rettidighet' && oppgir
           ? oppgivelsestekst(hjemmel, oppgir.brev!, true, undefined, oppgir.ikkeGitt)
           : standpunkttekst(s, true, undefined, undefined, false, false);
-      return [
-        {
-          punkt: s.art === 'justering' ? 'justering' : hjemmel,
-          tekst,
-          lag: l.lag,
-          vilkaar: l.vilkaar,
-          heller: l.heller,
-        },
-      ];
+      return {
+        punkt: s.art === 'justering' ? 'justering' : hjemmel,
+        tekst,
+        lag: l.lag,
+        vilkaar: l.vilkaar,
+        heller: l.heller,
+      };
     })
   );
 
@@ -119,7 +131,7 @@
       linjer: iPunktet.length ? iPunktet : [{ tekst: foerSvaret, lag: null }],
     };
   };
-  const skjemapunkter = $derived(
+  const punkteneForVarselet = $derived(
     hjemmel === '34.4'
       ? [punktet(hjemmel, varselpunktet, VARSELSVARET.kreverIkkeSvar)]
       : [
@@ -127,6 +139,13 @@
           punktet('justering', SKJEMA.justeringSpoersmaal, SKJEMA.ikkeBesvart),
         ]
   );
+  const forholdet = $derived(linjer.filter((l) => l.punkt === FORHOLDET));
+  const skjemapunkter = $derived([
+    ...(forholdet.length
+      ? [{ punkt: FORHOLDET, navn: SKJEMA.forholdspunktet, linjer: forholdet }]
+      : []),
+    ...punkteneForVarselet,
+  ]);
   const mangler = $derived(
     manglene(uid, [
       {
@@ -157,7 +176,7 @@
   {linjer}
   {virkninger}
   {mangler}
-  begrunnelserISkjemaet={skjemapunkter}
+  begrunnelserISkjemaet={punkteneForVarselet}
   {skjemapunkter}
   {onbrevkontroll}
   {onforkast}

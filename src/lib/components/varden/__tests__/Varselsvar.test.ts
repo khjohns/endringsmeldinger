@@ -6,7 +6,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import { varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
 import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
@@ -129,6 +129,38 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
     expect(svaret(sendt[0]!).svar).toMatchObject([
       { vurderinger: { varslet_i_tide: true, godtar_justering: true } },
     ]);
+  });
+});
+
+describe('svaret på varselet etter et avslag av forholdet (OV-U32, VS-U4)', () => {
+  it('panelet har punktet «Forholdet» foran, og lagene etter det, som brevet', async () => {
+    const g = utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id;
+    const avslaatt = skrevet(medGrunnlag, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'forhold',
+          gjelder: g,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          resultat: {},
+          utdypning: 'Svaret på forholdet.',
+        },
+      ],
+    });
+    await svarskjemaet(
+      skrevet(avslaatt, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.3.3' })
+    );
+    await radio('Kom for sent');
+    await radio('Bestrider justeringen');
+    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panelet.getByText(/Forholdet/)).toBeInTheDocument();
+    expect(
+      panelet.getByText(/^Hvis avslaget av forholdet i brev.2 ikke fører frem$/)
+    ).toBeInTheDocument();
+    expect(
+      panelet.getByText(/^Hvis heller ikke innsigelsen om at varselet etter punkt.34\.3\.3/)
+    ).toBeInTheDocument();
   });
 });
 

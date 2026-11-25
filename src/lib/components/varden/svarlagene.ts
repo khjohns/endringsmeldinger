@@ -84,11 +84,18 @@ export function lageneISvaret(
   alle: Brevet[],
   sporlag: number,
   utenom: Standpunktsart,
-  innsigelsenI: InnsigelsenISporet
+  innsigelsenI: InnsigelsenISporet,
+  forholdssvaret?: Svar | null
 ): Svarlaget[] {
   const brev = (id: string) => alle.find((b) => b.id === id) ?? null;
   const beregning = u.svar[svar.id];
-  const g = beregning?.forholdssvaret ? u.svar[beregning.forholdssvaret].svar : null;
+  // Svaret på forholdet kalleren har slått opp, for et svar uten beregning (`standpunktene`).
+  const g =
+    forholdssvaret !== undefined
+      ? forholdssvaret
+      : beregning?.forholdssvaret
+        ? u.svar[beregning.forholdssvaret].svar
+        : null;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const grunnbrev = g ? brev(g.dokument) : null;
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
