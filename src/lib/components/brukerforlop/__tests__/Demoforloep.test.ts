@@ -245,6 +245,89 @@ describe('demoruta for brukerforløpet BF-46', () => {
     }
   );
 
+  /** Fanen for fristforlengelsen i panelet, med betegnelsen og linja under. */
+  const fanen = () =>
+    within(screen.getByRole('navigation', { name: SAKEN.sporene }))
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Fristforlengelse'))!;
+  /** Siden som ser saken, med panelet. */
+  const somPart = async (part: 'TE' | 'BH') => {
+    const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
+    await fireEvent.click(panel.getByRole('radio', { name: part }));
+  };
+  /** «Når du sender» i brevkontrollen for aksepten. */
+  async function naarDuSender(forloep: string, punkt: string): Promise<string[]> {
+    render(Demoforloep, { forloep: finnForloep(forloep)!, punkt, onpunkt: () => {} });
+    await screen.findByRole('heading', { name: finnForloep(forloep)!.tittel });
+    await somPart('TE');
+    await fireEvent.click(await screen.findByRole('button', { name: 'Godta svaret' }));
+    const del = (await screen.findByRole('heading', { name: 'Når du sender' })).parentElement!;
+    return [...del.querySelectorAll('p')].map((p) => p.textContent!.trim());
+  }
+
+  // U-6 og G-5 i BF-46.md: ved kravet står «Enige», og linja under sier at aksepten er sendt
+  // etter akseptfristen, for begge sider. Etiketten er kjernens (HF-U23 punkt 7).
+  it.each(['TE', 'BH'] as const)(
+    'ved kravet står «Enige» og at aksepten er sendt etter akseptfristen, for %s',
+    async (part) => {
+      render(Demoforloep, { forloep: BF46, punkt: 'bh-har-mottatt-aksepten', onpunkt: () => {} });
+      await screen.findByRole('heading', { name: BF46.tittel });
+      await somPart(part);
+      const tekst = fanen().textContent!;
+      expect(tekst).toContain('Enige');
+      expect(tekst).toContain('Aksepten er sendt etter akseptfristen 15. oktober 2026');
+      expect(tekst).not.toContain('Siste:');
+    }
+  );
+
+  it('kontrollsak: før aksepten står akseptfristen ved kravet, ikke at aksepten er sendt etter den (U-8, MM-U24)', async () => {
+    render(Demoforloep, { forloep: BF46, punkt: 'te-etter-akseptfristen', onpunkt: () => {} });
+    await screen.findByRole('heading', { name: BF46.tittel });
+    const tekst = fanen().textContent!;
+    expect(tekst).toContain('Akseptfrist 15. oktober 2026');
+    expect(tekst).not.toContain('Aksepten er sendt etter');
+  });
+
+  // U-4 og G-6 i BF-46.md, ordlyden i svar 2 B: linja står i tillegg til virkningen, og datoen er
+  // den brevkontrollen lager brevet med (U-5).
+  it('«Når du sender» sier at aksepten sendes etter akseptfristen, og at løsningen ikke avgjør bindingen', async () => {
+    const linjer = await naarDuSender('BF-46', 'te-etter-akseptfristen');
+    expect(linjer.at(-1)).toBe(
+      'Akseptfristen i byggherrens svar var 15. oktober 2026. Brevet sier at aksepten er sendt etter fristen. Løsningen avgjør ikke om byggherren fortsatt er bundet av svaret.'
+    );
+    expect(
+      screen.getByText(/Aksepten er sendt etter akseptfristen 15\. oktober 2026/)
+    ).toBeInTheDocument();
+  });
+
+  // #2346: i fristforlengelsen er det subsidiære standpunktet dagene, ikke et beløp. Kontrollsak
+  // for U-4: før akseptfristen har «Når du sender» ingen linje om fristen (BF-45).
+  it('før akseptfristen sier «Når du sender» de subsidiære dagene og ingenting om fristen (#2346, BF-45)', async () => {
+    const linjer = await naarDuSender('BF-45', 'te-har-mottatt-svaret');
+    expect(linjer).toContain(
+      'Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt\u00a033.4 kom for sent, ikke bare de subsidiære dagene.'
+    );
+    expect(linjer.join(' ')).not.toMatch(/beløpet|Akseptfristen i byggherrens svar/);
+  });
+
+  // U-7, D-5 og G-8 i BF-46.md: byggherren kan sende et nytt svar etter aksepten (HF-U29), i
+  // skjemaet for svaret, fylt ut med svaret det erstatter.
+  it('«Send nytt svar» etter aksepten åpner svarskjemaet med svaret i brev 4 fylt ut', async () => {
+    render(Demoforloep, { forloep: BF46, punkt: 'bh-har-mottatt-aksepten', onpunkt: () => {} });
+    await screen.findByRole('heading', { name: BF46.tittel });
+    await somPart('BH');
+    await fireEvent.click(await screen.findByRole('button', { name: 'Send nytt svar' }));
+    expect(
+      await screen.findByText(/^Det forrige svaret er brev 4, og det står som det ble sendt/)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/ikke bygget/)).toBeNull();
+    // Svaret i brev 4: varselet og spesifiseringen kom for sent, og fremdriften er hindret. Dagene
+    // prøves i `fristsvaret.test.ts`.
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Spesifisert for sent' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Ja, fremdriften er hindret/ })).toBeChecked();
+  });
+
   it('kontrollsak: BF-01 åpner i forholdet når svaret på påberopelsen er siste brev', async () => {
     render(Demoforloep, { forloep: START, punkt: 'forholdet-er-godkjent', onpunkt: () => {} });
     expect(await screen.findByRole('heading', { name: BF.tittel })).toBeInTheDocument();

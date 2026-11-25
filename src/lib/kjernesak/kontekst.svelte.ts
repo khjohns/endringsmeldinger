@@ -10,7 +10,7 @@ import { brevFor, laastTekstI, utledetMed, type Brev, type GjeldendeFristdato } 
 import type { Registrertfrist } from '#kjerne/spor/frist/format.ts';
 import { datoenEtterForlengelsene } from '#kjerne/spor/frist/visning.ts';
 import { somJournal } from './journal';
-import { lagSaksbilde } from './saksbilde';
+import { akseptEtterFristen, lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
 import { grunnlagetForSvaret } from './vederlagssvar';
 import {
@@ -30,7 +30,7 @@ import type { LagIFristen } from '#kjerne/spor/frist/kommando.ts';
 import type { LagIVederlaget } from '#kjerne/spor/vederlag/kommando.ts';
 import { visning } from '#kjerne/utledning/visning.ts';
 import { KJERNE, type Kjerne } from '#kjerne/versjon.ts';
-import type { Part } from '#kjerne/typer.ts';
+import type { Part, Spor } from '#kjerne/typer.ts';
 
 /** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
 export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
@@ -198,7 +198,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? tilbudte(utledning, part) : []);
   const noeklene = $derived(tilbudt.map((h) => h.noekkel));
-  const bilde = $derived(utledning && vist ? lagSaksbilde(utledning.journal, vist) : null);
+  const bilde = $derived(utledning && vist ? lagSaksbilde(utledning, vist) : null);
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
@@ -303,6 +303,16 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       console.error(e);
       return null;
     }
+  }
+
+  /**
+   * Akseptfristen i svaret aksepten i `kommando` godtar, når aksepten ville blitt registrert etter
+   * den (HF-U23 punkt 7). Dagen er den brevkontrollen lager teksten med (U-4 og U-5 i BF-46).
+   * Ellers `null`.
+   */
+  function akseptfristenAkseptenOversitter(kommando: Record<string, unknown>, spor: Spor) {
+    const etter = forhaandsvist(kommando);
+    return etter ? akseptEtterFristen(etter, visning(etter, kjerne.regler), spor) : null;
   }
 
   /**
@@ -523,6 +533,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     last: () => last(),
     brev,
     forhaandsvist,
+    akseptfristenAkseptenOversitter,
     send: sendMedBrev,
     /** Laster opp filen til mellomlageret i saken, i prosjektet fra ruta (#743). */
     lastOppVedlegg: (fil: File) =>

@@ -33,7 +33,7 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Varselsvar from './Varselsvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
-  import { tomtFristsvar } from './fristsvar';
+  import { tomtFristsvar, valgFraFristsvaret } from './fristsvar';
   import Forholdssvar from './Forholdssvar.svelte';
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
@@ -397,11 +397,19 @@
     const linje = (s: Spor) => {
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
       const kode = betegnelser[s];
-      // Akseptfristen i et svar som ikke er godtatt, står i stedet for siste brev (U-11 i BF-44).
+      // Akseptfristen i et svar som ikke er godtatt, og en aksept etter den, står i stedet for
+      // siste brev (U-11 i BF-44, U-6 i BF-46).
       const frist = u && s !== 'forhold' ? akseptfristen(u, s)?.dato : null;
+      const oversittet = kjernesak.saksbilde?.spor.find((x) => x.spor === s)?.akseptEtterFristen;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        siste: frist ? SAKEN.akseptfrist(frist) : b ? SAKEN.siste(b, b.avsender) : null,
+        siste: frist
+          ? SAKEN.akseptfrist(frist)
+          : oversittet
+            ? SAKEN.akseptEtterFristen(oversittet)
+            : b
+              ? SAKEN.siste(b, b.avsender)
+              : null,
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
@@ -646,12 +654,23 @@
       skjema: vederlagssvar,
     },
     fristsvar: {
-      noekler: ['svare:frist'],
-      aapne: () => {
+      // HF-U29, G-8 i BF-46: det nye svaret på kravet har samme skjema som svaret.
+      noekler: ['svare:frist', 'revidere:frist'],
+      aapne: (n) => {
+        const forrige = u?.spor.frist.gjeldendeSvar;
+        // Som for vederlaget: skjemaet åpner med svaret det erstatter, eller tomt.
+        const erstatter = n === 'revidere:frist' ? forrige?.id : undefined;
+        if (utkastene.fristsvar.erstatter !== erstatter)
+          utkastene.fristsvar =
+            forrige && erstatter
+              ? valgFraFristsvaret(forrige, u!.spor.frist.gjeldendeKrav!)
+              : tomtFristsvar();
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>
-        a.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
+        a.art === 'svar' &&
+        valgt === 'frist' &&
+        ['svare:frist', 'revidere:frist'].some((n) => kjernesak.handlinger.includes(n)),
       skjema: fristsvar,
     },
     varselsvar: {

@@ -73,7 +73,7 @@ function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = '
 function bildeAv(journal: Journalrad[]) {
   const u = utledJournal(journal, KJERNE);
   const vist = visning(u, KJERNE.regler);
-  return { bilde: lagSaksbilde(u.journal, vist), u, vist };
+  return { bilde: lagSaksbilde(u, vist), u, vist };
 }
 
 describe('saksbildet for en TS-sak', () => {

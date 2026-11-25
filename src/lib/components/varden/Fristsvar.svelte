@@ -45,7 +45,8 @@
     type Fristsvarvalg,
     velgDagene,
   } from './fristsvar';
-  import { brevet, standpunktene } from './lesing';
+  import { brevet, brevMedElement, standpunktene } from './lesing';
+  import { somNyttSvar } from './kommandoer';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -120,7 +121,7 @@
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
   // tekstfelt (#1925).
-  const utkast = $derived(
+  const brevutkast = $derived(
     fristsvaret(
       {
         varselITide: valg.varselITide,
@@ -135,9 +136,14 @@
       kjernesak.regler
     )!
   );
+  // Revisjonen av det gjeldende svaret når skjemaet er et nytt svar (HF-U29, G-8 i BF-46).
+  const utkast = $derived(somNyttSvar(brevutkast, valg.erstatter));
+  const forrigeSvar = $derived(
+    utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
+  );
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
-  const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
+  const lagene = $derived(kjernesak.lagForUtkastet(brevutkast.svar[0], 'frist'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   const foerstePunkt = $derived(
     lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
@@ -468,7 +474,9 @@
   {u}
   spor="frist"
   {utkast}
-  medTekstene={(punktene) => fristsvaret(valg, u, kjernesak.regler, punktene)!}
+  {forrigeSvar}
+  medTekstene={(punktene) =>
+    somNyttSvar(fristsvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
   bind:tekster={valg}
   {linjer}
   {virkninger}

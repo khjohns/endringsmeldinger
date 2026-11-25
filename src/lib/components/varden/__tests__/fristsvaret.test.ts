@@ -18,6 +18,7 @@ import {
   skrivGodkjenteDager,
   tomFrist,
   tomtFristsvar,
+  valgFraFristsvaret,
   velgDagene,
   type Fristsvarvalg,
 } from '../fristsvar';
@@ -168,5 +169,52 @@ describe('dagene i feltene', () => {
     skrivGodkjenteDager(f, '25', 25);
     velgDagene(f, 'deler', 25);
     expect(f).toEqual({ ...tomFrist(), dager: 'deler' });
+  });
+});
+
+// HF-U29 og G-8 i BF-46: et nytt svar åpner med standpunktene i svaret det erstatter, så skjemaet
+// sender det samme svaret når byggherren ikke endrer noe. Begrunnelsene skrives på nytt.
+describe('nytt svar fylt ut fra svaret det erstatter (`valgFraFristsvaret`)', () => {
+  const rundtur = (valg: Fristsvarvalg) => {
+    const journal = skrevet(medFristkrav, 'BH', fristsvaret(valg, u, KJERNE.regler)!);
+    const etter = utledJournal(journal, KJERNE);
+    const svar = etter.spor.frist.gjeldendeSvar!;
+    return {
+      journal,
+      etter,
+      svar,
+      valg: valgFraFristsvaret(svar, etter.spor.frist.gjeldendeKrav!),
+    };
+  };
+
+  it.each([
+    ['delvis og alle dagene, alt i tide', besvart()],
+    ['avslått og varselet for sent', besvart({ varselITide: false })],
+    ['ikke hindret', besvart({ hindret: false })],
+  ])('gir valgene svaret ble sendt med: %s', (_, valg) => {
+    const { svar, valg: fylt } = rundtur(valg);
+    expect(fylt).toEqual({ ...valg, erstatter: svar.id });
+  });
+
+  it('kravet spesifisert for sent gir dagene byggherren måtte forstå per frist (D-5 i BF-20)', () => {
+    const valg = besvart({ spesifisertITide: false });
+    valg.frister[f1!.id]!.maatteForstaa = '15';
+    valg.frister[f2!.id]!.maatteForstaa = '5';
+    const { svar, valg: fylt } = rundtur(valg);
+    expect(fylt).toEqual({ ...valg, erstatter: svar.id });
+  });
+
+  it('dagene 0 er avslått, ikke delvis', () => {
+    const valg = besvart();
+    valg.frister[f1!.id] = { ...tomFrist(), dager: 'avslaatt' };
+    expect(rundtur(valg).valg.frister[f1!.id]).toEqual({ ...tomFrist(), dager: 'avslaatt' });
+  });
+
+  it('det nye svaret er en revisjon kjernen godtar', () => {
+    const { journal, etter, svar, valg } = rundtur(besvart());
+    const nytt = fristsvaret({ ...valg, varselITide: false }, etter, KJERNE.regler)!;
+    expect(() =>
+      skrevet(journal, 'BH', { type: 'revisjon', erstatter: svar.id, svar: nytt.svar[0] })
+    ).not.toThrow();
   });
 });
