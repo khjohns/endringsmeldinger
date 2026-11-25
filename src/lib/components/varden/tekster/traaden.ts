@@ -16,7 +16,7 @@ export const TRAADEN = haerdet({
     spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
   /** Hva brevet er, kort: «Svar på krav om vederlagsjustering». Et registrert brev har partens beskrivelse. */
   hva: (
-    b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse' | 'varselhjemmel'>
+    b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse' | 'varselhjemler'>
   ) => {
     if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));

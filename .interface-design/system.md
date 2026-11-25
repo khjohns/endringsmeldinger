@@ -475,7 +475,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
   korrespondanse» er en lenke i hodet til tråden, uten hjelpetekst (R1-3 i #2180). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
-  handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under.
+  handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under. Unntaket er
+  svaret på et varsel som står alene: hvert slikt varsel har svaret som primærknapp ved sitt eget
+  brev, så siden kan ha én primærknapp per brev (oppdragsgiver 25.11 i #2360).
 - **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne i lesingen av vederlaget og
   fristen, til sidene for kravene får oppsett B (#1906, #1900). Alle handlingene står synlige,
   uten panel (#1631). Det har høyst én primærhandling, med en linje om hva

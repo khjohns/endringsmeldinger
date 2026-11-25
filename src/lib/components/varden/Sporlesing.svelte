@@ -228,9 +228,12 @@
   // oppdragsgiver 25.11 i #2360). Det første er primærhandlingen når saken ikke har annet.
   const varselVed = $derived.by(() => {
     const ved = new Map<string, string[]>();
+    // Et svar uten skjema, eller et brev utenfor tråden, står fortsatt under «Andre handlinger».
+    const iTraaden = new Set(brevITraaden(alleBrev, spor).map((b) => b.id));
     for (const h of varselsvarene) {
-      const b = h.noekkel === primaer ? null : brevMedUtsagn(u, h.gjelder!)?.id;
-      if (b) ved.set(b, [...(ved.get(b) ?? []), h.noekkel]);
+      if (h.noekkel === primaer || !bygget.includes(h.noekkel)) continue;
+      const b = brevMedUtsagn(u, h.gjelder!)?.id;
+      if (b && iTraaden.has(b)) ved.set(b, [...(ved.get(b) ?? []), h.noekkel]);
     }
     return ved;
   });
@@ -419,9 +422,7 @@
   {#if varselVed.get(id)?.length}
     <div class="knapper">
       {#each varselVed.get(id)! as n (n)}
-        <Knapp
-          variant={utkast ? 'sekundaer' : 'primaer'}
-          onclick={() => (bygget.includes(n) ? velg(n) : (primaerIkkeBygget = true))}
+        <Knapp variant={utkast ? 'sekundaer' : 'primaer'} onclick={() => velg(n)}
           >{innsigelsestekst(n)}</Knapp
         >
       {/each}

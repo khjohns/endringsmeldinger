@@ -364,6 +364,17 @@ describe('brevet med varselet etter punkt 34.3.3 og 34.4 heter som varselet (#23
     expect(TRAADEN.hva(brevet)).toBe(navn);
   });
 
+  it('varselet etter punkt 34.1.3 heter «Varsel om særskilt vederlagsjustering»', () => {
+    const journal = skrevet(medGrunnlag, 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.3',
+    });
+    expect(TRAADEN.hva(brevene(utledJournal(journal, KJERNE)).at(-1)!)).toBe(
+      'Varsel om særskilt vederlagsjustering'
+    );
+  });
+
   it('varselet etter punkt 34.1.2 heter fortsatt «Varsel om vederlagsjustering»', () => {
     const journal = skrevet(medGrunnlag, 'TE', {
       type: 'send_varsel',
