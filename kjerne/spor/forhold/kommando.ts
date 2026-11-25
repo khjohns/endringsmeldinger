@@ -357,7 +357,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
       ),
     }),
   };
-  const virket = virkninger(svar, krav, regler);
+  const virket = virkninger(svar, krav, regler, 0, []);
   const flereLag = virket.some((x) => (laget(x.virkning) ?? 0) > 1);
   const forutsetninger = forutsetningene(
     svar.standpunkter,

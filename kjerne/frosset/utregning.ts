@@ -5,7 +5,12 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { iSporet, type Svarsutregning, type Svarvurdering } from './byggeklosser.ts';
+import {
+  iSporet,
+  type Svarsutregning,
+  type Svarvurdering,
+  type VarselIKravet,
+} from './byggeklosser.ts';
 import { UTREGNING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import {
@@ -31,7 +36,10 @@ export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string 
  * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
  * `format.ts`). Forholdet har ingen utregning, bare kontrollen av
  * vurderingene. Kaster `UgyldigVurdering`, og `UgyldigBeloep` for et beløp i
- * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster `Error`.
+ * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster `Error`. `staar`
+ * er innsigelsene fra svarene før (`Utregningsgrunnlag`). Uten dem regnes svaret bare med
+ * standpunktene i vurderingene, som for et svar fra løsningen, som ikke kan være taust om et
+ * varsel der innsigelsen står (VS-U80).
  */
 export function regnUtSvar(
   spor: Spor,
@@ -40,10 +48,16 @@ export function regnUtSvar(
     krav,
     paaberopelse,
     foresporsel = null,
-  }: { krav: Krav; paaberopelse: Krav | null; foresporsel?: Foresporselsrelasjon | null },
+    staar = [],
+  }: {
+    krav: Krav;
+    paaberopelse: Krav | null;
+    foresporsel?: Foresporselsrelasjon | null;
+    staar?: readonly VarselIKravet[];
+  },
   regler: Regelsett
 ): Record<string, unknown> {
-  return utregningI(spor).regnUt(v, { krav, paaberopelse, foresporsel }, regler);
+  return utregningI(spor).regnUt(v, { krav, paaberopelse, foresporsel, staar }, regler);
 }
 
 /** Utregningen i sporet (`iSporet`). */

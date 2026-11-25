@@ -117,7 +117,7 @@ export function regelendringen(lagBaner: () => Baner): void {
       expect(visning(n1, N1.regler).spor.forhold.etiketter).toContain('regel_endret_etter_brevet');
       const medVirkning = (v: Standpunktsvirkning[]) =>
         v.filter((p) => p.virkning !== 'uten_virkning').map((p) => p.standpunkt);
-      const naa = medVirkning(virkninger(g, paaberopelseFor(g, n1), N1.regler));
+      const naa = medVirkning(virkninger(g, paaberopelseFor(g, n1), N1.regler, 0, []));
       expect(naa.every((id) => medVirkning(n1.svar[g.id].virkninger).includes(id))).toBe(true);
       s.k.kjerne = N1;
       const revidert = await s.k.send({

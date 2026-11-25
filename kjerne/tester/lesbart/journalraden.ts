@@ -183,7 +183,7 @@ export const JOURNALRADEN: Lesbar[] = [
     [
       'utledning/utled.ts',
       'spor/frist/utledning.ts',
-      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+      'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],
