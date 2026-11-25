@@ -197,7 +197,8 @@ describe('svaret på varselet etter et avslag av forholdet (OV-U32, VS-U4)', () 
 describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31)', () => {
   it('uten innsigelse er det ikke noe å sende, og skjemaet sier at byggherren ikke trenger å svare', async () => {
     const sendt = await svarskjemaet(medVarsel('34.4'));
-    expect(screen.getAllByText('Varselet krever ikke svar.').length).toBeGreaterThan(0);
+    // BF-14, «Byggherrens svar»: «Ingen innsigelse», med lenken «Varselet kom for sent» (S-16).
+    expect(screen.getAllByText(/Ingen innsigelse\./).length).toBeGreaterThan(0);
     expect(screen.queryByRole('group', { name: /Justeringen/ })).toBeNull();
     await seBrevet();
     expect(sendt).toHaveLength(0);

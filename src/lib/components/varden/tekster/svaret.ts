@@ -168,8 +168,6 @@ export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = tru
 export const VARSELSVARET = haerdet({
   punktet: (h: Kravpostvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
-  // Prototype v4, `#svar-varsel` med punkt 34.4: normalsvaret er at varselet ikke krever svar.
-  kreverIkkeSvar: 'Varselet krever ikke svar.',
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).

@@ -144,7 +144,7 @@
   };
   const punkteneForVarselet = $derived(
     hjemmel === '34.4'
-      ? [punktet(hjemmel, varselpunktet, VARSELSVARET.kreverIkkeSvar)]
+      ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
       : [
           punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
           punktet('justering', SKJEMA.justeringSpoersmaal, SKJEMA.ikkeBesvart),
