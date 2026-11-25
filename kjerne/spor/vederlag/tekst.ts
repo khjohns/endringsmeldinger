@@ -45,6 +45,7 @@ import {
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
+  svaretGjelderEtVarsel,
 } from './format.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../../typer.ts';
 import type {
@@ -53,6 +54,7 @@ import type {
   Kravpostvarselet,
   Standpunkt,
   Standpunktsvirkning,
+  Virkning,
 } from '../../typer.ts';
 
 // ---------- Brevteksten (LV-U4) ----------
@@ -425,13 +427,7 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
       ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
       : `byggherren aksepterer ikke totalentreprenørens tilbud${post ? ` for ${post}` : ''} (NS 8407 punkt 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
   },
-  justering: (p, krav) => {
-    // KA-U68, OV-U115 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
-    const post = kravpostenI(krav, p.gjelder).betegnelse;
-    return p.godtar
-      ? `byggherren godtar at enhetsprisene for ${post} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`
-      : `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`;
-  },
+  justering: (p, krav) => justeringstekst(p.godtar, kravpostenI(krav, p.gjelder).betegnelse),
   beloep: (p, krav) => {
     // Standpunktet har et beløp, fordi `harTekst` har tatt bort standpunktene uten (KA-U72).
     // Resultatet regnes i hele øre (B-13, OV-U59). LV-U34: beløpet står under punktet for
@@ -446,6 +442,20 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
     return verdi(resultat, kroner(p.godkjent!), kroner(tilTall(krevd)));
   },
 } satisfies Standpunktstekster<'oppgjoersform' | 'justering' | 'beloep'>;
+
+/**
+ * Standpunktet til justeringen av enhetsprisene (KA-U68, OV-U115 punkt 5), for kravposten `post`,
+ * eller i svaret på varselet etter § 34.3.3 når `post` er `null` (VS-U77 punkt 30). Standpunktet
+ * godkjenner ingen priser, mengder eller beløp.
+ */
+export function justeringstekst(godtar: boolean, post: string | null): string {
+  const forPosten = post ? ` for ${post}` : '';
+  if (godtar)
+    return `byggherren godtar at enhetsprisene${forPosten} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`;
+  return post
+    ? `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`
+    : 'byggherren bestrider at enhetsprisene skal justeres (NS 8407 punkt 34.3.2).';
+}
 
 /** Kravposten med fast sum standpunktet til beløpet gjelder, og det krevde beløpet (KA-U57 (c)). */
 function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
@@ -490,8 +500,9 @@ function leddIVederlaget(
   kravet: Krav | null | undefined,
   forKravposten: ReadonlySet<string>
 ): Linjeledd[] {
-  const sine: Linjeledd[] = [];
   const virkning = (id: string) => virkningen(v, id);
+  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning);
+  const sine: Linjeledd[] = [];
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
   // begrensningen som eget ledd foran posten.
@@ -559,6 +570,30 @@ function leddIVederlaget(
     sine.push({ tekst, virkning: virkning(b.id) });
   });
   return sine;
+}
+
+/**
+ * Linjen for svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene (VS-U79): standpunktet
+ * til varselet og til justeringen. Etter § 34.4 er «i tide» oppgivelsen av innsigelsen (VS-U77
+ * punkt 31).
+ */
+function leddISvaretPaaVarselet(
+  svar: Svarinnhold,
+  virkning: (id: string) => Virkning
+): Linjeledd[] {
+  return svar.standpunkter.flatMap((s): Linjeledd[] => {
+    const tekst =
+      s.art === 'rettidighet'
+        ? !s.iTide
+          ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
+          : s.hjemmel === '34.4'
+            ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
+            : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`
+        : s.art === 'justering'
+          ? `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`
+          : undefined;
+    return tekst === undefined ? [] : [{ tekst, virkning: virkning(s.id) }];
+  });
 }
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */

@@ -10,6 +10,7 @@
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
+import { varseletSvaretGjelder } from '../spor/vederlag/kommando.ts';
 import { erRegistrering, type Kommando } from './kommando.ts';
 import { kalenderdag } from '../format/leser.ts';
 import { nyttelastkontroll, oppgittDatoEtterBrevet, type Svarstandpunkter } from './nyttelast.ts';
@@ -18,14 +19,23 @@ import type { Utledning } from '../utledning/utled.ts';
 import type { Avvisning, Part } from '../typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
-export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
+export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
+  // VS-U79: et svar på et varsel etter § 34.3.3 eller § 34.4 gjelder varselet.
+  const paaVarselet = (s: { spor: string; gjelder: string }) =>
+    s.spor === 'vederlag' && varseletSvaretGjelder(u, s.gjelder) !== null;
   switch (k.type) {
     case 'krav':
       return [{ type: 'krav', spor: k.spor }];
     case 'brev':
-      return k.svar.map((s) => ({ type: 'svare', spor: s.spor }));
+      return k.svar.map((s) =>
+        paaVarselet(s) ? { type: 'svare', gjelder: s.gjelder } : { type: 'svare', spor: s.spor }
+      );
     case 'revisjon':
-      return [{ type: 'revidere', spor: k.svar.spor }];
+      return [
+        paaVarselet(k.svar)
+          ? { type: 'revidere', gjelder: k.svar.gjelder }
+          : { type: 'revidere', spor: k.svar.spor },
+      ];
     case 'aksept':
       return [{ type: 'godta', spor: k.spor }];
     case 'trekk':
@@ -71,7 +81,7 @@ export function avvisning(
   utdypningKreves = true
 ): Avvisning | null {
   const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
-  for (const h of handlingsnoekler(k)) {
+  for (const h of handlingsnoekler(k, u)) {
     const brudd = forutsetninger(h, part, u, sendt);
     if (brudd) return brudd;
   }

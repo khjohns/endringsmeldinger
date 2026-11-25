@@ -81,6 +81,8 @@ export const DOKUMENTENE: Lesbar[] = [
     [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
+      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U115 punkt 5: svaret på en kravpost etter en beregningsregel.

@@ -347,3 +347,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U76](../../plans/vedtak.md#vs-u76) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt | BF-02A te-har-mottatt-svaret | — |
 | [VS-U77](../../plans/vedtak.md#vs-u77) | BF-02A korrigeringen-er-sendt, BF-02D korrigeringen-er-sendt | BF-02A korrigeringen-er-sendt | BF-37 |
 | [VS-U78](../../plans/vedtak.md#vs-u78) | — | — | BF-14 |
+| [VS-U79](../../plans/vedtak.md#vs-u79) | — | — | BF-14 |

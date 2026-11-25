@@ -526,6 +526,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`. |
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/avvisningen.test.ts`. |
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
+| `INGEN_VARSEL` | — | Kontrollen av kommandoen: et svar på et varsel som står alene, må gjelde et varsel etter punkt 34.3.3 første ledd eller 34.4 fra totalentreprenøren (VS-U79). Ingen rad sier avvisningen; den er en forutsetning i `hindrerSvaretPaaVarselet`. |
 | `KRAVET_ER_VARSELET` | — | Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `KRAVPOSTENE` | KA-55, KA-58 | — |
 | `KRAVPOSTVARSELET` | VS-08, VS-09 | — |
@@ -542,6 +543,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_INNSIGELSE` | VS-01 | — |
 | `UGYLDIG_KORRIGERING` | GR-36 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03, KA-56 | — |
+| `VARSELET_GJELDER_EN_KRAVPOST` | — | Kontrollen av kommandoen: byggherren kan svare på et varsel etter punkt 34.3.3 første ledd eller 34.4 som står alene, bare så lenge ingen sendt kravversjon har en kravpost som gjelder varselet (VS-U77 punkt 33). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varselsvar.test.ts`. |
 | `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VARSEL_FOER_GRUNNLAGSDATOEN` | — | Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VARSEL_REGISTRERT` | VS-06, VS-07 | — |
