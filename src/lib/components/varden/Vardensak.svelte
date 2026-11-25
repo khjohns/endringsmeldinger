@@ -960,6 +960,11 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
           onforholdet={tilForholdet}
+          nyttSvarPaaKravet={kjernesak.handlinger.includes('revidere:vederlag')
+            ? skjemanoeklene.includes('revidere:vederlag')
+              ? () => aapne('revidere:vederlag')
+              : 'ikke bygget'
+            : null}
         />
       {/key}
     {/if}

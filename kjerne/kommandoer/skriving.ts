@@ -6,7 +6,8 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import { SKRIVING_I_VEDERLAGET, standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
+import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';

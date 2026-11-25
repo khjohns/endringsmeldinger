@@ -21,6 +21,8 @@ import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
+import { kroner } from '#kjerne/frosset/tekst.ts';
+import { KRAVSKJEMA } from './tekster';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { varseletFoer, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
 
@@ -117,6 +119,10 @@ export const regelen = (post: Kravpost): Regel | null =>
 
 /** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
 export const etterRegel = (post: Kravpost): boolean => regelen(post) !== null;
+
+/** Kravet i kravposten i kortform, i kolonnen «Kravet»: oppgjørsformen eller beløpet. */
+export const kravetIKortform = (post: Kravpost): string =>
+  etterRegel(post) ? KRAVSKJEMA.formnavn[post.oppgjoersform] : kroner(post.beloep ?? 0);
 
 /** Aksepten av tilbudet eller beregningsregelen slik valget for oppgjørsformen gir den. */
 const akseptIValget = (p: Postvalg): boolean | undefined =>

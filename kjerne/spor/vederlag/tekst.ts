@@ -32,6 +32,7 @@ import {
   laget,
   virkningen,
   type Svarinnhold,
+  type VarselIKravet,
 } from '../../frosset/byggeklosser.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
@@ -498,10 +499,14 @@ function leddIVederlaget(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
   kravet: Krav | null | undefined,
-  forKravposten: ReadonlySet<string>
+  forKravposten: ReadonlySet<string>,
+  staar: readonly VarselIKravet[]
 ): Linjeledd[] {
   const virkning = (id: string) => virkningen(v, id);
-  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning);
+  // VS-U81: innsigelsen etter § 34.3.3 fra et svar før, som svaret ikke sier noe om.
+  const forSentFoer = (gjelder: string | undefined) =>
+    staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === gjelder);
+  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning, forSentFoer);
   const sine: Linjeledd[] = [];
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
@@ -555,6 +560,19 @@ function leddIVederlaget(
         tekst: `${SENT_I_LINJEN[varselet.hjemmel]}${forPosten} kom for sent`,
         virkning: virkning(varselet.id),
       });
+    // VS-U81: laget for innsigelsen står foran justeringen, eller er laget for beløpet uten den
+    // (`lagIKravposten`).
+    const justeringen = svar.standpunkter.find(
+      (s) => s.art === 'justering' && s.gjelder === b.gjelder
+    );
+    if (!b.saerskilt && forSentFoer(b.gjelder))
+      sine.push({
+        tekst: `${SENT_I_LINJEN['34.3.3']}${forPosten} kom for sent${SOM_FOER}`,
+        virkning: foranJusteringen(
+          justeringen ? virkning(justeringen.id) : virkning(b.id),
+          !!justeringen
+        ),
+      });
     const justering = svar.standpunkter.find(
       (s) => s.art === 'justering' && !s.godtar && s.gjelder === b.gjelder
     );
@@ -579,22 +597,44 @@ function leddIVederlaget(
  */
 function leddISvaretPaaVarselet(
   svar: Svarinnhold,
-  virkning: (id: string) => Virkning
+  virkning: (id: string) => Virkning,
+  forSentFoer: (gjelder: string | undefined) => boolean
 ): Linjeledd[] {
-  return svar.standpunkter.flatMap((s): Linjeledd[] => {
-    const tekst =
-      s.art === 'rettidighet'
-        ? !s.iTide
-          ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
-          : s.hjemmel === '34.4'
-            ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
-            : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`
-        : s.art === 'justering'
-          ? `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`
-          : undefined;
-    return tekst === undefined ? [] : [{ tekst, virkning: virkning(s.id) }];
-  });
+  const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
+  const foer: Linjeledd[] =
+    justeringen?.art === 'justering' &&
+    !svar.standpunkter.some((s) => s.art === 'rettidighet') &&
+    forSentFoer(justeringen.gjelder)
+      ? [
+          {
+            tekst: `${SENT_I_LINJEN['34.3.3']} kom for sent${SOM_FOER}`,
+            virkning: foranJusteringen(virkning(justeringen.id), true),
+          },
+        ]
+      : [];
+  return foer.concat(
+    svar.standpunkter.flatMap((s): Linjeledd[] => {
+      const tekst =
+        s.art === 'rettidighet'
+          ? !s.iTide
+            ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
+            : s.hjemmel === '34.4'
+              ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
+              : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`
+          : s.art === 'justering'
+            ? `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`
+            : undefined;
+      return tekst === undefined ? [] : [{ tekst, virkning: virkning(s.id) }];
+    })
+  );
 }
+
+/** VS-U81: innsigelsen svaret leses med, står i et tidligere svar. */
+const SOM_FOER = ', som gjort gjeldende i et tidligere svar';
+
+/** Laget for innsigelsen etter § 34.3.3: laget foran justeringen, eller laget for beløpet. */
+const foranJusteringen = (v: Virkning, medJusteringen: boolean): Virkning =>
+  typeof v === 'number' && medJusteringen ? v - 1 : v;
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */
 const SAERSKILT_I_LINJEN = 'særskilt justering (punkt 34.1.3 annet ledd)';

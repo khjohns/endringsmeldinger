@@ -17,6 +17,7 @@ import {
   SAK,
   linje,
   medGrunnlag,
+  medVederlagssvar,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
@@ -25,6 +26,9 @@ import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
 import { brevene } from '#lib/components/varden/lesing.ts';
 import { TIDSLINJE, TRAADEN } from '#lib/components/varden/tekster/index.ts';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
 
 const medVarsel = (hjemmel: '34.3.3' | '34.4') =>
   skrevet(medGrunnlag, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
@@ -415,5 +419,170 @@ describe('handlingen står ved hvert varsel som står alene (#2360 punkt 1, U-16
     expect(
       screen.getAllByRole('button', { name: 'Svar på varselet om regningsarbeid' })
     ).toHaveLength(1);
+  });
+});
+
+describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', () => {
+  const mellom = skrevet(medVederlagssvar, 'TE', {
+    type: 'send_varsel',
+    spor: 'vederlag',
+    hjemmel: '34.3.3',
+  });
+
+  it('svarene på kravpostene fra forrige brev står i et kort i høyre kolonne uten «Endre», og kommandoen gjelder bare varselet', async () => {
+    const sendt = await svarskjemaet(mellom);
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(within(svarene).getByText('250 000 kr')).toBeInTheDocument();
+    expect(within(svarene).getAllByRole('listitem').length).toBeGreaterThan(0);
+    expect(within(svarene).queryByRole('button', { name: /Endre|Svar på/ })).toBeNull();
+    // Uten tilbudt handling er det ingen lenke til et nytt svar på kravet.
+    expect(within(svarene).queryByRole('button', { name: 'Nytt svar på kravet' })).toBeNull();
+    expect(within(svarene).queryByText(/Vil du endre dem/)).toBeNull();
+    await radio('Kom i tide');
+    await radio('Godtar justeringen');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    const k = svaret(sendt[0]!);
+    expect(k.svar).toHaveLength(1);
+    expect((k.svar as Record<string, unknown>[])[0]).toMatchObject({ gjelder: varselI(mellom) });
+  });
+
+  it('et varsel fra før det første kravet står alene, uten svarene på kravet (#2358, Codex-reviewet)', async () => {
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'tilbud', belop: 100000 }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+          },
+        ],
+      },
+    ];
+    const k = await kjoer(
+      { id: 'foer', rader: [], start: null, steg, kontroller: [] },
+      minnebane()
+    );
+    await svarskjemaet(await k.bane.journal());
+    expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
+  });
+
+  it('et varsel mellom første og andre kravversjon viser svaret på den andre (#2358, /code-review)', async () => {
+    const krav = (navn: string, post?: string): Handling => ({
+      handling: 'krav',
+      spor: 'vederlag',
+      navn,
+      kravposter: [{ post, oppgjoersform: 'tilbud', belop: 100000 }],
+    });
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      krav('K-v1'),
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      krav('K-v2', 'P1'),
+      {
+        handling: 'brev',
+        navn: 'D5',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v2',
+            kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+          },
+        ],
+      },
+    ];
+    const k = await kjoer({ id: 'v2', rader: [], start: null, steg, kontroller: [] }, minnebane());
+    await svarskjemaet(await k.bane.journal());
+    expect(screen.getByRole('region', { name: /^Svarene på kravet i brev 5/ })).toBeInTheDocument();
+  });
+
+  it('uten forrige svar på kravet står ingen svar i høyre kolonne', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
+  });
+
+  it('i Varden sier lenken til et nytt svar på kravet at skjemaet ikke er bygget', async () => {
+    const kjernesak = kjernesakFor(mellom);
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' })
+    );
+    const lenke = await screen.findByRole('button', { name: 'Nytt svar på kravet' });
+    expect(
+      screen.getByText(/Vil du endre dem, sender du et nytt svar på kravet\./)
+    ).toBeInTheDocument();
+    await fireEvent.click(lenke);
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(within(svarene).getByRole('status')).toHaveTextContent(/ikke bygget/);
+  });
+});
+
+describe('svarene fra forrige brev bruker ordene brevet brukte om varselet (MM-U50, VS-U65)', () => {
+  it('et nytt svar som ga opp innsigelsen etter punkt 34.3.3, står som «Gir opp innsigelsen»', async () => {
+    const post = { post: 'P1', godtar_justering: true };
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'enhetspriser', justert: true }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [
+          { spor: 'vederlag', navn: 'S-v1', kravposter: [{ ...post, varslet_i_tide: false }] },
+        ],
+      },
+      {
+        handling: 'revisjon',
+        spor: 'vederlag',
+        navn: 'S-v2',
+        kravposter: [{ ...post, varslet_i_tide: true }],
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V-1' },
+    ];
+    const k = await kjoer(
+      { id: 'mellom', rader: [], start: null, steg, kontroller: [] },
+      minnebane()
+    );
+    await svarskjemaet(await k.bane.journal());
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(
+      within(svarene).getByText(/^Gir opp innsigelsen om at varselet etter punkt.34\.3\.3/)
+    ).toBeInTheDocument();
   });
 });

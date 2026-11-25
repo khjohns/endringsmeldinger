@@ -12,13 +12,15 @@
 import type { Regelsett } from '../regler/regelsett.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import {
+  dagenSendt,
   datoForDokumentet,
   dokumenterI,
   kalenderdag,
   registrertDato,
   sakstittelen,
 } from '../format/leser.ts';
-import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { innsigelserSvaretLesesMed, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { innholdIForholdet } from '../spor/forhold/format.ts';
 import {
@@ -287,11 +289,29 @@ const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
   kravene_avgjort: 'alle_krav_avgjort',
 };
 
-/** Brevet vurdert med dagens regler gir et standpunkt en annen virkning (MM-U9). */
+/**
+ * Brevet vurdert med dagens regler gir et standpunkt en annen virkning (MM-U9). Svaret leses med
+ * innsigelsene fra svarene før slik kjernen kjente dem da det ble sendt eller lagt til, som da det
+ * ble frosset (VS-U81): de er ikke en regel.
+ */
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
+  const d = dokumentet(u, g.dokument);
+  const sporet = u.spor[spor];
+  const krav = [...sporet.krav, ...sporet.kravUtenforRekken].find((k) => k.id === g.gjelder);
+  const staar =
+    spor === 'vederlag' && d
+      ? innsigelserSvaretLesesMed(
+          g,
+          krav,
+          standpunkteneTilVarslene(u, dagenSendt(g, d) ?? null, true, d.id)
+        )
+      : [];
+  return ulikeVirkninger(
+    u.svar[g.id].virkninger,
+    virkninger(g, paaberopelseFor(g, u), regler, 0, staar)
+  );
 }
 
 function dokumentet(u: Utledning, id: string): Dokument | undefined {

@@ -71,7 +71,7 @@ export interface Startjournal {
   journal: Journalrad[];
 }
 
-/** `data` med gjeldende regelversjon der startjournalene har en (`sammenliknbar`, #2116). */
+/** `data` med gjeldende regelversjon der startjournalene har en (`FAST_REGELVERSJON`, #2294). */
 export const medGjeldendeRegelversjon = <T>(data: T): T =>
   JSON.parse(JSON.stringify(data), (felt, verdi: unknown) =>
     felt === 'regelversjon' && typeof verdi === 'number' ? KJERNE.regler.versjon : verdi

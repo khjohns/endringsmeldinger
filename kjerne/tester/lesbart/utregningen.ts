@@ -114,7 +114,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'frosset/standpunkt.ts',
     'relasjon',
     'sisteStandpunktTilVarslene',
-    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/kommando.ts:standpunkteneTilVarslene'],
+    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
@@ -134,6 +134,8 @@ export const UTREGNINGEN: Lesbar[] = [
   ['Svarsutregning', 'regelsett', 'regnUt utenforOmfanget', ['frosset/utregning.ts']],
   ['Utregningsgrunnlag', 'utsagn', 'krav paaberopelse'],
   ['Utregningsgrunnlag', 'relasjon', 'foresporsel'],
+  // VS-U80, VS-U81: innsigelsene fra svarene før.
+  ['Utregningsgrunnlag', 'relasjon', 'staar'],
   [
     'spor/vederlag/frysing.ts',
     'regelsett',
@@ -147,7 +149,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'UTREGNING_I_FRISTEN SAMMENLIKNES_I_FRISTEN',
     ['frosset/utregning.ts'],
   ],
-  ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
+  ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel staar'],
   // OV-U115 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
@@ -386,10 +388,21 @@ export const UTREGNINGEN: Lesbar[] = [
     ],
   ],
   ['regler/vederlag.ts:kontrollerOppgivelsenEtter344', 'utsagn', 'varslet_i_tide oppgjoersform'],
+  // VS-U80: et svar fra løsningen gjentar innsigelsen som står, eller gir den opp.
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerInnsigelsenSomStaar',
+    [
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+    ],
+  ],
+  ['regler/vederlag.ts:kontrollerInnsigelsenSomStaar', 'utsagn', 'varslet_i_tide'],
   // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
   // de ble sendt.
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
-  ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
+  ['spor/vederlag/utledning.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
   // VS-U79: varselet svaret på et varsel gjelder, og dagen kravene ble sendt.
   [
     'spor/vederlag/kommando.ts',
@@ -437,7 +450,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'relasjon',
     'id',
     [
-      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+      'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],

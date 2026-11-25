@@ -13,7 +13,12 @@
  */
 
 import type { Regelsett } from '../regler/regelsett.ts';
-import { type Svarinnhold, type Svarsfrysing, iSporet } from './byggeklosser.ts';
+import {
+  type Svarinnhold,
+  type Svarsfrysing,
+  type VarselIKravet,
+  iSporet,
+} from './byggeklosser.ts';
 import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
@@ -40,15 +45,17 @@ import type {
  * skrives. `påberopelse` er kravet et svar på påberopelsen gjelder. Laget er et nummer fra 1.
  * Hver grunn med virkning åpner et nytt lag for standpunktene etter den (OV-U32), også
  * påberopelsene av rettidighet i fristen (KA-U85). `forskyvning` er lagene
- * svaret på forholdet opptar foran sporet (`lagFraForholdet`).
+ * svaret på forholdet opptar foran sporet (`lagFraForholdet`). `staar` er innsigelsene fra
+ * svarene før som svaret leses med (`innsigelserSvaretLesesMed`, VS-U81).
  */
 export function virkninger(
   svar: Svarinnhold,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
-  forskyvning = 0
+  forskyvning: number,
+  staar: readonly VarselIKravet[]
 ): Standpunktsvirkning[] {
-  return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
+  return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning, staar);
 }
 
 /** VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent. */
@@ -242,20 +249,30 @@ const FRYSING: Record<Spor, Svarsfrysing> = {
 export type StandpunktFoer = Pick<StandpunktTilVarselet, 'gjelder' | 'hjemmel' | 'iTide'>;
 
 /**
- * Sammenfallet i svaret, også med innsigelsene i svarene før (`foer`) for et varsel svaret ikke
- * sier noe om (VS-U77 punkt 9 og 12, OV-U115 punkt 25, #2316).
+ * VS-U80, VS-U81: varslene svaret ikke sier noe om, der byggherrens innsigelse fra svarene før
+ * (`foer`) står. Svaret leses med dem, og virkningen fryses med svaret. `krav` er kravet svaret
+ * gjelder, og mangler for et svar på et varsel som står alene.
+ */
+export function innsigelserSvaretLesesMed(
+  svar: Svarinnhold,
+  krav: Krav | null | undefined,
+  foer: readonly StandpunktFoer[]
+): VarselIKravet[] {
+  return (frysingI(svar.spor).tausOmVarselet?.(svar, krav) ?? []).filter((t) =>
+    foer.some((x) => !x.iTide && x.gjelder === t.gjelder && x.hjemmel === t.hjemmel)
+  );
+}
+
+/**
+ * Sammenfallet i svaret, også med innsigelsene fra svarene før som svaret leses med (`staar`,
+ * VS-U77 punkt 9 og 12, OV-U115 punkt 25, VS-U81).
  */
 export function sammenfallet(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
-  krav: Krav | null | undefined,
-  foer: readonly StandpunktFoer[]
+  staar: readonly VarselIKravet[]
 ): boolean {
-  if (!godkjennerHeleKravet(svar, v)) return false;
-  const taus = krav ? (frysingI(svar.spor).tausOmVarselet?.(svar, krav) ?? []) : [];
-  return !taus.some((t) =>
-    foer.some((x) => !x.iTide && x.gjelder === t.gjelder && x.hjemmel === t.hjemmel)
-  );
+  return godkjennerHeleKravet(svar, v) && staar.length === 0;
 }
 
 /**
