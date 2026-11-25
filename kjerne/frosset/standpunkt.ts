@@ -134,6 +134,33 @@ export interface StandpunktTilVarselet {
   dokument: string;
 }
 
+/** OV-U120: kravposten `gjelder` har det eldre kravet i dokumentet `dokument` som varsel. */
+export interface VarselIEtEldreKrav {
+  gjelder: string;
+  hjemmel: Kravpostvarselhjemmel;
+  dokument: string;
+}
+
+/**
+ * OV-U120: standpunktene til varselet for en kravpost som har et eldre krav som varsel, i svarene
+ * som står i journalen før det eldre kravet, følger ikke med til det. `foran(a, b)` sier om
+ * dokumentet `a` står før `b` i journalen.
+ */
+export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' | 'standpunkter'>>(
+  s: T,
+  varsler: readonly VarselIEtEldreKrav[],
+  foran: (a: string, b: string) => boolean
+): T {
+  const gjelderIkke = (p: Standpunkt) =>
+    p.art === 'rettidighet' &&
+    varsler.some(
+      (v) => v.gjelder === p.gjelder && v.hjemmel === p.hjemmel && foran(s.dokument, v.dokument)
+    );
+  return s.standpunkter.some(gjelderIkke)
+    ? { ...s, standpunkter: s.standpunkter.filter((p) => !gjelderIkke(p)) }
+    : s;
+}
+
 /**
  * Byggherrens siste standpunkt til varselet etter § 34.3.3 eller § 34.4 for hver kravpost i
  * `svarene`: svarene på vederlaget med virkning, med dagen hvert ble sendt og om brevet er lagt

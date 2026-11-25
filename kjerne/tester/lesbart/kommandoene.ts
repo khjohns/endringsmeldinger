@@ -100,14 +100,17 @@ export const KOMMANDOENE: Lesbar[] = [
     'Dokument',
     'utsagn',
     'dokumentasjon',
-    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
+    [
+      'spor/vederlag/utledning.ts:varsleneForanKravet',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
+    ],
   ],
   [
     'Utsagn',
     'relasjon',
     'dokument',
     [
-      'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/utledning.ts:varsleneForanKravet',
       'spor/vederlag/kommando.ts:varseldokumentene',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
       'spor/frist/kommando.ts:varseldokumentetISaken',

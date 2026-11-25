@@ -822,6 +822,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
+      varslerIEldreKrav: [],
       kravpostvarsler: {},
       utenVirkning: [],
       varsletFoer: {},

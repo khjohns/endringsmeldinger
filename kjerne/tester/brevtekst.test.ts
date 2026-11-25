@@ -775,6 +775,7 @@ describe('vedleggene står i teksten (A4)', () => {
     datoopplysninger: [],
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
+    varslerIEldreKrav: [],
     kravpostvarsler: {},
     utenVirkning: [],
     varsletFoer: {},

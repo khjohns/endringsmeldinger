@@ -438,7 +438,7 @@ export const BREVTEKSTEN: Lesbar[] = [
     'relasjon',
     'vedlegg_id',
     [
-      'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/utledning.ts:varsleneForanKravet',
       'spor/vederlag/kommando.ts:vedleggIVarslene',
       'frosset/brevdeler.ts',
     ],

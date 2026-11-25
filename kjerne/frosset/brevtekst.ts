@@ -23,6 +23,7 @@ import {
   innsigelsenPaaberoper,
   paaberopelserIDokumentet,
   sisteStandpunktTilVarslene,
+  utenStandpunkterForanEldreKrav,
   svaretGjelderPaaberopelsen,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
@@ -908,6 +909,8 @@ function varseltekst(
   poster: readonly Kravpost[],
   { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
 ): string {
+  const plass = new Map(j.dokumenter.map((d, i) => [d.id, i]));
+  const foran = (a: string, b: string) => plass.get(a)! < plass.get(b)!;
   const foer = sisteStandpunktTilVarslene(
     j.dokumenter
       .filter((d) => d.id !== nytt.id)
@@ -915,7 +918,7 @@ function varseltekst(
         d.svar
           .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
           .map((x) => ({
-            s: x,
+            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, foran),
             dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
           }))

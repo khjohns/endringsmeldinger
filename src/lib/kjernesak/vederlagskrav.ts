@@ -5,7 +5,7 @@
  */
 
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
+import { eldreKravFoer, kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
@@ -38,7 +38,8 @@ export function varslenePerKravpost(
   const etter = kravpostvarslene(
     { innhold: { kravposter: lest } },
     krav,
-    u.spor.vederlag.kravpostvarsler
+    u.spor.vederlag.kravpostvarsler,
+    eldreKravFoer(u, null)
   );
   return lest.map((p) => {
     const hjemmel = varselhjemmel(p);
@@ -57,8 +58,11 @@ export function varslenePerKravpost(
   });
 }
 
+/** Brevet med varselet: et registrert varsel, eller et krav utenfor rekken (OV-U120). */
 const dokumentet = (u: Utledning, varsel: string) =>
-  u.spor.vederlag.kravpostvarsler.find((v) => v.id === varsel)?.dokument ?? varsel;
+  u.spor.vederlag.kravpostvarsler.find((v) => v.id === varsel)?.dokument ??
+  u.spor.vederlag.kravUtenforRekken.find((k) => k.id === varsel)?.dokument ??
+  varsel;
 
 /** Et varsel etter § 34.3.3 eller § 34.4 i saken, med brevet det står i. */
 export interface Kravpostvarsel {
