@@ -282,7 +282,7 @@ export function standpunkteneTilVarslene(
   sendt: string | null,
   medSammeDag = false
 ): StandpunktTilVarselet[] {
-  const { svar, svarUtenforRekken, svarPaaVarsler, gjeldendeKrav } = u.spor.vederlag;
+  const { svar, svarUtenforRekken, svarPaaVarsler, krav, kravUtenforRekken } = u.spor.vederlag;
   const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));
   // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
   return sisteStandpunktTilVarslene(
@@ -299,7 +299,13 @@ export function standpunkteneTilVarslene(
       .filter(
         ({ dag }) => sendt === null || foerDagen(dag, sendt) || (medSammeDag && dag === sendt)
       ),
-    gjeldendeKrav ? kravposterI(gjeldendeKrav) : []
+    // VS-U77 punkt 34: også en kravpost som er trukket i en senere versjon, for et svar på en
+    // eldre versjon (OV-U103). Kravposten har samme id i alle versjonene.
+    [
+      ...new Map(
+        [...krav, ...kravUtenforRekken].flatMap(kravposterI).map((p) => [p.id, p])
+      ).values(),
+    ]
   );
 }
 
@@ -386,6 +392,9 @@ export function standpunkterPaaVarselet(
 /**
  * Vurderingene i svaret på varselet `varselet` (`kontrollerSvaretPaaVarselet`). En innsigelse
  * etter § 34.4 står når byggherrens siste standpunkt til varselet før svaret gjorde den gjeldende.
+ * Svarene fra samme dag leses med, som i frysingen: det eneste svaret på varselet fra den dagen er
+ * svaret et nytt svar erstatter (VS-U77 punkt 33), og et svar på en kravpost som viser til varselet,
+ * hindrer svaret (`hindrerSvaretPaaVarselet`).
  */
 export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
@@ -393,7 +402,7 @@ export function vurderingeneISvaretPaaVarselet(
   u: Utledning,
   sendt: string | null
 ): Avvisning | null {
-  const staar = standpunkteneTilVarslene(u, sendt).some(
+  const staar = standpunkteneTilVarslene(u, sendt, true).some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );
   const feil = avvisteFelt(() =>

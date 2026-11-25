@@ -165,6 +165,18 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     expect(s.u().forstaatt).toBe(true);
   });
 
+  it('et nytt svar lagt til samme dag som svaret det erstatter, kan gi opp innsigelsen (punkt 31 og 33, OV-U104)', () => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    const foerste = s.u().spor.vederlag.svarPaaVarsler[0].id;
+    expect(
+      s.avvisning(
+        'BH',
+        lagtTil(dagen(s), [svar('vederlag', varsel, { varslet_i_tide: true }, {}, null)], foerste)
+      )
+    ).toBeNull();
+  });
+
   it.each([
     ['står mot kravposten som gjelder varselet, så den kan gis opp der', true],
     ['kontrollsak: uten svaret på varselet er det ingen innsigelse å gi opp', false],
@@ -204,6 +216,54 @@ const brev = (gjelder: string, vurderinger: Data, resultat: Data = {}) => ({
 
 const FORBEHOLDET_I_PUNKT = (n: number) =>
   `${n}. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.`;
+
+describe('innsigelsen i svaret på varselet og et svar på en eldre kravversjon (VS-U77 punkt 34, OV-U103)', () => {
+  it.each([
+    [
+      'står mot kravposten som er trukket i den gjeldende versjonen, så svaret faller ikke sammen med kravet',
+      true,
+    ],
+    ['kontrollsak: uten svaret på varselet faller svaret sammen med kravet', false],
+  ])('innsigelsen %s', (_, medSvaret) => {
+    const { s, varsel } = medVarsel('34.4');
+    if (medSvaret) s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    s.send(
+      'TE',
+      vederlagskrav([
+        { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel },
+        { beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid' },
+      ])
+    );
+    const v1 = s.krav('vederlag');
+    const sendtV1 = dagen(s);
+    const poster = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[]).map(
+      (p) => p.id
+    );
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [{ beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid', betegnelse: 'P2' }],
+        trekker: [poster[0]],
+      },
+    });
+    s.send(
+      'BH',
+      lagtTil(sendtV1, [
+        svar(
+          'vederlag',
+          v1,
+          { kravposter: poster.map((gjelder) => ({ gjelder, aksepterer: true })) },
+          { resultat: 'godkjent', godkjent_beloep: 0 },
+          null
+        ),
+      ])
+    );
+    const { svar: svarene, svarUtenforRekken } = s.u().spor.vederlag;
+    const svaret = [...svarene, ...svarUtenforRekken].find((x) => x.gjelder === v1)!;
+    expect(svaret.beslutningsgrunnlag.sammenfall).toBe(!medSvaret);
+  });
+});
 
 describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => {
   it('etter punkt 34.3.3 står innsigelsen prinsipalt og justeringen subsidiært, med lagslinjen til innsigelsen (punkt 30, VS-U4, LV-U34)', () => {
@@ -337,5 +397,37 @@ describe('svaret på varselet etter et avslått forhold (VS-U4, OV-U32, LV-U34)'
     expect(s.u().spor.vederlag.svarPaaVarsler[0].beslutningsgrunnlag.linje).toBe(
       'Byggherrens standpunkt: subsidiært varselet etter punkt\u00a034.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (punkt\u00a034.3.2).'
     );
+  });
+});
+
+describe('leseren kontrollerer svaret på varselet (MM-U2, VS-U79)', () => {
+  const svarIRaden = (rad: { data: Data }) => (rad.data.svar as Data[])[0];
+
+  it.each([
+    ['et standpunkt etter en annen bestemmelse enn varselet gjør saken ikke forstått', true],
+    ['kontrollsak: standpunktet etter bestemmelsen for varselet', false],
+  ])('%s', (_, endret) => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    if (endret) (svarIRaden(s.journal.at(-1)!).standpunkter as Data[])[0].hjemmel = '34.3.3';
+    expect(s.u().forstaatt).toBe(!endret);
+  });
+
+  it.each([
+    ['et svar som erstatter et svar som alt er erstattet, gjør saken ikke forstått', true],
+    ['kontrollsak: hvert nytt svar erstatter det forrige', false],
+  ])('%s (VS-U77 punkt 33)', (_, endret) => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    const foerste = s.u().spor.vederlag.svarPaaVarsler[0].id;
+    const nytt = (vurderinger: Data) => ({
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.svarPaaVarsler.at(-1)!.id,
+      svar: svar('vederlag', varsel, vurderinger, {}, null),
+    });
+    s.send('BH', nytt({ varslet_i_tide: true }));
+    s.send('BH', nytt({ varslet_i_tide: false }));
+    if (endret) svarIRaden(s.journal.at(-1)!).erstatter = foerste;
+    expect(s.u().forstaatt).toBe(!endret);
   });
 });

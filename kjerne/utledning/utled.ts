@@ -1126,6 +1126,11 @@ function utledSporene(
   const alleSvar = new Map(
     SPOR.flatMap((n) => [...spor[n].svar, ...spor[n].svarUtenforRekken]).map((s) => [s.id, s])
   );
+  // VS-U79: også svarene på varslene viser bakover til det de gjelder.
+  const svareneSomKontrolleres = new Map([
+    ...alleSvar,
+    ...SPOR.flatMap((n) => spor[n].svarPaaVarsler).map((s) => [s.id, s] as const),
+  ]);
   const alleKrav = new Map(SPOR.flatMap((n) => spor[n].krav).map((k) => [k.id, k]));
   const alleOpplysninger = new Map(opplysninger.map((o) => [o.id, o]));
   const ugyldig: Ugyldig = (id, grunn) =>
@@ -1152,7 +1157,16 @@ function utledSporene(
     const oppgitt = datoFor(v, 'sendt', d.opplysninger);
     return kalenderdag(oppgitt ? oppgitt.dato : d.registrert);
   };
-  kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, sendt, ugyldig);
+  kontrollerSvarene(
+    svareneSomKontrolleres,
+    alleKrav,
+    spor,
+    varsler,
+    besvart,
+    bakover,
+    sendt,
+    ugyldig
+  );
   kontrollerSvarkjedene(spor, ugyldig);
   kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
   kontrollerTrekk(trekk, alleKrav, spor, bakover, ugyldig);
@@ -1354,8 +1368,10 @@ function kontrollerStandpunktet(
 function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyldig): void {
   for (const n of SPOR) {
     const svarene = [...spor[n].svar, ...spor[n].svarPaaVarsler];
-    for (const k of [...spor[n].krav, ...spor[n].kravpostvarsler]) {
-      const paaKravet = svarene.filter((s) => s.gjelder === k.id);
+    // Kravpostvarslene fylles i sporet etter kontrollene, så varslene leses av svarene.
+    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));
+    for (const gjelder of [...spor[n].krav.map((k) => k.id), ...varslene]) {
+      const paaKravet = svarene.filter((s) => s.gjelder === gjelder);
       if (!paaKravet.length) continue;
       const foerste = paaKravet.filter((s) => s.erstatter === null);
       const kjede = new Set<string>();
