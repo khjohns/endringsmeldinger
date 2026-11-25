@@ -28,6 +28,7 @@ import {
   FRISTKRAV,
   FRIST_FULLT,
   KLAR_OVER,
+  MOT,
   MOTTATT,
   PAABEROPELSE,
   VEDERLAG_DELVIS,
@@ -1334,7 +1335,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 0]);
         expect(s.u().forstaatt).toBe(true);
         expect(laast(rad)[2]).toBe(
-          '2. Beregningsmetode (punkt\u00a034.2)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).'
+          `2. Vederlagsjustering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).`
         );
         expect(laast(rad).join('\n\n')).not.toContain('Videre subsidiært');
       });
@@ -1360,9 +1361,9 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
           ],
         });
         const tekst = laast(rad).join('\n\n');
-        // LV-U34 og rettingen i #1433: med flere kravposter begynner punktet med kravposten.
-        expect(laast(rad)[2]).toBe(
-          `2. Vederlagsjustering (punkt\u00a034.1.1)\n\nP1 Graving.\n\nByggherren godkjenner ${kr('100 000')}.`
+        // LV-U78: med flere kravposter har hver kravpost sitt punkt, og overskriften nevner kravposten.
+        expect(laast(rad)[1]).toBe(
+          `1. Vederlagsjustering for P1 Graving (punkt\u00a034.1.1)\n\nByggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner ${kr('100 000')}.`
         );
         expect(tekst).toContain('aksepterer ikke totalentreprenørens tilbud for P2');
         expect(tekst).not.toMatch(/beløpet for P2|av de krevde/);

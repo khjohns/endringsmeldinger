@@ -1081,7 +1081,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F120',
     feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (nytt.id === g.dokument) {', '  if (true) {']],
+    endringer: [['  if (nytt.id === g.dokument)\n', '  if (true)\n']],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
@@ -3348,8 +3348,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    return { forskyvning: grunner.length, ledd: [], henvisninger };',
-        '    return { forskyvning: grunner.length ? 1 : 0, ledd: [], henvisninger };',
+        '      forskyvning: grunner.length,\n      ledd: [],',
+        '      forskyvning: grunner.length ? 1 : 0,\n      ledd: [],',
       ],
     ],
     mal: ['forholdet prekludert og avslått subsidiært i samme brev'],
@@ -3543,12 +3543,15 @@ const MUTASJONER: Mutasjon[] = [
       'svaret på vederlag eller frist uten svar på forholdet har ikke forbeholdet (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['  const forbehold = forbeholdetForForholdet(s, t);', '  const forbehold: string[] = [];'],
+      [
+        '    const setninger = forbeholdetForForholdet(s, t);',
+        '    const setninger: string[] = [];',
+      ],
     ],
     mal: [
       'det første svaret på vederlaget har forbeholdet',
       'forløpet i #1239',
-      'forbeholdet i hvert svaravsnitt',
+      'har forbeholdet én gang, i punktet «Forbehold» sist i brevet',
     ],
   },
   {
@@ -3597,7 +3600,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en revisjon mens forholdet ikke er besvart, mister forbeholdet (GR-U26, GR-08)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ["    s.spor !== 'forhold' &&\n", "    s.spor !== 'forhold' &&\n    !s.erstatter &&\n"],
+      [
+        "    s.spor !== 'forhold' &&\n    saken.svarPaaPaaberopelsen === null",
+        "    s.spor !== 'forhold' &&\n    !s.erstatter &&\n    saken.svarPaaPaaberopelsen === null",
+      ],
     ],
     mal: ['GR-08: en revisjon av vederlagssvaret mens en ny påberopelsesversjon venter'],
   },
@@ -3632,8 +3638,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '          avsnitt.push(lagslinje(l.plass, p.punkt), tekst);',
-        '          avsnitt.push(`${lagslinje(l.plass, p.punkt)} ${tekst}`);',
+        '          avsnitt.push(lagslinje(l.plass, l.post), tekst);',
+        '          avsnitt.push(`${lagslinje(l.plass, l.post)} ${tekst}`);',
       ],
     ],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
@@ -7046,7 +7052,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'lagslinjen ved justeringen i svaret på varselet viser ikke til innsigelsen den er subsidiær til (LV-U34, VS-U4, #2177)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['          innsigelse: !p.iTide,', '          innsigelse: false,']],
+    endringer: [
+      [
+        '          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),',
+        '          vilkaar: null,',
+      ],
+    ],
     mal: ['med lagslinjen til innsigelsen'],
   },
   {
@@ -7139,7 +7150,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2177h',
     feilklasse: 'svaret på varselet får tittelen for svaret på kravet (VS-U79, LV-U25, #2177)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [['    return svaretGjelderEtVarsel(d.svar[0])', '    return false']],
+    endringer: [
+      [
+        'SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor]',
+        'SVARET_GJELDER[s.spor]',
+      ],
+    ],
     mal: [
       'med lagslinjen til innsigelsen',
       'etter punkt 34.4 sier brevet at varselet kom for sent',
@@ -7283,6 +7299,62 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [["      varselhjemmel(post) === '34.3.3' &&\n", '']],
     mal: ['står ikke mot en kravpost som ikke lenger har justerte enhetspriser'],
+  },
+  {
+    id: 'F2337a',
+    feilklasse:
+      'lagslinjen for en kravpost nevner en innsigelse som bare gjelder en annen kravpost (OV-U117, LV-U79, #2337)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [['rammer: (x) => x === undefined || rammerPosten(i, x)', 'rammer: () => true']],
+    mal: ['lagslinjen for hver kravpost nevner bare innsigelsen som rammer posten'],
+  },
+  {
+    id: 'F2337b',
+    feilklasse: 'lagslinjen i andre lag sier «heller ikke» (LV-U79, #2337)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['vilkaaretILagslinjen(navnene, plass > 2)', 'vilkaaretILagslinjen(navnene, plass > 1)'],
+    ],
+    mal: ['lagslinjen for hver kravpost nevner bare innsigelsen som rammer posten'],
+  },
+  {
+    id: 'F2337c',
+    feilklasse:
+      'avslaget av forholdet står uten «Prinsipalt» når et standpunkt i brevet står subsidiært til det (LV-U82, #2337)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["    (s.spor === 'forhold' && nr.subsidiaertTilForholdet);", '    false;']],
+    mal: ['LV-U82: avslaget av forholdet i samme brev får «Prinsipalt»'],
+  },
+  {
+    id: 'F2337d',
+    feilklasse:
+      'byggherrens forbehold for et svar står uten navnet på kravet i et brev med flere svar (LV-U81, #2337)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['const ledetekst = tekst && flere ?', 'const ledetekst = tekst && false ?']],
+    mal: ['LV-U81: brevet har ett punkt «Forbehold», sist'],
+  },
+  {
+    id: 'F2337e',
+    feilklasse:
+      'leseren godtar et punkt i svaret etter forbeholdet sist i brevet (LV-U70, LV-U81, MM-U2, #2337)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['        forbeholdetSist.has(a.gjelder) ||\n', '']],
+    mal: ['LV-U81: leseren godtar forbeholdet for et svar sist i brevet'],
+  },
+  {
+    id: 'F2337f',
+    feilklasse: 'tittelen på et brev med flere svar nevner bare det første kravet (LV-U80, #2337)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['kravene.length > 1 ?', 'false ?']],
+    mal: ['LV-U78, LV-U80: ett punkt per kravpost'],
+  },
+  {
+    id: 'F2337g',
+    feilklasse:
+      'beløpet etter begrensningen etter § 34.1.3 står i et annet punkt enn innsigelsen (LV-U78, #2337)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["      if (p.hjemmel === '34.1.3') return 'produktivitet';\n", '']],
+    mal: ['varselet etter punkt 34.1.3 og beløpet etter begrensningen står i samme avsnitt'],
   },
 ];
 /** En kopi av arbeidstreet. */

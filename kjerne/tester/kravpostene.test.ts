@@ -24,6 +24,7 @@ import {
   FRISTKRAV,
   KLAR_OVER,
   KR,
+  MOT,
   PAABEROPELSE,
   VEDERLAG_DELVIS,
   kr,
@@ -554,27 +555,26 @@ describe('kravpostene i vederlagskravet (OV-U115 punkt 19–22, KA-U53, KA-U56, 
     });
     // KA-U72: tilbudet for P2 er ikke akseptert, og svaret tar ikke stilling til beløpet for P2,
     // så svaret har ett lag og ingen etiketter.
-    // LV-U34: oppgjørsformen for hver kravpost står i «Beregningsmetode», og med flere
-    // kravposter begynner punktet om beløpet med kravposten (rettingen i #1433).
+    // LV-U78: hver kravpost har sitt eget punkt med oppgjørsformen og beløpet, og med flere
+    // kravposter nevner overskriften kravposten.
     expect(laast(rad)).toEqual([
       'Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026. Beløpene i brevet er eks. mva.',
-      '1. Beregningsmetode (punkt\u00a034.2)\n\nByggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret.\n\nByggherren aksepterer ikke totalentreprenørens tilbud for P2 (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget for kravposten skal justeres som regningsarbeid (punkt\u00a034.4).',
-      `2. Vederlagsjustering (punkt\u00a034.1.1)\n\nP1 Ny fundamentering.\n\nByggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\nByggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      '2. Vederlagsjustering for P2 Pumping (punkt\u00a034.1.1)\n\nByggherren aksepterer ikke totalentreprenørens tilbud for P2 (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget for kravposten skal justeres som regningsarbeid (punkt\u00a034.4).',
       `3. Forbehold\n\n${FORBEHOLDET}`,
     ]);
-    // LV-U71, KA-U53: feltet for begrunnelsen i punktet om beløpet sier hvilken kravpost det
-    // gjelder; innledningen og forbeholdet har ikke noe felt.
+    // LV-U71, KA-U53, LV-U78: feltet for begrunnelsen i punktet for hver kravpost sier hvilken
+    // kravpost det gjelder, i overskriften; innledningen og forbeholdet har ikke noe felt.
     expect(punkteneMedBegrunnelse(tekst(rad))).toEqual([
       {
-        punkt: 'metode',
-        overskrift: '1. Beregningsmetode (punkt\u00a034.2)',
-        foerstIPunktet: '1. Beregningsmetode (punkt\u00a034.2)',
+        punkt: 'P1',
+        overskrift: '1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)',
+        foerstIPunktet: '1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)',
       },
       {
-        punkt: 'P1',
-        overskrift: '2. Vederlagsjustering (punkt\u00a034.1.1)',
-        kravpost: 'P1 Ny fundamentering.',
-        foerstIPunktet: '2. Vederlagsjustering (punkt\u00a034.1.1)',
+        punkt: 'P2',
+        overskrift: '2. Vederlagsjustering for P2 Pumping (punkt\u00a034.1.1)',
+        foerstIPunktet: '2. Vederlagsjustering for P2 Pumping (punkt\u00a034.1.1)',
       },
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
@@ -824,8 +824,8 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       'Prinsipalt\n\nByggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt\u00a034.3.3 første ledd for P2 kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.'
     );
     expect(brevet).toContain(
-      // Innsigelsen står i samme punkt, så lagslinjen viser ikke til punktet selv (#1858).
-      'Subsidiært, hvis innsigelsen ovenfor ikke fører frem\n\nByggherren godtar at enhetsprisene for P2 justeres (punkt\u00a034.3.2).'
+      // LV-U79: lagslinjen nevner innsigelsen med navn.
+      `Subsidiært, hvis ${MOT.varselet('34.3.3', 'P2')} ikke fører frem\n\nByggherren godtar at enhetsprisene for P2 justeres (punkt\u00a034.3.2).`
     );
   });
 
@@ -869,7 +869,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
     // OV-U32: standpunktet uten virkning står uten etikett, foran lagene i punktet.
     expect(laast(rad).join(' ')).toContain(
-      'Beregningsmetode (punkt\u00a034.2)\n\nByggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P2 ikke ble gitt eller kom for sent.'
+      '1. Vederlagsjustering (punkt\u00a034.1.1)\n\nByggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P2 ikke ble gitt eller kom for sent.'
     );
   });
 

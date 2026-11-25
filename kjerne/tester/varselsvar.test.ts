@@ -7,7 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger, tilbudte } from '../kommandoer/handlinger.ts';
-import { laast, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
+import { laast, MOT, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
   type: 'send_varsel',
@@ -329,7 +329,8 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
     expect(laast(rad)).toEqual([
       'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd i brev K201-KOE-017-02 av 3. oktober 2026.',
       '1. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.',
-      '2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).',
+      // LV-U79: lagslinjen nevner innsigelsen med navn.
+      `2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nSubsidiært, hvis ${MOT.varselet('34.3.3')} ikke fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).`,
       FORBEHOLDET_I_PUNKT(3),
     ]);
   });
@@ -446,8 +447,8 @@ describe('svaret på varselet etter et avslått forhold (VS-U4, OV-U32, LV-U34)'
     s.send('BH', brev(varsel, { varslet_i_tide: false, godtar_justering: false }));
     expect(laast(s.journal.at(-1)!).slice(1)).toEqual([
       '1. Forholdet\n\nPrinsipalt\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-02 av 3. oktober 2026.',
-      '2. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.',
-      '3. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).',
+      `2. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nSubsidiært, hvis ${MOT.forholdet} ikke fører frem\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`,
+      `3. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nVidere subsidiært, hvis heller ikke ${MOT.varselet('34.3.3')} fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).`,
     ]);
     expect(s.u().spor.vederlag.svarPaaVarsler[0].beslutningsgrunnlag.linje).toBe(
       'Byggherrens standpunkt: subsidiært varselet etter punkt\u00a034.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (punkt\u00a034.3.2).'
