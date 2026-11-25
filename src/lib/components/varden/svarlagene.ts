@@ -9,14 +9,20 @@ import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { ForutsetningIForholdet } from '#kjerne/spor/forhold/format.ts';
+import type { InnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
+import type { InnsigelseIVederlaget } from '#kjerne/spor/vederlag/format.ts';
 import type { Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
 
-/** En innsigelse et senere lag bygger på. */
+/**
+ * En innsigelse et senere lag bygger på. `gjelder` er kravposten et varsel etter § 34.3.3 gjelder,
+ * og innsigelsen rammer bare standpunktene til den (OV-U117).
+ */
 export type Innsigelsen =
   | { art: 'grunn'; grunn: Subsidiaergrunn; brev: Brevet }
-  | { art: 'varsel'; hjemmel: string }
+  | { art: 'varsel'; hjemmel: string; gjelder?: string }
   | { art: 'spesifisering' }
   | { art: 'hindring' };
 
@@ -37,21 +43,33 @@ export interface Svarlaget {
 }
 
 /**
- * Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. Om
- * standpunktet er en innsigelse, avgjør sporets predikat i kjernen (`erInnsigelse`, #2242).
+ * Det et standpunkt i et tidligere lag rammer et senere lag med, etter sporet i kjernen:
+ * `innsigelsenIVederlaget` eller `innsigelsenIFristen` (#2280).
  */
-function innsigelsen(s: Standpunkt, erInnsigelse: (s: Standpunkt) => boolean): Innsigelsen[] {
-  if (!erInnsigelse(s)) return [];
-  if (s.art === 'rettidighet') return [{ art: 'varsel', hjemmel: s.hjemmel }];
-  if (s.art === 'spesifisering' || s.art === 'hindring') return [{ art: s.art }];
-  return [];
+export type InnsigelsenISporet = (
+  s: Standpunkt
+) => InnsigelseIVederlaget | InnsigelseIFristen | ForutsetningIForholdet | null;
+
+/** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
+function innsigelsen(s: Standpunkt, innsigelsenI: InnsigelsenISporet): Innsigelsen[] {
+  const i = innsigelsenI(s);
+  // Beregningsregelen står som vilkår ved posten i «Per post» (`postvilkaar`), ikke ved laget.
+  if (i === null || !('innsigelse' in i)) return [];
+  if (i.innsigelse === '33.6.1') return [{ art: 'spesifisering' }];
+  if (i.innsigelse === 'hindring') return [{ art: 'hindring' }];
+  return [
+    {
+      art: 'varsel',
+      hjemmel: i.innsigelse,
+      ...(i.innsigelse === '34.3.3' ? { gjelder: i.gjelder } : {}),
+    },
+  ];
 }
 
 /**
  * Lagene i svaret: grunnene fra svaret på forholdet først, og så lagene i sporet (OV-U73, HF-U34).
  * `sporlag` er antallet lag i utregningen for sporet, og `utenom` standpunktet med beløpet eller
- * dagene, som siden viser selv. `alle` er brevene i saken (`brevene(u)`). `erInnsigelse` er
- * sporets predikat i kjernen: `erInnsigelseIVederlaget` eller `erInnsigelseIFristen`.
+ * dagene, som siden viser selv. `alle` er brevene i saken (`brevene(u)`).
  */
 export function lageneISvaret(
   u: Utledning,
@@ -59,7 +77,7 @@ export function lageneISvaret(
   alle: Brevet[],
   sporlag: number,
   utenom: Standpunktsart,
-  erInnsigelse: (s: Standpunkt) => boolean
+  innsigelsenI: InnsigelsenISporet
 ): Svarlaget[] {
   const brev = (id: string) => alle.find((b) => b.id === id) ?? null;
   const beregning = u.svar[svar.id];
@@ -97,7 +115,7 @@ export function lageneISvaret(
         })),
     };
   });
-  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!, erInnsigelse);
+  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!, innsigelsenI);
   return lagene;
 }
 
@@ -110,9 +128,9 @@ export const utenLag = (svar: Svar, utenom: Standpunktsart): Standpunkt[] => {
 };
 
 /** Innsigelsene i laget: grunnene fra forholdet og standpunktene som rammer kravet. */
-const innsigelseneI = (l: Svarlaget, erInnsigelse: (s: Standpunkt) => boolean): Innsigelsen[] => [
+const innsigelseneI = (l: Svarlaget, innsigelsenI: InnsigelsenISporet): Innsigelsen[] => [
   ...l.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt, erInnsigelse)),
+  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt, innsigelsenI)),
 ];
 
 /**

@@ -621,6 +621,39 @@ export function erInnsigelseIVederlaget(s: Standpunkt): boolean {
   );
 }
 
+/**
+ * En innsigelse i vederlaget som kan ramme et senere lag (OV-U32). Varselet etter § 34.3.3 og
+ * beregningsregelen gjelder kravposten `gjelder` (OV-U117).
+ */
+export type InnsigelseIVederlaget =
+  | { innsigelse: '34.1.2' | '34.1.3' }
+  | { innsigelse: '34.3.3'; gjelder: string }
+  | { oppgjoersform: string };
+
+/**
+ * Det standpunktet `s` i et tidligere lag kan ramme et senere lag i vederlaget med (OV-U32), etter
+ * sporets predikat (`erInnsigelseIVederlaget`). Skjemaet (`lagIVederlaget` i `kommando.ts`) og brevet
+ * (`svarlagene.ts` i visningen) leser det samme. Justeringen rammer ikke noe senere lag: den står i
+ * samme lag som beløpet for kravposten (`lagIKravposten`).
+ */
+export function innsigelsenIVederlaget(s: Standpunkt): InnsigelseIVederlaget | null {
+  if (!erInnsigelseIVederlaget(s)) return null;
+  if (s.art === 'oppgjoersform') return { oppgjoersform: s.gjelder };
+  if (s.art !== 'rettidighet') return null;
+  if (s.hjemmel === '34.1.2' || s.hjemmel === '34.1.3') return { innsigelse: s.hjemmel };
+  if (s.hjemmel === '34.3.3') return { innsigelse: '34.3.3', gjelder: s.gjelder };
+  return null;
+}
+
+/**
+ * Om innsigelsen `i` rammer standpunktene til kravposten `post` (OV-U22, VS-U5, OV-U117). Posten
+ * etter § 34.1.3 annet ledd er ikke en kravpost.
+ */
+export function rammerKravposten(i: InnsigelseIVederlaget, post: string): boolean {
+  if ('oppgjoersform' in i) return i.oppgjoersform === post;
+  return i.innsigelse === '34.3.3' ? i.gjelder === post : i.innsigelse === '34.1.2';
+}
+
 /** Det som er vederlagets eget i lesingen av svaret (`SVARLESING` i `format/leser.ts`). */
 export const LESING_I_VEDERLAGET = {
   standpunkt: standpunktIVederlaget,

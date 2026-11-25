@@ -11,6 +11,7 @@ import { beloep, tilTall, type Oere } from '#kjerne/regler/beloep.ts';
 import {
   beloepeneILagene,
   erInnsigelseIVederlaget,
+  innsigelsenIVederlaget,
   krevdSamlet,
 } from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
@@ -138,7 +139,7 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     alle,
     sporlag,
     'beloep',
-    erInnsigelseIVederlaget
+    innsigelsenIVederlaget
   ).map((l) => ({
     ...l,
     beloep: l.iSporet < 1 ? null : iLaget(l.iSporet),
