@@ -80,7 +80,7 @@ import {
   VARSELSPOR,
 } from '../typer.ts';
 import { lagFraForholdet } from '../spor/forhold/frysing.ts';
-import { kravetErVarselet } from './vedlegg.ts';
+import { kravetErVarselet, vedleggsnoekkel } from './vedlegg.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -326,6 +326,8 @@ export interface Skrivesteg {
   saken(journal: Journalrad[]): LestSak;
   /** Saken før handlingen, utledet én gang i handlingen. */
   sakenFoer(): LestSak;
+  /** Vedleggene i mellomlageret, som `skriv` binder. */
+  oppslag: Vedleggsoppslag;
 }
 
 /**
@@ -644,6 +646,7 @@ function handlingen(
     },
     saken,
     sakenFoer: () => foer,
+    oppslag: vedlegg,
   };
   return (
     (k.type === 'krav' ? iSporet(SKRIVING, k.spor).handlingen?.(k, skriving) : null) ??
@@ -714,7 +717,7 @@ function skriv(
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];
   for (const id of [...vedleggI(k), ...vedKravet]) {
-    const funnet = vedlegg.get(id.toLowerCase());
+    const funnet = vedlegg.get(vedleggsnoekkel(id));
     if (!funnet)
       return {
         godtatt: false,

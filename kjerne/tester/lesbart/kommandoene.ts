@@ -66,7 +66,11 @@ export const KOMMANDOENE: Lesbar[] = [
     'Kommando.innhold',
     'kommando',
     'kravposter',
-    ['spor/vederlag/kommando.ts:medDokumentvarslene', 'spor/vederlag/kommando.ts:medVarslene'],
+    [
+      'spor/vederlag/kommando.ts:medDokumentvarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+    ],
   ],
   [
     'spor/vederlag/kommando.ts:vedleggIKravpostene(innhold)',
@@ -77,6 +81,8 @@ export const KOMMANDOENE: Lesbar[] = [
   ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
   ['spor/vederlag/kommando.ts:medDokumentvarslene(p)', 'kommando', 'varsel'],
   ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
+  // VS-U51, VS-U75 (#2144): kravposten med varselet kravskjemaet skrev i samme handling.
+  ['spor/vederlag/kommando.ts:vedleggetErEtVarsel(p)', 'kommando', 'varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype sendemaate beskrivelse'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
   [
@@ -103,7 +109,18 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/vederlag/kommando.ts:foranKravet',
       'spor/vederlag/kommando.ts:varseldokumentene',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
       'spor/frist/kommando.ts:varseldokumentetISaken',
+    ],
+  ],
+  [
+    'spor/vederlag/kommando.ts:varseldokumentene',
+    'relasjon',
+    'id dokument',
+    [
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
     ],
   ],
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
@@ -235,7 +252,14 @@ export const KOMMANDOENE: Lesbar[] = [
     ['utledning/utled.ts:datoenDetBleSendt', 'utledning/utled.ts:utledSporene'],
   ],
   ['Dokument', 'relasjon', 'registrert', ['utledning/utled.ts:utledSporene.sendt']],
-  ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
+  // OV-U17, OV-U18: en registrering er rettet bare av en gjeldende retting (#2126).
+  ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:rettedeBrev']],
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'rettedeBrev',
+    ['kommandoer/vedlegg.ts:kravetErVarselet', 'spor/frist/kommando.ts:varseldokumentetISaken'],
+  ],
   [
     'Dokument',
     'relasjon',
@@ -248,7 +272,12 @@ export const KOMMANDOENE: Lesbar[] = [
     'Utledning',
     'relasjon',
     'registrerteBrev',
-    ['kommandoer/nyttelast.ts:retting', 'utledning/utled.ts:utled'],
+    [
+      'kommandoer/nyttelast.ts:retting',
+      'utledning/utled.ts:utled',
+      'kommandoer/vedlegg.ts:kravetErVarselet',
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+    ],
   ],
   [
     'RegistrertBrev',
@@ -365,7 +394,16 @@ export const KOMMANDOENE: Lesbar[] = [
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
   ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:varseldokumentene']],
   // VS-U73, #2100: vedleggene ved kravet prøves mot varslene for en kravpost på innholdet.
-  ['Sakssperre', 'kommando', 'oppslag', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  // VS-U51, VS-U75 (#2144): et varsel fra samme handling står ikke i saken før handlingen.
+  ['Sakssperre', 'kommando', 'oppslag foer', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  ['LestSak', 'kommando', 'u', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  // #2126, #2144: dokumentet fra kravskjemaet prøves på innholdet i vedleggene.
+  [
+    'Skrivesteg',
+    'kommando',
+    'oppslag',
+    ['spor/vederlag/kommando.ts:medDokumentvarslene', 'spor/vederlag/kommando.ts:medVarslene'],
+  ],
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
   ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
   // #2082, OV-U80, OV-U84: brevet med varselet i fristkravet prøves mot korrespondansen i saken.
@@ -379,26 +417,24 @@ export const KOMMANDOENE: Lesbar[] = [
     ['spor/frist/kommando.ts:varseldokumentetISaken'],
   ],
   ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
-  ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'utsagn', 'dokumentasjon', ['kommandoer/vedlegg.ts:innholdetIDokumentet']],
   // #2100: samme fil lastet opp på nytt er samme brev, så vedleggene sammenliknes på innholdet.
   [
     'Vedlegg',
     'relasjon',
     'innhold_sha256',
-    ['kommandoer/vedlegg.ts:innholdetIVedleggene', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
+    ['kommandoer/vedlegg.ts:innholdetIVedlegget', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
   ],
   // VS-U74, #2133: samme brev som et krav som gjelder som varselet, er ikke et varsel etter samme
   // bestemmelse.
   ['kommandoer/vedlegg.ts', 'relasjon', 'kravetErVarselet', ['kommandoer/skriving.ts:skriv']],
   ['kommandoer/vedlegg.ts:kravetErVarselet', 'kommando', 'lest u'],
   ['Krav', 'relasjon', 'dokument', ['kommandoer/vedlegg.ts:kravetErVarselet']],
-  ['Dokument', 'relasjon', 'retter', ['kommandoer/vedlegg.ts:kravetErVarselet']],
   [
     'kommandoer/vedlegg.ts',
     'relasjon',
     'sammeDokument',
-    ['spor/frist/kommando.ts:varseldokumentetISaken'],
+    ['spor/frist/kommando.ts:varseldokumentetISaken', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   [
     'kommandoer/vedlegg.ts',
@@ -407,6 +443,21 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/frist/kommando.ts:varseldokumentetISaken',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+      'spor/vederlag/kommando.ts:dokumentnoekkel',
+    ],
+  ],
+
+  // #2126: én form for vedleggs-ID-en, så samme vedlegg er samme nøkkel overalt.
+  [
+    'kommandoer/vedlegg.ts',
+    'relasjon',
+    'vedleggsnoekkel',
+    [
+      'kommandoer/kommando.ts',
+      'kommandoer/skriving.ts:skriv',
+      'spor/vederlag/kommando.ts:medDokumentvarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
     ],
   ],
   [

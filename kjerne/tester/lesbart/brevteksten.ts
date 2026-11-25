@@ -360,6 +360,8 @@ export const BREVTEKSTEN: Lesbar[] = [
   ],
   // Feltene i meldingen, listet som i brevet.
   ['frosset/brevdeler.ts', 'brevtekst', 'opplistet', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
+  // #2144: kravpostene avvisningen nevner.
+  ['frosset/brevdeler.ts', 'brevtekst', 'liste', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevdeler.ts',

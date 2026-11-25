@@ -413,12 +413,16 @@ function ikkeVurderte(
   brev: RegistrertBrev[],
   forstaatt: boolean
 ): string[] {
-  const rettet = new Set(brev.filter((b) => b.rettetAv !== null).map((b) => b.dokument));
+  const rettet = rettedeBrev(brev);
   return [...dokumenterI(journal)]
     .filter((d) => erRegistrert(d.opplysninger) && !rettet.has(d.id))
     .filter((d) => kilden(d, forstaatt) === 'dokumentasjon')
     .map((d) => d.id);
 }
+
+/** OV-U17, OV-U18: de registrerte brevene en gjeldende retting har rettet. */
+export const rettedeBrev = (brev: readonly RegistrertBrev[]): Set<string> =>
+  new Set(brev.flatMap((b) => (b.rettetAv !== null ? [b.dokument] : [])));
 
 /**
  * OV-U17, OV-U18: brevene registrert som dokumentasjon, og rettingene av dem. En retting
