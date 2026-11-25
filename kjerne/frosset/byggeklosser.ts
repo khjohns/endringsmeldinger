@@ -145,22 +145,27 @@ export interface VarselIKravet {
 
 /** Frysingen i ett spor, som `frosset/standpunkt.ts` slår opp gjennom `FRYSING` (#1783). */
 export interface Svarsfrysing {
-  /** Virkningen av hvert standpunkt (`virkninger` i `frosset/standpunkt.ts`). */
+  /**
+   * Virkningen av hvert standpunkt (`virkninger` i `frosset/standpunkt.ts`), med innsigelsene
+   * fra svarene før som svaret leses med (`staar`, VS-U81).
+   */
   virkninger(
     svar: Svarinnhold,
     paaberopelse: Krav | null | undefined,
     regler: Regelsett,
-    forskyvning: number
+    forskyvning: number,
+    staar: readonly VarselIKravet[]
   ): Standpunktsvirkning[];
   /** Det svaret gir i sporet. `prekludert` er at et standpunkt i første lag avviser kravet. */
   utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
   /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
   /**
-   * Varslene i `krav` svaret ikke sier noe om, der svaret leses med partens tidligere standpunkt
-   * (`sammenfallet` i `frosset/standpunkt.ts`).
+   * Varslene svaret ikke sier noe om, der svaret leses med partens tidligere standpunkt
+   * (`innsigelserSvaretLesesMed` i `frosset/standpunkt.ts`). `krav` er kravet svaret gjelder,
+   * og mangler for et svar på et varsel som står alene.
    */
-  tausOmVarselet?(svar: Svarinnhold, krav: Krav): VarselIKravet[];
+  tausOmVarselet?(svar: Svarinnhold, krav: Krav | null | undefined): VarselIKravet[];
   /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
   vilkaar: Enighetsgrunnlag['vilkaar'];
   /**
@@ -177,6 +182,11 @@ export interface Utregningsgrunnlag {
   krav: Krav;
   paaberopelse: Krav | null;
   foresporsel: Foresporselsrelasjon | null;
+  /**
+   * Varslene der byggherrens innsigelse fra et svar før står (`standpunkteneTilVarslene`). En
+   * kravpost svaret ikke sier noe om varselet for, regnes med innsigelsen (VS-U80, VS-U81).
+   */
+  staar: readonly VarselIKravet[];
 }
 
 /** Utregningen i ett spor, som `frosset/utregning.ts` slår opp gjennom `UTREGNING` (#1783). */

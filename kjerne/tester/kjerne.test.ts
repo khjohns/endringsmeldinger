@@ -68,7 +68,7 @@ describe('et spor kjernen ikke har (MM-U2, #1783)', () => {
   const svar = { spor: ukjent, standpunkter: [], utregning: {} };
   // Oppslaget i sporet kaster som en gren som mangler, og forenkler ikke svaret.
   it('frysingen og utregningen kaster for sporet, i stedet for å gi et utfall', () => {
-    expect(() => virkninger(svar, null, GJELDENDE_REGLER)).toThrow(
+    expect(() => virkninger(svar, null, GJELDENDE_REGLER, 0, [])).toThrow(
       'Kjernen har ingen gren for "forsering"'
     );
     expect(() => utenforOmfanget(ukjent, {})).toThrow('Kjernen har ingen gren for "forsering"');
@@ -1179,7 +1179,7 @@ describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
       ],
       utregning: u,
     };
-    expect(virkninger(svar, null, GJELDENDE_REGLER).map((v) => v.virkning)).toEqual([
+    expect(virkninger(svar, null, GJELDENDE_REGLER, 0, []).map((v) => v.virkning)).toEqual([
       1, 2, 3, 4, 4,
     ]);
   });
@@ -1744,7 +1744,7 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
       ],
       utregning,
     };
-    expect(virkninger(svar, paaberopelse, regler).map((v) => v.virkning)).toEqual([1, 2]);
+    expect(virkninger(svar, paaberopelse, regler, 0, []).map((v) => v.virkning)).toEqual([1, 2]);
   });
 
   it('kontrollsak: med gjeldende regler gjelder § 34.1.2 ikke en endring, og vurderingen avvises', () => {
