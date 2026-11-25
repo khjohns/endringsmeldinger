@@ -26,6 +26,12 @@ export const MAPPE = resolve(
 );
 const KONTROLLSETT = 'kontrollsett.json';
 const STARTJOURNALER = 'startjournaler.json';
+/**
+ * Regelversjonen startjournalene skrives med (#2116, #2294). Fila bærer da ikke versjonen til
+ * PR-en som sist skrev den, og demoruta setter inn gjeldende versjon når den laster fila
+ * (`medGjeldendeRegelversjon` i `demosak.ts`).
+ */
+export const FAST_REGELVERSJON = 0;
 const DEKNING = 'dekning.md';
 
 export type Status = 'kjørbar' | 'planlagt';
@@ -392,23 +398,18 @@ export const kilderI = (b: Brukerforloep): Set<string> =>
 export async function genererte(): Promise<Record<string, string>> {
   return {
     [DEKNING]: dekning(),
-    [STARTJOURNALER]: JSON.stringify(await startjournaler(), null, 2) + '\n',
+    [STARTJOURNALER]:
+      JSON.stringify(
+        await startjournaler(),
+        (felt, verdi: unknown) =>
+          felt === 'regelversjon' && typeof verdi === 'number' ? FAST_REGELVERSJON : verdi,
+        2
+      ) + '\n',
   };
 }
 
-/**
- * #2116: startjournalene sammenliknes uten regelversjonen beslutningsgrunnlaget fryser. Fila
- * skrives bare på nytt når noe annet er endret, så en ny `REGELVERSJON` endrer den ikke, og
- * demoruta setter inn gjeldende versjon når den laster fila (`FORLOEP` i `demosak.ts`).
- */
-export const sammenliknbar = (fil: string, innhold: string): string =>
-  fil === STARTJOURNALER ? innhold.replace(/("regelversjon": )\d+/g, '$1null') : innhold;
-
-/** Om den lagrede fila stemmer med den genererte (`sammenliknbar`). */
-export const stemmer = (fil: string, innhold: string): boolean => {
-  const fraFor = lagret(fil);
-  return fraFor !== null && sammenliknbar(fil, fraFor) === sammenliknbar(fil, innhold);
-};
+/** Om den lagrede fila er lik den genererte. */
+export const stemmer = (fil: string, innhold: string): boolean => lagret(fil) === innhold;
 
 export const lagret = (fil: string): string | null => {
   try {

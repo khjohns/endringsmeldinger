@@ -13,6 +13,7 @@ import { les, MAALMODELL } from './kjoerer.ts';
 import {
   BRUKERFORLOEP,
   demonavnerom,
+  FAST_REGELVERSJON,
   finn,
   forloepsfiler,
   genererte,
@@ -23,13 +24,12 @@ import {
   kontrollerI,
   lagret,
   MAPPE,
-  sammenliknbar,
-  stemmer,
   somForloep,
   startjournal,
   vedtakIBestilling,
   type Brukerforloep,
 } from './brukerforloep.ts';
+import { REGELVERSJON } from '../regler/regelsett.ts';
 import { fasteIder } from './testmiljoe.ts';
 
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
@@ -311,34 +311,14 @@ describe('vakttestene for brukerforløpene', () => {
 
   it('dekningsoversikten og startjournalene stemmer med forløpsfilene', async () => {
     for (const [fil, innhold] of Object.entries(await genererte()))
-      expect(
-        sammenliknbar(fil, lagret(fil) ?? ''),
-        `${fil}: kjør node kjerne/tester/brukerforloep.ts --skriv`
-      ).toBe(sammenliknbar(fil, innhold));
+      expect(lagret(fil), `${fil}: kjør node kjerne/tester/brukerforloep.ts --skriv`).toBe(innhold);
   });
 
-  it('en ny regelversjon endrer ikke startjournalene, men en annen endring gjør det (#2116)', async () => {
+  it('startjournalene har den faste regelversjonen, ikke kjernens (#2294)', async () => {
     const innhold = (await genererte())['startjournaler.json']!;
-    expect(innhold, 'forutsetning').toMatch(/"regelversjon": \d+/);
-    const nyVersjon = innhold.replace(
-      /("regelversjon": )(\d+)/g,
-      (_, felt, n) => `${felt}${Number(n) + 1}`
-    );
-    expect(sammenliknbar('startjournaler.json', nyVersjon)).toBe(
-      sammenliknbar('startjournaler.json', innhold)
-    );
-    // `--skriv` lar fila være når bare regelversjonen er ny.
-    expect(stemmer('startjournaler.json', nyVersjon)).toBe(true);
-    expect(
-      sammenliknbar(
-        'startjournaler.json',
-        innhold.replace('"linje": "Byggherrens standpunkt: godkjent."', '"linje": "Annen linje."')
-      ),
-      'kontrollsak: feltet ved siden av regelversjonen'
-    ).not.toBe(sammenliknbar('startjournaler.json', innhold));
-    expect(
-      sammenliknbar('startjournaler.json', innhold.replace('"versjon": 1,', '"versjon": 2,')),
-      'kontrollsak'
-    ).not.toBe(sammenliknbar('startjournaler.json', innhold));
+    const versjoner = [...innhold.matchAll(/"regelversjon": (\d+)/g)].map((m) => Number(m[1]));
+    expect(versjoner.length, 'forutsetning: fila har regelversjoner').toBeGreaterThan(0);
+    expect(new Set(versjoner)).toEqual(new Set([FAST_REGELVERSJON]));
+    expect(FAST_REGELVERSJON, 'kontrollsak: kjernens versjon').not.toBe(REGELVERSJON);
   });
 });
