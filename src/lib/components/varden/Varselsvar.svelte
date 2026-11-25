@@ -64,10 +64,11 @@
     return s && s.id !== varselet.forrigeSvar ? standpunktene(s, etter!) : [];
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
+  const iTide = $derived(varseletISvaret(valg, varselet));
   // VS-U4: med innsigelsen mot varselet står justeringen subsidiært. Kjernen sier hva den gjelder
   // hvis, også før justeringen er besvart, med justeringen bestridt i utfyllingen.
   const justeringenGjelderHvis = $derived.by((): Innsigelsen[] => {
-    if (hjemmel !== '34.3.3') return [];
+    if (hjemmel !== '34.3.3' || iTide !== false) return [];
     const fylt =
       valg.godtarJustering === null
         ? nyttSvarI(
@@ -81,7 +82,6 @@
     const j = fylt.find((l) => 'standpunkt' in l && l.standpunkt.art === 'justering');
     return (j?.vilkaar ?? []).filter((i) => i.art === 'varsel');
   });
-  const iTide = $derived(varseletISvaret(valg, varselet));
   const oppgir = $derived(iTide === true && foer?.iTide === false ? foer.brev : null);
 
   const linjer = $derived(
@@ -105,32 +105,23 @@
   );
 
   const varselpunktet = $derived(VARSELSVARET.punktet(hjemmel));
-  const skjemapunkter = $derived([
-    {
-      punkt: hjemmel,
-      navn: varselpunktet,
-      linjer: linjer.some((l) => l.punkt === hjemmel)
-        ? linjer.filter((l) => l.punkt === hjemmel)
-        : [{ tekst: hjemmel === '34.4' ? SKJEMA.ingenInnsigelse : SKJEMA.ikkeBesvart, lag: null }],
-    },
-    ...(hjemmel === '34.3.3'
-      ? [
-          {
-            punkt: 'justering',
-            navn: SKJEMA.justeringSpoersmaal,
-            linjer: linjer.some((l) => l.punkt === 'justering')
-              ? linjer.filter((l) => l.punkt === 'justering')
-              : [{ tekst: SKJEMA.ikkeBesvart, lag: null }],
-          },
+  /** Punktet i panelet med linjene slik kjernen skriver dem, eller statusen før svaret. */
+  const punktet = (punkt: string, navn: string, foerSvaret: string) => {
+    const iPunktet = linjer.filter((l) => l.punkt === punkt);
+    return {
+      punkt,
+      navn,
+      besvart: iPunktet.length > 0,
+      linjer: iPunktet.length ? iPunktet : [{ tekst: foerSvaret, lag: null }],
+    };
+  };
+  const skjemapunkter = $derived(
+    hjemmel === '34.4'
+      ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
+      : [
+          punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
+          punktet('justering', SKJEMA.justeringSpoersmaal, SKJEMA.ikkeBesvart),
         ]
-      : []),
-  ]);
-  const begrunnelserISkjemaet = $derived(
-    skjemapunkter.map((p) => ({
-      punkt: p.punkt,
-      navn: p.navn,
-      besvart: linjer.some((l) => l.punkt === p.punkt),
-    }))
   );
   const mangler = $derived(
     manglene(uid, [
@@ -162,7 +153,7 @@
   {linjer}
   {virkninger}
   {mangler}
-  {begrunnelserISkjemaet}
+  begrunnelserISkjemaet={skjemapunkter}
   {skjemapunkter}
   {onbrevkontroll}
   {onforkast}

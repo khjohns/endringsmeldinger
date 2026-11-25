@@ -10,7 +10,7 @@ import {
 } from '#kjerne/spor/forhold/tekst.ts';
 import type { Brevref, Innlegget, Standpunktet } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
-import { SKJEMA } from './svaret';
+import { innsigelsesordene, SKJEMA } from './svaret';
 import { brevref, metodenavn, oppgjoersformEtter } from './felles';
 import { punkt, haerdet } from './format';
 
@@ -128,8 +128,7 @@ function standpunkttekstMedVanligeMellomrom(
   ikkeGitt = true
 ): string {
   const forPosten = post ? ` for ${post}` : '';
-  // VS-U77 punkt 31: i svaret på varselet som står alene, kom varselet for sent.
-  const sent344 = ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
+  const sent344 = innsigelsesordene('34.4', ikkeGitt);
   const hvemLiten = du ? 'du' : PARTEN.BH;
   const hvem = stor(hvemLiten);
   const sier = (verb: string, resten: string) =>
@@ -268,6 +267,6 @@ export const leselinjene = haerdet(leselinjeneMedVanligeMellomrom);
  */
 export const oppgivelsestekst = haerdet(
   (hjemmel: '34.3.3' | '34.4', brev: Brevref, du: boolean, post?: string, ikkeGitt = true) =>
-    `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}`
+    `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${innsigelsesordene(hjemmel, ikkeGitt)}`
 );
 export const standpunkttekst = haerdet(standpunkttekstMedVanligeMellomrom);

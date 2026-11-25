@@ -142,6 +142,10 @@ export interface VarseletAlene {
   forrigeSvar: string | null;
 }
 
+/** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
+export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
+  varseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
+
 /** Varselet `gjelder` i vederlaget som byggherren kan svare på, eller `null` (`varseletSvaretGjelder`). */
 export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
   const v = varseletSvaretGjelder(u, gjelder);

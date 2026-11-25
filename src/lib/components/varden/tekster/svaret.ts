@@ -1,7 +1,7 @@
-import { opplistet, PARTEN } from '#kjerne/frosset/brevdeler.ts';
+import { opplistet, PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
+import type { Kravpost, Kravpostvarselhjemmel, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
@@ -63,8 +63,8 @@ export const SKJEMA = haerdet({
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
   // VS-U77 punkt 9, 10, 30 og 31: innsigelsen mot varselet for kravposten står fra et tidligere svar.
   varselJustering: 'Varselet om justering av enhetsprisene (punkt 34.3.3).',
-  innsigelsenStaar: (b: Brevref, hjemmel: '34.3.3' | '34.4', ikkeGitt = true) =>
-    `Du har gjort gjeldende i ${brevref(b)} at varselet ${hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}.`,
+  innsigelsenStaar: (b: Brevref, hjemmel: Kravpostvarselhjemmel, ikkeGitt = true) =>
+    `Du har gjort gjeldende i ${brevref(b)} at varselet ${innsigelsesordene(hjemmel, ikkeGitt)}.`,
   gjentarInnsigelsen: 'Svaret gjentar innsigelsen.',
   girOppInnsigelsen: 'Du gir opp innsigelsen.',
   girOppInnsigelsenKnapp: 'Gi opp innsigelsen',
@@ -148,32 +148,36 @@ export const SKJEMA = haerdet({
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
 });
 
+/** Varselet etter punkt 34.3.3 eller 34.4 med navnet i skjemaene for svaret på det. */
+const VARSELNAVNET = {
+  '34.3.3': 'varselet om justering av enhetsprisene',
+  '34.4': 'varselet om regningsarbeid',
+} as const satisfies Record<Kravpostvarselhjemmel, string>;
+
+/**
+ * Innsigelsen mot varselet: etter § 34.4 «ikke ble gitt eller kom for sent» i svaret på
+ * kravposten, og «kom for sent» ellers, også i svaret på varselet som står alene (VS-U77 punkt 31).
+ */
+export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = true) =>
+  hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
+
+/** Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14, VS-U79). */
+export const VARSELSVARET = haerdet({
+  // Prototype v4, `#svar-varsel`: samme skjema som svaret på kravet, med bare «Varslene».
+  tittel: 'Varslene',
+  punktet: (h: Kravpostvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
+  // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
+  manglerInnsigelse:
+    'Gjør gjeldende at varselet kom for sent, eller forkast utkastet. Har du ingen innsigelse, trenger du ikke svare.',
+  svar: (h: Kravpostvarselhjemmel) => `Svar på ${VARSELNAVNET[h]}`,
+  nyttSvar: (h: Kravpostvarselhjemmel) => `Nytt svar på ${VARSELNAVNET[h]}`,
+});
+
 /**
  * Skjemaet for byggherrens svar på kravet om fristforlengelse (G-4 i BF-20, prototypene
  * `fristsvar.html` og `fristkrav-te.html#svar`). Ordene som er felles med svaret på vederlaget,
  * står i `SKJEMA`.
  */
-/** Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14, VS-U79). */
-export const VARSELSVARET = haerdet({
-  // Prototype v4, `#svar-varsel`: samme skjema som svaret på kravet, med bare «Varslene».
-  tittel: 'Varslene',
-  punktet: (hjemmel: '34.3.3' | '34.4') =>
-    hjemmel === '34.4'
-      ? 'Varselet om regningsarbeid (punkt 34.4)'
-      : 'Varselet om justering av enhetsprisene (punkt 34.3.3)',
-  // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
-  manglerInnsigelse:
-    'Gjør gjeldende at varselet kom for sent, eller forkast utkastet. Har du ingen innsigelse, trenger du ikke svare.',
-  svar: (hjemmel: '34.3.3' | '34.4') =>
-    hjemmel === '34.4'
-      ? 'Svar på varselet om regningsarbeid'
-      : 'Svar på varselet om justering av enhetsprisene',
-  nyttSvar: (hjemmel: '34.3.3' | '34.4') =>
-    hjemmel === '34.4'
-      ? 'Nytt svar på varselet om regningsarbeid'
-      : 'Nytt svar på varselet om justering av enhetsprisene',
-});
-
 export const FRISTSVAR = haerdet({
   varselTittel: 'Varselet om fristforlengelse',
   varselSpoersmaal: 'Kom varselet i tide?',

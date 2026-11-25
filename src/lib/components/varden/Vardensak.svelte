@@ -21,7 +21,7 @@
     SVARTITTEL_PAA_VARSELET,
     UTSAGNSTITTEL,
   } from '#kjerne/frosset/brevtittel.ts';
-  import { varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
+  import { hjemmelenForVarselet, varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
   import Brevkvittering from './Brevkvittering.svelte';
   import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -325,8 +325,8 @@
       varselsvar: varselsvartittel(utkast),
     })[utkast.art];
   function varselsvartittel(utkast: Skjemaarbeid) {
-    const v = utkast.art === 'varselsvar' && u ? varseletSvaretPaa(u, utkast.gjelder) : null;
-    return v ? SVARTITTEL_PAA_VARSELET[v.hjemmel] : '';
+    const h = utkast.art === 'varselsvar' && u ? hjemmelenForVarselet(u, utkast.gjelder) : null;
+    return h ? SVARTITTEL_PAA_VARSELET[h] : '';
   }
 
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
