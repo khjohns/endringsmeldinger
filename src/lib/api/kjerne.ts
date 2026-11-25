@@ -32,6 +32,8 @@ export interface Kjernesak {
   part: Part | null;
   sakskode: Sakskode | null;
   kontraktsforkortelse: string | null;
+  /** Tidspunktet i basen i UTC, som brevkontrollen lager teksten med (U-5 i BF-46). */
+  klokka_i_basen: string;
   kan_foreslaa_sakskode: boolean;
   visning: Visning;
   journal: Journallinje[];
@@ -82,11 +84,18 @@ interface Sakskodesvar {
   loepenummer: number;
   tildelt: boolean;
   kontraktsforkortelse: string | null;
+  klokka_i_basen: string;
 }
 
-const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): Saksmerking => ({
+const somMerking = ({
+  kode,
+  loepenummer,
+  kontraktsforkortelse,
+  klokka_i_basen,
+}: Sakskodesvar): Saksmerking => ({
   sakskode: { kode, loepenummer },
   kontraktsforkortelse,
+  klokka: { iBasen: klokka_i_basen, iNettleserenVedLastingen: Date.now() },
 });
 
 /**
@@ -146,7 +155,7 @@ export const hentSaksmerkingForNySak = (prosjektId: string) =>
  * Saken med merkingen brevteksten lages med. `null` når saken ikke har fått kode, og leseren
  * ikke kan få et forslag til koden.
  */
-export interface LastetKjernesak extends Kjernesak {
+export interface LastetKjernesak extends Omit<Kjernesak, 'klokka_i_basen'> {
   merking: Saksmerking | null;
 }
 
@@ -158,10 +167,14 @@ export async function hentKjernesakMedMerking(
   sakId: string,
   prosjektId: string
 ): Promise<LastetKjernesak> {
-  const sak = await hentKjernesak(sakId, prosjektId);
+  const { klokka_i_basen, ...sak } = await hentKjernesak(sakId, prosjektId);
   if (sak.sakskode) {
     const merking = await medFristtabell(
-      { sakskode: sak.sakskode, kontraktsforkortelse: sak.kontraktsforkortelse },
+      {
+        sakskode: sak.sakskode,
+        kontraktsforkortelse: sak.kontraktsforkortelse,
+        klokka: { iBasen: klokka_i_basen, iNettleserenVedLastingen: Date.now() },
+      },
       prosjektId
     );
     return { ...sak, merking };

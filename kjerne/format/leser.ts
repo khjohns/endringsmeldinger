@@ -551,9 +551,15 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (data.avsender === lagtTilAv)
     throw new Uforstaatt('den oppgitte avsenderen er parten som la til brevet');
-  // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
+  // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme registrerte dokument, og
+  // aldri i et dokument fra løsningen (VS-U34, C1 i #2056).
+  const registrert = erRegistrert(dokument.opplysninger);
   for (const o of dokument.opplysninger)
-    if (
+    if (o.hva !== 'endringsordre' && o.gjelder !== undefined && !registrert)
+      throw new Uforstaatt(
+        'datoen for et varsel står i et eget registrert brev, ikke i et brev fra løsningen (VS-U34)'
+      );
+    else if (
       o.hva !== 'endringsordre' &&
       o.gjelder !== undefined &&
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
