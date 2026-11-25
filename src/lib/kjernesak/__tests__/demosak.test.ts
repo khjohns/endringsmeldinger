@@ -53,15 +53,15 @@ describe('klokka i demoruta (BF-46 G-1, U-5)', () => {
     return { tekst: tekst.join(' '), sendt: demosak.journal().at(-1)!.tidsstempel };
   }
 
-  // HF-U23 punkt 7: brevet sier at aksepten er sendt etter akseptfristen 15. oktober 2026.
+  // Kilder: BF-46 U-5 og D-3, HF-U23 punkt 7.
   it('etter tiden_gaar lager brevkontrollen teksten med demoens dato, og sendingen godtar den', async () => {
     const { tekst, sendt } = await godtaFristsvaret('BF-46', 'te-etter-akseptfristen');
     expect(sendt.slice(0, 10)).toBe('2026-10-16');
     expect(tekst).toContain('Aksepten er sendt etter akseptfristen 15. oktober 2026');
   });
 
-  // HF-U23 punkt 2 og 7: demoens dato er 1. oktober 2026, før akseptfristen, og nettleserens
-  // klokke er en annen dag. Brevet har ikke setningen, og sendingen godtar teksten (LV-U2).
+  // Kilder: BF-46 U-5 og D-3, HF-U23 punkt 2 og 7, LV-U2. Demoens dato er 1. oktober 2026, før
+  // akseptfristen; nettleserens klokke er en annen dag.
   it('uten tiden_gaar bruker brevkontrollen demoens dato før akseptfristen, ikke nettleserens', async () => {
     const { tekst, sendt } = await godtaFristsvaret('BF-45', 'te-har-mottatt-svaret');
     expect(sendt.slice(0, 10)).toBe('2026-10-01');

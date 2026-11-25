@@ -86,7 +86,8 @@ ikke er det forventede:
    og skriptet skriver radene tilbakedatert i `koe.hendelse` med eieren av testbasen, med
    aktøren, prosjektet, siden og teamet i transaksjonskonteksten (G-3). Stegene etter
    `tiden_gaar` går gjennom serveren som i punkt 6. De tilbakedaterte radene har ingen
-   leveringsoppdrag, og de beviser ikke aktørstemplingen og tilgangen (G-9). Med `--klokke`
+   leveringsoppdrag, og de beviser ikke aktørstemplingen og tilgangen (G-9). Saken er opprettet
+   gjennom serveren med dagens tidspunkt, så `sak_opprettet` er datert etter brevene i den. Med `--klokke`
    (krever et slikt forløp og `--til`, som `--forlop BF-46 --til te-etter-akseptfristen`)
    settes nettleserens klokke til akseptfristen (`page.clock`) mens basen er etter den. TE godtar
    svaret på fristkravet, og skriptet krever at brevkontrollen sier at aksepten er sendt etter

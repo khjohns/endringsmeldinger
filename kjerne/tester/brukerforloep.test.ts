@@ -78,9 +78,7 @@ describe('brukerforløpene i minnet', () => {
     }
   });
 
-  // BF-46 G-1: tiden_gaar flytter klokka, og aksepten er datert dagen etter akseptfristen.
-  // HF-U23 punkt 2 og 7: fristen er ute ved utgangen av datoen, så en aksept på fristdatoen har
-  // ikke setningen og ikke etiketten, og en aksept dagen etter har begge.
+  // Kilder: BF-46 G-1 og D-3, HF-U23 punkt 2 og 7. Aksepten er datert datoen i `til`.
   it.each([
     ['2026-10-15', false],
     ['2026-10-16', true],
@@ -100,10 +98,13 @@ describe('brukerforløpene i minnet', () => {
     }
   );
 
-  it('tiden_gaar til en dato før klokka stopper kjøringen', async () => {
+  it.each([
+    ['2026-09-30', /kan ikke flyttes/],
+    ['2026-02-30', /er ingen dato/],
+  ])('tiden_gaar til %s stopper kjøringen', async (til, feil) => {
     const b = structuredClone(finn('BF-46'));
-    b.steg = b.steg!.map((h) => (h.handling === 'tiden_gaar' ? { ...h, til: '2026-09-30' } : h));
-    await expect(kjoerBrukerforloep(b)).rejects.toThrow(/kan ikke flyttes/);
+    b.steg = b.steg!.map((h) => (h.handling === 'tiden_gaar' ? { ...h, til } : h));
+    await expect(kjoerBrukerforloep(b)).rejects.toThrow(feil);
   });
 
   it('startjournalen har klokka ved et kontrollpunkt etter tiden_gaar, og ikke ellers (BF-46 G-1)', async () => {

@@ -111,7 +111,10 @@ export function tidspunktForDagen(til: unknown): Date {
     throw new Forutsetning(
       `tiden_gaar trenger datoen i \`til\` (ÅÅÅÅ-MM-DD), ikke ${JSON.stringify(til)}`
     );
-  return new Date(`${til}T08:00:00.000Z`);
+  const tidspunkt = new Date(`${til}T08:00:00.000Z`);
+  if (Number.isNaN(tidspunkt.getTime()) || tidspunkt.toISOString().slice(0, 10) !== til)
+    throw new Forutsetning(`tiden_gaar: ${til} er ingen dato`);
+  return tidspunkt;
 }
 
 /** Det kjøringen holder rede på mellom stegene. */

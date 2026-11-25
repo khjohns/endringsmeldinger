@@ -108,7 +108,15 @@ function medAkseptfrist<T>(forloep: T, frist: string): T {
  * gjennom serveren med klokka i basen.
  */
 function tilbakedatering(forloep: ReturnType<typeof finn>) {
-  if (!forloep.steg?.some((h) => h.handling === 'tiden_gaar')) return null;
+  const steg = forloep.steg ?? [];
+  const tid = steg.findIndex((h) => h.handling === 'tiden_gaar');
+  if (tid < 0) return null;
+  // Saksruta lar tid gå til i dag, etter akseptfristen. Det svarer til forløpsfila bare når `til`
+  // der er etter hver akseptfrist i stegene før.
+  const fristene = JSON.stringify(steg.slice(0, tid)).match(/"akseptfrist":"\d{4}-\d{2}-\d{2}"/g) ?? [];
+  const til = String(steg[tid].til);
+  if (fristene.some((f) => f.slice(-11, -1) >= til))
+    throw new Error(`${forloep.id}: tiden_gaar til ${til} er ikke etter akseptfristen, og saksruta lar tid gå forbi den`);
   const frist = hverdagFra(-1, -1);
   const start = new Date(`${frist}T08:00:00.000Z`);
   start.setUTCDate(start.getUTCDate() - 14);
@@ -1019,6 +1027,7 @@ try {
     const frist = fristene.at(-1)?.akseptfrist;
     if (!frist) throw new Error('--klokke trenger et kontrollpunkt der BHs svar på fristkravet har akseptfrist (--til)');
     const basen = await kjerneKall<{ klokka_i_basen: string }>(te, 'GET', `/api/kjerne/saker/${sak}`);
+    if (basen.status !== 200) throw new Error(`GET /api/kjerne/saker/{sak} ga ${basen.status}`);
     const basensDato = new Date(basen.kropp.klokka_i_basen).toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
     if (basensDato <= frist) throw new Error(`Datoen i basen ${basensDato} er ikke etter akseptfristen ${frist}`);
     await te.clock.setSystemTime(new Date(`${frist}T12:00:00Z`));
