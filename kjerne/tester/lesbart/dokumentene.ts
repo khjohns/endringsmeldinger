@@ -11,6 +11,13 @@ const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
 export const DOKUMENTENE: Lesbar[] = [
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
+  // OV-U17, OV-U79: parten som la til brevet, eier registreringen og opplysningen om datoen.
+  [
+    'Dokument',
+    'relasjon',
+    'lagtTilAv',
+    ['utledning/utled.ts:registreringer', 'utledning/utled.ts:utledSporene.lesDokumentet'],
+  ],
   ['Dokument', 'utsagn', 'krav svar utsagn opplysninger'],
   // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
   ['Dokument', 'relasjon', 'spor', ['format/leser.ts:dokumentasjonsbrev']],

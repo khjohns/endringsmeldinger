@@ -406,6 +406,7 @@ function lesDokument(h: Journalrad): Dokument {
     spor?: Spor[];
     retter?: string;
     ikke_i_saken?: true;
+    avsender?: Part;
   };
   if (data.ikke_i_saken) return ikkeISaken(h, data);
   // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
@@ -430,10 +431,10 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.retter !== undefined && (data.krav || data.svar || data.utsagn))
     throw new Uforstaatt('en retting er ikke et brev registrert som dokumentasjon (OV-U17)');
   const id = h.event_id;
-  const avsender: Part = h.aktor_rolle;
+  const lagtTilAv: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
-    if (part !== null && avsender !== part)
-      throw new Uforstaatt(`${hva} er skrevet av ${avsender}, ikke ${part}`);
+    if (part !== null && lagtTilAv !== part)
+      throw new Uforstaatt(`${hva} er skrevet av ${lagtTilAv}, ikke ${part}`);
   };
   if (data.krav) kreverPart('TE', 'et krav');
   if (data.svar) kreverPart('BH', 'et svar');
@@ -452,7 +453,7 @@ function lesDokument(h: Journalrad): Dokument {
           dokument: id,
           hva: 'endringsordre',
           oppfylt: o.oppfylt as boolean,
-          oppgittAv: avsender,
+          oppgittAv: lagtTilAv,
           brev,
         }
       : {
@@ -460,7 +461,7 @@ function lesDokument(h: Journalrad): Dokument {
           dokument: id,
           hva: o.hva as 'sendt' | 'mottatt',
           dato: o.dato as string,
-          oppgittAv: avsender,
+          oppgittAv: lagtTilAv,
           ...(typeof o.gjelder === 'string' ? { gjelder: o.gjelder } : {}),
         };
   });
@@ -475,7 +476,8 @@ function lesDokument(h: Journalrad): Dokument {
     );
   const dokument: Dokument = {
     id,
-    avsender,
+    avsender: data.avsender ?? lagtTilAv,
+    lagtTilAv,
     registrert: h.tidsstempel,
     opplysninger,
     dokumentasjon: data.dokumentasjon ?? [],
@@ -542,6 +544,14 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt('dokumentet har spor, men er ikke dokumentasjon (OV-U16)');
   else if (data.beskrivelse !== undefined && !erRegistrert(dokument.opplysninger))
     throw new Uforstaatt('beskrivelsen står bare i registrert korrespondanse (OV-U79)');
+  // OV-U79, OV-U80: korrespondanse motparten legger til, står som dokumentasjon. Feltet står bare
+  // når avsenderen er motparten, så hver avsender har én form.
+  if (data.avsender !== undefined && (data.krav || data.svar || data.utsagn))
+    throw new Uforstaatt(
+      'bare et brev registrert som dokumentasjon har en oppgitt avsender (OV-U80)'
+    );
+  if (data.avsender === lagtTilAv)
+    throw new Uforstaatt('den oppgitte avsenderen er parten som la til brevet');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
   for (const o of dokument.opplysninger)
     if (
@@ -654,6 +664,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
   return {
     id: h.event_id,
     avsender: h.aktor_rolle,
+    lagtTilAv: h.aktor_rolle,
     registrert: h.tidsstempel,
     opplysninger: [],
     dokumentasjon: [],

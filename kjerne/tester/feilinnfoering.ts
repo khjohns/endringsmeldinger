@@ -324,7 +324,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar en aksept eller et svar fra feil part',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      ['if (part !== null && avsender !== part)', 'if (part !== null && avsender === undefined)'],
+      ['if (part !== null && lagtTilAv !== part)', 'if (part !== null && lagtTilAv === undefined)'],
     ],
     mal: ['en rad fra feil part er ikke forstått'],
   },
@@ -2759,7 +2759,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F358',
     feilklasse: 'motparten kan rette en registrering (OV-U17)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['  if (brev.avsender !== part)', '  if (false)']],
+    endringer: [['  if (brev.lagtTilAv !== part)', '  if (false)']],
     mal: ['OV-U17: bare samme side retter'],
   },
   {
@@ -2775,7 +2775,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {',
+        '      if (!rettet || rettet.lagtTilAv !== d.lagtTilAv || rettet.rettetAv !== null) {',
         '      if (!rettet || rettet.rettetAv !== null) {',
       ],
     ],
@@ -6837,6 +6837,44 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['const gjentatt = foer && !foer.iTide && !p.iTide;', 'const gjentatt = false;']],
     mal: ['brevet som gjentar innsigelsen mot varselet for kravposten, viser til brevet'],
+  },
+  {
+    id: 'F792',
+    feilklasse:
+      'leseren gir parten som la til brevet som avsender, ikke den oppgitte (OV-U79, OV-U80, #2069)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['    avsender: data.avsender ?? lagtTilAv,', '    avsender: lagtTilAv,']],
+    mal: [
+      'aktøren er totalentreprenøren, avsenderen byggherren',
+      'brevet omtales med den oppgitte avsenderen',
+    ],
+  },
+  {
+    id: 'F793',
+    feilklasse: 'avsenderen av et brev motparten la til, kan rette registreringen (OV-U17, #2069)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.lagtTilAv !== part)', '  if (brev.avsender !== part)']],
+    mal: ['bare parten som la til brevet, kan rette registreringen'],
+  },
+  {
+    id: 'F794',
+    feilklasse:
+      'leseren godtar en oppgitt avsender som er parten som la til brevet, en andre form (MM-U2, #2069)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  if (data.avsender === lagtTilAv)', '  if (false)']],
+    mal: ['en rad der avsenderen er parten som la til brevet'],
+  },
+  {
+    id: 'F795',
+    feilklasse: 'kommandoen skriver avsenderen også når den er egen side, en andre form (#2069)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '        ...(k.avsender && k.avsender !== kontekst.part ? { avsender: k.avsender } : {}),',
+        '        ...(k.avsender ? { avsender: k.avsender } : {}),',
+      ],
+    ],
+    mal: ['en avsender lik egen side skrives ikke'],
   },
 ];
 /** En kopi av arbeidstreet. */

@@ -677,6 +677,21 @@ describe('linja i sakslisten (#1022)', () => {
     expect(eldre.linje().siste_brev).toEqual({ avsender: 'TE', dato: '2026-10-01' });
   });
 
+  it('et brev motparten la til, står med avsenderen parten oppga, ikke med parten som la det til (OV-U79, kravet 03.11 i #807, #2069)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer({ ...brevSomDokumentasjon('2026-10-01'), avsender: 'BH' }, 'TE');
+    expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'BH', dato: '2026-10-01' });
+    const kontroll = new Sak();
+    krav(kontroll);
+    kontroll.registrer(brevSomDokumentasjon('2026-10-01'), 'TE');
+    expect(kontroll.linje().siste_brev, 'kontrollsak: uten oppgitt avsender').toEqual({
+      avsender: 'TE',
+      dato: '2026-10-01',
+    });
+  });
+
   it('en registrering som en retting sier ikke hører til saken, og rettingen selv, er ikke sakens siste brev (OV-U17, OV-U18)', () => {
     const sak = new Sak();
     krav(sak);

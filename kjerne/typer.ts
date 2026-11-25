@@ -411,7 +411,10 @@ export interface Vedlegg {
 
 export interface Dokument {
   id: string;
+  /** Parten som sendte dokumentet: den som la det til, eller den oppgitte (OV-U79, OV-U80). */
   avsender: Part;
+  /** Parten som skrev hendelsen (`aktor_rolle`), og som eier registreringen (OV-U17). */
+  lagtTilAv: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
   opplysninger: Opplysning[];

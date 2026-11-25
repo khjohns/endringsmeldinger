@@ -464,6 +464,8 @@ function dokument(
         dokumentasjon: bundne,
         // OV-U17: rettingen er en fullstendig ny registrering med henvisning til den feil.
         ...(k.retter ? { retter: k.retter } : {}),
+        // OV-U79, OV-U80: avsenderen står bare når det er motparten (`leser.ts`).
+        ...(k.avsender && k.avsender !== kontekst.part ? { avsender: k.avsender } : {}),
       };
     case 'ikke_i_saken':
       // OV-U18: rettingen har bare henvisningen.

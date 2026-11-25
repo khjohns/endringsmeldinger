@@ -122,6 +122,35 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     );
   });
 
+  it('et brev motparten sendte, lagt til som dokumentasjon, lagres og leses igjen med avsenderen og parten som la det til (OV-U79, OV-U80, #2069)', async () => {
+    const bane = await basebane(o);
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
+    ]);
+    const journal = await bane.journal();
+    const utfall = await k.prov(
+      {
+        handling: 'registrert_brev',
+        part: 'TE',
+        sendt: '2026-09-10',
+        beskrivelse: 'Brev fra byggherren om fremdriften',
+      },
+      (kommando) => {
+        kommando.avsender = 'BH';
+      }
+    );
+    if (!utfall.godtatt)
+      throw new Error(`Forutsetning: brevet ble avvist: ${utfall.avvisning.regel}`);
+    await skrivRader(o, utfall.hendelser, journal.at(-1)!.versjon);
+    const lest = await journalen(o, bane.sakId);
+    const raden = lest.at(-1)!;
+    expect(raden.aktor_rolle).toBe('TE');
+    expect(raden.data.avsender).toBe('BH');
+    const u = utledJournal(lest, KJERNE);
+    expect(u.forstaatt).toBe(true);
+    expect(u.registrerteBrev.at(-1)).toMatchObject({ avsender: 'BH', lagtTilAv: 'TE' });
+  });
+
   it('fristkravet med forbeholdet og et vedlegg ved kravet lagres, og raden leses igjen med begge (KA-U82, LV-U74, #1823)', async () => {
     const bane = await basebane(o);
     const k = await bygg(bane, [
