@@ -5313,10 +5313,10 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F539',
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
+        '(v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
         '(v) => !!v',
       ],
     ],
@@ -7522,6 +7522,99 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et brev sendt før fristen ble registrert, kan angi den med navnet'],
+  },
+  {
+    id: 'F2011m',
+    feilklasse:
+      'brevet for en kravversjon fra løsningen leser bare rekken, så kravet sier at det er varselet for en kravpost et eldre krav er varselet for (OV-U120, VS-U49)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['foranKravet(nytt, lest, u), eldreKravFoer(u, null));', 'foranKravet(nytt, lest, u), []);'],
+    ],
+    mal: [
+      'har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet',
+    ],
+  },
+  {
+    id: 'F2011n',
+    feilklasse:
+      'innsigelsen mot varselet for en kravpost i et svar før det eldre kravet ble lagt til, følger med til det eldre kravet (OV-U120 andre ledd)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['s: utenStandpunkterForanEldreKrav(s, eldre, plass),', 's,']],
+    mal: ['innsigelsen i et svar før brevet ble lagt til, følger ikke med til det eldre kravet'],
+  },
+  {
+    id: 'F2011o',
+    feilklasse:
+      'svarbrevet viser til innsigelsen i et svar før det eldre kravet ble lagt til (OV-U120 andre ledd)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),', 's: x,']],
+    mal: ['et svar etter brevet viser ikke til innsigelsen før det'],
+  },
+  {
+    id: 'F2011p',
+    feilklasse:
+      'kommandoen lar en kravpost vise til et annet varsel enn det eldre kravet som er varselet for den (OV-U118, OV-U120)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '    u.spor.vederlag.kravpostvarsler,\n    eldreKravFoer(u, sendt)\n',
+        '    u.spor.vederlag.kravpostvarsler,\n    []\n',
+      ],
+    ],
+    mal: ['er brevet varselet for P1, kan den neste versjonen ikke vise til et annet varsel'],
+  },
+  {
+    id: 'F2011q',
+    feilklasse:
+      'en lagret kravversjon som viser til et annet varsel enn det eldre kravet før den, leses som forstått (OV-U120, MM-U2)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'kravpostvarseletStrider(k, krav.slice(0, i), foer, eldre(k));',
+        'kravpostvarseletStrider(k, krav.slice(0, i), foer, []);',
+      ],
+    ],
+    mal: ['en lagret versjon som viser til et annet varsel for P1 enn brevet før den'],
+  },
+  {
+    id: 'F2011r',
+    feilklasse:
+      'det eldre kravet er varselet for en kravpost som viser til et varsel der (OV-U120 vilkår 3)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if ([...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+      ],
+    ],
+    mal: ['viser P1 i brevet til et varsel, er brevet ikke varselet'],
+  },
+  {
+    id: 'F2011s',
+    feilklasse:
+      'vilkår 3 i OV-U120 prøves ikke mot kravversjonene i rekken etter den som ellers er varselet, så innsigelsen faller bort',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))',
+        'return e',
+      ],
+    ],
+    mal: ['viser P1 i en senere kravversjon til et varsel, står innsigelsen'],
+  },
+  {
+    id: 'F2011t',
+    feilklasse:
+      'vilkår 3 i OV-U120 prøves ikke mot de andre kravene utenfor rekken (OV-U120 vilkår 3)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+        'else if (![eldre.find((k) => postenMed(k, p.id, hjemmel))!, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))',
+      ],
+    ],
+    mal: ['viser P1 i et annet eldre krav til et varsel, er det første eldre kravet ikke varselet'],
   },
 ];
 /** En kopi av arbeidstreet. */

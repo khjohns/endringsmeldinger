@@ -26,6 +26,7 @@ import type {
   Utsagn,
 } from '../typer.ts';
 import type { OppgittDato } from '../spor/forhold/format.ts';
+import type { VarselIEtEldreKrav } from './standpunkt.ts';
 
 /**
  * Saken slik den var før brevet: sakens kode (LV-U44, S3 i #1497) og sakstittelen (KA-U22), gjeldende
@@ -55,6 +56,8 @@ export interface Saken {
   paaberopelse: Krav | null;
   /** Elementene uten virkning (MM-U43 punkt 9): et svar blant dem gir ikke opp en innsigelse. */
   utenVirkning: readonly string[];
+  /** Kravpostene som har et krav utenfor rekken som varsel (`varslerIEldreKrav`, OV-U120). */
+  varslerIEldreKrav: readonly VarselIEtEldreKrav[];
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */

@@ -7,7 +7,7 @@
  */
 
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
-import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
+import { standpunkteneTilVarslene, varslerIEldreKrav } from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
@@ -909,6 +909,7 @@ function brevtekstFor(
       datoopplysninger: u.datoopplysninger,
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
+      varslerIEldreKrav: varslerIEldreKrav(u),
       kravpostvarsler: Object.fromEntries(
         ny.dokument.krav.flatMap((k) =>
           Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})

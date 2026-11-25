@@ -13,6 +13,9 @@ const SVARET_MED_ID = [
   'kommandoer/nyttelast.ts:nyttelastkontroll',
 ];
 
+const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
+const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
+
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
   ['Utledning', 'predikat', 'forstaatt spor opplysninger forholdAvvist frafalt'],
@@ -179,4 +182,55 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['utledning/utled.ts:utledSporene', 'relasjon', 'hendelse versjon'],
   ['utledning/utled.ts:utledSporene.plasser', 'relasjon', 'id versjon'],
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
+  // OV-U120: et krav utenfor rekken som varsel for en kravpost, og standpunktene i svarene før
+  // det eldre kravet ble lagt til.
+  ['format/leser.ts', 'rad', 'dokumenterI', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  ['format/leser.ts', 'kontekst', 'dagenSendt', [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`]],
+  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  [
+    'Krav',
+    'relasjon',
+    'dokument',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`],
+  ],
+  [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
+  ['Utsagn', 'relasjon', 'dokument', [VARSLER_I_ELDRE_KRAV]],
+  [
+    'spor/vederlag/utledning.ts:sendtFoer',
+    'relasjon',
+    'k sendt',
+    ['spor/vederlag/utledning.ts:sendtFoer'],
+  ],
+  [`${VARSLER_I_ELDRE_KRAV}(varslene)`, 'relasjon', '*', [VARSLER_I_ELDRE_KRAV]],
+  ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV]],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'eldreKravFoer',
+    [
+      'spor/vederlag/kommando.ts:kravpostsperre',
+      'spor/vederlag/kommando.ts:kravpostvarslerIBrevet',
+    ],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'varsleneForanKravet',
+    ['spor/vederlag/kommando.ts:foranKravet'],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'varslerIEldreKrav',
+    ['kommandoer/skriving.ts:brevtekstFor'],
+  ],
+  ['VarselIEtEldreKrav', 'relasjon', 'gjelder hjemmel dokument', ['frosset/standpunkt.ts']],
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'utenStandpunkterForanEldreKrav',
+    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+  ],
+  ['Saken', 'relasjon', 'varslerIEldreKrav', ['frosset/brevtekst.ts:varseltekst']],
 ];

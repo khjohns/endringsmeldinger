@@ -5,7 +5,11 @@
  */
 
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
+import {
+  eldreKravFoer,
+  kravpostvarslene,
+  varslerIEldreKrav,
+} from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Krav, Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
@@ -30,20 +34,26 @@ export type Varselet =
 /**
  * Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et.
  * `krav` er kravversjonene kravet prøves mot, for et krav lagt til sendt før det siste de sendt før
- * det (OV-U118, `kravversjoneneKravetProevesMot`).
+ * det (OV-U118, `kravversjoneneKravetProevesMot`). `sendt` er dagen et krav som legges til, ble
+ * sendt, og `null` for et krav fra løsningen: de eldre kravene sendt før det regnes med (OV-U120).
  */
 export function varslenePerKravpost(
   u: Utledning,
   krav: readonly Krav[],
-  poster: readonly Kravpostutkast[]
+  poster: readonly Kravpostutkast[],
+  sendt: string | null
 ): (Varselet | null)[] {
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
+  const eldreKrav = eldreKravFoer(u, sendt);
   const etter = kravpostvarslene(
     { innhold: { kravposter: lest } },
     krav,
-    u.spor.vederlag.kravpostvarsler
+    u.spor.vederlag.kravpostvarsler,
+    eldreKrav
   );
+  const sendtFoer = new Set(eldreKrav.map((k) => k.dokument));
+  const iEldre = varslerIEldreKrav(u).filter((v) => sendtFoer.has(v.dokument));
   return lest.map((p) => {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null) return null;
@@ -51,6 +61,9 @@ export function varslenePerKravpost(
     if (v?.art === 'kravet') return { art: 'kravet', hjemmel };
     if (v?.art === 'gitt')
       return { art: 'gitt', hjemmel, varsel: v.varsel, dokument: dokumentet(u, v.varsel) };
+    // OV-U120: et eldre krav er varselet for posten.
+    const eldre = iEldre.find((x) => x.gjelder === p.id && x.hjemmel === hjemmel);
+    if (eldre) return { art: 'foer', hjemmel, krav: eldre.dokument, varsel: null };
     // Posten hadde oppgjørsformen før: det første kravet med den, og varselet posten viste til der.
     const foerste = krav.find((k) =>
       kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel)
@@ -61,8 +74,11 @@ export function varslenePerKravpost(
   });
 }
 
+/** Brevet med varselet: et registrert varsel, eller et krav utenfor rekken (OV-U120). */
 const dokumentet = (u: Utledning, varsel: string) =>
-  u.spor.vederlag.kravpostvarsler.find((v) => v.id === varsel)?.dokument ?? varsel;
+  u.spor.vederlag.kravpostvarsler.find((v) => v.id === varsel)?.dokument ??
+  u.spor.vederlag.kravUtenforRekken.find((k) => k.id === varsel)?.dokument ??
+  varsel;
 
 /** Et varsel etter § 34.3.3 eller § 34.4 i saken, med brevet det står i. */
 export interface Kravpostvarsel {
@@ -92,7 +108,8 @@ export function varslerUtenKravpost(u: Utledning): Kravpostvarsel[] {
   const foerst = (a: string, b: string) => (plass.get(a) ?? -1) < (plass.get(b) ?? -1);
   for (const k of u.spor.vederlag.krav) {
     const foer = u.spor.vederlag.kravpostvarsler.filter((v) => foerst(v.dokument, k.dokument));
-    for (const v of Object.values(kravpostvarslene(k, tidligere, foer)))
+    // Et eldre krav er ikke et varsel i saken, så `eldre` endrer ikke hvilke som er brukt.
+    for (const v of Object.values(kravpostvarslene(k, tidligere, foer, [])))
       if (v.art === 'gitt') brukt.add(v.varsel);
     tidligere.push(k);
   }

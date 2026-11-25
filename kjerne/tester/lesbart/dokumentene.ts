@@ -81,6 +81,7 @@ export const DOKUMENTENE: Lesbar[] = [
     [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'spor/vederlag/utledning.ts:viserTilEtVarsel',
       'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],

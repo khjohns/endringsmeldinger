@@ -20,7 +20,9 @@ import { innholdIFristen } from '../spor/frist/format.ts';
 import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import { KJERNE } from '../versjon.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
-import type { Krav } from '../typer.ts';
+import type { Journalrad, Krav } from '../typer.ts';
+import { laast } from './brevsak.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 
 interface LagtTil {
   utfall: Utfall;
@@ -28,6 +30,8 @@ interface LagtTil {
   etter: (Utfall | null)[];
   /** Saken etter det siste steget, når kravet er godtatt. */
   u: Utledning | null;
+  /** Journalen etter det siste steget. */
+  journal: Journalrad[];
 }
 
 /**
@@ -47,11 +51,12 @@ async function leggTil(
     { valg: { klokke: dagklokke() } }
   );
   const utfall = await k.prov({ ...h, sendt });
-  if (!utfall.godtatt) return { utfall, etter: [], u: null };
+  if (!utfall.godtatt) return { utfall, etter: [], u: null, journal: await bane.journal() };
   await bane.skriv(utfall.hendelser, (await bane.journal()).at(-1)!.versjon);
   const resten: (Utfall | null)[] = [];
   for (const e of etter) resten.push(await k.send(e));
-  return { utfall, etter: resten, u: utledJournal(await bane.journal(), KJERNE) };
+  const journal = await bane.journal();
+  return { utfall, etter: resten, u: utledJournal(journal, KJERNE), journal };
 }
 
 /** Kravet i raden kommandoen ga, slik saken leser det. Kravet må være godtatt. */
@@ -314,5 +319,237 @@ describe('en påberopelse sendt før den siste (OV-U121, OV-U122)', () => {
       '2026-09-12'
     );
     staarUtenforRekken(u, kravetIRaden(utfall, u));
+  });
+});
+
+/** Totalentreprenørens vederlagskrav med P1 med oppgjørsformen, og eventuelt varselet P1 viser til. */
+const medP1 = (oppgjoersform: string, ekstra: Record<string, unknown> = {}): Handling => ({
+  handling: 'krav',
+  spor: 'vederlag',
+  kravposter: [{ post: 'P1', oppgjoersform, ...ekstra }],
+});
+
+/** Brevteksten i raden kommandoen ga, som én tekst. */
+const brevteksten = (utfall: Utfall | null): string => {
+  expect(utfall?.godtatt ? null : utfall?.avvisning, 'kravet er godtatt').toBeNull();
+  return utfall!.godtatt ? laast(utfall!.hendelser[0]!).join(' ') : '';
+};
+
+const VARSEL_344 = 'Kravet er varsel før regningsarbeidet settes i gang';
+const GITT_344 = 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i';
+
+describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
+  // Kravet fra løsningen 22.09 har P1 med fast sum. Brevet 21.09 legges til før den neste versjonen.
+  it('har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet, ikke at kravet er varselet (OV-U120, VS-U49)', async () => {
+    const { etter, u } = await leggTil([], medP1('regningsarbeid'), '2026-09-21', [
+      medP1('regningsarbeid'),
+    ]);
+    const tekst = brevteksten(etter[0]!);
+    expect(tekst).not.toContain(VARSEL_344);
+    expect(tekst).toContain(GITT_344);
+    expect(u?.begrensninger).toEqual([]);
+  });
+
+  it('kontrollsak: har den neste versjonen justerte enhetspriser for P1, er kravet varselet etter punkt 34.3.3 (OV-U120 vilkår 1, VS-U49)', async () => {
+    const { etter } = await leggTil([], medP1('regningsarbeid'), '2026-09-21', [
+      medP1('enhetspriser', { justert: true }),
+    ]);
+    const tekst = brevteksten(etter[0]!);
+    expect(tekst).toContain('Kravet er varsel om justering av enhetsprisene');
+    expect(tekst).not.toContain('ble gitt i');
+  });
+
+  it('kontrollsak: har brevet P1 med fast sum, er den neste versjonen varselet for regningsarbeidet (OV-U120 vilkår 1)', async () => {
+    const { etter } = await leggTil([], medP1('tilbud', { belop: 50000 }), '2026-09-21', [
+      medP1('regningsarbeid'),
+    ]);
+    expect(brevteksten(etter[0]!)).toContain(VARSEL_344);
+  });
+
+  // Varselet etter § 34.4 registreres 24.09, før den neste versjonen viser til det.
+  const varselet: Handling = {
+    handling: 'varsel',
+    spor: 'vederlag',
+    hjemmel: '34.4',
+    sendt: '2026-09-23',
+    navn: 'V',
+  };
+
+  it('er brevet varselet for P1, kan den neste versjonen ikke vise til et annet varsel for P1 (OV-U118, OV-U120, VS-U54)', async () => {
+    const { etter } = await leggTil([varselet], medP1('regningsarbeid'), '2026-09-21', [
+      medP1('regningsarbeid', { varsel: 'V' }),
+    ]);
+    expect(etter[0]).toMatchObject({
+      godtatt: false,
+      avvisning: {
+        regel: 'KRAVPOSTVARSELET',
+        melding: expect.stringContaining('hadde oppgjørsformen i en tidligere kravversjon'),
+      },
+    });
+  });
+
+  it('kontrollsak: har brevet P1 med fast sum, kan den neste versjonen vise til varselet (VS-U50)', async () => {
+    const { etter, u } = await leggTil(
+      [varselet],
+      medP1('tilbud', { belop: 50000 }),
+      '2026-09-21',
+      [medP1('regningsarbeid', { varsel: 'V' })]
+    );
+    expect(brevteksten(etter[0]!)).toContain(GITT_344);
+    expect(u?.begrensninger).toEqual([]);
+  });
+
+  it('viser P1 i brevet til et varsel, er brevet ikke varselet, og den neste versjonen er det heller ikke (OV-U120 vilkår 3, OV-U118, VS-U49)', async () => {
+    const { etter } = await leggTil(
+      [{ ...varselet, sendt: '2026-09-20' }],
+      medP1('regningsarbeid', { varsel: 'V' }),
+      '2026-09-21',
+      [medP1('regningsarbeid')]
+    );
+    const tekst = brevteksten(etter[0]!);
+    expect(tekst).not.toContain(VARSEL_344);
+    expect(tekst).not.toContain(GITT_344);
+  });
+
+  it('viser P1 i et annet eldre krav til et varsel, er det første eldre kravet ikke varselet (OV-U120 vilkår 3)', async () => {
+    const { etter } = await leggTil(
+      [{ ...varselet, hjemmel: '34.3.3', sendt: '2026-09-19' }],
+      medP1('enhetspriser', { justert: true, varsel: 'V' }),
+      '2026-09-20',
+      [{ ...medP1('regningsarbeid'), sendt: '2026-09-21' }, medP1('regningsarbeid')]
+    );
+    expect(etter[0], 'det andre eldre kravet er lagt til').toMatchObject({ godtatt: true });
+    expect(brevteksten(etter[1]!)).not.toContain(GITT_344);
+  });
+
+  it('en lagret versjon som viser til et annet varsel for P1 enn brevet før den, gjør saken ikke forstått (OV-U120, MM-U2)', async () => {
+    const { utfall, journal } = await leggTil(
+      [varselet],
+      medP1('tilbud', { belop: 50000 }),
+      '2026-09-21',
+      [medP1('regningsarbeid', { varsel: 'V' })]
+    );
+    expect(utledJournal(journal, KJERNE).begrensninger, 'kontrollsak').toEqual([]);
+    // Brevet i journalen får P1 med regningsarbeid, slik det kunne vært lagt til.
+    const id = utfall.godtatt ? utfall.hendelser[0]!.event_id : null;
+    const rad = journal.find((r) => r.event_id === id);
+    expect(rad, 'brevet er lagt til').toBeDefined();
+    if (!rad) return;
+    const [p1] = (rad.data.krav as { kravposter: Record<string, unknown>[] }[])[0]!.kravposter;
+    p1!.oppgjoersform = 'regningsarbeid';
+    delete p1!.beloep;
+    expect(utledJournal(journal, KJERNE).begrensninger.map((b) => b.grunn)).toEqual([
+      expect.stringContaining('hadde oppgjørsformen i en tidligere kravversjon'),
+    ]);
+  });
+
+  // 24.09 skifter P1 til regningsarbeid, og byggherren svarer 25.09 at varselet kom for sent.
+  const svaretForSent: Handling = {
+    handling: 'brev',
+    svar: [
+      {
+        spor: 'vederlag',
+        kravposter: [{ post: 'P1', varslet_i_tide: false }],
+      },
+    ],
+  };
+  /** Innsigelsene etter § 34.4 som står. Saken må finnes, altså brevet være lagt til. */
+  const forSent = (u: Utledning | null, kjentFoer?: string) => {
+    expect(u, 'brevet er lagt til').not.toBeNull();
+    return u
+      ? standpunkteneTilVarslene(u, null, false, kjentFoer).filter(
+          (x) => x.hjemmel === '34.4' && !x.iTide
+        )
+      : [];
+  };
+
+  it('innsigelsen i et svar før brevet ble lagt til, følger ikke med til det eldre kravet (OV-U120 andre ledd)', async () => {
+    const { utfall, u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21'
+    );
+    expect(u?.begrensninger).toEqual([]);
+    expect(forSent(u)).toEqual([]);
+    // Svaret står med virkningen det hadde, slik saken var da brevet ble lagt til.
+    const lagtTil = kravetIRaden(utfall, u).dokument;
+    expect(forSent(u, lagtTil)).toHaveLength(1);
+  });
+
+  /** Byggherrens nye svar etter at brevet er lagt til, som igjen sier at varselet kom for sent. */
+  const nyttSvar: Handling = {
+    handling: 'revisjon',
+    spor: 'vederlag',
+    kravposter: [{ post: 'P1', varslet_i_tide: false }],
+  };
+
+  it('et svar etter brevet viser ikke til innsigelsen før det (OV-U120 andre ledd)', async () => {
+    const { etter } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21',
+      [nyttSvar]
+    );
+    const tekst = brevteksten(etter[0]!);
+    expect(tekst).toContain('ikke ble gitt eller kom for sent');
+    expect(tekst).not.toContain('jf. innsigelsen');
+  });
+
+  it('kontrollsak: har brevet P1 med fast sum, viser svaret til innsigelsen (VS-U77 punkt 6)', async () => {
+    const { etter } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('tilbud', { belop: 50000 }),
+      '2026-09-21',
+      [nyttSvar]
+    );
+    expect(brevteksten(etter[0]!)).toContain('jf. innsigelsen');
+  });
+
+  it('viser P1 i en senere kravversjon til et varsel, står innsigelsen (OV-U120 vilkår 3)', async () => {
+    const { u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21',
+      [
+        { ...varselet, hjemmel: '34.3.3', sendt: '2026-09-26' },
+        medP1('enhetspriser', { justert: true, varsel: 'V' }),
+      ]
+    );
+    expect(u?.begrensninger).toEqual([]);
+    expect(forSent(u)).toHaveLength(1);
+  });
+
+  it('med journalen kuttet foran det eldre kravet, som skjemaet leser et brev, står innsigelsen (VS-U81, MM-U50)', async () => {
+    const { utfall, u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21'
+    );
+    const lagtTil = kravetIRaden(utfall, u).dokument;
+    const i = u!.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === lagtTil);
+    expect(forSent({ ...u!, journal: u!.journal.slice(0, i) })).toHaveLength(1);
+  });
+
+  it('kontrollsak: har brevet P1 med fast sum, står innsigelsen (OV-U120 vilkår 1, VS-U80)', async () => {
+    const { u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('tilbud', { belop: 50000 }),
+      '2026-09-21'
+    );
+    expect(forSent(u)).toHaveLength(1);
+  });
+
+  it('kontrollsak: er brevet sendt etter kravversjonen som er varselet, står innsigelsen (OV-U120 vilkår 5)', async () => {
+    const { u } = await leggTil(
+      [
+        medP1('regningsarbeid'),
+        { handling: 'tiden_gaar', til: '2026-09-27' },
+        svaretForSent,
+        medP1('regningsarbeid'),
+      ],
+      medP1('regningsarbeid'),
+      '2026-09-26'
+    );
+    expect(forSent(u)).toHaveLength(1);
   });
 });
