@@ -3,8 +3,8 @@
    * Et brukerforløp i Varden (#1330, #1331), med en journal i minnet fra kontrollpunktet.
    * Panelet velger kontrollpunkt og side, og starter forløpet på nytt. Visningen lages på
    * nytt når siden byttes, som når en annen bruker åpner saken. Med `panel` lik `false`
-   * vises saken uten panelet, til en brukertest. Saken åpner i sporet til det siste brevet med et
-   * krav eller et svar, og panelet viser dagens dato i demoen (G-12 og G-11 i BF-46).
+   * vises saken uten panelet, til en brukertest. Sporet saken åpner i og datoen i panelet:
+   * G-12 og G-11 i BF-46.
    */
   import { ChevronRight } from 'lucide-svelte';
   import NySak from '#lib/components/varden/NySak.svelte';
@@ -72,11 +72,15 @@
     return kjernesak;
   }
 
-  /** Sporet til det siste brevet med et krav eller et svar, som saken åpner i (G-12 i BF-46). */
+  /** G-12 i BF-46. En aksept eller et trekk har sporet til kravet eller svaret det gjelder. */
   function sisteSpor(demosak: Demosak): Spor | undefined {
+    const sporFor = new Map<string, Spor>();
     let spor: Spor | undefined;
-    for (const d of dokumenterI(lesJournal(demosak.journal(), KJERNE.leserformat)))
-      spor = d.svar[0]?.spor ?? d.krav[0]?.spor ?? spor;
+    for (const d of dokumenterI(lesJournal(demosak.journal(), KJERNE.leserformat))) {
+      for (const k of [...d.krav, ...d.svar]) sporFor.set(k.id, (spor = k.spor));
+      for (const u of d.utsagn)
+        if (u.art === 'aksept' || u.art === 'trekk') spor = sporFor.get(u.gjelder) ?? spor;
+    }
     return spor;
   }
 
@@ -106,16 +110,7 @@
   let omstarter = $state(0);
 
   // Klokka i demoen, som brevkontrollen lager teksten med (U-9 og G-11 i BF-46).
-  let iDag = $state<string | null>(null);
-  $effect(() => {
-    void versjon;
-    let gjeldende = true;
-    aapen.demosak
-      .hent(aapen.demosak.sakId, DEMOPROSJEKT)
-      .then((sak) => gjeldende && (iDag = sak.merking?.klokka?.iBasen ?? null))
-      .catch(() => gjeldende && (iDag = null));
-    return () => (gjeldende = false);
-  });
+  const iDag = $derived((void versjon, aapen.demosak.klokke()));
 
   function byttSide(part: Part) {
     if (part === aapen.demosak.part) return;
@@ -176,12 +171,10 @@
       <div class="innhold">
         <p class="tittel">{forloep.tittel}</p>
         <p class="merknad">Ingenting sendes. Journalen ligger i minnet i nettleseren.</p>
-        {#if iDag}
-          <p class="felt">
-            <span class="etikett">Dagens dato i demoen</span>
-            {dato(iDag)}
-          </p>
-        {/if}
+        <p class="felt">
+          <span class="etikett">Dagens dato i demoen</span>
+          {dato(iDag)}
+        </p>
 
         <label class="felt">
           <span class="etikett">Start fra kontrollpunktet</span>
@@ -240,6 +233,8 @@
   /* Lukket som standard, nederst til venstre, der det dekker minst av saken. */
   .demopanel {
     position: fixed;
+    max-height: calc(100vh - 2 * var(--spacing-4));
+    overflow: auto;
     left: var(--spacing-4);
     bottom: var(--spacing-4);
     z-index: 30;

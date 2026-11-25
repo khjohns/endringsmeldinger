@@ -23,6 +23,8 @@ import {
   somForloep,
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
+import { SAKEN } from '#lib/components/varden/tekster/saken.ts';
+import { dato } from '#lib/components/varden/tekster/format.ts';
 import Demoforloep from '../Demoforloep.svelte';
 
 const BF = finn('BF-01');
@@ -211,8 +213,9 @@ describe('demoruta for brukerforløpet BF-46', () => {
   const BF46 = finnForloep('BF-46')!;
   // Fanen har betegnelsen og siste brev under navnet på sporet (panel B).
   const valgtSpor = () =>
-    document
-      .querySelector('[aria-current="page"]')
+    within(screen.getByRole('navigation', { name: SAKEN.sporene }))
+      .getAllByRole('button')
+      .find((b) => b.getAttribute('aria-current') === 'page')
       ?.textContent?.trim()
       .split(/\s{2,}/)[0];
 
@@ -222,6 +225,14 @@ describe('demoruta for brukerforløpet BF-46', () => {
     const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
     expect(await panel.findByText('16. oktober 2026')).toBeInTheDocument();
     expect(panel.getByText('Dagens dato i demoen')).toBeInTheDocument();
+  });
+
+  it('panelet viser dagens dato i demoen også før saken finnes (BF-05)', async () => {
+    const bf05 = finnForloep('BF-05')!;
+    render(Demoforloep, { forloep: bf05, punkt: 'start', onpunkt: () => {} });
+    const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
+    expect(panel.getByText('Dagens dato i demoen')).toBeInTheDocument();
+    expect(panel.getByText(dato(bf05.journal[0].tidsstempel))).toBeInTheDocument();
   });
 
   // G-12 i BF-46.md: saken åpner i sporet til det siste brevet med et krav eller et svar.

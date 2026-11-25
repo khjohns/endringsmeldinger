@@ -284,6 +284,8 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     lastOppVedlegg,
     /** Journalen slik kjernen har skrevet den, med demoaktørene. */
     journal: (): Journalrad[] => structuredClone(rader),
+    /** Klokka i demoen, også før saken finnes (G-11 i BF-46). */
+    klokke: (): string => new Date(klokke).toISOString(),
   };
   return demosak;
 }
