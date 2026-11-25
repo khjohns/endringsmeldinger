@@ -432,7 +432,9 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     expect(utledJournal(journal, KJERNE).begrensninger, 'kontrollsak').toEqual([]);
     // Brevet i journalen får P1 med regningsarbeid, slik det kunne vært lagt til.
     const id = utfall.godtatt ? utfall.hendelser[0]!.event_id : null;
-    const rad = journal.find((r) => r.event_id === id)!;
+    const rad = journal.find((r) => r.event_id === id);
+    expect(rad, 'brevet er lagt til').toBeDefined();
+    if (!rad) return;
     const [p1] = (rad.data.krav as { kravposter: Record<string, unknown>[] }[])[0]!.kravposter;
     p1!.oppgjoersform = 'regningsarbeid';
     delete p1!.beloep;
@@ -451,10 +453,15 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
       },
     ],
   };
-  const forSent = (u: Utledning, kjentFoer?: string) =>
-    standpunkteneTilVarslene(u, null, false, kjentFoer).filter(
-      (x) => x.hjemmel === '34.4' && !x.iTide
-    );
+  /** Innsigelsene etter § 34.4 som står. Saken må finnes, altså brevet være lagt til. */
+  const forSent = (u: Utledning | null, kjentFoer?: string) => {
+    expect(u, 'brevet er lagt til').not.toBeNull();
+    return u
+      ? standpunkteneTilVarslene(u, null, false, kjentFoer).filter(
+          (x) => x.hjemmel === '34.4' && !x.iTide
+        )
+      : [];
+  };
 
   it('innsigelsen i et svar før brevet ble lagt til, følger ikke med til det eldre kravet (OV-U120 andre ledd)', async () => {
     const { utfall, u } = await leggTil(
@@ -463,10 +470,10 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
       '2026-09-21'
     );
     expect(u?.begrensninger).toEqual([]);
-    expect(forSent(u!)).toEqual([]);
+    expect(forSent(u)).toEqual([]);
     // Svaret står med virkningen det hadde, slik saken var da brevet ble lagt til.
     const lagtTil = kravetIRaden(utfall, u).dokument;
-    expect(forSent(u!, lagtTil)).toHaveLength(1);
+    expect(forSent(u, lagtTil)).toHaveLength(1);
   });
 
   /** Byggherrens nye svar etter at brevet er lagt til, som igjen sier at varselet kom for sent. */
@@ -509,7 +516,7 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
       ]
     );
     expect(u?.begrensninger).toEqual([]);
-    expect(forSent(u!)).toHaveLength(1);
+    expect(forSent(u)).toHaveLength(1);
   });
 
   it('med journalen kuttet foran det eldre kravet, som skjemaet leser et brev, står innsigelsen (VS-U81, MM-U50)', async () => {
@@ -529,7 +536,7 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
       medP1('tilbud', { belop: 50000 }),
       '2026-09-21'
     );
-    expect(forSent(u!)).toHaveLength(1);
+    expect(forSent(u)).toHaveLength(1);
   });
 
   it('kontrollsak: er brevet sendt etter kravversjonen som er varselet, står innsigelsen (OV-U120 vilkår 5)', async () => {
@@ -543,6 +550,6 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
       medP1('regningsarbeid'),
       '2026-09-26'
     );
-    expect(forSent(u!)).toHaveLength(1);
+    expect(forSent(u)).toHaveLength(1);
   });
 });
