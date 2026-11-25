@@ -2196,7 +2196,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'SK-12 sammenlikner den lagrede varseldatoen som tekst (#766)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['return registrert === kalenderdag(k.varsel.sendt)', 'return sendt.dato === k.varsel.sendt'],
+      [
+        'return registrert === kalenderdag(k.varsel.sendt)',
+        'return varseletSendt.dato === k.varsel.sendt',
+      ],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },

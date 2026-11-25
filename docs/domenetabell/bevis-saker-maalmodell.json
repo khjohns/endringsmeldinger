@@ -12779,7 +12779,7 @@
     },
     {
       "id": "F-MM-OV-U118",
-      "forslag": "OV-U118: et vederlagskrav lagt til, sendt før totalentreprenørens siste krav i sporet, prøves mot kravversjonene sendt før det. Kontrollsaken er det samme brevet sendt etter det siste kravet",
+      "forslag": "OV-U118: et vederlagskrav lagt til, sendt før totalentreprenørens siste krav i sporet, prøves mot kravversjonene sendt før det. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
       "rader": ["KA-60"],
       "start": "krav_irreg",
       "steg": [
@@ -12800,13 +12800,13 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "kontroll",
-          "kilde": ["OV-U118", "KA-U56"],
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U56"],
           "prov": {
             "handling": "krav",
             "spor": "vederlag",
             "kravposter": [{ "post": "P1", "belop": 60000 }],
-            "sendt": "2026-09-21"
+            "sendt": "2026-09-20"
           },
           "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
         },
@@ -12826,7 +12826,7 @@
     },
     {
       "id": "F-MM-OV-U118-frist",
-      "forslag": "OV-U118: et fristkrav lagt til, sendt før kravet som tok med en frist til, tas imot uten den. Kontrollsaken er det samme brevet sendt etter det siste kravet",
+      "forslag": "OV-U118: et fristkrav lagt til, sendt før kravet som tok med en frist til, tas imot uten den. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
       "rader": ["KA-60"],
       "start": "krav_irreg",
       "steg": [
@@ -12852,13 +12852,13 @@
         },
         {
           "etter": 1,
-          "rolle": "kontroll",
-          "kilde": ["OV-U118", "KA-U76"],
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U76"],
           "prov": {
             "handling": "krav",
             "spor": "frist",
             "frister": [{ "navn": "Sluttfristen", "dager": 15 }],
-            "sendt": "2026-09-21"
+            "sendt": "2026-09-20"
           },
           "forventet": { "avvist": true, "regel": "FRISTENE" }
         }
@@ -12886,7 +12886,7 @@
         },
         {
           "etter": 0,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": ["OV-U121", "OV-U102"],
           "prov": {
             "handling": "krav",
