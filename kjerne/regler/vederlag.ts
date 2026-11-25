@@ -159,46 +159,61 @@ export type UbesvartIVederlaget =
       felt: 'vurdering' | 'godkjent_beloep' | 'varslet_i_tide' | 'begrenset_beloep';
     };
 
+/** Et spørsmål regelen stiller i svaret, besvart eller ikke (`stilteSpoersmaal`). */
+export type StiltIVederlaget = UbesvartIVederlaget & { besvart: boolean };
+
+/** Om beløpet for en kravpost stilles (KA-U66, KA-U72). */
+export const beloepetStilles = (etterRegel: boolean, aksepterer: unknown): boolean =>
+  !etterRegel && aksepterer !== false;
+
 /**
- * Spørsmålene i svaret regelen krever svar på, og som er ubesvart (#2025), i rekkefølgen
+ * Spørsmålene regelen stiller i svaret, besvart eller ikke (#2025, #2279), i rekkefølgen
  * `kontroller` fører dem: varselet etter § 34.1.2 der varslingsplikten gjelder (OV-U15), og for
- * hver post beløpet når posten har et fast beløp å vurdere (KA-U66, KA-U72), med beløpet
- * byggherren godkjenner ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en kravpost
- * (§ 34.2.2, KA-U57 (d)) og for posten etter annet ledd varselet etter § 34.1.3 og beløpet etter
- * begrensningen når den er påberopt. Svaret på varselet etter § 34.3.3 og § 34.4 er ikke påkrevd
- * (VS-U57, VS-U77).
+ * hver post beløpet når posten har et fast beløp å vurdere (`beloepetStilles`), med beløpet
+ * byggherren godkjenner ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en
+ * kravpost (§ 34.2.2, KA-U57 (d)) og for posten etter annet ledd varselet etter § 34.1.3 og
+ * beløpet etter begrensningen når den er påberopt. Svaret på varselet etter § 34.3.3 og § 34.4
+ * er ikke påkrevd (VS-U57, VS-U77) og står i `stiltIKravposten`.
  */
+export function stilteSpoersmaal(svar: Vederlagssvar, regler: Varslingsplikt): StiltIVederlaget[] {
+  const ut: StiltIVederlaget[] = [];
+  if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori))
+    ut.push({ post: null, felt: 'varslet_i_tide', besvart: !mangler(svar.varslet_i_tide) });
+  for (const p of svar.poster) {
+    // Beløpet byggherren godkjenner ved en delvis godkjenning er en del av svaret på beløpet.
+    const beloepet = (post: Postsvar) => {
+      const vurdert = !mangler(post.vurdering);
+      const gyldig = vurdert && erKravlinjeGyldig(post.vurdering, post.godkjent_beloep);
+      return [
+        { felt: 'vurdering' as const, besvart: vurdert },
+        ...(vurdert && (post.vurdering === 'delvis' || !gyldig)
+          ? [{ felt: 'godkjent_beloep' as const, besvart: gyldig }]
+          : []),
+      ];
+    };
+    if ('gjelder' in p) {
+      if (beloepetStilles(!!regelen(p), p.aksepterer))
+        for (const b of beloepet(p)) ut.push({ post: p, ...b });
+      ut.push({ post: p, felt: 'aksepterer', besvart: !mangler(p.aksepterer) });
+    } else {
+      for (const b of beloepet(p)) ut.push({ post: p, ...b });
+      if (p.saerskilt === 'produktivitet') {
+        ut.push({ post: p, felt: 'varslet_i_tide', besvart: !mangler(p.varslet_i_tide) });
+        // Valg 2 i #1047: beløpet etter begrensningen når den er påberopt.
+        if (p.varslet_i_tide === false)
+          ut.push({ post: p, felt: 'begrenset_beloep', besvart: !mangler(p.begrenset_beloep) });
+      }
+    }
+  }
+  return ut;
+}
+
+/** Spørsmålene regelen stiller i svaret som er ubesvart (`stilteSpoersmaal`). */
 export function ubesvarteSpoersmaal(
   svar: Vederlagssvar,
   regler: Varslingsplikt
 ): UbesvartIVederlaget[] {
-  const ut: UbesvartIVederlaget[] = [];
-  if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) && mangler(svar.varslet_i_tide))
-    ut.push({ post: null, felt: 'varslet_i_tide' });
-  for (const p of svar.poster) {
-    // Beløpet byggherren godkjenner ved en delvis godkjenning er en del av svaret på beløpet.
-    const beloepet = mangler(p.vurdering)
-      ? ('vurdering' as const)
-      : !erKravlinjeGyldig(p.vurdering, p.godkjent_beloep)
-        ? ('godkjent_beloep' as const)
-        : null;
-    if ('gjelder' in p) {
-      if (!regelen(p) && !ikkeAkseptert(p) && beloepet) ut.push({ post: p, felt: beloepet });
-      if (mangler(p.aksepterer)) ut.push({ post: p, felt: 'aksepterer' });
-    } else {
-      if (beloepet) ut.push({ post: p, felt: beloepet });
-      if (p.saerskilt === 'produktivitet' && mangler(p.varslet_i_tide))
-        ut.push({ post: p, felt: 'varslet_i_tide' });
-      // Valg 2 i #1047: beløpet etter begrensningen når den er påberopt.
-      if (
-        p.saerskilt === 'produktivitet' &&
-        p.varslet_i_tide === false &&
-        mangler(p.begrenset_beloep)
-      )
-        ut.push({ post: p, felt: 'begrenset_beloep' });
-    }
-  }
-  return ut;
+  return stilteSpoersmaal(svar, regler).filter((x) => !x.besvart);
 }
 
 /** Standpunktene for en kravpost etter en beregningsregel som kan åpne et lag (KA-U64, KA-U68). */

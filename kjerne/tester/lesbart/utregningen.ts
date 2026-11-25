@@ -303,7 +303,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'regelsett',
     'svaretFraVurderingene PRODUKTIVITETSFELT',
     [
-      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
+      'spor/vederlag/kommando.ts:spoersmaaleneIVederlaget',
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
@@ -319,20 +319,23 @@ export const UTREGNINGEN: Lesbar[] = [
     'PRODUKTIVITETSFELT',
     'kommando',
     'vurdering godkjent_beloep varslet_i_tide begrenset_beloep',
-    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+    ['spor/vederlag/kommando.ts:spoersmaaleneIVederlaget'],
   ],
   [
     'regler/vederlag.ts',
     'regelsett',
-    'ubesvarteSpoersmaal ubesvartIKravposten',
+    'stilteSpoersmaal stiltIKravposten ubesvartIKravposten',
     [
-      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
+      'spor/vederlag/kommando.ts:spoersmaaleneIVederlaget',
       // #2140: utfyllingen og `besvart` for oppgjørsformen byggherren mener.
       'spor/vederlag/kommando.ts:lagIVederlaget.regelGodtatt',
       'spor/vederlag/kommando.ts:besvart',
     ],
   ],
   ['UbesvartIVederlaget', 'regelsett', 'post felt'],
+  // #2279: spørsmålene regelen stiller i utkastet, besvart eller ikke.
+  ['StiltIVederlaget', 'regelsett', 'besvart'],
+  ['Utkastlag', 'kommando', 'stilt ubesvart', ['spor/vederlag/kommando.ts:lagIVederlaget']],
   [
     'regler/vederlag.ts:ubesvartIKravposten',
     'utsagn',
