@@ -14,7 +14,7 @@ export const BREVSTEG = {
   kontroller: 'Kontroller og send',
   punktene: 'Punktene i brevet',
   hilsen: 'Med vennlig hilsen',
-  /** KA-U49, designdelen (svar 2A 18.11 i #2194): «Når du sender» i svaret på vederlaget og fristen. */
+  /** KA-U87, designdelen (svar 2A 18.11 i #2194): «Når du sender» i svaret på vederlaget og fristen. */
   enigheten: 'Enigheten registreres ut fra valgene du har gjort.',
 };
 

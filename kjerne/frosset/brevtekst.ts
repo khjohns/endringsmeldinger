@@ -295,7 +295,7 @@ export function lagBrevtekst(
   return avsnitt;
 }
 
-/** Teksten i punktet «Forbehold» for svaret `s` (LV-U81, KA-U49, GR-U34): byggherrens forbehold, eller ingen. */
+/** Teksten i punktet «Forbehold» for svaret `s` (LV-U81, KA-U87, GR-U34): byggherrens forbehold, eller ingen. */
 interface Forbeholdet {
   s: Svar;
   tekst?: string;
@@ -393,7 +393,7 @@ function forholdetErUbesvart(s: Svar, { saken, nytt }: Pick<Tekst, 'saken' | 'ny
   );
 }
 
-/** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
+/** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U87 punkt 1). */
 const FORBEHOLDSPUNKTET = { punkt: FORBEHOLDET, overskrift: 'Forbehold' } as const;
 
 /**

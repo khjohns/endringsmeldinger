@@ -146,7 +146,6 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U45](../../plans/vedtak.md#ka-u45) | — | — | BF-03, BF-06 |
 | [KA-U46](../../plans/vedtak.md#ka-u46) | — | — | BF-01V |
 | [KA-U47](../../plans/vedtak.md#ka-u47) | — | — | BF-01V |
-| [KA-U49](../../plans/vedtak.md#ka-u49) | — | BF-08 te-har-mottatt-svaret, BF-08 te-har-godtatt-avslaget | — |
 | [KA-U51](../../plans/vedtak.md#ka-u51) | — | BF-08 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-10, BF-14 |
 | [KA-U52](../../plans/vedtak.md#ka-u52) | — | BF-02C te-vil-sende-ny-versjon, BF-44 te-har-mottatt-svaret | BF-10, BF-14 |
 | [KA-U53](../../plans/vedtak.md#ka-u53) | — | — | BF-14 |
@@ -178,6 +177,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U80](../../plans/vedtak.md#ka-u80) | — | BF-45 te-har-mottatt-svaret | — |
 | [KA-U81](../../plans/vedtak.md#ka-u81) | — | BF-45 te-har-mottatt-svaret | — |
 | [KA-U84](../../plans/vedtak.md#ka-u84) | BF-45 te-har-mottatt-svaret | BF-45 te-har-mottatt-svaret | BF-20 |
+| [KA-U87](../../plans/vedtak.md#ka-u87) | — | BF-08 te-har-mottatt-svaret, BF-08 te-har-godtatt-avslaget | — |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |
