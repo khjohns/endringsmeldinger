@@ -307,20 +307,14 @@ export interface Sporsbrevtekst {
   kravetOm?: string;
   /** Innledningen i byggherrens svar, uten setningene om byggherrens forrige svar (LV-U34, LV-U41, LV-U73). */
   innledning(krav: Krav, t: Pick<Tekst, 'j'>): string;
-  /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34). */
+  /** Punktene i byggherrens svar, i brevets rekkefølge (LV-U34, LV-U78). */
   temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
   /**
-   * Punktet et standpunkt i svaret står i (LV-U34), eller `undefined` når sporet ikke har et eget
+   * Punktet et standpunkt i svaret står i (LV-U34, LV-U78), eller `undefined` når sporet ikke har et eget
    * punkt for det. Et standpunkt om rettidighet står da i punktet for bestemmelsen, og et annet
    * avvises (`punktetFor`).
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
-  /**
-   * Punktene i byggherrens svar når brevet ikke følger skjemaets temaer, og punktet et standpunkt
-   * står i der (LV-U78). Uten dem følger brevet `temaer` og `punktet`.
-   */
-  punkteneISvaret?(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
-  punktetISvaret?(p: Standpunkt, krav: Krav): string | undefined;
   /**
    * Innsigelsen standpunktet er, som et senere lag bygger på, med navnet og postene den rammer
    * (OV-U32, OV-U117, LV-U79), eller `null`.

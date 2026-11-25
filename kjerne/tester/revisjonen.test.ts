@@ -1335,7 +1335,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 0]);
         expect(s.u().forstaatt).toBe(true);
         expect(laast(rad)[2]).toBe(
-          `2. Vederlagsjustering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).`
+          `2. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).`
         );
         expect(laast(rad).join('\n\n')).not.toContain('Videre subsidiært');
       });

@@ -483,7 +483,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
   return punkteneISvaret(s, nr, {
     ledd,
     fra,
-    temaene: sporet.punkteneISvaret?.(krav, t, regler) ?? sporet.temaer(krav, t, regler),
+    temaene: sporet.temaer(krav, t, regler),
     innledning: innledningen(s, krav, t),
     oversikten,
   });
@@ -678,7 +678,7 @@ const forrigeSvar = (s: Svar, j: Journalen): string =>
 
 /** Punktet standpunktet står i (LV-U34): punktet i sporet, eller bestemmelsen for rettidigheten. */
 function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
-  const punkt = (sporet.punktetISvaret ?? sporet.punktet)(p, krav);
+  const punkt = sporet.punktet(p, krav);
   if (punkt !== undefined) return punkt;
   if (p.art === 'rettidighet') return p.hjemmel;
   throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);

@@ -33,8 +33,6 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/frysing.ts',
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',
-      // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
-      'spor/vederlag/tekst.ts:svartemaerIVederlaget',
       // LV-U78: hjemmelen i overskriften for posten i brevet.
       'spor/vederlag/tekst.ts:svarpunkteneIVederlaget',
     ],

@@ -105,7 +105,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(vederlagssvar(false)).toEqual([
       iDelen('vederlag', INNLEDNING_VEDERLAG),
       `2. Varselet om vederlagsjustering (punkt\u00a034.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.`,
-      `3. Vederlagsjustering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `3. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       `4. Forbehold\n\n${FORBEHOLD_FOR.vederlag}`,
     ]);
   });
@@ -131,7 +131,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(laast(rad).slice(2)).toEqual([
       iDelen('vederlag', INNLEDNING_VEDERLAG),
       `2. Varselet om vederlagsjustering (punkt\u00a034.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.`,
-      `3. Vederlagsjustering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).`,
+      `3. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.2)\n\nSubsidiært, hvis ${MOT.varselet('34.1.2')} ikke fører frem\n\nByggherren aksepterer ikke totalentreprenørens tilbud (punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (punkt\u00a034.4).`,
       `4. Forbehold\n\n${FORBEHOLD_FOR.vederlag}`,
     ]);
   });
@@ -213,7 +213,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     expect(laast(rad)).toEqual([
       INNLEDNING_VEDERLAG,
-      `1. Vederlagsjustering (punkt\u00a034.1.1)\n\nByggherren aksepterer ikke totalentreprenørens tilbud (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (punkt\u00a034.3).`,
+      `1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\nByggherren aksepterer ikke totalentreprenørens tilbud (NS 8407 punkt\u00a034.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (punkt\u00a034.3).`,
       `2. Forbehold\n\n${FORBEHOLDET}`,
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
@@ -391,7 +391,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(vederlagssvar(true)).toEqual([
       iDelen('vederlag', INNLEDNING_VEDERLAG),
       `2. Varselet om vederlagsjustering (punkt\u00a034.1.2)\n\nByggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.`,
-      `3. Vederlagsjustering (punkt\u00a034.1.2)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `3. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.2)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       `4. Forbehold\n\n${FORBEHOLD_FOR.vederlag}`,
     ]);
   });
@@ -595,7 +595,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     expect(laast(rad)).toEqual([
       INNLEDNING_VEDERLAG,
-      `1. Vederlagsjustering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       `2. Forbehold\n\n${FORBEHOLDET}`,
     ]);
   });
@@ -770,7 +770,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
   // LV-U34, LV-U40 og OV-U32: punktet i vederlagssvaret, med lagslinjen foran standpunktene.
   // LV-U78: metoden og beløpet står i punktet for kravposten, i samme avsnitt.
   const delvis = (n: number, lag: string) =>
-    `${n}. Vederlagsjustering (punkt\u00a034.1.1)\n\n${lag}\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`;
+    `${n}. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${lag}\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`;
   // LV-U79: lagslinjen nevner innsigelsen i det nærmeste laget foran.
   const subsidiaert = (innsigelsen: string) => `Subsidiært, hvis ${innsigelsen} ikke fører frem`;
   const videre = (innsigelsen: string) =>
@@ -930,7 +930,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
     const rad = s.send('BH', { type: 'brev', svar: [vederlag(s)] });
     expect(laast(rad)).toEqual([
       INNLEDNING_VEDERLAG,
-      `1. Vederlagsjustering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `1. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       '2. Forbehold',
     ]);
   });
@@ -964,7 +964,7 @@ describe('forbeholdet når forholdet ikke er besvart (GR-U26)', () => {
     `Byggherren svarer på totalentreprenørens krav om justering av vederlaget i ${brev}. Beløpene i brevet er eks. mva.`;
   /** LV-U78: punktet for kravposten, med metoden og beløpet, nummer `n`. */
   const punktene = (n: number, beloep = '100 000') => [
-    `${n}. Vederlagsjustering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr(beloep)} av de krevde ${kr('125 000')}.`,
+    `${n}. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr(beloep)} av de krevde ${kr('125 000')}.`,
   ];
   const vederlag = (s: Sak) =>
     svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]);
@@ -1135,7 +1135,7 @@ describe('oppgjør som fast sum (LV-U31, LV-U32)', () => {
     const { tekst, b } = godkjentFor(100000);
     expect(tekst).toEqual([
       iDelen('vederlag', INNLEDNING_VEDERLAG),
-      `3. Vederlagsjustering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
+      `3. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       `4. Forbehold\n\n${FORBEHOLD_FOR.vederlag}`,
     ]);
     expect(tekst.join('\n')).not.toMatch(/akseptert|aksepterer/);
@@ -1146,7 +1146,7 @@ describe('oppgjør som fast sum (LV-U31, LV-U32)', () => {
     const { tekst, b } = godkjentFor(125000);
     expect(tekst).toEqual([
       iDelen('vederlag', INNLEDNING_VEDERLAG),
-      `3. Vederlagsjustering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('125 000')}.`,
+      `3. Vederlagsjustering for P1 Ny fundamentering (punkt\u00a034.1.1)\n\n${METODE_JA} Byggherren godkjenner ${kr('125 000')}.`,
       `4. Forbehold\n\n${FORBEHOLD_FOR.vederlag}`,
     ]);
     expect(b.sammenfall).toBe(true);

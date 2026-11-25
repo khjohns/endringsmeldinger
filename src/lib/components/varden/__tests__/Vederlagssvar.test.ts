@@ -213,7 +213,8 @@ describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
     expect(linjer.slice(0, 3)).toEqual([
       ['Du gjør gjeldende at varselet etter punkt 34.1.2 kom for sent'],
       [vilkaaret, 'Du godkjenner oppgjørsformen totalentreprenøren krever'],
-      [vilkaaret, 'Vederlagsjustering: du godkjenner 250 000 kr av 250 000 kr'],
+      // LV-U78: oppgjørsformen og beløpet står i samme punkt og lag, under ett vilkår.
+      ['Vederlagsjustering: du godkjenner 250 000 kr av 250 000 kr'],
     ]);
     expect(punktene.textContent).not.toMatch(/Prinsipalt|Subsidiært/);
   });
@@ -387,5 +388,25 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     expect(screen.getByRole('radio', { name: 'Deler av beløpet' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Varslet i tide' })).toBeChecked();
     expect(screen.queryByText(/ikke bygget/)).toBeNull();
+  });
+});
+
+describe('begrunnelsen for punktet for kravposten (LV-U71, LV-U78)', () => {
+  const feltet = () =>
+    screen.queryByRole('textbox', { name: /^Begrunnelse.*Vederlagsjustering for P1/s });
+
+  it('når byggherren mener en annen oppgjørsform og ikke svarer på beløpet, har punktet for posten et felt for begrunnelsen, og teksten står i brevet', async () => {
+    const sendt = await svarskjemaet(medVederlag);
+    await radio('Mener regningsarbeid (punkt 34.4)');
+    expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
+    await fireEvent.input(feltet()!, { target: { value: 'Mengdene er usikre.' } });
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(JSON.stringify(sendt[0]!.kommando)).toContain('Mengdene er usikre.');
+  });
+
+  it('kontrollsak: uten svar på oppgjørsformen har posten ikke et felt for begrunnelsen ennå', async () => {
+    await svarskjemaet(medVederlag);
+    expect(feltet()).toBeNull();
   });
 });

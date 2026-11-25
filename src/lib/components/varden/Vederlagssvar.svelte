@@ -10,7 +10,10 @@
     harProduktivitetspost,
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
-  import { BREVTEKSTEN_I_VEDERLAGET, svartemaerIVederlaget } from '#kjerne/spor/vederlag/tekst.ts';
+  import {
+    BREVTEKSTEN_I_VEDERLAGET,
+    svarpunkteneIVederlaget,
+  } from '#kjerne/spor/vederlag/tekst.ts';
   import { FORHOLDET, medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
@@ -145,17 +148,10 @@
   const lagene = $derived(
     stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag')
   );
-  const beloepSporsmaal = (felt: string) => felt === 'vurdering' || felt === 'godkjent_beloep';
   const foerstePunkt = $derived.by(() => {
     const sporsmaalene = lagene?.ubesvart ?? [];
     if (ubesvart(lagene, 'hovedkrav_varslet_i_tide')) return '34.1.2';
-    for (const p of poster) {
-      const iPosten = sporsmaalene.filter((s) => s.gjelder === p.id);
-      // Oppgjørsformen står foran beløpet i skjemaet, som kan vise dem i hvert sitt punkt.
-      if (iPosten.some((s) => !beloepSporsmaal(s.spoersmaal))) return 'metode';
-      if (iPosten.length && stilt(lagene, 'vurdering', p.id)) return p.betegnelse;
-    }
-    return undefined;
+    return poster.find((p) => sporsmaalene.some((s) => s.gjelder === p.id))?.betegnelse;
   });
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
@@ -277,37 +273,26 @@
     return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
   };
   const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
+  // Punktene i brevet skjemaet har spørsmål for: varselet etter § 34.1.2 og ett per kravpost
+  // (LV-U78).
   const svartemaene = $derived(
-    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((t) => {
-      // Med harde mellomrom, som overskriften i brevet (sprak.md).
-      const tema = { ...t, overskrift: t.overskrift && medHardeMellomrom(t.overskrift) };
-      if (tema.punkt === '34.1.2' || tema.punkt === 'metode') return [tema];
-      const post = poster.find((p) => p.betegnelse === tema.punkt);
-      if (!post) return [];
-      return [
-        {
-          ...tema,
-          overskrift: flere ? `${tema.overskrift} · ${post.betegnelse}` : tema.overskrift,
-        },
-      ];
-    })
+    svarpunkteneIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((t) =>
+      t.punkt === '34.1.2' || poster.some((p) => p.betegnelse === t.punkt)
+        ? // Med harde mellomrom, som overskriften i brevet (sprak.md).
+          [{ ...t, overskrift: t.overskrift && medHardeMellomrom(t.overskrift) }]
+        : []
+    )
   );
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(svartemaene, (punkt) => {
       if (!lagene) return false;
       if (punkt === '34.1.2') return hovedvarselet && valg.iTide !== null;
       const feil = [...lagene.ubesvart, ...lagene.ugyldig];
-      if (punkt === 'metode')
-        return (
-          lagene.standpunkter.some((s) => s.art === 'oppgjoersform' && s.besvart) &&
-          !feil.some((s) => s.gjelder && !beloepSporsmaal(s.spoersmaal))
-        );
       const post = poster.find((p) => p.betegnelse === punkt);
       return (
         !!post &&
-        stilt(lagene, 'vurdering', post.id) &&
-        lagene.standpunkter.some((s) => s.art === 'beloep' && s.gjelder === post.id && s.besvart) &&
-        !feil.some((s) => s.gjelder === post.id && beloepSporsmaal(s.spoersmaal))
+        lagene.standpunkter.some((s) => s.gjelder === post.id && s.besvart) &&
+        !feil.some((s) => s.gjelder === post.id)
       );
     })
   );
@@ -333,12 +318,7 @@
           ...begrunnelserISkjemaet
             .filter((p) => {
               if (p.punkt === '34.1.2') return hovedvarselet;
-              if (p.punkt === 'metode') return true;
-              const post = poster.find((q) => q.betegnelse === p.punkt);
-              if (!post || etterRegel(post)) return false;
-              return !nyttSvar
-                ? stilt(lagene, 'vurdering', post.id)
-                : linjer.some((l) => l.punkt === p.punkt);
+              return !nyttSvar || linjer.some((l) => l.punkt === p.punkt);
             })
             .map((p) => {
               const fraBrevet = linjer.filter((l) => l.punkt === p.punkt);
@@ -348,23 +328,11 @@
                   ? valg.iTide === null
                     ? []
                     : [valg.iTide ? SKJEMA.iTide : SKJEMA.forSent]
-                  : p.punkt === 'metode'
-                    ? poster.flatMap((q) => {
-                        const v = postvalget(valg, q.betegnelse);
-                        return v.form === null
-                          ? []
-                          : [
-                              v.form === 'godtar'
-                                ? SKJEMA.godkjenner(q.oppgjoersform)
-                                : SKJEMA.menerForm(v.form),
-                            ];
-                      })
-                    : post && p.besvart
-                      ? leselinje(post).slice(-1)
-                      : [];
+                  : post
+                    ? leselinje(post)
+                    : [];
               return {
                 ...p,
-                tillegg: flere && post ? post.betegnelse : undefined,
                 aktiv: foerstePunkt === p.punkt,
                 linjer: fraBrevet.length
                   ? fraBrevet
@@ -538,7 +506,6 @@
           feil={beloepFeil}
         />
       {/if}
-      {@render begrunnelse(p.betegnelse)}
     {/snippet}
 
     <!-- En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U66). BH tar stilling til
@@ -640,20 +607,19 @@
       </Spoersmaal>
     {/if}
 
+    <!-- LV-U78: ett punkt per kravpost i brevet, med oppgjørsformen, varselet og beløpet for
+       posten, og begrunnelsen for punktet sist. -->
     {#snippet postvalgene(p: Kravpost)}
       {@render metodevalgene(p)}
       {@const v = valg.poster[p.betegnelse]}
       {#if v && stilt(lagene, 'vurdering', p.id)}
         {@render beloepsvalgene(p, v, forutsetningene(p, 'oppgjoersform').length > 0)}
       {/if}
+      {@render begrunnelse(p.betegnelse)}
     {/snippet}
 
-    <Spoersmaal
-      id={`${uid}-sp-metode`}
-      aktiv={foerstePunkt === 'metode'}
-      tittel={overskrift('metode') ?? temanavn(svartemaene, 'metode')}
-    >
-      {#if flere}
+    {#if flere}
+      <Spoersmaal aktiv={poster.some((p) => foerstePunkt === p.betegnelse)}>
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
         <div class="snarveier">
           <Knapp variant="lenke" onclick={godkjennAlleFormer}>{godkjennAlleFormerTekst}</Knapp>
@@ -677,28 +643,19 @@
           foersteFelt={(p) => `${uid}-form-${p.betegnelse}`}
           valgene={postvalgene}
         />
-      {:else if poster[0]}
-        <p class="dempet">
-          {etterRegel(poster[0])
-            ? SKJEMA.teKreverRegel(poster[0])
-            : SKJEMA.teKrever(krevdTotalt, poster[0].pns)}
-        </p>
-        {@render metodevalgene(poster[0])}
-      {/if}
-      {@render begrunnelse('metode')}
-    </Spoersmaal>
-    {#if !flere && poster[0]}
+      </Spoersmaal>
+    {:else if poster[0]}
       {@const p = poster[0]}
-      {@const v = valg.poster[p.betegnelse]}
-      {#if v && stilt(lagene, 'vurdering', p.id)}
-        <Spoersmaal
-          id={`${uid}-sp-beloep`}
-          tittel={overskrift(p.betegnelse) ?? temanavn(svartemaene, p.betegnelse)}
-          aktiv={foerstePunkt === p.betegnelse}
-        >
-          {@render beloepsvalgene(p, v, forutsetningene(p, 'oppgjoersform').length > 0)}
-        </Spoersmaal>
-      {/if}
+      <Spoersmaal
+        id={`${uid}-sp-post`}
+        aktiv={foerstePunkt === p.betegnelse}
+        tittel={overskrift(p.betegnelse) ?? temanavn(svartemaene, p.betegnelse)}
+      >
+        <p class="dempet">
+          {etterRegel(p) ? SKJEMA.teKreverRegel(p) : SKJEMA.teKrever(krevdTotalt, p.pns)}
+        </p>
+        {@render postvalgene(p)}
+      </Spoersmaal>
     {/if}
   {/snippet}
 </Svarskjema>

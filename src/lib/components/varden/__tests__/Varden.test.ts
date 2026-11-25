@@ -33,7 +33,7 @@ import {
 registrerOppsett();
 
 describe('Varden med brukerforløpet BF-01', () => {
-  it('vederlagssvaret viser begge kravpostene i panelet og i brevet (#2234, KA-U53)', async () => {
+  it('vederlagssvaret viser begge kravpostene i panelet og i brevet, med ett punkt per post (#2234, LV-U78)', async () => {
     const journal = skrevet(medGrunnlag, 'TE', {
       type: 'krav',
       spor: 'vederlag',
@@ -73,10 +73,14 @@ describe('Varden med brukerforløpet BF-01', () => {
       onforkast: () => {},
     });
     const panel = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
-    // #2359 punkt 3: navnet på posten er det samme før og etter brevet. P2 står i samme punkt i
-    // brevet som P1, så bare P1 har nummeret.
-    expect(panel.getByText(/^\d+\. Vederlagsjustering \(punkt.34\.1\.\d\) · P1$/)).toBeVisible();
-    expect(panel.getByText(/^Vederlagsjustering \(punkt.34\.1\.\d\) · P2$/)).toBeVisible();
+    // #2359 punkt 3: navnet på posten er det samme før og etter brevet. LV-U78: hver kravpost har
+    // sitt eget punkt, med betegnelsen og beskrivelsen i overskriften.
+    expect(
+      panel.getByText(/^\d+\. Vederlagsjustering for P1 Peling \(punkt.34\.1\.\d\)$/)
+    ).toBeVisible();
+    expect(
+      panel.getByText(/^\d+\. Vederlagsjustering for P2 Utgraving \(punkt.34\.1\.\d\)$/)
+    ).toBeVisible();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(kontroller).toHaveBeenCalledOnce();
     const avsnitt = kontroller.mock.calls[0]![0].avsnitt as { punkt: string }[];
@@ -199,9 +203,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     const varselpunkt = screen
       .getByRole('group', { name: 'Kom varselet om kravet i tide?' })
       .closest('section');
-    const metodepunktet = screen.getByRole('group', { name: /^Oppgjørsformen/ }).closest('section');
+    const postpunktet = screen.getByRole('group', { name: /^Oppgjørsformen/ }).closest('section');
     expect(varselpunkt).toHaveClass('aktiv');
-    expect(metodepunktet).not.toHaveClass('aktiv');
+    expect(postpunktet).not.toHaveClass('aktiv');
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
     const punktpanelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
@@ -238,9 +242,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Beskjeden ved feltet forsvinner når feltet er besvart.
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     expect(varselpunkt).not.toHaveClass('aktiv');
-    expect(metodepunktet).toHaveClass('aktiv');
+    expect(postpunktet).toHaveClass('aktiv');
     expect(punktpanelet.getByRole('listitem', { current: 'step' })).toHaveTextContent(
-      /Beregningsmetode/
+      /Vederlagsjustering for P1/
     );
     expect(ved('Kom varselet om kravet i tide?')).toBeNull();
     expect(

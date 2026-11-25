@@ -869,7 +869,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
     // OV-U32: standpunktet uten virkning står uten etikett, foran lagene i punktet.
     expect(laast(rad).join(' ')).toContain(
-      '1. Vederlagsjustering (punkt\u00a034.1.1)\n\nByggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P2 ikke ble gitt eller kom for sent.'
+      '1. Vederlagsjustering for P2 Pumping (punkt\u00a034.1.1)\n\nByggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P2 ikke ble gitt eller kom for sent.'
     );
   });
 

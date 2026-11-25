@@ -4888,13 +4888,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F506',
-    feilklasse:
-      'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
+    feilklasse: 'overskriften på punktet for posten nevner ikke kravposten (KA-U57 (c), LV-U78)',
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
-        '        kravposter.length > 1\n          ? `Vederlagsjustering for',
-        '        false\n          ? `Vederlagsjustering for',
+        'overskrift: `Vederlagsjustering for ${kravpostnavnet(p)} (punkt',
+        'overskrift: `Vederlagsjustering (punkt',
       ],
     ],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
