@@ -14537,6 +14537,38 @@ tekst = '''
 Byggherren kan ikke gjøre gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent når byggherren ikke godtar regningsarbeid for kravposten. Kjernen avviser svaret.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U79"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2177"]
+klasse = "beslutning"
+bindende_i = ["vs-u77"]
+sporsmal = '''
+Den lagrede formen for byggherrens svar på et varsel som står alene (G-9 i BF-14). Byggherren kan i dag bare svare på et varsel som står alene med utsagnet `innsigelse` («for sent»). VS-U77 punkt 30 og 31 krever mer: standpunktet til justeringen; «i tide» sagt uttrykkelig; lagene etter VS-U4; at innsigelsen etter § 34.4 kan gis opp. Designdelen sier «samme svarskjema som svaret på kravet». Spørsmålet ordrett: [7150034987](https://github.com/khjohns/endringsmeldinger/issues/2177#issuecomment-7150034987).'''
+valgt = "1A"
+svar = '''
+«1A»'''
+forhold = [{ art = "bygger på", vedtak = "vs-u77" }]
+folge = '''
+Bygges i #2177 (G-9 i BF-14).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+svaret på varselet er et vanlig svar i et brev, i sporet vederlag. «gjelder» er varselet, ikke en kravversjon. Standpunktene er «rettidighet» og, for § 34.3.3, «justering», med «gjelder» lik varselet. Det gir ingen nye hendelsestyper eller felt, men «Svar.gjelder» og «Standpunkt.gjelder» kan peke på et varsel. Lagene, brevteksten, oppgivelsen og skjemaet gjenbrukes.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Et nytt utsagn (for eksempel «varselsvar») ved siden av «innsigelse», med egen hendelsesform, egen brevtekst og egen lesing.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1C"
+tekst = '''
+Bare § 34.4 nå. § 34.3.3 venter.'''
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
