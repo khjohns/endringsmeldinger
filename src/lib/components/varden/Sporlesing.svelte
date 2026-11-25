@@ -124,7 +124,10 @@
       ? hjemmelenForVarselet(u, h.gjelder)
       : null;
   const varselsvarene = $derived(iSporet.filter((h) => h.type === 'svare' && varselhjemmel(h)));
-  const svarPaaVarselet = $derived(varselsvarene[0] ?? null);
+  // Et svar uten skjema står under «Andre handlinger», også det første.
+  const svarPaaVarselet = $derived(
+    varselsvarene.find((h) => skjemaene.includes(h.noekkel)) ?? null
+  );
   // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
   // byggherrens svar TEs nye versjon (oppdragsgiver 06.11, #1649).
   const primaer = $derived(

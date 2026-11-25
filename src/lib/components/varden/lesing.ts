@@ -113,6 +113,7 @@ export function brevene(u: Utledning): Brevet[] {
         spor: Object.freeze(b.spor),
         avsnitt: b.avsnitt && Object.freeze([...b.avsnitt]),
         vedlegg: Object.freeze(b.vedlegg),
+        varselhjemler: Object.freeze(b.varselhjemler),
       })
     )
   ) as Brevet[];
