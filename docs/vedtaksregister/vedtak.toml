@@ -14625,6 +14625,104 @@ navn = "2B"
 tekst = '''
 Virkningen innsigelsen fra et tidligere svar gir standpunktene til posten i et svar som ikke sier noe om varselet, er en relasjon mellom brevene (MM-U50 punkt 10 og 11). Svaret fryser bare sine egne standpunkter. Om innsigelsen står, og hvilken virkning den gir, leses av svarene i saken etter gjeldende regler, også et svar som legges til senere med en tidligere dato. Om svaret godkjenner hele kravet, fryses med innsigelsene som sto da svaret ble sendt (MM-U50 punkt 3). En enighet har innholdet svaret hadde da den ble inngått (MM-U50 punkt 14). Løsningen avgjør ikke om innsigelsen sto (MM-U50 punkt 8). Forhold: presiserer MM-U50 punkt 10 og 11; samsvarer med VS-U77 punkt 12 sjette setning.'''
 
+[[gruppe.vedtak]]
+id = "VS-U82"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2012"]
+klasse = "beslutning"
+sporsmal = '''
+Spørsmål 1, ordrett slik det står i [kommentaren i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7165093933), stilt som spørsmål 20 og besvart 25.11.
+
+### Spørsmål 1 (prioritering). Hva bygges før første ekte sak?
+
+
+**Bakgrunn.** Beslutningsdelen i MM-U55 krever rettingen etter punkt 12 bygget før første ekte sak, altså det egne utsagnet som endrer en oppgitt dato. Det forutsetter en oppgitt dato, og det finnes ingen. [OV-U99](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u99) punkt 1 nevner rettingen av datoene i beslutningsdelen i MM-U55, men ikke opplysningen. VS-U76 har ingen beslutningsdel om når noe bygges.
+
+- **A.** «Før første ekte sak bygges både opplysningen om kunnskapsdatoen der VS-U76 punkt 12 sier den kan stå, og det egne utsagnet etter VS-U76 punkt 14, som supplerer en dato som ikke ble oppgitt eller oppgir en annen.» Forhold: utvider beslutningsdelen i MM-U55; presiserer OV-U99 punkt 1.
+- **B.** «Før første ekte sak bygges bare det egne utsagnet etter VS-U76 punkt 14, som supplerer en dato som ikke ble oppgitt eller oppgir en annen. Opplysningen i varselet, i vederlagskravet og i korrespondansen etter VS-U76 punkt 12 bygges senere.» Forhold: utvider beslutningsdelen i MM-U55 med suppleringen; presiserer OV-U99 punkt 1.
+
+**Anbefaling: A.** Med B må totalentreprenøren sende to brev for å varsle med datoen, og brevet med varselet kan ikke vise datoen ved siden av varseldatoen, som OV-U41 sier. A er større: feltet kommer i tre innganger i kjernen og i skjemaene.
+
+**Hva valget styrer:** omfanget av dette issuet og bestillingen for forløpet.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7167520518)): «Som anbefalt på spørsmålene». Valgt i spørsmål 20 (1 i kommentaren): A.'''
+forhold = [
+  { art = "utvider", vedtak = "mm-u55" },
+  { art = "presiserer", vedtak = "ov-u99" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «utvider beslutningsdelen i MM-U55; presiserer OV-U99 punkt 1.» Bygges i #2012.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Før første ekte sak bygges både opplysningen om kunnskapsdatoen der VS-U76 punkt 12 sier den kan stå, og det egne utsagnet etter VS-U76 punkt 14, som supplerer en dato som ikke ble oppgitt eller oppgir en annen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Før første ekte sak bygges bare det egne utsagnet etter VS-U76 punkt 14, som supplerer en dato som ikke ble oppgitt eller oppgir en annen. Opplysningen i varselet, i vederlagskravet og i korrespondansen etter VS-U76 punkt 12 bygges senere.'''
+
+[[gruppe.vedtak]]
+id = "VS-U83"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2012"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2, ordrett slik det står i [kommentaren i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7165093933), stilt som spørsmål 21 og besvart 25.11.
+
+### Spørsmål 2 (juridisk). Avviser løsningen en kunnskapsdato ut fra andre datoer i saken?
+
+
+**Bakgrunn.** Korrigeringen av datoen totalentreprenøren ble klar over forholdet, avvises når den nye datoen er senere enn varselet om forholdet (MM-U55 punkt 10). VS-U58 avviser et varsel oppgitt sendt før datoen i påberopelsen, og kaller det «en kontroll av at TEs egne datoer kan stemme, ikke en vurdering av om varselet kom i tide». Merknaden i VS-U58 sier at det avgjøres når kunnskapsdatoen bygges, om kontrollen gjelder den. MM-U55 punkt 12 har ingen avvisning, og «også når datoen er senere» der gjelder en dato senere enn den totalentreprenøren oppga før. VS-U76 punkt 13 sier at opplysningen er totalentreprenørens utsagn om når totalentreprenøren faktisk ble klar over det, og punkt 16 at løsningen ikke beregner rettidighet.
+
+- **A.** «Løsningen avviser ikke en kunnskapsdato etter punkt 34.1.3 ut fra andre datoer i saken.» Forhold: i tråd med MM-U55 punkt 12 og VS-U76 punkt 16; kontrollen i VS-U58 gjelder ikke kunnskapsdatoen.
+- **B.** «Løsningen avviser en kunnskapsdato etter punkt 34.1.3 som er senere enn datoen brevet med opplysningen er sendt: for et brev fra løsningen datoen det sendes, og for korrespondanse datoen den som legger den til, oppgir at den ble sendt. Andre datoer i saken sperrer ikke. Det er en kontroll av at totalentreprenørens egne datoer kan stemme, ikke en vurdering av om varselet kom i tide.» Forhold: snevrer inn MM-U55 punkt 12 og VS-U76 punkt 12 og 14; i tråd med VS-U58.
+- **C.** «Løsningen avviser en kunnskapsdato etter punkt 34.1.3 som er senere enn datoen for varselet den gjelder, som VS-U58 og punkt 10 i samlevedtaket for retting av sendt brev gjør for datoen i påberopelsen av forholdet.» Forhold: utvider VS-U58 og MM-U55 punkt 10 til kunnskapsdatoen; snevrer inn MM-U55 punkt 12 og VS-U76 punkt 12 og 14.
+
+**Anbefaling: B.** En dato etter sendingen kan ikke være når totalentreprenøren faktisk ble klar over det. Et særskilt varsel før totalentreprenøren ble klar over at utgiftene ville påløpe, er mulig, så C avviser en opplysning som kan være riktig. Den vurderingen er vår og ikke prøvd mot et vedtak.
+
+**Hva valget styrer:** avvisningene for opplysningen og utsagnet, og kontrollene i forløpet.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2012](https://github.com/khjohns/endringsmeldinger/issues/2012#issuecomment-7167520518)): «Som anbefalt på spørsmålene». Valgt i spørsmål 21 (2 i kommentaren): B.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "mm-u55" },
+  { art = "snevrer inn", vedtak = "vs-u76" },
+]
+folge = '''
+Forholdet slik det sto i alternativet B: «snevrer inn MM-U55 punkt 12 og VS-U76 punkt 12 og 14; i tråd med VS-U58.» Bygges i #2012.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Løsningen avviser ikke en kunnskapsdato etter punkt 34.1.3 ut fra andre datoer i saken.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Løsningen avviser en kunnskapsdato etter punkt 34.1.3 som er senere enn datoen brevet med opplysningen er sendt: for et brev fra løsningen datoen det sendes, og for korrespondanse datoen den som legger den til, oppgir at den ble sendt. Andre datoer i saken sperrer ikke. Det er en kontroll av at totalentreprenørens egne datoer kan stemme, ikke en vurdering av om varselet kom i tide.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Løsningen avviser en kunnskapsdato etter punkt 34.1.3 som er senere enn datoen for varselet den gjelder, som VS-U58 og punkt 10 i samlevedtaket for retting av sendt brev gjør for datoen i påberopelsen av forholdet.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "en kontroll av at TEs egne datoer kan stemme, ikke en vurdering av om varselet kom i tide"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "også når datoen er senere"
+utdrag = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
@@ -26231,6 +26329,424 @@ kilde = "hovedplanen"
 tekst = "Har hele svaret bare ett lag og ingen påberopelse, skrives laget uten etikett"
 utdrag = true
 
+
+[[gruppe.vedtak]]
+id = "OV-U118"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1, ordrett slik det står i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7165467868), stilt som spørsmål 14 og besvart 25.11. Svarkommentaren sier at spørsmålene ble stilt «med tekst fra kommentaren i kortet form». Den felles innledningen i kommentaren: «Gjelder et krav sendt utenfor løsningen før totalentreprenørens siste krav i sporet, med annet innhold.»
+
+## 1. Hva et vederlagskrav eller fristkrav sendt før det siste kravet i sporet prøves mot
+
+
+**Bakgrunn.** Totalentreprenøren sender 20.09 et vederlagskrav fra løsningen med to kravposter: P1 Riving (60 000 kr) og P2 Montering (40 000 kr). Deretter legger totalentreprenøren til et brev sendt utenfor løsningen 15.09, som krevde 60 000 kr for riving.
+
+Etter OV-U114 punkt 15 blir det eldre kravet ikke gjeldende, men datoen 15.09 gjelder som datoen kravet i sporet først ble sendt. I dag avvises brevet fordi Montering mangler og ikke er trukket. Det samme gjelder et eldre fristkrav med færre frister.
+
+Spørsmålet gjelder vederlag og fristforlengelse. Påberopelsen av forholdet står i spørsmål 4 og 5.
+
+**Belegg.**
+- OV-U114 punkt 5: «Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse.»
+- OV-U114 punkt 10: «Et valg godtas der den samme handlingen sendt fra løsningen ville vært godtatt.»
+- OV-U114 punkt 14: «Ellers avgjør rekkefølgen utsagnene ble lagt til i løsningen, sperrene og hva som er gjeldende, med unntakene i punkt 18 og 24.»
+- OV-U114 punkt 15: «Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet i sporet først ble sendt, etter OV-U102.»
+- OV-U114 punkt 16: «Et svar som legges til, gjelder kravversjonen det svarer på, og godtas når den var gjeldende da svaret ble sendt.»
+- OV-U114 punkt 17: «Hvilket krav eller svar som er gjeldende, avgjøres når det legges til, og en senere retting av datoen endrer det ikke.»
+- OV-U114 punkt 18: «Totalentreprenøren oppgir datoen for et varsel sendt utenfor løsningen ved å legge det til som korrespondanse med kategorien varsel: etter punkt 32.2, punkt 33.4, punkt 34.1.2, eller punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg.»
+- VS-U77 punkt 26: «Gjelder kravet som varsel etter punkt 33.4, 34.1.2 eller 34.1.3, tar løsningen ikke imot det samme brevet som varsel etter den bestemmelsen.»
+- OV-U115 punkt 21: «Skal en kravpost ut, trekker totalentreprenøren den uttrykkelig i den nye kravversjonen.» og «Hva trekket betyr, vurderer partene, og byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall.»
+- KA-U76: «Brevet sier at fristen trekkes, fristen kan tas med igjen i en senere versjon, og partene vurderer betydningen.»
+- NS 8407 punkt 5. Kontrakten sier ikke noe om rekkefølgen av kravversjoner.
+
+**A (anbefalt):** «Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves mot kravversjonene i sporet som var sendt da det ble sendt, som om det var sendt fra løsningen den dagen. Mot kravversjonene som er sendt etter det, prøves det ikke. Mangler det en kravpost eller en frist fra en kravversjon som var sendt før det, tas det imot bare når brevet sier at kravposten eller fristen trekkes, og trekket registreres da som brevet sier (OV-U115 punkt 21, KA-U76). Ellers legges brevet til som dokumentasjon, eller som varsel etter OV-U114 punkt 18.»
+- Forhold: snevrer inn OV-U114 punkt 14, presiserer OV-U114 punkt 10 og 15, og utvider OV-U115 punkt 21 og KA-U76 til et krav sendt før det siste kravet i sporet.
+
+**B:** «Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves ikke mot kravversjonene i sporet. Det står med kravpostene og fristene det har, uten trekk, og avgjør ikke hvilke kravposter eller frister de andre kravversjonene i sporet måtte ta med eller trekke.»
+- Forhold: snevrer inn OV-U114 punkt 14, utvider OV-U114 punkt 10, presiserer OV-U114 punkt 15, og snevrer inn OV-U115 punkt 21 og KA-U76 til kravversjoner som er gjeldende eller blir det.
+
+**C:** «Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet tas imot med virkning bare når det tar med eller trekker alle kravpostene og fristene i kravversjonene i sporet. Ellers legges brevet til som dokumentasjon, eller som varsel etter OV-U114 punkt 18.»
+- Forhold: presiserer OV-U114 punkt 10 og 14.
+
+**Hva valget styrer:**
+- om totalentreprenøren kan få et eldre krav med færre poster tatt imot uten å registrere et trekk som brevet ikke inneholdt;
+- om eksempelet godtas. Under A og B godtas det, fordi ingen kravversjon var sendt før 15.09. Under C avvises det, men brevet kan legges til som varsel (VS-U77 punkt 26 sperrer ikke, fordi kravet da ikke gjelder som varsel);
+- byggherrens svar på brevet: der kravet ikke tas imot med virkning (A når brevet ikke sier at posten trekkes, og C), kan byggherrens svar på det heller ikke legges til som svar (OV-U114 punkt 16), og en innsigelse i det svaret får ingen virkning i løsningen. Under B gjelder det ikke;
+- datoen: var en kravversjon sendt før brevet, gir datoen etter punkt 15 ingen ny virkning under noen av alternativene.
+
+**Anbefaling: A.**
+- Belegg: OV-U114 punkt 10 godtar det samme som løsningen ville godtatt den dagen, og punkt 16 prøver et svar som er lagt til, på dagen det ble sendt. A bruker samme regel for kravet. Etter OV-U114 punkt 5 går dokumentet foran skjemaet, så A registrerer bare et trekk brevet sier, og en part tjener ikke på å registrere et trekk som kan påberopes som avkall.
+- Kostnaden er at A snevrer inn punkt 14, og at byggherrens svar på et eldre krav som avvises, heller ikke får virkning. B unngår det siste, men lar et eldre krav stå uten et trekk som et krav fra løsningen samme dag ville måttet ha. C er forenlig med vedtakene, men tungvint.
+- Antakelse: at et eldre brev som ble sendt etter en kravversjon med flere poster, som regel sa at posten ble trukket. Det er ikke prøvd mot ekte brev.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7167477130)): «Som anbefalt på spørsmålene». Valgt i spørsmål 14 (1 i kommentaren): A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u114" },
+  { art = "presiserer", vedtak = "ov-u114" },
+  { art = "utvider", vedtak = "ov-u115" },
+  { art = "utvider", vedtak = "ka-u76" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «snevrer inn OV-U114 punkt 14, presiserer OV-U114 punkt 10 og 15, og utvider OV-U115 punkt 21 og KA-U76 til et krav sendt før det siste kravet i sporet.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves mot kravversjonene i sporet som var sendt da det ble sendt, som om det var sendt fra løsningen den dagen. Mot kravversjonene som er sendt etter det, prøves det ikke. Mangler det en kravpost eller en frist fra en kravversjon som var sendt før det, tas det imot bare når brevet sier at kravposten eller fristen trekkes, og trekket registreres da som brevet sier (OV-U115 punkt 21, KA-U76). Ellers legges brevet til som dokumentasjon, eller som varsel etter OV-U114 punkt 18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves ikke mot kravversjonene i sporet. Det står med kravpostene og fristene det har, uten trekk, og avgjør ikke hvilke kravposter eller frister de andre kravversjonene i sporet måtte ta med eller trekke.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet tas imot med virkning bare når det tar med eller trekker alle kravpostene og fristene i kravversjonene i sporet. Ellers legges brevet til som dokumentasjon, eller som varsel etter OV-U114 punkt 18.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et valg godtas der den samme handlingen sendt fra løsningen ville vært godtatt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ellers avgjør rekkefølgen utsagnene ble lagt til i løsningen, sperrene og hva som er gjeldende, med unntakene i punkt 18 og 24."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet i sporet først ble sendt, etter OV-U102."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et svar som legges til, gjelder kravversjonen det svarer på, og godtas når den var gjeldende da svaret ble sendt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvilket krav eller svar som er gjeldende, avgjøres når det legges til, og en senere retting av datoen endrer det ikke."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Totalentreprenøren oppgir datoen for et varsel sendt utenfor løsningen ved å legge det til som korrespondanse med kategorien varsel: etter punkt 32.2, punkt 33.4, punkt 34.1.2, eller punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Gjelder kravet som varsel etter punkt 33.4, 34.1.2 eller 34.1.3, tar løsningen ikke imot det samme brevet som varsel etter den bestemmelsen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Skal en kravpost ut, trekker totalentreprenøren den uttrykkelig i den nye kravversjonen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hva trekket betyr, vurderer partene, og byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Brevet sier at fristen trekkes, fristen kan tas med igjen i en senere versjon, og partene vurderer betydningen."
+
+[[gruppe.vedtak]]
+id = "OV-U119"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2, ordrett slik det står i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7165467868), stilt som spørsmål 15 og besvart 25.11. Svarkommentaren sier at spørsmålene ble stilt «med tekst fra kommentaren i kortet form». Den felles innledningen i kommentaren: «Gjelder et krav sendt utenfor løsningen før totalentreprenørens siste krav i sporet, med annet innhold.»
+
+## 2. Kravpostene i et vederlagskrav sendt før det siste kravet i sporet
+
+
+**Bakgrunn.** Kravet fra løsningen 20.09 har P1 Riving og P2 Montering. Brevet 15.09 som legges til, krever «Riving 50 000» og «Stillas 10 000». Spørsmålet er om «Riving» i brevet er samme kravpost som P1, hva «Stillas» er, og hva neste kravversjon må gjøre med «Stillas». Byggherren svarer per kravpost.
+
+**Belegg.**
+- OV-U115 punkt 19: «En kravpost har en fast betegnelse som følger den gjennom kravversjonene.»
+- OV-U115 punkt 21: «Skal en kravpost ut, trekker totalentreprenøren den uttrykkelig i den nye kravversjonen.» og «En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse. Hva trekket betyr, vurderer partene, og byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall.»
+- OV-U115 punkt 23: «Byggherren svarer per kravpost, og godkjenner, godkjenner delvis eller avslår beløpet per kravpost.»
+- OV-U114 punkt 9: «Løsningen kontrollerer ikke at dokumentet er det parten oppgir, og avgjør ikke om sendemåten oppfyller kravene i kontrakten til skriftlighet og adresse.»
+- OV-U114 punkt 15 (sitert under spørsmål 1).
+- NS 8407 punkt 34.1.1 og 34.2.1.
+
+**A (anbefalt):** «Når totalentreprenøren legger til et vederlagskrav sendt før det siste kravet i sporet, oppgir totalentreprenøren for hver kravpost i det om den er en kravpost i en annen kravversjon i sporet. Er den det, har den samme betegnelse. Er den ikke det, får den en ny betegnelse i sporet. Kravversjonene i sporet står som de ble sendt, og en kravpost som bare står i det eldre kravet, er ikke utelatt uten trekk i dem. En senere kravversjon kan ta den med under betegnelsen, men må ikke ta den med eller trekke den, fordi det eldre kravet ikke er gjeldende (OV-U114 punkt 15).»
+- Forhold: presiserer OV-U115 punkt 19 og 21 og OV-U114 punkt 15.
+
+**B:** «Kravpostene i et vederlagskrav sendt før det siste kravet i sporet hører bare til det kravet og er ikke kravpostene i de andre kravversjonene i sporet. Byggherrens svar på det eldre kravet tar stilling til dem, og en senere kravversjon kan ikke ta dem med som samme kravpost.»
+- Forhold: snevrer inn OV-U115 punkt 19 og 21 for et krav sendt før det siste kravet i sporet. Med B faller A i spørsmål 3.
+
+**Hva valget styrer:**
+- om byggherrens standpunkt til en post i et svar på det eldre kravet gjelder samme kravpost som i de andre kravversjonene;
+- om datoen kan gjelde varselet for posten (spørsmål 3);
+- om en post som bare står i brevet, kan føres videre uten et trekk som kan påberopes som avkall.
+
+Hvordan betegnelsen ser ut, og om en ny post bruker opp neste nummer, er design.
+
+**Anbefaling: A.**
+- Belegg: OV-U115 punkt 19 knytter betegnelsen til kravposten gjennom kravversjonene, og det eldre kravet er en kravversjon i sporet, selv om det ikke blir gjeldende. Løsningen kontrollerer ikke selv hva et dokument inneholder (OV-U114 punkt 9), så totalentreprenøren må oppgi om postene er de samme. Uten den siste setningen i A måtte neste kravversjon trekke «Stillas», og det trekket kunne påberopes som avkall (OV-U115 punkt 21).
+- Antakelse: at totalentreprenøren som regel vil knytte postene sammen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7167477130)): «Som anbefalt på spørsmålene». Valgt i spørsmål 15 (2 i kommentaren): A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u115" },
+  { art = "presiserer", vedtak = "ov-u114" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer OV-U115 punkt 19 og 21 og OV-U114 punkt 15.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når totalentreprenøren legger til et vederlagskrav sendt før det siste kravet i sporet, oppgir totalentreprenøren for hver kravpost i det om den er en kravpost i en annen kravversjon i sporet. Er den det, har den samme betegnelse. Er den ikke det, får den en ny betegnelse i sporet. Kravversjonene i sporet står som de ble sendt, og en kravpost som bare står i det eldre kravet, er ikke utelatt uten trekk i dem. En senere kravversjon kan ta den med under betegnelsen, men må ikke ta den med eller trekke den, fordi det eldre kravet ikke er gjeldende (OV-U114 punkt 15).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kravpostene i et vederlagskrav sendt før det siste kravet i sporet hører bare til det kravet og er ikke kravpostene i de andre kravversjonene i sporet. Byggherrens svar på det eldre kravet tar stilling til dem, og en senere kravversjon kan ikke ta dem med som samme kravpost.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En kravpost har en fast betegnelse som følger den gjennom kravversjonene."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Skal en kravpost ut, trekker totalentreprenøren den uttrykkelig i den nye kravversjonen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse. Hva trekket betyr, vurderer partene, og byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren svarer per kravpost, og godkjenner, godkjenner delvis eller avslår beløpet per kravpost."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen kontrollerer ikke at dokumentet er det parten oppgir, og avgjør ikke om sendemåten oppfyller kravene i kontrakten til skriftlighet og adresse."
+
+[[gruppe.vedtak]]
+id = "OV-U120"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 3, ordrett slik det står i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7165467868), stilt som spørsmål 16 og besvart 25.11. Svarkommentaren sier at spørsmålene ble stilt «med tekst fra kommentaren i kortet form». Den felles innledningen i kommentaren: «Gjelder et krav sendt utenfor løsningen før totalentreprenørens siste krav i sporet, med annet innhold.»
+
+## 3. Det eldre kravet som varsel for en kravpost
+
+
+**Bakgrunn.** Kravet fra løsningen 20.09 har P1 med regningsarbeid, og etter VS-U77 punkt 22 er det kravet varselet for P1, datert 20.09. Brevet 15.09 som legges til, hadde samme post med regningsarbeid. Spørsmålet er om varselet for P1 da gjelder fra 15.09. Spørsmålet forutsetter A i spørsmål 2.
+
+**Belegg.**
+- VS-U77 punkt 22: «Sender totalentreprenøren kravet, regnes det også som varselet. En kravpost med regningsarbeid eller justerte enhetspriser regnes som varsel for seg når den ikke hadde den oppgjørsformen i en tidligere versjon, enten posten er ny eller har skiftet oppgjørsform, og når den ikke viser til et varsel etter punkt 23.»
+- VS-U77 punkt 23: «En kravpost gjelder varselet den viser til. Et feil valg rettes i en ny kravversjon, men tidsrommet for svaret på et varsel som en sendt kravversjon har vist til, åpnes ikke igjen (punkt 33).»
+- VS-U77 punkt 26: «Et brev sendt utenfor løsningen som både varsler og krever i et spor, legges til med kategorien krav, og kravet gjelder som varselet etter de samme reglene som et krav sendt fra løsningen.»
+- VS-U80: «Har byggherren i svaret på kravet gjort gjeldende at varselet etter punkt 34.3.3 første ledd for en kravpost kom for sent, står innsigelsen mot hver senere kravversjon, men bare mot kravpostene som gjelder det samme varselet (punkt 22 og 23), også når varselet var selve kravet (punkt 7).»
+- OV-U102, samlet i OV-U114 punkt 15, som viser til den: «Løsningen regner med den når den avgjør hvilket varsel som kom først, som for det første kravet i sporet. En påberopelse av at varselet kom for sent, eller at det kom i tide, i et svar som er sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen den hadde og gjelder varselet den viste til (MM-U50 punkt 1). For svar som sendes fra eller legges til i løsningen etterpå, regnes det eldre kravet med.»
+- VS-U76 punkt 6a: «Datoen for det første kravet i sporet regnes etter punkt 15 i samlevedtaket for brev sendt utenfor løsningen, også i punkt 6–10.»
+- NS 8407 punkt 34.3.3 og 34.4.
+
+**A (anbefalt):** «Et vederlagskrav sendt før totalentreprenørens siste krav i sporet regnes som varselet etter punkt 34.3.3 eller 34.4 for en kravpost når fem vilkår er oppfylt: kravposten hadde regningsarbeid eller justerte enhetspriser i det eldre kravet; den er samme kravpost som i sporet; den viser ikke til et varsel i noen kravversjon i sporet; den hadde ikke den oppgjørsformen i en kravversjon sendt før det eldre kravet; og det eldre kravet er sendt før kravversjonen som ellers er varselet for posten. En innsigelse om at varselet for posten kom for sent, eller en påberopelse av at det kom i tide, i et svar sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen den hadde og gjelder varselet den viste til. Den følger ikke med til det eldre kravet. For svar etterpå regnes det eldre kravet med.»
+- Forhold: presiserer VS-U77 punkt 22 og 26 og VS-U80, og presiserer OV-U114 punkt 15 og VS-U76 punkt 6a.
+
+**B:** «Datoen for et krav sendt før totalentreprenørens siste krav i sporet gjelder bare varslene i VS-U76 punkt 6–10 (punkt 32.2, 33.4, 34.1.2 og 34.1.3), ikke varselet for en kravpost etter punkt 34.3.3 og 34.4. Vil totalentreprenøren at brevet skal gjelde som varselet for posten, retter totalentreprenøren valget etter VS-U77 punkt 23 i en ny kravversjon.»
+- Forhold: snevrer inn VS-U77 punkt 26 og presiserer OV-U114 punkt 15 og VS-U76 punkt 6a.
+
+**Hva valget styrer:** hvilken dato byggherren tar stilling til når byggherren påberoper at varselet for posten kom for sent, og om en innsigelse byggherren alt har gjort gjeldende, står mot den nye datoen. Under A står den ikke mot den nye datoen. Vil byggherren påberope at også det eldre brevet kom for sent, gjør byggherren det i et nytt svar. Hvordan løsningen viser byggherren dette, er design.
+
+**Anbefaling: A.**
+- Belegg: VS-U77 punkt 26 sier at et krav som legges til, gjelder som varsel etter de samme reglene som et krav sendt fra løsningen, og etter punkt 22 er kravet varselet for en post som ikke er varslet før. OV-U102 regner med datoen til det eldre kravet for svar som sendes etterpå. Begrensningen til poster som ikke viser til et varsel, holder punkt 23.
+- Under B må samme brev både legges til som krav og velges som varsel i en ny kravversjon. Punkt 23 åpner for det, men det er tungvint.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7167477130)): «Som anbefalt på spørsmålene». Valgt i spørsmål 16 (3 i kommentaren): A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u77" },
+  { art = "presiserer", vedtak = "vs-u80" },
+  { art = "presiserer", vedtak = "ov-u114" },
+  { art = "presiserer", vedtak = "vs-u76" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer VS-U77 punkt 22 og 26 og VS-U80, og presiserer OV-U114 punkt 15 og VS-U76 punkt 6a.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et vederlagskrav sendt før totalentreprenørens siste krav i sporet regnes som varselet etter punkt 34.3.3 eller 34.4 for en kravpost når fem vilkår er oppfylt: kravposten hadde regningsarbeid eller justerte enhetspriser i det eldre kravet; den er samme kravpost som i sporet; den viser ikke til et varsel i noen kravversjon i sporet; den hadde ikke den oppgjørsformen i en kravversjon sendt før det eldre kravet; og det eldre kravet er sendt før kravversjonen som ellers er varselet for posten. En innsigelse om at varselet for posten kom for sent, eller en påberopelse av at det kom i tide, i et svar sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen den hadde og gjelder varselet den viste til. Den følger ikke med til det eldre kravet. For svar etterpå regnes det eldre kravet med.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Datoen for et krav sendt før totalentreprenørens siste krav i sporet gjelder bare varslene i VS-U76 punkt 6–10 (punkt 32.2, 33.4, 34.1.2 og 34.1.3), ikke varselet for en kravpost etter punkt 34.3.3 og 34.4. Vil totalentreprenøren at brevet skal gjelde som varselet for posten, retter totalentreprenøren valget etter VS-U77 punkt 23 i en ny kravversjon.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Sender totalentreprenøren kravet, regnes det også som varselet. En kravpost med regningsarbeid eller justerte enhetspriser regnes som varsel for seg når den ikke hadde den oppgjørsformen i en tidligere versjon, enten posten er ny eller har skiftet oppgjørsform, og når den ikke viser til et varsel etter punkt 23."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En kravpost gjelder varselet den viser til. Et feil valg rettes i en ny kravversjon, men tidsrommet for svaret på et varsel som en sendt kravversjon har vist til, åpnes ikke igjen (punkt 33)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et brev sendt utenfor løsningen som både varsler og krever i et spor, legges til med kategorien krav, og kravet gjelder som varselet etter de samme reglene som et krav sendt fra løsningen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Har byggherren i svaret på kravet gjort gjeldende at varselet etter punkt 34.3.3 første ledd for en kravpost kom for sent, står innsigelsen mot hver senere kravversjon, men bare mot kravpostene som gjelder det samme varselet (punkt 22 og 23), også når varselet var selve kravet (punkt 7)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen regner med den når den avgjør hvilket varsel som kom først, som for det første kravet i sporet. En påberopelse av at varselet kom for sent, eller at det kom i tide, i et svar som er sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen den hadde og gjelder varselet den viste til (MM-U50 punkt 1). For svar som sendes fra eller legges til i løsningen etterpå, regnes det eldre kravet med."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Datoen for det første kravet i sporet regnes etter punkt 15 i samlevedtaket for brev sendt utenfor løsningen, også i punkt 6–10."
+
+[[gruppe.vedtak]]
+id = "OV-U121"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 4, ordrett slik det står i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7165467868), stilt som spørsmål 17 og besvart 25.11. Svarkommentaren sier at spørsmålene ble stilt «med tekst fra kommentaren i kortet form». Den felles innledningen i kommentaren: «Gjelder et krav sendt utenfor løsningen før totalentreprenørens siste krav i sporet, med annet innhold.»
+
+## 4. En påberopelse av forholdet sendt før den siste, med et annet forhold eller en annen endringsordre
+
+
+**Bakgrunn.** Påberopelsen fra løsningen 10.09 gjelder en endring etter pålegg. Brevet 05.09 som legges til, påberopte i stedet svikt i byggherrens ytelse, eller en annen endringsordre. I dag avvises det.
+
+**Belegg.**
+- GR-U40 punkt 7: «Når totalentreprenøren har sendt påberopelsen, står forholdet og gruppen det hører til, og i en påberopelse av en endringsordre etter punkt 31.3, hvilken endringsordre påberopelsen gjelder. En ny versjon kan ikke endre dem.»
+- GR-U40 punkt 9: «Vil totalentreprenøren påberope et annet forhold eller en annen endringsordre, oppretter totalentreprenøren en ny sak.»
+- OV-U114 punkt 10, 15 og 18 (sitert under spørsmål 1).
+- VS-U76 punkt 6 andre ledd: «I en ny sak etter punkt 9 i samlevedtaket for påberopelsen av forholdet kan totalentreprenøren oppgi brevet med påberopelsen i den gamle saken som eget varsel etter punkt 32.2, også om det er sendt fra løsningen.»
+- NS 8407 punkt 31.3 og 33.1.
+
+**A (anbefalt):** «En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken, med et annet forhold, en annen gruppe eller en annen endringsordre, tas ikke imot som påberopelse i saken. Brevet legges til som dokumentasjon eller som varsel etter punkt 32.2 (OV-U114 punkt 18). Et annet forhold påberopes i en ny sak etter GR-U40 punkt 9, og der kan brevet oppgis som varsel etter VS-U76 punkt 6 andre ledd.»
+- Forhold: presiserer GR-U40 punkt 7 og 9 og avgrenser OV-U114 punkt 15.
+
+**B:** «En slik påberopelse tas imot. Den blir ikke gjeldende, men datoen den ble sendt, gjelder som datoen påberopelsen i saken først ble sendt (OV-U114 punkt 15). Påberopelsen i løsningen står som gjeldende med forholdet den har, og løsningen avgjør ikke hvilket forhold som først ble påberopt, eller om det er samme forhold.»
+- Forhold: snevrer inn GR-U40 punkt 7 og utvider OV-U114 punkt 15 til en påberopelse med et annet forhold.
+
+**Hva valget styrer:** om én sak kan vise to forhold, og om datoen til det eldre brevet gjelder som første varsel for et forhold saken ikke gjelder.
+
+**Anbefaling: A.** Belegg: GR-U40 punkt 7 og 9 legger ett forhold til én sak. OV-U114 punkt 15 gjelder «kravet i sporet», og et brev med et annet forhold er ikke det. Gjelder brevet likevel som varsel for forholdet, kan totalentreprenøren legge det til som varsel etter OV-U114 punkt 18, og løsningen avgjør ikke om det er samme forhold (OV-U114 punkt 9).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7167477130)): «Som anbefalt på spørsmålene». Valgt i spørsmål 17 (4 i kommentaren): A.'''
+forhold = [
+  { art = "presiserer", vedtak = "gr-u40" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer GR-U40 punkt 7 og 9 og avgrenser OV-U114 punkt 15.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken, med et annet forhold, en annen gruppe eller en annen endringsordre, tas ikke imot som påberopelse i saken. Brevet legges til som dokumentasjon eller som varsel etter punkt 32.2 (OV-U114 punkt 18). Et annet forhold påberopes i en ny sak etter GR-U40 punkt 9, og der kan brevet oppgis som varsel etter VS-U76 punkt 6 andre ledd.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En slik påberopelse tas imot. Den blir ikke gjeldende, men datoen den ble sendt, gjelder som datoen påberopelsen i saken først ble sendt (OV-U114 punkt 15). Påberopelsen i løsningen står som gjeldende med forholdet den har, og løsningen avgjør ikke hvilket forhold som først ble påberopt, eller om det er samme forhold.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Når totalentreprenøren har sendt påberopelsen, står forholdet og gruppen det hører til, og i en påberopelse av en endringsordre etter punkt 31.3, hvilken endringsordre påberopelsen gjelder. En ny versjon kan ikke endre dem."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vil totalentreprenøren påberope et annet forhold eller en annen endringsordre, oppretter totalentreprenøren en ny sak."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I en ny sak etter punkt 9 i samlevedtaket for påberopelsen av forholdet kan totalentreprenøren oppgi brevet med påberopelsen i den gamle saken som eget varsel etter punkt 32.2, også om det er sendt fra løsningen."
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U122"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 5, ordrett slik det står i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7165467868), stilt som spørsmål 18 og besvart 25.11. Svarkommentaren sier at spørsmålene ble stilt «med tekst fra kommentaren i kortet form». Den felles innledningen i kommentaren: «Gjelder et krav sendt utenfor løsningen før totalentreprenørens siste krav i sporet, med annet innhold.»
+
+## 5. En påberopelse av forholdet sendt før den siste, med en annen dato for pålegget eller kunnskapen
+
+
+**Bakgrunn.** Påberopelsen fra løsningen 10.09 opplyser at pålegget ble mottatt 01.09. Brevet 05.09 som legges til, oppga 30.08. I dag avvises det, fordi en ny versjon ikke kan endre datoen.
+
+**Belegg.**
+- MM-U55 punkt 10: «Korrigeringen avvises når den nye datoen er senere enn datoen for et varsel om forholdet som er sendt eller registrert, eller for kravet som er det første varselet løsningen kjenner (samlevedtaket for varslingsdatoen punkt 6–8).» og «Den nye opplysningen erstatter ikke innholdet i tidligere brev eller premissene i tidligere svar. En ny versjon av påberopelsen av forholdet kan ikke endre datoen.»
+- GR-U40 punkt 8: «Datoen for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet, følger MM-U52 punkt 10, og betegnelsen på endringsordren MM-U52 punkt 14 siste setning.» MM-U55 har opphevet MM-U52, så henvisningen til MM-U52 punkt 10 gjelder nå MM-U55 punkt 10.
+- VS-U76 punkt 5: «Datoen endres bare etter samlevedtaket for retting av sendt brev (punkt 10 der).»
+- VS-U76 punkt 6a (sitert under spørsmål 3).
+- OV-U114 punkt 10, 15, 17 og 18 (sitert under spørsmål 1).
+- NS 8407 punkt 32.2 og 34.1.2.
+
+**A (anbefalt):** «En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken tas imot også når den oppgir en annen dato for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet. Datoen står som opplysningen i det brevet og endrer ikke totalentreprenørens siste opplysning, som bare endres ved en korrigering etter MM-U55 punkt 10. Er totalentreprenørens siste opplysning senere enn datoen brevet ble sendt, tas brevet ikke imot før opplysningen er korrigert etter MM-U55 punkt 10, fordi brevet ellers blir det første varselet med en dato før opplysningen (VS-U76 punkt 6a).»
+- Forhold: presiserer MM-U55 punkt 10, VS-U76 punkt 5 og OV-U114 punkt 15.
+
+**B:** «En slik påberopelse tas ikke imot med virkning når datoen avviker fra totalentreprenørens siste opplysning. Brevet legges til som dokumentasjon eller som varsel etter punkt 32.2 (OV-U114 punkt 18), og datoen rettes eventuelt ved en korrigering etter MM-U55 punkt 10.»
+- Forhold: utvider MM-U55 punkt 10 til en påberopelse sendt før den siste.
+
+**Hva valget styrer:** om et eldre brev med en annen dato kan få virkning som påberopelse, og om byggherren ser begge datoene. Under B kan brevet fortsatt få virkning som varsel etter punkt 32.2.
+
+**Anbefaling: A.**
+- Belegg: MM-U55 punkt 10 og VS-U76 punkt 5 gjelder en endring av opplysningen etter at den er gitt, men det eldre brevet er sendt før og sa det det sa da (MM-U50). OV-U114 punkt 17 sier at det som er gjeldende, avgjøres når påberopelsen legges til, så den siste opplysningen står. Den siste setningen i A holder avvisningen i MM-U55 punkt 10.
+- 5 A bruker samme prinsipp som 1 A på forholdet: prøvd den dagen brevet ble sendt, var ingen påberopelse sendt, og datoen kunne ikke stride mot noe (OV-U114 punkt 10). 5 A følger likevel ikke av 1 A, fordi 1 A bare gjelder vederlag og frist.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett ([svaret i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-7167477130)): «Som anbefalt på spørsmålene». Valgt i spørsmål 18 (5 i kommentaren): A.'''
+forhold = [
+  { art = "presiserer", vedtak = "mm-u55" },
+  { art = "presiserer", vedtak = "vs-u76" },
+  { art = "presiserer", vedtak = "ov-u114" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer MM-U55 punkt 10, VS-U76 punkt 5 og OV-U114 punkt 15.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken tas imot også når den oppgir en annen dato for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet. Datoen står som opplysningen i det brevet og endrer ikke totalentreprenørens siste opplysning, som bare endres ved en korrigering etter MM-U55 punkt 10. Er totalentreprenørens siste opplysning senere enn datoen brevet ble sendt, tas brevet ikke imot før opplysningen er korrigert etter MM-U55 punkt 10, fordi brevet ellers blir det første varselet med en dato før opplysningen (VS-U76 punkt 6a).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En slik påberopelse tas ikke imot med virkning når datoen avviker fra totalentreprenørens siste opplysning. Brevet legges til som dokumentasjon eller som varsel etter punkt 32.2 (OV-U114 punkt 18), og datoen rettes eventuelt ved en korrigering etter MM-U55 punkt 10.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Korrigeringen avvises når den nye datoen er senere enn datoen for et varsel om forholdet som er sendt eller registrert, eller for kravet som er det første varselet løsningen kjenner (samlevedtaket for varslingsdatoen punkt 6–8)."
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den nye opplysningen erstatter ikke innholdet i tidligere brev eller premissene i tidligere svar. En ny versjon av påberopelsen av forholdet kan ikke endre datoen."
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Datoen for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet, følger MM-U52 punkt 10, og betegnelsen på endringsordren MM-U52 punkt 14 siste setning."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Datoen endres bare etter samlevedtaket for retting av sendt brev (punkt 10 der)."
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
