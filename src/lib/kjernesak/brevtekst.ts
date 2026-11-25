@@ -56,6 +56,11 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
     fristdatoer?: readonly Fristdato[];
     /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
     sakerIkkeForstaatt?: readonly string[];
+    /**
+     * Klokka i basen, som serveren daterer brevet med, og nettleserens klokke da den ble lest
+     * (U-5 i BF-46, svar C 25.11 i #2340). Uten den, som i demoruta, brukes nettleserens klokke.
+     */
+    klokka?: { iBasen: string; iNettleserenVedLastingen: number };
   };
 
 /**
@@ -80,15 +85,25 @@ export type GjeldendeFristdato = Fristdato & {
   forlengelserIAndreSaker: NonNullable<Fristdato['forlengelser']>;
 };
 
+/**
+ * Tidspunktet brevkontrollen lager teksten med: klokka i basen ved lastingen pluss tiden som har
+ * gått i nettleseren siden (U-5 i BF-46, svar C 25.11 i #2340). En maskinklokke som går feil,
+ * flytter da ikke datoen.
+ */
+const tidspunktFor = ({ klokka }: Saksmerking): Date =>
+  klokka
+    ? new Date(Date.parse(klokka.iBasen) + Date.now() - klokka.iNettleserenVedLastingen)
+    : new Date();
+
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
-  // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
+  // Aktøren, klokkeslettet og ID-ene settes av serveren og endrer ikke den låste teksten.
   sakskode: merking.sakskode,
   kontraktsforkortelse: merking.kontraktsforkortelse,
   sakId,
   aktoerId: '',
   part,
   teamId: null,
-  tidspunkt: () => new Date(),
+  tidspunkt: () => tidspunktFor(merking),
   nyId: () => crypto.randomUUID(),
   kontraktsfrister: merking.kontraktsfrister ?? [],
 });
@@ -163,7 +178,7 @@ export function kravMotNySak(
     sak_id: sakId,
     event_type: 'sak_opprettet',
     versjon: 1,
-    tidsstempel: new Date().toISOString(),
+    tidsstempel: tidspunktFor(merking).toISOString(),
     aktor_id: '',
     aktor_rolle: part,
     aktor_team_id: null,
