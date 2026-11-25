@@ -1,7 +1,7 @@
-import { opplistet, PARTEN } from '#kjerne/frosset/brevdeler.ts';
+import { opplistet, PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
+import type { Kravpost, Kravpostvarselhjemmel, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
@@ -57,11 +57,14 @@ export const SKJEMA = haerdet({
   ingenInnsigelse: 'Ingen innsigelse.',
   ikkeGittEllerForSent: 'Du gjør gjeldende at varselet ikke ble gitt eller kom for sent.',
   gjoerGjeldendeVarsel: 'Varselet ble ikke gitt eller kom for sent',
+  // Svaret på varselet som står alene (VS-U77 punkt 31, S-16).
+  varseletKomForSent: 'Du gjør gjeldende at varselet kom for sent.',
+  gjoerGjeldendeForSent: 'Varselet kom for sent',
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
   // VS-U77 punkt 9, 10, 30 og 31: innsigelsen mot varselet for kravposten står fra et tidligere svar.
   varselJustering: 'Varselet om justering av enhetsprisene (punkt 34.3.3).',
-  innsigelsenStaar: (b: Brevref, hjemmel: '34.3.3' | '34.4') =>
-    `Du har gjort gjeldende i ${brevref(b)} at varselet ${hjemmel === '34.4' ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}.`,
+  innsigelsenStaar: (b: Brevref, hjemmel: Kravpostvarselhjemmel, ikkeGitt = true) =>
+    `Du har gjort gjeldende i ${brevref(b)} at varselet ${innsigelsesordene(hjemmel, ikkeGitt)}.`,
   gjentarInnsigelsen: 'Svaret gjentar innsigelsen.',
   girOppInnsigelsen: 'Du gir opp innsigelsen.',
   girOppInnsigelsenKnapp: 'Gi opp innsigelsen',
@@ -69,6 +72,9 @@ export const SKJEMA = haerdet({
   // VS-U77 punkt 8 og 30: «i tide» står mot senere kravversjoner.
   varseletITideFoer: (b: Brevref) => `Du har godkjent i ${brevref(b)} at varselet kom i tide.`,
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
+  // Spørsmålene i et punkt med egen overskrift, i svaret på varselet som står alene.
+  varselSpoersmaalKort: 'Kom varselet i tide?',
+  justeringSpoersmaalKort: 'Godtar du justeringen av enhetsprisene?',
   godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',
   /** Til høyre på linja med labelen eller spørsmålet over et valgfritt felt (`Valgfri`). */
@@ -143,6 +149,32 @@ export const SKJEMA = haerdet({
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
+});
+
+/** Varselet etter punkt 34.3.3 eller 34.4 med navnet i skjemaene for svaret på det. */
+const VARSELNAVNET = {
+  '34.3.3': 'varselet om justering av enhetsprisene',
+  '34.4': 'varselet om regningsarbeid',
+} as const satisfies Record<Kravpostvarselhjemmel, string>;
+
+/**
+ * Ordene for innsigelsen mot varselet, med `ikkeGitt` for innsigelsen etter § 34.4 i svaret på
+ * kravposten (VS-U77 punkt 31).
+ */
+export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = true) =>
+  hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
+
+/** Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14, VS-U79). */
+export const VARSELSVARET = haerdet({
+  punktet: (h: Kravpostvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
+  // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
+  manglerInnsigelse:
+    'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
+  // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
+  svar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
+    `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
+  nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
+    `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
 });
 
 /**
