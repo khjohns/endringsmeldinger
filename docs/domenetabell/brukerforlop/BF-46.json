@@ -2,43 +2,271 @@
   "id": "BF-46",
   "tittel": "TE godtar byggherrens svar etter akseptfristen",
   "brukerhistorie": "Akseptfristen i byggherrens svar på kravet om fristforlengelse er ute. TE åpner saken, ser akseptfristen med datoen som før, og godtar svaret. I brevkontrollen ser TE at brevet sier at aksepten er sendt etter akseptfristen, og at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret. Byggherren ser aksepten med setningen og kan sende et innlegg eller et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Samme sak som BF-45 ved kontrollpunktet te-har-mottatt-svaret, men tid har gått: datoen i dag er etter akseptfristen i byggherrens svar."
+    "beskrivelse": "TE har påberopt forholdet i brev 1 uten svar, varslet etter punkt 33.4 i brev 2 og krevd dager for tre frister i brev 3, og byggherren har svart i brev 4 med tre lag og akseptfrist 15. oktober 2026, som i BF-45. Så går tid til dagen etter akseptfristen (steget tiden_gaar). I saksruta ligger stegene før det i fortiden, og akseptfristen er en hverdag før i dag."
   },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+    },
+    {
+      "handling": "varsel",
+      "spor": "frist",
+      "navn": "V-f1"
+    },
+    {
+      "handling": "krav",
+      "spor": "frist",
+      "frister": [
+        {
+          "frist_id": 2,
+          "dager": 25
+        },
+        {
+          "frist_id": 1,
+          "dager": 20
+        },
+        {
+          "nummer": "8",
+          "navn": "Overtakelse av utomhusarbeider",
+          "dager": 20
+        }
+      ],
+      "navn": "K-f1",
+      "utdypning": "Pelingen ligger på kritisk linje. Fremdriftsplanen med kritisk linje er vedlagt."
+    },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        {
+          "spor": "frist",
+          "navn": "S-f1",
+          "varsel_i_tide": false,
+          "hindring": true,
+          "spesifisering_i_tide": false,
+          "frister": [
+            {
+              "dager": 0,
+              "maatte_forstaa": 0
+            },
+            {
+              "dager": 14,
+              "maatte_forstaa": 8
+            },
+            {
+              "dager": 14,
+              "maatte_forstaa": 8
+            }
+          ],
+          "akseptfrist": "2026-10-15",
+          "utdypninger": {
+            "hindring": "Fremdriftsplanen viser at pelingen ligger på kritisk linje for overtakelsen.",
+            "Mekanisk ferdigstillelse": "Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
+          }
+        }
+      ]
+    },
+    {
+      "handling": "tiden_gaar",
+      "til": "2026-10-16"
+    },
+    {
+      "handling": "aksept",
+      "spor": "frist",
+      "navn": "D5"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-etter-akseptfristen",
+      "etter": 5,
+      "beskrivelse": "Dagen etter akseptfristen i byggherrens svar på kravet om fristforlengelse. Totalentreprenøren har ikke svart.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "HF-U23"
+          ],
+          "forventet": {
+            "svar.S-f1.akseptfrist": "2026-10-15",
+            "enighet.frist": null
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "HF-U24",
+            "HF-U23"
+          ],
+          "forventet": {
+            "gjeldende_svar.frist": "S-f1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:frist"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser akseptfristen ved byggherrens svar som før fristen, med datoen og leveringskvitteringen, uten «utløpt», farge eller relativ tid (U-1).",
+          "kilde": [
+            "HF-U23"
+          ]
+        },
+        {
+          "tekst": "TE ser «Godta svaret» ved byggherrens svar som før fristen, og knappen går rett til brevkontrollen (U-2).",
+          "kilde": [
+            "HF-U24"
+          ]
+        },
+        {
+          "tekst": "I brevkontrollen sier brevet at aksepten er sendt etter akseptfristen, med datoen, og «Når du sender» sier at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret (U-3, U-4).",
+          "kilde": [
+            "HF-U23"
+          ]
+        },
+        {
+          "tekst": "Brevkontrollen lager brevet med datoen i basen, i norsk tid, ikke med klokka på TEs maskin. Teksten TE godkjenner, er teksten som sendes; er serverens tekst en annen, sendes brevet ikke (U-5, D-4).",
+          "kilde": [
+            "LV-U2",
+            "LV-U9",
+            "LV-U46"
+          ]
+        },
+        {
+          "tekst": "Saken har ingen forseringssak som viser til avslaget, så «Godta svaret» er ikke sperret av den (avgrensningen i bestillingen).",
+          "kilde": [
+            "FO-U5"
+          ]
+        },
+        {
+          "tekst": "Byggherren har ikke senket dagene etter akseptfristen; TE godtar svaret slik byggherren sendte det (P-2).",
+          "kilde": [
+            "HF-U22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-mottatt-aksepten",
+      "etter": 6,
+      "beskrivelse": "Totalentreprenøren har godtatt byggherrens svar dagen etter akseptfristen. Brevet sier at aksepten er sendt etter akseptfristen.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "KA-U1",
+            "HF-U24"
+          ],
+          "forventet": {
+            "enighet.frist": "finnes",
+            "enighet.frist.svar": "S-f1"
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "KA-U1"
+          ],
+          "forventet": {
+            "enighet.forhold": null,
+            "gjeldende_svar.forhold": null
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "forventet": {
+            "visning.etiketter.frist": {
+              "inneholder": [
+                "aksept_etter_akseptfristen"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "HF-U24",
+            "HF-U23",
+            "MM-U50"
+          ],
+          "forventet": {
+            "handlinger.BH": {
+              "inneholder": [
+                "revidere:frist"
+              ]
+            },
+            "handlinger.TE": {
+              "mangler": [
+                "godta:frist"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Partene ser aksepten i tråden med setningen om at den er sendt etter akseptfristen (U-3).",
+          "kilde": [
+            "HF-U23"
+          ]
+        },
+        {
+          "tekst": "Ved kravet står «Enige», og linja under sier at aksepten er sendt etter akseptfristen, med datoen og uten tolkning (U-6).",
+          "kilde": [
+            "HF-U23",
+            "MM-U50",
+            "MM-U24",
+            "MM-U30"
+          ]
+        },
+        {
+          "tekst": "Byggherren har ingen handling for å svare på aksepten, men kan sende et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen (U-7, D-5).",
+          "kilde": [
+            "HF-U24",
+            "MM-U50"
+          ]
+        },
+        {
+          "tekst": "Aksepten er sendt med «Godta svaret». En aksept sendt utenfor løsningen og lagt til etterpå er ikke en del av forløpet.",
+          "kilde": [
+            "OV-U114"
+          ]
+        }
+      ]
+    }
+  ],
   "bestilling": "BF-46.md",
-  "kilder": [
-    "HF-U23",
-    "HF-U24",
-    "HF-U5",
-    "KA-U1",
-    "KA-U52",
-    "GR-U7",
-    "LV-U2",
-    "LV-U9",
-    "LV-U46",
-    "MM-U50",
-    "MM-U33",
-    "OV-U97",
-    "OV-U114",
-    "KA-U79",
-    "KA-U81",
-    "FO-U5",
-    "HF-U22",
-    "MM-U24",
-    "MM-U30"
-  ],
-  "venter_paa": [
-    "#2300"
-  ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "saksruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-11-24",
       "forhold": "#2300",
       "hva": "Forløpet er registrert som planlagt, med bestillingen og svarene på spørsmål 1 og 2."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2300",
+      "hva": "Forløpet er kjørbart: stegene fra BF-45 til byggherrens svar, steget tiden_gaar til dagen etter akseptfristen og aksepten (G-1). I saksruta skrives stegene før tiden_gaar tilbakedatert i testbasen (G-2, G-3)."
     }
   ]
 }

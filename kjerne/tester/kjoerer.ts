@@ -102,6 +102,21 @@ export const medRegler = (regler: Regelsett, kjerne: Kjerne = KJERNE): Kjerne =>
   regler,
 });
 
+/**
+ * Tidspunktet steget `tiden_gaar` flytter klokka til: datoen i `til` kl. 08.00 UTC, som er samme
+ * dato i norsk tid (BF-46 G-1).
+ */
+export function tidspunktForDagen(til: unknown): Date {
+  if (typeof til !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(til))
+    throw new Forutsetning(
+      `tiden_gaar trenger datoen i \`til\` (ÅÅÅÅ-MM-DD), ikke ${JSON.stringify(til)}`
+    );
+  const tidspunkt = new Date(`${til}T08:00:00.000Z`);
+  if (Number.isNaN(tidspunkt.getTime()) || tidspunkt.toISOString().slice(0, 10) !== til)
+    throw new Forutsetning(`tiden_gaar: ${til} er ingen dato`);
+  return tidspunkt;
+}
+
 /** Det kjøringen holder rede på mellom stegene. */
 export class Kjoering {
   readonly navn: Navn;
@@ -197,6 +212,12 @@ export class Kjoering {
   async send(h: Handling): Promise<Utfall | null> {
     if (h.handling === 'regelendring') {
       this.kjerne = medRegler(REGELSETT[h.regelsett as string], this.kjerne);
+      this.sist = { utfall: null, nye: 0 };
+      return null;
+    }
+    if (h.handling === 'tiden_gaar') {
+      if (!this.klokke.flytt) throw new Forutsetning('Klokka i kjøringen kan ikke la tid gå');
+      this.klokke.flytt(tidspunktForDagen(h.til));
       this.sist = { utfall: null, nye: 0 };
       return null;
     }

@@ -243,6 +243,11 @@ export type Startjournal = {
     forstaaelse: string[];
     /** Parten som handler i neste steg i forløpet, eller `null` etter siste steg. */
     neste: { part: Part; handling: string } | null;
+    /**
+     * Tidspunktet klokka står på ved kontrollpunktet, når et steg før det har latt tid gå
+     * (`tiden_gaar`, BF-46 G-1). Demoruta fortsetter klokka derfra.
+     */
+    klokke?: string;
   }[];
   journal: Journalrad[];
 };
@@ -250,11 +255,15 @@ export type Startjournal = {
 export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
   const steg = b.steg ?? [];
   const versjoner: number[] = [];
+  const klokker: (string | undefined)[] = [];
   for (const p of b.kontrollpunkter ?? []) {
-    const { bane } = await kjoerBrukerforloep(b, { til: p.id });
+    const valg = isolert(b);
+    const { bane } = await kjoerBrukerforloep(b, { til: p.id, valg });
     versjoner.push(
       b.utgangspunkt.opprettes && p.etter === 0 ? 0 : (await bane.journal()).at(-1)!.versjon
     );
+    const tidGaar = steg.slice(0, p.etter).some((h) => h.handling === 'tiden_gaar');
+    klokker.push(tidGaar ? valg.klokke.naa().toISOString() : undefined);
   }
   const { bane } = await kjoerBrukerforloep(b);
   return {
@@ -275,6 +284,7 @@ export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
         p.etter < steg.length
           ? { part: partFor(steg[p.etter]), handling: steg[p.etter].handling }
           : null,
+      ...(klokker[i] ? { klokke: klokker[i] } : {}),
     })),
     journal: await bane.journal(),
   };

@@ -152,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -300,7 +300,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -377,7 +377,7 @@
                 "id": "1975bfcf-0000-4000-8000-000000000020",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
-                "regelversjon": 122
+                "regelversjon": 131
               }
             ],
             "brevtekst": [
@@ -521,7 +521,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -721,7 +721,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -919,7 +919,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -981,7 +981,7 @@
                 "id": "cd5f0ed2-0000-4000-8000-000000000012",
                 "art": "aksept",
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
-                "regelversjon": 122
+                "regelversjon": 131
               }
             ],
             "brevtekst": [
@@ -1168,7 +1168,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -1316,7 +1316,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -1677,7 +1677,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -1739,7 +1739,7 @@
                 "id": "2075cad4-0000-4000-8000-000000000018",
                 "art": "aksept",
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
-                "regelversjon": 122
+                "regelversjon": 131
               }
             ],
             "brevtekst": [
@@ -2086,7 +2086,7 @@
                   "subsidiaert_godkjent_beloep": 130000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 100 000 kr for justeringen ellers, begrenset etter punkt 34.1.3 til 10 000 kr, videre subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd).",
                   "sammenfall": false,
                   "virkninger": [
@@ -2558,7 +2558,7 @@
                   ]
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 122,
+                  "regelversjon": 131,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært fremdriften er hindret av forholdet (punkt 33.1), godkjent med 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1), videre subsidiært avslått for frist 3 Mekanisk ferdigstillelse, godkjent med 14 dager for frist 2 Overtakelse, godkjent med 14 dager for frist 8 Overtakelse av utomhusarbeider.",
                   "sammenfall": false,
                   "virkninger": [
@@ -2685,6 +2685,469 @@
                 "filnavn": "Fremdriftsplan-revisjon-4.pdf",
                 "innhold_sha256": "6ade7395dfdbfde162c0294364d75a7104160f4cd6f6ba49d23b514dd9435e61"
               }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "BF-46",
+      "tittel": "TE godtar byggherrens svar etter akseptfristen",
+      "brukerhistorie": "Akseptfristen i byggherrens svar på kravet om fristforlengelse er ute. TE åpner saken, ser akseptfristen med datoen som før, og godtar svaret. I brevkontrollen ser TE at brevet sier at aksepten er sendt etter akseptfristen, og at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret. Byggherren ser aksepten med setningen og kan sende et innlegg eller et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "baab1a86",
+      "kontrollpunkter": [
+        {
+          "id": "te-etter-akseptfristen",
+          "beskrivelse": "Dagen etter akseptfristen i byggherrens svar på kravet om fristforlengelse. Totalentreprenøren har ikke svart.",
+          "versjon": 5,
+          "forstaaelse": [
+            "TE ser akseptfristen ved byggherrens svar som før fristen, med datoen og leveringskvitteringen, uten «utløpt», farge eller relativ tid (U-1).",
+            "TE ser «Godta svaret» ved byggherrens svar som før fristen, og knappen går rett til brevkontrollen (U-2).",
+            "I brevkontrollen sier brevet at aksepten er sendt etter akseptfristen, med datoen, og «Når du sender» sier at løsningen ikke avgjør om byggherren fortsatt er bundet av svaret (U-3, U-4).",
+            "Brevkontrollen lager brevet med datoen i basen, i norsk tid, ikke med klokka på TEs maskin. Teksten TE godkjenner, er teksten som sendes; er serverens tekst en annen, sendes brevet ikke (U-5, D-4).",
+            "Saken har ingen forseringssak som viser til avslaget, så «Godta svaret» er ikke sperret av den (avgrensningen i bestillingen).",
+            "Byggherren har ikke senket dagene etter akseptfristen; TE godtar svaret slik byggherren sendte det (P-2)."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "aksept"
+          },
+          "klokke": "2026-10-16T08:00:00.000Z"
+        },
+        {
+          "id": "bh-har-mottatt-aksepten",
+          "beskrivelse": "Totalentreprenøren har godtatt byggherrens svar dagen etter akseptfristen. Brevet sier at aksepten er sendt etter akseptfristen.",
+          "versjon": 6,
+          "forstaaelse": [
+            "Partene ser aksepten i tråden med setningen om at den er sendt etter akseptfristen (U-3).",
+            "Ved kravet står «Enige», og linja under sier at aksepten er sendt etter akseptfristen, med datoen og uten tolkning (U-6).",
+            "Byggherren har ingen handling for å svare på aksepten, men kan sende et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen (U-7, D-5).",
+            "Aksepten er sendt med «Godta svaret». En aksept sendt utenfor løsningen og lagt til etterpå er ikke en del av forløpet."
+          ],
+          "neste": null,
+          "klokke": "2026-10-16T08:01:00.000Z"
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000002",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE godtar byggherrens svar etter akseptfristen",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000005",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a66c106a-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "svikt",
+                "underkategori": "prosjektering",
+                "klar_over_forholdet": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «TE godtar byggherrens svar etter akseptfristen» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+              }
+            ],
+            "brevtittel": "Påberopelse av svikt i byggherrens prosjektering i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000009",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66c106a-0000-4000-8000-00000000000a",
+                "art": "varsel",
+                "hjemmel": "33.4"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66c106a-0000-4000-8000-00000000000a",
+                "laast": "Totalentreprenøren varsler etter NS 8407 punkt 33.4 at totalentreprenøren vil kreve fristforlengelse som følge av forholdet i sak KOE-17 («TE godtar byggherrens svar etter akseptfristen»)."
+              }
+            ],
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
+          }
+        },
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000010",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a66c106a-0000-4000-8000-000000000011",
+                "spor": "frist",
+                "frister": [
+                  {
+                    "id": "a66c106a-0000-4000-8000-000000000012",
+                    "frist_id": 2,
+                    "nummer": "3",
+                    "navn": "Mekanisk ferdigstillelse",
+                    "dager": 25
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-000000000013",
+                    "frist_id": 1,
+                    "nummer": "2",
+                    "navn": "Overtakelse",
+                    "dager": 20
+                  },
+                  {
+                    "nummer": "8",
+                    "navn": "Overtakelse av utomhusarbeider",
+                    "dager": 20,
+                    "id": "a66c106a-0000-4000-8000-000000000014"
+                  }
+                ]
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000011",
+                "punkt": "33.4",
+                "overskrift": "1. Varselet om fristforlengelse",
+                "laast": "1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i brev K201-KOE-017-02 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000011",
+                "punkt": "frister",
+                "overskrift": "2. Fristforlengelse",
+                "laast": "2. Fristforlengelse\n\nTotalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.\n\nFrist 3 Mekanisk ferdigstillelse: 25 dager.\n\nFrist 2 Overtakelse: 20 dager.\n\nFrist 8 Overtakelse av utomhusarbeider: 20 dager."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000011",
+                "punkt": "begrunnelse",
+                "overskrift": "3. Begrunnelse",
+                "laast": "3. Begrunnelse",
+                "utdypning": "Pelingen ligger på kritisk linje. Fremdriftsplanen med kritisk linje er vedlagt."
+              }
+            ],
+            "brevtittel": "Krav om fristforlengelse i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        },
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000023",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "a66c106a-0000-4000-8000-000000000024",
+                "spor": "frist",
+                "gjelder": "a66c106a-0000-4000-8000-000000000011",
+                "paaberopelse": "a66c106a-0000-4000-8000-000000000006",
+                "akseptfrist": "2026-10-15",
+                "standpunkter": [
+                  {
+                    "id": "a66c106a-0000-4000-8000-00000000001d",
+                    "art": "rettidighet",
+                    "gjelder": "a66c106a-0000-4000-8000-00000000000a",
+                    "hjemmel": "33.4",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-00000000001e",
+                    "art": "hindring",
+                    "oppfylt": true
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-00000000001f",
+                    "art": "spesifisering",
+                    "gjelder": "a66c106a-0000-4000-8000-000000000011",
+                    "hjemmel": "33.6.1",
+                    "i_tide": false,
+                    "maatte_forstaa": [
+                      {
+                        "frist": "a66c106a-0000-4000-8000-000000000012",
+                        "dager": 0
+                      },
+                      {
+                        "frist": "a66c106a-0000-4000-8000-000000000013",
+                        "dager": 8
+                      },
+                      {
+                        "frist": "a66c106a-0000-4000-8000-000000000014",
+                        "dager": 8
+                      }
+                    ]
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-000000000020",
+                    "art": "dager",
+                    "gjelder": "a66c106a-0000-4000-8000-000000000012"
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-000000000021",
+                    "art": "dager",
+                    "gjelder": "a66c106a-0000-4000-8000-000000000013"
+                  },
+                  {
+                    "id": "a66c106a-0000-4000-8000-000000000022",
+                    "art": "dager",
+                    "gjelder": "a66c106a-0000-4000-8000-000000000014"
+                  }
+                ],
+                "utregning": {
+                  "frister": [
+                    {
+                      "gjelder": "a66c106a-0000-4000-8000-000000000012",
+                      "resultat": "avslaatt",
+                      "godkjent_dager": 0,
+                      "subsidiaert_resultat": "avslaatt",
+                      "subsidiaert_godkjent_dager": 0,
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "dager": 0
+                        },
+                        {
+                          "lag": 2,
+                          "dager": 0
+                        },
+                        {
+                          "lag": 3,
+                          "dager": 0
+                        }
+                      ]
+                    },
+                    {
+                      "gjelder": "a66c106a-0000-4000-8000-000000000013",
+                      "resultat": "avslaatt",
+                      "godkjent_dager": 0,
+                      "subsidiaert_resultat": "delvis_godkjent",
+                      "subsidiaert_godkjent_dager": 14,
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "dager": 0
+                        },
+                        {
+                          "lag": 2,
+                          "dager": 8
+                        },
+                        {
+                          "lag": 3,
+                          "dager": 14
+                        }
+                      ]
+                    },
+                    {
+                      "gjelder": "a66c106a-0000-4000-8000-000000000014",
+                      "resultat": "avslaatt",
+                      "godkjent_dager": 0,
+                      "subsidiaert_resultat": "delvis_godkjent",
+                      "subsidiaert_godkjent_dager": 14,
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "dager": 0
+                        },
+                        {
+                          "lag": 2,
+                          "dager": 8
+                        },
+                        {
+                          "lag": 3,
+                          "dager": 14
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 131,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært fremdriften er hindret av forholdet (punkt 33.1), godkjent med 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1), videre subsidiært avslått for frist 3 Mekanisk ferdigstillelse, godkjent med 14 dager for frist 2 Overtakelse, godkjent med 14 dager for frist 8 Overtakelse av utomhusarbeider.",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-00000000001d",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-00000000001e",
+                      "lag": 2
+                    },
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-00000000001f",
+                      "lag": 2
+                    },
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-000000000020",
+                      "lag": 3
+                    },
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-000000000021",
+                      "lag": 3
+                    },
+                    {
+                      "standpunkt": "a66c106a-0000-4000-8000-000000000022",
+                      "lag": 3
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "33.4",
+                "overskrift": "1. Varselet om fristforlengelse (punkt 33.4)",
+                "laast": "1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-02 av 1. oktober 2026 kom for sent."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "hindring",
+                "overskrift": "2. Hindringen",
+                "laast": "2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
+                "utdypning": "Fremdriftsplanen viser at pelingen ligger på kritisk linje for overtakelsen."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "spesifisering",
+                "overskrift": "3. Spesifiseringen av kravet (punkt 33.6.1)",
+                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "a66c106a-0000-4000-8000-000000000012",
+                "overskrift": "4. Dagene for frist 3 Mekanisk ferdigstillelse",
+                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
+                "utdypning": "Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "a66c106a-0000-4000-8000-000000000013",
+                "overskrift": "5. Dagene for frist 2 Overtakelse",
+                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "a66c106a-0000-4000-8000-000000000014",
+                "overskrift": "6. Dagene for frist 8 Overtakelse av utomhusarbeider",
+                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "forbehold",
+                "overskrift": "7. Forbehold",
+                "laast": "7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "akseptfrist",
+                "laast": "Akseptfrist: 15. oktober 2026."
+              }
+            ],
+            "brevtittel": "Svar på krav om fristforlengelse i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04",
+            "deres_ref": [
+              "K201-KOE-017-02",
+              "K201-KOE-017-03"
+            ]
+          }
+        },
+        {
+          "event_id": "a66c106a-0000-4000-8000-000000000027",
+          "sak_id": "a66c106a-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-16T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66c106a-0000-4000-8000-000000000028",
+                "art": "aksept",
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "regelversjon": 131
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000028",
+                "laast": "Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 1. oktober 2026. Aksepten er sendt etter akseptfristen 15. oktober 2026 i byggherrens svar."
+              }
+            ],
+            "brevtittel": "Aksept av svaret i sak KOE-17",
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05",
+            "deres_ref": [
+              "K201-KOE-017-04"
             ]
           }
         }
