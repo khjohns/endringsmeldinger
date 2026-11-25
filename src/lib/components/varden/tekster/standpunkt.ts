@@ -74,8 +74,10 @@ function leselinjeneMedVanligeMellomrom(
   vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string,
   innsigelsenStaar = false
 ): string[] {
-  // Vilkåret står én gang for standpunktene i samme lag (#2182).
+  // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
+  // kravposten (OV-U117). Det første vilkåret for posten sier ikke «heller ikke» (#2280).
   let forrige: Innsigelsen[] | undefined;
+  let vist = false;
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -86,9 +88,15 @@ function leselinjeneMedVanligeMellomrom(
       innsigelsenStaar
     );
     if (!t) return [];
-    const nytt = l.vilkaar?.length && l.vilkaar !== forrige;
+    const nytt = l.vilkaar !== forrige;
     forrige = l.vilkaar;
-    return nytt ? [vilkaar(l.vilkaar!, l.heller), t] : [t];
+    const iPosten = (l.vilkaar ?? []).filter(
+      (i) => i.art !== 'varsel' || i.gjelder === undefined || i.gjelder === post.id
+    );
+    if (!nytt || !iPosten.length) return [t];
+    const linje = vilkaar(iPosten, vist && l.heller);
+    vist = true;
+    return [linje, t];
   });
 }
 

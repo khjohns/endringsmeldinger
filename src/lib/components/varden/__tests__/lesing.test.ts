@@ -16,7 +16,9 @@ import {
   kravposterUtenFastBeloep,
   standpunktene,
   tilknyttetKrav,
+  type Standpunktet,
 } from '#lib/components/varden/lesing.ts';
+import type { Innsigelsen } from '#lib/components/varden/svarlagene.ts';
 import {
   FRISTEN,
   VEDERLAGET,
@@ -25,7 +27,7 @@ import {
   standpunkttekst,
   STILLING,
 } from '#lib/components/varden/tekster/index.ts';
-import type { Standpunkt } from '#kjerne/typer.ts';
+import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 
 async function utledning(steg: Handling[]) {
@@ -251,6 +253,82 @@ describe('vilkåret i den lukkede kravposten (#2182, svar 4B)', () => {
     expect(linjene.filter((l) => l.startsWith('Hvis '))).toHaveLength(1);
     expect(linjene[0]).toMatch(/^Hvis /);
     expect(linjene).toHaveLength(3);
+  });
+});
+
+describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4)', () => {
+  const p1 = { id: 'P1', betegnelse: 'P1', oppgjoersform: 'enhetspriser' } as Kravpost;
+  const justering = (gjelder: string): Standpunkt => ({
+    id: `j-${gjelder}`,
+    art: 'justering',
+    gjelder,
+    hjemmel: '34.3.2',
+    godtar: false,
+  });
+  const varselet = (gjelder: string): Innsigelsen => ({
+    art: 'varsel',
+    hjemmel: '34.3.3',
+    gjelder,
+  });
+
+  it('det første vilkåret for posten sier ikke «heller ikke», selv om laget kommer etter to lag', () => {
+    const linjer: Standpunktet[] = [
+      {
+        lag: 'videre subsidiært',
+        vilkaar: [{ art: 'varsel', hjemmel: '34.1.3' }],
+        heller: true,
+        standpunkt: justering('P1'),
+      },
+    ];
+    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual([
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent ikke fører frem',
+      'Bestrider justeringen',
+    ]);
+  });
+
+  it('kontrollsak: et senere vilkår for samme post sier «heller ikke»', () => {
+    const linjer: Standpunktet[] = [
+      {
+        lag: 'subsidiært',
+        vilkaar: [{ art: 'varsel', hjemmel: '34.1.2' }],
+        heller: false,
+        standpunkt: { ...justering('P1'), id: 'a' },
+      },
+      {
+        lag: 'videre subsidiært',
+        vilkaar: [{ art: 'varsel', hjemmel: '34.1.3' }],
+        heller: true,
+        standpunkt: justering('P1'),
+      },
+    ];
+    expect(
+      leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar).filter((l) => l.startsWith('Hvis '))
+    ).toEqual([
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem',
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem',
+    ]);
+  });
+
+  it('innsigelsen mot varselet for en annen kravpost er ikke vilkår for posten (OV-U117)', () => {
+    const linjer: Standpunktet[] = [
+      { lag: 'subsidiært', vilkaar: [varselet('P2')], heller: false, standpunkt: justering('P1') },
+    ];
+    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual(['Bestrider justeringen']);
+  });
+
+  it('kontrollsak: innsigelsen mot varselet for samme kravpost er vilkår for posten', () => {
+    const linjer: Standpunktet[] = [
+      {
+        lag: 'subsidiært',
+        vilkaar: [varselet('P1'), varselet('P2')],
+        heller: false,
+        standpunkt: justering('P1'),
+      },
+    ];
+    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual([
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent ikke fører frem',
+      'Bestrider justeringen',
+    ]);
   });
 });
 

@@ -546,6 +546,49 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     ]);
   });
 
+  it('innsigelsen mot varselet etter § 34.3.3 for én kravpost er forutsetning bare for justeringen i den kravposten, ikke i en annen (OV-U117, VS-U56)', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          kravposter: [
+            { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true },
+            { beskrivelse: 'Peler', oppgjoersform: 'enhetspriser', justert: true },
+          ],
+        },
+      }
+    );
+    const [p1, p2] = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
+    const lag = lagForUtkastet(
+      svar(
+        'vederlag',
+        s.krav('vederlag'),
+        medKravpostIder(
+          {
+            kravposter: [
+              { gjelder: 'P1', aksepterer: true, varslet_i_tide: false, godtar_justering: false },
+              {
+                gjelder: 'P2',
+                aksepterer: false,
+                oensket_oppgjoersform: 'regningsarbeid',
+                varslet_i_tide: true,
+                godtar_justering: false,
+              },
+            ],
+          },
+          s.u().spor.vederlag.gjeldendeKrav
+        )
+      ) as never,
+      s.u(),
+      KJERNE.regler
+    );
+    const justeringen = (id: string) =>
+      lag.standpunkter.find((x) => x.art === 'justering' && x.gjelder === id)!;
+    expect([justeringen(p1!.id).virkning, justeringen(p2!.id).virkning]).toEqual([2, 2]);
+    expect(justeringen(p1!.id).forutsetninger).toEqual([{ innsigelse: '34.3.3' }]);
+    expect(justeringen(p2!.id).forutsetninger).toEqual([{ oppgjoersform: p2!.id }]);
+  });
+
   it('kontrollsak: med oppgjørsformen godtatt og varselet og justeringen besvart står de besvart (#1925)', () => {
     const s = saken(
       { resultat: 'godkjent' },

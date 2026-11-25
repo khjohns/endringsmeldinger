@@ -287,7 +287,6 @@ export const KOMMANDOENE: Lesbar[] = [
     'laget',
     [
       'frosset/brevtekst.ts',
-      'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
       'spor/frist/frysing.ts',
       'kommandoer/utkastlag.ts',
@@ -484,13 +483,19 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'kommandoer/utkastlag.ts',
     'predikat',
+    'forutsetningene',
+    ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts', 'spor/forhold/kommando.ts'],
+  ],
+  [
+    'kommandoer/utkastlag.ts',
+    'predikat',
     'lageneIUtkastet',
     ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   [
     'kommandoer/utkastlag.ts:lageneIUtkastet',
     'predikat',
-    'grunner virket virkning lag etikett',
+    'grunner virkning lag etikett',
     ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   // Nyttelastkontrollen i sporet (#1783).
@@ -614,12 +619,16 @@ export const KOMMANDOENE: Lesbar[] = [
   ],
   // Hjemmelen for hindringen, i brevet og skjemaene (KA-U81, #1925).
   ['spor/frist/format.ts', 'brevtekst', 'hindringenEtter', ['spor/frist/tekst.ts']],
+  ['spor/frist/format.ts', 'predikat', 'erInnsigelseIFristen', ['spor/frist/tekst.ts']],
+  // #2280: det et standpunkt rammer et senere lag med, i skjemaet og visningen (OV-U32, OV-U117).
+  ['spor/frist/format.ts', 'predikat', 'innsigelsenIFristen', ['spor/frist/kommando.ts']],
   [
-    'spor/frist/format.ts',
+    'spor/vederlag/format.ts',
     'predikat',
-    'erInnsigelseIFristen',
-    ['spor/frist/tekst.ts', 'spor/frist/kommando.ts'],
+    'innsigelsenIVederlaget',
+    ['spor/vederlag/kommando.ts:rammerIVederlaget'],
   ],
+  ['InnsigelseIVederlaget', 'predikat', 'innsigelse oppgjoersform gjelder'],
   // #2242: innsigelsen i vederlagssvaret, i brevet og visningen.
   ['spor/vederlag/format.ts', 'predikat', 'erInnsigelseIVederlaget', ['spor/vederlag/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],

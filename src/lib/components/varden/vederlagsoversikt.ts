@@ -14,6 +14,7 @@ import {
   krevdSamlet,
 } from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
+import { innsigelsenIVederlaget } from '#kjerne/spor/vederlag/format.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import type { Krav, Kravpost, Oppgjoersform, Standpunkt, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -138,7 +139,7 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     alle,
     sporlag,
     'beloep',
-    erInnsigelseIVederlaget
+    innsigelsenIVederlaget
   ).map((l) => ({
     ...l,
     beloep: l.iSporet < 1 ? null : iLaget(l.iSporet),

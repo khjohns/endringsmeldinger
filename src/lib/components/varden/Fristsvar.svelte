@@ -214,11 +214,18 @@
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {
+    // Det første vilkåret for fristen sier ikke «heller ikke» (#2280).
+    let vist = false;
     const medVilkaar = (
       t: string,
       vilkaar: Parameters<typeof FRISTEN.vilkaar>[0] = [],
       heller?: boolean
-    ) => (vilkaar.length ? [FRISTEN.vilkaar(vilkaar, heller), t] : [t]);
+    ) => {
+      if (!vilkaar.length) return [t];
+      const linje = FRISTEN.vilkaar(vilkaar, vist && heller);
+      vist = true;
+      return [linje, t];
+    };
     // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godkjenner.
     const fra = nyeStandpunkter.flatMap((l) => {
       if (!('standpunkt' in l)) return [];

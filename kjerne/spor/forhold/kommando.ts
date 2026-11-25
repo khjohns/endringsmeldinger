@@ -9,7 +9,7 @@ import { virkninger } from '../../frosset/standpunkt.ts';
 import { etikett, laget } from '../../frosset/byggeklosser.ts';
 import { kontrollerForholdet } from '../../regler/svarkontroll.ts';
 import { mangler } from '../../regler/typer.ts';
-import { avvisteFelt } from '../../kommandoer/utkastlag.ts';
+import { avvisteFelt, forutsetningene } from '../../kommandoer/utkastlag.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { KRAVINNHOLD } from '../../format/format.ts';
 import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
@@ -25,7 +25,13 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
-import { avvis, type Avvisning, type Krav, type OppgittDatofelt } from '../../typer.ts';
+import {
+  avvis,
+  type Avvisning,
+  type Krav,
+  type OppgittDatofelt,
+  type Standpunkt,
+} from '../../typer.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { OppgittDato, Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
@@ -318,6 +324,17 @@ export const SKRIVING_I_FORHOLDET = {
 /** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U76). */
 export type ForutsetningIForholdet = { innsigelse: '32.2'; gjelder: string };
 
+/**
+ * Det standpunktet `s` i et tidligere lag rammer et senere lag i forholdet med (OV-U32): varselet
+ * etter § 32.2 som byggherren gjør gjeldende at kom for sent, som i brevet (`erInnsigelse` i
+ * `brevtekst.ts`). Om innsigelsen har virkning og et lag, står i virkningene.
+ */
+function innsigelsenIForholdet(s: Standpunkt): ForutsetningIForholdet | null {
+  return s.art === 'rettidighet' && s.hjemmel === '32.2' && !s.iTide
+    ? { innsigelse: s.hjemmel, gjelder: s.gjelder }
+    : null;
+}
+
 type Forholdsfelt = 'grunnlag_varslet_i_tide' | 'resultat';
 export type LagIForholdet = Utkastlag<ForutsetningIForholdet, Forholdsfelt>;
 
@@ -355,10 +372,11 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
   };
   const virket = virkninger(svar, krav, regler);
   const flereLag = virket.some((x) => (laget(x.virkning) ?? 0) > 1);
-  const forutsetninger: ForutsetningIForholdet[] = svar.standpunkter.flatMap((s, i) =>
-    s.art === 'rettidighet' && s.hjemmel === '32.2' && virket[i]!.virkning === 1
-      ? [{ innsigelse: s.hjemmel, gjelder: s.gjelder }]
-      : []
+  const forutsetninger = forutsetningene(
+    svar.standpunkter,
+    virket.map((x) => laget(x.virkning)),
+    [],
+    innsigelsenIForholdet
   );
   return {
     stilt: feltene.filter(stilles).map((spoersmaal) => ({ spoersmaal })),
@@ -373,7 +391,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
         besvart: !mangler(v[s.art === 'forhold' ? 'resultat' : 'grunnlag_varslet_i_tide']),
         virkning,
         etikett: flereLag && lag !== null ? etikett(lag) : null,
-        forutsetninger: s.art === 'forhold' ? forutsetninger : [],
+        forutsetninger: forutsetninger[i]!,
       };
     }),
   };

@@ -3722,8 +3722,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))",
-        "if (egen !== '34.1.3' && paaberopt('34.1.3'))",
+        "if (i.innsigelse === '34.1.3') return t.art === 'beloep' && t.saerskilt ? i : null;",
+        "if (i.innsigelse === '34.1.3') return i;",
       ],
     ],
     mal: ['§ 34.1.3 rammer bare posten etter annet ledd', 'justeringen ellers bare § 34.1.2'],
@@ -3746,7 +3746,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'grunnene fra svaret på forholdet står ikke som forutsetninger i utkastet (S2-A i #1400)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
+    endringer: [['    grunner.map((grunn) => ({ grunn })),', '    [],']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
       'preklusjon etter § 32.2 og avslag står foran sporet',
@@ -5656,11 +5656,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F590',
     feilklasse:
       'lagene i fristutkastet viser ikke at fremdriften ikke ble hindret, som forutsetning (KA-U78, M-8 i BF-20)',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/spor/frist/format.ts`,
     endringer: [
       [
-        "    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];",
-        "    if (f.art === 'hindring') return [];",
+        "  if (s.art === 'hindring') return { innsigelse: 'hindring' };",
+        "  if (s.art === 'hindring') return null;",
       ],
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
@@ -6509,16 +6509,19 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en virksom innsigelse etter 32.2 åpner ikke laget i forholdsutkastet (#2181, OV-U32)',
     fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [
-      ["forutsetninger: s.art === 'forhold' ? forutsetninger : []", 'forutsetninger: []'],
-    ],
+    endringer: [['forutsetninger: forutsetninger[i]!,', 'forutsetninger: [],']],
     mal: ['har varslingsplikt og en virksom innsigelse etter 32.2'],
   },
   {
     id: 'F753',
     feilklasse: 'en innsigelse uten virkning åpner laget i forholdsutkastet (#2181, GR-U11)',
-    fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [["s.hjemmel === '32.2' && virket[i]!.virkning === 1", "s.hjemmel === '32.2'"]],
+    fil: `${K}/kommandoer/utkastlag.ts`,
+    endringer: [
+      [
+        'const f = lj !== null && lj < l ? rammer(s, t) : null;',
+        'const f = (lj ?? 0) < l ? rammer(s, t) : null;',
+      ],
+    ],
     mal: ['uten virksom innsigelse gir varslingsplikt'],
   },
   {
@@ -6911,6 +6914,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['    stilt.push(spoersmaal);', '    if (!besvart) stilt.push(spoersmaal);']],
     mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
+  },
+  {
+    id: 'F797',
+    feilklasse:
+      'innsigelsen mot varselet etter § 34.3.3 for én kravpost står som forutsetning for en annen kravpost i utkastet (OV-U117, #2280)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "if (t.art === 'beloep' || !('gjelder' in t) || t.gjelder !== g) return null;",
+        "if (t.art === 'beloep') return null;",
+      ],
+    ],
+    mal: ['ikke i en annen (OV-U117, VS-U56)'],
   },
 ];
 /** En kopi av arbeidstreet. */
