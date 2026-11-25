@@ -281,7 +281,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       await te.getByRole('button', { name: 'Trekk P2' }).click();
       await te.getByRole('button', { name: 'Legg til kravpost' }).click();
       const samme = te.getByRole('group', { name: /^Er dette en kravpost i et annet krav i saken\?/ });
-      await samme.getByRole('radio', { name: /^Ja, P3 / }).check();
+      await samme.getByRole('radio', { name: /^Ja, P3 · / }).check();
       await te.getByRole('radio', { name: /^Fast sum/ }).check();
       await te.getByRole('textbox', { name: /^Beløpet du krever/ }).fill('30000');
       // WCAG 2.1 A og AA med axe på skjemaet med valget, som `uu.mjs` gjør i demoruta.

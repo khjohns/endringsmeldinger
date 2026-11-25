@@ -100,10 +100,10 @@ export const FRISTKRAV = haerdet({
   trekk: (navn: string) => `Trekk fristen ${navn}`,
   trekkTekst: 'Trekk fristen',
   // OV-U118: et krav lagt til, sendt før det siste kravet i saken.
-  eldre: (forrige: Brevref | null) =>
+  eldre: (forrige: Brevref | null, sendt: string) =>
     forrige
-      ? `Fristene er hentet fra ${brevref(forrige)}, det siste kravet sendt før dokumentet. Trekk en frist bare når dokumentet sier at den er trukket.`
-      : 'Ingen krav var sendt før dokumentet, så kravet har ingen frister å ta med eller trekke.',
+      ? `Fristene er hentet fra ${brevref(forrige)}, det siste kravet sendt før ${dato(sendt)}. Trekk en frist bare når dokumentet du legger til, sier at den er trukket.`
+      : `Ingen krav var sendt før ${dato(sendt)}, så kravet har ingen frister å ta med eller trekke.`,
   angre: 'Angre',
   angreTrekk: (navn: string) => `Angre trekket av ${navn}`,
   fjern: 'Fjern',

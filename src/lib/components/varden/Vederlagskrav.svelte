@@ -46,7 +46,7 @@
     type Korrespondansevalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { eldreKrav, startesPaaNytt, utgangspunktet } from './eldrekrav';
+  import { eldreKrav, utgangspunktet } from './eldrekrav';
   import {
     brevene,
     datoerISporet,
@@ -110,10 +110,11 @@
 
   // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
   const eldre = $derived(eldreKrav(u, 'vederlag', lagtTil));
-  untrack(() => {
-    if (startesPaaNytt(valg, eldre)) valg = startvalg(u, eldre);
-  });
-  const v = $derived(valg!);
+  // Et eget utkast for det, så TEs utkast til neste krav står (`eldrekrav.ts`).
+  const eldreValg = $state(untrack(() => (eldre ? startvalg(u, eldre) : null)));
+  // svelte-ignore state_referenced_locally
+  if (!eldreValg && valg === null) valg = startvalg(u);
+  const v = $derived(eldreValg ?? valg!);
 
   const forrige = $derived(utgangspunktet(u, 'vederlag', eldre));
   const forrigePoster = $derived(
@@ -134,6 +135,7 @@
   const varslene = $derived(
     varslenePerKravpost(
       u,
+      eldre?.tidligere ?? u.spor.vederlag.krav,
       med.map((p) => ({
         id: p.id ?? undefined,
         oppgjoersform: p.form ?? 'tilbud',
@@ -631,6 +633,8 @@
           () => p.id ?? 'ny',
           (x) => {
             const q = kandidater.find((k) => k.id === x);
+            const foer = kandidater.find((k) => k.id === p.id);
+            if (!q && foer && p.beskrivelse === foer.beskrivelse) p.beskrivelse = '';
             p.id = q?.id ?? null;
             p.betegnelse = q?.betegnelse ?? null;
             if (q && !p.beskrivelse.trim()) p.beskrivelse = q.beskrivelse;
@@ -843,7 +847,7 @@
   {u}
   avsender="TE"
   oppfolging={eldre
-    ? { tekst: KRAVSKJEMA.eldre(kravbrevet), brev: kravbrevet }
+    ? { tekst: KRAVSKJEMA.eldre(kravbrevet, lagtTil!.dato), brev: kravbrevet }
     : kravbrevet
       ? { tekst: KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet), brev: lesbart }
       : forholdet && paaberopelsen

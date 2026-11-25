@@ -18,7 +18,7 @@ import {
   tomKorrespondanse,
   type Korrespondansevalg,
 } from './korrespondansen';
-import { utgangspunktet, utgangspunktnoekkel, type Eldrekrav } from './eldrekrav';
+import { utgangspunktet, type Eldrekrav } from './eldrekrav';
 import { KRAVSKJEMA } from './tekster';
 import type { Mangel } from './mangler';
 
@@ -64,8 +64,6 @@ export interface Kravvalg {
   forbehold: string;
   /** Teller for nøklene til nye poster. */
   nye: number;
-  /** Utgangspunktet for et krav sendt før det siste i sporet (`utgangspunktnoekkel`, OV-U118). */
-  utgangspunkt?: string;
 }
 
 export const tomtVarselvalg = (): Varselvalg => ({
@@ -121,13 +119,7 @@ export const fraKravpost = (p: Kravpost): Kravpostvalg => ({
  */
 export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Kravvalg {
   const krav = utgangspunktet(u, 'vederlag', eldre);
-  const v: Kravvalg = {
-    poster: [],
-    saerskilt: null,
-    forbehold: '',
-    nye: 0,
-    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(eldre) } : {}),
-  };
+  const v: Kravvalg = { poster: [], saerskilt: null, forbehold: '', nye: 0 };
   if (!krav) {
     v.poster.push(nyKravpost(v));
     return v;

@@ -89,14 +89,14 @@ export const KRAVSKJEMA = haerdet({
   leggTil: 'Legg til kravpost',
   taMedIgjen: (post: string, beskrivelse: string) => `Ta med igjen ${post} ${beskrivelse}`,
   // OV-U118 og OV-U119: et krav lagt til, sendt før det siste kravet i saken.
-  eldre: (forrige: Brevref | null) =>
+  eldre: (forrige: Brevref | null, sendt: string) =>
     forrige
-      ? `Kravpostene er hentet fra ${brevref(forrige)}, det siste kravet sendt før dokumentet. Trekk en kravpost bare når dokumentet sier at den er trukket.`
-      : 'Ingen krav var sendt før dokumentet, så kravet har ingen kravposter å ta med eller trekke.',
+      ? `Kravpostene er hentet fra ${brevref(forrige)}, det siste kravet sendt før ${dato(sendt)}. Trekk en kravpost bare når dokumentet du legger til, sier at den er trukket.`
+      : `Ingen krav var sendt før ${dato(sendt)}, så kravet har ingen kravposter å ta med eller trekke.`,
   sammeKravpost: 'Er dette en kravpost i et annet krav i saken?',
   sammeKravpostHjelp: 'Da får den samme betegnelse, og byggherren ser at det er samme kravpost.',
   sammeNy: 'Nei, en ny kravpost',
-  sammeSom: (post: string, beskrivelse: string) => `Ja, ${post} ${beskrivelse}`,
+  sammeSom: (post: string, beskrivelse: string) => `Ja, ${post} · ${beskrivelse}`,
   // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U115 punkt 3).
   saerskilt: 'Særskilt vederlagsjustering',
   saerskiltKort: 'Særskilt',

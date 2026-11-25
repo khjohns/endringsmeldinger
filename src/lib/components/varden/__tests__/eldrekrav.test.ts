@@ -26,6 +26,8 @@ import Fristkrav from '#lib/components/varden/Fristkrav.svelte';
 import type { Korrespondansevalg } from '#lib/components/varden/korrespondansen.ts';
 import { startvalg, type Kravvalg } from '#lib/components/varden/vederlagskrav.ts';
 import { LEGG_TIL } from '#lib/components/varden/tekster/index.ts';
+import { eldreKrav } from '#lib/components/varden/eldrekrav.ts';
+import { varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
 
 afterEach(cleanup);
 
@@ -180,7 +182,7 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
     const { tilServeren } = await skjemaet('2026-10-12');
     expect(
       screen.getByText(
-        /^Kravpostene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før dokumentet\./
+        /^Kravpostene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før 12\. oktober 2026\./
       )
     ).toBeInTheDocument();
     // Montering står bare i kravet sendt etter, så skjemaet har den ikke, og trekker den ikke.
@@ -212,8 +214,8 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
     const valgene = within(sporsmaal)
       .getAllByRole('radio')
       .map((r) => r.closest('label')?.textContent?.trim());
-    expect(valgene).toEqual(['Nei, en ny kravpost', 'Ja, P3 Montering']);
-    await fireEvent.click(within(sporsmaal).getByRole('radio', { name: 'Ja, P3 Montering' }));
+    expect(valgene).toEqual(['Nei, en ny kravpost', 'Ja, P3 · Montering']);
+    await fireEvent.click(within(sporsmaal).getByRole('radio', { name: 'Ja, P3 · Montering' }));
     expect(screen.getByRole('textbox', { name: /Beskrivelse av posten/ })).toHaveValue('Montering');
     await fireEvent.click(screen.getByRole('radio', { name: /Fast sum/ }));
     await fireEvent.input(screen.getByRole('textbox', { name: /Beløpet du krever/ }), {
@@ -227,12 +229,12 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
 
   it('et krav sendt før alle kravene i sporet har ingen poster å trekke', async () => {
     const { tilServeren } = await skjemaet('2026-10-05');
-    expect(screen.getByText(/^Ingen krav var sendt før dokumentet/)).toBeInTheDocument();
+    expect(screen.getByText(/^Ingen krav var sendt før 5\. oktober 2026/)).toBeInTheDocument();
     const sporsmaal = screen.getByRole('group', {
       name: /Er dette en kravpost i et annet krav i saken\?/,
     });
     expect(within(sporsmaal).getAllByRole('radio')).toHaveLength(4);
-    await fireEvent.click(within(sporsmaal).getByRole('radio', { name: 'Ja, P1 Riving' }));
+    await fireEvent.click(within(sporsmaal).getByRole('radio', { name: 'Ja, P1 · Riving' }));
     await fireEvent.click(screen.getByRole('radio', { name: /Fast sum/ }));
     await fireEvent.input(screen.getByRole('textbox', { name: /Beløpet du krever/ }), {
       target: { value: '60000' },
@@ -243,16 +245,69 @@ describe('vederlagskravet sendt før det siste kravet i sporet (OV-U118, OV-U119
     expect(innhold.kravposter.map((p) => p.id)).toEqual([riving!.id]);
   });
 
-  it('et utkast fra gjeldende krav startes på nytt fra kravet sendt før', async () => {
+  it('TEs utkast til neste krav står, og skjemaet tar utgangspunkt i kravet sendt før', async () => {
     const { kjernesak } = await saken(medVederlagskravene);
-    await skjemaet('2026-10-12', startvalg(kjernesak.utledning!));
+    const utkastet = startvalg(kjernesak.utledning!);
+    const skrevetTil: unknown[] = [];
+    render(Vederlagskrav, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      get valg() {
+        return utkastet;
+      },
+      set valg(v: Kravvalg | null) {
+        skrevetTil.push(v);
+      },
+      onbrevkontroll: ingenKontroll,
+      onforkast: () => {},
+      lagtTil: korrespondansen('2026-10-12'),
+      onlagttil: () => {},
+    });
     expect(betegnelsene()).toEqual(['P1 Riving', 'P2 Stillas']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Endre P1' }));
+    await fireEvent.input(screen.getByRole('textbox', { name: /Beskrivelse av posten/ }), {
+      target: { value: 'Riving av vegg' },
+    });
+    expect(skrevetTil).toEqual([]);
+    expect(utkastet.poster.map((p) => [p.id, p.beskrivelse])).toEqual([
+      [riving!.id, 'Riving'],
+      [montering.id, 'Montering'],
+    ]);
   });
 
   it('et krav lagt til, sendt etter det siste, følger gjeldende krav som før', async () => {
     await skjemaet('2026-10-20');
     expect(screen.queryByText(/er hentet fra/)).not.toBeInTheDocument();
     expect(betegnelsene()).toEqual(['P1 Riving', 'P3 Montering']);
+  });
+});
+
+describe('varselet for en kravpost i et krav sendt før det siste (OV-U118)', () => {
+  // K-v2 fra løsningen 16.10 har P3 med regningsarbeid, så K-v2 er varselet etter § 34.4 for P3.
+  const medRegningsarbeid = skrevet(medFoersteVederlagskrav, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        { id: riving!.id, beskrivelse: 'Riving', oppgjoersform: 'tilbud', beloep: 60000 },
+        { beskrivelse: 'Montering', oppgjoersform: 'regningsarbeid' },
+      ],
+      trekker: [stillas!.id],
+    },
+  });
+  const u = utledJournal(medRegningsarbeid, KJERNE);
+  const p3 = kravposterI(u.spor.vederlag.gjeldendeKrav!)[1]!;
+  const posten = [{ id: p3.id, oppgjoersform: 'regningsarbeid' as const }];
+
+  it('prøves mot kravene sendt før det, så kravet gis som varselet for posten', () => {
+    const eldre = eldreKrav(u, 'vederlag', korrespondansen('2026-10-12'))!;
+    expect(varslenePerKravpost(u, eldre.tidligere, posten)).toEqual([
+      { art: 'kravet', hjemmel: '34.4' },
+    ]);
+  });
+
+  it('kontrollsak: prøvd mot hele rekken er varselet gitt i K-v2', () => {
+    expect(varslenePerKravpost(u, u.spor.vederlag.krav, posten)[0]).toMatchObject({ art: 'foer' });
   });
 });
 
@@ -270,7 +325,7 @@ describe('fristkravet sendt før det siste kravet i sporet (OV-U118)', () => {
     });
     expect(
       screen.getByText(
-        /^Fristene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før dokumentet\./
+        /^Fristene er hentet fra totalentreprenørens e-post av 10\. oktober 2026, det siste kravet sendt før 12\. oktober 2026\./
       )
     ).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: /^Endre 5/ }));

@@ -1,7 +1,8 @@
 /**
  * Et krav lagt til, sendt før totalentreprenørens siste krav i sporet (OV-U118, OV-U119). Kjernen
  * avgjør hvilke kravversjoner det prøves mot (`kravversjoneneKravetProevesMot`), og skjemaet tar
- * utgangspunkt i den siste av dem, så det bare trekker det den versjonen hadde.
+ * utgangspunkt i den siste av dem, så det bare trekker det den versjonen hadde. Skjemaet har da et
+ * eget utkast, så totalentreprenørens utkast til neste krav i sporet står.
  */
 
 import type { Krav, Kravspor } from '#kjerne/typer.ts';
@@ -38,19 +39,3 @@ export const utgangspunktet = (
   spor: Kravspor,
   eldre: Eldrekrav | null
 ): Krav | null => (eldre ? eldre.utgangspunkt : u.spor[spor].gjeldendeKrav);
-
-/**
- * Nøkkelen et utkast har for utgangspunktet: `undefined` for et krav fra løsningen eller sendt etter
- * det siste, ellers kravversjonen det startet fra, eller `''` uten en.
- */
-export const utgangspunktnoekkel = (eldre: Eldrekrav | null): string | undefined =>
-  eldre ? (eldre.utgangspunkt?.id ?? '') : undefined;
-
-/**
- * Utkastet startes på nytt når det mangler eller har et annet utgangspunkt, så det ikke trekker
- * poster eller frister utgangspunktet ikke hadde.
- */
-export const startesPaaNytt = (
-  valg: { utgangspunkt?: string } | null | undefined,
-  eldre: Eldrekrav | null
-): boolean => !valg || valg.utgangspunkt !== utgangspunktnoekkel(eldre);

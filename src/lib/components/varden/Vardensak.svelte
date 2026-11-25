@@ -39,6 +39,7 @@
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
+  import { eldreKrav } from './eldrekrav';
   import {
     tomKorrespondanse,
     tomtLagtTil,
@@ -714,9 +715,21 @@
       aapneUtkast({ art: 'svar' });
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
-      utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
+      if (!eldreKrav(u, 'frist', lagtTil.valg.korrespondanse))
+        utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
       aapneUtkast({ art: 'fristkrav', fraKorrespondansen: true });
     } else aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
+  }
+  /**
+   * Et krav lagt til, sendt før det siste i sporet, har et eget utkast i skjemaet (OV-U118,
+   * `eldrekrav.ts`). Da står TEs utkast til neste krav når det legges til eller forkastes.
+   */
+  const utkastetStaar = (s: Kravspor) =>
+    !!u && !!eldreKrav(u, s, lagtTilI(s, 'krav')) && utkastene[kravetI[s]] !== null;
+  function forkastKravet(s: Kravspor) {
+    if (!utkastetStaar(s)) return forkastUtkast(kravetI[s]);
+    lagtTil = null;
+    return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
@@ -896,9 +909,10 @@
     {u}
     lagtTil={lagtTilI('vederlag', 'krav')}
     onendre={tilKorrespondansen}
-    onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'vederlag')}
+    onlagttil={() =>
+      lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('vederlag') ? null : 'vederlag')}
     bind:valg={utkastene.vederlagskrav}
-    onforkast={() => forkastUtkast('vederlagskrav')}
+    onforkast={() => forkastKravet('vederlag')}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
   />
@@ -911,9 +925,10 @@
     {sakslenke}
     lagtTil={lagtTilI('frist', 'krav')}
     onendre={tilKorrespondansen}
-    onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'frist')}
+    onlagttil={() =>
+      lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('frist') ? null : 'frist')}
     bind:valg={utkastene.fristkrav}
-    onforkast={() => forkastUtkast('fristkrav')}
+    onforkast={() => forkastKravet('frist')}
     onbrevkontroll={(k) => tilKravkontroll('frist', k)}
     onvedsiden={(v) => (vedSiden = v)}
     onregistrert={() => {

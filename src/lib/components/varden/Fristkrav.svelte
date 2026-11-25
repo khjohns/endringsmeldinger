@@ -36,7 +36,7 @@
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
-  import { eldreKrav, startesPaaNytt, utgangspunktet } from './eldrekrav';
+  import { eldreKrav, utgangspunktet } from './eldrekrav';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
@@ -113,10 +113,10 @@
   // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
   const eldre = $derived(eldreKrav(u, 'frist', lagtTil));
   const utgangspunkt = $derived(utgangspunktet(u, 'frist', eldre));
-  untrack(() => {
-    if (startesPaaNytt(valg, eldre)) valg = startvalg(u, eldre);
-  });
-  const v = $derived(valg!);
+  // Et eget utkast for det, så TEs utkast til neste krav står (`eldrekrav.ts`).
+  const eldreValg = $state(untrack(() => (eldre ? startvalg(u, eldre) : null)));
+  if (!eldreValg && !untrack(() => valg)) valg = startvalg(untrack(() => u));
+  const v = $derived(eldreValg ?? valg!);
 
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
   // Uten tabell står feltene for fristen direkte (#2185). Kommer tabellen ved en ny lasting, må
@@ -137,7 +137,8 @@
   // frist i fristtabellen (`fristeneStrider` i kjernen).
   const fastFrist = (p: Fristpostvalg) =>
     p.id !== null &&
-    innholdIFristen(utgangspunkt!).frister.some((f) => f.id === p.id && f.frist_id !== undefined);
+    utgangspunkt !== null &&
+    innholdIFristen(utgangspunkt).frister.some((f) => f.id === p.id && f.frist_id !== undefined);
   const alleBrev = $derived(brevene(u));
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
@@ -688,7 +689,7 @@
   oppfolging={foresporselsbrev
     ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
     : eldre
-      ? { tekst: FRISTKRAV.eldre(forrige), brev: forrige }
+      ? { tekst: FRISTKRAV.eldre(forrige, lagtTil!.dato), brev: forrige }
       : forrige
         ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
         : paaberopelsen
