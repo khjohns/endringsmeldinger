@@ -1572,7 +1572,9 @@ def mot_grunnlag(
     eller endre spørsmålet, alternativene eller svaret til en post som er merget.
 
     `gammel_plan` har 3.1 på main, og `soketekst` er teksten en ny ID ikke kan stå i fra før:
-    hovedplanen, arkivet og vedtaksfila på main. Uten den søkes det i `gammel_plan`."""
+    hovedplanen og arkivet på main. Fra vedtaksfila teller bare ID-en en rad står under, ikke en
+    ID som er nevnt i teksten til en annen post, som en ID som er holdt av for en åpen
+    vedtaks-PR (OV-U124 i KA-U87)."""
     feil = []
     importerte = [p for p in poster(register) if not er_ny(p)]
     paret = {id(n) for _, n in _par(_rader(gammel_plan), importerte) if n is not None}
@@ -1583,9 +1585,10 @@ def mot_grunnlag(
         if id(p) not in paret
     ]
     gamle_nye = {p["id"]: p for p in _nye(gammel_register)}
+    brukt = "\n".join([soketekst or "", *(etikett(p) for p in _rader(gammel_plan))])
     for p in _nye(register):
         if p["id"] not in gamle_nye and re.search(
-            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", soketekst or gammel_plan
+            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", brukt
         ):
             feil.append(f"{p['id']}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før")
     naa = {p["id"]: p for p in _nye(register)}
@@ -1770,7 +1773,7 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
             register,
             gammel,
             gammel_register,
-            "\n".join([gammel_plan, git_fil(commit, ARKIV_I_GIT) or "", gammel]),
+            "\n".join([gammel_plan, git_fil(commit, ARKIV_I_GIT) or ""]),
         )
         + sitatfeil(register, kilder_paa(commit), merget)
         + ny_byggestatus(gammel_register, register)
