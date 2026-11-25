@@ -9,7 +9,7 @@ foreløpige ID-ene settes når postene føres, og fila skriver ikke i `vedtak.to
 
 **Grensen.** De to nye versjonene tar inn postene etter samlingen og ikke mer. Nummereringen i
 MM-U50 og VS-U77 står, og nye punkter kommer til slutt, så en henvisning til et punkt fortsatt
-treffer (spørsmål 2). Setningene fra postene tas inn ordrett, med henvisningene rettet til
+treffer (spørsmål 2). A3 viser til VS-U77 punkt 26, 28 og 29 og MM-U50 punkt 6, 8 og 18–24. Setningene fra postene tas inn ordrett, med henvisningene rettet til
 punktene i den nye versjonen.
 
 ## Endringene
@@ -111,8 +111,8 @@ ingen samlet post har et forhold som faller bort.)
    2, og VS-U77 versjon 3 viser dit.» Anbefaling: A; regelen gjelder én innsigelse, og MM-U50 har
    den generelle regelen. Styrer: E1–E3, E5 og E10.
 4. **Postene som står.** Alternativer: **A** som «Forholdene»: GFK-U28 og VS-U79 står, OV-U120
-   samles i versjon 3. **B** «Som A, men OV-U120 står, og punkt 22 viser til den.» Anbefaling: A,
-   hvis A3 ikke samler OV-U120 (sagt fra til orkestratoren 25.11). GFK-U28 gjelder fullmakten, og
+   samles i versjon 3. **B** «Som A, men OV-U120 står, og punkt 22 viser til den.» Anbefaling: A;
+   A3 viser til OV-U120 uten å samle den (orkestratoren 25.11). GFK-U28 gjelder fullmakten, og
    VS-U79 er en beslutning om formen. Styrer: E9, E10 og `folge`.
 
 ## Svarene
