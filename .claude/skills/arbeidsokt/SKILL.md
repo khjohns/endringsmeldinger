@@ -65,7 +65,9 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
 - **Subagenter har egne grenser**, i kall og tokens: se
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
-  [miljø-skillen](../miljo/SKILL.md#utdata).
+  [miljø-skillen](../miljo/SKILL.md#utdata). Et svar som er lagret til fil, leses med
+  `grep`, `tail` eller et skript, aldri helt med `Read`, og er det stort og uoversiktlig,
+  gjør en subagent det (#2401).
 - **Review i byggeøkta.** Byggeøkta kjører `/code-review` og rettingene selv, etter
   [leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn), og
   markerer PR-en klar når reviewet er gjort og de lokale sjekkene er grønne. Den har
