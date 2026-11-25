@@ -81,8 +81,9 @@ function innsigelsen(
 ): InnsigelsenILaget[] {
   const i = innsigelsenI(s);
   if (i === null) return [];
-  const rammer = (post: PostenISvaret) =>
-    !vederlag || post === undefined || rammerPosten(i as InnsigelseIVederlaget, post);
+  const rammer = vederlag
+    ? (post: PostenISvaret) => post === undefined || rammerPosten(i as InnsigelseIVederlaget, post)
+    : () => true;
   const som = (innsigelse: Innsigelsen): InnsigelsenILaget[] => [{ innsigelse, rammer }];
   if ('oppgjoersform' in i) return som({ art: 'beregningsregel', gjelder: i.oppgjoersform });
   if (!('innsigelse' in i)) return [];
@@ -95,8 +96,15 @@ function innsigelsen(
   });
 }
 
-const bareNoenAv = (poster: string[], x: InnsigelsenILaget) =>
-  poster.some((p) => x.rammer(p)) && !poster.every((p) => x.rammer(p));
+const bareNoenAv = (poster: string[], x: InnsigelsenILaget) => {
+  const treff = poster.filter((p) => x.rammer(p)).length;
+  return treff > 0 && treff < poster.length;
+};
+
+export interface Vilkaaret {
+  vilkaar: Innsigelsen[];
+  heller: boolean;
+}
 
 /**
  * Vilkåret for et standpunkt om posten `post` i laget `lag` (LV-U79, LV-U34, OV-U117): innsigelsene
@@ -107,7 +115,7 @@ export function vilkaaretFor(
   lagene: readonly Svarlaget[],
   lag: number,
   post: PostenISvaret
-): { vilkaar: Innsigelsen[]; heller: boolean } | null {
+): Vilkaaret | null {
   for (let foran = lag - 1; foran >= 1; foran--) {
     const vilkaar = lagene[foran - 1]!.innsigelsene.flatMap((x) =>
       x.rammer(post) ? [x.innsigelse] : []

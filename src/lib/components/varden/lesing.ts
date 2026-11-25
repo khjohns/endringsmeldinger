@@ -1,7 +1,7 @@
 import { innsigelsenIFristen } from '#kjerne/spor/frist/format.ts';
 import { innsigelsenIVederlaget } from '#kjerne/spor/vederlag/format.ts';
 import { BREVTEKSTEN_I_VEDERLAGET } from '#kjerne/spor/vederlag/tekst.ts';
-import { lageneISvaret, vilkaaretFor, type Innsigelsen } from './svarlagene';
+import { lageneISvaret, vilkaaretFor, type Innsigelsen, type Vilkaaret } from './svarlagene';
 import { kravetOgSvaretIFristen } from './fristoversikt';
 import { kravetOgSvaret } from './vederlagsoversikt';
 
@@ -422,7 +422,7 @@ export function standpunktene(
           g
         );
   // Samme vilkår for samme lag og post er samme liste, så en visning kan skrive det én gang (#2182).
-  const vilkaarene = new Map<string, ReturnType<typeof vilkaaretFor>>();
+  const vilkaarene = new Map<string, Vilkaaret | null>();
   const vilkaarFor = (lag: number | null, s?: Standpunkt) => {
     if (lag === null) return {};
     const post = s && svar.spor === 'vederlag' ? BREVTEKSTEN_I_VEDERLAGET.posten(s) : undefined;
