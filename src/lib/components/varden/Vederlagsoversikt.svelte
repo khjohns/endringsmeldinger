@@ -31,7 +31,7 @@
     smal = false,
     onles,
     onspor,
-    handlingVed = null,
+    handlingerVed = [],
     handling,
     brevet,
     levering = new Map(),
@@ -85,7 +85,7 @@
     {vist}
     {smal}
     {onles}
-    {handlingVed}
+    {handlingerVed}
     {handling}
     {brevet}
   />

@@ -24,6 +24,8 @@ import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svel
 import Varselsvar from '#lib/components/varden/Varselsvar.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
+import { brevene } from '#lib/components/varden/lesing.ts';
+import { TIDSLINJE, TRAADEN } from '#lib/components/varden/tekster/index.ts';
 import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
@@ -353,6 +355,70 @@ describe('lenken i «Gjelder hvis» når innsigelsen står (Codex-reviewet)', ()
     const lenken = screen.getByRole('link', { name: /^innsigelsen om at varselet etter punkt/ });
     const maal = document.getElementById(lenken.getAttribute('href')!.slice(1));
     expect(maal?.textContent).toMatch(/Svaret gjentar innsigelsen\./);
+  });
+});
+
+describe('brevet med varselet etter punkt 34.3.3 og 34.4 heter som varselet (#2360, prototype v4)', () => {
+  it.each([
+    ['34.3.3', 'Varsel om justering av enhetsprisene'],
+    ['34.4', 'Varsel før regningsarbeidet settes i gang'],
+  ] as const)('varselet etter punkt %s heter «%s» i tidslinja og brevtråden', (hjemmel, navn) => {
+    const brevet = brevene(utledJournal(medVarsel(hjemmel), KJERNE)).at(-1)!;
+    expect(TIDSLINJE.hva(brevet)).toBe(navn);
+    expect(TRAADEN.hva(brevet)).toBe(navn);
+  });
+
+  it('varselet etter punkt 34.1.3 heter «Varsel om særskilt vederlagsjustering»', () => {
+    const journal = skrevet(medGrunnlag, 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.3',
+    });
+    expect(TRAADEN.hva(brevene(utledJournal(journal, KJERNE)).at(-1)!)).toBe(
+      'Varsel om særskilt vederlagsjustering'
+    );
+  });
+
+  it('varselet etter punkt 34.1.2 heter fortsatt «Varsel om vederlagsjustering»', () => {
+    const journal = skrevet(medGrunnlag, 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+    });
+    expect(TIDSLINJE.hva(brevene(utledJournal(journal, KJERNE)).at(-1)!)).toBe(
+      'Varsel om vederlagsjustering'
+    );
+  });
+});
+
+describe('handlingen står ved hvert varsel som står alene (#2360 punkt 1, U-16 i BF-44)', () => {
+  it('svaret på varselet etter punkt 34.4 i brev 3 står ved brev 3, ikke under «Andre handlinger»', async () => {
+    const journal = skrevet(medVarsel('34.3.3'), 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.4',
+    });
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    const ved = async (tittel: string, knapp: string) => {
+      const rad = (await screen.findAllByRole('listitem')).find((li) =>
+        within(li).queryByText(tittel)
+      )!;
+      return within(rad).getByRole('button', { name: knapp });
+    };
+    expect(
+      await ved(
+        'Varsel om justering av enhetsprisene',
+        'Svar på varselet om justering av enhetsprisene'
+      )
+    ).toBeInTheDocument();
+    expect(
+      await ved('Varsel før regningsarbeidet settes i gang', 'Svar på varselet om regningsarbeid')
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: 'Svar på varselet om regningsarbeid' })
+    ).toHaveLength(1);
   });
 });
 

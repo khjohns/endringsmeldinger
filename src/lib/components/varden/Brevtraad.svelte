@@ -32,7 +32,7 @@
     smal = false,
     onles,
     onkorriger,
-    handlingVed = null,
+    handlingerVed = [],
     handling,
     brevet,
     oeverst,
@@ -69,9 +69,10 @@
     smal?: boolean;
     onles: (id: string) => void;
     onkorriger?: (opplysning: string) => void;
-    /** Brevet handlingen svarer på (U-16). */
-    handlingVed?: string | null;
-    handling?: Snippet;
+    /** Brevene som har en handling ved seg, den brevet svarer på (U-16). */
+    handlingerVed?: readonly string[];
+    /** Handlingene ved brevet med ID-en. */
+    handling?: Snippet<[string]>;
     /** Brevet slik det ble sendt, i raden. */
     brevet?: Snippet<[Brevet]>;
     /**
@@ -241,7 +242,9 @@
         </div>
       {/if}
       {#if valgt && smal && brevet}<div class="brevplass">{@render brevet(b)}</div>{/if}
-      {#if handling && handlingVed === b.id}<div class="handling">{@render handling()}</div>{/if}
+      {#if handling && handlingerVed.includes(b.id)}<div class="handling">
+          {@render handling(b.id)}
+        </div>{/if}
     </li>
   {/each}
 </ol>

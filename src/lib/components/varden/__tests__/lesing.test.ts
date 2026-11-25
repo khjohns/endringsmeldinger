@@ -575,6 +575,9 @@ describe('Brevene lest én gang per utledning (#2000)', () => {
     const brev = brevene(u);
     expect(brevene(u)).toBe(brev);
     expect(Object.isFrozen(brev)).toBe(true);
+    // Også listene i hvert brev (Codex-reviewet av #2368).
+    for (const felt of ['spor', 'vedlegg', 'varselhjemler'] as const)
+      expect(Object.isFrozen(brev[0]![felt])).toBe(true);
   });
 });
 
