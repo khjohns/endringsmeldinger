@@ -145,7 +145,8 @@ videre. OV-U122, VS-U83 og VS-U85 samles i de versjonene de endrer, VS-U82 og VS
 MM-U55. Forholdene deres til OV-U99 og GR-U27 står på de samlede postene, slik MM-U51s forhold til
 GR-U27 står etter at MM-U55 samlet den. OV-U118–OV-U121 og VS-U77 står med sine forhold, fordi de også
 endrer OV-U115, KA-U76, VS-U77, VS-U80 og GR-U40, og forholdene til de gamle versjonene gjelder de nye
-(OV-U92 (a)).
+(OV-U92 (a)). OV-U120 samles i versjon 3 av VS-U77 i #2356 (orkestratoren 25.11), og A3 viser til
+den uten å samle den.
 
 ## Spørsmålene
 
