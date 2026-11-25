@@ -4,7 +4,7 @@
  */
 
 import { ApiError, apiFetch } from '#lib/api/client.ts';
-import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import { osloDato, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '#kjerne/typer.ts';
 import type { Fristtabellsvar } from '#kjerne/spor/frist/visning.ts';
 import type { Visning } from '#kjerne/utledning/visning.ts';
@@ -96,6 +96,7 @@ const somMerking = ({
   sakskode: { kode, loepenummer },
   kontraktsforkortelse,
   dagensDato: dagens_dato,
+  nettleserdatoVedLastingen: osloDato(),
 });
 
 /**
@@ -174,6 +175,7 @@ export async function hentKjernesakMedMerking(
         sakskode: sak.sakskode,
         kontraktsforkortelse: sak.kontraktsforkortelse,
         dagensDato: dagens_dato,
+        nettleserdatoVedLastingen: osloDato(),
       },
       prosjektId
     );

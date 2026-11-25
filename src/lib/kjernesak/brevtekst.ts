@@ -61,6 +61,8 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
      * Uten den, som i demoruta, brukes nettleserens klokke.
      */
     dagensDato?: string;
+    /** Nettleserens dato i norsk tid da `dagensDato` ble lest, så en side over midnatt følger med. */
+    nettleserdatoVedLastingen?: string;
   };
 
 /**
@@ -85,12 +87,28 @@ export type GjeldendeFristdato = Fristdato & {
   forlengelserIAndreSaker: NonNullable<Fristdato['forlengelser']>;
 };
 
+/** Datoen i norsk tid for tidspunktet. */
+export const osloDato = (tidspunkt = new Date()) =>
+  tidspunkt.toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+
+const DOEGN = 86_400_000;
+const middag = (dato: string) => new Date(`${dato}T12:00:00Z`);
+
 /**
  * Tidspunktet brevkontrollen lager teksten med: 12.00 UTC på datoen fra serveren, som er samme
- * dato i norsk tid hele året (U-5 i BF-46). Klokkeslettet står ikke i teksten.
+ * dato i norsk tid hele året (U-5 i BF-46). Står siden åpen over midnatt, legges dagene nettleseren
+ * har talt siden lastingen til, så datoen er dagens også uten en ny lasting. Klokkeslettet står
+ * ikke i teksten.
  */
-const tidspunktFor = ({ dagensDato }: Saksmerking) =>
-  dagensDato ? new Date(`${dagensDato}T12:00:00Z`) : new Date();
+function tidspunktFor({ dagensDato, nettleserdatoVedLastingen }: Saksmerking): Date {
+  if (!dagensDato) return new Date();
+  const dager = nettleserdatoVedLastingen
+    ? Math.round(
+        (middag(osloDato()).getTime() - middag(nettleserdatoVedLastingen).getTime()) / DOEGN
+      )
+    : 0;
+  return new Date(middag(dagensDato).getTime() + dager * DOEGN);
+}
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, klokkeslettet og ID-ene settes av serveren og endrer ikke den låste teksten.
