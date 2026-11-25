@@ -87,17 +87,41 @@ export const KRAVTITTEL: Record<Spor, string> = {
   frist: 'Krav om fristforlengelse',
 };
 
-export const SVARTITTEL: Record<Spor, string> = {
-  forhold: 'Svar på forholdet',
-  vederlag: 'Svar på krav om vederlagsjustering',
-  frist: 'Svar på krav om fristforlengelse',
+/**
+ * Det svaret gjelder: i tittelen, «krav om …», og i overskriften på svaret og i forbeholdet når
+ * brevet svarer på flere krav, «kravet om …» (LV-U80, LV-U81). Svaret på et varsel som står alene,
+ * nevner varselet (VS-U77 punkt 30 og 31, VS-U79).
+ */
+const SVARET_GJELDER: Record<Spor | '34.3.3' | '34.4', { tittel: string; del: string }> = {
+  forhold: { tittel: 'forholdet', del: 'forholdet' },
+  vederlag: { tittel: 'krav om vederlagsjustering', del: 'kravet om vederlagsjustering' },
+  frist: { tittel: 'krav om fristforlengelse', del: 'kravet om fristforlengelse' },
+  '34.3.3': {
+    tittel: 'varsel om justering av enhetsprisene',
+    del: 'varselet om justering av enhetsprisene',
+  },
+  '34.4': { tittel: 'varsel om regningsarbeid', del: 'varselet om regningsarbeid' },
 };
 
-/** Tittelen på byggherrens svar på et varsel som står alene (VS-U77 punkt 30 og 31, VS-U79). */
+const svartittel = (hva: keyof typeof SVARET_GJELDER) => `Svar på ${SVARET_GJELDER[hva].tittel}`;
+
+export const SVARTITTEL: Record<Spor, string> = {
+  forhold: svartittel('forhold'),
+  vederlag: svartittel('vederlag'),
+  frist: svartittel('frist'),
+};
+
+/** Tittelen på byggherrens svar på et varsel som står alene. */
 export const SVARTITTEL_PAA_VARSELET = {
-  '34.3.3': 'Svar på varsel om justering av enhetsprisene',
-  '34.4': 'Svar på varsel om regningsarbeid',
+  '34.3.3': svartittel('34.3.3'),
+  '34.4': svartittel('34.4'),
 } as const;
+
+export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter'>) =>
+  SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
+
+/** Rekkefølgen svarene står i brevet og i tittelen (LV-U34, LV-U80). */
+export const SPORENE_I_BREVET: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 
 /** Bestemmelsen varselet er gitt etter: standpunktet til justeringen står bare etter § 34.3.3. */
 const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): '34.3.3' | '34.4' =>
@@ -121,10 +145,13 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
-  if (d.svar.length)
-    return svaretGjelderEtVarsel(d.svar[0])
-      ? SVARTITTEL_PAA_VARSELET[varseletsHjemmel(d.svar[0])]
-      : SVARTITTEL[d.svar[0].spor];
+  // LV-U80: tittelen nevner alle kravene brevet svarer på.
+  if (d.svar.length) {
+    const kravene = [...d.svar]
+      .sort((a, b) => SPORENE_I_BREVET.indexOf(a.spor) - SPORENE_I_BREVET.indexOf(b.spor))
+      .map((s) => svaretGjelder(s).tittel);
+    return `Svar på ${kravene.length > 1 ? `${kravene.slice(0, -1).join(', ')} og ${kravene.at(-1)}` : kravene[0]}`;
+  }
   const f = paaberoptForhold(d);
   if (f) return paaberopelsenAv(f.navn);
   if (d.krav.length) return KRAVTITTEL[d.krav[0].spor];

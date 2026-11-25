@@ -71,6 +71,33 @@ export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.
 export const erLagslinje = (avsnitt: string): boolean =>
   /^(Prinsipalt|Subsidiært|Videre subsidiært)(, hvis .+ fører frem)?$/.test(avsnitt);
 
+/** Navnet lagslinjen gir innsigelsen et lag bygger på, etter hva den gjelder (LV-U79). */
+export const INNSIGELSEN_MOT = {
+  forholdet: 'innsigelsen mot forholdet',
+  varselet: (hjemmel: string, post?: string) =>
+    `innsigelsen mot varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''}`,
+  forespoerselssvaret: 'innsigelsen mot svaret på forespørselen etter punkt 33.6.2',
+  spesifiseringen: 'innsigelsen mot spesifiseringen etter punkt 33.6.1',
+  // LV-U79: navnet dekker begge alternativene i standpunktet (KA-U81).
+  hindringen: 'innsigelsen mot hindringen og årsaken til den',
+  beregningsregelen: (post: string) => `innsigelsen mot beregningsregelen for ${post}`,
+  tilbudet: (post: string) => `innsigelsen mot tilbudet for ${post}`,
+} as const;
+
+/**
+ * Vilkåret i lagslinjen (LV-U79): innsigelsene i det nærmeste laget foran som rammer
+ * standpunktet, med «heller ikke» når standpunktet står i tredje lag eller senere.
+ */
+export function vilkaaretILagslinjen(innsigelsene: readonly string[], hellerIkke: boolean): string {
+  const [foerste, ...resten] = innsigelsene;
+  if (foerste === undefined) throw new Error('vilkåret i lagslinjen har ingen innsigelse');
+  const eller = resten.length
+    ? `${[foerste, ...resten.slice(0, -1)].join(', ')} eller ${resten.at(-1)}`
+    : foerste;
+  if (hellerIkke) return `hvis heller ikke ${eller} fører frem`;
+  return resten.length ? `hvis verken ${eller} fører frem` : `hvis ${foerste} ikke fører frem`;
+}
+
 /** Punktet med innledningen i svaret, først i brevet og uten overskrift. */
 export const INNLEDNINGEN = 'innledning';
 

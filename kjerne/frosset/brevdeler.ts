@@ -234,6 +234,8 @@ export interface Brevpunkt {
   avsnitt: string[];
   /** Nøkkelen til posten i hver rad i oversiktstabellen (`Avsnitt.poster`). */
   poster?: string[];
+  /** Overskriften har ikke nummer, som overskriften på svaret på hvert krav (LV-U80). */
+  unummerert?: true;
 }
 
 /**
@@ -314,10 +316,18 @@ export interface Sporsbrevtekst {
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**
-   * Et standpunkt i en art bare sporet har, er en innsigelse et senere lag bygger på (LV-U34,
-   * OV-U32). Rettidigheten er felles (`erInnsigelse` i `brevtekst.ts`).
+   * Punktene i byggherrens svar når brevet ikke følger skjemaets temaer, og punktet et standpunkt
+   * står i der (LV-U78). Uten dem følger brevet `temaer` og `punktet`.
    */
-  erInnsigelse(p: Exclude<Standpunkt, { art: 'rettidighet' }>): boolean;
+  punkteneISvaret?(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
+  punktetISvaret?(p: Standpunkt, krav: Krav): string | undefined;
+  /**
+   * Innsigelsen standpunktet er, som et senere lag bygger på, med navnet og postene den rammer
+   * (OV-U32, OV-U117, LV-U79), eller `null`.
+   */
+  vilkaaret(p: Standpunkt, krav: Krav): Vilkaar | null;
+  /** Posten standpunktet gjelder, når sporet har poster (LV-U78). */
+  posten?(p: Standpunkt): PostenISvaret;
   /**
    * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet
    * standpunktets `gjelder` står i. En protest omtaler påberopelsen da med det som kom for sent,
@@ -337,6 +347,21 @@ export interface Sporsbrevtekst {
   /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
   ingenBeloep?(krav: Krav): string;
 }
+
+/**
+ * Posten et standpunkt i svaret gjelder: kravposten med id-en, den særskilte justeringen etter
+ * § 34.1.3 annet ledd (`null`), eller hele kravet (`undefined`).
+ */
+export type PostenISvaret = string | null | undefined;
+
+/** En innsigelse et senere lag bygger på: navnet i lagslinjen og postene den rammer (LV-U79, OV-U117). */
+export interface Vilkaar {
+  navn: string;
+  rammer(post: PostenISvaret): boolean;
+}
+
+/** En innsigelse som rammer hele kravet, som innsigelsene i fristen (KA-U78). */
+export const helt = (navn: string): Vilkaar => ({ navn, rammer: () => true });
 
 /** Et tema i byggherrens svar: punktet og overskriften (LV-U34). */
 export interface Tema {

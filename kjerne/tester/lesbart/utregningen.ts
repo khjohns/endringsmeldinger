@@ -35,6 +35,8 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/tekst.ts:vederlagstekst',
       // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
       'spor/vederlag/tekst.ts:svartemaerIVederlaget',
+      // LV-U78: hjemmelen i overskriften for posten i brevet.
+      'spor/vederlag/tekst.ts:svarpunkteneIVederlaget',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
@@ -276,6 +278,8 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/utledning.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
+      // LV-U78: beløpet etter begrensningen står i punktet for den særskilte justeringen.
+      'frosset/brevtekst.ts',
     ],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.

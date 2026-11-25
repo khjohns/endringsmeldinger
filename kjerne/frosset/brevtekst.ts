@@ -26,6 +26,9 @@ import {
   svaretGjelderPaaberopelsen,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
+import { SPORENE_I_BREVET, svaretGjelder } from './brevtittel.ts';
+import type { Subsidiaergrunn } from '../regler/forhold.ts';
+import { tilTall } from '../regler/beloep.ts';
 import {
   erDato,
   Journalen,
@@ -45,7 +48,11 @@ import {
   type Lagbeloep,
   type Oversikten,
   type Tema,
+  type Utdypning,
   type Utdypninger,
+  type PostenISvaret,
+  type Vilkaar,
+  helt,
   PARTENS,
   UtdypningUtenPunkt,
 } from './brevdeler.ts';
@@ -60,17 +67,19 @@ import {
   justeringstekst,
   STANDPUNKTENE_I_VEDERLAGET,
 } from '../spor/vederlag/tekst.ts';
-import { kravposterI } from '../spor/vederlag/format.ts';
+import { kravposterI, krevdProduktivitet } from '../spor/vederlag/format.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
 import {
   FORBEHOLDET,
   FORHOLDET,
   INNLEDNINGEN,
+  INNSIGELSEN_MOT,
   kroner,
   medHardeMellomrom,
   OVERSIKTEN,
   UTEN_BEGRUNNELSE_I_SVARET,
   AKSEPTFRISTEN,
+  vilkaaretILagslinjen,
 } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
@@ -133,9 +142,8 @@ export function lagBrevtekst(
       ...(utdypning ? { utdypning } : {}),
     });
   };
-  // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
+  // LV-U34, LV-U80: punktene er nummerert gjennom hele brevet.
   let nummer = 0;
-  const nummerert = new Map<string, number>();
   // LV-U70 og LV-U71: ett avsnitt per punkt, med partens utdypning for punktet under det.
   // Utdypningen for hele elementet står i punktet `egen`, sist. Forbeholdet i et krav står
   // etter den (KA-U82, LV-U74).
@@ -143,12 +151,13 @@ export function lagBrevtekst(
     gjelder: string,
     brevpunkter: Brevpunkt[],
     egen?: { punkt: string; overskrift: string },
-    utenBegrunnelse: readonly string[] = []
+    utenBegrunnelse: readonly string[] = [],
+    oppgitt: Utdypning = utdypninger.get(gjelder) ?? {}
   ) => {
     if (!brevpunkter.some((p) => p.punkt !== undefined))
       return legg(gjelder, brevpunkter.flatMap((p) => p.avsnitt).join('\n\n'));
-    const { utdypning, utdypninger: oppgitt, forbehold } = utdypninger.get(gjelder) ?? {};
-    const perPunkt: Record<string, string> = { ...oppgitt };
+    const { utdypning, utdypninger: perPunktet, forbehold } = oppgitt;
+    const perPunkt: Record<string, string> = { ...perPunktet };
     if (utdypning) {
       if (!egen)
         throw new KanIkkeUttrykkes(`elementet ${gjelder} har ikke noe punkt for utdypningen`);
@@ -182,11 +191,11 @@ export function lagBrevtekst(
         .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
       ...brevpunkter.filter((p) => p.punkt === AKSEPTFRISTEN),
     ];
-    for (const { punkt, overskrift: o, avsnitt: a, poster } of punktene) {
+    for (const { punkt, overskrift: o, avsnitt: a, poster, unummerert } of punktene) {
       if (punkt === undefined)
         throw new KanIkkeUttrykkes(`et punkt i brevteksten for ${gjelder} har ikke noe navn`);
-      const overskrift = o === null ? undefined : medHardeMellomrom(`${++nummer}. ${o}`);
-      if (overskrift) nummerert.set(punktnoekkel(gjelder, punkt), nummer);
+      const overskrift =
+        o === null ? undefined : medHardeMellomrom(unummerert ? o : `${++nummer}. ${o}`);
       const tekst = perPunkt[punkt];
       delete perPunkt[punkt];
       avsnitt.push({
@@ -210,16 +219,75 @@ export function lagBrevtekst(
     const tekst = brevtekstI(k.spor);
     leggPunkter(k.id, tekst.krav(k, t, regler), tekst.utdypningensPunkt);
   }
-  // LV-U34, LV-U72: svaret på forholdet står først, så lagslinjene i de andre svarene kan vise til det.
-  const svarene = [...nytt.svar].sort((a, b) => SPORENE.indexOf(a.spor) - SPORENE.indexOf(b.spor));
+  // LV-U34, LV-U72: svaret på forholdet står først, så lagene i de andre svarene bygger på det.
+  const svarene = [...nytt.svar].sort(
+    (a, b) => SPORENE_I_BREVET.indexOf(a.spor) - SPORENE_I_BREVET.indexOf(b.spor)
+  );
   const ns = { nevnt: false };
-  for (const s of svarene)
+  const flere = svarene.length > 1;
+  // LV-U82: avslaget av forholdet får «Prinsipalt» når et standpunkt i brevet står subsidiært til det.
+  const subsidiaertTilForholdet = svarene.some(
+    (s) =>
+      s.spor !== 'forhold' &&
+      forholdetsLag(s, t).forskyvning > 0 &&
+      s.beslutningsgrunnlag.virkninger.some((v) => laget(v.virkning) !== null)
+  );
+  const forbeholdene: Forbeholdet[] = [];
+  let omForholdet: OmForholdet | null = null;
+  for (const s of svarene) {
+    const { utdypning, utdypninger: oppgitt, forbehold } = utdypninger.get(s.id) ?? {};
+    const perPunkt: Record<string, string> = { ...oppgitt };
+    const iPunktet = perPunkt[FORBEHOLDET];
+    if (utdypning && iPunktet)
+      throw new UtdypningUtenPunkt(
+        'Utdypningen for hele kravet og utdypningen for punktet «Forbehold» er to tekster for samme punkt.'
+      );
+    if (forbehold && (utdypning || iPunktet))
+      throw new UtdypningUtenPunkt(
+        'Forbeholdet og utdypningen for punktet «Forbehold» er to tekster for samme punkt.'
+      );
+    const tekst = utdypning || iPunktet || forbehold;
+    if (tekst) forbeholdene.push({ s, tekst });
+    const setninger = forbeholdetForForholdet(s, t);
+    if (setninger.length) {
+      if (omForholdet && omForholdet.setninger.join(' ') !== setninger.join(' '))
+        throw new KanIkkeUttrykkes('svarene i brevet har ulike forbehold om forholdet');
+      omForholdet ??= { s, setninger };
+    }
     leggPunkter(
       s.id,
-      svarpunkter(s, t, regler, { foer: nummer, nummerert, ns }),
-      FORBEHOLDSPUNKTET,
-      UTEN_BEGRUNNELSE_I_SVARET
+      svarpunkter(s, t, regler, {
+        ns,
+        del: flere ? `Svar på ${svaretGjelder(s).del}` : null,
+        subsidiaertTilForholdet,
+      }),
+      undefined,
+      UTEN_BEGRUNNELSE_I_SVARET,
+      {
+        utdypninger: Object.fromEntries(
+          Object.entries(perPunkt).filter(([punkt]) => punkt !== FORBEHOLDET)
+        ),
+      }
     );
+  }
+  // LV-U81: høyst ett punkt «Forbehold», sist i brevet. Først forbeholdet om forholdet (GR-U34),
+  // så byggherrens forbehold for hvert svar, med navnet på kravet når brevet har flere svar.
+  if (omForholdet && !forbeholdene.length) forbeholdene.push({ s: omForholdet.s });
+  if (forbeholdene.length) {
+    const overskrift = medHardeMellomrom(`${++nummer}. ${FORBEHOLDSPUNKTET.overskrift}`);
+    forbeholdene.forEach(({ s, tekst }, i) => {
+      const foerst =
+        i === 0 ? [overskrift, ...(omForholdet ? [omForholdet.setninger.join(' ')] : [])] : [];
+      const ledetekst = tekst && flere ? [`Forbehold for svaret på ${svaretGjelder(s).del}:`] : [];
+      avsnitt.push({
+        gjelder: s.id,
+        punkt: FORBEHOLDET,
+        ...(i === 0 ? { overskrift } : {}),
+        laast: [...foerst, ...ledetekst].map(medHardeMellomrom).join('\n\n'),
+        ...(tekst ? { utdypning: tekst } : {}),
+      });
+    });
+  }
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
   for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
   // A4: vedleggene står i teksten med filnavnet, så det som fryses, er teksten og
@@ -227,6 +295,18 @@ export function lagBrevtekst(
   if (nytt.dokumentasjon.length)
     legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon.map((v) => `«${v.filnavn}»`))}.`);
   return avsnitt;
+}
+
+/** Teksten i punktet «Forbehold» for svaret `s` (LV-U81): byggherrens forbehold, eller ingen. */
+interface Forbeholdet {
+  s: Svar;
+  tekst?: string;
+}
+
+/** Forbeholdet om forholdet etter GR-U34, med svaret det står for (LV-U81). */
+interface OmForholdet {
+  s: Svar;
+  setninger: string[];
 }
 
 /** En innsigelse med brevet den står i. */
@@ -315,54 +395,56 @@ function forholdetErUbesvart(s: Svar, { saken, nytt }: Pick<Tekst, 'saken' | 'ny
   );
 }
 
-/** Rekkefølgen svarene står i brevet (LV-U34). */
-const SPORENE: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
-
 /** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
 const FORBEHOLDSPUNKTET = { punkt: FORBEHOLDET, overskrift: 'Forbehold' } as const;
 
-const punktnoekkel = (gjelder: string, punkt: string) => `${gjelder}\u0000${punkt}`;
-
-/** Nummereringen i brevet så langt, og om «NS 8407» alt er nevnt i et svar (LV-U34, LV-U40). */
-interface Nummerering {
-  foer: number;
-  nummerert: ReadonlyMap<string, number>;
+/**
+ * Det svaret `s` i brevet gjelder, slik overskriften og forbeholdet nevner det (LV-U80, LV-U81),
+ * og om avslaget av forholdet får «Prinsipalt» (LV-U82). «NS 8407» står bare første gang (LV-U34).
+ */
+interface Svardelen {
   ns: { nevnt: boolean };
+  /** Overskriften på svaret når brevet svarer på flere krav, ellers `null` (LV-U80). */
+  del: string | null;
+  subsidiaertTilForholdet: boolean;
 }
 
-/** Et standpunkt i et punkt i svaret, med laget og om det er en innsigelse (LV-U34). */
+/** Et standpunkt i et punkt i svaret, med laget, posten og innsigelsen det er (LV-U78, LV-U79). */
 interface Svarledd {
   punkt: string;
   plass: number | null;
-  innsigelse: boolean;
-  tekst: string | ((nummer: (punkt: string) => number) => string);
+  post?: PostenISvaret;
+  vilkaar: Vilkaar | null;
+  tekst: string;
 }
 
 /**
- * Byggherrens svar i punkter (LV-U34, LV-U72): innledningen, ett punkt per
- * tema i skjemaets rekkefølge, med en lagslinje ved hvert standpunkt med etikett, tabellen
- * etter OV-U73 og forbeholdet etter GR-U34 sist. Begrunnelsen står som utdypningen under
- * punktet (KA-U46, designdelen). Punktet har et fast navn etter temaet, og kravposten sin
- * betegnelse (KA-U53), fordi skjemaet ikke kjenner standpunktenes id før brevet skrives.
+ * Byggherrens svar i punkter (LV-U34, LV-U72, LV-U78): innledningen, punktene i sporet med en
+ * lagslinje ved hvert standpunkt med etikett, og tabellen etter OV-U73. Begrunnelsen står som
+ * utdypningen under punktet (KA-U46, designdelen). Punktet har et fast navn etter temaet, og
+ * kravposten sin betegnelse (KA-U53), fordi skjemaet ikke kjenner standpunktenes id før brevet
+ * skrives. Forbeholdet står sist i brevet (LV-U81, `lagBrevtekst`).
  */
-function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Brevpunkt[] {
+function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevpunkt[] {
   const { j, nytt } = t;
   // VS-U79: svaret på et varsel som står alene har `gjelder` lik varselet.
   if (j.element(s.gjelder).art === 'utsagn') return svarpunkterPaaVarselet(s, t, nr);
   const krav = j.krav(s.gjelder);
   const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
-  const fra = forholdetsLag(s, t, nr);
+  const fra = forholdetsLag(s, t);
   const ledd: Svarledd[] = [...fra.ledd];
   const beloepene: Lagbeloep[] = [];
   const plassen = plassenI(s, fra.forskyvning);
   for (const p of s.standpunkter.filter(harTekst)) {
     const plass = plassen(p.id);
     const punkt = punktetFor(p, sporet, krav);
+    const post = sporet.posten?.(p);
     ledd.push({
       punkt,
       plass,
-      innsigelse: erInnsigelse(p, sporet),
+      post,
+      vilkaar: sporet.vilkaaret(p, krav),
       tekst: stor(
         p.art === 'rettidighet'
           ? rettidighetstekst(p, krav, j, innsigelsene, sporet, t)
@@ -370,14 +452,14 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       ),
     });
     if (p.art === 'beloep') beloepene.push({ post: punkt, plass, beloep: p.godkjent! });
-    // LV-U34: beløpet etter begrensningen etter § 34.1.3 står under punktet for posten.
+    // LV-U78: beløpet etter begrensningen etter § 34.1.3 står i samme avsnitt som innsigelsen.
     if (p.art === 'rettidighet' && p.hjemmel === '34.1.3' && !p.iTide) {
       ledd.push({
         punkt: 'produktivitet',
         plass,
-        innsigelse: false,
-        tekst: (nummer) =>
-          `Byggherren godkjenner ${kroner(p.begrenset!)} etter begrensningen i punkt ${nummer('34.1.3')} ovenfor.`,
+        post,
+        vilkaar: null,
+        tekst: `Byggherren godkjenner etter dette ${kroner(p.begrenset!)} av de krevde ${kroner(tilTall(krevdProduktivitet(krav)!))}.`,
       });
       beloepene.push({ post: 'produktivitet', plass, beloep: p.begrenset! });
     }
@@ -394,14 +476,14 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     ) ?? null;
   // LV-U33, LV-U38: uten tabell sier punktet om varselet følgen for postene.
   if (!oversikten) {
-    const varselet = ledd.find((l) => l.punkt === '34.1.2' && l.innsigelse);
+    const varselet = ledd.find((l) => l.punkt === '34.1.2' && l.vilkaar);
     if (varselet && sporet.ingenBeloep)
-      varselet.tekst = `${varselet.tekst as string} ${sporet.ingenBeloep(krav)}`;
+      varselet.tekst = `${varselet.tekst} ${sporet.ingenBeloep(krav)}`;
   }
-  return punkteneISvaret(s, t, nr, {
+  return punkteneISvaret(s, nr, {
     ledd,
     fra,
-    temaene: sporet.temaer(krav, t, regler),
+    temaene: sporet.punkteneISvaret?.(krav, t, regler) ?? sporet.temaer(krav, t, regler),
     innledning: innledningen(s, krav, t),
     oversikten,
   });
@@ -417,14 +499,13 @@ function plassenI(s: Svar, forskyvning: number): (standpunkt: string) => number 
 }
 
 /**
- * Punktene i byggherrens svar etter LV-U34 og LV-U72, med standpunktene `ledd` i temaene i
- * skjemaets rekkefølge: innledningen, ett punkt per tema med en lagslinje ved hvert standpunkt
- * med etikett, tabellen etter OV-U73, forbeholdet etter GR-U34 og akseptfristen sist.
+ * Punktene i byggherrens svar etter LV-U34, LV-U72 og LV-U78, med standpunktene `ledd` i
+ * temaene: innledningen, ett punkt per tema med en lagslinje ved hvert standpunkt med etikett,
+ * tabellen etter OV-U73 og akseptfristen sist.
  */
 function punkteneISvaret(
   s: Svar,
-  t: Tekst,
-  nr: Nummerering,
+  nr: Svardelen,
   {
     ledd,
     fra,
@@ -439,7 +520,9 @@ function punkteneISvaret(
     oversikten: Oversikten | null;
   }
 ): Brevpunkt[] {
-  const ordnet = ledd.some((l) => l.plass !== null && l.plass > 1);
+  const ordnet =
+    ledd.some((l) => l.plass !== null && l.plass > 1) ||
+    (s.spor === 'forhold' && nr.subsidiaertTilForholdet);
 
   // MM-U2: et standpunkt uten et tema i svaret avvises, i stedet for å falle ut av brevet.
   const utenTema = ledd.find((l) => !temaene.some((tema) => tema.punkt === l.punkt));
@@ -457,45 +540,32 @@ function punkteneISvaret(
       p.overskrift = null;
   });
   if (oversikten) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
-  const forbehold = forbeholdetForForholdet(s, t);
-  if (forbehold.length) punkter.push({ ...FORBEHOLDSPUNKTET });
 
-  const nummerert = new Map<string, number>();
-  let n = nr.foer;
-  for (const p of punkter) if (p.overskrift !== null) nummerert.set(p.punkt, ++n);
-  const nummer = (punkt: string) => {
-    const i = nummerert.get(punkt);
-    if (i === undefined)
-      throw new KanIkkeUttrykkes(`svaret viser til punktet ${punkt}, som ikke står i brevet`);
-    return i;
-  };
-  const lagslinje = (plass: number, punktet: string) => {
-    // LV-U34, LV-U40: etiketten og innsigelsene i laget foran, med brevets egne punkter «ovenfor».
-    if (plass === 1) return stor(etikett(1));
-    const foran = [
-      ...(fra.henvisninger.get(plass - 1) ?? []),
-      ...ledd.filter((l) => l.innsigelse && l.plass === plass - 1).map((l) => nummer(l.punkt)),
-    ];
-    const punktene = [...new Set(foran)].sort((a, b) => a - b);
-    if (!punktene.length) return stor(etikett(plass));
-    const innsigelsen = punktene.length > 1 ? 'innsigelsene' : 'innsigelsen';
-    // Står innsigelsen i samme punkt, viser lagslinjen ikke til punktet selv.
-    const i =
-      punktene.length === 1 && punktene[0] === nummerert.get(punktet)
-        ? `${innsigelsen} ovenfor`
-        : `${innsigelsen} i punkt ${liste(punktene.map(String))} ovenfor`;
-    return plass > 2
-      ? `${stor(etikett(plass))}, hvis heller ikke ${i} fører frem`
-      : `${stor(etikett(plass))}, hvis ${i} ikke fører frem`;
+  // LV-U79: lagslinjen nevner innsigelsene i det nærmeste laget foran som rammer standpunktet.
+  const vilkaarI = (lag: number): Vilkaar[] => [
+    ...(fra.vilkaar.get(lag) ?? []),
+    ...ledd.flatMap((l) => (l.vilkaar && l.plass === lag ? [l.vilkaar] : [])),
+  ];
+  const lagslinje = (plass: number, post: PostenISvaret) => {
+    for (let lag = plass - 1; lag >= 1; lag--) {
+      const navnene = [...new Set(vilkaarI(lag).flatMap((v) => (v.rammer(post) ? [v.navn] : [])))];
+      if (navnene.length)
+        return `${stor(etikett(plass))}, ${vilkaaretILagslinjen(navnene, plass > 2)}`;
+    }
+    return stor(etikett(plass));
   };
 
   const brevpunkter: Brevpunkt[] = [
-    { punkt: INNLEDNINGEN, overskrift: null, avsnitt: [utenGjentattNs(innledning, nr.ns)] },
+    {
+      punkt: INNLEDNINGEN,
+      overskrift: nr.del,
+      ...(nr.del ? { unummerert: true as const } : {}),
+      avsnitt: [utenGjentattNs(innledning, nr.ns)],
+    },
   ];
   for (const p of punkter) {
     const avsnitt: string[] = p.foerst ? [p.foerst] : [];
     if (p.punkt === OVERSIKTEN) avsnitt.push(oversikten!.tabell);
-    else if (p.punkt === FORBEHOLDET) avsnitt.push(forbehold.join(' '));
     else {
       // OV-U32: et upåvirket standpunkt står uten etikett, så det står foran lagene i punktet.
       const iPunktet = ledd
@@ -503,12 +573,9 @@ function punkteneISvaret(
         .sort((a, b) => (a.plass ?? 0) - (b.plass ?? 0));
       let forrige: number | null | undefined;
       for (const l of iPunktet) {
-        const tekst = utenGjentattNs(
-          typeof l.tekst === 'string' ? l.tekst : l.tekst(nummer),
-          nr.ns
-        );
+        const tekst = utenGjentattNs(l.tekst, nr.ns);
         if (ordnet && l.plass !== null && l.plass !== forrige)
-          avsnitt.push(lagslinje(l.plass, p.punkt), tekst);
+          avsnitt.push(lagslinje(l.plass, l.post), tekst);
         else if (forrige !== undefined && l.plass === forrige)
           avsnitt.push(`${avsnitt.pop()} ${tekst}`);
         else avsnitt.push(tekst);
@@ -540,12 +607,12 @@ const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
  * prinsipalt og justeringen subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene
  * svaret på forholdet opptar (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
  */
-function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Nummerering): Brevpunkt[] {
+function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
   const { j } = t;
   const hjemmel = varselhjemmel(s.gjelder, j);
   if (hjemmel !== '34.3.3' && hjemmel !== '34.4')
     throw new KanIkkeUttrykkes(`svaret gjelder et varsel etter § ${hjemmel}, som står i kravet`);
-  const fra = forholdetsLag(s, t, nr);
+  const fra = forholdetsLag(s, t);
   const plassen = plassenI(s, fra.forskyvning);
   const ledd: Svarledd[] = [
     ...fra.ledd,
@@ -554,20 +621,20 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Nummerering): Brevpunkt[]
         return {
           punkt: hjemmel,
           plass: plassen(p.id),
-          innsigelse: !p.iTide,
+          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),
           tekst: stor(varseltekst(p, 'varselet', [], t)),
         };
       if (p.art === 'justering')
         return {
           punkt: 'justering',
           plass: plassen(p.id),
-          innsigelse: false,
+          vilkaar: null,
           tekst: stor(justeringstekst(p.godtar, null)),
         };
       throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret på varselet`);
     }),
   ];
-  return punkteneISvaret(s, t, nr, {
+  return punkteneISvaret(s, nr, {
     ledd,
     fra,
     temaene: TEMAENE_I_SVARET_PAA_VARSELET,
@@ -618,48 +685,44 @@ const forrigeSvar = (s: Svar, j: Journalen): string =>
 
 /** Punktet standpunktet står i (LV-U34): punktet i sporet, eller bestemmelsen for rettidigheten. */
 function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
-  const punkt = sporet.punktet(p, krav);
+  const punkt = (sporet.punktetISvaret ?? sporet.punktet)(p, krav);
   if (punkt !== undefined) return punkt;
   if (p.art === 'rettidighet') return p.hjemmel;
   throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
 }
 
-/** Et standpunkt som er en innsigelse et senere lag bygger på (LV-U34, OV-U32). */
-const erInnsigelse = (p: Standpunkt, sporet: Sporsbrevtekst): boolean =>
-  p.art === 'rettidighet' ? !p.iTide : sporet.erInnsigelse(p);
+/** Navnet på innsigelsen fra svaret på forholdet i lagslinjen (LV-U79). */
+const GRUNNEN_I_LAGSLINJEN: Record<Subsidiaergrunn, string> = {
+  prekludert: INNSIGELSEN_MOT.varselet('32.2'),
+  avslaatt: INNSIGELSEN_MOT.forholdet,
+};
 
 /**
  * OV-U32 og LV-U34: et avslått eller prekludert forhold står først, og lagene i sporet flyttes
  * ned med antallet lag det opptar, ett for preklusjonen etter § 32.2 og ett for avslaget. Står
- * svaret på forholdet i samme brev, viser lagslinjene til punktene i det (`henvisninger`). Står
- * det i et tidligere brev, har svaret et eget punkt «Forholdet» med det byggherren sa der.
+ * svaret på forholdet i samme brev, nevner lagslinjene innsigelsene i det (`vilkaar`, LV-U79).
+ * Står det i et tidligere brev, har svaret et eget punkt «Forholdet» med det byggherren sa der.
  */
 function forholdetsLag(
   s: Svar,
-  { j, saken, nytt }: Tekst,
-  nr: Nummerering
-): { forskyvning: number; ledd: Svarledd[]; henvisninger: Map<number, number[]> } {
-  const ingen = { forskyvning: 0, ledd: [], henvisninger: new Map() };
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+): { forskyvning: number; ledd: Svarledd[]; vilkaar: Map<number, Vilkaar[]> } {
+  const ingen = { forskyvning: 0, ledd: [], vilkaar: new Map() };
   if (s.spor === 'forhold') return ingen;
   const g = svaretPaaForholdet({ j, saken, nytt });
   if (!g) return ingen;
   const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
-  if (nytt.id === g.dokument) {
-    const henvisninger = new Map<number, number[]>();
-    grunner.forEach((grunn, i) => {
-      const punkt = grunn === 'prekludert' ? '32.2' : 'forhold';
-      const n = nr.nummerert.get(punktnoekkel(g.id, punkt));
-      if (n === undefined)
-        throw new KanIkkeUttrykkes(`svaret på forholdet har ikke punktet ${punkt} i brevet`);
-      henvisninger.set(i + 1, [n]);
-    });
-    return { forskyvning: grunner.length, ledd: [], henvisninger };
-  }
+  if (nytt.id === g.dokument)
+    return {
+      forskyvning: grunner.length,
+      ledd: [],
+      vilkaar: new Map(grunner.map((grunn, i) => [i + 1, [helt(GRUNNEN_I_LAGSLINJEN[grunn])]])),
+    };
   const brevet = j.brevet(g.dokument);
   const ledd: Svarledd[] = grunner.map((grunn, i) => ({
     punkt: FORHOLDET,
     plass: i + 1,
-    innsigelse: true,
+    vilkaar: helt(GRUNNEN_I_LAGSLINJEN[grunn]),
     tekst:
       grunn === 'prekludert'
         ? `Byggherren har i ${brevet} gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.`
@@ -670,7 +733,7 @@ function forholdetsLag(
             ? `Byggherren har i ${brevet} svart at byggherren ikke har risikoen for forholdet.`
             : `Byggherren har avslått forholdet i ${brevet}.`,
   }));
-  return { forskyvning: grunner.length, ledd, henvisninger: new Map() };
+  return { forskyvning: grunner.length, ledd, vilkaar: new Map() };
 }
 
 /** En innsigelse forespørselen fastholder, og varslene den sier kom for sent (LV-U49). */

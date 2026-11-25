@@ -714,9 +714,18 @@ export const KOMMANDOENE: Lesbar[] = [
   ],
   // Hjemmelen for hindringen, i brevet og skjemaene (KA-U81, #1925).
   ['spor/frist/format.ts', 'brevtekst', 'hindringenEtter', ['spor/frist/tekst.ts']],
-  ['spor/frist/format.ts', 'predikat', 'erInnsigelseIFristen', ['spor/frist/tekst.ts']],
   // #2280: det et standpunkt rammer et senere lag med, i skjemaet og visningen (OV-U32, OV-U117).
   ['spor/frist/format.ts', 'predikat', 'innsigelsenIFristen', ['spor/frist/kommando.ts']],
+  // LV-U79: lagslinjen i brevet nevner innsigelsen med navn, og bare der den rammer posten.
+  ['spor/frist/format.ts', 'predikat', 'innsigelsenIFristen', ['spor/frist/tekst.ts']],
+  ['InnsigelseIFristen', 'predikat', 'innsigelse', ['spor/frist/tekst.ts']],
+  ['spor/forhold/format.ts', 'predikat', 'innsigelsenIForholdet', ['spor/forhold/tekst.ts']],
+  [
+    'spor/vederlag/format.ts',
+    'predikat',
+    'innsigelsenIVederlaget rammerPosten',
+    ['spor/vederlag/tekst.ts'],
+  ],
   ['spor/forhold/format.ts', 'predikat', 'innsigelsenIForholdet', ['spor/forhold/kommando.ts']],
   [
     'spor/vederlag/format.ts',
@@ -731,8 +740,6 @@ export const KOMMANDOENE: Lesbar[] = [
     ['spor/vederlag/kommando.ts:rammerIVederlaget'],
   ],
   ['InnsigelseIVederlaget', 'predikat', 'innsigelse oppgjoersform gjelder'],
-  // #2242: innsigelsen i vederlagssvaret, i brevet og visningen.
-  ['spor/vederlag/format.ts', 'predikat', 'erInnsigelseIVederlaget', ['spor/vederlag/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato ukjenteFelt'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.

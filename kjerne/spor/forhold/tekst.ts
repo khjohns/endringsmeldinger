@@ -23,11 +23,17 @@ import {
   type Standpunktstekster,
   type Tekst,
   utenOverskrift,
+  helt,
 } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten, standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
-import { sakensKode } from '../../frosset/tekst.ts';
-import { DATOEN_GJELDER, innholdIForholdet, type OppgittDato } from './format.ts';
+import { INNSIGELSEN_MOT, sakensKode } from '../../frosset/tekst.ts';
+import {
+  DATOEN_GJELDER,
+  innholdIForholdet,
+  innsigelsenIForholdet,
+  type OppgittDato,
+} from './format.ts';
 import { blirEndringsordre } from './frysing.ts';
 import type { Beslutningsgrunnlag, Dokument, Krav } from '../../typer.ts';
 
@@ -245,7 +251,12 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,
   punktet: (p) => (p.art === 'forhold' ? 'forhold' : undefined),
-  erInnsigelse: (p) => p.art === 'forhold' && p.resultat === 'avslaatt',
+  vilkaaret: (p) =>
+    innsigelsenIForholdet(p)
+      ? helt(INNSIGELSEN_MOT.varselet('32.2'))
+      : p.art === 'forhold' && p.resultat === 'avslaatt'
+        ? helt(INNSIGELSEN_MOT.forholdet)
+        : null,
   // LV-U34: punktene i byggherrens svar, som i skjemaet (prototypen `forholdssvar.html`).
   temaer: () => [
     { punkt: '32.2', overskrift: 'Varselet etter punkt 32.2' },
