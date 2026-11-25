@@ -397,7 +397,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   sier hva brevet sier. Tidslinja har datoene, også dem parten fyller ut før brevet er
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
-  vinduet. Ellers ruller den under panelet (#1492).
+  vinduet. Ellers ruller den under panelet (#1492). Det skjemaet viser fra et annet brev, står i
+  et lite kort mellom panelet og tidslinja (`stoettekort`), som svarene fra forrige brev i
+  svaret på et varsel lagt til mellom to krav (oppdragsgiver 25.11 i #2358).
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650). Den gule
   arbeidsraden under erstattes av «Utkastet er brevet mens det skrives» når det bygges (#2178):
   - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px

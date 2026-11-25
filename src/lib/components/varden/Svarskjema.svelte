@@ -66,6 +66,7 @@
     onforkast,
     onvedsiden,
     spoersmaal,
+    stoettekort,
     lagtTil = null,
     svarerPaa = null,
     onendre = () => {},
@@ -111,6 +112,8 @@
         overskrift: (punkt: string) => string | undefined,
       ]
     >;
+    /** Et kort i høyre kolonne under panelet (`Brevskjema`). */
+    stoettekort?: Snippet;
     /**
      * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
      * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (OV-U80), og løsningen lager
@@ -317,6 +320,7 @@
   skilt
   knapp={stopp === null ? knapp : null}
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
+  {stoettekort}
 >
   {#snippet panel(sendeknapp)}
     <Hovedlinjer {linjer} {alternativer} punkter={feltpunktene} handling={sendeknapp} />

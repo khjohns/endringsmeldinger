@@ -152,6 +152,66 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.screenshot({ path: `${ut}/varselsvar-344.png`, fullPage: true });
     },
   },
+  'varsel-mellom': {
+    tittel: 'Gjennomføringer i dekket over kjeller',
+    formaal:
+      '#2358: svaret på et varsel etter punkt 34.3.3 lagt til mellom to krav, med svarene fra forrige brev (F-8 i BF-14).',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt omlegging av rør i kjeller.',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [
+          { oppgjoersform: 'tilbud', belop: 210000 },
+          { oppgjoersform: 'tilbud', belop: 120000 },
+        ],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            kravposter: [
+              { post: 'P1', vurdering: 'godkjent', godkjent_belop: 210000 },
+              { post: 'P2', vurdering: 'delvis', godkjent_belop: 80000 },
+            ],
+          },
+        ],
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+    ],
+    // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står i høyre kolonne og kan ikke endres
+    // der (VS-U65); lenken åpner et nytt svar på kravet.
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      const svar = bh.getByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' });
+      await svar.click({ timeout: 30_000 });
+      await bh.getByRole('heading', { name: /^Svar på varsel om justering av enhetsprisene/ }).waitFor();
+      await bh.getByRole('radio', { name: 'Kom i tide' }).check();
+      await bh.getByRole('radio', { name: 'Godtar justeringen' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-mellom.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselsvar-mellom-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      // Varden har ikke skjemaet for et nytt svar på kravet ennå (G4 i handlingsregisteret).
+      await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
+      await bh.getByRole('status').filter({ hasText: 'ikke bygget' }).waitFor({ timeout: 10_000 });
+      const svarene = bh.getByRole('region', { name: /^Svarene på kravet i brev/ });
+      if (await svarene.getByRole('button', { name: /^(Endre|Svar på)/ }).count())
+        throw new Error('Svarene fra forrige brev har «Endre» i svaret på varselet (VS-U65)');
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
