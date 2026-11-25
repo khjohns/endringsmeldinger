@@ -24,7 +24,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Feltetikett`](../src/lib/components/varden/Feltetikett.svelte) | 2 | Labelen over et felt i skjemaene, med «Valgfri» til høyre på linja (system.md, «Feltene står under hverandre» og «Høyst tre nivåer av flater», #2059). |
 | [`Filvalg`](../src/lib/components/varden/Filvalg.svelte) | 2 | Filvalget i Varden (F-7 i BF-05, #1037): nettleserens filvelger, som i skissen, med filene lastet opp etter hvert som de velges. |
 | [`Forbeholdet`](../src/lib/components/varden/Forbeholdet.svelte) | 2 | Forbeholdet etter GR-U34 i kortet «Kravet og svaret», én gang: det svaret ble sendt med, og stillingen i forholdet nå (U-3 og D-3 i BF-44, D-11 i BF-45), med lenke til forholdet. |
-| [`Forholdsgrunn`](../src/lib/components/varden/Forholdsgrunn.svelte) | 2 | Grunnen fra svaret på forholdet i «Gjelder hvis» i svaret på et krav. |
+| [`Forholdsgrunn`](../src/lib/components/varden/Forholdsgrunn.svelte) | 3 | Grunnen fra svaret på forholdet i «Gjelder hvis» i svaret på et krav. |
 | [`Forkastutkast`](../src/lib/components/varden/Forkastutkast.svelte) | 5 | «Forkast utkast» nederst i utkastet, med en dialog som spør først (oppdragsgiver 06.11 og 07.11, PR 1650). |
 | [`Gjeldendefrist`](../src/lib/components/varden/Gjeldendefrist.svelte) | 2 | Gjeldende frist for én frist i fristtabellen (D-9, KA-U77): datoen i kontrakten med forlengelsene partene er enige om i andre saker, med lenker til sakene, eller hvorfor den ikke kan regnes (MM-U2, KA-U79). |
 | [`Gjelderhvis`](../src/lib/components/varden/Gjelderhvis.svelte) | 4 | «Gjelder hvis» over et spørsmål i svaret: det i et foregående lag som rammer standpunktet, én forutsetning per linje i brevets rekkefølge (oppdragsgiver 30.10, #1391, #1400). |
