@@ -74,7 +74,12 @@ import {
   type Kravpostvarselhjemmel,
   type Standpunkt,
 } from '../../typer.ts';
-import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import {
+  kravversjoneneKravetProevesMot,
+  paaberopelseFor,
+  varseletForNyttSvar,
+  type Utledning,
+} from '../../utledning/utled.ts';
 import { dagenSendt, dokumenterI, foerDagen } from '../../format/leser.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
@@ -245,17 +250,23 @@ export const KRAVFORM_I_VEDERLAGET = {
 
 /**
  * KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, KA-U83: den særskilte
- * vederlagsjusteringen mot forrige versjon, og VS-U50: varselet for posten.
+ * vederlagsjusteringen mot forrige versjon, og VS-U50: varselet for posten. Et krav lagt til
+ * prøves mot kravversjonene sendt før det (OV-U118).
  */
-function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+function kravpostsperre(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
+  const { tidligere, andre } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);
   const strid =
-    kravposteneStrider(k.innhold, u.spor.vederlag.krav, false) ??
-    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);
+    kravposteneStrider(k.innhold, tidligere, false, andre) ??
+    saerskiltStrider({ innhold: k.innhold }, tidligere);
   if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
   const varselet = kravpostvarseletStrider(
     { innhold: k.innhold },
-    u.spor.vederlag.krav,
+    tidligere,
     u.spor.vederlag.kravpostvarsler
   );
   return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
@@ -442,7 +453,8 @@ function medKravposter(
   nyId: () => string
 ): Record<string, unknown> {
   if (!innhold.kravposter) return innhold;
-  const tidligere = u.spor.vederlag.krav;
+  // OV-U119.
+  const tidligere = [...u.spor.vederlag.krav, ...u.spor.vederlag.kravUtenforRekken];
   const betegnelsen = new Map(
     tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
   );

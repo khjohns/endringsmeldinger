@@ -12,19 +12,13 @@ import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
 import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import type { Klokke } from './testmiljoe.ts';
+import { dagklokke } from './testmiljoe.ts';
 import { varseletFoerSvaret } from '../utledning/utled.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import { SOM_BREV } from './brevet.ts';
-
-/** Én dag per hendelse, fra 21.09 kl. 10 norsk tid. */
-function dagklokke(): Klokke {
-  let t = Date.parse('2026-09-20T08:00:00.000Z');
-  return { naa: () => new Date(t), neste: () => new Date((t += 86_400_000)) };
-}
 
 async function prov(id: string, steg: Handling[], kontroller: Kontroll[]): Promise<void> {
   const forloep: Forloep = { id, rader: [], start: 'krav_irreg', steg, kontroller };
@@ -1372,26 +1366,6 @@ describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', (
       kontroll.godtatt ? null : kontroll.avvisning,
       'kontrollsak: uten det eldre kravet'
     ).toBeNull();
-  });
-});
-
-describe('innholdet i et krav utenfor rekken (OV-U102)', () => {
-  const toPoster: Handling = {
-    handling: 'krav',
-    spor: 'vederlag',
-    kravposter: [{ post: 'P1', belop: 60000 }, { belop: 40000 }],
-  };
-  const enPost: Handling = {
-    handling: 'krav',
-    spor: 'vederlag',
-    kravposter: [{ post: 'P1', belop: 60000 }],
-  };
-
-  it('kommandoen prøver fortsatt kravpostene mot rekken, til innholdet i et krav utenfor den er avklart (dagens atferd, #2011)', async () => {
-    expect(await provRegistrering([toPoster], enPost, '2026-09-23')).toMatchObject({
-      godtatt: false,
-      avvisning: { regel: 'KRAVPOSTENE' },
-    });
   });
 });
 

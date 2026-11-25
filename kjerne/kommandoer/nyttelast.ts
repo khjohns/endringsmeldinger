@@ -78,8 +78,15 @@ export interface Sporsnyttelast {
    * svar lagt til ble sendt, og `null` for et svar fra løsningen.
    */
   svarsperre(s: Svarutkast, krav: Krav, u: Utledning, sendt: string | null): Avvisning | null;
-  /** Det i kravet som strider mot kravversjonene før i sporet, eller `null`. */
-  kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;
+  /**
+   * Det i kravet som strider mot kravversjonene før i sporet, eller `null`. `sendt` er dagen et krav
+   * lagt til ble sendt, og `null` for et krav fra løsningen (OV-U118).
+   */
+  kravsperre(
+    k: Extract<Kommando, { type: 'krav' }>,
+    u: Utledning,
+    sendt: string | null
+  ): Avvisning | null;
   /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
   innsigelse(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null;
   /** Utdypningen kravet i sporet må ha under den låste teksten (`kravetsUtdypning`), eller `null`. */
@@ -477,7 +484,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = nyttelastI(k.spor).kravsperre(k, u);
+      const sperre = nyttelastI(k.spor).kravsperre(k, u, sendt);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
@@ -498,19 +505,19 @@ export function nyttelastkontroll(
           'VARSEL_REGISTRERT',
           `Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det. Fjern ${opplistet(oppgitt.map((f) => BARE_LAGT_TIL[f]))}.`
         );
-      const sendt = datoFor(
+      const varseletSendt = datoFor(
         varsel,
         'sendt',
         u.opplysninger.map((o) => o.opplysning)
       );
       // SK-12, VS-U15: et varsel uten sendedato, som et varsel sendt fra appen med serverens
       // dato, får ingen dato fra kravet.
-      if (sendt === undefined)
+      if (varseletSendt === undefined)
         return avvis(
           'VARSEL_REGISTRERT',
           'Varselet er sendt herfra eller registrert uten dato for sendingen, og kravet kan ikke oppgi en.'
         );
-      const registrert = kalenderdag(sendt.dato);
+      const registrert = kalenderdag(varseletSendt.dato);
       if (registrert === null)
         return avvis(
           'VARSEL_REGISTRERT',

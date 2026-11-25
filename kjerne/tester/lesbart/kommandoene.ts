@@ -163,8 +163,42 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/avvisning.ts:avvisning',
     ],
   ],
-  // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken.
-  ['utledning/utled.ts', 'relasjon', 'sendtFoerSisteKrav', ['kommandoer/skriving.ts:dokument']],
+  // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken. OV-U121, OV-U122: en
+  // påberopelse sendt før den siste prøves mot forholdet og datoen i den siste.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'sendtFoerSisteKrav',
+    [
+      'kommandoer/skriving.ts:dokument',
+      'spor/forhold/kommando.ts:kategorisperre',
+      'spor/forhold/kommando.ts:datosperre',
+    ],
+  ],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['spor/forhold/kommando.ts:datosperre']],
+  // OV-U118, OV-U119: kravversjonene et krav lagt til prøves mot.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'kravversjoneneKravetProevesMot',
+    ['spor/frist/kommando.ts:fristsperre', 'spor/vederlag/kommando.ts:kravpostsperre'],
+  ],
+  [
+    'utledning/utled.ts:kravversjoneneKravetProevesMot',
+    'relasjon',
+    'k sendt',
+    ['utledning/utled.ts:kravversjoneneKravetProevesMot'],
+  ],
+  [
+    'utledning/utled.ts:kravversjoneneKravetProevesMot',
+    'relasjon',
+    'tidligere andre',
+    [
+      'spor/frist/kommando.ts:fristsperre',
+      'spor/vederlag/kommando.ts:kravpostsperre',
+      'utledning/utled.ts:kravetStrider',
+    ],
+  ],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
   // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.

@@ -527,7 +527,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
   return [
-    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
+    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u, d, samme))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
     ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme, utenVirkning) : []),
@@ -556,6 +556,31 @@ export function sendtFoerSisteKrav(
 ): boolean {
   const siste = u.spor[spor].gjeldendeKrav;
   return siste !== null && foerDagen(dag, datoenDetBleSendt(u, siste), () => samme(siste.id));
+}
+
+/**
+ * OV-U118, OV-U119: kravversjonene i sporet et krav sendt på dagen `dag` prøves mot (`tidligere`), i
+ * rekkefølgen de ble sendt, og resten (`andre`). For et krav sendt før det siste er `tidligere` de
+ * sendt til og med `dag`, også utenfor rekken (OV-U104); ellers er det rekken. Kommandoen og
+ * `kravetStrider` leser regelen herfra. `samme` får hver kravversjon sendt samme dag.
+ */
+export function kravversjoneneKravetProevesMot(
+  u: Utledning,
+  spor: Spor,
+  dag: string | null,
+  samme: (med: string) => void = () => {}
+): { tidligere: readonly Krav[]; andre: readonly Krav[] } {
+  const { krav, kravUtenforRekken } = u.spor[spor];
+  if (!sendtFoerSisteKrav(u, spor, dag)) return { tidligere: krav, andre: kravUtenforRekken };
+  const foer: { k: Krav; sendt: string }[] = [];
+  const andre: Krav[] = [];
+  for (const k of [...krav, ...kravUtenforRekken]) {
+    const sendt = datoenDetBleSendt(u, k);
+    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });
+    else andre.push(k);
+  }
+  foer.sort((a, b) => a.sendt.localeCompare(b.sendt));
+  return { tidligere: foer.map((x) => x.k), andre };
 }
 
 /**
@@ -859,12 +884,21 @@ interface Partspaaberopelse {
   hjemmel: (varslingsplikt: boolean) => Hjemmel | Kravpostvarselhjemmel | null;
 }
 
-/** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
-function kravetStrider(k: Krav, u: Utledning): string | null {
+/**
+ * Hvorfor kravversjonen strider mot journalen før den, eller `null`. Et krav lagt til prøves mot
+ * kravversjonene på dagen det ble sendt (`kravversjoneneKravetProevesMot`).
+ */
+function kravetStrider(k: Krav, u: Utledning, d: Dokument, samme: SammeDag): string | null {
   const l = lukket(u);
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
-  const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
+  const { tidligere, andre } = kravversjoneneKravetProevesMot(
+    u,
+    k.spor,
+    erRegistrert(d.opplysninger) ? dagenSendt(k, d) : null,
+    (med) => samme(k.id, med)
+  );
+  const poster = kontrollerI(k.spor).kravet(k, tidligere, andre);
   return poster ? `en kravversjon som ${poster}` : null;
 }
 
@@ -970,8 +1004,11 @@ export type Bakover = (fra: string, til: string) => boolean;
  * leseregel gir en begrensning med `ugyldig`, eller `null` for kravversjonen.
  */
 export interface Sporskontroller {
-  /** Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». */
-  kravet(k: Krav, tidligere: readonly Krav[]): string | null;
+  /**
+   * Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». `andre` er
+   * de andre kravversjonene i sporet (`kravversjoneneKravetProevesMot`).
+   */
+  kravet(k: Krav, tidligere: readonly Krav[], andre: readonly Krav[]): string | null;
   /** Kravversjonene i sporet mot varslene. */
   kravene(
     krav: readonly Krav[],

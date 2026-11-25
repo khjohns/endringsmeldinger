@@ -47,18 +47,21 @@ type Kravversjonsinndata = { kravposter?: Versjonsinndata['poster']; trekker?: r
 /**
  * Hvorfor kravpostene i den nye kravversjonen strider mot de tidligere versjonene i sporet,
  * eller `null`, etter versjonsregelen for postene (`posteneStrider`). `lagret` sier om
- * innholdet er en lagret versjon eller en kommando.
+ * innholdet er en lagret versjon eller en kommando, og `andre` er de andre kravversjonene i sporet
+ * (`kravversjoneneKravetProevesMot`).
  */
 export const kravposteneStrider = (
   ny: Kravversjonsinndata,
   tidligere: readonly Pick<Krav, 'innhold'>[],
-  lagret: boolean
+  lagret: boolean,
+  andre: readonly Pick<Krav, 'innhold'>[]
 ): string | null =>
   posteneStrider(
     { poster: ny.kravposter, trekker: ny.trekker },
     tidligere.map(kravposterI),
     lagret,
-    'kravpost'
+    'kravpost',
+    andre.map(kravposterI)
   );
 
 /**
@@ -236,8 +239,9 @@ function kravpoststandpunktetStrider(
 
 /** Kontrollene i vederlaget, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`. */
 export const KONTROLLER_I_VEDERLAGET = {
-  kravet: (k, tidligere) =>
-    kravposteneStrider(innholdIVederlaget(k), tidligere, true) ?? saerskiltStrider(k, tidligere),
+  kravet: (k, tidligere, andre) =>
+    kravposteneStrider(innholdIVederlaget(k), tidligere, true, andre) ??
+    saerskiltStrider(k, tidligere),
   kravene: kontrollerKravpostvarslene,
   svaret: kontrollerPostene,
   kanFaaPassivitet: false,

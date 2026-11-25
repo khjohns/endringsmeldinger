@@ -104,7 +104,7 @@ function fristsvaretISakslisten(
 
 export function fristenISakslisten(u: Utledning): FristenISakslisten {
   const s = u.spor.frist;
-  const { sist } = fristeneISporet(s.krav);
+  const { sist } = fristeneISporet(s.krav, []);
   const krav = s.gjeldendeKrav;
   const virkning = enighetensVirkning(u, 'frist');
   return {
