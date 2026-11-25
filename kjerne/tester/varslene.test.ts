@@ -2355,19 +2355,18 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           )
         )?.regel
       ).toBe('UGYLDIG_FORM');
+      const toGanger = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] } },
+          { ...justert, varsel: kopi },
+        ]),
+        { ...kopier, [PLAN]: varsel.dokumentasjon[0]! }
+      );
       expect(
-        avvisningen(
-          proev(
-            s,
-            vederlagskrav([
-              { ...regning, varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] } },
-              { ...justert, varsel: kopi },
-            ]),
-            { ...kopier, [PLAN]: varsel.dokumentasjon[0]! }
-          )
-        )?.regel,
-        'et dokument med fila to ganger er et annet dokument enn ett med fila én gang'
-      ).toBe('UGYLDIG_FORM');
+        toGanger.godtatt && toGanger.hendelser.length,
+        'fila to ganger i ett dokument er samme brev som fila én gang, som i `sammeDokument` (#2100)'
+      ).toBe(2);
       const annen = proev(
         s,
         vederlagskrav([
@@ -2380,6 +2379,47 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         annen.godtatt && annen.hendelser,
         'kontrollsak: en annen fil er et annet brev'
       ).toHaveLength(3);
+    });
+
+    it('to ulike dokumenter fra kravskjemaet med samme fil lastet opp hver for seg, er to brev, og samme opplasting i begge avvises (VS-U53, #2100)', () => {
+      const s = paaberopt();
+      const tegning = randomUUID();
+      const kopi = randomUUID();
+      const foerste = { ...dokument(), dokumentasjon: [randomUUID(), tegning] };
+      const andre = { ...dokument(), sendt: '2026-09-26', dokumentasjon: [randomUUID(), kopi] };
+      const vist = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel: foerste },
+          { ...justert, varsel: andre },
+        ]),
+        { [kopi]: tegning }
+      );
+      if (!vist.godtatt) expect.fail(JSON.stringify(vist.avvisning));
+      expect(vist.hendelser, 'to brev og kravet').toHaveLength(3);
+      expect(
+        avvisningen(
+          proev(
+            s,
+            vederlagskrav([
+              { ...regning, varsel: foerste },
+              {
+                ...justert,
+                varsel: { ...andre, dokumentasjon: [andre.dokumentasjon[0]!, tegning] },
+              },
+            ]),
+            {}
+          )
+        )?.regel,
+        'kontrollsak: samme opplasting hører til ett dokument'
+      ).toBe('UGYLDIG_FORM');
+      s.send('TE', { ...registrertVarsel('34.4'), dokumentasjon: foerste.dokumentasjon });
+      expect(
+        avvisningen(
+          proev(s, vederlagskrav([{ ...justert, varsel: andre }, regning]), { [kopi]: tegning })
+        ),
+        'et annet brev med fila fra et varsel i saken'
+      ).toBeNull();
     });
 
     it('samme fil lastet opp på nytt som vedlegget ved et varsel for en kravpost i saken, avvises som dokument fra kravskjemaet, og en annen fil godtas (VS-U55, OV-U80, #2144)', () => {

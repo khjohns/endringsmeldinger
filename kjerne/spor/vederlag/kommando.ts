@@ -19,8 +19,9 @@ import { kategori } from '../forhold/format.ts';
 import { liste, omtalen } from '../../frosset/brevdeler.ts';
 import {
   innholdetIDokumentet,
-  innholdetIVedlegget,
   innholdetIVedleggene,
+  sammeDokument,
+  vedleggsnoekkel,
 } from '../../kommandoer/vedlegg.ts';
 import {
   kontroller as kontrollerVederlaget,
@@ -503,15 +504,21 @@ function medDokumentvarslene(
   const poster = (k.innhold.kravposter ?? []) as Record<string, unknown>[];
   if (!poster.some((p) => erDokumentvarsel(p.varsel))) return null;
   // VS-U51, VS-U53: et dokument står i saken som ett brev. Kravpostene det gjelder, oppgir det
-  // likt, og et vedlegg hører til ett dokument.
+  // likt, og en opplasting hører til ett dokument. Samme fil lastet opp på nytt kan ligge ved et
+  // annet brev (`sammeDokument`, #2100).
   const dokumentene = new Map<string, string>();
+  const opplastingene = new Map<string, string>();
   for (const p of poster) {
     if (!erDokumentvarsel(p.varsel)) continue;
     const { sendt, korrespondansetype, sendemaate, beskrivelse } = p.varsel;
-    const noekkel = dokumentnoekkel(p.varsel, skriving.oppslag);
+    const noekkel = JSON.stringify(dokumentnoekkel(p.varsel, skriving.oppslag));
     const like = JSON.stringify([noekkel, sendt, korrespondansetype, sendemaate, beskrivelse]);
-    for (const id of noekkel) {
-      if ((dokumentene.get(id) ?? like) !== like)
+    const ider = p.varsel.dokumentasjon.map(vedleggsnoekkel);
+    for (const [kart, noekler] of [
+      [dokumentene, [noekkel]],
+      [opplastingene, ider],
+    ] as const) {
+      if (noekler.some((n) => (kart.get(n) ?? like) !== like))
         return {
           godtatt: false,
           feil: 'UGYLDIG_FORM',
@@ -521,19 +528,19 @@ function medDokumentvarslene(
               'Kravpostene oppgir samme dokument som varsel med ulik dato, type, sendemåte, beskrivelse eller andre vedlegg. Et dokument oppgis likt for hver kravpost det gjelder.',
           },
         };
-      dokumentene.set(id, like);
+      for (const n of noekler) kart.set(n, like);
     }
   }
   return skriving.proevd((kx, jx) => medVarslene(k, [], kx, jx, skriving));
 }
 
 /**
- * Innholdet i hvert vedlegg i dokumentet, sortert, som skiller ett dokument fra et annet. Samme
- * fil lastet opp på nytt er samme dokument (#2126, #2100), og et dokument med fila to ganger er
- * et annet enn et med fila én gang.
+ * Innholdet i vedleggene i dokumentet, sortert, som skiller ett dokument fra et annet. Samme fil
+ * lastet opp på nytt er samme dokument, og hele dokumentet sammenliknes, som `sammeDokument`
+ * (#2126, #2100).
  */
 const dokumentnoekkel = (d: Dokumentvarsel, oppslag: Vedleggsoppslag): string[] =>
-  d.dokumentasjon.map((id) => innholdetIVedlegget(id, oppslag)).sort();
+  [...innholdetIVedleggene(d.dokumentasjon, oppslag)].sort();
 
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
@@ -588,10 +595,14 @@ function medVarslene(
       },
     };
   // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
-  // `journal` har ikke dokumentet (VS-U51, VS-U53). Samme fil lastet opp på nytt er samme
-  // vedlegg (#2144, OV-U80).
-  const iVarslene = innholdetIVarslene(skriving.saken(journal));
-  if (innholdet.some((x) => iVarslene.has(x)))
+  // `journal` har ikke dokumentet (VS-U51, VS-U53). Det samme brevet, med filene lastet opp på
+  // nytt, står alt i saken (#2144, OV-U80, `sammeDokument`).
+  const saken = skriving.saken(journal);
+  const iVarslene = vedleggIVarslene(saken);
+  if (
+    dokumentet.dokumentasjon.some((id) => iVarslene.has(vedleggsnoekkel(id))) ||
+    varseldokumentene(saken).some(({ dokument }) => sammeDokument(dokument, new Set(innholdet)))
+  )
     return {
       godtatt: false,
       feil: 'REGELBRUDD',
@@ -692,9 +703,13 @@ function varseldokumentene({ lest, u }: LestSak): { id: string; dokument: Dokume
   );
 }
 
-/** Innholdet i vedleggene ved varslene for en kravpost i saken (VS-U55, #2144). */
-const innholdetIVarslene = (sak: LestSak): Set<string> =>
-  new Set(varseldokumentene(sak).flatMap(({ dokument }) => [...innholdetIDokumentet(dokument)]));
+/** Opplastingene ved varslene for en kravpost i saken (VS-U55). */
+const vedleggIVarslene = (sak: LestSak): Set<string> =>
+  new Set(
+    varseldokumentene(sak).flatMap(({ dokument }) =>
+      dokument.dokumentasjon.map((v) => vedleggsnoekkel(v.vedlegg_id))
+    )
+  );
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),

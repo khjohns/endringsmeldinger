@@ -96,7 +96,12 @@ export const KOMMANDOENE: Lesbar[] = [
   ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:foranKravet']],
+  [
+    'Dokument',
+    'utsagn',
+    'dokumentasjon',
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
+  ],
   [
     'Utsagn',
     'relasjon',
@@ -114,7 +119,8 @@ export const KOMMANDOENE: Lesbar[] = [
     'id dokument',
     [
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
-      'spor/vederlag/kommando.ts:innholdetIVarslene',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
     ],
   ],
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
@@ -428,7 +434,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'kommandoer/vedlegg.ts',
     'relasjon',
     'sammeDokument',
-    ['spor/frist/kommando.ts:varseldokumentetISaken'],
+    ['spor/frist/kommando.ts:varseldokumentetISaken', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   [
     'kommandoer/vedlegg.ts',
@@ -437,22 +443,22 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/frist/kommando.ts:varseldokumentetISaken',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
-      'spor/vederlag/kommando.ts:innholdetIVarslene',
+      'spor/vederlag/kommando.ts:dokumentnoekkel',
     ],
   ],
-  // #2126: et dokument fra kravskjemaet skilles på innholdet i hvert vedlegg.
-  [
-    'kommandoer/vedlegg.ts',
-    'relasjon',
-    'innholdetIVedlegget',
-    ['spor/vederlag/kommando.ts:dokumentnoekkel'],
-  ],
+
   // #2126: én form for vedleggs-ID-en, så samme vedlegg er samme nøkkel overalt.
   [
     'kommandoer/vedlegg.ts',
     'relasjon',
     'vedleggsnoekkel',
-    ['kommandoer/kommando.ts', 'kommandoer/skriving.ts:skriv'],
+    [
+      'kommandoer/kommando.ts',
+      'kommandoer/skriving.ts:skriv',
+      'spor/vederlag/kommando.ts:medDokumentvarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
+    ],
   ],
   [
     'frosset/brevdeler.ts',
