@@ -6,6 +6,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
+import { punkteneMedBegrunnelse } from '../frosset/tekst.ts';
 import { lesJournal } from '../format/leser.ts';
 import { P1 } from './klient.ts';
 import { visning } from '../utledning/visning.ts';
@@ -64,6 +65,10 @@ describe('akseptfristen (HF-U23)', () => {
     const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
     expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
     expect(tekst(rad).at(-2)).toMatchObject({ punkt: 'forbehold', utdypning: BEGRUNNELSE });
+    // LV-U71, #2153: skjemaet har ikke noe felt for linjen.
+    const punktene = punkteneMedBegrunnelse(tekst(rad)).map((p) => p.punkt);
+    expect(punktene, 'kontrollsak: andre punkter har et felt').not.toEqual([]);
+    expect(punktene).not.toContain('akseptfrist');
   });
 
   it('en lagret akseptfrist som ikke finnes i kalenderen, er ikke forstått (MM-U2)', () => {

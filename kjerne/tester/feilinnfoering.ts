@@ -6227,7 +6227,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlaget og fristen gir et felt for begrunnelsen av forholdet fra et tidligere svar (#2145, LV-U41, MM-U50)',
     fil: `${K}/frosset/tekst.ts`,
-    endringer: [['FORBEHOLDET, FORHOLDET]);', 'FORBEHOLDET]);']],
+    endringer: [['  FORHOLDET,\n  AKSEPTFRISTEN,\n];', '  AKSEPTFRISTEN,\n];']],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
   },
   {
@@ -6237,8 +6237,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))',
-        '    if (perPunkt[FORHOLDET] && false)',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && perPunkt[p.punkt])',
+        '      if (p.punkt !== undefined && utenBegrunnelse.includes(p.punkt) && false)',
       ],
     ],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
@@ -6911,6 +6911,24 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['    stilt.push(spoersmaal);', '    if (!besvart) stilt.push(spoersmaal);']],
     mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
+  },
+  {
+    id: 'F800',
+    feilklasse:
+      'en utdypning for innledningen eller oversikten i svaret godtas og står under punktet (LV-U71, #2153)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['      UTEN_BEGRUNNELSE_I_SVARET', '      [FORHOLDET]']],
+    mal: ['i svaret avvises, fordi skjemaet ikke har noe felt for den'],
+  },
+  {
+    id: 'F801',
+    feilklasse:
+      'skjemaet tilbyr et felt for akseptfristen, og brevet avviser utdypningen (HF-U23 punkt 5, LV-U71, #2153)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['  FORHOLDET,\n  AKSEPTFRISTEN,\n];', '  FORHOLDET,\n];']],
+    mal: [
+      'linjen med akseptfristen står etter utdypningen under «Forbehold», og har ingen utdypning',
+    ],
   },
   {
     id: 'F810',
