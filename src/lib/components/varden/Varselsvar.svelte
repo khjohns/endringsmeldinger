@@ -3,7 +3,7 @@
   svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
   svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
   (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
-  mellom to krav, viser kortet under brevet svarene på kravpostene fra forrige brev, bare til
+  mellom to krav, viser et kort i høyre kolonne svarene på kravpostene fra forrige brev, bare til
   lesing (VS-U65).
 -->
 <script lang="ts">
@@ -197,15 +197,17 @@
       },
     ])
   );
-  // Svaret på kravet som gjelder, med brevet og kravpostene, til kortet under brevet (VS-U65).
+  // Svaret på kravet som gjelder, med brevet og kravpostene, til kortet i høyre kolonne (VS-U65).
   let ikkeBygget = $state(false);
   const forrigeSvar = $derived.by(() => {
     const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
     if (!krav || !svar || svar.gjelder !== krav.id) return null;
-    // Bare et varsel lagt til etter kravet står mellom to krav (#2358).
+    // Bare et varsel lagt til etter en kravversjon står mellom to krav (#2358).
     const alle = brevene(u);
-    const plass = (id: string | undefined) => alle.findIndex((b) => b.id === id);
-    if (plass(varselbrevet?.id) < plass(krav.dokument)) return null;
+    const plass = (id: string) => alle.findIndex((b) => b.id === id);
+    const varselet = varselbrevet ? plass(varselbrevet.id) : -1;
+    const krevd = u.spor.vederlag.krav.map((k) => plass(k.dokument)).filter((i) => i >= 0);
+    if (varselet < 0 || !krevd.some((i) => i < varselet)) return null;
     const brev = brevet(u, svar.dokument);
     return brev && { brev, poster: kravposterI(krav), linjer: standpunktene(svar, u) };
   });
@@ -250,7 +252,9 @@
                 {kravetIKortform(p)}</span
               >
               <span class="visually-hidden">{VARSELSVARET.svaretI(f.brev)}:</span>
-              {#each lest.length ? lest : [SKJEMA.ikkeBesvart] as l, i (i)}<span>{l}</span>{/each}
+              {#each lest as l, i (i)}<span>{l}</span>{:else}<span class="dempet"
+                  >{SKJEMA.ikkeBesvart}</span
+                >{/each}
             </li>
           {/each}
         </ul>

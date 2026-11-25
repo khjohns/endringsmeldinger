@@ -418,6 +418,42 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
   });
 
+  it('et varsel mellom første og andre kravversjon viser svaret på den andre (#2358, /code-review)', async () => {
+    const krav = (navn: string, post?: string): Handling => ({
+      handling: 'krav',
+      spor: 'vederlag',
+      navn,
+      kravposter: [{ post, oppgjoersform: 'tilbud', belop: 100000 }],
+    });
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      krav('K-v1'),
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      krav('K-v2', 'P1'),
+      {
+        handling: 'brev',
+        navn: 'D5',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v2',
+            kravposter: [{ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }],
+          },
+        ],
+      },
+    ];
+    const k = await kjoer({ id: 'v2', rader: [], start: null, steg, kontroller: [] }, minnebane());
+    await svarskjemaet(await k.bane.journal());
+    expect(screen.getByRole('region', { name: /^Svarene på kravet i brev 5/ })).toBeInTheDocument();
+  });
+
   it('uten forrige svar på kravet står ingen svar i høyre kolonne', async () => {
     await svarskjemaet(medVarsel('34.3.3'));
     expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
