@@ -116,6 +116,11 @@ det, så svarene holdes små:
   med `-q` som i blokken over, med `| tail -30`: pytest skriver feilene og
   oppsummeringen sist. Skal hele utdataene leses, gjør
   en subagent det og rapporterer bare feilene.
+- En typesjekk eller en sjekk uten kortform kjøres gjennom
+  `python3 scripts/kort_logg.py -- <kommando>`, som skriver hele loggen til fil og
+  viser feilene og sammendraget (#2401).
+- En rød CI-kjøring leses av agenten `ci-logg`, og lister over kjøringer og sjekker
+  hentes med filter for gren og status og med få rader (#2401).
 - Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
   de filene som gjelder. Et søk med mange alternativer over hele treet gir
   fort over 10 000 tegn.
