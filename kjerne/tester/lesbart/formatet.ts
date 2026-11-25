@@ -75,7 +75,7 @@ export const FORMATET: Lesbar[] = [
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
     ],
   ],
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TEs korrigering av datoen
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs korrigering av datoen
   // etter VS-U26, og TEs opplysninger om datoen i grunnlagskravet og i korrigeringene. Den
   // siste er TEs siste opplysning; ingen regel vurderer rettidigheten (punkt 11).
   ['Utsagn', 'utsagn', 'felt dato'],

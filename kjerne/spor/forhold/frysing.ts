@@ -26,7 +26,7 @@ type Data = Record<string, unknown>;
 
 /**
  * Standpunktene i et svar på forholdet (§ 32.2 og § 32.3). `varselet` er det rettidigheten
- * etter § 32.2 gjelder (VS-U76 punkt 6 og 10).
+ * etter § 32.2 gjelder (VS-U86 punkt 6 og 10).
  */
 export function forholdsstandpunkter(
   v: Svarvurdering,

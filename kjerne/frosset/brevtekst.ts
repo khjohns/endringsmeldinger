@@ -765,7 +765,7 @@ function innsigelseneIForesporselen(t: Tekst, regler: Regelsett): Fastholdt[] {
 
   // Byggherrens siste standpunkt etter § 32.2 i et svar på forholdet, også på en tidligere
   // påberopelsesversjon, fordi varselet er det samme i hver versjon (arbeidsvalget 15.10 i #500).
-  // Standpunktet viser til varselet det gjelder (VS-U76 punkt 10).
+  // Standpunktet viser til varselet det gjelder (VS-U86 punkt 10).
   let preklusjonen: { gjelder: string; dokument: string } | null = null;
   for (const d of j.dokumenter) {
     if (d.avsender !== nytt.avsender || d.id === nytt.id) continue;
@@ -1075,7 +1075,7 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
       return `${part} bestrider opplysningen i ${j.brevet(e.opplysning.dokument)} om at ${opplysningen(e.opplysning, j)}.`;
     }
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55), med partene skrevet fullt
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59), med partene skrevet fullt
       // ut (`docs/sprak.md`) og henvisningen etter LV-U44.
       const e = j.element(u.gjelder);
       const [dokument, tidligere] =
@@ -1161,7 +1161,7 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[], bestrider: s
  * Det et standpunkt om rettidighet gjelder: varselet, kravversjonen eller TEs svar på
  * forespørselen etter § 33.6.2, også når svaret er en begrunnelse i et eget brev (LV-U49, D-1 og
  * U-6 i BF-07, arbeidsvalgene A i #1497), også det første grunnlagskravet etter § 32.2
- * (VS-U76 punkt 10). Forespørselen, som brevteksten nevner for § 33.6.2, er byggherrens eget brev og holdes ute av
+ * (VS-U86 punkt 10). Forespørselen, som brevteksten nevner for § 33.6.2, er byggherrens eget brev og holdes ute av
  * filteret på avsender i `lagDeresRef`.
  */
 const detRettidighetenGjelder = (p: Standpunkt): string[] =>

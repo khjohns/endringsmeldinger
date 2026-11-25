@@ -122,7 +122,7 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['spor/frist/kommando.ts:fristeneSomLagres(innhold)', 'kommando', 'frister'],
   ['spor/frist/kommando.ts:fristeneSomLagres(p)', 'kommando', 'id frist_id dager'],
   ['spor/frist/kommando.ts:fristIkkeRegistrert(p)', 'kommando', 'frist_id'],
-  // VS-U20, OV-U5, HF-U1, VS-U76 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
+  // VS-U20, OV-U5, HF-U1, VS-U86 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
   // sperren for svaret på grunnlaget med et registrert varsel etter § 32.2 (#496, #766, #1600).
   [
     'utledning/utled.ts',

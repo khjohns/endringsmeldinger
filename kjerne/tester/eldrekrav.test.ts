@@ -283,7 +283,7 @@ describe('en påberopelse sendt før den siste (OV-U121, OV-U122)', () => {
     expect(sisteDatoopplysning(u!, 'paalegg_mottatt')?.dato).toBe('2026-09-15');
   });
 
-  it('kontrollsak: en ny versjon sendt etter den siste kan ikke endre datoen (MM-U55 punkt 10)', async () => {
+  it('kontrollsak: en ny versjon sendt etter den siste kan ikke endre datoen (MM-U59 punkt 10)', async () => {
     const { utfall } = await leggTil(
       [],
       paaberopelse('irregulaer_endring', '2026-09-10'),

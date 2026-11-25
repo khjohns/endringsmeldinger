@@ -421,7 +421,7 @@ export interface Korrigeringsvalg {
 }
 
 /**
- * TEs korrigering av opplysningen om datoen (MM-U55 punkt 10), i feltet opplysningen har. Den
+ * TEs korrigering av opplysningen om datoen (MM-U59 punkt 10), i feltet opplysningen har. Den
  * valgfrie forklaringen er `utdypning` (MM-U53). Kjernen avviser en uendret dato og en dato
  * etter brevets dato.
  */
@@ -447,7 +447,7 @@ export function korrigeringen(
 /**
  * TEs nye versjon av påberopelsen (BF-10, KA-U52): kategoriene og endringsordren står som i
  * gjeldende versjon (GR-U40 punkt 7), datoen er TEs siste opplysning, også etter en korrigering
- * (MM-U55 punkt 10, #1617), og teksten er utdypningen (S-3 i BF-10). Kjernen avviser en annen
+ * (MM-U59 punkt 10, #1617), og teksten er utdypningen (S-3 i BF-10). Kjernen avviser en annen
  * dato og en annen kategori.
  */
 export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {

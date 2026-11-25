@@ -9963,9 +9963,11 @@ Teksten under er samlevedtaket [VS-U86](#vs-u86), vedtatt 25.11 av oppdragsgiver
 ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-a3-2026-11-25.md), med svarene 1 ja og 2 A. Det er versjon 2 ([VS-U76](#vs-u76))
 med endringene i utkastet. Samlevedtaket opphever VS-U76, og henvisningene til VS-U76 gjelder versjon
 3. Det samler [OV-U122](#ov-u122), [VS-U83](#vs-u83) og [VS-U85](#vs-u85) med samlevedtaket for
-retting av sendt brev, versjon 4. Kildene står i parentes etter hver setning, som i versjon 2.
-«E1»–«E6» er «Endret innhold» i versjon 2, og «A3 E1»–«A3 E7» er «Endret innhold» i vurderingen av
-versjon 3.
+retting av sendt brev, versjon 4, og for OV-U122 også med samlevedtaket for brev sendt utenfor
+løsningen, versjon 2. Kildene står i parentes etter hver setning, som i versjon 2. «VS-U43 punkt 1» og
+så videre er punktet i versjon 1, «E3 i VS-U43» er «Endret innhold» der, «E1»–«E6» er «Endret
+innhold» i versjon 2, «Spørsmål 1 A» er svaret 17.11 på spørsmål 1 i vurderingen av versjon 2, og
+«A3 E1»–«A3 E7» er «Endret innhold» i vurderingen av versjon 3.
 
 ###### Forslaget
 
@@ -15034,7 +15036,7 @@ forhold = [
   { art = "samler", vedtak = "vs-u85" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for varslingsdatoen, versjon 3](#samlevedtak-varslingsdato-3). Opphever VS-U76, og henvisningene til VS-U76 gjelder versjon 3; forholdene i VS-U76 føres videre (svar 2 A). Samler OV-U122, VS-U83 og VS-U85, med samlevedtaket for retting av sendt brev, versjon 4 (MM-U59). OV-U120 står med sine forhold, og punkt 6a viser til den.'''
+Teksten står under tabellen, i [Samlevedtaket for varslingsdatoen, versjon 3](#samlevedtak-varslingsdato-3). Opphever VS-U76, og henvisningene til VS-U76 gjelder versjon 3; forholdene i VS-U76 føres videre (svar 2 A). Samler OV-U122, VS-U83 og VS-U85, med samlevedtaket for retting av sendt brev, versjon 4 (MM-U59), og for OV-U122 også med samlevedtaket for brev sendt utenfor løsningen, versjon 2 (OV-U123). OV-U120 står med sine forhold, og punkt 6a viser til den.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, 2 A"
@@ -20142,14 +20144,17 @@ Teksten under er samlevedtaket [MM-U59](#mm-u59), vedtatt 25.11 av oppdragsgiver
 ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-a3-2026-11-25.md), med svarene 1 ja og 2 A. Det er versjon 3 ([MM-U55](#mm-u55))
 med endringene i utkastet og «Endret innhold» der. Samlevedtaket opphever MM-U55, og henvisningene
 til MM-U55 gjelder versjon 4. Det samler [OV-U122](#ov-u122), [VS-U82](#vs-u82), [VS-U83](#vs-u83),
-[VS-U84](#vs-u84) og [VS-U85](#vs-u85) med samlevedtaket for varslingsdatoen, versjon 3. Kildene står
-i parentes etter hver setning, som i versjon 3. «E1»–«E8» er «Endret innhold» i versjon 3, og
+[VS-U84](#vs-u84) og [VS-U85](#vs-u85), med samlevedtaket for varslingsdatoen, versjon 3, og for
+OV-U122 også med samlevedtaket for brev sendt utenfor løsningen, versjon 2. Kildene står i parentes
+etter hver setning, som i versjon 3. «05.11 1 C» og så videre er svarene 05.11 som versjon 2 viser
+til, «spørsmål 1 A» og så videre er svarene 14.11 på spørsmålene i vurderingen av versjon 3, «E1»–«E8»
+er «Endret innhold» i versjon 3, «E6 i versjon 2» og så videre er «Endret innhold» i versjon 2, og
 «A3 E1»–«A3 E7» er «Endret innhold» i vurderingen av versjon 4.
 
 ###### Forslaget
 
-Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Versjon 4 er versjon 3 med nye ledd i
-punkt 10, 12, 18 og 24 og i beslutningsdelen etter A3 E1–A3 E5. Punkt 1–5, 7–9, 11–13, 16–19, 21 og
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Versjon 4 er versjon 3 med nye ledd og
+setninger i punkt 10, 12, 18 og 24 og i beslutningsdelen etter A3 E1–A3 E5. Punkt 1–5, 7–9, 11–13, 16–19, 21 og
 23 sto i versjon 3 som i versjon 2. Punkt 6, 10, 14, 15, 20, 22 og 24, designdelen og beslutningsdelen er endret
 etter E1–E8 under. Nummereringen står, så «punkt 8» og «punkt 10» i andre vedtak og i
 brukerforløpene gjelder det samme.
@@ -20411,14 +20416,16 @@ lukket sak (punkt 12 og 24, VS-U84), OV-U98 (punkt 18) og beslutningsdelen (VS-U
 Versjon 4 opphever MM-U55 (svar 4 A, fordi A3 E2 endrer innholdet i punkt 12), og henvisningene til
 MM-U55 gjelder versjon 4 (OV-U92 (a)). Forholdene i MM-U55 føres videre. Den samler OV-U122, VS-U82,
 VS-U83, VS-U84 og VS-U85, med samlevedtaket for varslingsdatoen, versjon 3, for OV-U122, VS-U83 og
-VS-U85. Forholdene fra VS-U82 til OV-U99 og fra VS-U84 til GR-U27 står på de samlede postene.
+VS-U85, og med samlevedtaket for brev sendt utenfor løsningen, versjon 2, for OV-U122. Forholdene fra VS-U82 til OV-U99 og fra VS-U84 til GR-U27 står på de samlede postene.
 
 ##### <a id="samlevedtak-brev-utenfor-2"></a>Samlevedtaket for brev sendt utenfor løsningen, versjon 2 (OV-U123)
 
 Teksten under er samlevedtaket [OV-U123](#ov-u123), vedtatt 25.11 av oppdragsgiver (#1534), slik det
 ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-a3-2026-11-25.md), med svarene 1 ja og 2 A. Det er versjon 1 ([OV-U114](#ov-u114))
 med nye setninger i punkt 14, 18, 19 og 21 og det nye punktet 15a, etter A3 E6 og A3 E7.
-Samlevedtaket opphever OV-U114, og henvisningene til OV-U114 gjelder versjon 2. Kildene står i
+Samlevedtaket opphever OV-U114, og henvisningene til OV-U114 gjelder versjon 2. Det samler
+[OV-U122](#ov-u122) med samlevedtakene for retting av sendt brev, versjon 4, og varslingsdatoen,
+versjon 3; regelen står i punkt 10 i samlevedtaket for retting av sendt brev, og punkt 15a viser dit. Kildene står i
 parentes etter hver setning, og «s3» er tredje setning i posten.
 
 ###### A. Hva korrespondansen er i løsningen
@@ -20589,8 +20596,8 @@ løsningen tar dem.
 A3 E6 og A3 E7 i [vurderingen](../vedtaksregister/vurdering-samlevedtak-a3-2026-11-25.md#endret-innhold): henvisningene til OV-U118–OV-U122 (punkt
 14 og 15a) og til VS-U77 (punkt 18, 19 og 21), og «grunnlagskravet» i punkt 19. Versjon 2 opphever
 OV-U114 (svar 4 A, så tellingen av endringer begynner på null, som i A1), og henvisningene til
-OV-U114 gjelder versjon 2 (OV-U92 (a)). Forholdene i OV-U114 føres videre. OV-U118–OV-U121 og
-VS-U77 står med sine forhold.
+OV-U114 gjelder versjon 2 (OV-U92 (a)). Forholdene i OV-U114 føres videre. Den samler OV-U122, med
+versjon 4 og 3 av de to andre samlevedtakene. OV-U118–OV-U121 og VS-U77 står med sine forhold.
 '''
 
 [[gruppe.vedtak]]
@@ -27582,7 +27589,7 @@ forhold = [
   { art = "samler", vedtak = "vs-u85" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for retting av sendt brev, versjon 4](#samlevedtak-retting-4). Opphever MM-U55, og henvisningene til MM-U55 gjelder versjon 4; forholdene i MM-U55 føres videre (svar 2 A). Samler OV-U122, VS-U82, VS-U83, VS-U84 og VS-U85, med samlevedtaket for varslingsdatoen, versjon 3 (VS-U86), for OV-U122, VS-U83 og VS-U85. Forholdene fra VS-U82 til OV-U99 og fra VS-U84 til GR-U27 står på de samlede postene.'''
+Teksten står under tabellen, i [Samlevedtaket for retting av sendt brev, versjon 4](#samlevedtak-retting-4). Opphever MM-U55, og henvisningene til MM-U55 gjelder versjon 4; forholdene i MM-U55 føres videre (svar 2 A). Samler OV-U122, VS-U82, VS-U83, VS-U84 og VS-U85, med samlevedtaket for varslingsdatoen, versjon 3 (VS-U86), for OV-U122, VS-U83 og VS-U85, og med samlevedtaket for brev sendt utenfor løsningen, versjon 2 (OV-U123), for OV-U122. Forholdene fra VS-U82 til OV-U99 og fra VS-U84 til GR-U27 står på de samlede postene.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, 2 A"
@@ -27645,9 +27652,10 @@ forhold = [
   { art = "samler", vedtak = "ov-u111" },
   { art = "samler", vedtak = "ov-u113" },
   { art = "endrer", vedtak = "hf-u5" },
+  { art = "samler", vedtak = "ov-u122" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for brev sendt utenfor løsningen, versjon 2](#samlevedtak-brev-utenfor-2). Opphever OV-U114, og henvisningene til OV-U114 gjelder versjon 2; forholdene i OV-U114 føres videre (svar 2 A). OV-U118–OV-U121 og VS-U77 står med sine forhold, og punkt 15a, 18, 19 og 21 viser til dem.'''
+Teksten står under tabellen, i [Samlevedtaket for brev sendt utenfor løsningen, versjon 2](#samlevedtak-brev-utenfor-2). Opphever OV-U114, og henvisningene til OV-U114 gjelder versjon 2; forholdene i OV-U114 føres videre (svar 2 A). Samler OV-U122 for delen om OV-U114 punkt 15, med versjon 4 av retting av sendt brev (MM-U59) og versjon 3 av varslingsdatoen (VS-U86). OV-U118–OV-U121 og VS-U77 står med sine forhold, og punkt 15a, 18, 19 og 21 viser til dem.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, 2 A"

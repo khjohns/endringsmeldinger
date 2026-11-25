@@ -96,7 +96,7 @@ export interface Svarberegning {
    */
   gjaldtEtAnnetVarsel: string[];
   /**
-   * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysning om datoen
+   * Designdelen i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysning om datoen
    * etter VS-U26 som var TEs siste da svaret på grunnlaget ble gitt (`Datoopplysning.id`).
    * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
    */
@@ -112,7 +112,7 @@ export interface Svarberegning {
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): én opplysning fra TE om datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): én opplysning fra TE om datoen
  * etter VS-U26, i grunnlagskravet eller i en korrigering. En ny kravversjon som gjengir TEs
  * siste opplysning, er ikke en ny opplysning.
  */
@@ -280,7 +280,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysninger om datoen
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen
    * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
    * den datoen, og de andre er de tidligere (designdelen). Løsningen avgjør ikke hvilken som er
    * riktig (punkt 11).
@@ -1383,7 +1383,7 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // VS-U76 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
+  // VS-U86 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
   // versjon er ikke et nytt varsel. Et svar sendt før VS-U70 viser til det egne varselet,
   // og står med det (MM-U50). Etter § 34.3.3 og § 34.4 gjelder den kravposten (`kontrollerPostene`).
   if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
@@ -1582,7 +1582,7 @@ function fyllSporene(
 }
 
 /**
- * OV-U5, HF-U1, VS-U76 punkt 10: et svar står med virkningen det hadde, også når TE senere
+ * OV-U5, HF-U1, VS-U86 punkt 10: et svar står med virkningen det hadde, også når TE senere
  * har registrert et annet varsel enn det påberopelsen etter § 32.2, § 33.4, § 34.1.2 eller
  * § 34.1.3 gjaldt. Visningen sier det.
  */
@@ -1614,7 +1614,7 @@ function svarberegninger(
 }
 
 /**
- * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): opplysningen om datoen som var
+ * Designdelen i samlevedtaket for retting av sendt brev (MM-U59): opplysningen om datoen som var
  * TEs siste da svaret på grunnlaget ble gitt.
  */
 function settDatoopplysningene(
@@ -1911,7 +1911,7 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
 }
 
 /**
- * VS-U20, OV-U5, HF-U1, VS-U76 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
+ * VS-U20, OV-U5, HF-U1, VS-U86 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
  * eller § 34.1.3 gjelder: varselet etter hjemmelen som var registrert da svaret ble sendt,
  * ellers det første kravet som varsler (`kravSomVarsler`), som er det første varselet appen
  * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Etter § 33.4, § 34.1.2 og § 34.1.3 gjelder

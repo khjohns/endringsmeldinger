@@ -1263,6 +1263,13 @@
       "radetikett": "MM-U55: Spørsmål 1: Avvisningen etter punkt 10 gjelder også i et spor med enighet"
     },
     {
+      "id": "MM-U59",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#mm-u59",
+      "radetikett": "MM-U59: Utkastet til versjon 4 gjelder som samlevedtaket for retting av sendt brev"
+    },
+    {
       "id": "LV-U56",
       "type": "vedtak",
       "dato": "2026-11-06",
@@ -3137,6 +3144,7 @@
         "MM-U41",
         "MM-U52",
         "MM-U55",
+        "MM-U59",
         "MM-U51",
         "VS-U26",
         "VS-U9",
@@ -3170,6 +3178,7 @@
         "MM-U41",
         "MM-U52",
         "MM-U55",
+        "MM-U59",
         "LV-U56",
         "VS-U26",
         "LV-U53"
