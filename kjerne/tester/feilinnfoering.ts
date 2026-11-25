@@ -7406,8 +7406,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    .filter((k) => foerDagen(sendt.get(k)!, dag, () => samme(k.id)))',
-        '    .filter(() => true)',
+        '    if (foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });',
+        '    if (true) foer.push({ k, sendt });',
       ],
     ],
     mal: ['et brev sendt før Montering ble tatt med, prøves ikke mot den'],

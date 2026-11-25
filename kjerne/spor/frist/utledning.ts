@@ -265,7 +265,7 @@ const omtalen = (p: Fristinndata): string =>
  */
 export function fristeneISporet(
   tidligere: readonly Pick<Krav, 'innhold'>[],
-  andre: readonly Pick<Krav, 'innhold'>[] = []
+  andre: readonly Pick<Krav, 'innhold'>[]
 ): {
   forrige: ReadonlyMap<string, FristIKravet>;
   sist: ReadonlyMap<string, FristIKravet>;

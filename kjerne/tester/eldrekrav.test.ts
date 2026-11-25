@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
 import { kjoer } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import type { Klokke } from './testmiljoe.ts';
+import { dagklokke } from './testmiljoe.ts';
 import { utledJournal, type Utledning } from '../utledning/utled.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
@@ -21,18 +21,6 @@ import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import { KJERNE } from '../versjon.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import type { Krav } from '../typer.ts';
-
-/** Én dag per hendelse fra 21.09, og `tiden_gaar` til dagen før neste hendelse. */
-function dagklokke(): Klokke {
-  let t = Date.parse('2026-09-20T08:00:00.000Z');
-  return {
-    naa: () => new Date(t),
-    neste: () => new Date((t += 86_400_000)),
-    flytt: (til) => {
-      t = til.getTime();
-    },
-  };
-}
 
 interface LagtTil {
   utfall: Utfall;

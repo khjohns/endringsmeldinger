@@ -186,6 +186,12 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'utledning/utled.ts:kravversjoneneKravetProevesMot',
     'relasjon',
+    'k sendt',
+    ['utledning/utled.ts:kravversjoneneKravetProevesMot'],
+  ],
+  [
+    'utledning/utled.ts:kravversjoneneKravetProevesMot',
+    'relasjon',
     'tidligere andre',
     [
       'spor/frist/kommando.ts:fristsperre',

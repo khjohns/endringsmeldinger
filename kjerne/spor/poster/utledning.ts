@@ -47,7 +47,7 @@ export function posteneStrider(
   tidligere: readonly (readonly Post[])[],
   lagret: boolean,
   post: string,
-  andre: readonly (readonly Post[])[] = []
+  andre: readonly (readonly Post[])[]
 ): string | null {
   const posten = `${post}en`;
   const forrige = new Map((tidligere.at(-1) ?? []).map((p) => [p.id, p]));

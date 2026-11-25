@@ -574,13 +574,15 @@ export function kravversjoneneKravetProevesMot(
 ): { tidligere: readonly Krav[]; andre: readonly Krav[] } {
   const { krav, kravUtenforRekken } = u.spor[spor];
   if (!sendtFoerSisteKrav(u, spor, dag)) return { tidligere: krav, andre: kravUtenforRekken };
-  const sendt = new Map(
-    [...krav, ...kravUtenforRekken].map((k) => [k, datoenDetBleSendt(u, k) ?? ''])
-  );
-  const tidligere = [...sendt.keys()]
-    .filter((k) => foerDagen(sendt.get(k)!, dag, () => samme(k.id)))
-    .sort((a, b) => (sendt.get(a)! < sendt.get(b)! ? -1 : sendt.get(a)! > sendt.get(b)! ? 1 : 0));
-  return { tidligere, andre: [...sendt.keys()].filter((k) => !tidligere.includes(k)) };
+  const foer: { k: Krav; sendt: string }[] = [];
+  const andre: Krav[] = [];
+  for (const k of [...krav, ...kravUtenforRekken]) {
+    const sendt = datoenDetBleSendt(u, k) ?? '';
+    if (foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });
+    else andre.push(k);
+  }
+  foer.sort((a, b) => a.sendt.localeCompare(b.sendt));
+  return { tidligere: foer.map((x) => x.k), andre };
 }
 
 /**
