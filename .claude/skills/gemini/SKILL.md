@@ -61,7 +61,7 @@ Passer ikke:
    som i «Arbeidsformen»:
    `agy -p "Svar med ordet OK og ingenting annet." --mode plan --model gemini-4-neon-high --output-format json --print-timeout 5m`.
    `status` `SUCCESS` og svaret `OK` bekrefter innloggingen. Prøvd i verktøyøkta 25.11 med
-   `--mode default`: svaret kom etter 3 sekunder, men stderr hadde advarselen
+   `--mode default`: svaret kom, men stderr hadde advarselen
    «unrecognized --mode value "default" (valid: accept-edits, auto, plan)». Med `--mode plan`
    er statusprøven ikke kjørt (#2337).
 
