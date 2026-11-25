@@ -165,6 +165,26 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     expect(s.u().forstaatt).toBe(true);
   });
 
+  it('et nytt svar på varselet etter punkt 34.3.3 lagt til, som ikke sier noe om varselet, fryser justeringen subsidiært når innsigelsen står (VS-U80, VS-U81, VS-U77 punkt 30)', () => {
+    const justeringen = (foer: Data) => {
+      const { s, varsel } = medVarsel('34.3.3');
+      s.send('BH', lagtTil(dagen(s), [svar('vederlag', varsel, foer, {}, null)]));
+      const foerste = s.u().spor.vederlag.svarPaaVarsler[0].id;
+      const taus = svar('vederlag', varsel, { godtar_justering: true }, {}, null);
+      s.send('BH', lagtTil(dagen(s), [taus], foerste));
+      expect(s.u().forstaatt).toBe(true);
+      const nytt = s.u().spor.vederlag.svarPaaVarsler.at(-1)!;
+      return nytt.beslutningsgrunnlag.virkninger.map((v) => [v.art, v.virkning]);
+    };
+    expect(justeringen({ varslet_i_tide: false, godtar_justering: true })).toEqual([
+      ['justering', 2],
+    ]);
+    expect(
+      justeringen({ varslet_i_tide: true, godtar_justering: true }),
+      'kontrollsak: byggherren sa at varselet kom i tide'
+    ).toEqual([['justering', 1]]);
+  });
+
   it('et nytt svar lagt til samme dag som svaret det erstatter, kan gi opp innsigelsen (punkt 31 og 33, OV-U104)', () => {
     const { s, varsel } = medVarsel('34.4');
     s.send('BH', brev(varsel, { varslet_i_tide: false }));

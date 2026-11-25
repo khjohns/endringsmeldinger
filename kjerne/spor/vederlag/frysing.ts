@@ -65,9 +65,12 @@ function vederlagsvirkninger(
   svar: Svarinnhold,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
-  forskyvning: number
+  forskyvning: number,
+  staar: readonly VarselIKravet[]
 ): Standpunktsvirkning[] {
-  if (svaretGjelderEtVarsel(svar)) return virkningerISvaretPaaVarselet(svar);
+  // VS-U81: innsigelsen etter § 34.3.3 fra et svar før, som svaret ikke sier noe om.
+  const forSentFoer = new Set(staar.flatMap((x) => (x.hjemmel === '34.3.3' ? [x.gjelder] : [])));
+  if (svaretGjelderEtVarsel(svar)) return virkningerISvaretPaaVarselet(svar, forSentFoer);
   const sent = (hjemmel: Hjemmel) =>
     svar.standpunkter.some(
       (s) =>
@@ -78,7 +81,7 @@ function vederlagsvirkninger(
     );
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
   const foerste = hele ? 2 : 1;
-  const iKravposten = beregningsregelLag(svar.standpunkter, foerste);
+  const iKravposten = beregningsregelLag(svar.standpunkter, foerste, forSentFoer);
   // Et tilbud byggherren ikke aksepterer, rammer bare posten, i det første laget (#1760).
   const tilbudet = new Set(
     svar.standpunkter.flatMap((s) =>
@@ -117,16 +120,22 @@ function vederlagsvirkninger(
  * VS-U79, VS-U77 punkt 30: i svaret på varselet etter § 34.3.3 står innsigelsen prinsipalt og
  * standpunktet til justeringen subsidiært, i lagene etter `lagIKravposten` (VS-U4). Uten
  * innsigelse står justeringen i det første laget. Standpunktet til varselet etter § 34.4 har
- * ingen virkning (KA-U64).
+ * ingen virkning (KA-U64). Sier svaret ikke noe om varselet, står innsigelsen fra svaret før
+ * når varselet er i `forSentFoer` (VS-U80, VS-U81).
  */
-function virkningerISvaretPaaVarselet(svar: Svarinnhold): Standpunktsvirkning[] {
+function virkningerISvaretPaaVarselet(
+  svar: Svarinnhold,
+  forSentFoer: ReadonlySet<string>
+): Standpunktsvirkning[] {
   const varselet = svar.standpunkter.find((s) => s.art === 'rettidighet');
+  const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
   const lag = lagIKravposten(
     {
       godtarRegelen: true,
-      varselForSent:
-        varselet?.art === 'rettidighet' && varselet.hjemmel === '34.3.3' && !varselet.iTide,
-      justering: svar.standpunkter.some((s) => s.art === 'justering'),
+      varselForSent: varselet
+        ? varselet.art === 'rettidighet' && varselet.hjemmel === '34.3.3' && !varselet.iTide
+        : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),
+      justering: justeringen !== undefined,
     },
     1
   );
@@ -140,11 +149,14 @@ function virkningerISvaretPaaVarselet(svar: Svarinnhold): Standpunktsvirkning[] 
 /**
  * Laget for standpunktene til en kravpost etter en beregningsregel, etter `lagIKravposten`.
  * En kravpost der ingen standpunkter åpner et lag, er ikke med, og standpunktene står som de
- * andre. Forutsetningene i skjemaet leser lagene herfra (`spor/vederlag/kommando.ts`).
+ * andre. Forutsetningene i skjemaet leser lagene herfra (`spor/vederlag/kommando.ts`). Sier
+ * svaret ikke noe om varselet for en kravpost i `forSentFoer`, står innsigelsen fra svaret før
+ * (VS-U80, VS-U81).
  */
 export function beregningsregelLag(
   standpunkter: Standpunkt[],
-  foerste: number
+  foerste: number,
+  forSentFoer: ReadonlySet<string>
 ): Map<string, number> {
   const ut = new Map<string, number>();
   for (const regel of standpunkter) {
@@ -155,7 +167,9 @@ export function beregningsregelLag(
     const lag = lagIKravposten(
       {
         godtarRegelen: regel.aksepterer,
-        varselForSent: varselet?.art === 'rettidighet' && !varselet.iTide,
+        varselForSent: varselet
+          ? varselet.art === 'rettidighet' && !varselet.iTide
+          : forSentFoer.has(regel.gjelder),
         justering: justeringen !== undefined,
       },
       foerste
@@ -306,10 +320,20 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
 }
 
 /**
- * Kravpostene i `krav` med et varsel etter § 34.3.3 eller § 34.4 som svaret ikke sier noe om.
- * Svaret leses der med byggherrens tidligere standpunkt til varselet (VS-U77 punkt 9 og 12).
+ * Kravpostene i `krav` med et varsel etter § 34.3.3 eller § 34.4 som svaret ikke sier noe om, eller
+ * varselet etter § 34.3.3 et svar på varselet som står alene, ikke sier noe om (VS-U79; svaret på
+ * varselet etter § 34.4 har alltid standpunktet). Svaret leses der med byggherrens tidligere
+ * standpunkt til varselet (VS-U77 punkt 9 og 12, VS-U80).
  */
-function tausOmVarselet(svar: Svarinnhold, krav: Krav): VarselIKravet[] {
+function tausOmVarselet(svar: Svarinnhold, krav: Krav | null | undefined): VarselIKravet[] {
+  if (svaretGjelderEtVarsel(svar)) {
+    const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
+    return justeringen?.art === 'justering' &&
+      !svar.standpunkter.some((s) => s.art === 'rettidighet')
+      ? [{ gjelder: justeringen.gjelder, hjemmel: '34.3.3' }]
+      : [];
+  }
+  if (!krav) return [];
   return kravposterI(krav).flatMap((p) => {
     const hjemmel = varselhjemmel(p);
     return hjemmel &&
@@ -422,12 +446,15 @@ export function kravpostvurderinger(
 
 /**
  * Standpunktene for en kravpost etter en beregningsregel som regelen regner lagene av, eller
- * `undefined` for en kravpost med fast sum (OV-U115 punkt 5, KA-U64, KA-U68).
+ * `undefined` for en kravpost med fast sum (OV-U115 punkt 5, KA-U64, KA-U68). Sier svaret ikke
+ * noe om varselet, står innsigelsen fra svaret før når `staar` er satt (VS-U80, VS-U81).
  */
-function beregningsregelen(post: Kravpost, svar: Kravpostvurdering) {
+function beregningsregelen(post: Kravpost, svar: Kravpostvurdering, staar: boolean) {
   if (post.oppgjoersform === 'tilbud') return undefined;
   return {
-    varselForSent: post.oppgjoersform === 'enhetspriser' && svar.varslet_i_tide === false,
+    varselForSent:
+      post.oppgjoersform === 'enhetspriser' &&
+      (svar.varslet_i_tide == null ? staar : svar.varslet_i_tide === false),
     justering: typeof svar.godtar_justering === 'boolean' ? svar.godtar_justering : null,
   };
 }
@@ -444,7 +471,8 @@ export const PRODUKTIVITETSFELT = {
 export function svaretFraVurderingene(
   v: Svarvurdering,
   krav: Krav,
-  hovedkategori: string | null
+  hovedkategori: string | null,
+  staar: readonly VarselIKravet[]
 ): { svar: Vederlagssvar; felt: Map<string, string> } {
   const felt = new Map<string, string>([['varslet_i_tide', 'hovedkrav_varslet_i_tide']]);
   const poster: Postsvar[] = [];
@@ -454,7 +482,11 @@ export function svaretFraVurderingene(
   for (const { post, svar } of kravpostvurderinger(v, krav)) {
     for (const f of ['vurdering', 'godkjent_beloep', 'aksepterer'])
       felt.set(`${post.id}.${f}`, `${post.betegnelse}.${f}`);
-    const regel = beregningsregelen(post, svar);
+    const regel = beregningsregelen(
+      post,
+      svar,
+      staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === post.id)
+    );
     poster.push({
       gjelder: post.id,
       krevd: tilTall(krevdIKravposten(krav, post) ?? 0n),
@@ -515,6 +547,7 @@ function regnUtVederlag(
   v: Svarvurdering,
   krav: Krav,
   paaberopelse: Krav | null,
+  staar: readonly VarselIKravet[],
   regler: Regelsett
 ): Record<string, unknown> {
   avvisUkjenteFelt(v, VEDERLAGSVURDERINGER, 'vederlaget');
@@ -527,7 +560,7 @@ function regnUtVederlag(
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   for (const { post, svar } of kravpostvurderinger(v, krav))
     kontrollerOppgjoersformen(post.betegnelse, svar, post);
-  const { svar, felt } = svaretFraVurderingene(v, krav, hovedkategori);
+  const { svar, felt } = svaretFraVurderingene(v, krav, hovedkategori, staar);
   let r: Vederlagsberegning;
   try {
     r = beregnVederlag(svar, regler);
@@ -610,6 +643,7 @@ export function vederlagsposter(
 export const SAMMENLIKNES_I_VEDERLAGET = ['resultat', 'godkjent_beloep'];
 
 export const UTREGNING_I_VEDERLAGET = {
-  regnUt: (v, { krav, paaberopelse }, regler) => regnUtVederlag(v, krav, paaberopelse, regler),
+  regnUt: (v, { krav, paaberopelse, staar }, regler) =>
+    regnUtVederlag(v, krav, paaberopelse, staar, regler),
   utenforOmfanget,
 } satisfies Svarsutregning;

@@ -8,7 +8,12 @@
 import { standpunkterISvaret } from '../format/leser.ts';
 import { Uforstaatt } from '../format/skjema.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { sammenfallet, virkninger, type StandpunktFoer } from './standpunkt.ts';
+import {
+  innsigelserSvaretLesesMed,
+  sammenfallet,
+  virkninger,
+  type StandpunktFoer,
+} from './standpunkt.ts';
 import { gjelderVarslingsplikten, type Svarinnhold, type Svarvurdering } from './byggeklosser.ts';
 import { beslutningslinje } from './linje.ts';
 import type { Beslutningsgrunnlag, Krav, Spor } from '../typer.ts';
@@ -21,7 +26,8 @@ type Data = Record<string, unknown>;
  * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
  * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv. `kravet` er
  * kravet svaret gjelder, som linjen navngir kravpostene i. `foer` er partens siste standpunkt til
- * varslene i svarene før (`sammenfallet`).
+ * varslene i svarene før. Svaret leses med innsigelsene der som det ikke sier noe om, og
+ * virkningen fryses med svaret (VS-U81).
  */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
@@ -31,12 +37,13 @@ export function beslutningsgrunnlag(
   kravet?: Krav | null,
   foer: readonly StandpunktFoer[] = []
 ): Beslutningsgrunnlag {
-  const v = virkninger(svar, paaberopelse, regler, forskyvning);
+  const staar = innsigelserSvaretLesesMed(svar, kravet, foer);
+  const v = virkninger(svar, paaberopelse, regler, forskyvning, staar);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
     linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),
-    sammenfall: sammenfallet(svar, v, kravet, foer),
+    sammenfall: sammenfallet(svar, v, staar),
     ...(svar.spor === 'forhold'
       ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }
       : {}),

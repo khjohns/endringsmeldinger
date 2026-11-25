@@ -5,10 +5,11 @@
  */
 
 import { etikett, laget, type Svarinnhold } from '../frosset/byggeklosser.ts';
-import { virkninger } from '../frosset/standpunkt.ts';
+import { innsigelserSvaretLesesMed, virkninger } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
 import type { Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 import {
@@ -22,7 +23,8 @@ import {
  * Grunnene fra svaret på forholdet står foran sporet, og `virkning`, `lag` og `etikett` for hvert
  * standpunkt er flyttet ned med dem. `sendt` er dagen et svar lagt til ble sendt, og `null` for et
  * svar fra løsningen. Svaret på forholdet og påberopelsen er de som gjaldt den dagen, som når svaret
- * fryses og kontrolleres (#2057, #2011).
+ * fryses og kontrolleres (#2057, #2011). Svaret leses med innsigelsene fra svarene før som det
+ * ikke sier noe om, som når det fryses (VS-U81), mot det gjeldende kravet i sporet.
  */
 export function lageneIUtkastet(
   svar: Svarinnhold,
@@ -32,11 +34,17 @@ export function lageneIUtkastet(
 ) {
   const g = svaretPaaForholdetPaaDagen(u, sendt);
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
+  const staar = innsigelserSvaretLesesMed(
+    svar,
+    u.spor[svar.spor].gjeldendeKrav,
+    svar.spor === 'vederlag' ? standpunkteneTilVarslene(u, sendt, true) : []
+  );
   const virket: Standpunktsvirkning[] = virkninger(
     svar,
     kravversjonenPaaDagen(u, 'forhold', sendt),
     regler,
-    grunner.length
+    grunner.length,
+    staar
   );
   const virkning = virket.map(
     ({ virkning: vi }): Virkning => (typeof vi === 'number' ? vi + grunner.length : vi)

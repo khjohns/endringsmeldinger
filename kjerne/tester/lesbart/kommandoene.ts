@@ -328,6 +328,14 @@ export const KOMMANDOENE: Lesbar[] = [
   // VS-U77 punkt 9 og 12, OV-U115 punkt 25: et svar som ikke sier noe om varselet der
   // innsigelsen står, gir ikke sammenfall (#2316).
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallet', ['frosset/frysing.ts:beslutningsgrunnlag']],
+  // VS-U80, VS-U81: innsigelsene fra svarene før som svaret leses med, når brevet fryses og i
+  // lagene i utkastet.
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'innsigelserSvaretLesesMed',
+    ['frosset/frysing.ts:beslutningsgrunnlag', 'kommandoer/utkastlag.ts:lageneIUtkastet'],
+  ],
   ['spor/vederlag/frysing.ts', 'frosset', 'begrensningen', ['spor/vederlag/tekst.ts']],
   // #1783: det som er sporets eget i frysingen av svaret.
   [
@@ -336,8 +344,14 @@ export const KOMMANDOENE: Lesbar[] = [
     'virkninger utfall godkjennerHeleKravet tausOmVarselet vilkaar hvertITideGirOppInnsigelsen ogsaaInnsigelserEtter',
     ['frosset/standpunkt.ts'],
   ],
-  // VS-U77 punkt 9 og 12: varslene i kravet svaret ikke sier noe om (#2316).
-  ['VarselIKravet', 'relasjon', 'gjelder hjemmel', ['frosset/standpunkt.ts']],
+  // VS-U77 punkt 9 og 12: varslene i kravet svaret ikke sier noe om (#2316), og VS-U81: lagene
+  // og utregningen med innsigelsene fra svarene før.
+  [
+    'VarselIKravet',
+    'relasjon',
+    'gjelder hjemmel',
+    ['frosset/standpunkt.ts', 'spor/vederlag/frysing.ts'],
+  ],
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   ['spor/frist/frysing.ts', 'frosset', 'FRYSING_I_FRISTEN', ['frosset/standpunkt.ts']],
@@ -421,7 +435,13 @@ export const KOMMANDOENE: Lesbar[] = [
     'spor/vederlag/kommando.ts',
     'relasjon',
     'standpunkteneTilVarslene',
-    ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
+    [
+      'kommandoer/skriving.ts:frosneSvar',
+      'kommandoer/skriving.ts:frysBrev',
+      // VS-U81: utregningen og lagene i utkastet leser innsigelsene som frysingen.
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
+    ],
   ],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).

@@ -988,7 +988,7 @@ export function lagIVederlaget(
     liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
   const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
   const besvart = utkast.vurderinger;
-  const svaret = svaretFraVurderingene(besvart, krav, hovedkategori).svar;
+  const svaret = svaretFraVurderingene(besvart, krav, hovedkategori, []).svar;
   const { stilt, ubesvart } = spoersmaaleneIVederlaget(svaret, besvart, krav, regler);
   return {
     stilt,

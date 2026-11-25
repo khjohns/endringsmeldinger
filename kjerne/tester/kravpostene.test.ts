@@ -15,6 +15,7 @@ import { P1, medP1 } from './klient.ts';
 import type { Avsnitt } from '../typer.ts';
 import { visning } from '../utledning/visning.ts';
 import { standpunkteneTilVarslene } from '../spor/vederlag/kommando.ts';
+import type { VarselIKravet } from '../frosset/byggeklosser.ts';
 import { KJERNE } from '../versjon.ts';
 import { SOM_BREV } from './brevet.ts';
 import {
@@ -675,8 +676,15 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     s.send('TE', krav(kravposter, { trekker: [p1I(s)] }));
     return s;
   };
-  /** Svaret med vurderingene for kravpostene etter betegnelse, og utregningen fra regelen. */
-  const svaret = (s: ReturnType<typeof sakMedKrav>, svarene: Record<string, Data>) => {
+  /**
+   * Svaret med vurderingene for kravpostene etter betegnelse, og utregningen fra regelen, med
+   * innsigelsene fra svarene før som står (`staar`).
+   */
+  const svaret = (
+    s: ReturnType<typeof sakMedKrav>,
+    svarene: Record<string, Data>,
+    staar: readonly VarselIKravet[] = []
+  ) => {
     const u = s.u();
     const k = u.spor.vederlag.gjeldendeKrav!;
     const v = {
@@ -687,7 +695,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       const r = regnUtSvar(
         'vederlag',
         v,
-        { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
+        { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav, staar },
         KJERNE.regler
       );
       resultat = { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep };
@@ -1276,6 +1284,66 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       };
       expect(lagtTil({ aksepterer: true, varslet_i_tide: false })).toBe(false);
       expect(lagtTil({ aksepterer: true }), 'kontrollsak: uten innsigelsen').toBe(true);
+    });
+
+    /**
+     * Et svar lagt til som erstatter det gjeldende, sendt dagen `sendt`, med utregningen regnet
+     * med innsigelsene som står den dagen, som serveren regner den (VS-U81).
+     */
+    const lagtTil = (
+      s: ReturnType<typeof sakMedKrav>,
+      svarene: Record<string, Data>,
+      sendt: string
+    ) => {
+      const staar = standpunkteneTilVarslene(s.u(), sendt, true).filter((x) => !x.iTide);
+      const ny = (svaret(s, svarene, staar).svar as Data[])[0]!;
+      return {
+        type: 'revisjon',
+        erstatter: gjeldende(s).id,
+        svar: utenFelt(utenFelt(ny, 'utdypning'), 'utdypninger'),
+        sendt,
+        ...SOM_BREV,
+        dokumentasjon: [randomUUID()],
+      };
+    };
+    const dagen = (s: ReturnType<typeof sakMedKrav>) => s.journal.at(-1)!.tidsstempel.slice(0, 10);
+
+    it('et svar lagt til som ikke sier noe om varselet der innsigelsen etter punkt 34.3.3 står, fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)', () => {
+      const lesMed = (foer: Data) => {
+        const s = sakMed(justert);
+        s.send('BH', svaret(s, { P2: { aksepterer: true, ...foer, godtar_justering: true } }));
+        s.send('BH', lagtTil(s, { P2: { aksepterer: true, godtar_justering: true } }, dagen(s)));
+        expect(s.u().forstaatt).toBe(true);
+        const sv = gjeldende(s);
+        return {
+          lagene: lagene(s),
+          poster: (sv.utregning.poster as Data[]).map((p) => p.lag),
+          resultat: sv.utregning.resultat,
+          sammenfall: sv.beslutningsgrunnlag.sammenfall,
+        };
+      };
+      // Innsigelsen står ikke i svaret, så oppgjørsformen står i det første laget og ikke som
+      // upåvirket (OV-U33).
+      expect(lesMed({ varslet_i_tide: false })).toEqual({
+        lagene: [
+          ['oppgjoersform', 1],
+          ['justering', 2],
+          ['beloep', 2],
+        ],
+        poster: [[{ lag: 1 }, { lag: 2 }]],
+        resultat: expect.not.stringMatching(/^godkjent$/),
+        sammenfall: false,
+      });
+      // Kontrollsak: når byggherren sa at varselet kom i tide, står justeringen prinsipalt.
+      expect(lesMed({ varslet_i_tide: true })).toMatchObject({
+        lagene: [
+          ['oppgjoersform', 1],
+          ['justering', 1],
+          ['beloep', 1],
+        ],
+        poster: [[{ lag: 1 }]],
+        sammenfall: true,
+      });
     });
 
     it('«i tide» etter punkt 34.3.3 står mot et senere svar som ikke sier noe om varselet (VS-U77 punkt 8 og 30)', () => {

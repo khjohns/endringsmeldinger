@@ -134,6 +134,8 @@ export const UTREGNINGEN: Lesbar[] = [
   ['Svarsutregning', 'regelsett', 'regnUt utenforOmfanget', ['frosset/utregning.ts']],
   ['Utregningsgrunnlag', 'utsagn', 'krav paaberopelse'],
   ['Utregningsgrunnlag', 'relasjon', 'foresporsel'],
+  // VS-U80, VS-U81: innsigelsene fra svarene før.
+  ['Utregningsgrunnlag', 'relasjon', 'staar'],
   [
     'spor/vederlag/frysing.ts',
     'regelsett',
@@ -147,7 +149,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'UTREGNING_I_FRISTEN SAMMENLIKNES_I_FRISTEN',
     ['frosset/utregning.ts'],
   ],
-  ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
+  ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel staar'],
   // OV-U115 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [

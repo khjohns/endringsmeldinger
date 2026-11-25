@@ -290,7 +290,10 @@ const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
+  return ulikeVirkninger(
+    u.svar[g.id].virkninger,
+    virkninger(g, paaberopelseFor(g, u), regler, 0, [])
+  );
 }
 
 function dokumentet(u: Utledning, id: string): Dokument | undefined {
