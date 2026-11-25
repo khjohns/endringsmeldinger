@@ -9,7 +9,7 @@ import { omtalen } from '../../frosset/brevdeler.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
-import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { rettedeBrev, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import {
   avvis,
   type Avvisning,
@@ -444,9 +444,7 @@ function varseldokumentetISaken(
   // VS-U73. Et krav lagt til har datoen det ble sendt (`erRegistrering`).
   const vedKravetsBrev = varselet && k.sendt === undefined && !!k.dokumentasjon?.length;
   if (!vedlagte.size && !vedKravetsBrev) return null;
-  const rettet = new Set(
-    foer.lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : []))
-  );
+  const rettet = rettedeBrev(foer.u.registrerteBrev);
   const brevene = foer.lest.filter(
     (h): h is Brevet =>
       h.art === 'dokument' &&

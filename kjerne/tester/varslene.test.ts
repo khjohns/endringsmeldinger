@@ -5,6 +5,7 @@
  * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
+import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { lagBrevtekst } from '../frosset/brevtekst.ts';
@@ -13,6 +14,7 @@ import { handlinger } from '../kommandoer/handlinger.ts';
 import { HOVEDKATEGORIER, type Hovedkategori, KATEGORIER } from '../format/koder.ts';
 import { lesJournal } from '../format/leser.ts';
 import {
+  Skrivefeil,
   forhaandsvis,
   laastTekst,
   utledJournal,
@@ -2284,6 +2286,201 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           ])
         ),
         'kontrollsak'
+      ).toBeNull();
+    });
+
+    /** Mellomlageret for kommandoen, der hver kopi har samme innhold som originalen (#2100). */
+    const medKopier = (kommando: unknown, kopier: Record<string, string>) => {
+      const lager = new Map(mellomlager(kommando));
+      for (const [kopi, original] of Object.entries(kopier))
+        lager.set(kopi.toLowerCase(), {
+          ...lager.get(kopi.toLowerCase())!,
+          innhold_sha256: innholdssummen(original),
+        });
+      return lager;
+    };
+    /** Som `prov` i `brevsak.ts`: kjernen skal forstå det den selv skriver (7.1.2 i designnotatet). */
+    const proev = (
+      s: ReturnType<typeof paaberopt>,
+      kommando: unknown,
+      kopier: Record<string, string>
+    ) => {
+      try {
+        return forhaandsvis(
+          kommando,
+          kontekst('2026-10-07'),
+          s.journal,
+          KJERNE,
+          medKopier(kommando, kopier)
+        );
+      } catch (feil) {
+        if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
+        throw feil;
+      }
+    };
+    const avvisningen = (u: ReturnType<typeof forhaandsvis>) => (u.godtatt ? null : u.avvisning);
+
+    it('samme fil lastet opp på nytt for to kravposter er ett brev med ett varsel per bestemmelse, og med ulik dato avvises det (VS-U52, VS-U53, OV-U80, #2126)', () => {
+      const s = paaberopt();
+      const varsel = dokument();
+      const kopi = { ...varsel, dokumentasjon: [randomUUID()] };
+      const kopier = { [kopi.dokumentasjon[0]!]: varsel.dokumentasjon[0]! };
+      const vist = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel },
+          { ...justert, varsel: kopi },
+        ]),
+        kopier
+      );
+      if (!vist.godtatt) expect.fail(JSON.stringify(vist.avvisning));
+      expect(vist.hendelser, 'ett brev og kravet').toHaveLength(2);
+      expect((vist.hendelser[0]!.data.utsagn as Data[]).map((x) => x.hjemmel)).toEqual([
+        '34.4',
+        '34.3.3',
+      ]);
+      expect(
+        ((vist.hendelser[1]!.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id),
+        'fila ligger ved kravet én gang'
+      ).toEqual([varsel.dokumentasjon[0]!.toLowerCase()]);
+      expect(
+        avvisningen(
+          proev(
+            s,
+            vederlagskrav([
+              { ...regning, varsel },
+              { ...justert, varsel: { ...kopi, sendt: '2026-09-26' } },
+            ]),
+            kopier
+          )
+        )?.regel
+      ).toBe('UGYLDIG_FORM');
+      const toGanger = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] } },
+          { ...justert, varsel: kopi },
+        ]),
+        { ...kopier, [PLAN]: varsel.dokumentasjon[0]! }
+      );
+      expect(
+        toGanger.godtatt && toGanger.hendelser.length,
+        'fila to ganger i ett dokument er samme brev som fila én gang, som i `sammeDokument` (#2100)'
+      ).toBe(2);
+      const annen = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel },
+          { ...justert, varsel: kopi },
+        ]),
+        {}
+      );
+      expect(
+        annen.godtatt && annen.hendelser,
+        'kontrollsak: en annen fil er et annet brev'
+      ).toHaveLength(3);
+    });
+
+    it('to ulike dokumenter fra kravskjemaet med samme fil lastet opp hver for seg, er to brev, og samme opplasting i begge avvises (VS-U53, #2100)', () => {
+      const s = paaberopt();
+      const tegning = randomUUID();
+      const kopi = randomUUID();
+      const foerste = { ...dokument(), dokumentasjon: [randomUUID(), tegning] };
+      const andre = { ...dokument(), sendt: '2026-09-26', dokumentasjon: [randomUUID(), kopi] };
+      const vist = proev(
+        s,
+        vederlagskrav([
+          { ...regning, varsel: foerste },
+          { ...justert, varsel: andre },
+        ]),
+        { [kopi]: tegning }
+      );
+      if (!vist.godtatt) expect.fail(JSON.stringify(vist.avvisning));
+      expect(vist.hendelser, 'to brev og kravet').toHaveLength(3);
+      expect(
+        avvisningen(
+          proev(
+            s,
+            vederlagskrav([
+              { ...regning, varsel: foerste },
+              {
+                ...justert,
+                varsel: { ...andre, dokumentasjon: [andre.dokumentasjon[0]!, tegning] },
+              },
+            ]),
+            {}
+          )
+        )?.regel,
+        'kontrollsak: samme opplasting hører til ett dokument'
+      ).toBe('UGYLDIG_FORM');
+      s.send('TE', { ...registrertVarsel('34.4'), dokumentasjon: foerste.dokumentasjon });
+      expect(
+        avvisningen(
+          proev(s, vederlagskrav([{ ...justert, varsel: andre }, regning]), { [kopi]: tegning })
+        ),
+        'et annet brev med fila fra et varsel i saken'
+      ).toBeNull();
+    });
+
+    it('samme fil lastet opp på nytt som vedlegget ved et varsel for en kravpost i saken, avvises som dokument fra kravskjemaet, og en annen fil godtas (VS-U55, OV-U80, #2144)', () => {
+      const s = paaberopt();
+      const varselet = registrertVarsel('34.4');
+      s.send('TE', varselet);
+      const kopi = dokument();
+      const kommando = vederlagskrav([{ ...regning, varsel: kopi }, regning]);
+      expect(
+        avvisningen(proev(s, kommando, { [kopi.dokumentasjon[0]!]: varselet.dokumentasjon[0]! }))
+      ).toEqual({
+        regel: 'KRAVPOSTVARSELET',
+        melding:
+          'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved varselet for en kravpost i saken. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.',
+      });
+      expect(avvisningen(proev(s, kommando, {})), 'kontrollsak: en annen fil').toBeNull();
+    });
+
+    it('et vedlegg ved kravet med samme innhold som dokumentet med varselet for en kravpost i samme kravskjema, avvises med kravposten (VS-U51, VS-U75, #2144)', () => {
+      const s = paaberopt();
+      const varsel = dokument();
+      const kopi = randomUUID();
+      const kopier = { [kopi]: varsel.dokumentasjon[0]! };
+      expect(
+        avvisningen(
+          proev(
+            s,
+            { ...vederlagskrav([regning, { ...regning, varsel }]), dokumentasjon: [kopi] },
+            kopier
+          )
+        )
+      ).toEqual({
+        regel: 'KRAVPOSTVARSELET',
+        melding:
+          'Et vedlegg ved kravet ligger alt ved varselet for kravpost nr. 2 i dette kravet. Varselet legges ved kravet, så vedlegget står der én gang.',
+      });
+      expect(
+        avvisningen(
+          proev(
+            s,
+            {
+              ...vederlagskrav([
+                { ...regning, varsel },
+                { ...justert, varsel },
+              ]),
+              dokumentasjon: [kopi],
+            },
+            kopier
+          )
+        )?.melding,
+        'dokumentet gjelder to kravposter'
+      ).toContain('varselet for kravpost nr. 1 og 2 i dette kravet');
+      expect(
+        avvisningen(
+          proev(
+            s,
+            { ...vederlagskrav([regning, { ...regning, varsel }]), dokumentasjon: [kopi] },
+            {}
+          )
+        ),
+        'kontrollsak: en annen fil'
       ).toBeNull();
     });
 

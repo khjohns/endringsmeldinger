@@ -10,6 +10,7 @@
 import { OPPLYSNINGSSLAG } from '../format/format.ts';
 import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
+import { vedleggsnoekkel } from './vedlegg.ts';
 import {
   DATO,
   erKalenderdato,
@@ -522,9 +523,6 @@ const KRAVFORM: Record<Spor, Kravform> = {
   vederlag: KRAVFORM_I_VEDERLAGET,
   frist: KRAVFORM_I_FRISTEN,
 };
-
-/** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
-const vedleggsnoekkel = (id: string): string => id.toLowerCase();
 
 /** OV-U79: bare et brev sendt utenfor løsningen har sendemåten. */
 const sendemaatefeil = (sti: string, k: Record<string, unknown>): string[] =>
