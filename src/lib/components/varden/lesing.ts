@@ -1,6 +1,7 @@
 import { innsigelsenIFristen } from '#kjerne/spor/frist/format.ts';
 import { innsigelsenIVederlaget } from '#kjerne/spor/vederlag/format.ts';
-import { lageneISvaret, type Innsigelsen } from './svarlagene';
+import { BREVTEKSTEN_I_VEDERLAGET } from '#kjerne/spor/vederlag/tekst.ts';
+import { lageneISvaret, vilkaaretFor, type Innsigelsen } from './svarlagene';
 import { kravetOgSvaretIFristen } from './fristoversikt';
 import { kravetOgSvaret } from './vederlagsoversikt';
 
@@ -380,9 +381,8 @@ export function datoopplysningene(u: Utledning): Datoopplysningen[] {
  */
 export type Standpunktet = {
   lag: string | null;
+  /** Innsigelsene foran som rammer standpunktet (`vilkaaretFor`). */
   vilkaar?: Innsigelsen[];
-  /** Vilkåret med beregningsregelen, for leselinjen til én kravpost (`Svarlaget`). */
-  vilkaarForPosten?: Innsigelsen[];
   heller?: boolean;
 } & ({ grunn: Subsidiaergrunn; brev: Brevref } | { standpunkt: Standpunkt });
 
@@ -421,14 +421,14 @@ export function standpunktene(
           svar.spor === 'frist' ? innsigelsenIFristen : innsigelsenIForholdet,
           g
         );
-  const vilkaarFor = (lag: number | null) => {
-    const laget = lag === null ? undefined : lagene[lag - 1];
-    if (!laget?.vilkaarForPosten.length) return {};
-    return {
-      ...(laget.vilkaar.length ? { vilkaar: laget.vilkaar } : {}),
-      vilkaarForPosten: laget.vilkaarForPosten,
-      heller: laget.heller,
-    };
+  // Samme vilkår for samme lag og post er samme liste, så en visning kan skrive det én gang (#2182).
+  const vilkaarene = new Map<string, ReturnType<typeof vilkaaretFor>>();
+  const vilkaarFor = (lag: number | null, s?: Standpunkt) => {
+    if (lag === null) return {};
+    const post = s && svar.spor === 'vederlag' ? BREVTEKSTEN_I_VEDERLAGET.posten(s) : undefined;
+    const noekkel = `${lag} ${post}`;
+    if (!vilkaarene.has(noekkel)) vilkaarene.set(noekkel, vilkaaretFor(lagene, lag, post));
+    return vilkaarene.get(noekkel) ?? {};
   };
   return [
     ...grunner.map((grunn, i) => ({
@@ -442,7 +442,7 @@ export function standpunktene(
       .filter((s) => !(s.art === 'beloep' && s.godkjent === undefined))
       .map((s) => {
         const p = plass.standpunkt(s.id);
-        return { standpunkt: s, lag: p.etikett, ...vilkaarFor(p.lag) };
+        return { standpunkt: s, lag: p.etikett, ...vilkaarFor(p.lag, s) };
       }),
   ];
 }
