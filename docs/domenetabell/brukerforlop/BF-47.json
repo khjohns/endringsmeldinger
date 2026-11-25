@@ -23,7 +23,8 @@
     "OV-U99",
     "OV-U104",
     "OV-U109",
-    "OV-U111"
+    "OV-U111",
+    "FO-U6"
   ],
   "venter_paa": [
     "#2015",
@@ -37,6 +38,11 @@
       "dato": "2026-11-25",
       "forhold": "#2015",
       "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-9 og spørsmålene S-1 og S-2."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2015",
+      "hva": "S-1 følger av vedtaket 23.09 («Nøytralt fristvarsel») og står som arbeidsvalg i D-7: forespørselen går utenom intern godkjenning."
     }
   ]
 }
