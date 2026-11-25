@@ -585,6 +585,25 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(ikkeISaken.avvist('TE', FRISTKRAV)).toBeNull();
   });
 
+  it('totalentreprenørens brev som byggherren har lagt til som dokumentasjon, hindrer ikke fristkravet med samme brev (#2069, OV-U79, V1 i handlingsregisteret)', () => {
+    const registrert = {
+      type: 'registrert_brev',
+      sendt: '2026-09-28',
+      ...SOM_BREV,
+      beskrivelse: 'Brevet med varselet',
+      dokumentasjon: [VARSELBREVET],
+    };
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', { ...registrert, avsender: 'TE' });
+    expect(s.avvist('TE', FRISTKRAV)).toBeNull();
+    // Kontrollsak: lagt til av totalentreprenøren selv står brevet alt i saken (#2082).
+    const egen = sak();
+    egen.send('TE', PAABEROPELSE);
+    egen.send('TE', registrert);
+    expect(egen.avvist('TE', FRISTKRAV), 'kontrollsak').toBe('VARSEL_REGISTRERT');
+  });
+
   it('et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert, avvises, og kravet uten brevet godtas (#2082, VS-U55)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

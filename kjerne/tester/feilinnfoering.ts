@@ -6916,6 +6916,16 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en avsender lik egen side skrives ikke'],
   },
+  {
+    id: 'F803',
+    feilklasse:
+      'et brev byggherren har lagt til med totalentreprenøren som avsender, hindrer fristkravet med samme brev (#2069, V1)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ["      h.dokument.lagtTilAv === 'TE' &&", "      h.dokument.avsender === 'TE' &&"],
+    ],
+    mal: ['totalentreprenørens brev som byggherren har lagt til som dokumentasjon'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {
