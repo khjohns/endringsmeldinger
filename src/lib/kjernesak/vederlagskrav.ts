@@ -9,7 +9,7 @@ import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
-import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene, varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
@@ -131,3 +131,27 @@ export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarsele
     null
   );
 };
+
+/** Varselet etter § 34.3.3 eller § 34.4 et svar som står alene gjelder (VS-U79). */
+export interface VarseletAlene {
+  id: string;
+  hjemmel: Kravpostvarselhjemmel;
+  /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
+  foer: StandpunktTilVarselet | null;
+  /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U77 punkt 33). */
+  forrigeSvar: string | null;
+}
+
+/** Varselet `gjelder` i vederlaget som byggherren kan svare på, eller `null` (`varseletSvaretGjelder`). */
+export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
+  const v = varseletSvaretGjelder(u, gjelder);
+  if (!v) return null;
+  return {
+    ...v,
+    foer:
+      standpunkteneTilVarslene(u, null).find(
+        (x) => x.gjelder === v.id && x.hjemmel === v.hjemmel
+      ) ?? null,
+    forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast((s) => s.gjelder === v.id)?.id ?? null,
+  };
+}

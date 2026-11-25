@@ -124,9 +124,12 @@ function standpunkttekstMedVanligeMellomrom(
   du: boolean,
   krevd?: number,
   post?: string,
-  etterLeddsetning = false
+  etterLeddsetning = false,
+  ikkeGitt = true
 ): string {
   const forPosten = post ? ` for ${post}` : '';
+  // VS-U77 punkt 31: i svaret på varselet som står alene, kom varselet for sent.
+  const sent344 = ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
   const hvemLiten = du ? 'du' : PARTEN.BH;
   const hvem = stor(hvemLiten);
   const sier = (verb: string, resten: string) =>
@@ -136,14 +139,8 @@ function standpunkttekstMedVanligeMellomrom(
       // VS-U63: etter punkt 34.4 er «i tide» at byggherren gir opp innsigelsen.
       if (s.hjemmel === '34.4')
         return s.iTide
-          ? sier(
-              'gir',
-              `opp innsigelsen om at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
-            )
-          : sier(
-              'gjør',
-              `gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
-            );
+          ? sier('gir', `opp innsigelsen om at varselet etter punkt 34.4${forPosten} ${sent344}`)
+          : sier('gjør', `gjeldende at varselet etter punkt 34.4${forPosten} ${sent344}`);
       if (s.hjemmel === '33.6.2')
         return s.iTide
           ? sier('godkjenner', `at svaret på forespørselen etter punkt 33.6.2 kom i tide`)
@@ -270,7 +267,7 @@ export const leselinjene = haerdet(leselinjeneMedVanligeMellomrom);
  * samme ord som brevet (oppdragsgiver 24.11 i #2314).
  */
 export const oppgivelsestekst = haerdet(
-  (hjemmel: '34.3.3' | '34.4', brev: Brevref, du: boolean, post?: string) =>
-    `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${hjemmel === '34.4' ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}`
+  (hjemmel: '34.3.3' | '34.4', brev: Brevref, du: boolean, post?: string, ikkeGitt = true) =>
+    `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent'}`
 );
 export const standpunkttekst = haerdet(standpunkttekstMedVanligeMellomrom);

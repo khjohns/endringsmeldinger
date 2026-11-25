@@ -390,8 +390,10 @@ export type Standpunktet = {
  */
 export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const beregning = u.svar[svar.id];
-  if (!beregning) throw new Error(`Svaret ${svar.id} er ikke i saken`);
-  const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
+  // VS-U79: svaret på et varsel som står alene, har ingen beregning i `u.svar`.
+  const paaVarsel = u.spor[svar.spor].svarPaaVarsler.some((s) => s.id === svar.id);
+  if (!beregning && !paaVarsel) throw new Error(`Svaret ${svar.id} er ikke i saken`);
+  const g = beregning?.forholdssvaret ? u.svar[beregning.forholdssvaret].svar : null;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   const lagene =

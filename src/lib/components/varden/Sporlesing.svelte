@@ -11,6 +11,8 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { forseringKanVelges } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
+  import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
+  import { varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -44,7 +46,8 @@
     FORHOLDET,
     LEGG_TIL,
     STILLING,
-    varselet,
+    VARSELSVARET,
+    varselet as varseltekst,
   } from './tekster';
 
   /** Siden for hvert spor, med samme props (#1997). */
@@ -115,6 +118,12 @@
   const visesBrev = $derived(alleBrev.find((b) => b.id === visesId && b.avsnitt !== null));
   // Svaret på byggherrens forespørsel etter punkt 33.6.2 står ved forespørselen (U-6 i BF-45).
   const foresporsel = $derived(iSporet.find((h) => h.type === 'svare_paa_foresporsel') ?? null);
+  // Svaret på et varsel som står alene, står ved varselet (G-9 i BF-14, VS-U79).
+  const varselet = (h: TilbudtHandling | undefined) =>
+    h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
+      ? varseletSvaretPaa(u, h.gjelder)
+      : null;
+  const svarPaaVarselet = $derived(iSporet.find((h) => h.type === 'svare' && varselet(h)) ?? null);
   // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
   // byggherrens svar TEs nye versjon (oppdragsgiver 06.11, #1649).
   const primaer = $derived(
@@ -122,9 +131,11 @@
       ? `svare:${spor}`
       : foresporsel
         ? foresporsel.noekkel
-        : kanGodta && noekler.includes(`krav:${spor}`)
-          ? `krav:${spor}`
-          : null
+        : svarPaaVarselet
+          ? svarPaaVarselet.noekkel
+          : kanGodta && noekler.includes(`krav:${spor}`)
+            ? `krav:${spor}`
+            : null
   );
   // Aksepten åpnes her, og resten av skjemaene hos kalleren (#1663).
   const bygget = $derived([...(kanGodta ? [`godta:${spor}`] : []), ...skjemaene]);
@@ -173,7 +184,10 @@
           : u.spor.forhold.krav.length > 1
             ? FORHOLDET.svarNyVersjon
             : FORHOLDET.svar,
-      ved: kravbrevet,
+      ved: () =>
+        primaer === svarPaaVarselet?.noekkel
+          ? (brevMedUtsagn(u, svarPaaVarselet!.gjelder!)?.id ?? null)
+          : kravbrevet(),
     },
     krav: {
       tekst: () =>
@@ -258,7 +272,10 @@
   /** Teksten for et varsel med hjemmelen, og ellers teksten i `OMTALE`. */
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
-    if (h?.hjemmel) return varselet(h.type, h.hjemmel);
+    if (h?.hjemmel) return varseltekst(h.type, h.hjemmel);
+    const v = varselet(h);
+    if (v)
+      return h!.type === 'svare' ? VARSELSVARET.svar(v.hjemmel) : VARSELSVARET.nyttSvar(v.hjemmel);
     return omtalen(n)?.tekst?.() ?? null;
   }
 

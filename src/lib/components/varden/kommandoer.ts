@@ -22,7 +22,7 @@ import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner } from '#lib/utils/belop.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { varseletFoer } from '#lib/kjernesak/vederlagskrav.ts';
+import { varseletFoer, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -89,11 +89,22 @@ export const tomtSvar = (): Svarvalg => ({
  * ikke i valgene, så det følger ikke med til et annet varsel når kravposten skifter
  * oppgjørsform (VS-U77 punkt 14).
  */
-export function varseletIValgene(u: Utledning, post: Kravpost, v: Postvalg): boolean | null {
-  const staar = varseletFoer(u, post)?.iTide === false;
-  if (v.varsletITide === null) return staar ? false : null;
-  if (v.varsletITide === true && regelen(post) === 'regningsarbeid' && !staar) return null;
-  return v.varsletITide;
+export const varseletIValgene = (u: Utledning, post: Kravpost, v: Postvalg): boolean | null =>
+  standpunktetIValget(
+    v.varsletITide,
+    varseletFoer(u, post)?.iTide === false,
+    regelen(post) === 'regningsarbeid'
+  );
+
+/**
+ * Standpunktet til et varsel etter § 34.3.3 eller § 34.4 i valget: en innsigelse som `staar`,
+ * gjentas uten et valg (VS-U77 punkt 9), og etter § 34.4 er «i tide» bare oppgivelsen av den
+ * (VS-U77 punkt 31).
+ */
+function standpunktetIValget(valgt: boolean | null, staar: boolean, etter344: boolean) {
+  if (valgt === null) return staar ? false : null;
+  if (valgt === true && etter344 && !staar) return null;
+  return valgt;
 }
 
 /** Valgene for kravposten med betegnelsen, eller en ubesvart post. */
@@ -192,6 +203,23 @@ function vurderingene(
   });
 }
 
+/** Forbeholdet og begrunnelsene for `punktene` brevet har, uten tomme tekster. */
+function utdypningene(
+  tekster: { begrunnelser: Record<string, string>; forbehold: string },
+  punktene: readonly string[]
+) {
+  const utdypning = tekster.forbehold.trim();
+  const utdypninger = Object.fromEntries(
+    Object.entries(tekster.begrunnelser)
+      .map(([punkt, tekst]) => [punkt, tekst.trim()] as const)
+      .filter(([punkt, tekst]) => tekst && punktene.includes(punkt))
+  );
+  return {
+    ...(utdypning ? { utdypning } : {}),
+    ...(Object.keys(utdypninger).length ? { utdypninger } : {}),
+  };
+}
+
 /**
  * Brevet med BHs svar på kravet i sporet. Resultatet regnes av kjernen, og er tomt når
  * vurderingene ikke kan regnes ut, så kjernen avviser kommandoen med sin egen melding. Begrunnelsen
@@ -213,12 +241,6 @@ export function svarbrevet(
   } catch (feil) {
     if (!(feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)) throw feil;
   }
-  const utdypning = tekster.forbehold.trim();
-  const utdypninger = Object.fromEntries(
-    Object.entries(tekster.begrunnelser)
-      .map(([punkt, tekst]) => [punkt, tekst.trim()] as const)
-      .filter(([punkt, tekst]) => tekst && punktene.includes(punkt))
-  );
   return {
     type: 'brev',
     svar: [
@@ -228,8 +250,7 @@ export function svarbrevet(
         regelversjon: regler.versjon,
         vurderinger,
         resultat,
-        ...(utdypning ? { utdypning } : {}),
-        ...(Object.keys(utdypninger).length ? { utdypninger } : {}),
+        ...utdypningene(tekster, punktene),
       },
     ],
   };
@@ -253,6 +274,57 @@ export function vederlagssvaret(
     regler,
     punktene
   );
+}
+
+/** Det BH har valgt i svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene (VS-U79). */
+export interface Varselsvalg {
+  varsletITide: boolean | null;
+  /** Bare for varselet etter § 34.3.3 (VS-U77 punkt 30). */
+  godtarJustering: boolean | null;
+  begrunnelser: Record<string, string>;
+  forbehold: string;
+}
+
+export const tomtVarselsvar = (): Varselsvalg => ({
+  varsletITide: null,
+  godtarJustering: null,
+  begrunnelser: {},
+  forbehold: '',
+});
+
+/** Standpunktet til varselet i svaret på det, regnet som for kravposten (`varseletIValgene`). */
+export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolean | null =>
+  standpunktetIValget(v.varsletITide, varselet.foer?.iTide === false, varselet.hjemmel === '34.4');
+
+/**
+ * BHs svar på et varsel som står alene, eller et nytt svar som erstatter det forrige (VS-U79,
+ * VS-U77 punkt 33). Svaret har ingen kravposter og ikke noe resultat (arbeidsvalg 1 A i #2177).
+ * Begrunnelsen står bare for `punktene` brevet har, som i `svarbrevet`.
+ */
+export function varselsvaret(
+  v: Varselsvalg,
+  varselet: VarseletAlene,
+  regler: Regelsett,
+  punktene: readonly string[] = []
+):
+  | { type: 'brev'; svar: Svarutkast[] }
+  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
+  const svar: Svarutkast = {
+    spor: 'vederlag',
+    gjelder: varselet.id,
+    regelversjon: regler.versjon,
+    // Vurderingene i svaret på varselet står ikke i `Svarvurdering` (`standpunkterPaaVarselet`).
+    vurderinger: definert({
+      varslet_i_tide: varseletISvaret(v, varselet) ?? undefined,
+      godtar_justering:
+        varselet.hjemmel === '34.3.3' ? (v.godtarJustering ?? undefined) : undefined,
+    }) as Svarvurdering,
+    resultat: {},
+    ...utdypningene(v, punktene),
+  };
+  return varselet.forrigeSvar
+    ? { type: 'revisjon', erstatter: varselet.forrigeSvar, svar }
+    : { type: 'brev', svar: [svar] };
 }
 
 /** TEs aksept av svaret `svar`, med regelversjonen brevet forhåndsvises med (KA-U10, MM-U50). */
