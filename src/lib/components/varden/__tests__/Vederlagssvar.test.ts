@@ -356,7 +356,7 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     )
   );
 
-  it('knappen ved svaret åpner svarskjemaet med svaret det erstatter fylt ut, og brevet viser at det erstatter svaret (HF-U29, prototypen `vederlagsoversikt-v2.html`)', async () => {
+  it('knappen ved svaret åpner svarskjemaet med svaret det erstatter fylt ut, og viser brevet med det forrige svaret (HF-U29, prototypen `vederlagsoversikt-v2.html`)', async () => {
     const kjernesak = lagKjernesak({
       sakId: SAK,
       prosjektId: 'p-1',
@@ -378,7 +378,7 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     expect(kjernesak.handlinger).toContain('revidere:vederlag');
     await fireEvent.click(await screen.findByRole('button', { name: /^Send nytt svar/ }));
-    expect(await screen.findByText(/^Erstatter svaret i brev 3/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Forrige svar: brev 3/)).toBeInTheDocument();
     expect(
       screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     ).toBeChecked();

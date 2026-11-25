@@ -637,8 +637,7 @@
       vises: (a) =>
         a.art === 'svar' &&
         valgt === 'vederlag' &&
-        (kjernesak.handlinger.includes('svare:vederlag') ||
-          kjernesak.handlinger.includes('revidere:vederlag')),
+        ['svare:vederlag', 'revidere:vederlag'].some((n) => kjernesak.handlinger.includes(n)),
       skjema: vederlagssvar,
     },
     fristsvar: {

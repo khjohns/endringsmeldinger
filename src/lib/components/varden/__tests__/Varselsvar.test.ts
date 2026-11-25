@@ -568,7 +568,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     expect(screen.queryByRole('region', { name: /^Svarene på kravet/ })).toBeNull();
   });
 
-  it('i Varden åpner lenken det nye svaret på kravet, som erstatter svaret i brevet før (#2365)', async () => {
+  it('i Varden åpner lenken det nye svaret på kravet, med det forrige svaret i brevet før (#2365)', async () => {
     const kjernesak = kjernesakFor(mellom);
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
@@ -580,7 +580,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
       screen.getByText(/Vil du endre dem, sender du et nytt svar på kravet\./)
     ).toBeInTheDocument();
     await fireEvent.click(lenke);
-    expect(await screen.findByText(/^Erstatter svaret i brev \d/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Forrige svar: brev \d/)).toBeInTheDocument();
     expect(screen.queryByText(/ikke bygget/)).toBeNull();
   });
 });

@@ -137,7 +137,7 @@
   );
   // HF-U29: et nytt svar erstatter byggherrens gjeldende svar på kravversjonen.
   const utkast = $derived(somNyttSvar(brevutkast, u));
-  const erstatter = $derived(
+  const forrigeSvar = $derived(
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
   const etter = $derived(kjernesak.forhaandsvist(utkast));
@@ -453,7 +453,7 @@
   {u}
   spor="vederlag"
   {utkast}
-  {erstatter}
+  {forrigeSvar}
   medTekstene={(punktene) => somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, u)}
   bind:tekster={valg}
   {linjer}
