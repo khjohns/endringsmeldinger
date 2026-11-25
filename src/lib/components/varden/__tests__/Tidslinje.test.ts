@@ -107,6 +107,7 @@ describe('Tidslinje', () => {
       id,
       nummer,
       avsender,
+      lagtTilAv: avsender,
       registrert: `2026-10-0${nummer}T08:00:00Z`,
       sendt: null,
       spor,

@@ -113,6 +113,8 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/kommando.ts:korrespondansefeil(k)', 'kommando', 'korrespondansetype'],
   // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
   ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
+  // OV-U79, OV-U80: avsenderen av korrespondanse motparten har sendt.
+  ['Kommando', 'kommando', 'avsender', ['kommandoer/skriving.ts:dokument']],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // LV-U42: typen registrert korrespondanse lagres slik avsenderen oppga den.
@@ -248,7 +250,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'RegistrertBrev',
     'relasjon',
-    'dokument avsender rettetAv',
+    'dokument lagtTilAv rettetAv',
     ['utledning/utled.ts:registreringer', 'kommandoer/nyttelast.ts:retting'],
   ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.

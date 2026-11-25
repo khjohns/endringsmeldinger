@@ -402,10 +402,10 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
       'RETTER_IKKE_EN_REGISTRERING',
       'Rettingen må gjelde et brev registrert som dokumentasjon i saken.'
     );
-  if (brev.avsender !== part)
+  if (brev.lagtTilAv !== part)
     return avvis(
       'FEIL_PART',
-      `Registreringen er ${PARTENS[brev.avsender]}, og bare ${PARTEN[brev.avsender]} kan rette den.`
+      `Registreringen er ${PARTENS[brev.lagtTilAv]}, og bare ${PARTEN[brev.lagtTilAv]} kan rette den.`
     );
   if (brev.rettetAv !== null)
     return avvis(

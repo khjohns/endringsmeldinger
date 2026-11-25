@@ -20,7 +20,7 @@ export const JOURNALRADEN: Lesbar[] = [
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'krav svar utsagn opplysninger dokumentasjon beskrivelse spor retter ikke_i_saken',
+    'krav svar utsagn opplysninger dokumentasjon beskrivelse spor retter ikke_i_saken avsender',
     ['format/leser.ts'],
   ],
   ['format/leser.ts:ikkeISaken(data)', 'rad', 'retter', ['format/leser.ts']],

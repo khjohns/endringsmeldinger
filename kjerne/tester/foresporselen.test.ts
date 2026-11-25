@@ -795,6 +795,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const protest = (gjelder: string): Dokument => ({
       id: 'protesten',
       avsender: 'TE',
+      lagtTilAv: 'TE',
       registrert: '2026-10-07T10:00:00Z',
       opplysninger: [],
       dokumentasjon: [],

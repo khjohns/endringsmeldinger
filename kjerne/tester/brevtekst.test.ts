@@ -745,6 +745,7 @@ describe('vedleggene står i teksten (A4)', () => {
   const dokument = (filnavn: string[]): Dokument => ({
     id: 'brevet',
     avsender: 'TE',
+    lagtTilAv: 'TE',
     registrert: '2026-10-05T10:00:00Z',
     opplysninger: [],
     dokumentasjon: filnavn.map((f) => ({

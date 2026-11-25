@@ -54,6 +54,8 @@ export interface Brevet {
   id: string;
   nummer: number | null;
   avsender: Part;
+  /** Parten som la til brevet og oppga datoen, også når avsenderen er motparten (OV-U79). */
+  lagtTilAv: Part;
   registrert: string;
   /**
    * Datoen avsenderen oppgir at et registrert brev ble sendt (OV-U85), og `null` for et brev
@@ -136,6 +138,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         id: d.id,
         nummer: d.brevnummer,
         avsender: d.avsender,
+        lagtTilAv: d.lagtTilAv,
         registrert: d.registrert,
         sendt: datoForDokumentet(d.opplysninger, 'sendt')?.dato ?? null,
         spor: [...i],
