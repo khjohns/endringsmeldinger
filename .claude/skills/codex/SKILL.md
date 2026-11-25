@@ -94,8 +94,10 @@ Sparring som kan få oppfølging, kjøres uten `--ephemeral` (se «Oppfølging i
   `--sandbox` sammen med profilen. Prøvd med `codex sandbox` i 0.171.0: hjemmemappa og
   passordfila til testbasen var usynlige, `git diff` og `rg` virket i klonen, og skriving i
   klonen ble avvist. `codex exec` ber aldri om å kjøre en kommando utenfor sandkassen.
-- **Kontroller profilen før kallet.** Kjør `codex debug prompt-input` med de samme flaggene, og
-  se at profilen `review` er valgt. Den viste profilen i prøven med 0.171.0. Loggen er ikke et
+- **Kontroller profilen før kallet.** Kjør `codex debug prompt-input` med de to `-c`-flaggene
+  for profilen fra blokken, og se at profilen `review` er valgt. `prompt-input` avviser `-m`,
+  `--ephemeral`, `--output-schema` og `-o`, som bare `codex exec` tar. Prøvd 25.11 med blokken
+  over (#2256). Loggen er ikke et
   bevis, for den viser `sandbox: read-only` både med og uten profilen. Kopier hele kallet, og
   samle ikke flaggene i en variabel. I #2337 falt `-c 'default_permissions="review"'` ut på den
   måten.
