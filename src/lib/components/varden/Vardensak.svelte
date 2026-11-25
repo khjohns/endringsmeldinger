@@ -576,10 +576,10 @@
     spor: 'vederlag' | 'frist',
     skjema: Snippet<[Utledning]>,
     utkastet: { erstatter: () => string | undefined; fyll: (forrige: Svar | null) => void }
-  ): Skjema {
+  ): Omit<Skjema, 'noekler'> {
+    // Nøklene står i `skjemaene`, der vakten for handlingsregisteret leser dem.
     const noekler = [`svare:${spor}`, `revidere:${spor}`];
     return {
-      noekler,
       aapne: (n) => {
         const forrige = u?.spor[spor].gjeldendeSvar;
         // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
@@ -657,20 +657,26 @@
       skjema: forholdssvar,
     },
     // Det nye svaret på kravet har samme skjema som svaret (HF-U29, G-8 i BF-46).
-    vederlagssvar: svaretPaaKravet('vederlag', vederlagssvar, {
-      erstatter: () => utkastene.vederlagssvar.erstatter,
-      fyll: (f) =>
-        (utkastene.vederlagssvar = f
-          ? valgFraSvaret(f, u!.spor.vederlag.gjeldendeKrav!)
-          : tomtSvar()),
-    }),
-    fristsvar: svaretPaaKravet('frist', fristsvar, {
-      erstatter: () => utkastene.fristsvar.erstatter,
-      fyll: (f) =>
-        (utkastene.fristsvar = f
-          ? valgFraFristsvaret(f, u!.spor.frist.gjeldendeKrav!)
-          : tomtFristsvar()),
-    }),
+    vederlagssvar: {
+      noekler: ['svare:vederlag', 'revidere:vederlag'],
+      ...svaretPaaKravet('vederlag', vederlagssvar, {
+        erstatter: () => utkastene.vederlagssvar.erstatter,
+        fyll: (f) =>
+          (utkastene.vederlagssvar = f
+            ? valgFraSvaret(f, u!.spor.vederlag.gjeldendeKrav!)
+            : tomtSvar()),
+      }),
+    },
+    fristsvar: {
+      noekler: ['svare:frist', 'revidere:frist'],
+      ...svaretPaaKravet('frist', fristsvar, {
+        erstatter: () => utkastene.fristsvar.erstatter,
+        fyll: (f) =>
+          (utkastene.fristsvar = f
+            ? valgFraFristsvaret(f, u!.spor.frist.gjeldendeKrav!)
+            : tomtFristsvar()),
+      }),
+    },
     varselsvar: {
       // G-9 i BF-14, VS-U79: svaret på et varsel som står alene, og et nytt svar på det.
       noekler: ['svare:*', 'revidere:*'],
