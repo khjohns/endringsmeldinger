@@ -6873,7 +6873,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['    standpunkteneTilVarslene(u, sendt, true),\n', '    [],\n']],
     mal: [
-      'et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
+      // Svaret etter § 34.3.3 har sammenfall false av utregningen uansett; lagene viser feilen.
+      'fryser justeringen subsidiært (VS-U80, VS-U81, VS-U77 punkt 30)',
       'et svar lagt til som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står',
     ],
   },
@@ -6883,9 +6884,8 @@ const MUTASJONER: Mutasjon[] = [
       'utledningen avviser et svar uten sammenfall som ikke sier noe om varselet (MM-U43 punkt 8, #2316)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['?? []).length > 0;', '?? []).length < 0;']],
-    mal: [
-      'et svar lagt til som ikke sier noe om varselet der innsigelsen står, gir ikke sammenfall',
-    ],
+    // Etter § 34.4 godkjenner det tause svaret hele kravet uten sammenfall (VS-U81 gir ikke lag).
+    mal: ['et svar lagt til som ikke sier noe om varselet etter punkt 34.4 der innsigelsen står'],
   },
   {
     id: 'F793',
