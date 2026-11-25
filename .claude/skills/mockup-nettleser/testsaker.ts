@@ -191,7 +191,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       },
       { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
     ],
-    // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står under varselet og kan ikke endres
+    // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står under brevet og kan ikke endres
     // der (VS-U65); lenken åpner et nytt svar på kravet.
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
@@ -204,9 +204,11 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 390, height: 844 });
       await bh.screenshot({ path: `${ut}/varselsvar-mellom-390.png`, fullPage: true });
       await bh.setViewportSize({ width: 1440, height: 900 });
+      // Varden har ikke skjemaet for et nytt svar på kravet ennå (G4 i handlingsregisteret).
       await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
-      await bh.getByRole('heading', { name: /^Svar på krav/ }).first().waitFor({ timeout: 10_000 });
-      await bh.screenshot({ path: `${ut}/varselsvar-mellom-nytt-svar.png`, fullPage: true });
+      await bh.getByRole('status').filter({ hasText: 'ikke bygget' }).waitFor({ timeout: 10_000 });
+      if (await bh.getByRole('button', { name: /^Endre/ }).count())
+        throw new Error('Svarene fra forrige brev har «Endre» i svaret på varselet (VS-U65)');
     },
   },
 };
