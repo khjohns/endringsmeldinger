@@ -195,12 +195,18 @@ export const OPPLYSNINGSSLAG = [
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
   // VS-U34: varselet etter § 32.2 sendt utenfor løsningen registreres som de andre.
   // VS-U48, VS-U52: varslene etter § 34.3.3 første ledd og § 34.4, sendt eller registrert.
+  // VS-U86 punkt 12: datoen TE ble klar over at utgiftene ville påløpe, bare etter § 34.1.3.
   varsel: objekt(
     {
       ...artfelt('varsel'),
       hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
+      klar_over_utgiftene: DATO,
     },
-    ['id', 'art', 'hjemmel']
+    ['id', 'art', 'hjemmel'],
+    [
+      { properties: { hjemmel: { const: '34.1.3' } } },
+      { properties: { klar_over_utgiftene: { enum: [] } } },
+    ]
   ),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),
   aksept: objekt({ ...artfelt('aksept'), gjelder: ID, regelversjon: { type: 'integer' } }, [
@@ -250,6 +256,13 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
       { required: ['klar_over_forholdet'], properties: { paalegg_mottatt: { enum: [] } } },
     ]
   ),
+  // VS-U86 punkt 14 (VS-U82): datoen står i samme felt som i varselet.
+  kunnskapsdato: objekt({ ...artfelt('kunnskapsdato'), gjelder: ID, klar_over_utgiftene: DATO }, [
+    'id',
+    'art',
+    'gjelder',
+    'klar_over_utgiftene',
+  ]),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

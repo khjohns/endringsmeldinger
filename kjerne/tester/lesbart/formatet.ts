@@ -96,6 +96,71 @@ export const FORMATET: Lesbar[] = [
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
+  // VS-U86 punkt 12–14 (VS-U82–VS-U85): kunnskapsdatoen etter § 34.1.3 annet ledd, i varselet,
+  // i vederlagskravet og i det egne utsagnet. Formkontrollen, kontrollen mot datoen brevet er
+  // sendt (VS-U83), at den bare endres i det egne utsagnet (VS-U85) og brevteksten leser den;
+  // ingen regel vurderer rettidigheten (punkt 16).
+  ['Utsagn', 'utsagn', 'klar_over_utgiftene'],
+  ['format/leser.ts:lesDokument(e)', 'rad', 'klar_over_utgiftene'],
+  ['Kommando', 'kommando', 'klar_over_utgiftene'],
+  [
+    'Vederlagsinnhold.saerskilt',
+    'utsagn',
+    'produktivitet produktivitet.klar_over_utgiftene',
+    ['spor/vederlag/format.ts:kunnskapsdatoIKravet'],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'utsagn',
+    'kunnskapsdatoIKravet',
+    [
+      'kommandoer/kommando.ts:kunnskapsdatoIKommandoen',
+      'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
+      'spor/vederlag/utledning.ts:kontrollerKunnskapsdatoene',
+      'spor/vederlag/utledning.ts:opplysningerOmKunnskapsdatoen',
+      'spor/vederlag/tekst.ts:vederlagstekst',
+    ],
+  ],
+  ['kommandoer/kommando.ts:kunnskapsdatoIKommandoen', 'kommando', 'dato sti'],
+  [
+    'kommandoer/kommando.ts',
+    'kommando',
+    'kunnskapsdatoIKommandoen',
+    ['kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet'],
+  ],
+  ['Utledning', 'utsagn', 'kunnskapsdatoer'],
+  ['Kunnskapsopplysning', 'relasjon', 'id'],
+  ['Kunnskapsopplysning', 'utsagn', 'dato'],
+  // VS-U85: den første opplysningen og hvert eget utsagn blir TEs siste.
+  ['Kunnskapsopplysning', 'predikat', 'blirSiste'],
+  ['Dokument', 'relasjon', 'id', ['spor/vederlag/utledning.ts:opplysningerOmKunnskapsdatoen']],
+  [
+    'spor/vederlag/utledning.ts',
+    'predikat',
+    'kontrollerKunnskapsdatoene opplysningerOmKunnskapsdatoen',
+    ['utledning/utled.ts:utledSporene'],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'utsagn',
+    'sisteKunnskapsdato',
+    [
+      'spor/vederlag/kommando.ts:kunnskapsdatoenErOppgitt',
+      'spor/vederlag/kommando.ts:kontrollerKunnskapsdatoen',
+    ],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'predikat',
+    'kunnskapsdatoen',
+    ['kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'predikat',
+    'kunnskapsdatoIVarselet kontrollerKunnskapsdatoen',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
   // VS-U58: datoen i grunnlagskravet, som varselet om forholdet kontrolleres mot.
   ['kommandoer/nyttelast.ts:grunnlagsdatoen', 'utsagn', 'felt dag'],
   [

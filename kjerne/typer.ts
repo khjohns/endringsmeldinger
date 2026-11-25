@@ -191,7 +191,17 @@ export type Standpunktsart = Standpunkt['art'];
 
 /** Utsagnene i et dokument som ikke er krav eller svar. */
 export type Utsagn =
-  | { id: string; art: 'varsel'; hjemmel: Varselhjemmel; dokument: string }
+  | {
+      id: string;
+      art: 'varsel';
+      hjemmel: Varselhjemmel;
+      dokument: string;
+      /**
+       * VS-U86 punkt 12: datoen TE oppgir å ha blitt klar over at økte utgifter etter § 34.1.3
+       * annet ledd ville påløpe, i varselet etter § 34.1.3. Valgfri (punkt 13).
+       */
+      klar_over_utgiftene?: string;
+    }
   | { id: string; art: 'trekk'; gjelder: string }
   | {
       id: string;
@@ -241,7 +251,13 @@ export type Utsagn =
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, kravet eller
    * en tidligere korrigering. Ikke en kravversjon, og avslår ikke byggherrens svar.
    */
-  | { id: string; art: 'korrigering'; gjelder: string; felt: OppgittDatofelt; dato: string };
+  | { id: string; art: 'korrigering'; gjelder: string; felt: OppgittDatofelt; dato: string }
+  /**
+   * VS-U86 punkt 14 (VS-U82): TE supplerer eller endrer datoen TE ble klar over at økte utgifter
+   * etter § 34.1.3 annet ledd ville påløpe, i et eget utsagn. `gjelder` er varselet etter
+   * § 34.1.3, det registrerte eller kravet som er det første varselet løsningen kjenner.
+   */
+  | { id: string; art: 'kunnskapsdato'; gjelder: string; klar_over_utgiftene: string };
 
 /**
  * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen

@@ -10,6 +10,7 @@
 import {
   harProduktivitetspost,
   innholdIVederlaget,
+  kunnskapsdatoIKravet,
   justerteEnhetspriser,
   kravposterI,
   OPPGJOERSHJEMMEL,
@@ -17,10 +18,13 @@ import {
 } from './format.ts';
 import type {
   Bakover,
+  Kunnskapsopplysning,
   LestVarsel,
   Sporskontroller,
+  Sporutledning,
   Ugyldig,
   Utledning,
+  Utsagn,
 } from '../../utledning/utled.ts';
 import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
 import {
@@ -40,6 +44,7 @@ import {
   type Krav,
   type Kravpostvarselet,
   type Dokument,
+  type Domenehendelse,
   type Kravpostvarselhjemmel,
   type Standpunkt,
   type Svar,
@@ -404,3 +409,77 @@ export function standpunkteneTilVarslene(
     ]
   );
 }
+
+/**
+ * VS-U86 punkt 14 (VS-U82): det egne utsagnet om kunnskapsdatoen viser bakover til varselet etter
+ * § 34.1.3 eller til et vederlagskrav med posten etter annet ledd. Datoen i vederlagskravet står
+ * bare i den første versjonen som krever posten (D-2 i BF-48, VS-U85).
+ */
+export function kontrollerKunnskapsdatoene(
+  utsagn: readonly Utsagn<'kunnskapsdato'>[],
+  vederlag: Pick<Sporutledning, 'krav'>,
+  varsler: readonly LestVarsel[],
+  kravMedUten: Map<string, Krav>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  const etter3413 = new Set(varsler.filter((v) => v.hjemmel === '34.1.3').map((v) => v.id));
+  for (const x of utsagn) {
+    const krav = kravMedUten.get(x.gjelder);
+    const kanGjelde =
+      etter3413.has(x.gjelder) ||
+      (krav !== undefined && krav.spor === 'vederlag' && harProduktivitetspost(krav));
+    if (!kanGjelde || !bakover(x.id, x.gjelder))
+      ugyldig(
+        x.id,
+        'opplysningen om kunnskapsdatoen viser ikke til et varsel etter § 34.1.3 før den'
+      );
+  }
+  const [foerste] = vederlag.krav.filter(harProduktivitetspost);
+  for (const k of vederlag.krav)
+    if (k !== foerste && kunnskapsdatoIKravet(k) !== undefined)
+      ugyldig(
+        k.id,
+        'kunnskapsdatoen etter § 34.1.3 står i en kravversjon som ikke er den første med posten etter annet ledd'
+      );
+}
+
+/**
+ * TEs opplysninger om kunnskapsdatoen etter § 34.1.3 annet ledd (`Kunnskapsopplysning`), i
+ * rekkefølgen i journalen: varselet etter § 34.1.3 og vederlagskravet med datoen, og hvert eget
+ * utsagn (VS-U86 punkt 12 og 14). Den første og hvert utsagn blir TEs siste opplysning; datoen i
+ * et varsel eller krav etter det står som opplysningen i det brevet (VS-U85).
+ */
+export function opplysningerOmKunnskapsdatoen(
+  journal: readonly Domenehendelse[],
+  vederlag: Pick<Sporutledning, 'krav' | 'kravUtenforRekken'>,
+  varsler: readonly LestVarsel[],
+  utsagn: readonly Utsagn<'kunnskapsdato'>[]
+): Kunnskapsopplysning[] {
+  const krav = new Set([...vederlag.krav, ...vederlag.kravUtenforRekken].map((k) => k.id));
+  const varslene = new Set(varsler.map((v) => v.id));
+  const egne = new Set(utsagn.map((x) => x.id));
+  const ut: Kunnskapsopplysning[] = [];
+  const legg = (id: string, dokument: string, dato: string, egen: boolean) =>
+    ut.push({ id, dokument, dato, utsagn: egen, blirSiste: egen || ut.length === 0 });
+  for (const h of journal) {
+    if (h.art !== 'dokument') continue;
+    const d = h.dokument;
+    for (const k of d.krav) {
+      const dato = krav.has(k.id) ? kunnskapsdatoIKravet(k) : undefined;
+      if (dato !== undefined) legg(k.id, d.id, dato, false);
+    }
+    for (const u of d.utsagn) {
+      if (u.art === 'varsel' && varslene.has(u.id) && u.klar_over_utgiftene !== undefined)
+        legg(u.id, d.id, u.klar_over_utgiftene, false);
+      if (u.art === 'kunnskapsdato' && egne.has(u.id))
+        legg(u.id, d.id, u.klar_over_utgiftene, true);
+    }
+  }
+  return ut;
+}
+
+/** TEs siste opplysning om kunnskapsdatoen etter § 34.1.3 (VS-U85), eller `null`. */
+export const sisteKunnskapsdato = (
+  u: Pick<Utledning, 'kunnskapsdatoer'>
+): Kunnskapsopplysning | null => u.kunnskapsdatoer.filter((o) => o.blirSiste).at(-1) ?? null;

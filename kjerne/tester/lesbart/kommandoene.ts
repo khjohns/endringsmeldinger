@@ -163,6 +163,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/skriving.ts:skriv',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
       'kommandoer/avvisning.ts:avvisning',
     ],
   ],

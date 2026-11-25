@@ -106,7 +106,12 @@ export const BREVTEKSTEN: Lesbar[] = [
     'lagBrevtittel avvikITittelen medSakskode',
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
-  ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse korrigering', ['frosset/brevtittel.ts']],
+  [
+    'UTSAGNSTITTEL',
+    'brevtekst',
+    'aksept trekk innsigelse korrigering kunnskapsdato',
+    ['frosset/brevtittel.ts'],
+  ],
   // LV-U80, LV-U81: det svaret gjelder, i tittelen, overskriften på svaret og forbeholdet.
   ['SVARET_GJELDER', 'brevtekst', 'tittel', ['frosset/brevtittel.ts']],
   ['SVARET_GJELDER', 'brevtekst', 'del', ['frosset/brevtekst.ts']],
@@ -361,6 +366,17 @@ export const BREVTEKSTEN: Lesbar[] = [
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],
+  // VS-U86 punkt 14 og designdelen: TEs siste opplysning om kunnskapsdatoen før brevet, i det
+  // egne utsagnet og i svaret (`Kunnskapsopplysning`).
+  ['Saken', 'utsagn', 'kunnskapsdatoer kunnskapsdatoer.dato', ['frosset/brevtekst.ts']],
+  ['Saken', 'relasjon', 'kunnskapsdatoer.dokument', ['frosset/brevtekst.ts']],
+  ['Saken', 'predikat', 'kunnskapsdatoer.blirSiste', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'kunnskapsdatoTekst',
+    ['frosset/brevtekst.ts', 'spor/vederlag/tekst.ts'],
+  ],
   [
     'Tekst',
     'brevtekst',
@@ -424,6 +440,8 @@ export const BREVTEKSTEN: Lesbar[] = [
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:varseletFoerGrunnlagsdatoen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+      'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
+      'spor/vederlag/kommando.ts:klarOverUtgiftene',
     ],
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.

@@ -376,6 +376,7 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   protest: null,
   begrunnelse: 'BH',
   korrigering: 'TE',
+  kunnskapsdato: 'TE',
 };
 
 /**
@@ -510,7 +511,15 @@ function lesDokument(h: Journalrad): Dokument {
       const art = e.art as Utsagnsart;
       kreverPart(PART_FOR_UTSAGN[art], `et utsagn med art ${art}`);
       if (art === 'varsel')
-        return { id: e.id as string, art, hjemmel: e.hjemmel as Varselhjemmel, dokument: id };
+        return {
+          id: e.id as string,
+          art,
+          hjemmel: e.hjemmel as Varselhjemmel,
+          dokument: id,
+          ...(e.klar_over_utgiftene === undefined
+            ? {}
+            : { klar_over_utgiftene: e.klar_over_utgiftene as string }),
+        };
       if (art === 'korrigering') {
         // Formatet krever nøyaktig ett av feltene.
         const felt = e.paalegg_mottatt !== undefined ? 'paalegg_mottatt' : 'klar_over_forholdet';
@@ -537,6 +546,11 @@ function lesDokument(h: Journalrad): Dokument {
   // BF-02A: en korrigering sendt utenfor løsningen står som dokumentasjon (OV-U4).
   if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'korrigering'))
     throw new Uforstaatt('et registrert brev har en korrigering av datoen');
+  // P-1 i BF-48: et brev om datoen etter § 34.1.3 sendt utenfor løsningen står som korrespondanse.
+  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'kunnskapsdato'))
+    throw new Uforstaatt(
+      'et registrert brev har en opplysning om datoen utgiftene etter § 34.1.3 ble kjent'
+    );
   // OV-U4, OV-U16: et dokument uten krav, svar eller utsagn er et brev registrert som
   // dokumentasjon. OV-U79: annen registrert korrespondanse kan ha beskrivelsen, men ikke sporene.
   if (!data.krav && !data.svar && !data.utsagn) dokumentasjonsbrev(dokument);
