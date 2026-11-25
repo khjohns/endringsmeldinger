@@ -1,0 +1,41 @@
+{
+  "id": "BF-50",
+  "tittel": "Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen",
+  "brukerhistorie": "TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. En senere dato gjelder straks. En tidligere dato er et tilbud som gjelder når BH godtar rettingen i et svar, atskilt fra standpunktet om varselet eller kravet kom i tide. Begge partene ser datoen som gjelder, de tidligere datoene og rettingene som står åpne.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 1 og lagt til et varsel om fristforlengelse sendt med e-post (variant A, B, D, E og F) eller et vederlagskrav sendt med e-post (variant C). TE retter datoen til en senere dato (A) eller en tidligere (B–F). I variant E er saken lukket, og i variant F er datoen før datoen i påberopelsen."
+  },
+  "bestilling": "BF-50.md",
+  "kilder": [
+    "MM-U59",
+    "OV-U123",
+    "VS-U86",
+    "KA-U52",
+    "EO-U39",
+    "VS-U58",
+    "MM-U50",
+    "GR-U27",
+    "LV-U4",
+    "LV-U27",
+    "LV-U53",
+    "KA-U16",
+    "LV-U29",
+    "LV-U55",
+    "OV-U17"
+  ],
+  "venter_paa": [
+    "#1309",
+    "#818"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-25",
+      "forhold": "#1309",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-13 og spørsmålene S-1 og S-2, som ikke er stilt."
+    }
+  ]
+}
