@@ -683,6 +683,50 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     ]);
   });
 
+  it('§ 34.1.3 er ikke forutsetning for justeringen i en kravpost etter en beregningsregel, selv i et senere lag (OV-U22, VS-U5, VS-U56)', () => {
+    const s = saken(
+      { resultat: 'godkjent', grunnlag_varslet_i_tide: true },
+      {
+        svikt: false,
+        vederlag: {
+          kravposter: [{ beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true }],
+          saerskilt: { produktivitet: { beloep: 40000 } },
+        },
+      }
+    );
+    const [p1] = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
+    const lag = lagForUtkastet(
+      svar(
+        'vederlag',
+        s.krav('vederlag'),
+        medKravpostIder(
+          {
+            produktivitet_varslet_i_tide: false,
+            kravposter: [
+              {
+                gjelder: 'P1',
+                aksepterer: false,
+                oensket_oppgjoersform: 'regningsarbeid',
+                varslet_i_tide: true,
+                godtar_justering: false,
+              },
+            ],
+          },
+          s.u().spor.vederlag.gjeldendeKrav
+        )
+      ) as never,
+      s.u(),
+      KJERNE.regler
+    );
+    const finn = (art: string, hjemmel?: string) =>
+      lag.standpunkter.find(
+        (x) => x.art === art && (hjemmel === undefined || x.hjemmel === hjemmel)
+      )!;
+    // Forutsetningen for prøven: justeringen står i et senere lag enn innsigelsen etter § 34.1.3.
+    expect([finn('rettidighet', '34.1.3').virkning, finn('justering').virkning]).toEqual([1, 2]);
+    expect(finn('justering').forutsetninger).toEqual([{ oppgjoersform: p1!.id }]);
+  });
+
   it('med § 34.1.2 og § 34.1.3 for sent har posten begge innsigelsene foran, og justeringen ellers bare § 34.1.2', () => {
     const s = saken(
       { resultat: 'godkjent' },
