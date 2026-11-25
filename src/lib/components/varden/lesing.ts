@@ -386,24 +386,36 @@ export type Standpunktet = {
  * Linjene i svaret `svar` i brevets rekkefølge, med laget brevet ga dem (OV-U32). Grunnene
  * fra svaret på forholdet brevet hadde foran seg står først, ett lag hver (OV-U33,
  * `Svarberegning.forholdssvaret`). Et svar på forholdet revidert etter brevet endrer ikke det
- * brevet sa. `u` er saken med svaret, for et utkast forhåndsvisningen.
+ * brevet sa. `u` er saken med svaret, for et utkast forhåndsvisningen. Et svar på et varsel som
+ * står alene (VS-U79), har ingen beregning i `u.svar`, og kalleren gir svaret på forholdet det
+ * fryses med (`forholdssvaret`).
  */
-export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
+export function standpunktene(
+  svar: Svar,
+  u: Utledning,
+  forholdssvaret?: Svar | null
+): Standpunktet[] {
   const beregning = u.svar[svar.id];
-  if (!beregning) throw new Error(`Svaret ${svar.id} er ikke i saken`);
-  const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
+  if (!beregning && forholdssvaret === undefined)
+    throw new Error(`Svaret ${svar.id} er ikke i saken`);
+  const g = beregning
+    ? beregning.forholdssvaret
+      ? u.svar[beregning.forholdssvaret].svar
+      : null
+    : (forholdssvaret ?? null);
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   const lagene =
     svar.spor === 'vederlag'
-      ? lageneISvaret(u, svar, brevene(u), 0, 'beloep', innsigelsenIVederlaget)
+      ? lageneISvaret(u, svar, brevene(u), 0, 'beloep', innsigelsenIVederlaget, g)
       : lageneISvaret(
           u,
           svar,
           brevene(u),
           0,
           'dager',
-          svar.spor === 'frist' ? innsigelsenIFristen : innsigelsenIForholdet
+          svar.spor === 'frist' ? innsigelsenIFristen : innsigelsenIForholdet,
+          g
         );
   const vilkaarFor = (lag: number | null) => {
     const laget = lag === null ? undefined : lagene[lag - 1];

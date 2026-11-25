@@ -15,7 +15,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
-  import { varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
+  import { erSvarPaaVarsel, varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -28,6 +28,7 @@
   import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
+  import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
     beloepsvalget,
     etterRegel,
@@ -173,7 +174,7 @@
   const oppgittI = (s: Standpunkt, post: Kravpost) => {
     if (s.art !== 'rettidighet' || !s.iTide || s.hjemmel !== varselhjemmelFor(post)) return null;
     const foer = varseletFoer(u, post);
-    return foer?.iTide === false ? brevet(u, foer.dokument) : null;
+    return foer?.iTide === false ? foer : null;
   };
   const linjer = $derived(
     nyeStandpunkter.map((l) => {
@@ -190,9 +191,10 @@
             : post && oppgittI(l.standpunkt, post)
               ? oppgivelsestekst(
                   varselhjemmelFor(post)!,
-                  oppgittI(l.standpunkt, post)!,
+                  brevet(u, oppgittI(l.standpunkt, post)!.dokument)!,
                   true,
-                  flere ? post.betegnelse : undefined
+                  flere ? post.betegnelse : undefined,
+                  !erSvarPaaVarsel(u, oppgittI(l.standpunkt, post)!.dokument)
                 )
               : standpunkttekst(
                   l.standpunkt,
@@ -215,7 +217,8 @@
       nyeStandpunkter,
       p,
       VEDERLAGET.lagetVilkaar,
-      varseletFoer(u, p)?.iTide === false
+      varseletFoer(u, p)?.iTide === false,
+      !erSvarPaaVarsel(u, varseletFoer(u, p)?.dokument ?? '')
     );
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
@@ -417,7 +420,11 @@
   {:else if 'oppgjoersform' in f}
     <a href={`#${uid}-form-${post!.betegnelse}`}>{SKJEMA.standpunktetTilFormen}</a>
   {:else if f.innsigelse === '34.3.3'}
-    <a href={`#${uid}-varsel-${post!.betegnelse}`}>{innsigelsenOmVarselet('34.3.3')}</a>
+    <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
+    <a
+      href={`#${uid}-varsel-${post!.betegnelse}${varseletFoer(u, post!)?.iTide === false ? '-standpunkt' : ''}`}
+      >{innsigelsenOmVarselet('34.3.3')}</a
+    >
   {:else if f.innsigelse === '34.1.3'}
     {innsigelsenOmVarselet('34.1.3')}
   {:else}
@@ -547,92 +554,45 @@
       {/if}
       {#if stilt(lagene, 'varslet_i_tide', p.id)}
         {@const foer = varseletFoer(u, p)}
-        {@const foerBrev = foer && brevet(u, foer.dokument)}
-        {@const staar = foer?.iTide === false}
-        {#snippet innsigelsenSomStaar(tittel: string)}
-          <!-- VS-U77 punkt 9, 10 og 12: svaret gjentar innsigelsen til byggherren gir den opp. -->
-          <div class="setning">
-            <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
-              <strong>{tittel}</strong>
-              {#if foerBrev}{SKJEMA.innsigelsenStaar(foerBrev, foer!.hjemmel)}{/if}
-              {v.varsletITide === true ? SKJEMA.girOppInnsigelsen : SKJEMA.gjentarInnsigelsen}
-            </p>
-            <Knapp variant="lenke" iFlukt onclick={() => (v.varsletITide = v.varsletITide !== true)}
-              >{v.varsletITide === true
-                ? SKJEMA.gjentaInnsigelsenKnapp
-                : SKJEMA.girOppInnsigelsenKnapp}</Knapp
-            >
-          </div>
+        {@const varselet = forutsetningene(p, 'rettidighet')}
+        {@const justeringen = forutsetningene(p, 'justering')}
+        {#snippet foranVarselet()}
+          <Gjelderhvis
+            id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
+            liste={varselet}
+            punkt={forutsetning}
+          />
         {/snippet}
-        {#if regel === 'regningsarbeid' && staar}
-          {@render innsigelsenSomStaar(SKJEMA.varselRegning)}
-        {:else if regel === 'regningsarbeid'}
-          <div class="setning">
-            <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
-              <strong>{SKJEMA.varselRegning}</strong>
-              {v.varsletITide === false ? SKJEMA.ikkeGittEllerForSent : SKJEMA.ingenInnsigelse}
-            </p>
-            <Knapp
-              variant="lenke"
-              iFlukt
-              onclick={() => (v.varsletITide = v.varsletITide === false ? null : false)}
-              >{v.varsletITide === false
-                ? SKJEMA.ingenInnsigelseLikevel
-                : SKJEMA.gjoerGjeldendeVarsel}</Knapp
-            >
-          </div>
-        {:else}
-          {@const varselet = forutsetningene(p, 'rettidighet')}
-          {@const justeringen = forutsetningene(p, 'justering')}
-          <div class="betinget">
-            <Gjelderhvis
-              id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
-              liste={varselet}
-              punkt={forutsetning}
-            />
-            {#if staar}
-              {@render innsigelsenSomStaar(SKJEMA.varselJustering)}
-            {:else}
-              <Valg
-                navn={`${uid}-varsel-${p.betegnelse}`}
-                spoersmaal={SKJEMA.varselJusteringSpoersmaal}
-                valgfri
-                hjelp={foer && foerBrev ? SKJEMA.varseletITideFoer(foerBrev) : undefined}
-                beskrevetAv={varselet.length
-                  ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
-                  : undefined}
-                valg={[
-                  { verdi: true, tekst: SKJEMA.komITide },
-                  { verdi: false, tekst: SKJEMA.komForSent },
-                ]}
-                bind:verdi={v.varsletITide}
-                lett
-              />
-            {/if}
-          </div>
-          <div class="betinget">
-            <Gjelderhvis
-              id={`${uid}-justering-${p.betegnelse}-forutsetninger`}
-              liste={justeringen}
-              punkt={forutsetning}
-            />
-            <Valg
-              navn={`${uid}-justering-${p.betegnelse}`}
-              spoersmaal={SKJEMA.justeringSpoersmaal}
-              valgfri={v.form !== 'godtar'}
-              beskrevetAv={justeringen.length
-                ? `${uid}-justering-${p.betegnelse}-forutsetninger`
-                : undefined}
-              valg={[
-                { verdi: true, tekst: SKJEMA.godkjennerJustering },
-                { verdi: false, tekst: SKJEMA.bestriderJustering },
-              ]}
-              bind:verdi={v.godtarJustering}
-              feil={feil(`${uid}-justering-${p.betegnelse}`)}
-              lett
-            />
-          </div>
-        {/if}
+        {#snippet foranJusteringen()}
+          <Gjelderhvis
+            id={`${uid}-justering-${p.betegnelse}-forutsetninger`}
+            liste={justeringen}
+            punkt={forutsetning}
+          />
+        {/snippet}
+        <Varselstandpunkt
+          varselId={`${uid}-varsel-${p.betegnelse}`}
+          justeringId={`${uid}-justering-${p.betegnelse}`}
+          hjemmel={regel === 'regningsarbeid' ? '34.4' : '34.3.3'}
+          foer={foer && {
+            iTide: foer.iTide,
+            brev: brevet(u, foer.dokument),
+            ikkeGitt: !erSvarPaaVarsel(u, foer.dokument),
+          }}
+          bind:varsletITide={v.varsletITide}
+          bind:godtarJustering={v.godtarJustering}
+          ikkeGitt
+          justeringValgfri={v.form !== 'godtar'}
+          justeringFeil={feil(`${uid}-justering-${p.betegnelse}`)}
+          {foranVarselet}
+          {foranJusteringen}
+          beskrevetAvVarselet={varselet.length
+            ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
+            : undefined}
+          beskrevetAvJusteringen={justeringen.length
+            ? `${uid}-justering-${p.betegnelse}-forutsetninger`
+            : undefined}
+        />
       {/if}
     {/snippet}
 
@@ -731,20 +691,6 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  /* Punkt 34.4: normalsvaret er en setning, unntaket en lenke (system.md). */
-  .setning {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-1);
-  }
-  /* «Gjelder hvis» hører til spørsmålet under seg, ikke til det over (U-8). */
-  .betinget {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-    margin-top: var(--spacing-2);
   }
   .snarveier {
     display: flex;

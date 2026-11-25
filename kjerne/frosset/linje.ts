@@ -2,7 +2,7 @@
  * Linjen for byggherrens standpunkt i beslutningsgrunnlaget (MM-U9), med leddene i sporet.
  */
 
-import { etikett, iSporet, laget, type Svarinnhold } from './byggeklosser.ts';
+import { etikett, iSporet, laget, type Svarinnhold, type VarselIKravet } from './byggeklosser.ts';
 import { LINJEN_I_FORHOLDET } from '../spor/forhold/tekst.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
@@ -27,7 +27,8 @@ export function beslutningslinje(
   v: Standpunktsvirkning[],
   paaberopelse: Krav | null | undefined,
   forskyvning: number,
-  kravet?: Krav | null
+  kravet: Krav | null | undefined,
+  staar: readonly VarselIKravet[]
 ): string {
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Et standpunkt om rettidighet som er et eget ledd i sporet, er ingen grunn (VS-U5).
@@ -56,7 +57,7 @@ export function beslutningslinje(
         : grunntekst[s.art];
     return tekst === undefined ? [] : [{ tekst, virkning }];
   });
-  const sine = iSporet(LINJE, svar.spor).ledd(svar, v, kravet, forKravposten);
+  const sine = iSporet(LINJE, svar.spor).ledd(svar, v, kravet, forKravposten, staar);
   // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
   // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
   const plass = ({ virkning }: { virkning: Virkning }) => {
@@ -103,12 +104,14 @@ export interface Sporslinje {
   egetLedd(svar: Svarinnhold, v: Standpunktsvirkning[]): string | undefined;
   /**
    * Leddene for standpunktene i sporet, etter grunnene. `forKravposten` er standpunktene om
-   * varselet for en kravpost (KA-U64, VS-U56).
+   * varselet for en kravpost (KA-U64, VS-U56), og `staar` innsigelsene fra svarene før som
+   * svaret leses med (VS-U81).
    */
   ledd(
     svar: Svarinnhold,
     v: Standpunktsvirkning[],
     kravet: Krav | null | undefined,
-    forKravposten: ReadonlySet<string>
+    forKravposten: ReadonlySet<string>,
+    staar: readonly VarselIKravet[]
   ): Linjeledd[];
 }

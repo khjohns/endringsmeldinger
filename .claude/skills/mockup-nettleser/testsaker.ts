@@ -110,6 +110,48 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
+  'varsel-alene': {
+    tittel: 'Mengdeavvik i dekket over kjeller',
+    formaal:
+      '#2177: byggherrens svar på et varsel etter punkt 34.3.3 og 34.4 som står alene (G-9 i BF-14).',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt tetting av gjennomføringer i dekket over kjeller.',
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V-2' },
+    ],
+    // BH svarer på varselet etter § 34.3.3: for sent, og subsidiært bestrides justeringen (VS-U4).
+    // Så svaret på varselet etter § 34.4, som bare kan si at varselet kom for sent (VS-U77 punkt 31).
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      const svar = bh.getByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' });
+      await svar.click({ timeout: 30_000 });
+      await bh.getByRole('heading', { name: /^Svar på varsel om justering av enhetsprisene/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-tomt.png`, fullPage: true });
+      await bh.getByRole('radio', { name: 'Kom for sent' }).check();
+      await bh.getByRole('radio', { name: 'Bestrider justeringen' }).check();
+      await bh.getByText('Gjelder hvis').waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-bh.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselsvar-bh-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('button', { name: 'Send til totalentreprenøren' }).waitFor({ timeout: 10_000 });
+      await bh.screenshot({ path: `${ut}/varselsvar-brev.png`, fullPage: true });
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Andre handlinger' }).click({ timeout: 30_000 }).catch(() => {});
+      await bh.getByRole('button', { name: 'Svar på varselet om regningsarbeid' }).click();
+      await bh.getByRole('button', { name: 'Varselet kom for sent' }).click();
+      await bh.screenshot({ path: `${ut}/varselsvar-344.png`, fullPage: true });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
