@@ -252,13 +252,14 @@ def test_et_dokument_godtar_den_opphevede_id_en_bare_med_posten_som_opphever_den
 
 
 def test_kontroller_leser_posten_som_opphever_av_registeret(register, plan, tmp_path):
-    """MM-U50 opphever MM-U3 (svar Y i #1534). MM-U9 gjelder, men opphever ikke MM-U3."""
+    """MM-U50 opphever MM-U3 (svar Y i #1534), og MM-U60 fører forholdet videre. MM-U9 gjelder, men
+    opphever ikke MM-U3."""
     rot = _tre(
         tmp_path,
         {"kjerne/a.ts": "// MM-U3, MM-U50\n", "kjerne/b.ts": "// MM-U3, MM-U9\n"},
     )
     assert vh.kontroller(register, plan, rot, (), ()) == [
-        "kjerne/b.ts:1: MM-U3 er opphevet og står uten MM-U50, som opphever den"
+        "kjerne/b.ts:1: MM-U3 er opphevet og står uten MM-U50 eller MM-U60, som opphever den"
     ]
 
 
