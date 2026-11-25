@@ -1250,8 +1250,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `Totalentreprenøren varsler etter',
-        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `Totalentreprenøren varsler etter",
+        '      if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `Totalentreprenøren varsler etter',
+        '      if (false)\n        return `Totalentreprenøren varsler etter',
       ],
     ],
     mal: ['med teksten i VS-U15', 'F-VS-U15a'],
@@ -1303,8 +1303,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n',
-        '      if (dato === undefined)\n',
+        '      if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n',
+        '      if (true)\n',
       ],
     ],
     mal: ['et varsel uten dato i et brev med krav'],
@@ -7027,6 +7027,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['{ ...v, aksepterer: true }', '{ ...v }']],
     mal: ['må ha standpunktet til justeringen (punkt 30)'],
+  },
+  {
+    id: 'F816',
+    feilklasse:
+      'leseren godtar datoen for et varsel i samme brev som et krav fra løsningen (VS-U34, C1 i #2056, #2070)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "    if (o.hva !== 'endringsordre' && o.gjelder !== undefined && !registrert)",
+        "    if (o.hva !== 'endringsordre' && o.gjelder !== undefined && false)",
+      ],
+    ],
+    mal: ['i et brev fra løsningen gjør datoen for varselet i samme brev saken ikke forstått'],
   },
 ];
 /** En kopi av arbeidstreet. */

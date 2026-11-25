@@ -51,13 +51,10 @@ const fristeneMedDager = (krav: Krav): string =>
 
 /**
  * Varselet etter § 33.4 i kravet: brevet det ble gitt i (`gitt`), eller at kravet varsler nå
- * (VS-U15, prototypen `fristkrav-te.html`). Et varsel sendt utenfor løsningen før kravet står i
- * opplysningen om varselet i samme brev, så punktet står ikke da. Ordlyden er design.
+ * (VS-U15, prototypen `fristkrav-te.html`). Ordlyden er design.
  */
 function varselpunkt(t: Tekst): Brevpunkt[] {
   const foer = t.saken.varsletFoer['33.4'];
-  if (foer === undefined && t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4'))
-    return [];
   return [
     {
       punkt: '33.4',
