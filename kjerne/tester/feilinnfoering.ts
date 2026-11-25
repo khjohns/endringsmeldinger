@@ -7111,7 +7111,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '[...krav, ...kravUtenforRekken].flatMap(kravposterI)',
+        '[...kravUtenforRekken, ...krav].flatMap(kravposterI)',
         '(u.spor.vederlag.gjeldendeKrav ? kravposterI(u.spor.vederlag.gjeldendeKrav) : [])',
       ],
     ],

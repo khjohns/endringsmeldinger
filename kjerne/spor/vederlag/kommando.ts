@@ -303,7 +303,7 @@ export function standpunkteneTilVarslene(
     // eldre versjon (OV-U103). Kravposten har samme id i alle versjonene.
     [
       ...new Map(
-        [...krav, ...kravUtenforRekken].flatMap(kravposterI).map((p) => [p.id, p])
+        [...kravUtenforRekken, ...krav].flatMap(kravposterI).map((p) => [p.id, p])
       ).values(),
     ]
   );
