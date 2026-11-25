@@ -56,6 +56,11 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
     fristdatoer?: readonly Fristdato[];
     /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
     sakerIkkeForstaatt?: readonly string[];
+    /**
+     * Dagens dato i norsk tid etter basens klokke, som serveren dateres brevet med (U-5 i BF-46).
+     * Uten den, som i demoruta, brukes nettleserens klokke.
+     */
+    dagensDato?: string;
   };
 
 /**
@@ -80,15 +85,22 @@ export type GjeldendeFristdato = Fristdato & {
   forlengelserIAndreSaker: NonNullable<Fristdato['forlengelser']>;
 };
 
+/**
+ * Tidspunktet brevkontrollen lager teksten med: 12.00 UTC på datoen fra serveren, som er samme
+ * dato i norsk tid hele året (U-5 i BF-46). Klokkeslettet står ikke i teksten.
+ */
+const tidspunktFor = ({ dagensDato }: Saksmerking) =>
+  dagensDato ? new Date(`${dagensDato}T12:00:00Z`) : new Date();
+
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
-  // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
+  // Aktøren, klokkeslettet og ID-ene settes av serveren og endrer ikke den låste teksten.
   sakskode: merking.sakskode,
   kontraktsforkortelse: merking.kontraktsforkortelse,
   sakId,
   aktoerId: '',
   part,
   teamId: null,
-  tidspunkt: () => new Date(),
+  tidspunkt: () => tidspunktFor(merking),
   nyId: () => crypto.randomUUID(),
   kontraktsfrister: merking.kontraktsfrister ?? [],
 });
@@ -163,7 +175,7 @@ export function kravMotNySak(
     sak_id: sakId,
     event_type: 'sak_opprettet',
     versjon: 1,
-    tidsstempel: new Date().toISOString(),
+    tidsstempel: tidspunktFor(merking).toISOString(),
     aktor_id: '',
     aktor_rolle: part,
     aktor_team_id: null,

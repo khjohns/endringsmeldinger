@@ -155,7 +155,7 @@ export async function sakssvar(
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
-  const { journal, oppdrag, navn, navnefeil, sakskode, kontraktsforkortelse } = saken;
+  const { journal, oppdrag, navn, navnefeil, sakskode, kontraktsforkortelse, dagensDato } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
   if ('navnefeil' in saken) loggFeil('Navneoppslaget i saken feilet', navnefeil, 'warn');
   return [
@@ -165,6 +165,7 @@ export async function sakssvar(
       part,
       sakskode,
       kontraktsforkortelse,
+      dagens_dato: dagensDato,
       kan_foreslaa_sakskode: sakskode === null && kanForeslaaSakskode,
       ...sakenSomVises(journal, avh.kjerne),
       journal: journal.map((r) => ({
@@ -555,16 +556,18 @@ async function opprettNySak(
 
 /**
  * Koden og løpenummeret brevkontrollen viser (LV-U46), i formen kjernen tar, og
- * kontraktsforkortelsen henvisningene i brevteksten bruker (LV-U44).
+ * kontraktsforkortelsen henvisningene i brevteksten bruker (LV-U44), og dagens dato i basen
+ * (U-5 i BF-46).
  */
 const sakskodesvar = ({
   kode,
   loepenummer,
   tildelt,
   kontraktsforkortelse,
-}: Sakskode & { kontraktsforkortelse: string | null }): Svar => [
+  dagensDato,
+}: Sakskode & { kontraktsforkortelse: string | null; dagensDato: string }): Svar => [
   200,
-  { success: true, kode, loepenummer, tildelt, kontraktsforkortelse },
+  { success: true, kode, loepenummer, tildelt, kontraktsforkortelse, dagens_dato: dagensDato },
 ];
 
 async function visSakskode(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {

@@ -8,6 +8,7 @@
  * (#705, #712). `skrevetAvKjernen` avgjør det for både lesingen og skrivingen.
  */
 
+import { kalenderdag } from '../kjerne/format/leser.ts';
 import type { Journalrad, Part, Sakskode } from '../kjerne/typer.ts';
 import {
   sql,
@@ -144,6 +145,8 @@ export interface LestSak {
   oppdrag: LagretOppdrag[];
   sakskode: Sakskode | null;
   kontraktsforkortelse: string | null;
+  /** Dagens dato i norsk tid etter basens klokke, med `merking`; ellers `null` (U-5 i BF-46). */
+  dagensDato: string | null;
   /** Navnet bak hver aktør med navn; tomt uten `navn`, og når oppslaget feilet. */
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
@@ -185,6 +188,7 @@ export async function lesSaken(
       oppdrag,
       sakskode,
       kontraktsforkortelse,
+      dagensDato: merking ? await lesDagensDato(foresp) : null,
       navn: new Map<string, string>(),
     };
     if (!navn) return lest;
@@ -194,6 +198,18 @@ export async function lesSaken(
       return new Tilbakerulling({ ...lest, navnefeil });
     }
   });
+}
+
+/**
+ * Dagens dato i norsk tid etter basens klokke, som brevet dateres med når serveren skriver det
+ * (`koe_api.skrivetidspunkt`). Brevkontrollen lager teksten med den, ikke med nettleserens klokke
+ * (U-5 i BF-46).
+ */
+export async function lesDagensDato(foresp: Foresp): Promise<string> {
+  const svar = await foresp().query<{ naa: Date }>('SELECT SYSUTCDATETIME() AS naa');
+  const dato = kalenderdag(svar.recordset[0].naa.toISOString());
+  if (dato === null) throw new Error('Basens klokke ga ikke en dato.');
+  return dato;
 }
 
 /** Kontraktsforkortelsen for merkingen av brevet (LV-U44), eller `null` når den mangler. */

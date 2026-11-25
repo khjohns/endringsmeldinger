@@ -17,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { sql, transaksjon, type Kontekst } from '../datalag.ts';
 import type { Sakslinje } from '../../kjerne/utledning/visning.ts';
+import { kalenderdag } from '../../kjerne/format/leser.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
   kall,
@@ -157,6 +158,28 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
     // Kontrollsak: BH leser samme kode for saken, ikke et EO-nummer.
     const forBh = await les(`/api/kjerne/saker/${sak}/sakskode`, o.bh);
     expect(forBh.kropp).toMatchObject({ kode: 'koe', loepenummer: neste, tildelt: true });
+  });
+
+  // Kilde: U-5 i BF-46 og svar 1 A (oppdragsgiver 24.11): brevkontrollen bruker datoen i basen,
+  // i norsk tid, den datoen serveren dateres brevet med.
+  it('lesingen av saken og av koden gir dagens dato i basen, i norsk tid, som brevet så får (U-5 i BF-46)', async () => {
+    const les = (sti: string) => kall(server.url, sti, { bruker: o.te, prosjektId: o.prosjekt.id });
+    const sak = await opprettKjernesak(o);
+    const lest = (await les(`/api/kjerne/saker/${sak}`)).kropp as { dagens_dato: string };
+    expect(lest.dagens_dato).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect((await les('/api/kjerne/sakskode')).kropp).toMatchObject({
+      dagens_dato: lest.dagens_dato,
+    });
+    expect((await les(`/api/kjerne/saker/${sak}/sakskode`)).kropp).toMatchObject({
+      dagens_dato: lest.dagens_dato,
+    });
+    expect((await sendKommando(server.url, o, sak, { versjon: 1 })).status).toBe(201);
+    const etter = (await les(`/api/kjerne/saker/${sak}`)).kropp as {
+      dagens_dato: string;
+      journal: { tidsstempel: string }[];
+    };
+    expect(etter.dagens_dato).toBe(lest.dagens_dato);
+    expect(kalenderdag(etter.journal.at(-1)!.tidsstempel)).toBe(lest.dagens_dato);
   });
 
   it('en sak uten brev fra løsningen har ingen kode, og sakslisten gir koden og løpenummeret videre (LV-U47)', async () => {

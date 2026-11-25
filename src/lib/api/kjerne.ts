@@ -32,6 +32,8 @@ export interface Kjernesak {
   part: Part | null;
   sakskode: Sakskode | null;
   kontraktsforkortelse: string | null;
+  /** Dagens dato i norsk tid etter basens klokke, som brevkontrollen lager teksten med (U-5 i BF-46). */
+  dagens_dato: string;
   kan_foreslaa_sakskode: boolean;
   visning: Visning;
   journal: Journallinje[];
@@ -82,11 +84,18 @@ interface Sakskodesvar {
   loepenummer: number;
   tildelt: boolean;
   kontraktsforkortelse: string | null;
+  dagens_dato: string;
 }
 
-const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): Saksmerking => ({
+const somMerking = ({
+  kode,
+  loepenummer,
+  kontraktsforkortelse,
+  dagens_dato,
+}: Sakskodesvar): Saksmerking => ({
   sakskode: { kode, loepenummer },
   kontraktsforkortelse,
+  dagensDato: dagens_dato,
 });
 
 /**
@@ -146,7 +155,7 @@ export const hentSaksmerkingForNySak = (prosjektId: string) =>
  * Saken med merkingen brevteksten lages med. `null` når saken ikke har fått kode, og leseren
  * ikke kan få et forslag til koden.
  */
-export interface LastetKjernesak extends Kjernesak {
+export interface LastetKjernesak extends Omit<Kjernesak, 'dagens_dato'> {
   merking: Saksmerking | null;
 }
 
@@ -158,10 +167,14 @@ export async function hentKjernesakMedMerking(
   sakId: string,
   prosjektId: string
 ): Promise<LastetKjernesak> {
-  const sak = await hentKjernesak(sakId, prosjektId);
+  const { dagens_dato, ...sak } = await hentKjernesak(sakId, prosjektId);
   if (sak.sakskode) {
     const merking = await medFristtabell(
-      { sakskode: sak.sakskode, kontraktsforkortelse: sak.kontraktsforkortelse },
+      {
+        sakskode: sak.sakskode,
+        kontraktsforkortelse: sak.kontraktsforkortelse,
+        dagensDato: dagens_dato,
+      },
       prosjektId
     );
     return { ...sak, merking };
