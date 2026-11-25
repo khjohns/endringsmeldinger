@@ -23,6 +23,19 @@ filene i én push ([orkestreringsskillen](../skills/orkestrering/SKILL.md#4-merg
 ikke en konflikt i `REGELVERSJON` eller `PROJEKSJONSVERSJON` ved å ta grenens tall: det
 nye tallet må være høyere enn det `main` har.
 
+## ID-en til en ny feilinnføring
+
+En ny feilinnføring i `kjerne/tester/feilinnfoering.ts` får nummeret til issuet den hører
+til, og en liten bokstav: `F2280a`, `F2280b` og så videre, uten bindestrek. Da velger to
+parallelle PR-er ikke samme ID. ID-en må være unik i lista; `--ankre` stopper ved like
+ID-er. Eksisterende ID-er, som `F797` og `F12b`, endres ikke.
+
+Nye poster legges til på slutten av lista. Får grenen konflikt der mot `main`, fletter
+`oppdater_kjerne_pr.py` lista: lista i `main`, så grenens nye poster. Har `main` alt
+ID-en, får grenens post neste ledige ID, og skriptet skriver omnummereringen. En post
+grenen har endret, tas med når `main` ikke har endret den. Skriptet stopper når grenen
+fjerner en post, eller når begge sider har endret samme post ulikt (#2342).
+
 ## Hvor koden hører hjemme
 
 - **En domeneregel ligger i `regler/` eller `utledning/`, ikke i `frosset/`.** En kontroll

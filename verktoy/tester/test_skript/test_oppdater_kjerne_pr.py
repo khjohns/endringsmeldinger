@@ -237,3 +237,171 @@ def test_grenen_som_alt_har_basen_endres_ikke(repo, tmp_path):
 )
 def test_versjonskonflikten_loses_bare_for_versjonslinja(innhold, ventet):
     assert oppdater.los_versjonskonflikt(innhold, "X") == ventet
+
+
+FEILINNFOERINGER = "kjerne/tester/feilinnfoering.ts"
+LISTEHODE = "type Mutasjon = { id: string; fil: string; endringer: [string, string][] };\n\nconst MUTASJONER: Mutasjon[] = [\n"
+# Det som trengs av `--ankre` i kjerne/tester/feilinnfoering.ts: like ID-er og ankre som
+# ikke finnes nøyaktig én gang, gir rød kjøring.
+LISTEHALE = """];
+import { readFileSync } from 'node:fs';
+const doble = MUTASJONER.map((m) => m.id).filter((id, i, alle) => alle.indexOf(id) !== i);
+if (doble.length) throw new Error(`Feilinnføringene har samme ID: ${doble.join(', ')}`);
+for (const m of MUTASJONER)
+  for (const [fra] of m.endringer)
+    if (readFileSync(m.fil, 'utf8').split(fra).length !== 2) throw new Error(`${m.id}: «${fra}» finnes ikke`);
+console.log(`Ankrene i ${MUTASJONER.length} feilinnføringer finnes nøyaktig én gang.`);
+"""
+
+
+def _post(id_: str, anker: str = "export const a", kommentar: str = "") -> str:
+    return f"{kommentar}  {{\n    id: '{id_}',\n    fil: 'kjerne/utled.ts',\n    endringer: [['{anker}', 'export let a']],\n  }},\n"
+
+
+def _liste(*poster: str, hode: str = LISTEHODE) -> dict[str, str]:
+    return {FEILINNFOERINGER: hode + "".join(poster) + LISTEHALE}
+
+
+def _ider(tekst: str) -> list[str]:
+    return [p[0] for p in oppdater.del_liste(tekst).poster]
+
+
+@pytest.fixture
+def liste_repo(repo: Path) -> Path:
+    """Forfaren har F1 og F2 i feilinnføringslista, og grenen og basen går ut fra den."""
+    _skriv(repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n")))
+    _git(repo, "branch", "-f", "pr")
+    return repo
+
+
+def test_nye_poster_paa_begge_sider_gir_basens_liste_og_saa_grenens(liste_repo, tmp_path):
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2342a"), _post("F2342b")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path)
+    assert svar.returncode == 0, svar.stderr + svar.stdout
+    assert f"Løste konflikter i: {FEILINNFOERINGER}" in svar.stdout
+    assert "Omnummererte" not in svar.stdout
+    assert "Ankrene i 5 feilinnføringer" in svar.stdout
+    tekst = (tmp_path / "tre" / FEILINNFOERINGER).read_text()
+    assert _ider(tekst) == ["F1", "F2", "F2280a", "F2342a", "F2342b"]
+    assert "  // F2 er fra #2.\n" in tekst
+
+
+@pytest.mark.parametrize(
+    "id_, ny",
+    [
+        pytest.param("F2280a", "F2280b", id="bokstavsuffiks"),
+        pytest.param("F3", "F4", id="bare tall, som F797 som ble F815"),
+    ],
+)
+def test_ny_post_med_en_id_basen_har_faar_neste_ledige_id(liste_repo, tmp_path, id_, ny):
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post(id_, kommentar="  // grenens\n")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post(id_)))
+    svar = _kjor(liste_repo, tmp_path)
+    assert svar.returncode == 0, svar.stderr + svar.stdout
+    assert f"Omnummererte feilinnføringen {id_} -> {ny}" in svar.stdout
+    tre = tmp_path / "tre"
+    tekst = (tre / FEILINNFOERINGER).read_text()
+    assert _ider(tekst) == ["F1", "F2", id_, ny]
+    assert f"  // grenens\n  {{\n    id: '{ny}'," in tekst
+    assert f"{id_} -> {ny}" in _git(tre, "log", "-1", "--merges", "--format=%b")
+
+
+def test_grenens_endring_av_en_post_basen_ikke_har_endret_tas_med(liste_repo, tmp_path):
+    """Som i #2336, der ankrene fulgte koden grenen flyttet (arbeidsvalget i #2342)."""
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret.\n"), _post("F3")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path)
+    assert svar.returncode == 0, svar.stderr + svar.stdout
+    tekst = (tmp_path / "tre" / FEILINNFOERINGER).read_text()
+    assert _ider(tekst) == ["F1", "F2", "F2280a", "F3"]
+    assert "  // F2 er endret.\n" in tekst
+    assert "F2 er fra #2" not in tekst
+
+
+def test_samme_post_endret_ulikt_paa_begge_sider_stopper_uten_endring(liste_repo, tmp_path):
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret.\n"), _post("F3")))
+    for_ = _git(liste_repo, "rev-parse", "pr")
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret i main.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path, "--push")
+    assert svar.returncode == 1, svar.stdout
+    assert "har endret eller fjernet de samme feilinnføringene ulikt: F2" in svar.stderr
+    assert _git(liste_repo, "rev-parse", "pr") == for_
+    assert not (tmp_path / "tre").exists()
+
+
+def test_rode_ankre_etter_flettingen_stopper_og_lar_worktreen_staa(liste_repo, tmp_path):
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2342a", anker="export const borte")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path, "--push")
+    assert svar.returncode == 1, svar.stdout
+    assert "--ankre feiler etter flettingen" in svar.stderr
+    assert "F2342a: «export const borte» finnes ikke" in svar.stderr
+    assert (tmp_path / "tre").exists()
+
+
+@pytest.mark.parametrize(
+    "grenens, basens, melding",
+    [
+        pytest.param([_post("F3")], [_post("F1"), _post("F2280a")], "Grenen fjerner feilinnføringer som finnes i forfaren: F1", id="grenen fjerner"),
+        pytest.param([_post("F1", anker="export const b")], [_post("F2280a")], "ulikt: F1", id="grenen endrer, basen fjerner"),
+        pytest.param([_post("F1", anker="export const b")], [_post("F1", anker="export const c")], "ulikt: F1", id="begge endrer ulikt"),
+    ],
+)
+def test_post_fra_forfaren_som_ikke_kan_flettes_treveis_stopper(grenens, basens, melding):
+    """Prøver avgjørelsen direkte, fordi git ikke alltid gir konflikt i disse tilfellene."""
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    with pytest.raises(oppdater.Stopp, match=melding):
+        oppdater.flett_feilinnfoeringer(forfar, _liste(*grenens)[FEILINNFOERINGER], _liste(*basens)[FEILINNFOERINGER])
+
+
+def test_lik_endring_av_en_post_paa_begge_sider_flettes():
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    gren = _liste(_post("F1", anker="export const b"), _post("F2342a"))[FEILINNFOERINGER]
+    base = _liste(_post("F1", anker="export const b"), _post("F2280a"))[FEILINNFOERINGER]
+    tekst, _ = oppdater.flett_feilinnfoeringer(forfar, gren, base)
+    assert _ider(tekst) == ["F1", "F2280a", "F2342a"]
+    assert tekst.count("export const b") == 1
+
+
+def test_teksten_rundt_lista_flettes_fra_begge_sider():
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    gren = _liste(_post("F1"), _post("F2342a"))[FEILINNFOERINGER].replace("doble.length", "doble.length > 0")
+    base = _liste(_post("F1"), _post("F2280a"), hode="// basen\n" + LISTEHODE)[FEILINNFOERINGER]
+    tekst, omnummerert = oppdater.flett_feilinnfoeringer(forfar, gren, base)
+    assert omnummerert == []
+    assert tekst.startswith("// basen\n")
+    assert "doble.length > 0" in tekst
+    assert _ider(tekst) == ["F1", "F2280a", "F2342a"]
+
+
+def test_samme_endring_utenfor_lista_paa_begge_sider_med_ulik_tekst_stopper():
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    gren = _liste(_post("F1"), hode="// grenen\n" + LISTEHODE)[FEILINNFOERINGER]
+    base = _liste(_post("F1"), hode="// basen\n" + LISTEHODE)[FEILINNFOERINGER]
+    with pytest.raises(oppdater.Stopp, match="utenfor lista"):
+        oppdater.flett_feilinnfoeringer(forfar, gren, base)
+
+
+def test_lik_post_paa_begge_sider_staar_en_gang():
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    begge = _liste(_post("F1"), _post("F2280a"))[FEILINNFOERINGER]
+    tekst, omnummerert = oppdater.flett_feilinnfoeringer(forfar, begge, begge)
+    assert (_ider(tekst), omnummerert) == (["F1", "F2280a"], [])
+
+
+@pytest.mark.parametrize(
+    "gammel, brukt, ny",
+    [
+        ("F2280a", {"F2280a", "F2280b", "F2281a"}, "F2280c"),
+        ("F797", {"F797", "F814", "F12b", "F2280a"}, "F815"),
+        ("F1a", {f"F1{c}" for c in "abcdefghijklmnopqrstuvwxyz"}, "F1aa"),
+    ],
+)
+def test_ny_id_er_neste_ledige(gammel, brukt, ny):
+    assert oppdater.ny_id(gammel, brukt) == ny
+
+
+def test_post_uten_avsluttende_klamme_stopper():
+    with pytest.raises(oppdater.Stopp, match="slutter ikke"):
+        oppdater.del_liste(LISTEHODE + "  {\n    id: 'F1',\n" + LISTEHALE)
