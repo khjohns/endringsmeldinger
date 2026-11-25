@@ -36,7 +36,11 @@
     "OV-U98",
     "VS-U38",
     "VS-U40",
-    "OV-U103"
+    "OV-U103",
+    "OV-U5",
+    "VS-U16",
+    "OV-U13",
+    "OV-U46"
   ],
   "venter_paa": [
     "#807",
@@ -52,6 +56,11 @@
       "dato": "2026-11-25",
       "forhold": "#807, #2347",
       "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-17 og spørsmålet S-1."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "Kontrollen av S-1 og D-punktene",
+      "hva": "S-1 og D-punktene er rettet etter kontrollen mot vedtakene: vilkårene i D-6, D-8 og D-13, punkt 49 i EO-U39 i D-11 og ordlyden etter OV-U12 i S-1."
     }
   ]
 }

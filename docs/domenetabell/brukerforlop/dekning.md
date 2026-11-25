@@ -266,11 +266,12 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U2](../../plans/vedtak.md#ov-u2) | — | BF-45 te-har-mottatt-svaret | — |
 | [OV-U3](../../plans/vedtak.md#ov-u3) | — | BF-44 te-har-mottatt-svaret | — |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
-| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | BF-14 |
+| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | BF-14, BF-49 |
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | BF-08 bh-har-mottatt-paaberopelsen | BF-06, BF-49 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
 | [OV-U12](../../plans/vedtak.md#ov-u12) | — | — | BF-49 |
+| [OV-U13](../../plans/vedtak.md#ov-u13) | — | — | BF-49 |
 | [OV-U15](../../plans/vedtak.md#ov-u15) | — | — | BF-14 |
 | [OV-U18](../../plans/vedtak.md#ov-u18) | — | — | BF-01V |
 | [OV-U20](../../plans/vedtak.md#ov-u20) | — | — | BF-01V |
@@ -284,7 +285,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U42](../../plans/vedtak.md#ov-u42) | — | BF-45 te-har-mottatt-svaret | — |
 | [OV-U43](../../plans/vedtak.md#ov-u43) | — | — | BF-06 |
 | [OV-U44](../../plans/vedtak.md#ov-u44) | BF-44 bh-har-registrert-eposten, BF-45 bh-har-registrert-fremdriftsplanen | BF-44 bh-har-registrert-eposten, BF-45 bh-har-registrert-fremdriftsplanen | — |
-| [OV-U46](../../plans/vedtak.md#ov-u46) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
+| [OV-U46](../../plans/vedtak.md#ov-u46) | — | BF-08 bh-har-mottatt-paaberopelsen | BF-49 |
 | [OV-U52](../../plans/vedtak.md#ov-u52) | — | BF-05 start | — |
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-01 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-02B, BF-03 |
 | [OV-U55](../../plans/vedtak.md#ov-u55) | — | BF-05 start | — |
@@ -334,7 +335,7 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U11](../../plans/vedtak.md#vs-u11) | — | — | BF-01V |
 | [VS-U14](../../plans/vedtak.md#vs-u14) | — | — | BF-14 |
 | [VS-U15](../../plans/vedtak.md#vs-u15) | — | — | BF-20 |
-| [VS-U16](../../plans/vedtak.md#vs-u16) | — | — | BF-20, BF-37 |
+| [VS-U16](../../plans/vedtak.md#vs-u16) | — | — | BF-20, BF-37, BF-49 |
 | [VS-U17](../../plans/vedtak.md#vs-u17) | — | — | BF-20 |
 | [VS-U18](../../plans/vedtak.md#vs-u18) | — | — | BF-20 |
 | [VS-U19](../../plans/vedtak.md#vs-u19) | — | — | BF-20 |
