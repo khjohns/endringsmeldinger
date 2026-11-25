@@ -11,6 +11,7 @@
   let {
     id,
     tittel,
+    saken = null,
     avsender,
     nummer = null,
     merking = null,
@@ -25,6 +26,8 @@
   }: {
     id: string;
     tittel: string;
+    /** Saken tittelen slutter med, som «sak KOE-17» (`utkastetsHode`). */
+    saken?: string | null;
     avsender: Part;
     nummer?: number | null;
     merking?: string | null;
@@ -39,9 +42,14 @@
     children: Snippet;
   } = $props();
   const mottaker = $derived(PARTEN[avsender === 'TE' ? 'BH' : 'TE']);
-  // Saksnummeret («KOE-1») brytes ikke ved bindestreken (#2359).
+  // Saken («sak KOE-1») brytes ikke, heller ikke ved bindestreken (#2359).
   const tittelen = $derived(
-    tittel.split(/(\p{Lu}+-\d+)$/u).map((del, i) => ({ del, saksnummer: i === 1 }))
+    saken && tittel.endsWith(saken)
+      ? [
+          { del: tittel.slice(0, -saken.length), saksnummer: false },
+          { del: saken, saksnummer: true },
+        ]
+      : [{ del: tittel, saksnummer: false }]
   );
 </script>
 

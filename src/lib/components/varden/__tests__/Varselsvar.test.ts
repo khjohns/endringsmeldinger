@@ -364,3 +364,13 @@ describe('begrunnelsen under punktet i svarskjemaet (#2359, WCAG 2.4.6 og 2.5.3)
     expect(synlig.textContent).toMatch(/^Begrunnelse\s*Valgfri$/);
   });
 });
+
+describe('saken i tittelen på utkastet brytes ikke (#2359 punkt 4)', () => {
+  it('«sak KOE-17» står samlet i et eget spenn, og navnet på overskriften er uendret', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    const tittel = screen.getByRole('heading', {
+      name: 'Svar på varsel om justering av enhetsprisene i sak KOE-17',
+    });
+    expect(tittel.querySelector('.saksnummer')?.textContent).toBe('sak KOE-17');
+  });
+});

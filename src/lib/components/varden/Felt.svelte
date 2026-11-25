@@ -39,7 +39,7 @@
     id: string;
     /** Uten etikett står labelen et annet sted, som overskriften i `Spoersmaal`. */
     etikett?: string;
-    /** Det navnet trenger i tillegg til den synlige etiketten, bare for skjermleseren. */
+    /** Det navnet trenger i tillegg til `etikett`, bare for skjermleseren. Krever `etikett`. */
     skjultTillegg?: string;
     hjelp?: string | null;
     feil?: string | null;
