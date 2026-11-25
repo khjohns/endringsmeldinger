@@ -39,6 +39,10 @@
     children: Snippet;
   } = $props();
   const mottaker = $derived(PARTEN[avsender === 'TE' ? 'BH' : 'TE']);
+  // Saksnummeret («KOE-1») brytes ikke ved bindestreken (#2359).
+  const tittelen = $derived(
+    tittel.split(/(\p{Lu}+-\d+)$/u).map((del, i) => ({ del, saksnummer: i === 1 }))
+  );
 </script>
 
 <form
@@ -59,7 +63,8 @@
         {id}
         tabindex="-1"
       >
-        {tittel}
+        {#each tittelen as t, i (i)}{#if t.saksnummer}<span class="saksnummer">{t.del}</span
+            >{:else}{t.del}{/if}{/each}
       </svelte:element>
       <Utkaststempel tekst={merke} />
     </div>
@@ -100,6 +105,9 @@
     margin: 0;
     font: 600 20px / 1.3 var(--font-brev);
     overflow-wrap: anywhere;
+  }
+  .saksnummer {
+    white-space: nowrap;
   }
   .tittel.bh {
     font-family: var(--font-brev-bh);

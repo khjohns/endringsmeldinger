@@ -114,11 +114,11 @@
     box-shadow: inset 3px 0 0 var(--ink);
     padding-inline-start: var(--spacing-3);
   }
+  /* Vilkåret står på sin egen linje over standpunktet (system.md, «Leselinja for et svar med lag»). */
   .punktstatus {
+    display: flex;
+    flex-direction: column;
     color: var(--ink-2);
-  }
-  .punktstatus .lag {
-    margin-inline-end: var(--spacing-1);
   }
   .num {
     font-weight: 500;

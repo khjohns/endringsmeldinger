@@ -351,3 +351,16 @@ describe('lenken i «Gjelder hvis» når innsigelsen står (Codex-reviewet)', ()
     expect(maal?.textContent).toMatch(/Svaret gjentar innsigelsen\./);
   });
 });
+
+describe('begrunnelsen under punktet i svarskjemaet (#2359, WCAG 2.4.6 og 2.5.3)', () => {
+  it('etiketten sier «Begrunnelse», og navnet sier hvilket punkt den gjelder', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    await radio('Godtar justeringen');
+    const felt = screen.getByRole('textbox', {
+      name: /^Begrunnelse, .*Justering av enhetsprisene/,
+    });
+    const synlig = document.querySelector(`label[for="${felt.id}"]`)!.cloneNode(true) as Element;
+    synlig.querySelectorAll('.visually-hidden').forEach((e) => e.remove());
+    expect(synlig.textContent).toMatch(/^Begrunnelse\s*Valgfri$/);
+  });
+});

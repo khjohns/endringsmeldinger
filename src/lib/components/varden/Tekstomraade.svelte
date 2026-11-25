@@ -10,6 +10,7 @@
   let {
     id,
     etikett,
+    skjultTillegg,
     merketAv,
     hjelp = null,
     rader = 3,
@@ -27,6 +28,8 @@
   }: {
     id: string;
     etikett?: string;
+    /** Det navnet trenger i tillegg til den synlige etiketten (`Felt`). */
+    skjultTillegg?: string;
     /** ID-en til labelen når den står utenfor feltet. */
     merketAv?: string;
     hjelp?: string | null;
@@ -82,7 +85,7 @@
   });
 </script>
 
-<Felt {id} {etikett} {hjelp} {feil} {valgfri} {underordnet}>
+<Felt {id} {etikett} {skjultTillegg} {hjelp} {feil} {valgfri} {underordnet}>
   <textarea
     {id}
     class="feltramme"
