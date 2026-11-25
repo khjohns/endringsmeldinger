@@ -243,6 +243,8 @@ export const JOURNALRADEN: Lesbar[] = [
   // forholdet svaret regnes med.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:dagene']],
   ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/utled.ts:dagene']],
+  // OV-U118: dagen et krav lagt til ble sendt, for kravversjonene det prøves mot.
+  ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/utled.ts:kravetStrider']],
   [
     'utledning/utled.ts:dagene',
     'relasjon',

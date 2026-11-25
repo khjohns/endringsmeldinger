@@ -31,7 +31,7 @@ import { trekketStrider, utelattUtenTrekk } from '../poster/utledning.ts';
  * for forespørselen etter § 33.6.2 (`saken`) og versjonsregelen for fristene (`kravet`).
  */
 export const KONTROLLER_I_FRISTEN = {
-  kravet: (k, tidligere) => fristeneStrider(innholdIFristen(k), tidligere, true),
+  kravet: (k, tidligere, andre) => fristeneStrider(innholdIFristen(k), tidligere, true, andre),
   kravene: () => {},
   // MM-U2, KA-U74: én vurdering av dagene for hver frist i kravet svaret gjelder, i kravets rekkefølge.
   svaret: (s, krav, ugyldig) => {
@@ -260,22 +260,26 @@ const omtalen = (p: Fristinndata): string =>
 
 /**
  * Fristene i de tidligere kravversjonene: den siste formen hver frist hadde, og hvilken frist i
- * kontrakten som har stått med hvilken `id`.
+ * kontrakten som har stått med hvilken `id`, også i de andre kravversjonene i sporet (`andre`,
+ * `kravversjoneneKravetProevesMot`). `forrige` er fristene i den siste av `tidligere`.
  */
-export function fristeneISporet(tidligere: readonly Pick<Krav, 'innhold'>[]): {
+export function fristeneISporet(
+  tidligere: readonly Pick<Krav, 'innhold'>[],
+  andre: readonly Pick<Krav, 'innhold'>[]
+): {
   forrige: ReadonlyMap<string, FristIKravet>;
   sist: ReadonlyMap<string, FristIKravet>;
   eier: ReadonlyMap<string, string>;
 } {
-  const versjoner = tidligere.map((k) => innholdIFristen(k).frister);
+  const fristerI = (k: Pick<Krav, 'innhold'>) => innholdIFristen(k).frister;
   const sist = new Map<string, FristIKravet>();
   const eier = new Map<string, string>();
-  for (const v of versjoner)
-    for (const p of v) {
-      sist.set(p.id, p);
-      eier.set(fristnoekkel(p), p.id);
-    }
-  return { forrige: new Map((versjoner.at(-1) ?? []).map((p) => [p.id, p])), sist, eier };
+  for (const p of [...andre, ...tidligere].flatMap(fristerI)) {
+    sist.set(p.id, p);
+    eier.set(fristnoekkel(p), p.id);
+  }
+  const forrige = tidligere.at(-1);
+  return { forrige: new Map((forrige ? fristerI(forrige) : []).map((p) => [p.id, p])), sist, eier };
 }
 
 /**
@@ -284,14 +288,18 @@ export function fristeneISporet(tidligere: readonly Pick<Krav, 'innhold'>[]): {
  * I kommandoen er en frist uten `id` den fristen i kontrakten som har stått med samme
  * `fristnoekkel`, ellers en ny. Med `id` kan en frist som ikke er registrert, erstattes med en
  * annen frist, men en registrert frist kan ikke byttes. En frist i forrige versjon er med eller
- * trukket. `lagret` sier om innholdet er en lagret versjon, der serveren har satt `id`.
+ * trukket. `lagret` sier om innholdet er en lagret versjon, der serveren har satt `id`, og `andre` er
+ * de andre kravversjonene i sporet (`fristeneISporet`).
  */
 export function fristeneStrider(
   ny: { frister?: readonly Fristinndata[]; trekker?: readonly unknown[] },
   tidligere: readonly Pick<Krav, 'innhold'>[],
-  lagret: boolean
+  lagret: boolean,
+  andre: readonly Pick<Krav, 'innhold'>[]
 ): string | null {
-  const { forrige, sist, eier } = fristeneISporet(tidligere);
+  const { forrige, sist, eier } = fristeneISporet(tidligere, andre);
+  // KA-U79 og OV-U118: en frist er registrert når den var det i en kravversjon i `tidligere`.
+  const sistITidligere = fristeneISporet(tidligere, []).sist;
   const trekker = (ny.trekker ?? []) as string[];
   const trekket = trekketStrider(trekker, forrige, (id) => {
     const f = forrige.get(id);
@@ -311,7 +319,7 @@ export function fristeneStrider(
     const sto = eier.get(noekkel);
     // KA-U79: en frist uten `id` er raden den har stått i, og den raden kan være erstattet siden.
     const rad = id ?? sto;
-    const kjent = rad === undefined ? undefined : sist.get(rad);
+    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);
     if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)
       return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist`;
     // KA-U76: en frist som har stått i sporet, beholder raden sin.

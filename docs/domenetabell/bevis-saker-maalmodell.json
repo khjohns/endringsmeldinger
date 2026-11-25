@@ -297,7 +297,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U34", "MM-U41", "MM-U52", "MM-U55", "MM-U51"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U34", "MM-U41", "MM-U52", "MM-U55", "MM-U59", "MM-U51"],
           "forventet": {
             "avvist": false,
             "forhold_avvist": true,
@@ -497,7 +497,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41", "MM-U52", "MM-U55", "VS-U48", "VS-U52"],
+          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41", "MM-U52", "MM-U55", "MM-U59", "VS-U48", "VS-U52"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
@@ -564,7 +564,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41", "MM-U52", "MM-U55", "MM-U51"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41", "MM-U52", "MM-U55", "MM-U59", "MM-U51"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -12137,7 +12137,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U51", "MM-U41", "MM-U52", "MM-U55", "VS-U9"],
+          "kilde": ["MM-U51", "MM-U41", "MM-U52", "MM-U55", "MM-U59", "VS-U9"],
           "forventet": {
             "avvist": false,
             "forhold_avvist": true,
@@ -12157,21 +12157,21 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "prov": { "handling": "korrigering", "dato": "2026-09-20" },
           "forventet": { "avvist": true, "regel": "DATOEN_ER_UENDRET" }
         },
         {
           "etter": 4,
           "rolle": "kontroll",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U51"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59", "MM-U51"],
           "prov": { "handling": "korrigering", "dato": "2026-09-18" },
           "forventet": { "avvist": false }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "prov": { "handling": "korrigering", "gjelder": "K-g1", "dato": "2026-09-18" },
           "forventet": { "avvist": true, "regel": "UGYLDIG_KORRIGERING" }
         }
@@ -12210,7 +12210,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
@@ -12239,21 +12239,21 @@
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55", "VS-U26"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59", "VS-U26"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": false }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": true, "regel": "DATOEN_KAN_IKKE_ENDRES" }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "forventet": {
             "gjeldende_krav.forhold": "K-g1",
             "datoopplysninger": ["K-g1:2026-09-15", "D2#korrigering:2026-09-12"]
@@ -12274,14 +12274,14 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55", "VS-U26"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59", "VS-U26"],
           "prov": { "handling": "korrigering", "gjelder": "K-g1", "felt": "paalegg_mottatt", "dato": "2026-09-20" },
           "forventet": { "avvist": true, "regel": "INGEN_DATO_I_KATEGORIEN" }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "MM-U55"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U55", "MM-U59"],
           "forventet": { "datoopplysninger": [], "handlinger.TE": { "mangler": ["korrigere:K-g1"] } }
         }
       ],
@@ -12773,6 +12773,141 @@
             ]
           },
           "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U118",
+      "forslag": "OV-U118: et vederlagskrav lagt til, sendt før totalentreprenørens siste krav i sporet, prøves mot kravversjonene sendt før det. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 60000 }, { "belop": 40000 }],
+          "navn": "K-v2"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 60000 }],
+          "sendt": "2026-09-19",
+          "navn": "K-v0"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 60000 }],
+            "sendt": "2026-09-20"
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U102"],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_krav.vederlag": "K-v2",
+            "krav_utenfor_rekken.vederlag": ["K-v0"]
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U118-frist",
+      "forslag": "OV-U118: et fristkrav lagt til, sendt før kravet som tok med en frist til, tas imot uten den. Kontrollsaken er det samme brevet sendt samme dag som det siste kravet, som blir gjeldende etter rekkefølgen (OV-U104)",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 10 }],
+          "navn": "K-f2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 15 }],
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["OV-U118", "OV-U104", "KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 15 }],
+            "sendt": "2026-09-20"
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U121",
+      "forslag": "OV-U121, OV-U122: en påberopelse lagt til, sendt før totalentreprenørens siste påberopelse, med en annen gruppe avvises, og med samme forhold tas den imot. Den avvises når totalentreprenørens siste opplysning om datoen er senere enn dagen den ble sendt",
+      "rader": ["KA-60"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U121"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "endringsordre",
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": true, "regel": "ANNEN_HJEMMEL" }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U121", "OV-U102"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring",
+            "sendt": "2026-09-19"
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["OV-U122"],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring",
+            "dato": "2026-09-10",
+            "sendt": "2026-09-12"
+          },
+          "forventet": { "avvist": true, "regel": "OPPLYSNINGEN_ETTER_BREVET" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"

@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140), og F770–F773 forbeholdet i forespørselen etter § 33.6.2 og brevene det bestrider (LV-U76, LV-U77, LV-U49, #2246), og F774–F780 og F784–F785 «i tide» etter § 34.4 som oppgivelsen av innsigelsen (VS-U63, #2278), og F786–F789 byggherrens siste standpunkt til varselet for kravposten og brevet som gjentar eller gir opp innsigelsen (VS-U77, #2177), og F2177a–F2177d svaret på et varsel som står alene, og F2177e–F2177k brevet med svaret og svaret på kravposten etter det, og F2177l–F2177o leseren og kommandoen etter Codex-reviewet (VS-U79, #2177). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U59 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F629 et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken (VS-U55, #1993), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502), og F619 saken i merkingen og tittelen (LV-U27, #1588), og F640–F641 utfyllingen i lagene i et svarutkast på vederlaget (OV-U33, VS-U56, #1925), og F740–F741 spørsmålene regelen stiller i et svarutkast på fristen, og F742–F747 svarene kjernen ikke godtar i et svarutkast (#2156), og F748–F750 utfyllingen av oppgjørsformen og datoen for dokumentet (#2140), og F770–F773 forbeholdet i forespørselen etter § 33.6.2 og brevene det bestrider (LV-U76, LV-U77, LV-U49, #2246), og F774–F780 og F784–F785 «i tide» etter § 34.4 som oppgivelsen av innsigelsen (VS-U63, #2278), og F786–F789 byggherrens siste standpunkt til varselet for kravposten og brevet som gjentar eller gir opp innsigelsen (VS-U77, #2177), og F2177a–F2177d svaret på et varsel som står alene, og F2177e–F2177k brevet med svaret og svaret på kravposten etter det, og F2177l–F2177o leseren og kommandoen etter Codex-reviewet (VS-U79, #2177). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -2183,7 +2183,10 @@ const MUTASJONER: Mutasjon[] = [
     // og datokontrollen kaster da i hver kommando (#870).
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['      const registrert = kalenderdag(sendt.dato);', '      const registrert = sendt.dato;'],
+      [
+        '      const registrert = kalenderdag(varseletSendt.dato);',
+        '      const registrert = varseletSendt.dato;',
+      ],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
@@ -2193,7 +2196,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'SK-12 sammenlikner den lagrede varseldatoen som tekst (#766)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['return registrert === kalenderdag(k.varsel.sendt)', 'return sendt.dato === k.varsel.sendt'],
+      [
+        'return registrert === kalenderdag(k.varsel.sendt)',
+        'return varseletSendt.dato === k.varsel.sendt',
+      ],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
@@ -4167,10 +4173,10 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en merking som ikke slutter med brevnummeret, eller står uten nummeret'],
   },
-  // #1489: varselet etter § 32.2 er det første grunnlagskravet (VS-U76 punkt 6 og 10).
+  // #1489: varselet etter § 32.2 er det første grunnlagskravet (VS-U86 punkt 6 og 10).
   {
     id: 'F449',
-    feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U76 punkt 6)',
+    feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U86 punkt 6)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
@@ -4183,7 +4189,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F450',
     feilklasse:
-      'en lagret påberopelse etter § 32.2 som viser til en senere versjon, forstås (VS-U76 punkt 6)',
+      'en lagret påberopelse etter § 32.2 som viser til en senere versjon, forstås (VS-U86 punkt 6)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -4195,7 +4201,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F451',
-    feilklasse: 'brevet nevner ikke brevet med det første grunnlagskravet (VS-U76 designdelen)',
+    feilklasse: 'brevet nevner ikke brevet med det første grunnlagskravet (VS-U86 designdelen)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -4208,7 +4214,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F452',
     feilklasse:
-      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U76 punkt 6, #1600)',
+      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U86 punkt 6, #1600)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
@@ -4221,7 +4227,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F453',
     feilklasse:
-      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U76 punkt 6, #1600)',
+      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U86 punkt 6, #1600)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
@@ -4253,7 +4259,7 @@ const MUTASJONER: Mutasjon[] = [
   },
 
   // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
-  // brev (MM-U55), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
+  // brev (MM-U59), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
   {
     id: 'F456',
     feilklasse:
@@ -4280,12 +4286,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F458',
-    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U55 punkt 10)',
+    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U59 punkt 10)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        '  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;',
-        '  if (felt === null || siste === null || k.innhold[felt] !== null) return null;',
+        '  if (k.innhold[felt] === siste.dato) return null;',
+        '  if (k.innhold[felt] !== null) return null;',
       ],
     ],
     mal: ['en ny grunnlagsversjon kan ikke endre datoen', 'F-MM-KORR3'],
@@ -4304,7 +4310,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F460',
-    feilklasse: 'korrigeringen viser ikke til brevet med opplysningen (MM-U55 punkt 10, LV-U53)',
+    feilklasse: 'korrigeringen viser ikke til brevet med opplysningen (MM-U59 punkt 10, LV-U53)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -4317,7 +4323,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F462',
     feilklasse:
-      'svaret leses som om det gjaldt TEs senere opplysning (MM-U55 designdelen og punkt 11)',
+      'svaret leses som om det gjaldt TEs senere opplysning (MM-U59 designdelen og punkt 11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['versjonen(o.id) < versjonen(b.svar.id)', 'versjonen(o.id) > 0']],
     mal: ['den nye opplysningen gjelder straks', 'F-MM-KORR1', 'F-MM-KORR2'],
@@ -4325,7 +4331,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F463',
     feilklasse:
-      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U55 punkt 10)',
+      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U59 punkt 10)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
     mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
@@ -4333,7 +4339,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F464',
     feilklasse:
-      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U55 punkt 10)',
+      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U59 punkt 10)',
     fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
@@ -4521,9 +4527,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'kommandoen prøver ikke den særskilte vederlagsjusteringen mot forrige versjon før kravet skrives (KA-U83)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      ['    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);', '    null;'],
-    ],
+    endringer: [['    saerskiltStrider({ innhold: k.innhold }, tidligere);', '    null;']],
     mal: ['en ny versjon som verken tar med eller trekker posten, avvises'],
   },
   {
@@ -5122,7 +5126,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F520',
     feilklasse:
-      'varselet kontrolleres mot den første datoen i grunnlagskravet, ikke den korrigerte (VS-U58, MM-U55 punkt 10)',
+      'varselet kontrolleres mot den første datoen i grunnlagskravet, ikke den korrigerte (VS-U58, MM-U59 punkt 10)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
@@ -5186,7 +5190,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F526',
     feilklasse:
-      'påberopelsen regnes som varsel etter § 32.2 også der varslingsplikten ikke gjelder (VS-U60, VS-U76 punkt 6)',
+      'påberopelsen regnes som varsel etter § 32.2 også der varslingsplikten ikke gjelder (VS-U60, VS-U86 punkt 6)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
@@ -5623,8 +5627,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
-        '    const kjent = id === undefined ? undefined : sist.get(id);',
+        '    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);',
+        '    const kjent = id === undefined ? undefined : sistITidligere.get(id);',
       ],
     ],
     mal: ['F-MM-KA-U79-tilbake'],
@@ -5960,7 +5964,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F634',
     feilklasse:
-      'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U76 punkt 1, #1955)',
+      'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U86 punkt 1, #1955)',
     fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
@@ -7372,6 +7376,152 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['  if (nytt.id === g.dokument || staar)\n', '  if (nytt.id === g.dokument)\n']],
     mal: ['står som punktet «Forholdet» én gang, i den første delen'],
+  },
+  // #2011 punkt 2: et krav eller en påberopelse sendt før den siste (OV-U118–OV-U122).
+  {
+    id: 'F2011a',
+    feilklasse:
+      'kommandoen prøver et vederlagskrav lagt til mot hele rekken, ikke mot kravversjonene sendt før det (OV-U118)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "kravversjoneneKravetProevesMot(u, 'vederlag', sendt);",
+        "kravversjoneneKravetProevesMot(u, 'vederlag', null);",
+      ],
+    ],
+    mal: ['et brev uten Montering, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011b',
+    feilklasse:
+      'utledningen prøver et krav lagt til mot hele rekken, så et eldre krav med færre kravposter får ingen virkning (OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    erRegistrert(d.opplysninger) ? dagenSendt(k, d) : null,', '    null,']],
+    mal: [
+      'et brev uten Montering, sendt før kravet som tok den med, tas imot',
+      'Riving er P1, og Stillas får en ny betegnelse i sporet',
+    ],
+  },
+  {
+    id: 'F2011c',
+    feilklasse:
+      'et krav sendt før det siste prøves også mot kravversjonene sendt etter det (OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });',
+        '    if (sendt !== null) foer.push({ k, sendt });',
+      ],
+    ],
+    mal: ['et brev sendt før Montering ble tatt med, prøves ikke mot den'],
+  },
+  {
+    id: 'F2011d',
+    feilklasse:
+      'en kravpost som bare står i et krav utenfor rekken, kjennes ikke igjen i en senere kravversjon (OV-U119)',
+    fil: `${K}/spor/poster/utledning.ts`,
+    endringer: [
+      [
+        '  const foer = new Map([...andre, ...tidligere].flat().map((p) => [p.id, p]));',
+        '  const foer = new Map([...tidligere].flat().map((p) => [p.id, p]));',
+      ],
+    ],
+    mal: ['en senere kravversjon kan utelate Stillas uten trekk, eller ta den med som P3'],
+  },
+  {
+    id: 'F2011e',
+    feilklasse:
+      'skrivingen gir ikke en kravpost fra et krav utenfor rekken betegnelsen den har i sporet (OV-U119)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '  const tidligere = [...u.spor.vederlag.krav, ...u.spor.vederlag.kravUtenforRekken];',
+        '  const tidligere = u.spor.vederlag.krav;',
+      ],
+    ],
+    mal: ['en senere kravversjon kan utelate Stillas uten trekk, eller ta den med som P3'],
+  },
+  {
+    id: 'F2011f',
+    feilklasse: 'kommandoen prøver et fristkrav lagt til mot hele rekken (OV-U118)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        "kravversjoneneKravetProevesMot(u, 'frist', sendt);",
+        "kravversjoneneKravetProevesMot(u, 'frist', null);",
+      ],
+    ],
+    mal: ['et brev uten den andre fristen, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011g',
+    feilklasse:
+      'en frist i et krav lagt til kjennes bare igjen fra kravversjonene sendt før det (OV-U118)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  for (const p of [...andre, ...tidligere].flatMap(fristerI)) {',
+        '  for (const p of tidligere.flatMap(fristerI)) {',
+      ],
+    ],
+    mal: ['et brev uten den andre fristen, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011h',
+    feilklasse:
+      'en påberopelse sendt før den siste kan ikke oppgi en annen dato for pålegget (OV-U122)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [["  if (sendtFoerSisteKrav(u, 'forhold', sendt)) {", '  if (false) {']],
+    mal: ['med en annen dato for pålegget tas den imot'],
+  },
+  {
+    id: 'F2011i',
+    feilklasse:
+      'en påberopelse sendt før TEs siste opplysning om datoen tas imot uten korrigering (OV-U122)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        '    return opplysningen !== null && foerDagen(sendt, opplysningen)',
+        '    return opplysningen !== null && false',
+      ],
+    ],
+    mal: ['er den siste opplysningen senere enn dagen brevet ble sendt, tas det ikke imot'],
+  },
+  {
+    id: 'F2011j',
+    feilklasse:
+      'en påberopelse sendt før den siste, med en annen gruppe, avvises som en oppdatert påberopelse (OV-U121)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      ["  const eldre = sendtFoerSisteKrav(u, 'forhold', sendt);", '  const eldre = false;'],
+    ],
+    mal: ['en påberopelse med en annen gruppe tas ikke imot'],
+  },
+  {
+    id: 'F2011k',
+    feilklasse:
+      'et krav sendt før det siste prøves ikke mot en kravversjon sendt samme dag (OV-U104, OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });',
+        '    if (sendt !== null && foerDagen(sendt, dag, () => samme(k.id))) foer.push({ k, sendt });',
+      ],
+    ],
+    mal: ['et brev sendt samme dag som kravversjonen som tok med Montering, prøves mot den'],
+  },
+  {
+    id: 'F2011l',
+    feilklasse:
+      'et brev sendt før en frist ble registrert, prøves mot den registrerte formen (OV-U118, KA-U79)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '    const kjent = rad === undefined ? undefined : sistITidligere.get(rad);',
+        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
+      ],
+    ],
+    mal: ['et brev sendt før fristen ble registrert, kan angi den med navnet'],
   },
 ];
 /** En kopi av arbeidstreet. */

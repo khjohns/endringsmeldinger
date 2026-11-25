@@ -92,8 +92,8 @@
           "rolle": "forutsetning",
           "kilde": [
             "MM-U52",
-            "MM-U55",
-            "VS-U76"
+            "MM-U59",
+            "VS-U86"
           ],
           "forventet": {
             "gjeldende_svar.forhold": "S-g1",
@@ -112,7 +112,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U52",
-            "MM-U55"
+            "MM-U59"
           ],
           "prov": {
             "handling": "korrigering",
@@ -129,15 +129,15 @@
           "tekst": "TE finner datoen TE oppga i påberopelsen, og ser at den korrigeres i et eget brev, og at påberopelsen og svaret står som de ble sendt.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
-            "VS-U76"
+            "MM-U59",
+            "VS-U86"
           ]
         },
         {
           "tekst": "TE ser før sending teksten brevet får, med den nye datoen og datoen TE oppga i brevet det viser til.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "LV-U53",
             "LV-U35"
           ]
@@ -146,7 +146,7 @@
           "tekst": "TE ser at korrigeringen også kan sendes når saken er lukket, og at BH da kan ta stilling til den i et innlegg.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "MM-U51",
             "GR-U27",
             "MM-U47"
@@ -163,7 +163,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "VS-U77"
           ],
           "forventet": {
@@ -191,14 +191,14 @@
           "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere. Ved svaret står at TEs siste opplysning da svaret ble sendt, var 15.09.2026.",
           "kilde": [
             "MM-U52",
-            "MM-U55"
+            "MM-U59"
           ]
         },
         {
           "tekst": "BH ser korrigeringen som et nytt brev med henvisning til påberopelsen. BH ser at svaret står som det ble sendt, og at BH kan ta stilling til den nye datoen i et senere svar.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "VS-U77"
           ]
         },
@@ -206,7 +206,7 @@
           "tekst": "Ingen av partene leser av visningen at varselet nå kom i tide. Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet var rettidig.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "MM-U50"
           ]
         },
@@ -214,7 +214,7 @@
           "tekst": "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i.",
           "kilde": [
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "LV-U56",
             "LV-U57"
           ]
