@@ -24,6 +24,9 @@ import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svel
 import Varselsvar from '#lib/components/varden/Varselsvar.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
 
 const medVarsel = (hjemmel: '34.3.3' | '34.4') =>
   skrevet(medGrunnlag, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
@@ -397,5 +400,50 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
     await fireEvent.click(lenke);
     const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
     expect(within(svarene).getByRole('status')).toHaveTextContent(/ikke bygget/);
+  });
+});
+
+describe('svarene fra forrige brev bruker ordene brevet brukte om varselet (MM-U50, VS-U65)', () => {
+  it('et nytt svar som ga opp innsigelsen etter punkt 34.3.3, står som «Gir opp innsigelsen»', async () => {
+    const post = { post: 'P1', godtar_justering: true };
+    const steg: Handling[] = [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Pålegget.',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'enhetspriser', justert: true }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [
+          { spor: 'vederlag', navn: 'S-v1', kravposter: [{ ...post, varslet_i_tide: false }] },
+        ],
+      },
+      {
+        handling: 'revisjon',
+        spor: 'vederlag',
+        navn: 'S-v2',
+        kravposter: [{ ...post, varslet_i_tide: true }],
+      },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V-1' },
+    ];
+    const k = await kjoer(
+      { id: 'mellom', rader: [], start: null, steg, kontroller: [] },
+      minnebane()
+    );
+    await svarskjemaet(await k.bane.journal());
+    const svarene = screen.getByRole('region', { name: /^Svarene på kravet i brev/ });
+    expect(
+      within(svarene).getByText(/^Gir opp innsigelsen om at varselet etter punkt.34\.3\.3/)
+    ).toBeInTheDocument();
   });
 });

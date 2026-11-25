@@ -11,7 +11,11 @@
   import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    erSvarPaaVarsel,
+    varseletFoerBrevet,
+    type VarseletAlene,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
@@ -222,7 +226,17 @@
         navn={(p) => p.betegnelse}
         beskrivelse={(p) => p.beskrivelse}
         kravet={kravetIKortform}
-        leselinje={(p) => leselinjene(f.linjer, p, VEDERLAGET.lagetVilkaar)}
+        leselinje={(p) => {
+          // Ordene brevet brukte om varselet, etter standpunktet før svaret (MM-U50).
+          const foer = varseletFoerBrevet(u, p, f.brev.id);
+          return leselinjene(
+            f.linjer,
+            p,
+            VEDERLAGET.lagetVilkaar,
+            foer?.iTide === false,
+            !erSvarPaaVarsel(u, foer?.dokument ?? '')
+          );
+        }}
       />
       {#if nyttSvarPaaKravet}
         {@const aapne = nyttSvarPaaKravet}
