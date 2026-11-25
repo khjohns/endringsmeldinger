@@ -17,8 +17,8 @@ for hånd:
    ett over basens tall, når den ikke alt er høyere;
 4. skriver de genererte filene på nytt (`GENERATORER`);
 5. kjører regelversjonsvakten mot basen med skriptene i den flettede worktreen, som
-   CI gjør, og `--ankre` for feilinnføringene når steg 2 flettet lista, og stopper
-   uten push når en av dem feiler;
+   CI gjør, og `--ankre` for feilinnføringene når begge sider har endret lista, og
+   stopper uten push når en av dem feiler;
 6. pusher flettingen og økningen samlet, med `--push`, og fjerner worktreen. Uten
    `--push`, og når steg 3–5 stopper, blir worktreen stående, så resultatet kan ses.
    Skriptet skriver kommandoen som fjerner den.
@@ -134,6 +134,8 @@ def del_liste(innhold: str) -> Liste:
                 raise Stopp(f"En post i {FEILINNFOERINGER} har ikke nøyaktig én `id`:\n{tekst}")
             poster.append((ider[0], tekst))
             linjer = []
+    if doble := sorted({i for i, _ in poster if [j for j, _ in poster].count(i) > 1}):
+        raise Stopp(f"{FEILINNFOERINGER} har samme ID flere ganger på én side av flettingen: {', '.join(doble)}.")
     if "".join(linjer).strip():
         raise Stopp(f"Lista i {FEILINNFOERINGER} slutter ikke med `  }},`:\n{''.join(linjer)}")
     return Liste(innhold[:start], poster, innhold[slutt + 1 :])
@@ -258,6 +260,14 @@ def flett(mappe: Path, base: str, basenavn: str, gren: str) -> tuple[list[str], 
     return konflikter, omnummerert
 
 
+def begge_endret(mappe: Path, fil: str) -> bool:
+    """Om flettingen ga `fil` et innhold som ingen av sidene hadde. Da kan git også uten
+    konflikt ha flettet inn to poster med samme ID."""
+    return all(
+        git(mappe, "diff", "--quiet", f"HEAD^{side}", "HEAD", "--", fil, sjekk=False).returncode != 0 for side in (1, 2)
+    )
+
+
 def skripter(mappe: Path) -> Path:
     """Vaktens skript slik de er etter flettingen, som CI kjører dem. En klon uten
     dem, som i testene, bruker skriptene ved siden av dette skriptet."""
@@ -341,7 +351,7 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
     for linje in omnummerert:
         print(f"Omnummererte feilinnføringen {linje} ({FEILINNFOERINGER}).")
     try:
-        ny = ok_og_kontroller(mappe, base, basenavn, ankre=FEILINNFOERINGER in lost)
+        ny = ok_og_kontroller(mappe, base, basenavn, ankre=begge_endret(mappe, FEILINNFOERINGER))
     except Stopp as stopp:
         raise Stopp(f"{stopp}\nIngenting er pushet. Worktreen står igjen: {mappe}\nFjern den med {fjerning(mappe)}") from None
 
@@ -356,7 +366,8 @@ def oppdater(repo: Path, gren: str, basenavn: str, remote: str, lokal: bool, pus
 
 def ok_og_kontroller(mappe: Path, base: str, basenavn: str, ankre: bool = False) -> str:
     """Øker versjonene, skriver de genererte filene, committer og kjører vakten, og
-    `--ankre` når skriptet har flettet feilinnføringslista. Returnerer den nye tuppen."""
+    `--ankre` når flettingen har tatt endringer i feilinnføringslista fra begge sider.
+    Returnerer den nye tuppen."""
     okninger = [linje for navn in sorted(kreves(mappe, base)) if (linje := ok(mappe, base, navn))]
     generer(mappe)
     status = ("-c", "core.quotePath=false", "status", "--porcelain", "--untracked-files=no")

@@ -343,6 +343,20 @@ def test_grenen_som_endrer_eller_fjerner_en_post_fra_forfaren_stopper(grenens):
         oppdater.flett_feilinnfoeringer(forfar, _liste(*grenens)[FEILINNFOERINGER], base)
 
 
+def test_lik_id_som_git_fletter_uten_konflikt_stopper_paa_ankrene(liste_repo, tmp_path):
+    _pr(liste_repo, _liste(_post("F1"), _post("F2280a"), _post("F2", kommentar="  // F2 er fra #2.\n")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path, "--push")
+    assert svar.returncode == 1, svar.stdout
+    assert "Løste konflikter" not in svar.stdout
+    assert "Feilinnføringene har samme ID: F2280a" in svar.stderr
+
+
+def test_lik_id_to_ganger_paa_en_side_stopper_med_id_en():
+    with pytest.raises(oppdater.Stopp, match="samme ID flere ganger på én side av flettingen: F1"):
+        oppdater.del_liste(_liste(_post("F1"), _post("F1"))[FEILINNFOERINGER])
+
+
 def test_teksten_rundt_lista_flettes_fra_begge_sider():
     forfar = _liste(_post("F1"))[FEILINNFOERINGER]
     gren = _liste(_post("F1"), _post("F2342a"))[FEILINNFOERINGER].replace("doble.length", "doble.length > 0")
