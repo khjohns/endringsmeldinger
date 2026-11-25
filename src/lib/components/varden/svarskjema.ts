@@ -5,7 +5,7 @@ import type { Innsigelsen } from './svarlagene';
  * det som mangler, brevet svaret gjelder, og tekstene i skallet. Spørsmålene er sporets egne.
  */
 
-import { punkteneMedBegrunnelse } from '#kjerne/frosset/tekst.ts';
+import { medHardeMellomrom, punkteneMedBegrunnelse } from '#kjerne/frosset/tekst.ts';
 import type { Tema } from '#kjerne/frosset/brevdeler.ts';
 import type { Avsnitt, Spor } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -77,7 +77,8 @@ export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
 export interface Skjemapunkt {
   punkt: string;
   navn: string;
-  beholdNavn?: boolean;
+  /** Det som står etter overskriften i brevet, som kravposten «P1» (KA-U53). */
+  tillegg?: string;
   linjer?: readonly {
     tekst: string;
     lag: string | null;
@@ -110,7 +111,7 @@ export function panelpunktene(
   return [
     ...[...overskrifter].flatMap(([punkt, navn]) => {
       const p = punkter.find((q) => q.punkt === punkt);
-      if (navn) return [{ ...p, punkt, navn: p?.beholdNavn ? `${navn} · ${p.navn}` : navn }];
+      if (navn) return [{ ...p, punkt, navn: p?.tillegg ? `${navn} · ${p.tillegg}` : navn }];
       return p ? [p] : [];
     }),
     ...punkter.filter((p) => !overskrifter.has(p.punkt)),
@@ -119,7 +120,7 @@ export function panelpunktene(
 
 /** #2359: før brevet kan lages, står punktet med ordene brevet gir det (temaet i kjernen), uten nummer. */
 export const temanavn = (temaene: readonly Tema[], punkt: string): string =>
-  temaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt;
+  medHardeMellomrom(temaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt);
 
 export const begrunnelserForTemaene = (
   temaene: readonly Tema[],

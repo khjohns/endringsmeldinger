@@ -691,7 +691,7 @@
         prefiks={uid}
         kolonne={SVARSKJEMA.fristKolonne}
         navn={(f) => f.navn}
-        brevoverskrift={(f) => overskrift(f.id)}
+        brevoverskrift={(f) => overskrift(f.id) ?? temanavn(temaene, f.id)}
         aktiv={(f) => foerstePunkt === f.id}
         krever={(f) => FRISTSVAR.teKrever(f.dager)}
         kravet={(f) => dager(f.dager)}

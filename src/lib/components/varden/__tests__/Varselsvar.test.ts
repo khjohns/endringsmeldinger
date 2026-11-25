@@ -383,11 +383,14 @@ describe('punktene heter det samme før og etter at brevet kan lages (#2359 punk
         .getAllByRole('heading', { level: 3 })
         .map((h) => h.textContent!.trim().replace(/^\d+\.\s*/, ''));
     const foer = navnene();
-    const forbeholdFoer = screen.getByRole('textbox', { name: /^Forbehold/ });
+    const forbeholdet = screen.getByRole('textbox', { name: /^Forbehold/ });
+    const etiketten = () => document.querySelector(`label[for="${forbeholdet.id}"]`)!.textContent!;
+    const forbeholdFoer = etiketten();
     await radio('Kom i tide');
     await radio('Godtar justeringen');
     expect(screen.getAllByRole('heading', { level: 3 })[0]!.textContent).toMatch(/^1\. /);
     expect(navnene()).toEqual(foer);
-    expect(screen.getByRole('textbox', { name: /^3\. Forbehold/ })).toBe(forbeholdFoer);
+    expect(etiketten()).toMatch(/^3\. /);
+    expect(etiketten().replace(/^\d+\.\s*/, '')).toBe(forbeholdFoer);
   });
 });

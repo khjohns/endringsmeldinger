@@ -11,7 +11,7 @@
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
   import { BREVTEKSTEN_I_VEDERLAGET, svartemaerIVederlaget } from '#kjerne/spor/vederlag/tekst.ts';
-  import { FORHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
+  import { FORHOLDET, kroner, medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
@@ -270,16 +270,16 @@
   };
   const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
   const svartemaene = $derived(
-    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((tema) => {
+    svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((t) => {
+      // Med harde mellomrom, som overskriften i brevet (sprak.md).
+      const tema = { ...t, overskrift: t.overskrift && medHardeMellomrom(t.overskrift) };
       if (tema.punkt === '34.1.2' || tema.punkt === 'metode') return [tema];
       const post = poster.find((p) => p.betegnelse === tema.punkt);
       if (!post) return [];
       return [
         {
           ...tema,
-          overskrift: flere
-            ? SKJEMA.iPosten(post.betegnelse, SKJEMA.beloepTittel)
-            : tema.overskrift,
+          overskrift: flere ? `${tema.overskrift} · ${post.betegnelse}` : tema.overskrift,
         },
       ];
     })
@@ -356,7 +356,7 @@
                       : [];
               return {
                 ...p,
-                beholdNavn: flere && post !== undefined,
+                tillegg: flere && post ? post.betegnelse : undefined,
                 aktiv: foerstePunkt === p.punkt,
                 linjer: fraBrevet.length
                   ? fraBrevet
