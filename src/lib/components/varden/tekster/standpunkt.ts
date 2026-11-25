@@ -2,7 +2,6 @@ import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
-import { rammerKravposten } from '#kjerne/spor/vederlag/format.ts';
 import {
   forholdstilfellet,
   type Forholdsordene,
@@ -73,17 +72,6 @@ function kortStandpunkt(
   }
 }
 
-/** Om innsigelsen i et vilkår rammer kravposten `post` (`rammerKravposten` i kjernen). */
-function rammerPosten(i: Innsigelsen, post: string): boolean {
-  if (i.art === 'beregningsregel') return rammerKravposten({ oppgjoersform: i.gjelder }, post);
-  if (i.art !== 'varsel') return true;
-  if (i.hjemmel === '34.3.3' && i.gjelder !== undefined)
-    return rammerKravposten({ innsigelse: '34.3.3', gjelder: i.gjelder }, post);
-  if (i.hjemmel === '34.1.2' || i.hjemmel === '34.1.3')
-    return rammerKravposten({ innsigelse: i.hjemmel }, post);
-  return true;
-}
-
 /** Leselinjene for kravposten med vilkåret for hvert standpunkt. */
 function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
@@ -93,8 +81,8 @@ function leselinjeneMedVanligeMellomrom(
   ikkeGitt = true
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
-  // kravposten (`rammerKravposten`). Bare et vilkår etter et annet for posten sier «heller ikke»
-  // (#2280), uavhengig av vilkårene på laget, som ikke har beregningsregelen.
+  // kravposten (`vilkaaretFor`). Bare et vilkår etter et annet for posten sier «heller ikke»
+  // (#2280).
   let forrige: Innsigelsen[] | undefined;
   let vist = false;
   return linjer.flatMap((l) => {
@@ -108,11 +96,10 @@ function leselinjeneMedVanligeMellomrom(
       ikkeGitt
     );
     if (!t) return [];
-    const nytt = l.vilkaarForPosten !== forrige;
-    forrige = l.vilkaarForPosten;
-    const iPosten = (l.vilkaarForPosten ?? []).filter((i) => rammerPosten(i, post.id));
-    if (!nytt || !iPosten.length) return [t];
-    const linje = vilkaar(iPosten, vist);
+    const nytt = l.vilkaar !== forrige;
+    forrige = l.vilkaar;
+    if (!nytt || !l.vilkaar?.length) return [t];
+    const linje = vilkaar(l.vilkaar, vist);
     vist = true;
     return [linje, t];
   });

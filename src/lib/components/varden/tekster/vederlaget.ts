@@ -60,11 +60,14 @@ export const VEDERLAGET = haerdet({
           : '')
       : standpunkttekst(s, false),
   /** Standpunktene som står under vilkåret i oversikten (BF-44 U-2, #2182). */
-  laget: (l: Svarlaget): string[] =>
-    [
-      ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
-      ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
-    ].map((t) => `${t}.`),
+  laget: (l: Svarlaget): string[] => [
+    ...l.grunner.map((g) => `${grunntekst(g.grunn, false, g.brev)}.`),
+    // OV-U117: et standpunkt om én kravpost står med vilkåret for posten, når det ikke er lagets.
+    ...l.standpunkter.flatMap((s) => [
+      ...(s.vilkaar ? [VEDERLAGET.lagetVilkaar(s.vilkaar.vilkaar, s.vilkaar.heller)] : []),
+      `${VEDERLAGET.standpunkt(s.standpunkt, s.brev)}.`,
+    ]),
+  ],
   /** Hva som skiller svaret fra kravet om ingen av innsigelsene fører frem (U-2). */
   skiller: (beloep: number, flereLag: boolean) =>
     flereLag
