@@ -48,6 +48,8 @@ const MODULER = new Set(
     'kjernesak/vederlagskrav',
     // Forespørselen byggherrens svar på fristen tar stilling til (G-4 i BF-20). Kaller bare kjernen.
     'kjernesak/fristsvar',
+    // Kravversjonene et krav sendt før det siste prøves mot (OV-U118, #2011). Kaller bare kjernen.
+    'kjernesak/eldrekrav',
   ].map((m) => join(LIB, m))
 );
 // Logoen i panelet. Ingen regel.
