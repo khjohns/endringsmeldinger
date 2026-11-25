@@ -8,6 +8,8 @@ import { brevref, brevrefStor } from './felles';
 import { dato, hjemmelsmerke, punkt, haerdet } from './format';
 import { grunntekst, standpunkttekst } from './standpunkt';
 
+const MOT_BEREGNINGSREGELEN = 'innsigelsen mot beregningsregelen';
+
 /** Hva hver oppgjørsform heter i en tabellcelle, med «pkt.» der hjemmelen står (OV-U75). */
 const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
   tilbud: 'Tilbud om fast sum (pkt. 34.2.1)',
@@ -39,7 +41,9 @@ export const VEDERLAGET = haerdet({
         ? i.hjemmel === '33.6.2'
           ? 'innsigelsen om at svaret på forespørselen kom for sent'
           : innsigelsenOmVarselet(i.hjemmel)
-        : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
+        : i.art === 'beregningsregel'
+          ? MOT_BEREGNINGSREGELEN
+          : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
   /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
   vilkaar: (innsigelser: string[], heller: boolean) =>
     heller
@@ -74,7 +78,7 @@ export const VEDERLAGET = haerdet({
    */
   postvilkaar: (innsigelser: readonly 'beregningsregel'[]) =>
     VEDERLAGET.vilkaar(
-      innsigelser.map(() => 'innsigelsen mot beregningsregelen'),
+      innsigelser.map(() => MOT_BEREGNINGSREGELEN),
       false
     ),
   post: 'Post',

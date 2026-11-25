@@ -1,13 +1,23 @@
 /**
- * Kommandoene kjernen avviser: en vurdering uten standpunkt, et
- * ukjent felt i vurderingene, svaret på kravpostene i kommandoen og påberopelsene som ikke er
- * bygget.
+ * Kommandoene kjernen avviser: en vurdering uten standpunkt, et ukjent felt i vurderingene,
+ * svaret på kravpostene i kommandoen, påberopelsene som ikke er bygget, og et svar eller et
+ * trekk i et spor uten krav.
  * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { describe, expect, it } from 'vitest';
+import { randomUUID } from 'node:crypto';
 import { medP1 } from './klient.ts';
-import { type Data, FRIST_FULLT, VEDERLAG_DELVIS, sakMedKrav, svar, tilbud } from './brevsak.ts';
+import {
+  type Data,
+  FRIST_FULLT,
+  PAABEROPELSE,
+  VEDERLAG_DELVIS,
+  sak,
+  sakMedKrav,
+  svar,
+  tilbud,
+} from './brevsak.ts';
 
 /**
  * #304, MM-U2: en vurdering kjernen ennå ikke har et standpunkt for, avvises og forenkles
@@ -213,5 +223,54 @@ describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #
     });
     kravet.saerskilt = { ...produktivitetsposten, ...riggposten };
     expect(s.u().forstaatt).toBe(false);
+  });
+});
+
+/**
+ * #2325: et svar eller et trekk i et spor der totalentreprenøren ikke har sendt et krav, avvises
+ * med `INGEN_KRAV`. Kilden er raden for koden i `docs/domenetabell/regler.json`; testen
+ * fastholder kjernens avvisning. Kontrollsaken er samme kommando når kravet er sendt.
+ */
+describe('et svar eller et trekk i et spor uten krav avvises (INGEN_KRAV)', () => {
+  const meldingI = {
+    forhold: 'Totalentreprenøren har ikke sendt påberopelsen av forholdet.',
+    vederlag: 'Totalentreprenøren har ikke sendt kravet om vederlagsjustering.',
+    frist: 'Totalentreprenøren har ikke sendt kravet om fristforlengelse.',
+  };
+
+  it('trekk av påberopelsen før den er sendt', () => {
+    expect(sak().avvisning('TE', { type: 'trekk', spor: 'forhold' })).toEqual({
+      regel: 'INGEN_KRAV',
+      melding: meldingI.forhold,
+    });
+    expect(sakMedKrav().avvist('TE', { type: 'trekk', spor: 'forhold' })).toBeNull();
+  });
+
+  it.each(['vederlag', 'frist'] as const)('trekk av %s uten krav', (spor) => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvisning('TE', { type: 'trekk', spor })).toEqual({
+      regel: 'INGEN_KRAV',
+      melding: meldingI[spor],
+    });
+    expect(sakMedKrav().avvist('TE', { type: 'trekk', spor })).toBeNull();
+  });
+
+  it.each([
+    ['vederlag', VEDERLAG_DELVIS],
+    ['frist', FRIST_FULLT],
+  ] as const)('svar på %s uten krav', (spor, [vurderinger, resultat]) => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const brev = (gjelder: string) => ({
+      type: 'brev',
+      svar: [svar(spor, gjelder, vurderinger, resultat)],
+    });
+    expect(s.avvisning('BH', brev(randomUUID()))).toEqual({
+      regel: 'INGEN_KRAV',
+      melding: meldingI[spor],
+    });
+    const medKrav = sakMedKrav();
+    expect(medKrav.avvist('BH', brev(medKrav.krav(spor)))).toBeNull();
   });
 });
