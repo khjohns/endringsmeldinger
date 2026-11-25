@@ -232,7 +232,7 @@ export const BREVTEKSTEN: Lesbar[] = [
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
-  ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
+  ['Tema', 'brevtekst', 'punkt overskrift', ['frosset/brevtekst.ts']],
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],

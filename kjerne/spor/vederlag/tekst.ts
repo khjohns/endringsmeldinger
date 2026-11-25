@@ -280,11 +280,9 @@ export function svartemaerIVederlaget(
     { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
     { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
     { punkt: 'metode', overskrift: 'Beregningsmetode (punkt 34.2)' },
-    // Med flere kravposter står betegnelsen og beskrivelsen først, som i kravet (KA-U53).
-    ...kravposterI(krav).map((p, _, alle) => ({
+    ...kravposterI(krav).map((p) => ({
       punkt: p.betegnelse,
       overskrift: `Vederlagsjustering (punkt ${hjemmel})`,
-      ...(alle.length > 1 ? { foerst: `${p.betegnelse} ${punktum(p.beskrivelse)}` } : {}),
     })),
     { punkt: 'produktivitet', overskrift: `${SAERSKILT_JUSTERING} (punkt 34.1.3 annet ledd)` },
   ];

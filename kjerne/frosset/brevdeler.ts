@@ -367,8 +367,6 @@ export const helt = (navn: string): Vilkaar => ({ navn, rammer: () => true });
 export interface Tema {
   punkt: string;
   overskrift: string | null;
-  /** Linjen som sier hva punktet gjelder, først i punktet, som kravposten i kravet. */
-  foerst?: string;
 }
 
 /** Oversiktstabellen i svaret (OV-U73) med nøklene til postene (`Avsnitt.poster`). */

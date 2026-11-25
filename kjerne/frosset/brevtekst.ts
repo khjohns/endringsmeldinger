@@ -530,15 +530,7 @@ function punkteneISvaret(
     throw new KanIkkeUttrykkes(
       `standpunktet i punktet ${utenTema.punkt} har ikke noe tema i svaret`
     );
-  const punkter: Tema[] = temaene
-    .filter((tema) => ledd.some((l) => l.punkt === tema.punkt))
-    .map((tema) => ({ ...tema }));
-  // KA-U53: like overskrifter står bare over den første, som kravpostene i kravet.
-  const overskriftene = punkter.map((p) => p.overskrift);
-  punkter.forEach((p, i) => {
-    if (i > 0 && p.overskrift !== null && p.overskrift === overskriftene[i - 1])
-      p.overskrift = null;
-  });
+  const punkter: Tema[] = temaene.filter((tema) => ledd.some((l) => l.punkt === tema.punkt));
   if (oversikten) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
 
   // LV-U79: lagslinjen nevner innsigelsene i det nærmeste laget foran som rammer standpunktet.
@@ -564,7 +556,7 @@ function punkteneISvaret(
     },
   ];
   for (const p of punkter) {
-    const avsnitt: string[] = p.foerst ? [p.foerst] : [];
+    const avsnitt: string[] = [];
     if (p.punkt === OVERSIKTEN) avsnitt.push(oversikten!.tabell);
     else {
       // OV-U32: et upåvirket standpunkt står uten etikett, så det står foran lagene i punktet.

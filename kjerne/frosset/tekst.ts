@@ -157,8 +157,8 @@ export interface PunktMedBegrunnelse {
 
 /**
  * LV-U71: punktene i brevet som tar en begrunnelse, i brevets rekkefølge. Kravposten er avsnittet
- * brevteksten for vederlaget setter først i punktet når svaret har flere kravposter
- * (`foerst` i `spor/vederlag/tekst.ts`).
+ * brevteksten for vederlagskravet setter først i punktet for kravposten (`kravposttekst` i
+ * `spor/vederlag/tekst.ts`). I byggherrens svar står kravposten i overskriften (LV-U78).
  */
 export function punkteneMedBegrunnelse(avsnitt: readonly Avsnitt[]): PunktMedBegrunnelse[] {
   return avsnitt.flatMap((a) => {
