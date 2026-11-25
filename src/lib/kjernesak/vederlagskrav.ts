@@ -48,13 +48,15 @@ export function varslenePerKravpost(
   const krav = kravversjoneneKravetProevesMot(u, 'vederlag', sendt).tidligere;
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
+  const eldreKrav = eldreKravFoer(u, sendt);
   const etter = kravpostvarslene(
     { innhold: { kravposter: lest } },
     krav,
     u.spor.vederlag.kravpostvarsler,
-    eldreKravFoer(u, sendt)
+    eldreKrav
   );
-  const iEldre = varslerIEldreKrav(u);
+  const sendtFoer = new Set(eldreKrav.map((k) => k.dokument));
+  const iEldre = varslerIEldreKrav(u).filter((v) => sendtFoer.has(v.dokument));
   return lest.map((p) => {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null) return null;

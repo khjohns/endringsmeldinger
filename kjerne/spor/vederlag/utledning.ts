@@ -191,13 +191,9 @@ export function varsleneForanKravet(
  */
 export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEldreKrav[] {
   const alle = [...dokumenterI(u.journal)];
-  const dokumenter =
-    kjentFoer === undefined
-      ? alle
-      : alle.slice(
-          0,
-          alle.findIndex((d) => d.id === kjentFoer)
-        );
+  const slutt = kjentFoer === undefined ? alle.length : alle.findIndex((d) => d.id === kjentFoer);
+  if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
+  const dokumenter = alle.slice(0, slutt);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
   const kjent = (x: { dokument: string }) => plass.has(x.dokument);
   const krav = u.spor.vederlag.krav.filter(kjent);
