@@ -14569,6 +14569,62 @@ navn = "1C"
 tekst = '''
 Bare § 34.4 nå. § 34.3.3 venter.'''
 
+[[gruppe.vedtak]]
+id = "VS-U80"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2333"]
+klasse = "vedtak"
+sporsmal = '''
+Punkt 7 og 34 sier at en påberopelse i svaret på et varsel som står alene, står mot hver senere kravversjon, for punkt 34.3.3 bare mot kravpostene som gjelder varselet (punkt 34 annen setning). For en innsigelse byggherren gjør gjeldende i svaret på kravposten, sier vedtakene det ikke for punkt 34.3.3. E2 i versjon 1 (VS-U46) sier at punkt 7 bare gjelder punkt 33.4, og at samlevedtaket ikke avgjør om en påberopelse etter de andre bestemmelsene står mot senere versjoner, selv om punkt 9 er skrevet generelt. E11 sier at det for punkt 32.2, 34.1.2 og 34.1.3 «fortsatt ikke [er] avgjort», og nevner ikke punkt 34.3.3. Punkt 9 og 12 om et senere svar er skrevet generelt. Punkt 30 siste setning lar et uttrykkelig «i tide» i svaret på kravposten stå mot senere kravversjoner (punkt 8). For punkt 34.4 sier punkt 31 at et senere svar som ikke sier noe, ikke gir opp innsigelsen fra svaret på kravet. Koden leser i dag innsigelsen fra alle svarene i vederlaget (`sisteStandpunktTilVarslene`, #2316).
+
+Står innsigelsen i svaret på kravposten mot en senere kravversjon?'''
+valgt = "1A"
+svar = '''
+«1A, 2A.»'''
+forhold = [{ art = "utvider", vedtak = "vs-u77" }, { art = "presiserer", vedtak = "vs-u77" }]
+folge = '''
+Bygges i #2333.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+Har byggherren i svaret på kravet gjort gjeldende at varselet etter punkt 34.3.3 første ledd for en kravpost kom for sent, står innsigelsen mot hver senere kravversjon, men bare mot kravpostene som gjelder det samme varselet (punkt 22 og 23), også når varselet var selve kravet (punkt 7). Den står til byggherren uttrykkelig gir den opp eller sier at varselet kom i tide (punkt 10 og 30). Den står mot svar sendt etter svaret med innsigelsen. Er to svar sendt samme dag, følger rekkefølgen OV-U104. Et senere svar fra løsningen viser til innsigelsen og gjentar den som utgangspunkt, og et senere svar som ikke sier noe om varselet, leses med den (punkt 9 og 12). Det samme gjelder innsigelsen i et svar på varselet (punkt 34), også når byggherren sender et nytt svar på varselet etter punkt 33. Løsningen avgjør ikke om innsigelsen er rettslig virksom eller om byggherren er bundet av den (MM-U50 punkt 8). Forhold: utvider VS-U77 punkt 7 og 34 til svaret på kravposten for varselet etter punkt 34.3.3, og presiserer punkt 9 og 12.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Byggherrens innsigelse i svaret på kravet mot varselet etter punkt 34.3.3 første ledd gjelder bare kravversjonen svaret gjelder. Et svar på en senere kravversjon som ikke sier noe om varselet for posten, har ingen innsigelse mot det. Vil byggherren holde fast ved innsigelsen, gjentar byggherren den. En innsigelse i svaret på et varsel som står alene, står etter punkt 34. Løsningen avgjør ikke om byggherren er bundet av den tidligere innsigelsen (MM-U50 punkt 8). Forhold: snevrer inn VS-U77 punkt 9 og 12 for svaret på kravposten etter punkt 34.3.3.'''
+
+[[gruppe.vedtak]]
+id = "VS-U81"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2333"]
+klasse = "vedtak"
+sporsmal = '''
+Forutsetter at innsigelsen står (spørsmål 1 A, eller en innsigelse i svaret på varselet etter punkt 34). MM-U50 punkt 3 fryser hvert standpunkt i svaret med virkningen det hadde da brevet ble sendt, prinsipalt eller subsidiært, og om svaret godkjenner hele kravet. Punkt 10 og 11 sier at regelen som setter standpunktene sammen, og relasjonen mellom brev, følger gjeldende regler, men at standpunktene i ett sendt brev ikke vurderes på nytt. Innsigelsen står i svar A og virker på standpunktet til justeringen i svar B. Den kan leses som en del av virkningen svar B hadde (punkt 3), eller som en relasjon mellom svar A og svar B (punkt 11). Forskjellen viser seg når et svar legges til etter svar B, med en dato før svar B, og gir opp innsigelsen eller gjør den gjeldende.
+
+Fryses virkningen av innsigelsen fra et tidligere svar med det tause svaret?'''
+valgt = "2A"
+svar = '''
+«1A, 2A.»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u50" }, { art = "snevrer inn", vedtak = "mm-u50" }, { art = "utvider", vedtak = "mm-u50" }, { art = "snevrer inn", vedtak = "vs-u77" }]
+folge = '''
+Bygges i #2333 og #2347.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Står byggherrens innsigelse mot varselet etter punkt 34.3.3 første ledd for en kravpost når byggherren sender et svar som ikke sier noe om varselet, fryser svaret virkningen innsigelsen gir standpunktene til posten: prinsipalt at totalentreprenøren bare har krav på den justeringen byggherren måtte forstå, og subsidiært standpunktet til justeringen (VS-U77 punkt 30). Det fryser også om svaret godkjenner hele kravet (MM-U50 punkt 3). Innsigelsen leses av svarene som var sendt før svaret, slik løsningen kjente dem da svaret ble sendt, eller for et svar lagt til da det ble registrert. Et svar som legges til senere, også med en tidligere dato, endrer ikke virkningen av svaret eller en enighet om det (MM-U50 punkt 1 og 14; OV-U103). Løsningen avgjør ikke om innsigelsen sto (MM-U50 punkt 8). Forhold: presiserer MM-U50 punkt 3; snevrer inn MM-U50 punkt 11 (en innsigelse fra et tidligere svar er en relasjon mellom brev, men fryses med svaret); utvider MM-U50 punkt 19 til hvilke svar som er kjent ved registreringen; snevrer inn VS-U77 punkt 12 sjette setning (et svar sendt før oppgivelsen ble lagt til, beholder virkningen det hadde).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+Virkningen innsigelsen fra et tidligere svar gir standpunktene til posten i et svar som ikke sier noe om varselet, er en relasjon mellom brevene (MM-U50 punkt 10 og 11). Svaret fryser bare sine egne standpunkter. Om innsigelsen står, og hvilken virkning den gir, leses av svarene i saken etter gjeldende regler, også et svar som legges til senere med en tidligere dato. Om svaret godkjenner hele kravet, fryses med innsigelsene som sto da svaret ble sendt (MM-U50 punkt 3). En enighet har innholdet svaret hadde da den ble inngått (MM-U50 punkt 14). Løsningen avgjør ikke om innsigelsen sto (MM-U50 punkt 8). Forhold: presiserer MM-U50 punkt 10 og 11; samsvarer med VS-U77 punkt 12 sjette setning.'''
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
