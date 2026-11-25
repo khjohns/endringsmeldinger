@@ -10,9 +10,10 @@ for hånd:
    versjonsfilene, eller en generert fil. Versjonslinja tar basens tall, og den
    genererte fila tar basens innhold og skrives på nytt i steg 4. En konflikt i
    feilinnføringslista (#2342) løses med basens liste og så grenens nye poster, og en
-   ny post med en ID basen alt har, nummereres om. Endrer eller fjerner grenen en post
-   som fantes i forfaren, stopper skriptet. Annen konflikt avbryter flettingen, og
-   ingenting pushes;
+   ny post med en ID basen alt har, nummereres om. En post fra forfaren flettes
+   treveis: grenens endring tas når basen ikke har endret posten. Skriptet stopper når
+   grenen fjerner en post, eller når begge sider har endret samme post ulikt. Annen
+   konflikt avbryter flettingen, og ingenting pushes;
 3. øker hver versjon vakten krever for grenens egne endringer (`flytting.py`) til
    ett over basens tall, når den ikke alt er høyere;
 4. skriver de genererte filene på nytt (`GENERATORER`);
@@ -158,20 +159,24 @@ def ny_id(gammel: str, brukt: set[str]) -> str:
 
 
 def flett_feilinnfoeringer(forfar: str, gren: str, base: str) -> tuple[str, list[str]]:
-    """Basens liste, så grenens poster som ikke finnes i forfaren. Teksten rundt lista
-    flettes med `git merge-file`. Returnerer fila og omnummereringene."""
+    """Basens liste, så grenens poster som ikke finnes i forfaren. En post fra forfaren
+    flettes treveis: grenens endring tas når basen ikke har endret posten. Teksten rundt
+    lista flettes med `git merge-file`. Returnerer fila og omnummereringene."""
     lister = [del_liste(t) for t in (forfar, gren, base)]
     i_forfar, i_gren, i_base = (dict(liste.poster) for liste in lister)
-    endret = sorted(i for i, tekst in i_forfar.items() if i_gren.get(i) != tekst)
-    if endret:
+    fjernet = sorted(i for i in i_forfar if i not in i_gren)
+    if fjernet:
+        raise Stopp(f"Grenen fjerner feilinnføringer som finnes i forfaren: {', '.join(fjernet)}.")
+    fra_grenen = {i for i, tekst in i_forfar.items() if i_gren[i] != tekst}
+    begge = sorted(i for i in fra_grenen if i_base.get(i) not in (i_forfar[i], i_gren[i]))
+    if begge:
         raise Stopp(
-            f"Grenen endrer eller fjerner feilinnføringer som finnes i forfaren: {', '.join(endret)}. "
-            "Skriptet fletter bare nye poster."
+            f"Grenen og basen har endret eller fjernet de samme feilinnføringene ulikt: {', '.join(begge)}."
         )
     forfar_rundt, gren_rundt, base_rundt = (f"{liste.for_}{PLASSHOLDER}{liste.etter}" for liste in lister)
     rundt = flett_tekst(gren_rundt, forfar_rundt, base_rundt)
     brukt = set(i_base)
-    poster = [tekst for _, tekst in lister[2].poster]
+    poster = [i_gren[i] if i in fra_grenen else tekst for i, tekst in lister[2].poster]
     omnummerert = []
     for id_, tekst in lister[1].poster:
         if id_ in i_forfar or i_base.get(id_) == tekst:

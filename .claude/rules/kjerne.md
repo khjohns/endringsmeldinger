@@ -32,7 +32,9 @@ ID-er. Eksisterende ID-er, som `F797` og `F12b`, endres ikke.
 
 Nye poster legges til på slutten av lista. Får grenen konflikt der mot `main`, fletter
 `oppdater_kjerne_pr.py` lista: lista i `main`, så grenens nye poster. Har `main` alt
-ID-en, får grenens post neste ledige ID, og skriptet skriver omnummereringen (#2342).
+ID-en, får grenens post neste ledige ID, og skriptet skriver omnummereringen. En post
+grenen har endret, tas med når `main` ikke har endret den. Skriptet stopper når grenen
+fjerner en post, eller når begge sider har endret samme post ulikt (#2342).
 
 ## Hvor koden hører hjemme
 

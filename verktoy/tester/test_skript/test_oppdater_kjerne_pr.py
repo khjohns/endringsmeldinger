@@ -307,13 +307,25 @@ def test_ny_post_med_en_id_basen_har_faar_neste_ledige_id(liste_repo, tmp_path, 
     assert f"{id_} -> {ny}" in _git(tre, "log", "-1", "--merges", "--format=%b")
 
 
-def test_grenen_som_endrer_en_post_fra_forfaren_stopper_uten_endring(liste_repo, tmp_path):
+def test_grenens_endring_av_en_post_basen_ikke_har_endret_tas_med(liste_repo, tmp_path):
+    """Som i #2336, der ankrene fulgte koden grenen flyttet (arbeidsvalget i #2342)."""
+    _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret.\n"), _post("F3")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    svar = _kjor(liste_repo, tmp_path)
+    assert svar.returncode == 0, svar.stderr + svar.stdout
+    tekst = (tmp_path / "tre" / FEILINNFOERINGER).read_text()
+    assert _ider(tekst) == ["F1", "F2", "F2280a", "F3"]
+    assert "  // F2 er endret.\n" in tekst
+    assert "F2 er fra #2" not in tekst
+
+
+def test_samme_post_endret_ulikt_paa_begge_sider_stopper_uten_endring(liste_repo, tmp_path):
     _pr(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret.\n"), _post("F3")))
     for_ = _git(liste_repo, "rev-parse", "pr")
-    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
+    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er endret i main.\n"), _post("F2280a")))
     svar = _kjor(liste_repo, tmp_path, "--push")
     assert svar.returncode == 1, svar.stdout
-    assert "endrer eller fjerner feilinnføringer som finnes i forfaren: F2" in svar.stderr
+    assert "har endret eller fjernet de samme feilinnføringene ulikt: F2" in svar.stderr
     assert _git(liste_repo, "rev-parse", "pr") == for_
     assert not (tmp_path / "tre").exists()
 
@@ -329,32 +341,27 @@ def test_rode_ankre_etter_flettingen_stopper_og_lar_worktreen_staa(liste_repo, t
 
 
 @pytest.mark.parametrize(
-    "grenens",
+    "grenens, basens, melding",
     [
-        pytest.param([_post("F1", anker="export const b"), _post("F3")], id="endret post"),
-        pytest.param([_post("F3")], id="fjernet post"),
+        pytest.param([_post("F3")], [_post("F1"), _post("F2280a")], "Grenen fjerner feilinnføringer som finnes i forfaren: F1", id="grenen fjerner"),
+        pytest.param([_post("F1", anker="export const b")], [_post("F2280a")], "ulikt: F1", id="grenen endrer, basen fjerner"),
+        pytest.param([_post("F1", anker="export const b")], [_post("F1", anker="export const c")], "ulikt: F1", id="begge endrer ulikt"),
     ],
 )
-def test_grenen_som_endrer_eller_fjerner_en_post_fra_forfaren_stopper(grenens):
-    """Prøver avgjørelsen direkte, fordi git ikke alltid gir konflikt når grenen fjerner en post."""
+def test_post_fra_forfaren_som_ikke_kan_flettes_treveis_stopper(grenens, basens, melding):
+    """Prøver avgjørelsen direkte, fordi git ikke alltid gir konflikt i disse tilfellene."""
     forfar = _liste(_post("F1"))[FEILINNFOERINGER]
-    base = _liste(_post("F1"), _post("F2280a"))[FEILINNFOERINGER]
-    with pytest.raises(oppdater.Stopp, match="som finnes i forfaren: F1"):
-        oppdater.flett_feilinnfoeringer(forfar, _liste(*grenens)[FEILINNFOERINGER], base)
+    with pytest.raises(oppdater.Stopp, match=melding):
+        oppdater.flett_feilinnfoeringer(forfar, _liste(*grenens)[FEILINNFOERINGER], _liste(*basens)[FEILINNFOERINGER])
 
 
-def test_lik_id_som_git_fletter_uten_konflikt_stopper_paa_ankrene(liste_repo, tmp_path):
-    _pr(liste_repo, _liste(_post("F1"), _post("F2280a"), _post("F2", kommentar="  // F2 er fra #2.\n")))
-    _skriv(liste_repo, _liste(_post("F1"), _post("F2", kommentar="  // F2 er fra #2.\n"), _post("F2280a")))
-    svar = _kjor(liste_repo, tmp_path, "--push")
-    assert svar.returncode == 1, svar.stdout
-    assert "Løste konflikter" not in svar.stdout
-    assert "Feilinnføringene har samme ID: F2280a" in svar.stderr
-
-
-def test_lik_id_to_ganger_paa_en_side_stopper_med_id_en():
-    with pytest.raises(oppdater.Stopp, match="samme ID flere ganger på én side av flettingen: F1"):
-        oppdater.del_liste(_liste(_post("F1"), _post("F1"))[FEILINNFOERINGER])
+def test_lik_endring_av_en_post_paa_begge_sider_flettes():
+    forfar = _liste(_post("F1"))[FEILINNFOERINGER]
+    gren = _liste(_post("F1", anker="export const b"), _post("F2342a"))[FEILINNFOERINGER]
+    base = _liste(_post("F1", anker="export const b"), _post("F2280a"))[FEILINNFOERINGER]
+    tekst, _ = oppdater.flett_feilinnfoeringer(forfar, gren, base)
+    assert _ider(tekst) == ["F1", "F2280a", "F2342a"]
+    assert tekst.count("export const b") == 1
 
 
 def test_teksten_rundt_lista_flettes_fra_begge_sider():
