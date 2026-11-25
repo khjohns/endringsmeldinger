@@ -15,7 +15,13 @@
   import { medietreff } from './medie.svelte';
   import { fokuser } from './mangler';
   import { brevTilKontrollen } from './sendeflyt.svelte';
-  import { KRAVTITTEL, SVARTITTEL, UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import {
+    KRAVTITTEL,
+    SVARTITTEL,
+    SVARTITTEL_PAA_VARSELET,
+    UTSAGNSTITTEL,
+  } from '#kjerne/frosset/brevtittel.ts';
+  import { hjemmelenForVarselet, varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
   import Brevkvittering from './Brevkvittering.svelte';
   import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -25,6 +31,7 @@
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
+  import Varselsvar from './Varselsvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
   import Forholdssvar from './Forholdssvar.svelte';
@@ -48,7 +55,7 @@
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
-  import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
+  import { tomtSvar, tomtVarselsvar, type Korrigeringsvalg, type Varselsvalg } from './kommandoer';
   import {
     kontraktFraProsjektet,
     kontraktsrader,
@@ -58,6 +65,7 @@
   import {
     betegnelsene,
     brevForLinja,
+    brevMedUtsagn,
     brevene,
     brevet,
     type Brevet,
@@ -143,6 +151,7 @@
     | { art: 'les' }
     | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
+    | { art: 'varselsvar'; gjelder: string }
     | { art: 'nyversjon' }
     | { art: 'vederlagskrav'; fraKorrespondansen?: true }
     | { art: 'fristkrav'; fraKorrespondansen?: true }
@@ -222,6 +231,8 @@
     fristkrav: (): Fristkravvalg | null => null,
     korrigering: (): Korrigeringsvalg => ({ dato: '', forklaring: '' }),
     nyversjon: (): string | null => null,
+    // Ett utkast per varsel som står alene, med varselet som nøkkel (G-9 i BF-14).
+    varselsvar: (): Record<string, Varselsvalg> => ({}),
   };
   type Utkastnavn = keyof typeof tommeUtkast;
   type Utkastene = { [N in Utkastnavn]: ReturnType<(typeof tommeUtkast)[N]> };
@@ -268,22 +279,41 @@
     vederlag: [],
     frist: [],
   });
-  const harUtkast = (s: Spor) => utkastArbeid[s].length > 0;
+  /** Kjernen tilbyr svaret på varselet `gjelder` eller et nytt svar på det (VS-U77 punkt 33). */
+  const kanSvarePaaVarselet = (gjelder: string) =>
+    kjernesak.handlinger.includes(`svare:${gjelder}`) ||
+    kjernesak.handlinger.includes(`revidere:${gjelder}`);
+  // Et utkast til svaret på et varsel en kravpost har tatt opp, kan ikke sendes og teller ikke.
+  const harUtkast = (s: Spor) =>
+    utkastArbeid[s].some((a) => a.art !== 'varselsvar' || kanSvarePaaVarselet(a.gjelder));
   const harSvarutkast = (s: Spor) => utkastArbeid[s].some((utkast) => utkast.art === 'svar');
 
+  /** Utkastet arbeidet står i: ett per skjema, og for svaret på et varsel ett per varsel. */
+  const utkastnoekkel = (a: Arbeid) => (a.art === 'varselsvar' ? `varselsvar:${a.gjelder}` : a.art);
+
   function aapneUtkast(neste: Skjemaarbeid) {
-    utkastArbeid[valgt] = [neste, ...utkastArbeid[valgt].filter((u) => u.art !== neste.art)];
+    const n = utkastnoekkel(neste);
+    utkastArbeid[valgt] = [neste, ...utkastArbeid[valgt].filter((u) => utkastnoekkel(u) !== n)];
     tilArbeid(neste);
   }
 
-  function fjernUtkast(s: Spor, art: Arbeid['art']) {
-    utkastArbeid[s] = utkastArbeid[s].filter((utkast) => utkast.art !== art);
+  /** Fjerner utkastene med arten, eller bare svaret på varselet `gjelder`. */
+  function fjernUtkast(s: Spor, art: Arbeid['art'], gjelder?: string) {
+    const treffer = (a: Arbeid) =>
+      a.art === art && (gjelder === undefined || ('gjelder' in a && a.gjelder === gjelder));
+    utkastArbeid[s] = utkastArbeid[s].filter((utkast) => !treffer(utkast));
     historikk.oppdater((v) =>
       v.spor === s &&
-      (v.arbeid.art === art || (v.arbeid.art === 'kontroll' && v.arbeid.tilbake.art === art))
+      (treffer(v.arbeid) || (v.arbeid.art === 'kontroll' && treffer(v.arbeid.tilbake)))
         ? { spor: s, arbeid: { art: 'les' } }
         : v
     );
+  }
+
+  /** Svaret på varselet `gjelder` er sendt eller forkastet. */
+  function tomtVarselsutkast(gjelder: string) {
+    delete utkastene.varselsvar[gjelder];
+    fjernUtkast('vederlag', 'varselsvar', gjelder);
   }
   function fjernSkjemautkast(s: Spor, n: Utkastnavn & Skjemaarbeid['art']) {
     if (n === 'korrigering') {
@@ -298,7 +328,12 @@
       vederlagskrav: KRAVTITTEL.vederlag,
       fristkrav: KRAVTITTEL.frist,
       korrespondanse: LEGG_TIL.tittel,
+      varselsvar: varselsvartittel(utkast),
     })[utkast.art];
+  function varselsvartittel(utkast: Skjemaarbeid) {
+    const h = utkast.art === 'varselsvar' && u ? hjemmelenForVarselet(u, utkast.gjelder) : null;
+    return h ? SVARTITTEL_PAA_VARSELET[h] : '';
+  }
 
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
@@ -395,6 +430,21 @@
     });
   }
 
+  /** Brevkontrollen for BHs svar på varselet `gjelder` som står alene (VS-U79). */
+  function tilVarselsvarkontroll(gjelder: string, k: TilBrevkontrollen) {
+    melding = null;
+    tilArbeid({
+      art: 'kontroll',
+      versjon: kjernesak.versjon,
+      ...k,
+      sendTekst: BREVKONTROLL.sendSvaret,
+      tilbakeTil: 'utkastet',
+      svarerPaa: (u && brevMedUtsagn(u, gjelder)) ?? null,
+      tilbake: { art: 'varselsvar', gjelder },
+      utkastet: null,
+    });
+  }
+
   /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
   function tilKravkontroll(s: Kravspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
     const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
@@ -441,7 +491,8 @@
 
   function sendt(k: Kontroll, s: Spor) {
     if (k.utkastet) tomtUtkast(k.utkastet);
-    if (erUtkastnavn(k.tilbake.art)) {
+    if (k.tilbake.art === 'varselsvar') tomtVarselsutkast(k.tilbake.gjelder);
+    else if (erUtkastnavn(k.tilbake.art)) {
       tom(k.tilbake.art);
       fjernSkjemautkast(s, k.tilbake.art);
     }
@@ -465,7 +516,7 @@
   }
 
   /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
-  function forkastUtkast(n: Exclude<Utkastnavn, (typeof svaretI)[Spor]>) {
+  function forkastUtkast(n: Exclude<Utkastnavn, (typeof svaretI)[Spor] | 'varselsvar'>) {
     tom(n);
     fjernSkjemautkast(valgt, n);
     return tilSaken(MOTTATT.forkastet, 'forkastet');
@@ -585,6 +636,18 @@
         a.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
       skjema: fristsvar,
     },
+    varselsvar: {
+      // G-9 i BF-14, VS-U79: svaret på et varsel som står alene, og et nytt svar på det.
+      noekler: ['svare:*', 'revidere:*'],
+      aapne: (n) => {
+        const gjelder = kjernesak.tilbudte.find((h) => h.noekkel === n)!.gjelder!;
+        utkastene.varselsvar[gjelder] ??= tomtVarselsvar();
+        aapneUtkast({ art: 'varselsvar', gjelder });
+      },
+      vises: (a) =>
+        a.art === 'varselsvar' && valgt === 'vederlag' && kanSvarePaaVarselet(a.gjelder),
+      skjema: varselsvar,
+    },
   } satisfies Record<string, Skjema>;
   const skjemalista: Skjema[] = Object.values(skjemaene);
   const aktivtSkjema = $derived(skjemalista.find((s) => s.vises(arbeid))?.skjema ?? null);
@@ -661,9 +724,21 @@
   const foresporselssvar = $derived(
     kjernesak.tilbudte.filter((h) => h.type === 'svare_paa_foresporsel').map((h) => h.noekkel)
   );
-  const skjemanoeklene = $derived([...skjemalista.flatMap((s) => s.noekler), ...foresporselssvar]);
+  /**
+   * Nøkkelen `type:*` gjelder hver tilbudt handling av typen som viser til et element, som
+   * nøklene i handlingsregisteret (#2003).
+   */
+  const noeklene = (s: Skjema) =>
+    s.noekler.flatMap((n) =>
+      n.endsWith(':*')
+        ? kjernesak.tilbudte
+            .filter((h) => h.gjelder !== null && `${h.type}:*` === n)
+            .map((h) => h.noekkel)
+        : [n]
+    );
+  const skjemanoeklene = $derived([...skjemalista.flatMap(noeklene), ...foresporselssvar]);
   function aapne(n: string) {
-    const skjema = skjemalista.find((s) => s.noekler.includes(n));
+    const skjema = skjemalista.find((s) => noeklene(s).includes(n));
     if (skjema?.aapne) skjema.aapne(n);
     else if (foresporselssvar.includes(n)) fristskjema('krav');
   }
@@ -867,8 +942,32 @@
   />
 {/snippet}
 
+{#snippet varselsvar(u: Utledning)}
+  {#if arbeid.art === 'varselsvar'}
+    {@const gjelder = arbeid.gjelder}
+    {@const varselet = varseletSvaretPaa(u, gjelder)}
+    {#if varselet && utkastene.varselsvar[gjelder]}
+      {#key gjelder}
+        <Varselsvar
+          {kjernesak}
+          {u}
+          {varselet}
+          bind:valg={utkastene.varselsvar[gjelder]}
+          onforkast={() => {
+            tomtVarselsutkast(gjelder);
+            return tilSaken(MOTTATT.forkastet, 'forkastet');
+          }}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
+          onforholdet={tilForholdet}
+        />
+      {/key}
+    {/if}
+  {/if}
+{/snippet}
+
 {#snippet utkastkortene()}
-  {#each utkastArbeid[valgt].filter(kanAapnes) as utkast (utkast.art)}
+  {#each utkastArbeid[valgt].filter(kanAapnes) as utkast (utkastnoekkel(utkast))}
     <section class="utkastkort" aria-label={SAKEN.utkast}>
       <h2>{utkasttittel(utkast)}</h2>
       <Knapp variant="primaer" onclick={() => aapneUtkast(utkast)}>{SAKEN.fortsettUtkastet}</Knapp>

@@ -93,16 +93,16 @@ id = "G4"
 navn = "Svar i hvert spor, med frafall av pålegget og nytt svar"
 part = "BH"
 spor = ["forhold", "vederlag", "frist"]
-kilde = ["punkt 32.3", "KA-U1", "HF-U29", "OV-U99", "OV-U101"]
+kilde = ["punkt 32.3", "KA-U1", "HF-U29", "OV-U99", "OV-U101", "VS-U79"]
 finnes = "Ja. Enigheten leser svaret."
 form = "Strukturert. Nytt svar er en form av svaret, og brevet viser at et svar som står, erstattes."
 naar = "Nå."
 tilstander = "Åpner «byggherren har svart» og «pålegg frafalt», og lukker «venter på svar»."
 status = "grunnsett"
-noekler = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:forhold", "revidere:vederlag", "revidere:frist"]
+noekler = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:forhold", "revidere:vederlag", "revidere:frist", "svare:*", "revidere:*"]
 kommandoer = ["brev", "revisjon"]
-skjema = ["svare:forhold", "svare:vederlag", "svare:frist"]
-mangler = "Skjemaet i Varden for nytt svar."
+skjema = ["svare:forhold", "svare:vederlag", "svare:frist", "svare:*", "revidere:*"]
+mangler = "Skjemaet i Varden for nytt svar på kravet. Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene, og det nye svaret på det, har skjema (`svare:*`, `revidere:*`, VS-U79)."
 
 [[handling]]
 id = "G5"

@@ -70,6 +70,7 @@
     svarerPaa = null,
     onendre = () => {},
     onlagttil = () => {},
+    tittel = SVARTITTEL[spor],
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -122,6 +123,8 @@
     onendre?: () => void;
     /** Svaret er lagt til. */
     onlagttil?: () => void;
+    /** Tittelen på brevet, når svaret ikke gjelder kravet i sporet (VS-U79). */
+    tittel?: string;
   } = $props();
   const uid = $props.id();
 
@@ -295,7 +298,7 @@
 
 <Brevskjema
   id={`${uid}-tittel`}
-  tittel={SVARTITTEL[spor]}
+  {tittel}
   {kjernesak}
   {u}
   avsender="BH"
