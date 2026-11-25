@@ -583,10 +583,10 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       KJERNE.regler
     );
     const justeringen = (id: string) =>
-      lag.standpunkter.find((x) => x.art === 'justering' && x.gjelder === id)!;
-    expect([justeringen(p1!.id).virkning, justeringen(p2!.id).virkning]).toEqual([2, 2]);
-    expect(justeringen(p1!.id).forutsetninger).toEqual([{ innsigelse: '34.3.3' }]);
-    expect(justeringen(p2!.id).forutsetninger).toEqual([{ oppgjoersform: p2!.id }]);
+      lag.standpunkter.find((x) => x.art === 'justering' && x.gjelder === id);
+    expect([justeringen(p1!.id)?.virkning, justeringen(p2!.id)?.virkning]).toEqual([2, 2]);
+    expect(justeringen(p1!.id)?.forutsetninger).toEqual([{ innsigelse: '34.3.3' }]);
+    expect(justeringen(p2!.id)?.forutsetninger).toEqual([{ oppgjoersform: p2!.id }]);
   });
 
   it('kontrollsak: med oppgjørsformen godtatt og varselet og justeringen besvart står de besvart (#1925)', () => {
