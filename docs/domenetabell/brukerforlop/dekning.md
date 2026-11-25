@@ -224,7 +224,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U53](../../plans/vedtak.md#lv-u53) | — | BF-02A te-har-mottatt-svaret, BF-02C ny-versjon-etter-korrigeringen, BF-08 bh-har-mottatt-paaberopelsen | BF-02B, BF-03, BF-07, BF-10, BF-47, BF-50 |
 | [LV-U54](../../plans/vedtak.md#lv-u54) | — | — | BF-10 |
 | [LV-U55](../../plans/vedtak.md#lv-u55) | — | — | BF-50 |
-| [LV-U56](../../plans/vedtak.md#lv-u56) | — | BF-02A korrigeringen-er-sendt, BF-02C ny-versjon-etter-korrigeringen | BF-10 |
+| [LV-U56](../../plans/vedtak.md#lv-u56) | — | BF-02A korrigeringen-er-sendt, BF-02C ny-versjon-etter-korrigeringen | BF-10, BF-50 |
 | [LV-U57](../../plans/vedtak.md#lv-u57) | — | BF-02A korrigeringen-er-sendt, BF-05 start | BF-10 |
 | [LV-U62](../../plans/vedtak.md#lv-u62) | — | — | BF-49 |
 | [LV-U66](../../plans/vedtak.md#lv-u66) | — | — | BF-01V |

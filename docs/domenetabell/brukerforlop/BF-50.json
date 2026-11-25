@@ -23,7 +23,8 @@
     "KA-U16",
     "LV-U29",
     "LV-U55",
-    "OV-U17"
+    "OV-U17",
+    "LV-U56"
   ],
   "venter_paa": [
     "#1309",
@@ -36,6 +37,11 @@
       "dato": "2026-11-25",
       "forhold": "#1309",
       "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-13 og spørsmålene S-1 og S-2, som ikke er stilt."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#1309",
+      "hva": "S-1 og S-2 er besvart med A: en retting til en tidligere dato gjelder først når byggherren har godtatt den, også for kravdatoen, og et krav viser til rettingen og nevner hver åpen retting. Ført i D-5, D-7, D-9 og U-10."
     }
   ]
 }

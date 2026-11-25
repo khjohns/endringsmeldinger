@@ -1,7 +1,8 @@
 # BF-50: Spørsmålene
 
-Spørsmålene til bestillingen for [BF-50](BF-50.md), skrevet 25.11 for orkestratoren, som legger dem
-fram. Teksten under er den som sendes, ordrett. Svarene føres inn her når de kommer.
+Spørsmålene til bestillingen for [BF-50](BF-50.md), skrevet 25.11 for orkestratoren, som la dem fram
+som spørsmål 11 (S-1) og 12 (S-2) med teksten under, ordrett. Svarene står under hvert spørsmål. S-1 ble
+prøvd mot vedtakene og arbeidsflyten, og S-2 mot vedtakene, av subagenter før spørsmålene ble stilt.
 
 S-1 stilles først. S-2 avhenger av svaret: ved S-1 B står ingen retting åpen, og S-2 gjelder da bare
 om kravet viser til rettingen.
@@ -129,6 +130,9 @@ aksept, ingen åpne rettinger, og visningen viser den siste opplysningen og hver
 brevet. Byggherrens innsigelse står i svaret, ved valget om varselet kom i tide, og i begrunnelsen.
 Ved B bortfaller også setningene om åpne rettinger i S-2.
 
+**Svaret 25.11.** Oppdragsgiver svarte, ordrett: «11 A, 12 A». S-1: A. Aksepten står, og den
+gjelder også kravdatoen. B er forkastet. Orkestratoren fører vedtaket i en egen vedtaks-PR.
+
 ## S-2. Hva sier et krav om varseldatoen når totalentreprenøren har rettet den?
 
 **Avhenger av S-1.** Ved S-1 A stilles S-2 som det står. Ved S-1 B står ingen retting åpen og ingen
@@ -207,3 +211,6 @@ B like. LV-U56 er bare en analogi: den nevner tidligere datoer som er erstattet,
 **Hva valget styrer i #1309:** varselsetningen i kravskjemaene for fristen og vederlaget og i
 brevteksten (G-8 i bestillingen), hvilke rettinger og aksepter kravskjemaet må kjenne når brevet lages,
 og bevis-sakene for teksten. Ved C bygges bare datoen som gjelder med brevet.
+
+**Svaret 25.11.** Oppdragsgiver svarte, ordrett: «11 A, 12 A». S-2: A. B og C er forkastet.
+Orkestratoren fører vedtaket i en egen vedtaks-PR.
