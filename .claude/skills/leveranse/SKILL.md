@@ -211,7 +211,10 @@ PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
 ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
 i PR-en fra grenen `skjermbilder`, slik
-[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
+[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222). Når ingen
+brukerforløp når tilstanden endringen gjelder, kjøres den med en testsak (`--testsak`), og
+PR-en sier «prøvd med testsaken X». Når en testsak og når et forløp brukes, står i
+[mockup-nettleser](../mockup-nettleser/SKILL.md#den-ekte-saksruta) (#2349).
 
 **Stoppregelen for funn.** Den gjelder alle funnene fra reviewene i dette avsnittet, også
 forslagene fra `/simplify` som ikke gjennomføres. En modell som blir bedt om å finne feil,
