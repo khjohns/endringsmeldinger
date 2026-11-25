@@ -128,9 +128,8 @@ export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
  * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
  *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
  *   det første av dem og er ikke varselet selv.
- * - OV-U120: ellers er det første kravet i `eldre` med posten og samme oppgjørsform varselet,
- *   når posten ikke viser til et varsel der eller i `tidligere`. Viser den til et varsel, har
- *   posten hatt oppgjørsformen før (OV-U118, VS-U49).
+ * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
+ *   vilkår 3 prøvd mot det og `tidligere`.
  * `tidligere` er versjonene før `krav` i rekken, `eldre` kravene utenfor rekken sendt før `krav`
  * i rekkefølgen de ble sendt (`eldreKravFoer`), og `varsler` varslene etter § 34.3.3 og § 34.4
  * før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en kravpost i
@@ -199,7 +198,10 @@ export function varslerIEldreKrav(u: Utledning): VarselIEtEldreKrav[] {
     return kravposterI(k).flatMap((p) => {
       const v = varslene[p.id];
       const e = v?.art === 'gitt' ? eldre.get(v.varsel) : undefined;
-      return e ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }] : [];
+      // OV-U120 vilkår 3 gjelder også kravversjonene i rekken etter `k`.
+      return e && !krav.some((x) => viserTilEtVarsel(x, p.id))
+        ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }]
+        : [];
     });
   });
 }

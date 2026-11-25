@@ -487,6 +487,20 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     expect(brevteksten(etter[0]!)).toContain('jf. innsigelsen');
   });
 
+  it('viser P1 i en senere kravversjon til et varsel, står innsigelsen (OV-U120 vilkår 3)', async () => {
+    const { u } = await leggTil(
+      [medP1('regningsarbeid'), svaretForSent],
+      medP1('regningsarbeid'),
+      '2026-09-21',
+      [
+        { ...varselet, hjemmel: '34.3.3', sendt: '2026-09-26' },
+        medP1('enhetspriser', { justert: true, varsel: 'V' }),
+      ]
+    );
+    expect(u?.begrensninger).toEqual([]);
+    expect(forSent(u!)).toHaveLength(1);
+  });
+
   it('kontrollsak: har brevet P1 med fast sum, står innsigelsen (OV-U120 vilkår 1, VS-U80)', async () => {
     const { u } = await leggTil(
       [medP1('regningsarbeid'), svaretForSent],

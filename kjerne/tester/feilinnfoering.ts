@@ -7590,6 +7590,14 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['viser P1 i brevet til et varsel, er brevet ikke varselet'],
   },
+  {
+    id: 'F2011s',
+    feilklasse:
+      'vilkår 3 i OV-U120 prøves ikke mot kravversjonene i rekken etter den som ellers er varselet, så innsigelsen faller bort',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['return e && !krav.some((x) => viserTilEtVarsel(x, p.id))', 'return e']],
+    mal: ['viser P1 i en senere kravversjon til et varsel, står innsigelsen'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {

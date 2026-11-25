@@ -142,9 +142,8 @@ export interface VarselIEtEldreKrav {
 }
 
 /**
- * OV-U120: standpunktene til varselet for en kravpost som har et eldre krav som varsel, i svarene
- * som står i journalen før det eldre kravet, følger ikke med til det. `plass` er plassen til hvert
- * dokument i journalen.
+ * Svaret `s` uten standpunktene til varselet for kravpostene i `varsler` når svaret står før det
+ * eldre kravet i journalen (OV-U120 andre ledd). `plass` er plassen til hvert dokument i journalen.
  */
 export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' | 'standpunkter'>>(
   s: T,
