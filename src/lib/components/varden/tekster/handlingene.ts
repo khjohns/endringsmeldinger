@@ -56,9 +56,9 @@ export const STILLING = haerdet({
   /** Når kjernen ikke kan lage akseptbrevet og ikke sier hvorfor. */
   godta: 'Aksepten kan ikke lages nå.',
   // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64), og i fristen
-  // dagene (#2346).
+  // dagene (#2346). Punkt 33.6.2 gjelder svaret på forespørselen, ikke et varsel.
   omfatter: (hjemmel: string, spor: Spor) =>
-    `Aksepten omfatter også at byggherren gjør gjeldende at varselet etter ${punkt(hjemmel)} kom for sent, ikke bare ${spor === 'frist' ? 'de subsidiære dagene' : hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
+    `Aksepten omfatter også at byggherren gjør gjeldende at ${hjemmel === '33.6.2' ? 'svaret på forespørselen' : 'varselet'} etter ${punkt(hjemmel)} kom for sent, ikke bare ${spor === 'frist' ? 'de subsidiære dagene' : hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
   /** U-4 i BF-46: aksepten sendes etter akseptfristen (HF-U23 punkt 7 og 8). */
   etterAkseptfristen: (frist: string) =>
     `Akseptfristen i byggherrens svar var ${dato(frist)}. Brevet sier at aksepten er sendt etter fristen. Løsningen avgjør ikke om byggherren fortsatt er bundet av svaret.`,

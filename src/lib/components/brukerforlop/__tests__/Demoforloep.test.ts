@@ -24,6 +24,7 @@ import {
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import { SAKEN } from '#lib/components/varden/tekster/saken.ts';
+import { STILLING } from '#lib/components/varden/tekster/handlingene.ts';
 import { dato } from '#lib/components/varden/tekster/format.ts';
 import Demoforloep from '../Demoforloep.svelte';
 
@@ -308,6 +309,14 @@ describe('demoruta for brukerforløpet BF-46', () => {
       'Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt\u00a033.4 kom for sent, ikke bare de subsidiære dagene.'
     );
     expect(linjer.join(' ')).not.toMatch(/beløpet|Akseptfristen i byggherrens svar/);
+  });
+
+  // NS 8407 punkt 33.6.2 gjelder svaret på byggherrens forespørsel, ikke et varsel (som
+  // `heleKravetTapt` i tekster/svaret.ts). Funnet fra /code-review i PR #2382.
+  it('innsigelsen mot svaret på forespørselen etter punkt 33.6.2 omtales ikke som et varsel', () => {
+    expect(STILLING.omfatter('33.6.2', 'frist')).toBe(
+      'Aksepten omfatter også at byggherren gjør gjeldende at svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, ikke bare de subsidiære dagene.'
+    );
   });
 
   // U-7, D-5 og G-8 i BF-46.md: byggherren kan sende et nytt svar etter aksepten (HF-U29), i
