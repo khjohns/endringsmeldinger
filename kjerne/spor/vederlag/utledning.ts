@@ -13,6 +13,7 @@ import {
   justerteEnhetspriser,
   kravposterI,
   OPPGJOERSHJEMMEL,
+  varselhjemmel,
 } from './format.ts';
 import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
 import {
@@ -24,7 +25,6 @@ import {
 import {
   erKravpostvarselhjemmel,
   type Krav,
-  type Kravpost,
   type Kravpostvarselet,
   type Kravpostvarselhjemmel,
   type Standpunkt,
@@ -74,12 +74,6 @@ export function saerskiltStrider(
     () => posten
   );
 }
-
-/** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
-export const varselhjemmel = (
-  p: Pick<Kravpost, 'oppgjoersform' | 'justert'>
-): Kravpostvarselhjemmel | null =>
-  p.oppgjoersform === 'regningsarbeid' ? '34.4' : justerteEnhetspriser(p) ? '34.3.3' : null;
 
 /** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
 const hattFoer = (

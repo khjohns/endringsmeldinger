@@ -1238,7 +1238,7 @@ function kontrollerSvarene(
     )
       ugyldig(s.id, 'svaret viser ikke til en grunnlagsversjon før det');
     // MM-U43 punkt 8: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
-    if (!sammenfallStemmer(s))
+    if (!sammenfallStemmer(s, alleKrav.get(s.gjelder)))
       ugyldig(
         s.id,
         'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'

@@ -310,20 +310,19 @@ export const KOMMANDOENE: Lesbar[] = [
     ],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
-  [
-    'frosset/standpunkt.ts',
-    'frosset',
-    'godkjennerHeleKravet',
-    ['frosset/frysing.ts:beslutningsgrunnlag'],
-  ],
+  // VS-U77 punkt 9 og 12, OV-U115 punkt 25: et svar som ikke sier noe om varselet der
+  // innsigelsen står, gir ikke sammenfall (#2316).
+  ['frosset/standpunkt.ts', 'frosset', 'sammenfallet', ['frosset/frysing.ts:beslutningsgrunnlag']],
   ['spor/vederlag/frysing.ts', 'frosset', 'begrensningen', ['spor/vederlag/tekst.ts']],
   // #1783: det som er sporets eget i frysingen av svaret.
   [
     'Svarsfrysing',
     'frosset',
-    'virkninger utfall godkjennerHeleKravet vilkaar hvertITideGirOppInnsigelsen ogsaaInnsigelserEtter',
+    'virkninger utfall godkjennerHeleKravet tausOmVarselet vilkaar hvertITideGirOppInnsigelsen ogsaaInnsigelserEtter',
     ['frosset/standpunkt.ts'],
   ],
+  // VS-U77 punkt 9 og 12: varslene i kravet svaret ikke sier noe om (#2316).
+  ['VarselIKravet', 'relasjon', 'gjelder hjemmel', ['frosset/standpunkt.ts']],
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   ['spor/frist/frysing.ts', 'frosset', 'FRYSING_I_FRISTEN', ['frosset/standpunkt.ts']],
@@ -402,6 +401,13 @@ export const KOMMANDOENE: Lesbar[] = [
     ['spor/frist/kommando.ts:som', 'spor/vederlag/kommando.ts:vedleggVedEtVarsel'],
   ],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
+  // VS-U77 punkt 9 og 12: innsigelsene fra svarene før, når svaret fryses (#2316).
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'standpunkteneTilVarslene',
+    ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
+  ],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],

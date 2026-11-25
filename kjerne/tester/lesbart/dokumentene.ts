@@ -68,7 +68,7 @@ export const DOKUMENTENE: Lesbar[] = [
     ['spor/vederlag/format.ts', 'spor/vederlag/tekst.ts'],
   ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
-  ['Kravpost', 'utsagn', 'oppgjoersform', ['spor/vederlag/utledning.ts:varselhjemmel']],
+  ['Kravpost', 'utsagn', 'oppgjoersform', ['spor/vederlag/format.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
   [
     'Kravpost',
