@@ -117,6 +117,10 @@ export function panelpunktene(
   ];
 }
 
+/** #2359: før brevet kan lages, står punktet med ordene brevet gir det (temaet i kjernen), uten nummer. */
+export const temanavn = (temaene: readonly Tema[], punkt: string): string =>
+  temaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt;
+
 export const begrunnelserForTemaene = (
   temaene: readonly Tema[],
   besvart: (punkt: string) => boolean

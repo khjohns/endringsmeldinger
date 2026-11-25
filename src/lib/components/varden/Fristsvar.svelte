@@ -46,7 +46,14 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { begrunnelserForTemaene, manglene, stilt, ubesvart, ugyldig } from './svarskjema';
+  import {
+    begrunnelserForTemaene,
+    temanavn,
+    manglene,
+    stilt,
+    ubesvart,
+    ugyldig,
+  } from './svarskjema';
   import {
     BREVKONTROLL,
     VIRKNING,
@@ -136,8 +143,6 @@
     lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
   );
   const temaene = $derived(BREVTEKSTEN_I_FRISTEN.temaer(krav));
-  /** #2359: før brevet kan lages, står punktet med ordene brevet gir det, uten nummer. */
-  const temanavn = (punkt: string) => temaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt;
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(
       temaene.filter((tema) => tema.punkt !== FORHOLDET),
@@ -562,7 +567,7 @@
     <Spoersmaal
       id={`${uid}-sp-varsel`}
       aktiv={foersteSporsmaal === 'frist_varsel_ok'}
-      tittel={overskrift('33.4') ?? temanavn('33.4')}
+      tittel={overskrift('33.4') ?? temanavn(temaene, '33.4')}
     >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
@@ -584,7 +589,7 @@
       <Spoersmaal
         id={`${uid}-sp-foresporsel`}
         aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
-        tittel={overskrift('33.6.2') ?? temanavn('33.6.2')}
+        tittel={overskrift('33.6.2') ?? temanavn(temaene, '33.6.2')}
       >
         <Gjelderhvis
           id={`${uid}-foresporsel-forutsetninger`}
@@ -639,7 +644,7 @@
       <Spoersmaal
         id={`${uid}-sp-spesifisering`}
         aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
-        tittel={overskrift('spesifisering') ?? temanavn('spesifisering')}
+        tittel={overskrift('spesifisering') ?? temanavn(temaene, 'spesifisering')}
       >
         <Gjelderhvis
           id={`${uid}-spesifisert-forutsetninger`}
