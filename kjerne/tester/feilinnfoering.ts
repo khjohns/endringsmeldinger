@@ -3726,11 +3726,7 @@ const MUTASJONER: Mutasjon[] = [
         'return f;',
       ],
     ],
-    mal: [
-      '§ 34.1.3 rammer bare posten etter annet ledd',
-      'justeringen ellers bare § 34.1.2',
-      '§ 34.1.3 er ikke forutsetning for justeringen i en kravpost',
-    ],
+    mal: ['§ 34.1.3 er ikke forutsetning for justeringen i en kravpost'],
   },
   {
     id: 'F423',
