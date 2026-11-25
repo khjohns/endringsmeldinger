@@ -9,7 +9,11 @@ import { minnebane } from '#kjerne/tester/bane.ts';
 import { kjoer } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
 import { dagklokke } from '#kjerne/tester/testmiljoe.ts';
-import { utledJournal, type Utledning } from '#kjerne/utledning/utled.ts';
+import {
+  kravversjoneneKravetProevesMot,
+  utledJournal,
+  type Utledning,
+} from '#kjerne/utledning/utled.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import { varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
@@ -43,26 +47,31 @@ const p1 = (u: Utledning) => ({
 describe('varselet skjemaet viser når et eldre krav er lagt til (OV-U120)', () => {
   it('er det eldre kravet varselet, viser den neste versjonen det som varselet posten hadde før', async () => {
     const u = await saken([medP1('regningsarbeid')], true);
-    const [v] = varslenePerKravpost(u, [p1(u)]);
+    const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null);
     expect(v).toMatchObject({ art: 'foer', krav: u.spor.vederlag.kravUtenforRekken[0]!.dokument });
   });
 
   it('kontrollsak: uten det eldre kravet er kravet 24.09 varselet posten hadde før (VS-U49)', async () => {
     const u = await saken([medP1('regningsarbeid')], false);
-    const [v] = varslenePerKravpost(u, [p1(u)]);
+    const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null);
     expect(v).toMatchObject({ art: 'foer', krav: u.spor.vederlag.krav.at(-1)!.dokument });
   });
 
   it('et krav som legges til, sendt før det eldre kravet, er selv varselet (OV-U120 vilkår 5, OV-U118)', async () => {
     const u = await saken([], true);
-    expect(varslenePerKravpost(u, [p1(u)], '2026-09-20')).toEqual([
-      { art: 'kravet', hjemmel: '34.4' },
-    ]);
+    expect(
+      varslenePerKravpost(
+        u,
+        kravversjoneneKravetProevesMot(u, 'vederlag', '2026-09-20').tidligere,
+        [p1(u)],
+        '2026-09-20'
+      )
+    ).toEqual([{ art: 'kravet', hjemmel: '34.4' }]);
   });
 
   it('kontrollsak: et krav fra løsningen har det eldre kravet som varsel (OV-U120)', async () => {
     const u = await saken([], true);
-    const [v] = varslenePerKravpost(u, [p1(u)]);
+    const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null);
     expect(v).toMatchObject({ art: 'gitt', varsel: u.spor.vederlag.kravUtenforRekken[0]!.id });
   });
 });

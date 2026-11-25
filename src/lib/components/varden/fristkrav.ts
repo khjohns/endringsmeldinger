@@ -8,6 +8,7 @@
 
 import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
+import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
 import { korrespondansefeilene, registreringen, type Korrespondansevalg } from './korrespondansen';
@@ -58,10 +59,18 @@ export const nyFristpost = (): Fristpostvalg => ({
   trukket: false,
 });
 
-/** Valgene fra gjeldende krav, eller én tom frist i det første kravet (U-10). */
-export function startvalg(u: Utledning): Fristkravvalg {
-  const felles = { hva: 'krav' as const, utenfor: null, bokstav: 'a' as const, grunnB: '' };
-  const krav = u.spor.frist.gjeldendeKrav;
+/**
+ * Valgene fra gjeldende krav, eller én tom frist i det første kravet (U-10). Et krav sendt før det
+ * siste i sporet tar utgangspunkt i den siste kravversjonen det prøves mot (OV-U118).
+ */
+export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Fristkravvalg {
+  const felles = {
+    hva: 'krav' as const,
+    utenfor: null,
+    bokstav: 'a' as const,
+    grunnB: '',
+  };
+  const krav = utgangspunktet(u, 'frist', eldre);
   if (!krav) return { ...felles, frister: [nyFristpost()], begrunnelse: '' };
   return {
     ...felles,

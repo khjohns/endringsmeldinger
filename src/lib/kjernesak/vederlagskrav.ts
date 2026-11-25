@@ -11,12 +11,8 @@ import {
   varslerIEldreKrav,
 } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
-import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
-import {
-  kravversjoneneKravetProevesMot,
-  varseletForNyttSvar,
-  type Utledning,
-} from '#kjerne/utledning/utled.ts';
+import type { Krav, Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
+import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
@@ -37,15 +33,16 @@ export type Varselet =
 
 /**
  * Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et.
- * `sendt` er dagen et krav som legges til, ble sendt, og `null` for et krav fra løsningen. Kravet
- * prøves mot kravversjonene og de eldre kravene sendt før det, som i kommandoen (OV-U118, OV-U120).
+ * `krav` er kravversjonene kravet prøves mot, for et krav lagt til sendt før det siste de sendt før
+ * det (OV-U118, `kravversjoneneKravetProevesMot`). `sendt` er dagen et krav som legges til, ble
+ * sendt, og `null` for et krav fra løsningen: de eldre kravene sendt før det regnes med (OV-U120).
  */
 export function varslenePerKravpost(
   u: Utledning,
+  krav: readonly Krav[],
   poster: readonly Kravpostutkast[],
-  sendt: string | null = null
+  sendt: string | null
 ): (Varselet | null)[] {
-  const krav = kravversjoneneKravetProevesMot(u, 'vederlag', sendt).tidligere;
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
   const eldreKrav = eldreKravFoer(u, sendt);
