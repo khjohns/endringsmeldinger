@@ -277,9 +277,12 @@
   {#if p.punkt === fellesHjelpVed}
     <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
   {/if}
+  <!-- Ved punktet står navnet i overskriften over, så etiketten sier at feltet er begrunnelsen,
+     og navnet sier hvilket punkt den gjelder (WCAG 2.4.6, 2.5.3). -->
   <Tekstomraade
     {id}
-    etikett={p.navn}
+    etikett={vedPunktet ? SKJEMA.begrunnelse : p.navn}
+    skjultTillegg={vedPunktet ? `, ${p.navn}` : undefined}
     underordnet
     valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
     hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}

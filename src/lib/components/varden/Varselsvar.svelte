@@ -172,7 +172,7 @@
       ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
       : [
           punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
-          punktet('justering', SKJEMA.justeringSpoersmaal, SKJEMA.ikkeBesvart),
+          punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
         ]
   );
   const forholdet = $derived(linjer.filter((l) => l.punkt === FORHOLDET));
@@ -362,7 +362,7 @@
       <Spoersmaal
         id={`${uid}-sp-justeringen`}
         aktiv={valg.godtarJustering === null}
-        tittel={overskrift('justering') ?? SKJEMA.justeringSpoersmaal}
+        tittel={overskrift('justering') ?? VARSELSVARET.justeringen}
       >
         {@render standpunktet('justeringen')}
       </Spoersmaal>
