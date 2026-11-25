@@ -17,6 +17,7 @@ import {
   type InnsigelseIVederlaget,
 } from '#kjerne/spor/vederlag/format.ts';
 import type { PostenISvaret } from '#kjerne/frosset/brevdeler.ts';
+import { BREVTEKSTEN_I_VEDERLAGET } from '#kjerne/spor/vederlag/tekst.ts';
 import type { Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
@@ -57,7 +58,12 @@ export interface Svarlaget {
   /** Grunnene fra svaret på forholdet i laget (OV-U33), med brevet de står i. */
   grunner: { grunn: Subsidiaergrunn; brev: Brevet }[];
   /** Standpunktene i laget utenom beløpet eller dagene, med brevet en påberopelse gjelder. */
-  standpunkter: { standpunkt: Standpunkt; brev: Brevref | null }[];
+  /**
+   * `vilkaar` er vilkåret for standpunktet når det ikke er vilkåret for hele laget, fordi
+   * innsigelsen bare rammer kravposten standpunktet gjelder (`vilkaaretFor`, OV-U117), uten
+   * beregningsregelen, som står ved posten (svar A 24.11 i #2242).
+   */
+  standpunkter: { standpunkt: Standpunkt; brev: Brevref | null; vilkaar?: Vilkaaret }[];
 }
 
 /**
@@ -192,6 +198,14 @@ export function lageneISvaret(
     );
     l.heller = lagene.slice(1, l.lag - 1).some((x) => x.vilkaar.length > 0);
   }
+  if (svar.spor === 'vederlag')
+    for (const l of lagene)
+      for (const x of l.standpunkter) {
+        const v = vilkaaretFor(lagene, l.lag, BREVTEKSTEN_I_VEDERLAGET.posten(x.standpunkt));
+        const egne = v?.vilkaar.filter((i) => i.art !== 'beregningsregel') ?? [];
+        if (egne.some((i) => !l.vilkaar.includes(i)))
+          x.vilkaar = { vilkaar: egne, heller: v!.heller };
+      }
   return lagene;
 }
 

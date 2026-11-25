@@ -658,6 +658,14 @@ describe('vilkåret for et standpunkt om én kravpost (OV-U117, LV-U79, #2337)',
       p1Id: p1!.id,
       p2Id: p2!.id,
       lagene: kravetOgSvaret(u, brevene(u))!.lagene.map((l) => l.vilkaar),
+      // Vilkåret ved hvert standpunkt om justeringen i kortet, etter posten.
+      justeringene: kravetOgSvaret(u, brevene(u))!.lagene.flatMap((l) =>
+        l.standpunkter.flatMap((x) =>
+          x.standpunkt.art === 'justering'
+            ? [[x.standpunkt.gjelder === p1!.id ? 'P1' : 'P2', x.vilkaar?.vilkaar ?? []]]
+            : []
+        )
+      ),
     };
   }
 
@@ -674,6 +682,14 @@ describe('vilkåret for et standpunkt om én kravpost (OV-U117, LV-U79, #2337)',
   it('vilkåret for hele laget i «Kravet og svaret» har ikke innsigelsen mot varselet for P1, som bare rammer én av postene', async () => {
     const { lagene } = await vilkaarene();
     expect(lagene.flat()).toEqual([]);
+  });
+
+  it('i kortet står justeringen for P1 med innsigelsen mot varselet for P1, og justeringen for P2 uten den (OV-U117, LV-U79)', async () => {
+    const { justeringene, p1Id } = await vilkaarene();
+    expect(justeringene).toEqual([
+      ['P1', [{ art: 'varsel', hjemmel: '34.3.3', gjelder: p1Id }]],
+      ['P2', []],
+    ]);
   });
 
   it('samme vilkår for to kravposter i samme lag er samme liste, så det står én gang (#2182)', async () => {
