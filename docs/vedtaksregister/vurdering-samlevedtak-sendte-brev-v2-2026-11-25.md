@@ -138,6 +138,11 @@ Oppdragsgiver 25.11, ordrett: «1 ja, 2–6 som anbefalt».
 | 3. Hjemmet for VS-U81 | A |
 | 4. Postene som står | A |
 
+Postene er ført som MM-U60 (MM-U50 versjon 2) og VS-U87 (VS-U77 versjon 3), de neste ledige ID-ene
+etter A3. I tekstene står E1–E4 som E11–E14 og E5–E10 som E19–E24, fordi MM-U50 alt har E1–E10 og
+VS-U77 E1–E18. Forholdene fra VS-U77 og OV-U120 til OV-U114 og VS-U76 er ført til OV-U123 og VS-U86,
+som opphever dem etter A3.
+
 ## Kodefunn
 
 Ingen. VS-U78, VS-U80, VS-U81 og OV-U120 bygges i #2269, #2333, #2347 og #2011; versjonene endrer
@@ -147,8 +152,9 @@ ikke det som bygges. Med 2 A endres ingen kode.
 
 BF-01, BF-02A, BF-03, BF-06, BF-14, BF-37, BF-44, BF-45, BF-46, BF-48 og `dekning.md` viser til
 MM-U50 eller VS-U77, og BF-14 og `dekning.md` til VS-U78. Med 2 A står henvisningene. Ingen forløp
-viser til VS-U80, VS-U81, OV-U120 eller MM-U57. Om BF-14 burde vise til punkt 36 og 37, kontrolleres
-når postene føres.
+viser til VS-U80, VS-U81, OV-U120 eller MM-U57. BF-14 trenger ikke å vise til punkt 36 og 37: forløpet
+har ett krav og ett svar, ikke et senere svar med innsigelsen mot varselet etter punkt 34.3.3 eller et
+eldre krav. Henvisningen til VS-U78 står, fordi versjon 3 samler den.
 
 ## Verifikasjon og grenser
 
