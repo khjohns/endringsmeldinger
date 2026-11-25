@@ -191,7 +191,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       },
       { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
     ],
-    // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står under brevet og kan ikke endres
+    // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står i høyre kolonne og kan ikke endres
     // der (VS-U65); lenken åpner et nytt svar på kravet.
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
