@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--klokke] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -25,6 +25,9 @@
  *
  * Med `--feil` framkalles feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar,
  * og `page.route` svarer på kommandoruta med 409, 403, 500 og et avbrudd.
+ *
+ * Med `--klokke` sender TE aksepten av BHs svar på fristkravet med nettleserens klokke satt til
+ * dagen etter akseptfristen (`page.clock`), mens basen er før den (U-5 i BF-46, #2319).
  *
  * Med `--behold` står alt og kjører til Ctrl+C, med innlogging per side i nettleseren:
  * `http://localhost:5173/api/auth/catenda/login?return_to=/<prosjekt>/<sak>` med cookien
@@ -57,6 +60,7 @@ const { values } = parseArgs({
     forlop: { type: 'string' },
     til: { type: 'string' },
     feil: { type: 'boolean', default: false },
+    klokke: { type: 'boolean', default: false },
     spor: { type: 'string' },
   },
 });
@@ -95,6 +99,8 @@ try {
   if (FORLOEP) somForloep(FORLOEP);
   if (values.feil && !(FORLOEP && values.til))
     throw new Error('--feil sender aksepten av BHs svar og trenger --forlop med --til, for eksempel BF-01 til te-har-mottatt-svaret.');
+  if (values.klokke && !(FORLOEP && values.til))
+    throw new Error('--klokke sender aksepten av BHs svar med akseptfrist og trenger --forlop med --til, for eksempel BF-45 til te-har-mottatt-svaret.');
 } catch (feil) {
   console.error((feil as Error).message);
   process.exit(1);
@@ -867,6 +873,51 @@ try {
       await te.screenshot({ path: join(UT, `feil-${tilstand.navn}.png`), fullPage: true });
       await te.unroute(kommandoruta);
     }
+  }
+  if (values.klokke) {
+    // U-5 i BF-46 (#2319): brevkontrollen lager teksten med datoen i basen, ikke nettleserens.
+    // Akseptfristen er en hverdag minst 14 dager fram (`medAkseptfristFraIdag`), så basen er før
+    // den, og nettleserens klokke settes til dagen etter. Med nettleserens dato ville brevet si at
+    // aksepten er sendt etter akseptfristen, og serveren avvise teksten (LV-U2). Speilbildet i
+    // BF-46, med basen etter fristen, venter på G-1–G-3 i #2300.
+    const fristene = (await lesJournal(sak))
+      .flatMap((r) => (Array.isArray(r.data.svar) ? (r.data.svar as { spor?: string; akseptfrist?: string }[]) : []))
+      .filter((s) => s.spor === 'frist' && s.akseptfrist);
+    const frist = fristene.at(-1)?.akseptfrist;
+    if (!frist) throw new Error('--klokke trenger et kontrollpunkt der BHs svar på fristkravet har akseptfrist (--til)');
+    const dagenEtter = new Date(`${frist}T12:00:00Z`);
+    dagenEtter.setUTCDate(dagenEtter.getUTCDate() + 1);
+    await te.clock.setSystemTime(dagenEtter);
+    await te.goto(`${FRONTEND}/${katalog.prosjekt}/${sak}`);
+    const nettleserdato = await te.evaluate(() =>
+      new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' })
+    );
+    if (nettleserdato <= frist)
+      throw new Error(`Nettleserens dato ${nettleserdato} er ikke etter akseptfristen ${frist}`);
+    await te.getByText('Fristforlengelse', { exact: true }).filter({ visible: true }).first().click({ timeout: 30_000 });
+    await te.getByRole('button', { name: /^Godta svaret/ }).first().click({ timeout: 30_000 });
+    const kontrollert = te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    await kontrollert.waitFor({ timeout: 30_000 });
+    const brevet = await te.locator('main').innerText();
+    console.log(`TE  --klokke: nettleseren ${nettleserdato}, akseptfristen ${frist}`);
+    if (/etter akseptfristen/.test(brevet))
+      throw new Error('Brevkontrollen sier at aksepten er sendt etter akseptfristen etter nettleserens klokke');
+    await te.screenshot({ path: join(UT, 'klokke-brevkontroll.png'), fullPage: true });
+    await kontrollert.check();
+    const sendt = te.waitForResponse(
+      (r) => r.request().method() === 'POST' && r.url().endsWith(`/api/kjerne/saker/${sak}/kommandoer`),
+      { timeout: 30_000 }
+    );
+    await te.getByRole('button', { name: 'Send til byggherren', exact: true }).click();
+    const svar = await sendt;
+    console.log(`TE  --klokke: POST /api/kjerne/saker/{sak}/kommandoer: ${svar.status()}`);
+    if (svar.status() !== 201) throw new Error(`Aksepten ble ikke sendt: ${svar.status()} ${await svar.text()}`);
+    const aksepten = (await lesJournal(sak)).at(-1)!;
+    const tekst = JSON.stringify(aksepten.data);
+    if (!/godtar byggherrens svar/.test(tekst) || /etter akseptfristen/.test(tekst))
+      throw new Error(`Aksepten i journalen har ikke teksten med datoen i basen: ${tekst}`);
+    await te.waitForLoadState('networkidle');
+    await te.screenshot({ path: join(UT, 'klokke-sendt.png'), fullPage: true });
   }
   if (OPPRETTES) {
     // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes. Dialogen har

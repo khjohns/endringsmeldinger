@@ -421,10 +421,10 @@ describe('sakskonteksten for en TS-sak', () => {
   // Kilde: #695 p1. Bare det siste kallet skriver saken.
   it('et eldre svar som kommer sist, overskriver ikke saken fra et nyere kall', async () => {
     const nyere = [opprettet, skrevet(grunnlagskrav, [opprettet])];
-    let slipp: (k: Kjernesak) => void = () => {};
+    let slipp: (k: LastetKjernesak) => void = () => {};
     const hent = vi
       .fn()
-      .mockReturnValueOnce(new Promise<Kjernesak>((r) => (slipp = r)))
+      .mockReturnValueOnce(new Promise<LastetKjernesak>((r) => (slipp = r)))
       .mockResolvedValueOnce(svar(nyere));
     const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent });
     const foerste = sak.last();
