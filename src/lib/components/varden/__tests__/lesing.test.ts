@@ -675,4 +675,40 @@ describe('vilkåret for et standpunkt om én kravpost (OV-U117, LV-U79, #2337)',
     const { lagene } = await vilkaarene();
     expect(lagene.flat()).toEqual([]);
   });
+
+  it('samme vilkår for to kravposter i samme lag er samme liste, så det står én gang (#2182)', async () => {
+    const u = await utledning([
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        navn: 'K-g1',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [
+          { oppgjoersform: 'tilbud', belop: 100000 },
+          { oppgjoersform: 'tilbud', belop: 50000 },
+        ],
+      },
+      brevet({
+        spor: 'vederlag',
+        navn: 'S-v1',
+        varslet_i_tide: false,
+        kravposter: [
+          { post: 'P1', vurdering: 'godkjent' },
+          { post: 'P2', vurdering: 'godkjent' },
+        ],
+      }),
+    ]);
+    const beloepene = standpunktene(u.spor.vederlag.svar[0]!, u).filter(
+      (l) => 'standpunkt' in l && l.standpunkt.art === 'beloep' && l.vilkaar
+    );
+    expect(beloepene).toHaveLength(2);
+    expect(beloepene[0]!.vilkaar).toEqual([{ art: 'varsel', hjemmel: '34.1.2' }]);
+    expect(beloepene[1]!.vilkaar).toBe(beloepene[0]!.vilkaar);
+  });
 });

@@ -421,14 +421,21 @@ export function standpunktene(
           svar.spor === 'frist' ? innsigelsenIFristen : innsigelsenIForholdet,
           g
         );
-  // Samme vilkår for samme lag og post er samme liste, så en visning kan skrive det én gang (#2182).
-  const vilkaarene = new Map<string, Vilkaaret | null>();
+  // Samme vilkår i samme lag er samme liste, også for to poster, så en visning kan skrive det
+  // én gang (#2182).
+  const vilkaarene = new Map<string, Vilkaaret>();
   const vilkaarFor = (lag: number | null, s?: Standpunkt) => {
     if (lag === null) return {};
     const post = s && svar.spor === 'vederlag' ? BREVTEKSTEN_I_VEDERLAGET.posten(s) : undefined;
-    const noekkel = `${lag} ${post}`;
-    if (!vilkaarene.has(noekkel)) vilkaarene.set(noekkel, vilkaaretFor(lagene, lag, post));
-    return vilkaarene.get(noekkel) ?? {};
+    const v = vilkaaretFor(lagene, lag, post);
+    if (!v) return {};
+    const noekkel = JSON.stringify([
+      lag,
+      v.heller,
+      v.vilkaar.map((i) => (i.art === 'grunn' ? [i.art, i.grunn] : i)),
+    ]);
+    if (!vilkaarene.has(noekkel)) vilkaarene.set(noekkel, v);
+    return vilkaarene.get(noekkel)!;
   };
   return [
     ...grunner.map((grunn, i) => ({
