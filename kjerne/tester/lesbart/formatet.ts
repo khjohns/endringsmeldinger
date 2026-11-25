@@ -327,7 +327,7 @@ export const FORMATET: Lesbar[] = [
       'utledning/utled.ts:datoenDetBleSendt',
       'frosset/brevtekst.ts:aapneInnsigelser',
       // VS-U77 punkt 9 og 12: dagen et svar med standpunktet til varselet for kravposten ble sendt.
-      'frosset/brevtekst.ts:rettidighetstekst',
+      'frosset/brevtekst.ts:varseltekst',
       'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
@@ -341,7 +341,7 @@ export const FORMATET: Lesbar[] = [
     'Svar',
     'utsagn',
     'akseptfrist',
-    ['frosset/brevtekst.ts:utsagnstekst', 'frosset/brevtekst.ts:svarpunkter'],
+    ['frosset/brevtekst.ts:utsagnstekst', 'frosset/brevtekst.ts:akseptfristpunktet'],
   ],
   [
     'regler/akseptfrist.ts',

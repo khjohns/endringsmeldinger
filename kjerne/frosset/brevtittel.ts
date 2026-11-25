@@ -3,7 +3,8 @@
  * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import type { Dokument, Sakskode, Spor } from '../typer.ts';
+import type { Dokument, Sakskode, Spor, Svar } from '../typer.ts';
+import { svaretGjelderEtVarsel } from '../spor/vederlag/format.ts';
 import { medHardeMellomrom, sakensKode } from './tekst.ts';
 import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
@@ -92,6 +93,16 @@ export const SVARTITTEL: Record<Spor, string> = {
   frist: 'Svar på krav om fristforlengelse',
 };
 
+/** Tittelen på byggherrens svar på et varsel som står alene (VS-U77 punkt 30 og 31, VS-U79). */
+export const SVARTITTEL_PAA_VARSELET = {
+  '34.3.3': 'Svar på varsel om justering av enhetsprisene',
+  '34.4': 'Svar på varsel om regningsarbeid',
+} as const;
+
+/** Bestemmelsen varselet er gitt etter: standpunktet til justeringen står bare etter § 34.3.3. */
+const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): '34.3.3' | '34.4' =>
+  s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '34.4') ? '34.4' : '34.3.3';
+
 export const UTSAGNSTITTEL = {
   aksept: 'Aksept av svaret',
   trekk: 'Trekk av kravet',
@@ -110,7 +121,10 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
-  if (d.svar.length) return SVARTITTEL[d.svar[0].spor];
+  if (d.svar.length)
+    return svaretGjelderEtVarsel(d.svar[0])
+      ? SVARTITTEL_PAA_VARSELET[varseletsHjemmel(d.svar[0])]
+      : SVARTITTEL[d.svar[0].spor];
   const f = paaberoptForhold(d);
   if (f) return paaberopelsenAv(f.navn);
   if (d.krav.length) return KRAVTITTEL[d.krav[0].spor];

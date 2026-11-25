@@ -427,13 +427,7 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
       ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
       : `byggherren aksepterer ikke totalentreprenørens tilbud${post ? ` for ${post}` : ''} (NS 8407 punkt 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
   },
-  justering: (p, krav) => {
-    // KA-U68, OV-U115 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
-    const post = kravpostenI(krav, p.gjelder).betegnelse;
-    return p.godtar
-      ? `byggherren godtar at enhetsprisene for ${post} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`
-      : `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`;
-  },
+  justering: (p, krav) => justeringstekst(p.godtar, kravpostenI(krav, p.gjelder).betegnelse),
   beloep: (p, krav) => {
     // Standpunktet har et beløp, fordi `harTekst` har tatt bort standpunktene uten (KA-U72).
     // Resultatet regnes i hele øre (B-13, OV-U59). LV-U34: beløpet står under punktet for
@@ -448,6 +442,20 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
     return verdi(resultat, kroner(p.godkjent!), kroner(tilTall(krevd)));
   },
 } satisfies Standpunktstekster<'oppgjoersform' | 'justering' | 'beloep'>;
+
+/**
+ * Standpunktet til justeringen av enhetsprisene (KA-U68, OV-U115 punkt 5), for kravposten `post`,
+ * eller i svaret på varselet etter § 34.3.3 når `post` er `null` (VS-U77 punkt 30). Standpunktet
+ * godkjenner ingen priser, mengder eller beløp.
+ */
+export function justeringstekst(godtar: boolean, post: string | null): string {
+  const forPosten = post ? ` for ${post}` : '';
+  if (godtar)
+    return `byggherren godtar at enhetsprisene${forPosten} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`;
+  return post
+    ? `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`
+    : 'byggherren bestrider at enhetsprisene skal justeres (NS 8407 punkt 34.3.2).';
+}
 
 /** Kravposten med fast sum standpunktet til beløpet gjelder, og det krevde beløpet (KA-U57 (c)). */
 function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {

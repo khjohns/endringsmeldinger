@@ -114,10 +114,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'frosset/standpunkt.ts',
     'relasjon',
     'sisteStandpunktTilVarslene',
-    [
-      'frosset/brevtekst.ts:rettidighetstekst',
-      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
-    ],
+    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/kommando.ts:standpunkteneTilVarslene'],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
@@ -161,6 +158,8 @@ export const UTREGNINGEN: Lesbar[] = [
       // KA-U57 (c) og (d): linjen navngir kravposten når kravet har flere.
       'spor/vederlag/tekst.ts',
       'frosset/brevdeler.ts',
+      // VS-U77 punkt 34: kravpostene som viser til varselet byggherren har svart på.
+      'frosset/brevtekst.ts:rettidighetstekst',
       'spor/vederlag/utledning.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
       'spor/vederlag/kommando.ts',
@@ -427,7 +426,8 @@ export const UTREGNINGEN: Lesbar[] = [
     'spor/vederlag/format.ts',
     'predikat',
     'svaretGjelderEtVarsel',
-    ['spor/vederlag/frysing.ts', 'spor/vederlag/tekst.ts'],
+    // VS-U79: tittelen på svaret på varselet.
+    ['spor/vederlag/frysing.ts', 'spor/vederlag/tekst.ts', 'frosset/brevtittel.ts'],
   ],
   // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost.
   ['StandpunktTilVarselet', 'relasjon', 'gjelder hjemmel iTide dokument'],

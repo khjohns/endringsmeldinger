@@ -137,7 +137,7 @@ export interface StandpunktTilVarselet {
  */
 export function sisteStandpunktTilVarslene(
   svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[],
-  poster: readonly Pick<Kravpost, 'id' | 'varsel'>[] = []
+  poster: readonly Pick<Kravpost, 'id' | 'varsel'>[]
 ): StandpunktTilVarselet[] {
   const siste = new Map<string, StandpunktTilVarselet & { dag: string; lagtTil: boolean }>();
   const sendt = [...svarene].sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));

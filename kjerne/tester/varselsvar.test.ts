@@ -7,7 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger } from '../kommandoer/handlinger.ts';
-import { PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
+import { laast, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
   type: 'send_varsel',
@@ -181,5 +181,124 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     const melding = s.avvisning('BH', oppgitt)?.melding ?? '';
     if (medSvaret) expect(melding).not.toContain('ingen innsigelse å gi opp');
     else expect(melding).toContain('ingen innsigelse å gi opp');
+  });
+});
+
+/** Byggherrens svar sendt fra løsningen, så brevet får tekst og tittel (LV-U2, LV-U25). */
+const brev = (gjelder: string, vurderinger: Data, resultat: Data = {}) => ({
+  type: 'brev',
+  svar: [svar('vederlag', gjelder, vurderinger, resultat, null)],
+});
+
+const FORBEHOLDET_I_PUNKT = (n: number) =>
+  `${n}. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.`;
+
+describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => {
+  it('etter punkt 34.3.3 står innsigelsen prinsipalt og justeringen subsidiært, med lagslinjen til innsigelsen (punkt 30, VS-U4, LV-U34)', () => {
+    const { s, varsel } = medVarsel('34.3.3');
+    s.send('BH', brev(varsel, { varslet_i_tide: false, godtar_justering: false }));
+    const rad = s.journal.at(-1)!;
+    expect(rad.data.brevtittel).toBe('Svar på varsel om justering av enhetsprisene i sak KOE-17');
+    expect(laast(rad)).toEqual([
+      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd i brev K201-KOE-017-02 av 3. oktober 2026.',
+      '1. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.',
+      '2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nSubsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).',
+      FORBEHOLDET_I_PUNKT(3),
+    ]);
+  });
+
+  it('etter punkt 34.3.3 kan et nytt svar gi opp innsigelsen og godta justeringen, uten lag (punkt 30, 33 og svar 3 A)', () => {
+    const { s, varsel } = medVarsel('34.3.3');
+    s.send('BH', brev(varsel, { varslet_i_tide: false, godtar_justering: false }));
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+      svar: svar('vederlag', varsel, { varslet_i_tide: true, godtar_justering: true }, {}, null),
+    });
+    expect(laast(s.journal.at(-1)!).slice(0, 3)).toEqual([
+      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd i brev K201-KOE-017-02 av 3. oktober 2026. Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-03 av 4. oktober 2026.',
+      '1. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nByggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 og gjør ikke gjeldende at varselet kom for sent.',
+      '2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nByggherren godtar at enhetsprisene justeres (punkt\u00a034.3.2). Det godkjenner ikke priser, mengder eller beløp.',
+    ]);
+  });
+
+  it('etter punkt 34.4 sier brevet at varselet kom for sent, og et nytt svar gir opp innsigelsen uttrykkelig (punkt 31 og 33)', () => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    const rad = s.journal.at(-1)!;
+    expect(rad.data.brevtittel).toBe('Svar på varsel om regningsarbeid i sak KOE-17');
+    expect(laast(rad)).toEqual([
+      'Byggherren svarer på totalentreprenørens varsel om regningsarbeid etter NS 8407 punkt\u00a034.4 i brev K201-KOE-017-02 av 3. oktober 2026.',
+      '1. Varselet om regningsarbeid (punkt\u00a034.4)\n\nByggherren gjør gjeldende at varselet kom for sent.',
+      FORBEHOLDET_I_PUNKT(2),
+    ]);
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+      svar: svar('vederlag', varsel, { varslet_i_tide: true }, {}, null),
+    });
+    expect(laast(s.journal.at(-1)!)[1]).toBe(
+      '1. Varselet om regningsarbeid (punkt\u00a034.4)\n\nByggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 om at varselet kom for sent.'
+    );
+  });
+
+  it.each([
+    ['viser til innsigelsen i svaret på varselet', true],
+    ['kontrollsak: uten svaret på varselet viser det ikke til noe', false],
+  ])(
+    'svaret på kravposten som gjentar innsigelsen etter punkt 34.3.3, %s (punkt 34)',
+    (_, medSvaret) => {
+      const { s, varsel } = medVarsel('34.3.3');
+      if (medSvaret) s.send('BH', brev(varsel, { varslet_i_tide: false, godtar_justering: false }));
+      s.send(
+        'TE',
+        vederlagskrav([
+          { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true, varsel },
+        ])
+      );
+      const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0]
+        .id;
+      s.send(
+        'BH',
+        brev(
+          s.krav('vederlag'),
+          {
+            kravposter: [
+              { gjelder: post, aksepterer: true, varslet_i_tide: false, godtar_justering: true },
+            ],
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 }
+        )
+      );
+      const varselet = laast(s.journal.at(-1)!)[1];
+      const om =
+        'varselet om justering av enhetsprisene etter punkt\u00a034.3.3 første ledd for P1';
+      expect(varselet).toContain(
+        medSvaret
+          ? `Byggherren gjør gjeldende at ${om} kom for sent, jf. innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026, og at`
+          : `Byggherren gjør gjeldende at ${om} kom for sent, og at`
+      );
+    }
+  );
+
+  it('svaret på kravposten etter punkt 34.4 kan gi opp innsigelsen i svaret på varselet (punkt 31 og 34)', () => {
+    const { s, varsel } = medVarsel('34.4');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    s.send(
+      'TE',
+      vederlagskrav([{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }])
+    );
+    const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0].id;
+    s.send(
+      'BH',
+      brev(
+        s.krav('vederlag'),
+        { kravposter: [{ gjelder: post, aksepterer: true, varslet_i_tide: true }] },
+        { resultat: 'godkjent', godkjent_beloep: 0 }
+      )
+    );
+    expect(laast(s.journal.at(-1)!)[1]).toContain(
+      'Byggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 om at varselet om regningsarbeid etter NS 8407 punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
+    );
   });
 });

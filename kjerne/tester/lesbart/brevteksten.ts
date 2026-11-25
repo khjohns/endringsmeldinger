@@ -102,6 +102,8 @@ export const BREVTEKSTEN: Lesbar[] = [
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse korrigering', ['frosset/brevtittel.ts']],
+  // VS-U77 punkt 30 og 31, VS-U79: tittelen på svaret på varselet.
+  ['SVARTITTEL_PAA_VARSELET', 'brevtekst', '34.3.3 34.4', ['frosset/brevtittel.ts']],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
   ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
   // LV-U49, U-2 i BF-07: Deres ref. står i rekkefølgen etter brevnummeret.
@@ -199,7 +201,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'spor/vederlag/tekst.ts',
     'brevtekst',
-    'BREVTEKSTEN_I_VEDERLAGET STANDPUNKTENE_I_VEDERLAGET',
+    'BREVTEKSTEN_I_VEDERLAGET STANDPUNKTENE_I_VEDERLAGET justeringstekst',
     ['frosset/brevtekst.ts'],
   ],
   ['Sporslinje', 'brevtekst', 'grunner egetLedd ledd', ['frosset/linje.ts']],
@@ -332,6 +334,13 @@ export const BREVTEKSTEN: Lesbar[] = [
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
   ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
   ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
+  // VS-U77 punkt 30 og 31: punktene og lagene i svaret på varselet.
+  [
+    'frosset/brevtekst.ts:svarpunkterPaaVarselet',
+    'brevtekst',
+    'punkt plass tekst',
+    ['frosset/brevtekst.ts'],
+  ],
   [
     'frosset/brevtekst.ts:forholdetsLag',
     'brevtekst',
