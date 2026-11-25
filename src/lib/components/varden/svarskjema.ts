@@ -45,8 +45,8 @@ export const ugyldig = <S extends string>(
   lag?.ugyldig.some((x) => x.spoersmaal === spoersmaal && x.gjelder === gjelder) ?? false;
 
 /**
- * Om kjernen stiller spørsmålet i utkastet, besvart eller ikke (`stilt` i `LagIFristen`, #2156),
- * for hele kravet eller for fristen `gjelder`. `true` uten lag, så spørsmålet står til kjernen har
+ * Om kjernen stiller spørsmålet i utkastet, besvart eller ikke (`stilt` i `Utkastlag`, #2156, #2279),
+ * for hele kravet eller for posten eller fristen `gjelder`. `true` uten lag, så spørsmålet står til kjernen har
  * svart.
  */
 export const stilt = <S extends string>(

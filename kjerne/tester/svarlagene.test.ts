@@ -261,6 +261,15 @@ describe('forutsetningene i forholdssvaret (#2181, OV-U32, OV-U33, GR-U11)', () 
       KJERNE.regler
     );
 
+  it('stiller varselet etter punkt 32.2 bare der varslingsplikten gjelder, også når det er besvart (GR-U12, #2279)', () => {
+    const spoersmaal = (lag: ReturnType<typeof lagene>) => lag.stilt.map((x) => x.spoersmaal);
+    expect(spoersmaal(lagene(saken(true), {}))).toEqual(['grunnlag_varslet_i_tide', 'resultat']);
+    expect(
+      spoersmaal(lagene(saken(true), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }))
+    ).toEqual(['grunnlag_varslet_i_tide', 'resultat']);
+    expect(spoersmaal(lagene(saken(false), {})), 'svikt').toEqual(['resultat']);
+  });
+
   it('har varslingsplikt og en virksom innsigelse etter 32.2, så forholdet får forutsetningen med varselet som kilde', () => {
     const s = saken(true);
     const lag = lagene(s, { grunnlag_varslet_i_tide: false });
@@ -740,12 +749,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       // Et kast er en feil i lagene, ikke i oppsettet, så testen feiler som en assertion.
       expect.fail(`lagene kastet: ${String(e)}`);
     }
-    const spoersmaal =
-      liste !== 'stilt'
-        ? lag[liste]
-        : 'stilt' in lag
-          ? lag.stilt
-          : expect.fail(`lagene i ${spor} har ikke lista stilt`);
+    const spoersmaal = liste !== 'stilt' ? lag[liste] : lag.stilt;
     return spoersmaal.map(({ spoersmaal, gjelder }) =>
       gjelder === undefined ? spoersmaal : `${ider.get(gjelder)}.${spoersmaal}`
     );
@@ -758,6 +762,9 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
   /** #2156 punkt 2: spørsmålene regelen stiller i svarutkastet på fristen, også når de er besvart. */
   const stilt = (s: ReturnType<typeof sak>, vurderinger: Data) =>
     spoersmaalene(s, 'frist', vurderinger, 'stilt');
+  /** #2279: spørsmålene regelen stiller i svarutkastet på vederlaget, også når de er besvart. */
+  const stiltIVederlaget = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    spoersmaalene(s, 'vederlag', vurderinger, 'stilt');
   const melding = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
     s.avvisning('BH', { type: 'brev', svar: [utkastet(s, spor, vurderinger)] })?.melding ?? '';
 
@@ -1027,6 +1034,65 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     vurdering: 'godkjent',
     godkjent_beloep: 100000,
   };
+
+  it('vederlaget: spørsmålene regelen stiller, står også når de er besvart: varselet etter § 34.1.2 der varslingsplikten gjelder, beløpet for en kravpost med fast sum når tilbudet ikke avslås, og oppgjørsformen (OV-U15, KA-U57 (d), KA-U66, KA-U72, #2279)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)), true);
+    const forventet = ['hovedkrav_varslet_i_tide', 'P1.vurdering', 'P1.aksepterer'];
+    expect(stiltIVederlaget(s, {})).toEqual(forventet);
+    expect(
+      stiltIVederlaget(s, { hovedkrav_varslet_i_tide: true, kravposter: [godkjentP1] }),
+      'besvart'
+    ).toEqual(forventet);
+    // KA-U42: beløpet byggherren godkjenner ved en delvis godkjenning.
+    expect(
+      stiltIVederlaget(s, {
+        kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }],
+      })
+    ).toEqual([...forventet.slice(0, 2), 'P1.godkjent_beloep', 'P1.aksepterer']);
+    // KA-U72: uten aksept av tilbudet stilles ikke beløpet, men oppgjørsformen byggherren mener.
+    expect(
+      stiltIVederlaget(saken(vederlagskravet(tilbud(100000))), {
+        kravposter: [{ gjelder: 'P1', aksepterer: false }],
+      }),
+      'tilbudet avslås, og varslingsplikten gjelder ikke'
+    ).toEqual(['P1.aksepterer', 'P1.oensket_oppgjoersform']);
+  });
+
+  it('vederlaget: for en kravpost etter en beregningsregel stilles ikke beløpet, men varselet etter § 34.4 og kravet om tilbud (KA-U64, KA-U66, KA-U71, #2279)', () => {
+    const s = saken(medRegel('regningsarbeid'));
+    expect(stiltIVederlaget(s, { kravposter: [godkjentP1, { gjelder: 'P2' }] })).toEqual([
+      'P1.vurdering',
+      'P1.aksepterer',
+      'P2.aksepterer',
+      'P2.krever_tilbud',
+      'P2.varslet_i_tide',
+    ]);
+  });
+
+  it('vederlaget: for posten etter § 34.1.3 annet ledd stilles beløpet, varselet og beløpet etter begrensningen når den er påberopt (OV-U23, valg 2 i #1047, #2279)', () => {
+    const s = saken(
+      vederlagskravet(tilbud(100000, { saerskilt: { produktivitet: { beloep: 40000 } } }))
+    );
+    expect(stiltIVederlaget(s, { kravposter: [godkjentP1] })).toEqual([
+      'P1.vurdering',
+      'P1.aksepterer',
+      'produktivitet_vurdering',
+      'produktivitet_varslet_i_tide',
+    ]);
+    expect(
+      stiltIVederlaget(s, {
+        kravposter: [godkjentP1],
+        produktivitet_vurdering: 'godkjent',
+        produktivitet_varslet_i_tide: false,
+      })
+    ).toEqual([
+      'P1.vurdering',
+      'P1.aksepterer',
+      'produktivitet_vurdering',
+      'produktivitet_varslet_i_tide',
+      'produktivitet_begrenset_beloep',
+    ]);
+  });
 
   it('vederlaget: en oppgjørsform byggherren mener når tilbudet aksepteres, er et svar kjernen ikke godtar, i utkastet som når svaret sendes (punkt 34.2.2, arbeidsvalget i #479, #2171)', () => {
     const s = saken(vederlagskravet(tilbud(100000)));

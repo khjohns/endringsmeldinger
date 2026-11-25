@@ -4035,8 +4035,10 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F715',
     feilklasse:
       'varselet etter punkt 34.1.2 står som ubesvart i svarutkastet også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['ubesvarte.some((x) => x.post === null)', 'true']],
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['  if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori))', '  if (true)'],
+    ],
     mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
   },
   {
@@ -6877,6 +6879,38 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['|| (medSammeDag && dag === sendt)', '|| (medSammeDag && false)']],
     mal: ['et svar lagt til samme dag som innsigelsen, som ikke sier noe om varselet'],
+  },
+  {
+    id: 'F794',
+    feilklasse:
+      'svarutkastet på forholdet stiller varselet etter punkt 32.2 også der varslingsplikten ikke gjelder (GR-U12, #2279)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        "const stilles = (felt: Forholdsfelt) => felt === 'resultat' || varslingsplikt;",
+        'const stilles = (felt: Forholdsfelt) => true;',
+      ],
+    ],
+    mal: ['stiller varselet etter punkt 32.2 bare der varslingsplikten gjelder'],
+  },
+  {
+    id: 'F795',
+    feilklasse:
+      'beløpet for en kravpost stilles også når byggherren avslår tilbudet (KA-U72, #2279)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['!etterRegel && aksepterer !== false', '!etterRegel']],
+    mal: [
+      'vederlaget: spørsmålene regelen stiller, står også når de er besvart',
+      'beløpet ikke når tilbudet ikke aksepteres',
+    ],
+  },
+  {
+    id: 'F796',
+    feilklasse:
+      'et besvart spørsmål står ikke blant spørsmålene svarutkastet på vederlaget stiller (#2279)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['    stilt.push(spoersmaal);', '    if (!besvart) stilt.push(spoersmaal);']],
+    mal: ['vederlaget: spørsmålene regelen stiller, står også når de er besvart'],
   },
   {
     id: 'F802',

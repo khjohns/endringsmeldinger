@@ -9,7 +9,11 @@ import { regnUtSvar } from '#kjerne/frosset/utregning.ts';
 import { hjemmelenGjelder, type Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
 import { UgyldigBeloep } from '#kjerne/regler/beloep.ts';
 import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
-import { stiltIKravposten, type SpoersmaalIKravposten } from '#kjerne/regler/vederlag.ts';
+import {
+  beloepetStilles,
+  stiltIKravposten,
+  type SpoersmaalIKravposten,
+} from '#kjerne/regler/vederlag.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import type { Krav, Kravpost, Oppgjoersform, Spor } from '#kjerne/typer.ts';
@@ -103,28 +107,25 @@ export const regelen = (post: Kravpost): Regel | null =>
 /** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
 export const etterRegel = (post: Kravpost): boolean => regelen(post) !== null;
 
-/**
- * Skjemaet spør om beløpet bare for en kravpost med fast sum, og bare når BH ikke mener en annen
- * oppgjørsform (KA-U66, KA-U72). Valget for beløpet står likevel, så det er der igjen om BH
- * godkjenner fast sum.
- */
-export const spoerOmBeloepet = (p: Postvalg, post: Kravpost): boolean =>
-  !etterRegel(post) && p.form !== 'enhetspriser' && p.form !== 'regningsarbeid';
+/** Aksepten av tilbudet eller beregningsregelen slik valget for oppgjørsformen gir den. */
+const akseptIValget = (p: Postvalg): boolean | undefined =>
+  p.form === 'godtar' ? true : p.form !== null ? false : undefined;
 
-/** Valget for beløpet, eller `null` når det ikke er besvart eller skjemaet ikke spør (KA-U72). */
+/**
+ * Valget for beløpet, eller `null` når det ikke er besvart eller kjernen ikke spør om beløpet
+ * (`beloepetStilles`, KA-U66, KA-U72). Valget står likevel, så det er der igjen om BH godkjenner
+ * fast sum.
+ */
 export const beloepsvalget = (p: Postvalg, post: Kravpost): Beloepsvalg | null =>
-  spoerOmBeloepet(p, post) ? p.beloep : null;
+  beloepetStilles(etterRegel(post), akseptIValget(p)) ? p.beloep : null;
 
 /**
  * Spørsmålene om oppgjørsformen kjernen stiller for kravposten med valgene så langt
- * (`stiltIKravposten`, #2171). Et valg står likevel, så det er der igjen om BH endrer
- * standpunktet til oppgjørsformen.
+ * (`stiltIKravposten`, #2171), så svaret sendes uten et svar på et spørsmål som ikke stilles.
+ * Et valg står likevel, så det er der igjen om BH endrer standpunktet til oppgjørsformen.
  */
-export const stiltIPosten = (p: Postvalg, post: Kravpost): SpoersmaalIKravposten[] =>
-  stiltIKravposten(
-    { aksepterer: p.form === 'godtar' ? true : p.form !== null ? false : undefined },
-    post
-  );
+const stiltIPosten = (p: Postvalg, post: Kravpost): SpoersmaalIKravposten[] =>
+  stiltIKravposten({ aksepterer: akseptIValget(p) }, post);
 
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
@@ -161,7 +162,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
           : beloep === 'deler'
             ? beloepet(p.delbeloep)
             : undefined,
-    aksepterer: p.form === 'godtar' ? true : p.form !== null || kreverTilbud ? false : undefined,
+    aksepterer: akseptIValget(p) ?? (kreverTilbud ? false : undefined),
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
     varslet_i_tide: varslet ?? undefined,
