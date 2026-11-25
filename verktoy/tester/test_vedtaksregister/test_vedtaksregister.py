@@ -1859,6 +1859,25 @@ def test_tellingen_begynner_paa_null_naar_en_ny_versjon_samler_samlevedtaket(
     assert vr.varsler(endret, endret) == (forventet if varsel else [])
 
 
+
+def test_en_nyere_endring_av_en_post_det_gamle_samlevedtaket_samlet_telles_for_det_nye(
+    grunnregister,
+):
+    """#2397 og S3 A 17.11 i #2143: XX-U5 samler bare XX-U1, som samler KA-U1. Tre poster som er
+    nyere enn XX-U5, presiserer KA-U1, og telles for XX-U5 gjennom XX-U1."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    ny_versjon = _samler("XX-U5", "xx-u1")
+    ny_versjon["dato"] = datetime.date(2026, 10, 13)
+    endret = med(endret, ny_versjon)
+    for i in (6, 7, 8):
+        post = ny_post(id=f"XX-U{i}", forhold=[{"art": "presiserer", "vedtak": "ka-u1"}])
+        post["dato"] = datetime.date(2026, 10, 14)
+        endret = med(endret, post)
+    assert vr.varsler(endret, endret) == [
+        "xx-u5: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
 # --------------------------------------------------------------------------
 # Oppslag: --vis og --kjede, så en økt slår opp poster ordrett uten å lese registeret
 # --------------------------------------------------------------------------
