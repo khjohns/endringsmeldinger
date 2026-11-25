@@ -103,14 +103,20 @@ brevet. Byggherrens innsigelse står i svaret, ved valget om varselet kom i tide
 
 ## S-2. Hva sier et krav om varseldatoen når totalentreprenøren har rettet den?
 
+**Avhenger av S-1.** Ved S-1 B står ingen retting åpen, setningen om åpne rettinger i A faller, og A og
+B blir like. S-2 stilles da bare om oppdragsgiver vil at kravet ikke skal vise til rettingen. Ved S-1 A
+stilles S-2 som det står.
+
 **Bakgrunn.** Har totalentreprenøren lagt til et varsel sendt utenfor løsningen, sier et krav
-totalentreprenøren senere sender fra løsningen, når varselet ble sendt (setningen om varselet i LV-U4
-punkt 3 og LV-U29). Etter en retting av datoen etter punkt 8 i samlevedtaket for retting av sendt brev
-er datoen kravet oppgir, datoen som gjelder etter punkt 19, fordi datoen settes én gang og ikke kan
-endres i kravet. Ingen gjeldende post sier om kravet viser til rettingen datoen kommer fra, eller om
-kravet nevner en retting til en tidligere dato som byggherren ennå ikke har godtatt. Spørsmålet gjelder
-budskapet. Ordlyden avgjøres i byggingen. Det gjelder varseldatoen. En ny versjon av et krav sier ikke
-når kravet ble sendt, og henvisningen til et tidligere brev identifiserer brevet (LV-U53).
+totalentreprenøren senere sender fra løsningen, når varselet ble sendt, der kravet har en slik setning
+(LV-U4 punkt 3 for fristkravet og LV-U29 for varselet etter punkt 34.1.3 i vederlagskravet, slik VS-U34
+har snevret dem inn). En ny versjon av påberopelsen gjentar ikke varselet etter punkt 32.2 (LV-U56).
+Ingen gjeldende post sier hvilken dato kravet oppgir etter en retting av datoen etter punkt 8 i
+samlevedtaket for retting av sendt brev, om kravet viser til rettingen, eller om kravet nevner en
+retting til en tidligere dato som byggherren ennå ikke har godtatt. A og B sier begge at kravet oppgir
+datoen som gjelder etter punkt 19, fordi datoen settes én gang og ikke kan endres i kravet. Spørsmålet
+gjelder budskapet. Ordlyden avgjøres i byggingen. Det gjelder varseldatoen. En ny versjon av et krav
+sier ikke når kravet ble sendt, og henvisningen til et tidligere brev identifiserer brevet (LV-U53).
 
 **Belegg (ordrett).**
 
@@ -137,32 +143,38 @@ når kravet ble sendt, og henvisningen til et tidligere brev identifiserer breve
 
 **Alternativene.**
 
-- **A (anbefalt):** «Gjelder datoen for et varsel etter en retting etter punkt 8 og 19 i
-  samlevedtaket for retting av sendt brev, sier et krav totalentreprenøren sender fra løsningen,
-  datoen som gjelder, og viser til rettingen den kommer fra. Står en retting av samme dato til en
-  tidligere dag åpen når kravet sendes, nevner kravet hver av dem, med datoen og brevet. Kravet sier
-  ikke om totalentreprenøren står ved en åpen retting. Uten en retting sier kravet datoen som før.
-  Endret tekst gjelder bare nye brev.»
-  *Forhold:* utvider LV-U4 punkt 3 og LV-U29, slik punkt 19 i samlevedtaket for brev sendt utenfor
-  løsningen har snevret dem inn, og presiserer punkt 19 og 22 i samlevedtaket for retting av sendt
-  brev. I tråd med LV-U56 for korrigeringen.
-- **B:** «Gjelder datoen for et varsel etter en retting etter punkt 8 og 19 i samlevedtaket for
-  retting av sendt brev, sier et krav totalentreprenøren sender fra løsningen, datoen som gjelder, og
-  viser til rettingen den kommer fra. En retting som står åpen, nevnes ikke. Uten en retting sier
-  kravet datoen som før. Endret tekst gjelder bare nye brev.»
-  *Forhold:* utvider LV-U4 punkt 3 og LV-U29 og presiserer punkt 19 i samlevedtaket for retting av
-  sendt brev. Samme form som LV-U54 hadde før LV-U56.
+- **A (anbefalt):** «Der et krav totalentreprenøren sender fra løsningen, sier når et varsel ble
+  sendt (LV-U4 punkt 3 og LV-U29), og datoen for varselet er rettet etter punkt 8 i samlevedtaket for
+  retting av sendt brev, oppgir kravet datoen som gjelder etter punkt 19 der, og viser til rettingen
+  den kommer fra og, er rettingen godtatt, til svaret med aksepten. Står en retting til en dag før
+  datoen som gjelder åpen, og kan byggherren fortsatt godta den i løsningen (punkt 20 og 23 der),
+  nevner kravet hver slik retting, med datoen og brevet. Kravet sier ikke om totalentreprenøren står
+  ved en åpen retting. Uten en retting som har begynt å gjelde eller står åpen, sier kravet datoen som
+  før. En ny versjon av påberopelsen følger LV-U56. Endret tekst gjelder bare nye brev.»
+  *Forhold:* utvider LV-U4 punkt 3 og LV-U29, slik VS-U34 (samlet i samlevedtaket for brev sendt
+  utenfor løsningen, designdelen) har snevret dem inn. Presiserer punkt 19 og 22 i samlevedtaket for
+  retting av sendt brev. Presiserer punkt 12 i samlevedtaket for brev sendt utenfor løsningen: «en
+  annen dato» er en annen dato enn datoen som gjelder etter punkt 19 i samlevedtaket for retting av
+  sendt brev.
+- **B:** «Der et krav totalentreprenøren sender fra løsningen, sier når et varsel ble sendt (LV-U4
+  punkt 3 og LV-U29), og datoen for varselet er rettet etter punkt 8 i samlevedtaket for retting av
+  sendt brev, oppgir kravet datoen som gjelder etter punkt 19 der, og viser til rettingen den kommer
+  fra og, er rettingen godtatt, til svaret med aksepten. En retting som står åpen, nevnes ikke. Uten en
+  retting som har begynt å gjelde, sier kravet datoen som før. En ny versjon av påberopelsen følger
+  LV-U56. Endret tekst gjelder bare nye brev.»
+  *Forhold:* som A, uten setningene om de åpne rettingene.
 - **C:** «#1309 avgrenses: kravskjemaet sier datoen som gjelder, med brevet, og åpne rettinger nevnes
   ikke før det er avgjort.»
-  *Forhold:* en beslutning om omfanget av byggingen. Den endrer ikke noe vedtak, og spørsmålet om
-  budskapet stilles igjen før en retting til en tidligere dato kan stå åpen i en ekte sak.
+  *Forhold:* et arbeidsvalg for #1309, ikke et vedtak, og det føres i issuet. Det endrer ikke noe
+  vedtak. Spørsmålet om budskapet stilles igjen før en retting til en tidligere dato kan sendes i en
+  ekte sak.
 
-**Anbefaling: A.** Belegg: etter punkt 22 sier løsningen ikke at en åpen retting er tatt tilbake, og
-etter punkt 7 i samlevedtaket for sendte brev er det kravet sier, meddelt. Ved B og C sier et krav fra
-løsningen i totalentreprenørens navn bare den datoen som gjelder, mens en retting til en tidligere dato
-står åpen. Antakelse: at byggherren kan lese det som at totalentreprenøren har gitt opp rettingen, og
-at totalentreprenøren da utilsiktet kan tape posisjonen. Når ingen retting står åpen, er A og B like.
+**Anbefaling: A.** Etter punkt 7 i samlevedtaket for sendte brev og punkt 22 gir det at kravet tier om
+en åpen retting, ingen rettslig mening: kravet sier ikke at rettingen er tatt tilbake. A velges for at
+byggherren ikke skal lese tausheten som at totalentreprenøren har gitt opp rettingen, så
+totalentreprenøren ikke utilsiktet taper posisjonen (antakelse). Når ingen retting står åpen, er A og
+B like. LV-U56 er bare en analogi: den nevner tidligere datoer som er erstattet, ikke åpne tilbud.
 
 **Hva valget styrer i #1309:** varselsetningen i kravskjemaene for fristen og vederlaget og i
-brevteksten (G-8 i bestillingen), hvilke rettinger kravskjemaet må kjenne når brevet lages, og
-bevis-sakene for teksten. Ved C bygges bare datoen som gjelder med brevet.
+brevteksten (G-8 i bestillingen), hvilke rettinger og aksepter kravskjemaet må kjenne når brevet lages,
+og bevis-sakene for teksten. Ved C bygges bare datoen som gjelder med brevet.
