@@ -81,6 +81,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(
       panel.getByText(/^\d+\. Vederlagsjustering for P2 Utgraving \(punkt.34\.1\.\d\)$/)
     ).toBeVisible();
+    // WCAG 1.3.1: postene i lista (h4) står under en overskrift for gruppen.
+    expect(screen.getByRole('heading', { level: 3, name: 'Kravpostene' })).toBeVisible();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(kontroller).toHaveBeenCalledOnce();
     const avsnitt = kontroller.mock.calls[0]![0].avsnitt as { punkt: string }[];

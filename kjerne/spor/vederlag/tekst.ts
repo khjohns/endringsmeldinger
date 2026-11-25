@@ -269,10 +269,7 @@ function kravetsBeloep(krav: Krav): string {
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';
 }
 
-/**
- * Punktene i byggherrens svar (LV-U78): forholdet og varselet etter § 34.1.2, som gjelder flere
- * poster, og så ett punkt per post, med betegnelsen og beskrivelsen av kravposten i overskriften.
- */
+/** Punktene i byggherrens svar (LV-U78). */
 export function svarpunkteneIVederlaget(
   krav: Krav,
   paaberopelse: Krav | null,

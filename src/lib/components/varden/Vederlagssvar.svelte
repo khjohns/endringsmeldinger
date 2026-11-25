@@ -607,8 +607,7 @@
       </Spoersmaal>
     {/if}
 
-    <!-- LV-U78: ett punkt per kravpost i brevet, med oppgjørsformen, varselet og beløpet for
-       posten, og begrunnelsen for punktet sist. -->
+    <!-- Punktet for posten i brevet (LV-U78). -->
     {#snippet postvalgene(p: Kravpost)}
       {@render metodevalgene(p)}
       {@const v = valg.poster[p.betegnelse]}
@@ -619,7 +618,12 @@
     {/snippet}
 
     {#if flere}
-      <Spoersmaal aktiv={poster.some((p) => foerstePunkt === p.betegnelse)}>
+      <!-- Overskriften gir gruppen et navn og postene i lista et nivå under (WCAG 1.3.1). -->
+      <Spoersmaal
+        id={`${uid}-sp-poster`}
+        tittel={SKJEMA.kravpostene}
+        aktiv={poster.some((p) => foerstePunkt === p.betegnelse)}
+      >
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
         <div class="snarveier">
           <Knapp variant="lenke" onclick={godkjennAlleFormer}>{godkjennAlleFormerTekst}</Knapp>
