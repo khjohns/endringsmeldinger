@@ -175,6 +175,12 @@ export const VARSELSVARET = haerdet({
     `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
   nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
     `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
+  // Kortet med svarene fra forrige brev i høyre kolonne i svaret på varselet (VS-U65).
+  svareneFoer: (b: Brevref) => `Svarene på kravet i ${brevref(b)}`,
+  svareneStaar: 'Svaret på varselet endrer ikke disse svarene.',
+  endreDem: 'Vil du endre dem, sender du et nytt svar på kravet.',
+  svaretI: (b: Brevref) => `Svaret i ${brevref(b)}`,
+  nyttSvarPaaKravet: 'Nytt svar på kravet',
 });
 
 /**
