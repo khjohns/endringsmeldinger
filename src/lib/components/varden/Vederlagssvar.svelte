@@ -136,7 +136,7 @@
     )!
   );
   // Revisjonen av det gjeldende svaret når kravversjonen har et (HF-U29).
-  const utkast = $derived(somNyttSvar(brevutkast, u));
+  const utkast = $derived(somNyttSvar(brevutkast, valg.erstatter));
   const forrigeSvar = $derived(
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
@@ -454,7 +454,8 @@
   spor="vederlag"
   {utkast}
   {forrigeSvar}
-  medTekstene={(punktene) => somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, u)}
+  medTekstene={(punktene) =>
+    somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
   bind:tekster={valg}
   {linjer}
   {alternativer}

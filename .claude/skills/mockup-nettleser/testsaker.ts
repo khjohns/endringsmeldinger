@@ -209,7 +209,7 @@ export const TESTSAKER: Record<string, Testsak> = {
         throw new Error('Svarene fra forrige brev har «Endre» i svaret på varselet (VS-U65)');
       // #2365: lenken åpner det nye svaret på kravet, fylt ut med svaret i brev 3.
       await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
-      await bh.getByText(/^Forrige svar: brev 3/).waitFor({ timeout: 10_000 });
+      await bh.getByText(/^Det forrige svaret er brev 3, og det står som det ble sendt\./).waitFor({ timeout: 10_000 });
       await bh.screenshot({ path: `${ut}/nytt-vederlagssvar.png`, fullPage: true });
       await bh.setViewportSize({ width: 390, height: 844 });
       await bh.screenshot({ path: `${ut}/nytt-vederlagssvar-390.png`, fullPage: true });

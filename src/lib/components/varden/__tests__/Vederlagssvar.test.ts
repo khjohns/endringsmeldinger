@@ -378,7 +378,9 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     expect(kjernesak.handlinger).toContain('revidere:vederlag');
     await fireEvent.click(await screen.findByRole('button', { name: /^Send nytt svar/ }));
-    expect(await screen.findByText(/^Forrige svar: brev 3/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/^Det forrige svaret er brev 3, og det står som det ble sendt\./)
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     ).toBeChecked();

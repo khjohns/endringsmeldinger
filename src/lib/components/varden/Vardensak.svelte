@@ -629,9 +629,14 @@
       noekler: ['svare:vederlag', 'revidere:vederlag'],
       aapne: (n) => {
         const forrige = u?.spor.vederlag.gjeldendeSvar;
-        // Et påbegynt nytt svar står; ellers åpner skjemaet med svaret det erstatter.
-        if (n === 'revidere:vederlag' && forrige && !harSvarutkast('vederlag'))
-          utkastene.vederlagssvar = valgFraSvaret(forrige, u!.spor.vederlag.gjeldendeKrav!);
+        // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
+        // med handlingen, så skjemaet åpner med svaret det erstatter, eller tomt.
+        const erstatter = n === 'revidere:vederlag' ? forrige?.id : undefined;
+        if (utkastene.vederlagssvar.erstatter !== erstatter)
+          utkastene.vederlagssvar =
+            forrige && erstatter
+              ? valgFraSvaret(forrige, u!.spor.vederlag.gjeldendeKrav!)
+              : tomtSvar();
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>

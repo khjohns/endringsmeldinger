@@ -408,17 +408,19 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
   const u = utledJournal(medSvar, KJERNE);
 
   it('skjemaet åpner med standpunktene i svaret det erstatter, og begrunnelsene skrives på nytt (prototypen `forholdssvar.html`: «Det forrige svaret er fylt ut, og du endrer det du vil»)', () => {
-    expect(valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!)).toEqual(
-      foerste
-    );
+    expect(valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!)).toEqual({
+      ...foerste,
+      erstatter: u.spor.vederlag.gjeldendeSvar!.id,
+    });
   });
 
   it('det nye svaret er en revisjon av det gjeldende svaret, og kjernen tar det imot (HF-U29, VS-U65)', () => {
+    const fylt = valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!);
     const endret = {
-      ...foerste,
-      poster: { ...foerste.poster, P2: { ...foerste.poster.P2!, delbeloep: '35 000' } },
+      ...fylt,
+      poster: { ...fylt.poster, P2: { ...fylt.poster.P2!, delbeloep: '35 000' } },
     };
-    const kommando = somNyttSvar(vederlagssvaret(endret, u, KJERNE.regler)!, u);
+    const kommando = somNyttSvar(vederlagssvaret(endret, u, KJERNE.regler)!, endret.erstatter);
     expect(kommando).toMatchObject({
       type: 'revisjon',
       erstatter: u.spor.vederlag.gjeldendeSvar!.id,
@@ -431,9 +433,35 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     ]);
   });
 
-  it('uten et svar på kravversjonen er svaret et brev (kontrollsak)', () => {
+  it('uten et svar det erstatter er svaret et brev (kontrollsak)', () => {
     const uten = utledJournal(toPoster, KJERNE);
-    expect(somNyttSvar(vederlagssvaret(foerste, uten, KJERNE.regler)!, uten).type).toBe('brev');
+    expect(somNyttSvar(vederlagssvaret(foerste, uten, KJERNE.regler)!, undefined).type).toBe(
+      'brev'
+    );
+  });
+
+  it('et nytt svar fylt ut fra et svar som ikke lenger er det gjeldende, avvises av kjernen og erstatter ikke det nyere svaret (Codex-reviewet av #2374)', () => {
+    const fylt = valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!);
+    const kollega = somNyttSvar(
+      vederlagssvaret(
+        {
+          ...fylt,
+          poster: {
+            ...fylt.poster,
+            P1: { ...fylt.poster.P1!, beloep: 'deler', delbeloep: '90 000' },
+          },
+        },
+        u,
+        KJERNE.regler
+      )!,
+      fylt.erstatter
+    );
+    const etterKollegaen = skrevet(medSvar, 'BH', kollega);
+    const sent = somNyttSvar(
+      vederlagssvaret(fylt, utledJournal(etterKollegaen, KJERNE), KJERNE.regler)!,
+      fylt.erstatter
+    );
+    expect(() => skrevet(etterKollegaen, 'BH', sent)).toThrow(/Svaret er endret/);
   });
 
   it('en annen oppgjørsform, kravet om tilbud, varselet og justeringen fylles ut som de ble sendt, uten beløp der det ikke ble spurt om det (KA-U71, KA-U72, VS-U77 punkt 9)', () => {
@@ -474,6 +502,6 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     );
     expect(
       valgFraSvaret(sendt.spor.vederlag.gjeldendeSvar!, sendt.spor.vederlag.gjeldendeKrav!)
-    ).toEqual(svaret);
+    ).toEqual({ ...svaret, erstatter: sendt.spor.vederlag.gjeldendeSvar!.id });
   });
 });

@@ -70,6 +70,11 @@ export interface Svarvalg {
   begrunnelser: Record<string, string>;
   /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U49 punkt 1). */
   forbehold: string;
+  /**
+   * Svaret et nytt svar ble fylt ut fra og erstatter (`valgFraSvaret`). Kjernen avviser
+   * revisjonen når det ikke lenger er det gjeldende svaret (`FEIL_SVARREFERANSE`).
+   */
+  erstatter?: string;
 }
 
 export const tomPost = (): Postvalg => ({
@@ -266,19 +271,14 @@ export function svarbrevet(
   };
 }
 
-/**
- * Brevet som et nytt svar på kravet når byggherren alt har svart på kravversjonen: det erstatter
- * det gjeldende svaret (HF-U29, VS-U65). Kjernen godtar bare en revisjon av det gjeldende svaret,
- * og bare et brev når kravversjonen ikke har et gjeldende svar.
- */
+/** Brevet som revisjon av svaret `erstatter`, når valgene er et nytt svar (HF-U29). */
 export function somNyttSvar(
   brev: { type: 'brev'; svar: Svarutkast[] },
-  u: Utledning
+  erstatter: string | undefined
 ):
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
-  const forrige = u.spor[brev.svar[0].spor].gjeldendeSvar;
-  return forrige ? { type: 'revisjon', erstatter: forrige.id, svar: brev.svar[0] } : brev;
+  return erstatter ? { type: 'revisjon', erstatter, svar: brev.svar[0] } : brev;
 }
 
 /**
@@ -321,6 +321,7 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
   };
   return {
     ...tomtSvar(),
+    erstatter: svar.id,
     iTide: varselet('34.1.2'),
     poster: Object.fromEntries(kravposterI(krav).map((p) => [p.betegnelse, postvalg(p)])),
   };

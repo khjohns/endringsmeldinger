@@ -580,7 +580,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
       screen.getByText(/Vil du endre dem, sender du et nytt svar på kravet\./)
     ).toBeInTheDocument();
     await fireEvent.click(lenke);
-    expect(await screen.findByText(/^Forrige svar: brev \d/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Det forrige svaret er brev \d/)).toBeInTheDocument();
     expect(screen.queryByText(/ikke bygget/)).toBeNull();
   });
 });
