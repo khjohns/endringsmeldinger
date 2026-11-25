@@ -9,6 +9,9 @@ import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { ForutsetningIForholdet } from '#kjerne/spor/forhold/format.ts';
+import type { InnsigelseIFristen } from '#kjerne/spor/frist/format.ts';
+import type { InnsigelseIVederlaget } from '#kjerne/spor/vederlag/format.ts';
 import type { Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
@@ -45,7 +48,7 @@ export interface Svarlaget {
  */
 export type InnsigelsenISporet = (
   s: Standpunkt
-) => { innsigelse: string; gjelder?: string } | { oppgjoersform: string } | null;
+) => InnsigelseIVederlaget | InnsigelseIFristen | ForutsetningIForholdet | null;
 
 /** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
 function innsigelsen(s: Standpunkt, innsigelsenI: InnsigelsenISporet): Innsigelsen[] {
@@ -54,7 +57,13 @@ function innsigelsen(s: Standpunkt, innsigelsenI: InnsigelsenISporet): Innsigels
   if (i === null || !('innsigelse' in i)) return [];
   if (i.innsigelse === '33.6.1') return [{ art: 'spesifisering' }];
   if (i.innsigelse === 'hindring') return [{ art: 'hindring' }];
-  return [{ art: 'varsel', hjemmel: i.innsigelse, ...(i.gjelder ? { gjelder: i.gjelder } : {}) }];
+  return [
+    {
+      art: 'varsel',
+      hjemmel: i.innsigelse,
+      ...(i.innsigelse === '34.3.3' ? { gjelder: i.gjelder } : {}),
+    },
+  ];
 }
 
 /**

@@ -3722,8 +3722,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (i.innsigelse === '34.1.3') return t.art === 'beloep' && t.saerskilt ? i : null;",
-        "if (i.innsigelse === '34.1.3') return i;",
+        "return i.innsigelse === '34.1.2' || (t.art === 'beloep' && t.saerskilt) ? f : null;",
+        'return f;',
       ],
     ],
     mal: ['§ 34.1.3 rammer bare posten etter annet ledd', 'justeringen ellers bare § 34.1.2'],
@@ -6919,13 +6919,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F797',
     feilklasse:
       'innsigelsen mot varselet etter § 34.3.3 for én kravpost står som forutsetning for en annen kravpost i utkastet (OV-U117, #2280)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      [
-        "if (t.art === 'beloep' || !('gjelder' in t) || t.gjelder !== g) return null;",
-        "if (t.art === 'beloep') return null;",
-      ],
-    ],
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['? i.gjelder === post', '? true']],
     mal: ['ikke i en annen (OV-U117, VS-U56)'],
   },
 ];

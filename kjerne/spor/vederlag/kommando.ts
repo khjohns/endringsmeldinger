@@ -37,6 +37,7 @@ import {
 import {
   denAndreRegelen,
   innsigelsenIVederlaget,
+  rammerKravposten,
   justerteEnhetspriser,
   kravposterI,
   krevdRigg,
@@ -624,13 +625,11 @@ export type Forutsetning =
 function rammerIVederlaget(s: Standpunkt, t: Standpunkt): Forutsetning | null {
   const i = innsigelsenIVederlaget(s);
   if (i === null) return null;
-  if ('oppgjoersform' in i || i.innsigelse === '34.3.3') {
-    const g = 'oppgjoersform' in i ? i.oppgjoersform : i.gjelder;
-    if (t.art === 'beloep' || !('gjelder' in t) || t.gjelder !== g) return null;
-    return 'oppgjoersform' in i ? i : { innsigelse: '34.3.3' };
-  }
-  if (i.innsigelse === '34.1.3') return t.art === 'beloep' && t.saerskilt ? i : null;
-  return i;
+  const f: Forutsetning = 'oppgjoersform' in i ? i : { innsigelse: i.innsigelse };
+  if ('innsigelse' in i && i.innsigelse !== '34.3.3')
+    return i.innsigelse === '34.1.2' || (t.art === 'beloep' && t.saerskilt) ? f : null;
+  const post = t.art === 'beloep' || !('gjelder' in t) ? undefined : t.gjelder;
+  return post !== undefined && rammerKravposten(i, post) ? f : null;
 }
 
 /** Spørsmålene i vederlaget regelen krever svar på, med feltet i vurderingene. */

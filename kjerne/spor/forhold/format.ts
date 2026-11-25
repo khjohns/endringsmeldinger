@@ -165,3 +165,18 @@ export const LESING_I_FORHOLDET = {
   subsidiaertVerdi: null,
   standpunkt: standpunktIForholdet,
 } satisfies Svarlesing;
+
+/** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U76). */
+export type ForutsetningIForholdet = { innsigelse: '32.2'; gjelder: string };
+
+/**
+ * Det standpunktet `s` i et tidligere lag rammer et senere lag i forholdet med (OV-U32): varselet
+ * etter § 32.2 som byggherren gjør gjeldende at kom for sent, som i brevet (`erInnsigelse` i
+ * `brevtekst.ts`). Skjemaet (`lagIForholdet` i `kommando.ts`) og visningen leser det samme. Om
+ * innsigelsen har virkning og et lag, står i virkningene.
+ */
+export function innsigelsenIForholdet(s: Standpunkt): ForutsetningIForholdet | null {
+  return s.art === 'rettidighet' && s.hjemmel === '32.2' && !s.iTide
+    ? { innsigelse: s.hjemmel, gjelder: s.gjelder }
+    : null;
+}

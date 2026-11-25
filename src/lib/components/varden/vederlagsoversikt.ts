@@ -11,10 +11,10 @@ import { beloep, tilTall, type Oere } from '#kjerne/regler/beloep.ts';
 import {
   beloepeneILagene,
   erInnsigelseIVederlaget,
+  innsigelsenIVederlaget,
   krevdSamlet,
 } from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
-import { innsigelsenIVederlaget } from '#kjerne/spor/vederlag/format.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import type { Krav, Kravpost, Oppgjoersform, Standpunkt, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';

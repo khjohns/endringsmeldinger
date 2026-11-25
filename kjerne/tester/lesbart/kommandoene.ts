@@ -622,10 +622,17 @@ export const KOMMANDOENE: Lesbar[] = [
   ['spor/frist/format.ts', 'predikat', 'erInnsigelseIFristen', ['spor/frist/tekst.ts']],
   // #2280: det et standpunkt rammer et senere lag med, i skjemaet og visningen (OV-U32, OV-U117).
   ['spor/frist/format.ts', 'predikat', 'innsigelsenIFristen', ['spor/frist/kommando.ts']],
+  ['spor/forhold/format.ts', 'predikat', 'innsigelsenIForholdet', ['spor/forhold/kommando.ts']],
   [
     'spor/vederlag/format.ts',
     'predikat',
     'innsigelsenIVederlaget',
+    ['spor/vederlag/kommando.ts:rammerIVederlaget'],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'predikat',
+    'rammerKravposten',
     ['spor/vederlag/kommando.ts:rammerIVederlaget'],
   ],
   ['InnsigelseIVederlaget', 'predikat', 'innsigelse oppgjoersform gjelder'],

@@ -645,6 +645,16 @@ export function innsigelsenIVederlaget(s: Standpunkt): InnsigelseIVederlaget | n
   return null;
 }
 
+/**
+ * Om innsigelsen `i` rammer standpunktene til kravposten `post`: § 34.1.2 rammer hele kravet, og
+ * § 34.1.3 bare posten etter annet ledd, som ikke er en kravpost (OV-U22, VS-U5). Varselet etter
+ * § 34.3.3 og beregningsregelen rammer bare kravposten de gjelder (OV-U117).
+ */
+export function rammerKravposten(i: InnsigelseIVederlaget, post: string): boolean {
+  if ('oppgjoersform' in i) return i.oppgjoersform === post;
+  return i.innsigelse === '34.3.3' ? i.gjelder === post : i.innsigelse === '34.1.2';
+}
+
 /** Det som er vederlagets eget i lesingen av svaret (`SVARLESING` i `format/leser.ts`). */
 export const LESING_I_VEDERLAGET = {
   standpunkt: standpunktIVederlaget,

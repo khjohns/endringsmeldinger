@@ -12,7 +12,11 @@ import { kravetOgSvaret } from './vederlagsoversikt';
  */
 
 import { omtalen } from '#kjerne/frosset/brevdeler.ts';
-import { innholdIForholdet, oppgittDato } from '#kjerne/spor/forhold/format.ts';
+import {
+  innholdIForholdet,
+  innsigelsenIForholdet,
+  oppgittDato,
+} from '#kjerne/spor/forhold/format.ts';
 import {
   FORHOLDSGRUPPER,
   forholdet,
@@ -384,11 +388,17 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
-  // Vederlaget har sitt eget predikat i kjernen (#2242); forholdet leser fristens, som før.
   const lagene =
     svar.spor === 'vederlag'
       ? lageneISvaret(u, svar, brevene(u), 0, 'beloep', innsigelsenIVederlaget)
-      : lageneISvaret(u, svar, brevene(u), 0, 'dager', innsigelsenIFristen);
+      : lageneISvaret(
+          u,
+          svar,
+          brevene(u),
+          0,
+          'dager',
+          svar.spor === 'frist' ? innsigelsenIFristen : innsigelsenIForholdet
+        );
   const vilkaarFor = (lag: number | null) => {
     const laget = lag === null ? undefined : lagene[lag - 1];
     return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};

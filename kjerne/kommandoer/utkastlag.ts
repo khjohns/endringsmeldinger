@@ -20,9 +20,9 @@ import {
 /**
  * Lagene i svarutkastet i et spor, regnet som brevet regner dem (OV-U32, OV-U33, S1-A i #1400).
  * Grunnene fra svaret på forholdet står foran sporet, og `virkning`, `lag` og `etikett` for hvert
- * standpunkt er flyttet ned med dem. `sendt` er
- * dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Svaret på forholdet og
- * påberopelsen er de som gjaldt den dagen, som når svaret fryses og kontrolleres (#2057, #2011).
+ * standpunkt er flyttet ned med dem. `sendt` er dagen et svar lagt til ble sendt, og `null` for et
+ * svar fra løsningen. Svaret på forholdet og påberopelsen er de som gjaldt den dagen, som når svaret
+ * fryses og kontrolleres (#2057, #2011).
  */
 export function lageneIUtkastet(
   svar: Svarinnhold,

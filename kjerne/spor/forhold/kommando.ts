@@ -25,20 +25,21 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
-import {
-  avvis,
-  type Avvisning,
-  type Krav,
-  type OppgittDatofelt,
-  type Standpunkt,
-} from '../../typer.ts';
+import { avvis, type Avvisning, type Krav, type OppgittDatofelt } from '../../typer.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { OppgittDato, Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 import type { Sporsskriving } from '../../kommandoer/skriving.ts';
-import { DATOEN_GJELDER, innholdIForholdet, kategori, oppgittDato } from './format.ts';
+import {
+  DATOEN_GJELDER,
+  innholdIForholdet,
+  innsigelsenIForholdet,
+  kategori,
+  oppgittDato,
+  type ForutsetningIForholdet,
+} from './format.ts';
 import { forholdsstandpunkter } from './frysing.ts';
 import { sisteDatoopplysning, trekkAvPaaberopelsenErSperret } from './utledning.ts';
 
@@ -320,20 +321,6 @@ export const STANDPUNKTER_I_FORHOLDET: Sporsstandpunkter = (v, _krav, u, nyId) =
 export const SKRIVING_I_FORHOLDET = {
   kravinnhold: (innhold) => innhold,
 } satisfies Sporsskriving;
-
-/** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U76). */
-export type ForutsetningIForholdet = { innsigelse: '32.2'; gjelder: string };
-
-/**
- * Det standpunktet `s` i et tidligere lag rammer et senere lag i forholdet med (OV-U32): varselet
- * etter § 32.2 som byggherren gjør gjeldende at kom for sent, som i brevet (`erInnsigelse` i
- * `brevtekst.ts`). Om innsigelsen har virkning og et lag, står i virkningene.
- */
-function innsigelsenIForholdet(s: Standpunkt): ForutsetningIForholdet | null {
-  return s.art === 'rettidighet' && s.hjemmel === '32.2' && !s.iTide
-    ? { innsigelse: s.hjemmel, gjelder: s.gjelder }
-    : null;
-}
 
 type Forholdsfelt = 'grunnlag_varslet_i_tide' | 'resultat';
 export type LagIForholdet = Utkastlag<ForutsetningIForholdet, Forholdsfelt>;

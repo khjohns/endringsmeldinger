@@ -13,9 +13,9 @@ import {
   erInnsigelseIFristen,
   gjelderHeleFristkravet,
   innholdIFristen,
+  innsigelsenIFristen,
   utregningIFristen,
 } from '#kjerne/spor/frist/format.ts';
-import { innsigelsenIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';

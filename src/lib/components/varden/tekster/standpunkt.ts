@@ -2,6 +2,7 @@ import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
+import { rammerKravposten } from '#kjerne/spor/vederlag/format.ts';
 import {
   forholdstilfellet,
   type Forholdsordene,
@@ -75,7 +76,7 @@ function leselinjeneMedVanligeMellomrom(
   innsigelsenStaar = false
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
-  // kravposten (OV-U117). Det første vilkåret for posten sier ikke «heller ikke» (#2280).
+  // kravposten (`rammerKravposten`). Det første vilkåret for posten sier ikke «heller ikke» (#2280).
   let forrige: Innsigelsen[] | undefined;
   let vist = false;
   return linjer.flatMap((l) => {
@@ -91,7 +92,14 @@ function leselinjeneMedVanligeMellomrom(
     const nytt = l.vilkaar !== forrige;
     forrige = l.vilkaar;
     const iPosten = (l.vilkaar ?? []).filter(
-      (i) => i.art !== 'varsel' || i.gjelder === undefined || i.gjelder === post.id
+      (i) =>
+        i.art !== 'varsel' ||
+        rammerKravposten(
+          i.gjelder === undefined
+            ? { innsigelse: i.hjemmel as '34.1.2' | '34.1.3' }
+            : { innsigelse: '34.3.3', gjelder: i.gjelder },
+          post.id
+        )
     );
     if (!nytt || !iPosten.length) return [t];
     const linje = vilkaar(iPosten, vist && l.heller);

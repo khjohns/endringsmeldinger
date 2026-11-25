@@ -275,13 +275,13 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'videre subsidiært',
-        vilkaar: [{ art: 'varsel', hjemmel: '34.1.3' }],
+        vilkaar: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
     ];
     expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual([
-      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent ikke fører frem',
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent ikke fører frem',
       'Bestrider justeringen',
     ]);
   });
@@ -296,7 +296,7 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
       },
       {
         lag: 'videre subsidiært',
-        vilkaar: [{ art: 'varsel', hjemmel: '34.1.3' }],
+        vilkaar: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
@@ -305,13 +305,18 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
       leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar).filter((l) => l.startsWith('Hvis '))
     ).toEqual([
       'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem',
-      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem',
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent fører frem',
     ]);
   });
 
-  it('innsigelsen mot varselet for en annen kravpost er ikke vilkår for posten (OV-U117)', () => {
+  it('innsigelsen mot varselet for en annen kravpost, og etter § 34.1.3, er ikke vilkår for posten (OV-U117, OV-U22)', () => {
     const linjer: Standpunktet[] = [
-      { lag: 'subsidiært', vilkaar: [varselet('P2')], heller: false, standpunkt: justering('P1') },
+      {
+        lag: 'subsidiært',
+        vilkaar: [varselet('P2'), { art: 'varsel', hjemmel: '34.1.3' }],
+        heller: false,
+        standpunkt: justering('P1'),
+      },
     ];
     expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual(['Bestrider justeringen']);
   });
