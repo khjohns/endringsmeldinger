@@ -166,6 +166,12 @@ den uten å samle den.
 > punkt 34.3.3 og 34.4 (VS-U77) og påberopelsen (GR-U40), og hører hjemme der når de temaene samles.
 > Med B får versjon 2 regler fra tre andre temaer. Styrer: `folge` i de nye postene.
 
+### Svaret
+
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «1 ja, 2–6 som anbefalt». For A3 er det
+spørsmål 1 «ja», tilslutning til utkastet med E1–E7 uten rettelser, og spørsmål 2 A. Spørsmål 3–6
+gjaldt #2356.
+
 ## Berørt kode og forløp
 
 - **Henvisningene.** Når versjonene opphever MM-U55, VS-U76 og OV-U114, skiftes henvisningene ut i
