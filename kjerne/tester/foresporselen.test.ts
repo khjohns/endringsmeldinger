@@ -205,7 +205,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     ...SOM_BREV,
   };
 
-  it('VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått', () => {
+  it('VS-U88 punkt 3: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått', () => {
     const utsagnet = (() => {
       const k = sak();
       k.send('TE', PAABEROPELSE);
@@ -320,7 +320,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', brev(s, paaberopt))).toBeNull();
   });
 
-  it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
+  it('VS-U88 punkt 3: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.rad('TE', {

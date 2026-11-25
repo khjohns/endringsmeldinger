@@ -327,7 +327,7 @@ export const erUbesvart = (f: ForesporselOgSvar): boolean => f.svar === null && 
  * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
  * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
  * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3), også et krav lagt til med kravskjemaet
- * (VS-U47 spørsmål 2). Gir forespørselen og elementet som svarte, eller `null`. Et fristkrav
+ * (VS-U88 punkt 3). Gir forespørselen og elementet som svarte, eller `null`. Et fristkrav
  * uten `gjelder`, sendt dagen før forespørselen eller tidligere, står i `kravFoer` (OV-U109,
  * OV-U104).
  */
