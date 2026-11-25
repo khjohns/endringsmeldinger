@@ -279,7 +279,13 @@
     vederlag: [],
     frist: [],
   });
-  const harUtkast = (s: Spor) => utkastArbeid[s].length > 0;
+  /** Kjernen tilbyr svaret på varselet `gjelder` eller et nytt svar på det (VS-U77 punkt 33). */
+  const kanSvarePaaVarselet = (gjelder: string) =>
+    kjernesak.handlinger.includes(`svare:${gjelder}`) ||
+    kjernesak.handlinger.includes(`revidere:${gjelder}`);
+  // Et utkast til svaret på et varsel en kravpost har tatt opp, kan ikke sendes og teller ikke.
+  const harUtkast = (s: Spor) =>
+    utkastArbeid[s].some((a) => a.art !== 'varselsvar' || kanSvarePaaVarselet(a.gjelder));
   const harSvarutkast = (s: Spor) => utkastArbeid[s].some((utkast) => utkast.art === 'svar');
 
   /** Utkastet arbeidet står i: ett per skjema, og for svaret på et varsel ett per varsel. */
@@ -639,10 +645,7 @@
         aapneUtkast({ art: 'varselsvar', gjelder });
       },
       vises: (a) =>
-        a.art === 'varselsvar' &&
-        valgt === 'vederlag' &&
-        (kjernesak.handlinger.includes(`svare:${a.gjelder}`) ||
-          kjernesak.handlinger.includes(`revidere:${a.gjelder}`)),
+        a.art === 'varselsvar' && valgt === 'vederlag' && kanSvarePaaVarselet(a.gjelder),
       skjema: varselsvar,
     },
   } satisfies Record<string, Skjema>;
