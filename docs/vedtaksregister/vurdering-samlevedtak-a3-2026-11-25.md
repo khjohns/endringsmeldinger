@@ -65,7 +65,7 @@ Ingen av dem krever et valg: hver løses av en post vedtatt 25.11, og E1–E7 f�
 
 Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny tekst med kilde:
 
-### Retting av sendt brev, versjon 4 (foreløpig MM-U58)
+### Retting av sendt brev, versjon 4 (foreløpig MM-U59)
 
 - **Punkt 10, nytt siste ledd.** «En påberopelse av forholdet sendt før totalentreprenørens siste
   påberopelse i saken tas imot også når den oppgir en annen dato for når pålegget ble mottatt eller
