@@ -134,11 +134,13 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
 describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31)', () => {
   it('uten innsigelse er det ikke noe å sende, og skjemaet sier at byggherren ikke trenger å svare', async () => {
     const sendt = await svarskjemaet(medVarsel('34.4'));
-    expect(screen.getByText(/^Ingen innsigelse\.$/, { selector: 'p *, p' })).toBeInTheDocument();
+    expect(screen.getAllByText('Varselet krever ikke svar.').length).toBeGreaterThan(0);
     expect(screen.queryByRole('group', { name: /Justeringen/ })).toBeNull();
     await seBrevet();
     expect(sendt).toHaveLength(0);
-    expect(screen.getByRole('link', { name: /trenger du ikke svare/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /^Ingenting å sende\. Varselet krever ikke svar\./ })
+    ).toBeInTheDocument();
   });
 
   it('«Varselet kom for sent» gir innsigelsen, ikke «ikke ble gitt» (VS-U77 punkt 31)', async () => {

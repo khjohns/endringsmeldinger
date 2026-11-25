@@ -12,7 +12,7 @@
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import type { Brevref } from './lesing';
-  import { SKJEMA } from './tekster';
+  import { SKJEMA, VARSELSVARET } from './tekster';
 
   let {
     varselId,
@@ -93,7 +93,9 @@
         ? ikkeGitt
           ? SKJEMA.ikkeGittEllerForSent
           : SKJEMA.varseletKomForSent
-        : SKJEMA.ingenInnsigelse}
+        : egetPunkt
+          ? VARSELSVARET.kreverIkkeSvar
+          : SKJEMA.ingenInnsigelse}
     </p>
     <Knapp
       variant="lenke"
