@@ -277,6 +277,9 @@
       ];
     })
   );
+  /** #2359: før brevet kan lages, står punktet med ordene brevet gir det, uten nummer. */
+  const temanavn = (punkt: string) =>
+    svartemaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt;
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(svartemaene, (punkt) => {
       if (!lagene) return false;
@@ -600,8 +603,7 @@
       <Spoersmaal
         id={`${uid}-sp-varsel`}
         aktiv={foerstePunkt === '34.1.2'}
-        tittel={overskrift('34.1.2') ?? SKJEMA.varselTittel}
-        hjemmel={overskrift('34.1.2') ? undefined : ['34.1.2']}
+        tittel={overskrift('34.1.2') ?? temanavn('34.1.2')}
       >
         <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Gjelderhvis
@@ -635,7 +637,7 @@
     <Spoersmaal
       id={`${uid}-sp-metode`}
       aktiv={foerstePunkt === 'metode'}
-      tittel={overskrift('metode') ?? SKJEMA.metodeTittel}
+      tittel={overskrift('metode') ?? temanavn('metode')}
     >
       {#if flere}
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
@@ -677,7 +679,7 @@
       {#if v && stilt(lagene, 'vurdering', p.id)}
         <Spoersmaal
           id={`${uid}-sp-beloep`}
-          tittel={overskrift(p.betegnelse) ?? SKJEMA.beloepTittel}
+          tittel={overskrift(p.betegnelse) ?? temanavn(p.betegnelse)}
           aktiv={foerstePunkt === p.betegnelse}
         >
           {@render beloepsvalgene(p, v, forutsetningene(p, 'oppgjoersform').length > 0)}

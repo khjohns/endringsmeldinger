@@ -135,9 +135,12 @@
   const foerstePunkt = $derived(
     lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
   );
+  const temaene = $derived(BREVTEKSTEN_I_FRISTEN.temaer(krav));
+  /** #2359: før brevet kan lages, står punktet med ordene brevet gir det, uten nummer. */
+  const temanavn = (punkt: string) => temaene.find((t) => t.punkt === punkt)?.overskrift ?? punkt;
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(
-      BREVTEKSTEN_I_FRISTEN.temaer(krav).filter((tema) => tema.punkt !== FORHOLDET),
+      temaene.filter((tema) => tema.punkt !== FORHOLDET),
       (punkt) => {
         if (!lagene) return false;
         const spoersmaal = fristspoersmaalForPunkt(punkt);
@@ -559,8 +562,7 @@
     <Spoersmaal
       id={`${uid}-sp-varsel`}
       aktiv={foersteSporsmaal === 'frist_varsel_ok'}
-      tittel={overskrift('33.4') ?? FRISTSVAR.varselTittel}
-      hjemmel={overskrift('33.4') ? undefined : ['33.4']}
+      tittel={overskrift('33.4') ?? temanavn('33.4')}
     >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
@@ -582,8 +584,7 @@
       <Spoersmaal
         id={`${uid}-sp-foresporsel`}
         aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
-        tittel={overskrift('33.6.2') ?? FRISTSVAR.foresporselTittel}
-        hjemmel={overskrift('33.6.2') ? undefined : ['33.6.2']}
+        tittel={overskrift('33.6.2') ?? temanavn('33.6.2')}
       >
         <Gjelderhvis
           id={`${uid}-foresporsel-forutsetninger`}
@@ -638,8 +639,7 @@
       <Spoersmaal
         id={`${uid}-sp-spesifisering`}
         aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
-        tittel={overskrift('spesifisering') ?? FRISTSVAR.spesifiseringTittel}
-        hjemmel={overskrift('spesifisering') ? undefined : ['33.6.1']}
+        tittel={overskrift('spesifisering') ?? temanavn('spesifisering')}
       >
         <Gjelderhvis
           id={`${uid}-spesifisert-forutsetninger`}

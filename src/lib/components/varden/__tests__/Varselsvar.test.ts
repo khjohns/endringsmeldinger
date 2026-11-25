@@ -374,3 +374,20 @@ describe('saken i tittelen på utkastet brytes ikke (#2359 punkt 4)', () => {
     expect(tittel.querySelector('.saksnummer')?.textContent).toBe('sak KOE-17');
   });
 });
+
+describe('punktene heter det samme før og etter at brevet kan lages (#2359 punkt 3)', () => {
+  it('overskriftene i skjemaet og panelet er ordene i brevet, med nummeret først når brevet finnes', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    const navnene = () =>
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((h) => h.textContent!.trim().replace(/^\d+\.\s*/, ''));
+    const foer = navnene();
+    const forbeholdFoer = screen.getByRole('textbox', { name: /^Forbehold/ });
+    await radio('Kom i tide');
+    await radio('Godtar justeringen');
+    expect(screen.getAllByRole('heading', { level: 3 })[0]!.textContent).toMatch(/^1\. /);
+    expect(navnene()).toEqual(foer);
+    expect(screen.getByRole('textbox', { name: /^3\. Forbehold/ })).toBe(forbeholdFoer);
+  });
+});
