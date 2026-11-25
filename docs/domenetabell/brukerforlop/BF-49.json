@@ -39,6 +39,7 @@
     "OV-U13",
     "OV-U46",
     "OV-U123",
+    "OV-U124",
     "MM-U59",
     "OV-U122"
   ],
@@ -66,6 +67,11 @@
       "dato": "2026-11-25",
       "forhold": "OV-U123, MM-U59, S-1",
       "hva": "S-1 er besvart med A og ført i D-11 og G-10, og henvisningene til OV-U114 og MM-U55 gjelder nå OV-U123 og MM-U59."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "OV-U124",
+      "hva": "ID-en for svaret på S-1 er satt inn i D-11, G-10 og S-1."
     }
   ]
 }
