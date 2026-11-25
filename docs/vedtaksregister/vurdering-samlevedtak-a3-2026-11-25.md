@@ -88,7 +88,7 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
   Avvisningen etter punkt 12a der gjelder også her.» (VS-U84; E3)
 - **Beslutningsdelen, ny setning.** «Før første ekte sak bygges også opplysningen om kunnskapsdatoen
   der punkt 12 i samlevedtaket for varslingsdatoen sier den kan stå, og det egne utsagnet etter punkt
-  14 der.» (VS-U82; E5)
+  14 der, som supplerer en dato som ikke ble oppgitt eller oppgir en annen.» (VS-U82; E5)
 
 ### Varslingsdatoen, versjon 3 (foreløpig VS-U86)
 
