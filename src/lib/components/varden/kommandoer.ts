@@ -68,7 +68,7 @@ export interface Svarvalg {
   poster: Record<string, Postvalg>;
   /** Begrunnelsen per punkt i brevet, med punktet som nøkkel (KA-U46, LV-U71). */
   begrunnelser: Record<string, string>;
-  /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U49 punkt 1). */
+  /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U87 punkt 1). */
   forbehold: string;
   /**
    * Svaret et nytt svar ble fylt ut fra og erstatter (`valgFraSvaret`). Kjernen avviser

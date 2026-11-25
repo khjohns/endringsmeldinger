@@ -1834,6 +1834,50 @@ def test_et_vedtak_som_ikke_er_samlet_telles_ikke(grunnregister):
     assert vr.varsler(endret, endret) == []
 
 
+@pytest.mark.parametrize(
+    "art, varsel", [("samler", False), ("opphever", False), ("presiserer", True)]
+)
+def test_tellingen_begynner_paa_null_naar_en_ny_versjon_samler_samlevedtaket(
+    grunnregister, art, varsel
+):
+    """#2397: en ny versjon som samler et samlevedtak (svar 2 A i #2356), nullstiller tellingen
+    som en versjon som opphever det (svar 10 04.11 i #1534), slik MM-U60 samler MM-U50.
+    XX-U1 samler KA-U1 og har tre endringer. XX-U5 samler KA-U1 og XX-U1, eller opphever XX-U1.
+    Kontrollsaken er at XX-U5 bare presiserer XX-U1: da har XX-U1 fire endringer."""
+    endret = _samlet_med_to_endringer(grunnregister)
+    endret = med(endret, ny_post(id="XX-U4", forhold=[{"art": "endrer", "vedtak": "xx-u1"}]))
+    ny_versjon = ny_post(
+        id="XX-U5",
+        forhold=[{"art": "samler", "vedtak": "ka-u1"}, {"art": art, "vedtak": "xx-u1"}],
+    )
+    ny_versjon["dato"] = datetime.date(2026, 10, 13)
+    endret = med(endret, ny_versjon)
+    forventet = [
+        "xx-u1: har fått 4 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+    assert vr.varsler(endret, endret) == (forventet if varsel else [])
+
+
+
+def test_en_nyere_endring_av_en_post_det_gamle_samlevedtaket_samlet_telles_for_det_nye(
+    grunnregister,
+):
+    """#2397 og S3 A 17.11 i #2143: XX-U5 samler bare XX-U1, som samler KA-U1. Tre poster som er
+    nyere enn XX-U5, presiserer KA-U1, og telles for XX-U5 gjennom XX-U1."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    ny_versjon = _samler("XX-U5", "xx-u1")
+    ny_versjon["dato"] = datetime.date(2026, 10, 13)
+    endret = med(endret, ny_versjon)
+    for i in (6, 7, 8):
+        post = ny_post(id=f"XX-U{i}", forhold=[{"art": "presiserer", "vedtak": "ka-u1"}])
+        post["dato"] = datetime.date(2026, 10, 14)
+        endret = med(endret, post)
+    assert vr.varsler(endret, endret) == [
+        "xx-u5: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
 # --------------------------------------------------------------------------
 # Oppslag: --vis og --kjede, så en økt slår opp poster ordrett uten å lese registeret
 # --------------------------------------------------------------------------
