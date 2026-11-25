@@ -27,7 +27,12 @@
  * og `page.route` svarer på kommandoruta med 409, 403, 500 og et avbrudd.
  *
  * Med `--klokke` sender TE aksepten av BHs svar på fristkravet med nettleserens klokke satt til
- * dagen etter akseptfristen (`page.clock`), mens basen er før den (U-5 i BF-46, #2319).
+ * akseptfristen (`page.clock`), mens basen er etter den (U-5 i BF-46, #2319). Det krever et forløp
+ * med `tiden_gaar`, som BF-46 til `te-etter-akseptfristen`.
+ *
+ * Et forløp med `tiden_gaar` (BF-46) har akseptfristen den siste hverdagen før i dag. Stegene før
+ * `tiden_gaar` skrives tilbakedatert i testbasen med eieren av basen, og stegene etter går gjennom
+ * serveren (`tilbakedatertBane`, G-2 og G-3 i BF-46).
  *
  * Med `--behold` står alt og kjører til Ctrl+C, med innlogging per side i nettleseren:
  * `http://localhost:5173/api/auth/catenda/login?return_to=/<prosjekt>/<sak>` med cookien
@@ -42,15 +47,15 @@ import { createRequire } from 'node:module';
 import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
-import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
-import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
+import { iTransaksjon, kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
+import { opprettKjoeretid, slettAlle, sql } from '../../../server/tester/sqlserver.ts';
 import { opprettelse } from '../../../kjerne/kommandoer/opprettelse.ts';
 import type { Journalrad, Part, Sakskode } from '../../../kjerne/typer.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
 import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
 import { FRISTTABELLEN, kjoer } from '../../../kjerne/tester/kjoerer.ts';
 import { vedleggI, type Kommando } from '../../../kjerne/kommandoer/kommando.ts';
-import { veggklokke } from '../../../kjerne/tester/testmiljoe.ts';
+import { veggklokke, type Klokke } from '../../../kjerne/tester/testmiljoe.ts';
 import { erHverdag, erLoerdag } from '../../../kjerne/regler/hverdager.ts';
 
 const { values } = parseArgs({
@@ -66,18 +71,29 @@ const { values } = parseArgs({
 });
 const UT = values.utdata!;
 
+/** Datoen i dag i Oslo, flyttet `dager` fram eller tilbake, som `ÅÅÅÅ-MM-DD`. */
+function dagFraIdag(dager: number): string {
+  const dag = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' })}T12:00:00Z`);
+  dag.setUTCDate(dag.getUTCDate() + dager);
+  return dag.toISOString().slice(0, 10);
+}
+
+/** Den første dagen fra og med `fra` i retningen `steg` (1 eller -1) som kan være en akseptfrist. */
+function hverdagFra(fra: number, steg: 1 | -1): string {
+  let dager = fra;
+  while (!erHverdag(dagFraIdag(dager)) || erLoerdag(dagFraIdag(dager))) dager += steg;
+  return dagFraIdag(dager);
+}
+
 /**
  * Akseptfristen i et forløp er en fast dato, og saksruta sender svaret med dagens klokke. Kjernen
  * avviser en frist før datoen for svaret eller på en lørdag, søndag eller helligdag (HF-U23 punkt
  * 2). Fristen i stegene og i kontrollene blir derfor den første hverdagen fra og med 14 dager etter
- * i dag, i Oslo (#1998). Forløpsfila og kjøringen i minnet beholder den faste datoen.
+ * i dag, i Oslo (#1998). Et forløp der tid går (`tiden_gaar`, BF-46 G-2), får i stedet den siste
+ * hverdagen før i dag, og stegene før `tiden_gaar` dateres før den (`TILBAKEDATERT`). Forløpsfila
+ * og kjøringen i minnet beholder den faste datoen.
  */
-function medAkseptfristFraIdag<T>(forloep: T): T {
-  const dag = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' })}T12:00:00Z`);
-  dag.setUTCDate(dag.getUTCDate() + 14);
-  const iso = () => dag.toISOString().slice(0, 10);
-  while (!erHverdag(iso()) || erLoerdag(iso())) dag.setUTCDate(dag.getUTCDate() + 1);
-  const frist = iso();
+function medAkseptfrist<T>(forloep: T, frist: string): T {
   return JSON.parse(JSON.stringify(forloep), (noekkel, verdi) =>
     (noekkel === 'akseptfrist' || noekkel.endsWith('.akseptfrist')) && typeof verdi === 'string'
       ? frist
@@ -86,21 +102,49 @@ function medAkseptfristFraIdag<T>(forloep: T): T {
 }
 
 /**
+ * For et forløp med `tiden_gaar` (BF-46 G-2, G-3): akseptfristen er den siste hverdagen før i dag,
+ * og stegene før `tiden_gaar` skrives tilbakedatert i testbasen fra `start`, 14 dager før fristen,
+ * med ett minutt per hendelse. Steget `tiden_gaar` lar tid gå til nå, og stegene etter det går
+ * gjennom serveren med klokka i basen.
+ */
+function tilbakedatering(forloep: ReturnType<typeof finn>) {
+  const steg = forloep.steg ?? [];
+  const tid = steg.findIndex((h) => h.handling === 'tiden_gaar');
+  if (tid < 0) return null;
+  // Saksruta lar tid gå til i dag, etter akseptfristen. Det svarer til forløpsfila bare når `til`
+  // der er etter hver akseptfrist i stegene før.
+  const fristene = JSON.stringify(steg.slice(0, tid)).match(/"akseptfrist":"\d{4}-\d{2}-\d{2}"/g) ?? [];
+  const til = String(steg[tid].til);
+  if (fristene.some((f) => f.slice(-11, -1) >= til))
+    throw new Error(`${forloep.id}: tiden_gaar til ${til} er ikke etter akseptfristen, og saksruta lar tid gå forbi den`);
+  const frist = hverdagFra(-1, -1);
+  const start = new Date(`${frist}T08:00:00.000Z`);
+  start.setUTCDate(start.getUTCDate() - 14);
+  return { frist, start: start.toISOString() };
+}
+
+/**
  * Brukerforløpet saken følger etter opprettelsen (#1330), til kontrollpunktet i `--til`
  * eller til siste steg. Stegene og kontrollene er de samme som i minnet og i demoruta.
  */
 let FORLOEP: ReturnType<typeof finn> | null = null;
+let TILBAKEDATERT: ReturnType<typeof tilbakedatering> = null;
 try {
-  FORLOEP = values.forlop ? medAkseptfristFraIdag(finn(values.forlop)) : null;
+  if (values.forlop) {
+    TILBAKEDATERT = tilbakedatering(finn(values.forlop));
+    FORLOEP = medAkseptfrist(finn(values.forlop), TILBAKEDATERT?.frist ?? hverdagFra(14, 1));
+  }
   if (FORLOEP && !FORLOEP.visninger.includes('saksruta'))
     throw new Error(`${FORLOEP.id} kjøres ikke i saksruta (\`visninger\` i forløpsfila)`);
   if (values.til && !FORLOEP) throw new Error('--til trenger --forlop');
+  if (TILBAKEDATERT && FORLOEP?.utgangspunkt.opprettes)
+    throw new Error(`${FORLOEP.id}: et forløp med tiden_gaar kan ikke opprette saken i skjemaet`);
   if (FORLOEP && values.til) kontrollpunkt(FORLOEP, values.til);
   if (FORLOEP) somForloep(FORLOEP);
   if (values.feil && !(FORLOEP && values.til))
     throw new Error('--feil sender aksepten av BHs svar og trenger --forlop med --til, for eksempel BF-01 til te-har-mottatt-svaret.');
-  if (values.klokke && !(FORLOEP && values.til))
-    throw new Error('--klokke sender aksepten av BHs svar med akseptfrist og trenger --forlop med --til, for eksempel BF-45 til te-har-mottatt-svaret.');
+  if (values.klokke && !(FORLOEP && values.til && TILBAKEDATERT))
+    throw new Error('--klokke sender aksepten av BHs svar etter akseptfristen og trenger et forløp med tiden_gaar og --til, for eksempel BF-46 til te-etter-akseptfristen.');
 } catch (feil) {
   console.error((feil as Error).message);
   process.exit(1);
@@ -613,6 +657,100 @@ try {
     },
   });
 
+  /**
+   * G-3 i BF-46: banen for et forløp med `tiden_gaar`. Før steget vurderer kjøreren kommandoene med
+   * kjernen og en klokke som starter i `start`, og radene skrives tilbakedatert i `koe.hendelse` med
+   * eieren av testbasen. Hver skriving har aktøren, prosjektet, siden og teamet i
+   * transaksjonskonteksten, så blokkpredikatet `koe_sikkerhet.skriver` prøves som i
+   * `sprakprove/kjernelagring/bane.ts`. `tiden_gaar` lar tid gå til nå, og stegene etter det går
+   * gjennom serveren som i `serverbane`, med klokka i basen. Radene før beviser derfor ikke
+   * aktørstemplingen og tilgangen (G-9); det gjør de samme stegene i BF-45.
+   */
+  async function tilbakedatertBane(server: Bane, start: string) {
+    const aktoerer: Partial<Record<Part, string>> = {};
+    for (const [part, bruker] of [
+      ['TE', BRUKERE.te],
+      ['BH', BRUKERE.bh],
+    ] as const) {
+      const svar = await base.pool
+        .request()
+        .input('epost', sql.NVarChar(320), bruker.email)
+        .query<{ id: string }>('SELECT id FROM koe.app_users WHERE email = @epost');
+      if (svar.recordset.length !== 1) throw new Error(`${part} har ikke én bruker i basen etter innloggingen`);
+      aktoerer[part] = String(svar.recordset[0]!.id).toLowerCase();
+    }
+    // Kjøreren skriver teamet som `team-te` og `team-bh` (`Kjoering.kontekst`).
+    const teamene: Record<string, string> = { 'team-te': hex(katalog.teTeam), 'team-bh': hex(katalog.bhTeam) };
+    let t = Date.parse(start);
+    let tidenHarGaatt = false;
+    let sendtGjennomServeren = 0;
+    const klokke: Klokke = {
+      naa: () => (tidenHarGaatt ? new Date() : new Date(t)),
+      neste: () => (tidenHarGaatt ? new Date() : new Date((t += 60_000))),
+      flytt() {
+        tidenHarGaatt = true;
+        console.log(`${FORLOEP!.id}: tiden_gaar, og stegene etter går gjennom serveren`);
+      },
+    };
+    const bane: Bane = {
+      sakId: server.sakId,
+      sakskode: server.sakskode,
+      aktor: (part) => aktoerer[part]!,
+      journal: () => server.journal(),
+      async skriv(rader, forventet) {
+        if (tidenHarGaatt) throw new Error('Etter tiden_gaar går stegene gjennom serveren');
+        const [foerste] = rader;
+        if (rader.some((h) => h.aktor_id !== foerste.aktor_id || h.aktor_team_id !== foerste.aktor_team_id))
+          throw new Error('Radene i én skriving har samme aktør');
+        const team = foerste.aktor_team_id === null ? null : teamene[foerste.aktor_team_id];
+        if (team === undefined) throw new Error(`Ukjent team ${foerste.aktor_team_id}`);
+        await iTransaksjon(
+          base.pool,
+          { aktor: foerste.aktor_id, prosjekt: katalog.prosjekt, side: foerste.aktor_rolle, team },
+          async (r) => {
+            const skriving = randomUUID();
+            for (const [i, h] of rader.entries())
+              await r()
+                .input('event_id', sql.NVarChar(36), h.event_id)
+                .input('sak_id', sql.NVarChar(36), server.sakId)
+                .input('prosjekt_id', sql.NVarChar(100), katalog.prosjekt)
+                .input('event_type', sql.NVarChar(100), h.event_type)
+                .input('versjon', sql.Int, forventet + i + 1)
+                .input('tidsstempel', sql.DateTime2(3), new Date(h.tidsstempel))
+                .input('aktor_id', sql.UniqueIdentifier, h.aktor_id)
+                .input('aktor_rolle', sql.NVarChar(2), h.aktor_rolle)
+                .input('aktor_team_id', sql.NVarChar(32), team)
+                .input('refererer_til_event_id', sql.NVarChar(36), h.refererer_til_event_id)
+                .input('format', sql.Int, h.format)
+                .input('data', sql.NVarChar(sql.MAX), JSON.stringify(h.data))
+                .input('skriving', sql.UniqueIdentifier, skriving)
+                .query(
+                  `INSERT koe.hendelse (event_id, sak_id, prosjekt_id, event_type, versjon, tidsstempel,
+                                        aktor_id, aktor_rolle, aktor_team_id, refererer_til_event_id,
+                                        format, data, transaksjon, skriving)
+                   VALUES (@event_id, @sak_id, @prosjekt_id, @event_type, @versjon, @tidsstempel,
+                           @aktor_id, @aktor_rolle, @aktor_team_id, @refererer_til_event_id,
+                           @format, @data, CURRENT_TRANSACTION_ID(), @skriving)`
+                );
+          }
+        );
+        const typer = rader.map((h) => h.event_type).join(', ');
+        console.log(`${foerste.aktor_rolle}  tilbakedatert i koe.hendelse (${typer}): ${rader.map((h) => h.tidsstempel).join(', ')}`);
+      },
+    };
+    // Kjøreren sender gjennom serveren bare når banen har `kommando`, altså etter tiden_gaar.
+    Object.defineProperty(bane, 'kommando', {
+      get: () =>
+        tidenHarGaatt
+          ? async (...a: Parameters<NonNullable<Bane['kommando']>>) => {
+              sendtGjennomServeren++;
+              return server.kommando!(...a);
+            }
+          : undefined,
+    });
+    return { bane, klokke, sendtGjennomServeren: () => sendtGjennomServeren };
+  }
+
   /** Forholdene skjemaet for ny sak er kjørt med, med feltene i `NySak.svelte`. */
   const SKJEMAETS_FORHOLD: Record<string, { gruppe: string; forhold: RegExp; dato: string; beskrivelse: string }> = {
     irregulaer_endring: {
@@ -739,14 +877,18 @@ try {
       if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
       return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
     };
-    await kjoer(forloep, ny ? ny.bane : serverbane(sak, await kode()), { til, valg: { klokke: veggklokke } });
+    const bane = ny ? ny.bane : serverbane(sak, await kode());
+    const tilbake = TILBAKEDATERT ? await tilbakedatertBane(bane, TILBAKEDATERT.start) : null;
+    await kjoer(forloep, tilbake?.bane ?? bane, { til, valg: { klokke: tilbake?.klokke ?? veggklokke } });
     if (ny) {
       if (!ny.sak()) throw new Error(`${FORLOEP.id}: saken ble ikke opprettet i skjemaet (--til)`);
       sak = ny.sak()!;
     }
     console.log(`${FORLOEP.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
-    // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
-    if (til > 0)
+    // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert. De
+    // tilbakedaterte radene har ingen oppdrag (G-3), så da venter den bare når et steg gikk gjennom
+    // serveren.
+    if (til > 0 && (!tilbake || tilbake.sendtGjennomServeren() > 0))
       for (let forsoek = 0; ; forsoek++) {
         const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
         if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
@@ -875,33 +1017,34 @@ try {
     }
   }
   if (values.klokke) {
-    // U-5 i BF-46 (#2319): brevkontrollen lager teksten med datoen i basen, ikke nettleserens.
-    // Akseptfristen er en hverdag minst 14 dager fram (`medAkseptfristFraIdag`), så basen er før
-    // den, og nettleserens klokke settes til dagen etter. Med nettleserens dato ville brevet si at
-    // aksepten er sendt etter akseptfristen, og serveren avvise teksten (LV-U2). Speilbildet i
-    // BF-46, med basen etter fristen, venter på G-1–G-3 i #2300.
+    // U-5 i BF-46 (#2319, kravet i #2300): brevkontrollen lager teksten med datoen i basen, ikke
+    // nettleserens. Basen er etter akseptfristen (`TILBAKEDATERT`), og nettleserens klokke settes
+    // til akseptfristen. Med nettleserens dato ville brevet ikke si at aksepten er sendt etter
+    // akseptfristen, og serveren avvise teksten (LV-U2).
     const fristene = (await lesJournal(sak))
       .flatMap((r) => (Array.isArray(r.data.svar) ? (r.data.svar as { spor?: string; akseptfrist?: string }[]) : []))
       .filter((s) => s.spor === 'frist' && s.akseptfrist);
     const frist = fristene.at(-1)?.akseptfrist;
     if (!frist) throw new Error('--klokke trenger et kontrollpunkt der BHs svar på fristkravet har akseptfrist (--til)');
-    const dagenEtter = new Date(`${frist}T12:00:00Z`);
-    dagenEtter.setUTCDate(dagenEtter.getUTCDate() + 1);
-    await te.clock.setSystemTime(dagenEtter);
+    const basen = await kjerneKall<{ klokka_i_basen: string }>(te, 'GET', `/api/kjerne/saker/${sak}`);
+    if (basen.status !== 200) throw new Error(`GET /api/kjerne/saker/{sak} ga ${basen.status}`);
+    const basensDato = new Date(basen.kropp.klokka_i_basen).toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+    if (basensDato <= frist) throw new Error(`Datoen i basen ${basensDato} er ikke etter akseptfristen ${frist}`);
+    await te.clock.setSystemTime(new Date(`${frist}T12:00:00Z`));
     await te.goto(`${FRONTEND}/${katalog.prosjekt}/${sak}`);
     const nettleserdato = await te.evaluate(() =>
       new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' })
     );
-    if (nettleserdato <= frist)
-      throw new Error(`Nettleserens dato ${nettleserdato} er ikke etter akseptfristen ${frist}`);
+    if (nettleserdato !== frist)
+      throw new Error(`Nettleserens dato ${nettleserdato} er ikke akseptfristen ${frist}`);
     await te.getByText('Fristforlengelse', { exact: true }).filter({ visible: true }).first().click({ timeout: 30_000 });
     await te.getByRole('button', { name: /^Godta svaret/ }).first().click({ timeout: 30_000 });
     const kontrollert = te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
     await kontrollert.waitFor({ timeout: 30_000 });
     const brevet = await te.locator('main').innerText();
-    console.log(`TE  --klokke: nettleseren ${nettleserdato}, akseptfristen ${frist}`);
-    if (/etter akseptfristen/.test(brevet))
-      throw new Error('Brevkontrollen sier at aksepten er sendt etter akseptfristen etter nettleserens klokke');
+    console.log(`TE  --klokke: nettleseren ${nettleserdato}, basen ${basensDato}, akseptfristen ${frist}`);
+    if (!/Aksepten er sendt etter akseptfristen/.test(brevet))
+      throw new Error('Brevkontrollen sier ikke at aksepten er sendt etter akseptfristen, med datoen i basen');
     await te.screenshot({ path: join(UT, 'klokke-brevkontroll.png'), fullPage: true });
     await kontrollert.check();
     const sendt = te.waitForResponse(
@@ -914,7 +1057,7 @@ try {
     if (svar.status() !== 201) throw new Error(`Aksepten ble ikke sendt: ${svar.status()} ${await svar.text()}`);
     const aksepten = (await lesJournal(sak)).at(-1)!;
     const tekst = JSON.stringify(aksepten.data);
-    if (!/godtar byggherrens svar/.test(tekst) || /etter akseptfristen/.test(tekst))
+    if (!/godtar byggherrens svar/.test(tekst) || !/Aksepten er sendt etter akseptfristen/.test(tekst))
       throw new Error(`Aksepten i journalen har ikke teksten med datoen i basen: ${tekst}`);
     await te.waitForLoadState('networkidle');
     await te.screenshot({ path: join(UT, 'klokke-sendt.png'), fullPage: true });

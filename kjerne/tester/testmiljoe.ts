@@ -13,6 +13,11 @@ export interface Klokke {
   naa(): Date;
   /** Flytter klokka til neste hendelse og gir tidspunktet. */
   neste(): Date;
+  /**
+   * Lar tid gå til `til`, som er etter tidspunktet nå: steget `tiden_gaar` i et forløp (BF-46 G-1).
+   * En klokke uten den kan ikke la tid gå.
+   */
+  flytt?(til: Date): void;
 }
 
 export const tilfeldigeIder: NyId = () => globalThis.crypto.randomUUID();
@@ -40,6 +45,13 @@ export function testklokke(start: string): Klokke {
   return {
     naa: () => new Date(t),
     neste: () => new Date((t += 60_000)),
+    flytt(til) {
+      if (til.getTime() <= t)
+        throw new Error(
+          `Klokka kan ikke flyttes til ${til.toISOString()}, som ikke er etter ${new Date(t).toISOString()}`
+        );
+      t = til.getTime();
+    },
   };
 }
 

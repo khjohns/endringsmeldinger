@@ -17,12 +17,13 @@ import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
 
 /**
- * En innsigelse et senere lag bygger på. `gjelder` er kravposten et varsel etter § 34.3.3 gjelder,
- * og innsigelsen rammer bare standpunktene til den (OV-U117).
+ * En innsigelse et senere lag bygger på. `gjelder` er kravposten et varsel etter § 34.3.3 eller
+ * beregningsregelen gjelder, og innsigelsen rammer bare standpunktene til den (OV-U117).
  */
 export type Innsigelsen =
   | { art: 'grunn'; grunn: Subsidiaergrunn; brev: Brevet }
   | { art: 'varsel'; hjemmel: string; gjelder?: string }
+  | { art: 'beregningsregel'; gjelder: string }
   | { art: 'spesifisering' }
   | { art: 'hindring' };
 
@@ -32,9 +33,14 @@ export interface Svarlaget {
   etikett: string | null;
   /** Laget i utregningen for sporet, som ikke har grunnene fra forholdet; under 1 for en grunn. */
   iSporet: number;
-  /** Innsigelsene i laget foran, som laget gjelder hvis ikke fører frem (OV-U32). */
+  /**
+   * Innsigelsene i laget foran, som laget gjelder hvis ikke fører frem (OV-U32), uten
+   * beregningsregelen. Den står ved posten (`postvilkaar` i oversikten, svar A 24.11 i #2242).
+   */
   vilkaar: Innsigelsen[];
-  /** Laget kommer etter minst to lag, så vilkåret sier «heller ikke» (LV-U4 punkt 4). */
+  /** Innsigelsene i laget foran med beregningsregelen, for leselinjen til én kravpost (#2338). */
+  vilkaarForPosten: Innsigelsen[];
+  /** Et lag foran har vilkår, så vilkåret i laget sier «heller ikke» (LV-U4 punkt 4, #2280). */
   heller: boolean;
   /** Grunnene fra svaret på forholdet i laget (OV-U33), med brevet de står i. */
   grunner: { grunn: Subsidiaergrunn; brev: Brevet }[];
@@ -53,8 +59,9 @@ export type InnsigelsenISporet = (
 /** Innsigelsen et standpunkt i et lag er, som et senere lag gjelder hvis ikke fører frem. */
 function innsigelsen(s: Standpunkt, innsigelsenI: InnsigelsenISporet): Innsigelsen[] {
   const i = innsigelsenI(s);
-  // Beregningsregelen står som vilkår ved posten i «Per post» (`postvilkaar`), ikke ved laget.
-  if (i === null || !('innsigelse' in i)) return [];
+  if (i === null) return [];
+  if ('oppgjoersform' in i) return [{ art: 'beregningsregel', gjelder: i.oppgjoersform }];
+  if (!('innsigelse' in i)) return [];
   if (i.innsigelse === '33.6.1') return [{ art: 'spesifisering' }];
   if (i.innsigelse === 'hindring') return [{ art: 'hindring' }];
   return [
@@ -105,7 +112,8 @@ export function lageneISvaret(
       etikett: antall > 1 ? etikett(lag) : null,
       iSporet: lag - grunner.length,
       vilkaar: [],
-      heller: lag > 2,
+      vilkaarForPosten: [],
+      heller: false,
       grunner: lag <= grunner.length && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
       standpunkter: svar.standpunkter
         .filter((x) => x.art !== utenom && plass.standpunkt(x.id).lag === lag)
@@ -115,7 +123,11 @@ export function lageneISvaret(
         })),
     };
   });
-  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!, innsigelsenI);
+  for (const l of lagene.slice(1)) {
+    l.vilkaarForPosten = innsigelseneI(lagene[l.lag - 2]!, innsigelsenI);
+    l.vilkaar = l.vilkaarForPosten.filter((i) => i.art !== 'beregningsregel');
+    l.heller = lagene.slice(1, l.lag - 1).some((x) => x.vilkaar.length > 0);
+  }
   return lagene;
 }
 

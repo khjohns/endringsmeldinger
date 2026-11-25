@@ -276,9 +276,11 @@ under unntaket for tekst, kan merges først uten at de andre må oppdateres på 
   en PR merget siden basen har rørt `kjerne/` (#2293). To kjerne-PR-er øker
   versjonene fra samme tall, og den andre blir rød i regelversjonsvakten eller får
   konflikt i versjonsfilene. Skriptet fletter `main` inn i en egen worktree, løser
-  bare konflikter i versjonslinja og de genererte filene, øker versjonene vakten
-  krever, skriver startjournalene og dekningen på nytt, kjører vakten og pusher alt
-  i ett. Kjør det fra en klon av `main` med `node_modules`, først uten `--push`:
+  bare konflikter i versjonslinja, de genererte filene og slutten av
+  feilinnføringslista (#2342), øker versjonene vakten krever, skriver startjournalene
+  og dekningen på nytt, kjører vakten, og `--ankre` når det har flettet lista, og
+  pusher alt i ett. Får en ny feilinnføring på grenen en ID `main` alt har, skriver
+  skriptet omnummereringen. Kjør det fra en klon av `main` med `node_modules`, først uten `--push`:
 
   ```bash
   git fetch -q origin main && git checkout -q --detach origin/main

@@ -275,7 +275,7 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'videre subsidiært',
-        vilkaar: [varselet('P1')],
+        vilkaarForPosten: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
@@ -290,13 +290,13 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaar: [{ art: 'varsel', hjemmel: '34.1.2' }],
+        vilkaarForPosten: [{ art: 'varsel', hjemmel: '34.1.2' }],
         heller: false,
         standpunkt: { ...justering('P1'), id: 'a' },
       },
       {
         lag: 'videre subsidiært',
-        vilkaar: [varselet('P1')],
+        vilkaarForPosten: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
@@ -313,7 +313,7 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaar: [varselet('P2'), { art: 'varsel', hjemmel: '34.1.3' }],
+        vilkaarForPosten: [varselet('P2'), { art: 'varsel', hjemmel: '34.1.3' }],
         heller: false,
         standpunkt: justering('P1'),
       },
@@ -325,13 +325,40 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaar: [varselet('P1'), varselet('P2')],
+        vilkaarForPosten: [varselet('P1'), varselet('P2')],
         heller: false,
         standpunkt: justering('P1'),
       },
     ];
     expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual([
       'Hvis innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent ikke fører frem',
+      'Bestrider justeringen',
+    ]);
+  });
+
+  it('innsigelsen mot beregningsregelen for en annen kravpost er ikke vilkår for posten (OV-U117, #2338)', () => {
+    const linjer: Standpunktet[] = [
+      {
+        lag: 'subsidiært',
+        vilkaarForPosten: [{ art: 'beregningsregel', gjelder: 'P2' }],
+        heller: false,
+        standpunkt: justering('P1'),
+      },
+    ];
+    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual(['Bestrider justeringen']);
+  });
+
+  it('kontrollsak: innsigelsen mot beregningsregelen for samme kravpost er vilkår for posten', () => {
+    const linjer: Standpunktet[] = [
+      {
+        lag: 'subsidiært',
+        vilkaarForPosten: [{ art: 'beregningsregel', gjelder: 'P1' }],
+        heller: false,
+        standpunkt: justering('P1'),
+      },
+    ];
+    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual([
+      'Hvis innsigelsen mot beregningsregelen ikke fører frem',
       'Bestrider justeringen',
     ]);
   });

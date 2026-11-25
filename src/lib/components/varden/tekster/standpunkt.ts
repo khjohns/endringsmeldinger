@@ -70,6 +70,7 @@ function kortStandpunkt(s: Standpunkt, krevd?: number, oppgir = false): string |
 
 /** Om innsigelsen i et vilkår rammer kravposten `post` (`rammerKravposten` i kjernen). */
 function rammerPosten(i: Innsigelsen, post: string): boolean {
+  if (i.art === 'beregningsregel') return rammerKravposten({ oppgjoersform: i.gjelder }, post);
   if (i.art !== 'varsel') return true;
   if (i.hjemmel === '34.3.3' && i.gjelder !== undefined)
     return rammerKravposten({ innsigelse: '34.3.3', gjelder: i.gjelder }, post);
@@ -86,7 +87,8 @@ function leselinjeneMedVanligeMellomrom(
   innsigelsenStaar = false
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
-  // kravposten (`rammerKravposten`). Det første vilkåret for posten sier ikke «heller ikke» (#2280).
+  // kravposten (`rammerKravposten`). Bare et vilkår etter et annet for posten sier «heller ikke»
+  // (#2280), uavhengig av vilkårene på laget, som ikke har beregningsregelen.
   let forrige: Innsigelsen[] | undefined;
   let vist = false;
   return linjer.flatMap((l) => {
@@ -99,11 +101,11 @@ function leselinjeneMedVanligeMellomrom(
       innsigelsenStaar
     );
     if (!t) return [];
-    const nytt = l.vilkaar !== forrige;
-    forrige = l.vilkaar;
-    const iPosten = (l.vilkaar ?? []).filter((i) => rammerPosten(i, post.id));
+    const nytt = l.vilkaarForPosten !== forrige;
+    forrige = l.vilkaarForPosten;
+    const iPosten = (l.vilkaarForPosten ?? []).filter((i) => rammerPosten(i, post.id));
     if (!nytt || !iPosten.length) return [t];
-    const linje = vilkaar(iPosten, vist && l.heller);
+    const linje = vilkaar(iPosten, vist);
     vist = true;
     return [linje, t];
   });

@@ -58,7 +58,8 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
     sakerIkkeForstaatt?: readonly string[];
     /**
      * Klokka i basen, som serveren daterer brevet med, og nettleserens klokke da den ble lest
-     * (U-5 i BF-46, svar C 25.11 i #2340). Uten den, som i demoruta, brukes nettleserens klokke.
+     * (U-5 i BF-46, svar C 25.11 i #2340). Demoruta gir klokka i demoen. Uten den brukes nettleserens
+     * klokke.
      */
     klokka?: { iBasen: string; iNettleserenVedLastingen: number };
   };

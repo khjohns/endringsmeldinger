@@ -6,7 +6,8 @@
  * Demoen beviser ikke tilgang, CSRF eller aktørstempling, som serveren har ansvaret for.
  *
  * ID-ene og tidspunktene er faste: ID-ene er nummerert i navnerommet startjournalen gir,
- * og klokka går ett minutt per hendelse fra siste rad. En omstart fra samme kontrollpunkt
+ * og klokka går ett minutt per hendelse fra siste rad, eller fra tidspunktet kontrollpunktet
+ * har når tid har gått (`klokke`). Brevkontrollen lager teksten med den samme klokka. En omstart fra samme kontrollpunkt
  * med de samme handlingene gir derfor samme journal.
  */
 
@@ -64,6 +65,8 @@ export interface Startjournal {
     versjon: number;
     forstaaelse: string[];
     neste: { part: Part; handling: string } | null;
+    /** Tidspunktet klokka står på når et steg før kontrollpunktet har latt tid gå (BF-46 G-1). */
+    klokke?: string;
   }[];
   journal: Journalrad[];
 }
@@ -105,9 +108,12 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
   // tidspunktet fra startjournalen.
   const sakId = forloep.journal[0].sak_id;
   let nummer = 0;
-  let klokke = rader.length
-    ? Date.parse(rader.at(-1)!.tidsstempel)
-    : Date.parse(forloep.journal[0].tidsstempel) - 60_000;
+  let klokke = Math.max(
+    rader.length
+      ? Date.parse(rader.at(-1)!.tidsstempel)
+      : Date.parse(forloep.journal[0].tidsstempel) - 60_000,
+    punkt.klokke ? Date.parse(punkt.klokke) : -Infinity
+  );
   const nyId = () =>
     `${forloep.idhode}-0000-4000-8000-${(++nummer).toString(16).padStart(12, '0')}`;
 
@@ -144,7 +150,11 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       journal: rader.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
-      merking: DEMOMERKING,
+      // Brevkontrollen lager teksten med demoens klokke, som sendingen, ikke nettleserens (U-5 i BF-46).
+      merking: {
+        ...DEMOMERKING,
+        klokka: { iBasen: new Date(klokke).toISOString(), iNettleserenVedLastingen: Date.now() },
+      },
     };
   };
 
