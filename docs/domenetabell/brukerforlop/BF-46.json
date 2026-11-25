@@ -124,6 +124,13 @@
           ]
         },
         {
+          "tekst": "Siden viser ikke dagens dato og sier ikke at akseptfristen er ute. I demoruta står dagens dato i demopanelet (U-9, G-11).",
+          "kilde": [
+            "MM-U24",
+            "HF-U23"
+          ]
+        },
+        {
           "tekst": "TE ser «Godta svaret» ved byggherrens svar som før fristen, og knappen går rett til brevkontrollen (U-2).",
           "kilde": [
             "HF-U24"
@@ -235,6 +242,13 @@
           ]
         },
         {
+          "tekst": "Etter aksepten står akseptfristen ikke lenger over handlingene ved byggherrens svar. Datoen står i brevet og i linja ved kravet (U-8).",
+          "kilde": [
+            "MM-U24",
+            "HF-U23"
+          ]
+        },
+        {
           "tekst": "Byggherren har ingen handling for å svare på aksepten, men kan sende et nytt svar. Løsningen avgjør ikke virkningen av at aksepten kom etter fristen (U-7, D-5).",
           "kilde": [
             "HF-U24",
@@ -267,6 +281,11 @@
       "dato": "2026-11-25",
       "forhold": "#2300",
       "hva": "Forløpet er kjørbart: stegene fra BF-45 til byggherrens svar, steget tiden_gaar til dagen etter akseptfristen og aksepten (G-1). I saksruta skrives stegene før tiden_gaar tilbakedatert i testbasen (G-2, G-3)."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2300",
+      "hva": "Forløpet er godkjent i demoruta (svar B). Forståelsen har U-8 og U-9 fra de tre punktene oppdragsgiver ville ha i bestillingen."
     }
   ]
 }
