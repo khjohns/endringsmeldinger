@@ -6,7 +6,7 @@
  */
 
 import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import type { Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
+import type { Krav, Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Varselet } from '#lib/kjernesak/vederlagskrav.ts';
 import { lesKroner, visKroner } from '#lib/utils/belop.ts';
@@ -18,6 +18,7 @@ import {
   tomKorrespondanse,
   type Korrespondansevalg,
 } from './korrespondansen';
+import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
 import { KRAVSKJEMA } from './tekster';
 import type { Mangel } from './mangler';
 
@@ -113,10 +114,11 @@ export const fraKravpost = (p: Kravpost): Kravpostvalg => ({
 /**
  * Skjemaet når det åpnes: alle kravpostene i gjeldende krav og den særskilte
  * vederlagsjusteringen, så ingen post forsvinner av at TE lar den stå (KA-U56, D-4), eller én
- * tom kravpost i det første kravet.
+ * tom kravpost i det første kravet. Et krav sendt før det siste i sporet tar utgangspunkt i den
+ * siste kravversjonen det prøves mot (OV-U118).
  */
-export function startvalg(u: Utledning): Kravvalg {
-  const krav = u.spor.vederlag.gjeldendeKrav;
+export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Kravvalg {
+  const krav = utgangspunktet(u, 'vederlag', eldre);
   const v: Kravvalg = { poster: [], saerskilt: null, forbehold: '', nye: 0 };
   if (!krav) {
     v.poster.push(nyKravpost(v));
@@ -138,9 +140,27 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
       (p) => p.id
     )
   );
+  return sistePerPost(u.spor.vederlag.krav).filter((p) => !gjeldende.has(p.id));
+}
+
+/** Kravpostene i kravversjonene, hver som den sto i den siste versjonen den er med i. */
+function sistePerPost(krav: readonly Krav[]): Kravpost[] {
   const sist = new Map<string, Kravpost>();
-  for (const k of u.spor.vederlag.krav) for (const p of kravposterI(k)) sist.set(p.id, p);
-  return [...sist.values()].filter((p) => !gjeldende.has(p.id));
+  for (const k of krav) for (const p of kravposterI(k)) sist.set(p.id, p);
+  return [...sist.values()];
+}
+
+/**
+ * Kravpostene i sporet en kravpost i et krav sendt før det siste kan være den samme som (OV-U119),
+ * som de sto sist, uten postene i utgangspunktet, som skjemaet har eller trekker.
+ */
+export function kravposteneISporet(eldre: Eldrekrav): Kravpost[] {
+  const iUtgangspunktet = new Set(
+    (eldre.utgangspunkt ? kravposterI(eldre.utgangspunkt) : []).map((p) => p.id)
+  );
+  return sistePerPost([...eldre.tidligere, ...eldre.andre]).filter(
+    (p) => !iUtgangspunktet.has(p.id)
+  );
 }
 
 /** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */

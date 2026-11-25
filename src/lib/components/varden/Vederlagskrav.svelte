@@ -46,6 +46,7 @@
     type Korrespondansevalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
+  import { eldreKrav, utgangspunktet } from '#lib/kjernesak/eldrekrav.ts';
   import {
     brevene,
     datoerISporet,
@@ -61,6 +62,7 @@
     fordelingenPaaPns,
     fraKravpost,
     gjeldendeVarselvalg,
+    kravposteneISporet,
     manglerIKravet,
     nyKravpost,
     postene,
@@ -106,11 +108,15 @@
   const id = (felt: string) => `${uid}-${felt}`;
   type Beloepsfelt = 'beloep' | 'anslag' | 'overslag';
 
+  // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
+  const eldre = $derived(eldreKrav(u, 'vederlag', lagtTil?.dato));
+  // Et eget utkast for det, så TEs utkast til neste krav står (`eldrekrav.ts`).
+  const eldreValg = $state(untrack(() => (eldre ? startvalg(u, eldre) : null)));
   // svelte-ignore state_referenced_locally
-  if (valg === null) valg = startvalg(u);
-  const v = $derived(valg!);
+  if (!eldreValg && valg === null) valg = startvalg(u);
+  const v = $derived(eldreValg ?? valg!);
 
-  const forrige = $derived(u.spor.vederlag.gjeldendeKrav);
+  const forrige = $derived(utgangspunktet(u, 'vederlag', eldre));
   const forrigePoster = $derived(
     new Map((forrige ? kravposterI(forrige) : []).map((p) => [p.id, p]))
   );
@@ -118,7 +124,7 @@
   const brevMed = (dokument: string | null | undefined): Brevet | null =>
     dokument ? (alleBrev.find((b) => b.id === dokument) ?? null) : null;
   const kravbrevet = $derived(brevMed(forrige?.dokument));
-  const svarbrevet = $derived(brevMed(u.spor.vederlag.gjeldendeSvar?.dokument));
+  const svarbrevet = $derived(eldre ? null : brevMed(u.spor.vederlag.gjeldendeSvar?.dokument));
   const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
   const forholdet = $derived(forholdetISaken(u));
   // Brevet TE leser ved siden av: svaret på forrige krav, ellers påberopelsen.
@@ -129,6 +135,7 @@
   const varslene = $derived(
     varslenePerKravpost(
       u,
+      eldre?.tidligere ?? u.spor.vederlag.krav,
       med.map((p) => ({
         id: p.id ?? undefined,
         oppgjoersform: p.form ?? 'tilbud',
@@ -148,13 +155,22 @@
 
   // Betegnelsen kjernen gir en ny post (KA-U53), lest av et utkast med de samme postene. Den
   // følger bare postenes id, rekkefølgen og trekket, så utkastet lages ikke ved hvert tastetrykk.
+  // Et krav sendt før det siste blir ikke gjeldende og leses blant kravene utenfor rekken (OV-U118).
   const postrekka = $derived(
-    JSON.stringify([med.map((p) => p.id), v.poster.filter((p) => p.trukket).map((p) => p.id)])
+    JSON.stringify([
+      med.map((p) => p.id),
+      v.poster.filter((p) => p.trukket).map((p) => p.id),
+      eldre ? lagtTil : null,
+    ])
   );
   const betegnelsene = $derived.by(() => {
-    const [ider, trekker] = JSON.parse(postrekka) as [(string | null)[], string[]];
+    const [ider, trekker, eldreKravet] = JSON.parse(postrekka) as [
+      (string | null)[],
+      string[],
+      Korrespondansevalg | null,
+    ];
     const skisse = {
-      type: 'krav',
+      type: 'krav' as const,
       spor: 'vederlag',
       innhold: {
         ...(trekker.length ? { trekker } : {}),
@@ -166,8 +182,18 @@
         })),
       },
     };
-    const etter = ider.length ? kjernesak.forhaandsvist(skisse) : null;
-    const nye = etter?.spor.vederlag.gjeldendeKrav;
+    const etter = !ider.length
+      ? null
+      : eldreKravet
+        ? kjernesak.forhaandsvist(
+            kommandoenLagtTil(skisse, eldreKravet),
+            vedleggskart(eldreKravet.vedlegg)
+          )
+        : kjernesak.forhaandsvist(skisse);
+    const foer = new Set(u.spor.vederlag.kravUtenforRekken.map((k) => k.id));
+    const nye = eldreKravet
+      ? etter?.spor.vederlag.kravUtenforRekken.find((k) => !foer.has(k.id))
+      : etter?.spor.vederlag.gjeldendeKrav;
     const lest = nye ? kravposterI(nye) : [];
     return new Map(med.map((p, i) => [p.noekkel, lest[i]?.betegnelse ?? null]));
   });
@@ -231,7 +257,7 @@
   }
   async function angreSaerskilt() {
     v.trekkerSaerskilt = false;
-    v.saerskilt = startvalg(u).saerskilt;
+    v.saerskilt = startvalg(u, eldre).saerskilt;
     await fokuser(() => document.getElementById(id('endre-saerskilt')));
   }
   async function fjernSaerskilt() {
@@ -239,7 +265,14 @@
     saerskiltAapen = false;
     await fokuser(() => document.getElementById(id('legg-til-saerskilt')));
   }
-  const trukne = $derived(trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id)));
+  // Et krav sendt før det siste oppgir samme kravpost i posten selv (OV-U119, `sammeKravpost`).
+  const trukne = $derived(
+    eldre ? [] : trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id))
+  );
+  /** Kravpostene i sporet posten kan være den samme som: ikke en annen post i skjemaet har valgt. */
+  const iSporet = $derived(eldre ? kravposteneISporet(eldre) : []);
+  const sammeSom = (p: Kravpostvalg) =>
+    iSporet.filter((q) => !v.poster.some((x) => x !== p && x.id === q.id));
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
@@ -308,7 +341,7 @@
   const endretFra = (brev: Brevref, foer: string, naa: string) =>
     foer === naa ? null : KRAVSKJEMA.endretFra(brev, foer, naa);
   const saerskiltBeloep = $derived(v.saerskilt ? (beloepTekst(v.saerskilt.beloep) ?? '–') : '–');
-  const saerskiltFoer = $derived(forrige ? (startvalg(u).saerskilt?.beloep ?? null) : null);
+  const saerskiltFoer = $derived(forrige ? (startvalg(u, eldre).saerskilt?.beloep ?? null) : null);
   const saerskiltEndret = $derived.by(() => {
     if (!kravbrevet || !v.saerskilt) return null;
     if (saerskiltFoer === null) return KRAVSKJEMA.ny;
@@ -579,8 +612,36 @@
 {#snippet aapenPost(p: Kravpostvalg)}
   {@const n = p.noekkel}
   {@const vs = varselFor(p)}
+  {@const kandidater = p.id && forrigePoster.has(p.id) ? [] : sammeSom(p)}
   <div class="aapen">
     <h4>{navnet(p)} · {p.beskrivelse || KRAVSKJEMA.nyPost}</h4>
+    {#if kandidater.length}
+      <Valg
+        navn={id(`samme-${n}`)}
+        spoersmaal={KRAVSKJEMA.sammeKravpost}
+        hjelp={KRAVSKJEMA.sammeKravpostHjelp}
+        stablet
+        lett
+        valg={[
+          { verdi: 'ny', tekst: KRAVSKJEMA.sammeNy },
+          ...kandidater.map((q) => ({
+            verdi: q.id,
+            tekst: KRAVSKJEMA.sammeSom(q.betegnelse, q.beskrivelse),
+          })),
+        ]}
+        bind:verdi={
+          () => p.id ?? 'ny',
+          (x) => {
+            const q = kandidater.find((k) => k.id === x);
+            const foer = kandidater.find((k) => k.id === p.id);
+            if (!q && foer && p.beskrivelse === foer.beskrivelse) p.beskrivelse = '';
+            p.id = q?.id ?? null;
+            p.betegnelse = q?.betegnelse ?? null;
+            if (q && !p.beskrivelse.trim()) p.beskrivelse = q.beskrivelse;
+          }
+        }
+      />
+    {/if}
     <Linjefelt
       id={id(`beskrivelse-${n}`)}
       etikett={KRAVSKJEMA.beskrivelse}
@@ -785,11 +846,13 @@
   {kjernesak}
   {u}
   avsender="TE"
-  oppfolging={kravbrevet
-    ? { tekst: KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet), brev: lesbart }
-    : forholdet && paaberopelsen
-      ? { tekst: KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen), brev: lesbart }
-      : null}
+  oppfolging={eldre
+    ? { tekst: KRAVSKJEMA.eldre(kravbrevet, lagtTil!.dato), brev: kravbrevet }
+    : kravbrevet
+      ? { tekst: KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet), brev: lesbart }
+      : forholdet && paaberopelsen
+        ? { tekst: KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen), brev: lesbart }
+        : null}
   {onvedsiden}
   {lagtTil}
   part={kjernesak.part}

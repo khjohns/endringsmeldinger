@@ -7,7 +7,7 @@
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
-import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
+import type { Krav, Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
@@ -27,12 +27,16 @@ export type Varselet =
   | { art: 'gitt'; hjemmel: Kravpostvarselhjemmel; varsel: string; dokument: string }
   | { art: 'foer'; hjemmel: Kravpostvarselhjemmel; krav: string; varsel: string | null };
 
-/** Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et. */
+/**
+ * Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et.
+ * `krav` er kravversjonene kravet prøves mot, for et krav lagt til sendt før det siste de sendt før
+ * det (OV-U118, `kravversjoneneKravetProevesMot`).
+ */
 export function varslenePerKravpost(
   u: Utledning,
+  krav: readonly Krav[],
   poster: readonly Kravpostutkast[]
 ): (Varselet | null)[] {
-  const krav = u.spor.vederlag.krav;
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
   const etter = kravpostvarslene(
