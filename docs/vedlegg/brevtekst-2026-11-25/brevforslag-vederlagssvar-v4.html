@@ -1,0 +1,215 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Brevforslag vederlagssvar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Tokens fra konsept-varden/skjermer/stil.css (lys modus). */
+:root{
+  --ink:#1b2a22; --ink-2:#34423b; --ink-3:#59675f; --brand:#2d4a3b;
+  --canvas:#f5f6f3; --surface:#ffffff; --surface-warm:#f4f5f1; --surface-selected:#edf1e9;
+  --rule-color:#e1e5de; --rule-strong-color:#cbd3c9;
+  --warning-bg:#fff3dc; --warning-border:#efd39a;
+  --font-sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-legal:'IBM Plex Sans', 'Inter', sans-serif;
+  --radius-card:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ink:#e4ebe6; --ink-2:#c3cdc7; --ink-3:#9aa79f; --brand:#8fc9a8;
+  --canvas:#121815; --surface:#1a211d; --surface-warm:#1f2722; --surface-selected:#26332b;
+  --rule-color:#2b3530; --rule-strong-color:#3a4640;
+  --warning-bg:#3b3019; --warning-border:#6b5527; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ink:#e4ebe6; --ink-2:#c3cdc7; --ink-3:#9aa79f; --brand:#8fc9a8;
+  --canvas:#121815; --surface:#1a211d; --surface-warm:#1f2722; --surface-selected:#26332b;
+  --rule-color:#2b3530; --rule-strong-color:#3a4640;
+  --warning-bg:#3b3019; --warning-border:#6b5527; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;grid-template-columns:minmax(0,760px) minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:1040px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.a4,.notes{min-width:0}
+
+.bar{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.bar h1{font-size:18px;font-weight:600;margin:0}
+.bar small{display:block;color:var(--ink-3);font-weight:400;font-size:13px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer;user-select:none}
+.toggle input{width:16px;height:16px;accent-color:var(--brand)}
+.legend{display:none;gap:12px;font-size:12px;color:var(--ink-3)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;vertical-align:-2px}
+.vis .legend{display:flex}
+
+/* Brevet */
+.a4{background:var(--surface);border:1px solid var(--rule-strong-color);border-radius:var(--radius-card);padding:40px 56px 48px;font-family:var(--font-legal);font-size:16px;line-height:1.6}
+@media (max-width:640px){.a4{padding:24px 20px 32px;font-size:15px}}
+.lh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;border-bottom:1px solid var(--rule-strong-color);padding-bottom:20px;margin-bottom:28px}
+.org{display:flex;gap:12px;align-items:center}
+.org b{display:block;font-size:16px}
+.org span{font-size:14px;color:var(--ink-3)}
+.logo{width:40px;height:40px;border:2px dashed var(--ink-3);display:grid;place-items:center;font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;font-family:var(--font-sans)}
+.lh dl{display:grid;grid-template-columns:auto auto;gap:2px 16px;margin:0;font-size:14px}
+.lh dt{color:var(--ink-3);text-align:right}
+.lh dd{margin:0}
+.a4 h2{font-size:22px;margin:0 0 16px;font-weight:600}
+.a4 h3{font-size:16px;margin:28px 0 4px;font-weight:600}
+.a4 .lagl{margin:12px 0 4px;font-size:14px;color:var(--ink-3)}
+.a4 .lagl b{color:var(--ink);font-weight:600}
+.a4 h3 .hj{font-weight:400;color:var(--ink-3)}
+.notes code{font-size:12px}
+.a4 p{margin:0 0 12px}
+.begr{margin:0 0 12px}
+.begr .lbl{display:block;font-size:12px;font-family:var(--font-sans);font-weight:500;color:var(--ink-3);letter-spacing:.02em}
+.begr p{margin:0 0 8px}
+
+.tbl-wrap{overflow-x:auto;margin:8px 0 4px}
+table{width:100%;min-width:520px;border-collapse:collapse;font-size:14px}
+th,td{padding:6px 0 6px 12px;border-bottom:1px solid var(--rule-color);text-align:right;vertical-align:bottom;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th{font-weight:600;border-bottom:1px solid var(--ink-3);line-height:1.3}
+th small{display:block;font-weight:400;color:var(--ink-3);font-size:12px}
+tr.sum td{font-weight:600;border-top:1px solid var(--ink-3);border-bottom:0}
+td .hj{color:var(--ink-3)}
+
+.topp{display:flex;gap:12px;align-items:center;margin-bottom:32px}
+.topp b{display:block;font-size:16px}.topp span{font-size:14px;color:var(--ink-3)}
+.mottaker{font-size:15px;margin-bottom:28px}
+.ref{display:grid;grid-template-columns:repeat(4,auto);gap:4px 24px;margin:0 0 28px;font-size:13px}
+@media (max-width:640px){.ref{grid-template-columns:repeat(2,auto)}}
+.ref dt{color:var(--ink-3)}.ref dd{margin:0}
+.sig p{margin:0 0 20px}.sigs{display:flex;flex-wrap:wrap;gap:16px 48px}.sigs small{display:block;color:var(--ink-3);font-size:13px}
+.kv{margin-top:20px;font-size:14px}
+.fot{margin-top:32px;padding-top:12px;border-top:1px solid var(--rule-color);font-size:11px;color:var(--ink-3);font-family:var(--font-sans);line-height:1.5}
+.sig{margin-top:32px}
+.sig div{min-width:200px}
+.sig small{display:block;color:var(--ink-3);font-size:13px}
+.colophon{margin-top:32px;padding-top:12px;border-top:1px solid var(--rule-color);font-size:12px;color:var(--ink-3);font-family:var(--font-sans)}
+
+/* Kilden til teksten, når markeringen er slått på */
+.vis .laast{background:var(--surface-selected);box-shadow:0 0 0 2px var(--surface-selected)}
+.vis .fri{background:var(--warning-bg);box-shadow:0 0 0 2px var(--warning-bg)}
+
+/* Merknadene */
+.notes{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--radius-card);padding:20px 24px;position:sticky;top:16px}
+@media (max-width:1040px){.notes{position:static}}
+.notes h2{font-size:15px;font-weight:600;margin:0 0 12px}
+.notes ol{margin:0;padding-left:20px}
+.notes li{margin:0 0 10px;color:var(--ink-2)}
+.notes li b{color:var(--ink);font-weight:600}
+.notes .src{color:var(--ink-3);font-size:12px}
+</style>
+<div class="wrap" id="side">
+
+  <div class="bar">
+    <h1>Forslag til brevstruktur: svar på vederlagskrav med tre lag
+      <small>Mockup, ikke vedtatt. Versjon 4: begrunnelsen som vanlig tekst, og partene skrevet fullt ut. Tilfellet: grunnlaget er ubesvart, § 34.1.2 påberopt prinsipalt, § 34.1.3 subsidiært, beløpet videre subsidiært.</small></h1>
+    <div>
+      <label class="toggle"><input type="checkbox" id="kilde"> Marker hvor teksten kommer fra</label>
+      <div class="legend"><span><i style="background:var(--surface-selected)"></i>Låst tekst appen lager av valgene</span><span><i style="background:var(--warning-bg)"></i>Partens fritekst</span></div>
+    </div>
+  </div>
+
+  <article class="a4" aria-label="Brev 6 fra byggherren">
+    <div class="topp"><div class="logo" aria-hidden="true">Logo</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="mottaker">Totalentreprenør AS<br>v/ Per Olsen<br>Postboks 100, 0101 Oslo</div>
+    <dl class="ref">
+      <div><dt>Deres ref.:</dt><dd>E-021-05</dd></div>
+      <div><dt>Vår ref. (saksnr.):</dt><dd>E-021-06<br>26/01234</dd></div>
+      <div><dt>Saksbehandler:</dt><dd>Ola Nordmann</dd></div>
+      <div><dt>Dato:</dt><dd>27.10.2026</dd></div>
+    </dl>
+
+    <h2 class="laast">E-021 Ny peling med produktivitetstap – svar på krav om justering av vederlaget</h2>
+
+    <p class="laast">Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev 5 av 20.&nbsp;oktober 2026. Beløpene i brevet er eks.&nbsp;mva.</p>
+
+    <h3 class="laast">1. Varselet om vederlagsjustering <span class="hj">(§&nbsp;34.1.2)</span></h3>
+    <p class="lagl laast"><b>Prinsipalt</b></p>
+    <p class="laast">Byggherren gjør gjeldende at totalentreprenørens varsel etter NS&nbsp;8407 §&nbsp;34.1.2 i brev 3 av 6.&nbsp;oktober 2026 kom for sent.</p>
+    <div class="begr"><span class="lbl">Begrunnelse</span>
+      <p class="fri">Forholdet ble oppdaget ved pelingen 12. september, jf. totalentreprenørens dagbok samme dag. Varselet kom 6. oktober, mer enn tre uker senere.</p>
+    </div>
+
+    <h3 class="laast">2. Varselet om særskilt justering <span class="hj">(§&nbsp;34.1.3)</span></h3>
+    <p class="lagl laast"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+    <p class="laast">Byggherren gjør gjeldende at totalentreprenørens varsel om særskilt justering for nedsatt produktivitet eller forstyrrelser etter §&nbsp;34.1.3 tredje ledd i brev 5 av 20.&nbsp;oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.</p>
+    <div class="begr"><span class="lbl">Begrunnelse</span>
+      <p class="fri">Produktivitetstapet var kjent fra midten av september. Utgiftene før varselet 20. oktober er ikke dekket.</p>
+    </div>
+
+    <h3 class="laast">3. Beregningsmetode <span class="hj">(§&nbsp;34.2)</span></h3>
+    <p class="lagl laast"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+    <p class="laast">Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.</p>
+
+    <h3 class="laast">4. Vederlagsjustering <span class="hj">(§&nbsp;34.1.2)</span></h3>
+    <p class="lagl laast"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+    <p class="laast">Byggherren godkjenner 100&nbsp;000&nbsp;kr av de krevde 150&nbsp;000&nbsp;kr.</p>
+    <div class="begr"><span class="lbl">Begrunnelse</span>
+      <p class="fri">Beløpet bygger på enhetsprisene for peling i kontrakten. Det er trukket fra 50 000 kr for rigg som allerede er dekket i kontraktssummen.</p>
+    </div>
+
+    <h3 class="laast">5. Særskilt vederlagsjustering <span class="hj">(§&nbsp;34.1.3 annet ledd)</span></h3>
+    <p class="lagl laast"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+    <p class="laast">Byggherren godkjenner 10&nbsp;000&nbsp;kr etter begrensningen i punkt 2.</p>
+    <p class="lagl laast"><b>Videre subsidiært</b>, hvis heller ikke innsigelsen i punkt 2 fører frem</p>
+    <p class="laast">Byggherren godkjenner 30&nbsp;000&nbsp;kr av de krevde 40&nbsp;000&nbsp;kr.</p>
+    <div class="begr"><span class="lbl">Begrunnelse</span>
+      <p class="fri">totalentreprenørens beregning tar med to dager med stans som skyldtes totalentreprenørens eget utstyr. De er trukket ut.</p>
+    </div>
+
+    <h3 class="laast">Oversikt</h3>
+    <div class="tbl-wrap laast">
+      <table>
+        <thead>
+          <tr><th>Post</th><th>Krevd</th><th>Prinsipalt<small>punkt 1 fører frem</small></th><th>Subsidiært<small>punkt 2 fører frem</small></th><th>Videre subsidiært<small>ingen av dem</small></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vederlagsjustering <span class="hj">(§ 34.1.2)</span></td><td>150&nbsp;000&nbsp;kr</td><td>0&nbsp;kr</td><td>100&nbsp;000&nbsp;kr</td><td>100&nbsp;000&nbsp;kr</td></tr>
+          <tr><td>Særskilt vederlagsjustering <span class="hj">(§ 34.1.3)</span></td><td>40&nbsp;000&nbsp;kr</td><td>0&nbsp;kr</td><td>10&nbsp;000&nbsp;kr</td><td>30&nbsp;000&nbsp;kr</td></tr>
+          <tr class="sum"><td>Sum</td><td>190&nbsp;000&nbsp;kr</td><td>0&nbsp;kr</td><td>110&nbsp;000&nbsp;kr</td><td>130&nbsp;000&nbsp;kr</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="laast">6. Forbehold</h3>
+    <p class="laast">Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev 2 av 2.&nbsp;oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.</p>
+    <p class="fri">Byggherren tar forbehold om å justere mengden peler i punkt 4 når sluttoppmålingen foreligger.</p>
+    <div class="sig">
+      <p>Vennlig hilsen</p>
+      <div class="sigs">
+        <div><b>Kari Nordmann</b><small>Prosjektleder</small></div>
+        <div><b>Ola Nordmann</b><small>Prosjektingeniør</small></div>
+      </div>
+    </div>
+    <div class="kv"><b>Vedlegg:</b><br>Ingen</div>
+    <div class="kv"><b>Kopi til:</b><br>Byggeleder</div>
+    <div class="fot"><b>Oslo kommune</b><br>Oslobygg KF<br>Besøksadresse: Gatenavn 789, 0123 Oslo · Postadresse: Postboks 1234, 0123 Oslo · Org.nr.: 000 000 000</div>
+
+    <div class="colophon">Sendt gjennom Varden 27. oktober 2026 kl. 11.05. Dette er brevet slik det ble sendt, og det kan ikke endres.</div>
+  </article>
+
+  <aside class="notes" aria-label="Merknader til forslaget">
+    <h2>Merknader</h2>
+    <ol>
+      <li><b>Punktene følger skjemaet:</b> varselet, beregningsmetoden og beløpet, slik Varden spør i svaret på vederlag. Grunnlaget står først når det er avslått eller prekludert. <span class="src">Vederlagssvar.svelte, #1406.</span></li>
+      <li><b>Laget står ved hvert standpunkt</b>, med innsigelsene det bygger på. Det er de samme forutsetningene skjemaet viser under «Gjelder hvis», og som kjernen regner ut i <code>lagForUtkastet</code>. Etiketten følger OV-U32. «hvis innsigelsen i punkt 1 ikke fører frem» er ny tekst. <span class="src">OV-U32, OV-U33, #1400.</span></li>
+      <li><b>Pengene for en post står samlet.</b> De 10&nbsp;000&nbsp;kr etter begrensningen står under punkt 5, ikke ved varselet i punkt 2. <span class="src">I kjernen hører beløpet til standpunktet om rettidighet.</span></li>
+      <li><b>Standpunkt uten etikett</b> (ingen påberopelse rammer det) står uten lagslinje. <span class="src">OV-U33. Ikke vist her.</span></li>
+      <li><b>Hjemmelen står i overskriften</b>, og bare i teksten når den er selve påberopelsen. «eks. mva.» står bare én gang. <span class="src">Endrer ordlyden i LV-U4.</span></li>
+      <li><b>Postene har ordene i kontrakten</b>: «vederlagsjustering» etter § 34.1.1 eller § 34.1.2, avhengig av kategorien, og «særskilt vederlagsjustering» etter § 34.1.3. Endrer ordlyden «justeringen ellers» i OV-U28 og «Hovedkrav» i skjemaet.</li>
+      <li><b>Begrunnelsen står under punktet den gjelder</b>, som vanlig tekst uten innrykk eller etikett. I dag har svaret én utdypning. Én per punkt endrer datamodellen. <span class="src">B-13, KA-U24.</span></li>
+      <li><b>Partene skrives fullt ut</b>: «byggherren» og «totalentreprenøren», ikke «TE». Endrer ordlyden i LV-U4 og de andre brevtekstene.</li>
+      <li><b>Tabellen er en del av brevet</b> og fryses med teksten. Summen i punkt 2 (110&nbsp;000&nbsp;kr) er mellomlaget. Etter OV-U31 er det summen av postene i laget, og det lagres ikke. OV-U28 forkastet en setning med summen per lag. Tabellen endrer OV-U28. <span class="src">OV-U28, OV-U31, LV-U2. Svar 3: ja.</span></li>
+      <li><b>Forbeholdet om grunnlaget står sist</b>, med «ovenfor». Et eget fritekstfelt for forbehold endrer OV-U69. <span class="src">GR-U26, OV-U69, MM-U33.</span></li>
+      <li><b>Hodet følger Oslo-brevmalen</b>: mottaker, referanselinjen (Deres ref., Vår ref. med dokumentkoden og saksnummeret i Websak, saksbehandler, dato), tittelen med sakens kode, «Vennlig hilsen» med to underskrivere, vedlegg, kopi og bunntekst. Kodene og numrene er eksempler. Unntatt offentlighet venter på #1060. <span class="src">LV-U23, LV-U27, LV-U28, LV-U15, #1173.</span></li>
+    </ol>
+  </aside>
+</div>
+<script>
+  const boks = document.getElementById('kilde');
+  boks.addEventListener('change', () => document.getElementById('side').classList.toggle('vis', boks.checked));
+</script>
+
+
+</body></html>
