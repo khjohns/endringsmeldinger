@@ -99,7 +99,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/frist/utledning.ts:fristkravErFremmet',
       'utledning/utled.ts:partensPaaberopelser',
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
-      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+      'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],

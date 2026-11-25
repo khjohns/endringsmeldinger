@@ -2,28 +2,47 @@
   BH svarer på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14), i samme
   svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
   svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
-  (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar.
+  (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
+  mellom to krav, viser et kort i høyre kolonne svarene på kravpostene fra forrige brev, bare til
+  lesing (VS-U65).
 -->
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
   import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
+  import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    erSvarPaaVarsel,
+    varseletFoerBrevet,
+    type VarseletAlene,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kravpost } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
+  import Knapp from './Knapp.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
-  import { tomtVarselsvar, varselsvaret, varseletISvaret, type Varselsvalg } from './kommandoer';
-  import { brevMedUtsagn, brevet, standpunktene } from './lesing';
+  import {
+    kravetIKortform,
+    tomtVarselsvar,
+    varselsvaret,
+    varseletISvaret,
+    type Varselsvalg,
+  } from './kommandoer';
+  import { brevMedUtsagn, brevene, brevet, standpunktene } from './lesing';
   import type { Innsigelsen } from './svarlagene';
   import { manglene } from './svarskjema';
   import {
     grunntekst,
+    HANDLINGENE,
+    leselinjene,
     SKJEMA,
+    SVARSKJEMA,
     VARSELSVARET,
+    VEDERLAGET,
     innsigelsenOmVarselet,
     oppgivelsestekst,
     standpunkttekst,
@@ -38,6 +57,7 @@
     onforkast,
     onvedsiden,
     onforholdet,
+    nyttSvarPaaKravet = null,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -52,6 +72,11 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Åpner siden for forholdet uten å forkaste svarutkastet. */
     onforholdet?: () => void;
+    /**
+     * Åpner et nytt svar på kravet når kjernen tilbyr det (VS-U65), `'ikke bygget'` når Varden
+     * ikke har skjemaet for det (#1636), og `null` når kjernen ikke tilbyr det.
+     */
+    nyttSvarPaaKravet?: (() => void) | 'ikke bygget' | null;
   } = $props();
   const uid = $props.id();
 
@@ -172,9 +197,87 @@
       },
     ])
   );
+  // Svaret på kravet som gjelder, med brevet og kravpostene, til kortet i høyre kolonne (VS-U65).
+  let ikkeBygget = $state(false);
+  const forrigeSvar = $derived.by(() => {
+    const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
+    if (!krav || !svar || svar.gjelder !== krav.id) return null;
+    // Bare et varsel lagt til etter en kravversjon står mellom to krav (#2358).
+    const alle = brevene(u);
+    const plass = (id: string) => alle.findIndex((b) => b.id === id);
+    const varselet = varselbrevet ? plass(varselbrevet.id) : -1;
+    const krevd = u.spor.vederlag.krav.map((k) => plass(k.dokument)).filter((i) => i >= 0);
+    if (varselet < 0 || !krevd.some((i) => i < varselet)) return null;
+    const brev = brevet(u, svar.dokument);
+    return brev && { brev, poster: kravposterI(krav), linjer: standpunktene(svar, u) };
+  });
+
+  /** Svaret på kravposten med ordene brevet brukte om varselet, etter standpunktet før (MM-U50). */
+  const leselinje = (f: NonNullable<typeof forrigeSvar>, p: Kravpost) => {
+    const foer = varseletFoerBrevet(u, p, f.brev.id);
+    return leselinjene(
+      f.linjer,
+      p,
+      VEDERLAGET.lagetVilkaar,
+      foer?.iTide === false,
+      !erSvarPaaVarsel(u, foer?.dokument ?? '')
+    );
+  };
   // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.
   const virkninger: string[] = [];
 </script>
+
+{#snippet svareneFoer()}
+  {#if forrigeSvar}
+    {@const f = forrigeSvar}
+    <!-- Et lite kort i høyre kolonne, fordi svarene ikke er en del av brevet (VS-U65,
+       oppdragsgiver 25.11 i #2358). -->
+    <section class="kort" aria-labelledby={`${uid}-svarene-foer`}>
+      <h2 class="hode" id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h2>
+      <div class="innhold">
+        <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
+        <p class="dempet">
+          {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
+        </p>
+        <ul>
+          {#each f.poster as p (p.id)}
+            {@const lest = leselinje(f, p)}
+            <li>
+              <strong
+                ><span class="betegnelse">{p.betegnelse}</span>
+                {p.beskrivelse}</strong
+              >
+              <span class="krav"
+                ><span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
+                {kravetIKortform(p)}</span
+              >
+              <span class="visually-hidden">{VARSELSVARET.svaretI(f.brev)}:</span>
+              {#each lest as l, i (i)}<span>{l}</span>{:else}<span class="dempet"
+                  >{SKJEMA.ikkeBesvart}</span
+                >{/each}
+            </li>
+          {/each}
+        </ul>
+      </div>
+      {#if nyttSvarPaaKravet}
+        {@const aapne = nyttSvarPaaKravet}
+        <div class="bunn">
+          <Knapp
+            variant="lenke"
+            kompakt
+            iFlukt
+            onclick={() => (aapne === 'ikke bygget' ? (ikkeBygget = true) : aapne())}
+            >{VARSELSVARET.nyttSvarPaaKravet}</Knapp
+          >
+          {#if aapne === 'ikke bygget'}
+            <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+            <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
+          {/if}
+        </div>
+      {/if}
+    </section>
+  {/if}
+{/snippet}
 
 <Svarskjema
   {kjernesak}
@@ -193,6 +296,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
+  stoettekort={svareneFoer}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet vilkaaret(i: Innsigelsen)}
@@ -265,3 +369,66 @@
     {/if}
   {/snippet}
 </Svarskjema>
+
+<style>
+  .kort {
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+  }
+  .hode {
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: var(--rule);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .innhold {
+    padding: var(--spacing-4) var(--spacing-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+  .dempet {
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* Posten, kravet og svaret under hverandre, som de lukkede postene på smal skjerm. */
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--spacing-3) 0;
+    border-bottom: var(--rule-subtle);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  li strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .betegnelse,
+  .krav {
+    font-variant-numeric: tabular-nums;
+  }
+  .betegnelse {
+    margin-inline-end: var(--spacing-2);
+  }
+  .krav {
+    color: var(--ink-3);
+  }
+  .bunn {
+    padding: var(--spacing-3) var(--spacing-5) var(--spacing-4);
+    border-top: var(--rule);
+  }
+</style>

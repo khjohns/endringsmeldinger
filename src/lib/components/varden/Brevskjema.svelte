@@ -57,6 +57,7 @@
     tidslinje,
     kompakt = null,
     children,
+    stoettekort,
   }: {
     /** ID-en til overskriften i utkastkortet; resten av ID-ene i skallet bygges av den. */
     id: string;
@@ -97,6 +98,8 @@
       innhold?: Snippet<[knappen: Snippet, tilPanelet: () => void]>;
     } | null;
     children: Snippet;
+    /** Et kort i høyre kolonne under panelet, som svarene fra forrige brev (VS-U65). */
+    stoettekort?: Snippet;
   } = $props();
 
   const uid = $props.id();
@@ -215,6 +218,7 @@
         {#if sendes && !lagtTil}<div class="steg"><Brevsteg /></div>{/if}
         {@render panel(knapp ? sendeknapp : undefined)}
       </div>
+      {@render stoettekort?.()}
       {@render tidslinje()}
     {/if}
   {/snippet}

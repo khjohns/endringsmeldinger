@@ -15,7 +15,18 @@ import {
   OPPGJOERSHJEMMEL,
   varselhjemmel,
 } from './format.ts';
-import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
+import type {
+  Bakover,
+  LestVarsel,
+  Sporskontroller,
+  Ugyldig,
+  Utledning,
+} from '../../utledning/utled.ts';
+import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
+import {
+  sisteStandpunktTilVarslene,
+  type StandpunktTilVarselet,
+} from '../../frosset/standpunkt.ts';
 import {
   posteneStrider,
   trekketStrider,
@@ -234,3 +245,48 @@ export const KONTROLLER_I_VEDERLAGET = {
   svaretKanGodtas: () => true,
   saken: () => {},
 } satisfies Sporskontroller;
+
+/**
+ * Byggherrens siste standpunkt til varselet for hver kravpost i svarene på vederlaget
+ * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
+ * sendt før den dagen (OV-U98, OV-U104), eller til og med den dagen når `medSammeDag` er satt.
+ * `kjentFoer` er et brev i saken: da leses bare brevene som var i journalen før det, slik
+ * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81).
+ */
+export function standpunkteneTilVarslene(
+  u: Utledning,
+  sendt: string | null,
+  medSammeDag = false,
+  kjentFoer?: string
+): StandpunktTilVarselet[] {
+  const { svar, svarUtenforRekken, svarPaaVarsler, krav, kravUtenforRekken } = u.spor.vederlag;
+  const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));
+  // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
+  const dokumenter = [...dokumenterI(u.journal)];
+  const slutt =
+    kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
+  if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
+  return sisteStandpunktTilVarslene(
+    dokumenter
+      .slice(0, slutt)
+      .flatMap((d) =>
+        d.svar
+          .filter((s) => medVirkning.has(s.id))
+          .map((s) => ({
+            s,
+            dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
+            lagtTil: erRegistrert(d.opplysninger),
+          }))
+      )
+      .filter(
+        ({ dag }) => sendt === null || foerDagen(dag, sendt) || (medSammeDag && dag === sendt)
+      ),
+    // VS-U77 punkt 34: også en kravpost som er trukket i en senere versjon, for et svar på en
+    // eldre versjon (OV-U103). Kravposten har samme id i alle versjonene.
+    [
+      ...new Map(
+        [...kravUtenforRekken, ...krav].flatMap(kravposterI).map((p) => [p.id, p])
+      ).values(),
+    ]
+  );
+}

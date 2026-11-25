@@ -9,7 +9,8 @@ import { kravpostvarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
 import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
-import { standpunkteneTilVarslene, varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
+import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
@@ -131,6 +132,21 @@ export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarsele
     null
   );
 };
+
+/**
+ * Byggherrens standpunkt til varselet for kravposten slik det sto før brevet `dokument`, som
+ * brevet leste det (MM-U50). Journalen kuttes foran brevet, så svar fra samme dag leses i
+ * journalens rekkefølge, som i `standpunkteneTilVarslene`.
+ */
+export function varseletFoerBrevet(
+  u: Utledning,
+  post: Kravpost,
+  dokument: string
+): StandpunktTilVarselet | null {
+  const i = u.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === dokument);
+  if (i < 0) throw new Error(`Brevet ${dokument} er ikke i saken`);
+  return varseletFoer({ ...u, journal: u.journal.slice(0, i) }, post);
+}
 
 /** Varselet etter § 34.3.3 eller § 34.4 et svar som står alene gjelder (VS-U79). */
 export interface VarseletAlene {
