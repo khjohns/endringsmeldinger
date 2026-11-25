@@ -105,6 +105,9 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
 
   it('med innsigelsen mot varselet står justeringen subsidiært, med «Gjelder hvis» (VS-U4, VS-U77 punkt 30)', async () => {
     const sendt = await svarskjemaet(medVarsel('34.3.3'));
+    // Som i utfyllingen for kravposten regnes et ubesvart varsel som innsigelse (`lagIVederlaget`).
+    expect(screen.getByText('Gjelder hvis')).toBeInTheDocument();
+    await radio('Kom i tide');
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
     await radio('Kom for sent');
     expect(screen.getByText('Gjelder hvis')).toBeInTheDocument();
@@ -161,6 +164,33 @@ describe('svaret på varselet etter et avslag av forholdet (OV-U32, VS-U4)', () 
     expect(
       panelet.getByText(/^Hvis heller ikke innsigelsen om at varselet etter punkt.34\.3\.3/)
     ).toBeInTheDocument();
+  });
+
+  it('«Gjelder hvis» har avslaget av forholdet foran laget det gjelder, også før spørsmålene er besvart (Codex-reviewet)', async () => {
+    const g = utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id;
+    const avslaatt = skrevet(medGrunnlag, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'forhold',
+          gjelder: g,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          resultat: {},
+          utdypning: 'Svaret på forholdet.',
+        },
+      ],
+    });
+    await svarskjemaet(
+      skrevet(avslaatt, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.3.3' })
+    );
+    const vilkaaret = (sp: string) =>
+      document.querySelector(`[id$="-${sp}-forutsetninger"]`)?.textContent ?? '';
+    // Ubesvart regnes varselet som innsigelse, og justeringen står i laget etter det.
+    expect(vilkaaret('varsel')).toMatch(/avslaget av forholdet i brev.2/);
+    expect(vilkaaret('justering')).toMatch(/innsigelsen om at varselet/);
+    await radio('Kom i tide');
+    expect(vilkaaret('justering')).toMatch(/avslaget av forholdet i brev.2/);
   });
 });
 
@@ -232,6 +262,8 @@ describe('svaret på varselet i Varden (G-9 i BF-14)', () => {
     expect(
       await screen.findByRole('button', { name: 'Send til totalentreprenøren' })
     ).toBeInTheDocument();
+    // VS-U77 punkt 30 og 31: svaret gir ingen enighet (Codex-reviewet).
+    expect(screen.queryByText(/Enigheten registreres/)).toBeNull();
   });
 });
 
@@ -271,5 +303,50 @@ describe('innsigelsen fra svaret på varselet i svaret på kravposten (VS-U77 pu
     });
     const linja = await screen.findByText(/Du har gjort gjeldende i .* at varselet kom for sent\./);
     expect(linja.textContent).not.toMatch(/ikke ble gitt/);
+  });
+});
+
+describe('flere varsler etter samme bestemmelse (VS-U77 punkt 27 og 33)', () => {
+  it('handlingene sier hvilket brev varselet står i', async () => {
+    const journal = skrevet(medVarsel('34.3.3'), 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.3.3',
+    });
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    expect(
+      await screen.findByRole('button', {
+        name: /^Svar på varselet om justering av enhetsprisene i brev.2$/,
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/^Svar på varselet om justering av enhetsprisene i brev.3$/)
+    ).toBeInTheDocument();
+  });
+});
+
+describe('lenken i «Gjelder hvis» når innsigelsen står (Codex-reviewet)', () => {
+  it('lenken fører til setningen med innsigelsen som gjentas', async () => {
+    const varslet = medVarsel('34.3.3');
+    const varsel = varselI(varslet);
+    await svarskjemaet(
+      skrevet(varslet, 'BH', {
+        type: 'brev',
+        svar: [
+          {
+            spor: 'vederlag',
+            gjelder: varsel,
+            regelversjon: KJERNE.regler.versjon,
+            vurderinger: { varslet_i_tide: false, godtar_justering: false },
+            resultat: {},
+          },
+        ],
+      })
+    );
+    const lenken = screen.getByRole('link', { name: /^innsigelsen om at varselet etter punkt/ });
+    const maal = document.getElementById(lenken.getAttribute('href')!.slice(1));
+    expect(maal?.textContent).toMatch(/Svaret gjentar innsigelsen\./);
   });
 });

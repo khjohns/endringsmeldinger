@@ -11,6 +11,7 @@
   import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
@@ -20,7 +21,6 @@
   import type { Innsigelsen } from './svarlagene';
   import { manglene } from './svarskjema';
   import {
-    BREVSTEG,
     grunntekst,
     SKJEMA,
     VARSELSVARET,
@@ -37,6 +37,7 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    onforholdet,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -49,6 +50,8 @@
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
+    /** Åpner siden for forholdet uten å forkaste svarutkastet. */
+    onforholdet?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -75,23 +78,31 @@
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
-  // VS-U4: med innsigelsen mot varselet står justeringen subsidiært. Kjernen sier hva den gjelder
-  // hvis, også før justeringen er besvart, med justeringen bestridt i utfyllingen.
-  const justeringenGjelderHvis = $derived.by((): Innsigelsen[] => {
-    if (hjemmel !== '34.3.3' || iTide !== false) return [];
-    const fylt =
-      valg.godtarJustering === null
-        ? nyttSvarI(
-            varselsvaret(
-              utenTekster({ ...valg, godtarJustering: false }),
-              varselet,
-              kjernesak.regler
-            )
+  // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen, også før de er
+  // besvart. Som i utfyllingen for kravposten (`lagIVederlaget`) regnes et ubesvart varsel som
+  // innsigelse og en ubesvart justering som bestridt.
+  const utfylt = $derived(
+    hjemmel === '34.3.3' && (valg.varsletITide === null || valg.godtarJustering === null)
+      ? nyttSvarI(
+          varselsvaret(
+            utenTekster({
+              ...valg,
+              varsletITide: valg.varsletITide ?? false,
+              godtarJustering: valg.godtarJustering ?? false,
+            }),
+            varselet,
+            kjernesak.regler
           )
-        : nyeStandpunkter;
-    const j = fylt.find((l) => 'standpunkt' in l && l.standpunkt.art === 'justering');
-    return (j?.vilkaar ?? []).filter((i) => i.art === 'varsel');
-  });
+        )
+      : nyeStandpunkter
+  );
+  // KA-U64: standpunktet etter § 34.4 har ikke noe lag.
+  const gjelderHvis = (art: 'rettidighet' | 'justering'): Innsigelsen[] =>
+    hjemmel === '34.4'
+      ? []
+      : (utfylt.find((l) => 'standpunkt' in l && l.standpunkt.art === art)?.vilkaar ?? []);
+  const varseletGjelderHvis = $derived(gjelderHvis('rettidighet'));
+  const justeringenGjelderHvis = $derived(gjelderHvis('justering'));
   const oppgir = $derived(iTide === true && foer?.iTide === false && foer.brev ? foer : null);
 
   const linjer = $derived(
@@ -161,7 +172,8 @@
       },
     ])
   );
-  const virkninger = $derived([BREVSTEG.enigheten]);
+  // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.
+  const virkninger: string[] = [];
 </script>
 
 <Svarskjema
@@ -183,14 +195,29 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
+    {#snippet vilkaaret(i: Innsigelsen)}
+      {#if i.art === 'grunn'}
+        <Forholdsgrunn grunn={i.grunn} brev={i.brev} {onforholdet} />
+      {:else}
+        <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
+        <a href={`#${uid}-varsel${foer?.iTide === false ? '-standpunkt' : ''}`}
+          >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : hjemmel)}</a
+        >
+      {/if}
+    {/snippet}
+    {#snippet foranVarselet()}
+      <Gjelderhvis
+        id={`${uid}-varsel-forutsetninger`}
+        liste={varseletGjelderHvis}
+        punkt={vilkaaret}
+      />
+    {/snippet}
     {#snippet foranJusteringen()}
-      <Gjelderhvis id={`${uid}-justering-forutsetninger`} liste={justeringenGjelderHvis}>
-        {#snippet punkt(i: Innsigelsen)}
-          <a href={`#${uid}-varsel`}
-            >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : hjemmel)}</a
-          >
-        {/snippet}
-      </Gjelderhvis>
+      <Gjelderhvis
+        id={`${uid}-justering-forutsetninger`}
+        liste={justeringenGjelderHvis}
+        punkt={vilkaaret}
+      />
     {/snippet}
     {#snippet etterVarselet()}{@render begrunnelse(hjemmel)}{/snippet}
     {#snippet etterJusteringen()}{@render begrunnelse('justering')}{/snippet}
@@ -205,7 +232,11 @@
         ikkeGitt={false}
         justeringValgfri={false}
         justeringFeil={feil(`${uid}-justering`)}
+        {foranVarselet}
         {foranJusteringen}
+        beskrevetAvVarselet={varseletGjelderHvis.length
+          ? `${uid}-varsel-forutsetninger`
+          : undefined}
         beskrevetAvJusteringen={justeringenGjelderHvis.length
           ? `${uid}-justering-forutsetninger`
           : undefined}

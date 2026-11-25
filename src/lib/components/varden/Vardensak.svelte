@@ -959,6 +959,7 @@
           }}
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
+          onforholdet={tilForholdet}
         />
       {/key}
     {/if}

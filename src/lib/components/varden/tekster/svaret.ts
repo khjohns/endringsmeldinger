@@ -172,8 +172,11 @@ export const VARSELSVARET = haerdet({
   kreverIkkeSvar: 'Varselet krever ikke svar.',
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
-  svar: (h: Kravpostvarselhjemmel) => `Svar på ${VARSELNAVNET[h]}`,
-  nyttSvar: (h: Kravpostvarselhjemmel) => `Nytt svar på ${VARSELNAVNET[h]}`,
+  // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
+  svar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
+    `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
+  nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
+    `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
 });
 
 /**

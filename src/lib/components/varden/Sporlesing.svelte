@@ -276,7 +276,11 @@
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
     const v = varselhjemmel(h);
-    if (v) return h!.type === 'svare' ? VARSELSVARET.svar(v) : VARSELSVARET.nyttSvar(v);
+    if (v) {
+      const flere = iSporet.some((x) => x !== h && x.type === h!.type && varselhjemmel(x) === v);
+      const brev = flere ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
+      return h!.type === 'svare' ? VARSELSVARET.svar(v, brev) : VARSELSVARET.nyttSvar(v, brev);
+    }
     return omtalen(n)?.tekst?.() ?? null;
   }
 
