@@ -128,7 +128,15 @@ Versjon 2 endres ikke av den.
 
 ## Svarene
 
-Ikke stilt ennå.
+Stilt 25.11 gjennom orkestratoren som spørsmål 3–6, i samme rekkefølge (spørsmål 1 og 2 gjaldt A3).
+Oppdragsgiver 25.11, ordrett: «1 ja, 2–6 som anbefalt».
+
+| Spørsmål her | Svar |
+| --- | --- |
+| 1. To versjoner | A |
+| 2. Samle eller oppheve den forrige versjonen | A |
+| 3. Hjemmet for VS-U81 | A |
+| 4. Postene som står | A |
 
 ## Kodefunn
 
