@@ -1605,7 +1605,8 @@ appen (MM-U12).»
 Teksten under er samlevedtaket [KA-U87](#ka-u87), vedtatt 25.11 av oppdragsgiver (#1534, #2371),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-v2-2026-11-25.md),
 med svarene 1 ja og 2 A. Det er versjon 1 ([KA-U49](#ka-u49)) med endringene i punkt 1, 6, 7, 8 og
-11, det nye punktet 12, og nye setninger i designdelen og beslutningsdelen, etter E9–E14.
+11, det nye punktet 12, en endret setning og nye setninger i designdelen, og en ny setning i
+beslutningsdelen, etter E9–E14.
 Samlevedtaket opphever KA-U49, og henvisningene til KA-U49 gjelder versjon 2. Det samler
 [KA-U50](#ka-u50) (punkt 1) og [KA-U82](#ka-u82) (punkt 12). Kildene står i parentes etter hver
 setning, og «s3» er tredje setning i posten.
