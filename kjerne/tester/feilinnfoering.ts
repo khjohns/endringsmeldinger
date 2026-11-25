@@ -2183,7 +2183,10 @@ const MUTASJONER: Mutasjon[] = [
     // og datokontrollen kaster da i hver kommando (#870).
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['      const registrert = kalenderdag(sendt.dato);', '      const registrert = sendt.dato;'],
+      [
+        '      const registrert = kalenderdag(varseletSendt.dato);',
+        '      const registrert = varseletSendt.dato;',
+      ],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
@@ -4284,8 +4287,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        '  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;',
-        '  if (felt === null || siste === null || k.innhold[felt] !== null) return null;',
+        '  if (k.innhold[felt] === siste.dato) return null;',
+        '  if (k.innhold[felt] !== null) return null;',
       ],
     ],
     mal: ['en ny grunnlagsversjon kan ikke endre datoen', 'F-MM-KORR3'],
@@ -4521,9 +4524,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'kommandoen prøver ikke den særskilte vederlagsjusteringen mot forrige versjon før kravet skrives (KA-U83)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      ['    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);', '    null;'],
-    ],
+    endringer: [['    saerskiltStrider({ innhold: k.innhold }, tidligere);', '    null;']],
     mal: ['en ny versjon som verken tar med eller trekker posten, avvises'],
   },
   {
@@ -7372,6 +7373,126 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['  if (nytt.id === g.dokument || staar)\n', '  if (nytt.id === g.dokument)\n']],
     mal: ['står som punktet «Forholdet» én gang, i den første delen'],
+  },
+  // #2011 punkt 2: et krav eller en påberopelse sendt før den siste (OV-U118–OV-U122).
+  {
+    id: 'F2011a',
+    feilklasse:
+      'kommandoen prøver et vederlagskrav lagt til mot hele rekken, ikke mot kravversjonene sendt før det (OV-U118)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "kravversjoneneKravetProevesMot(u, 'vederlag', sendt);",
+        "kravversjoneneKravetProevesMot(u, 'vederlag', null);",
+      ],
+    ],
+    mal: ['et brev uten Montering, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011b',
+    feilklasse:
+      'utledningen prøver et krav lagt til mot hele rekken, så et eldre krav med færre kravposter får ingen virkning (OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    erRegistrert(d.opplysninger) ? dagenSendt(k, d) : null,', '    null,']],
+    mal: [
+      'et brev uten Montering, sendt før kravet som tok den med, tas imot',
+      'Riving er P1, og Stillas får en ny betegnelse i sporet',
+    ],
+  },
+  {
+    id: 'F2011c',
+    feilklasse:
+      'et krav sendt før det siste prøves også mot kravversjonene sendt etter det (OV-U118)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    .filter((k) => foerDagen(sendt.get(k)!, dag, () => samme(k.id)))',
+        '    .filter(() => true)',
+      ],
+    ],
+    mal: ['et brev sendt før Montering ble tatt med, prøves ikke mot den'],
+  },
+  {
+    id: 'F2011d',
+    feilklasse:
+      'en kravpost som bare står i et krav utenfor rekken, kjennes ikke igjen i en senere kravversjon (OV-U119)',
+    fil: `${K}/spor/poster/utledning.ts`,
+    endringer: [
+      [
+        '  const foer = new Map([...andre, ...tidligere].flat().map((p) => [p.id, p]));',
+        '  const foer = new Map([...tidligere].flat().map((p) => [p.id, p]));',
+      ],
+    ],
+    mal: ['en senere kravversjon kan utelate Stillas uten trekk, eller ta den med som P3'],
+  },
+  {
+    id: 'F2011e',
+    feilklasse:
+      'skrivingen gir ikke en kravpost fra et krav utenfor rekken betegnelsen den har i sporet (OV-U119)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '  const tidligere = [...u.spor.vederlag.krav, ...u.spor.vederlag.kravUtenforRekken];',
+        '  const tidligere = u.spor.vederlag.krav;',
+      ],
+    ],
+    mal: ['en senere kravversjon kan utelate Stillas uten trekk, eller ta den med som P3'],
+  },
+  {
+    id: 'F2011f',
+    feilklasse: 'kommandoen prøver et fristkrav lagt til mot hele rekken (OV-U118)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        "kravversjoneneKravetProevesMot(u, 'frist', sendt);",
+        "kravversjoneneKravetProevesMot(u, 'frist', null);",
+      ],
+    ],
+    mal: ['et brev uten den andre fristen, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011g',
+    feilklasse:
+      'en frist i et krav lagt til kjennes bare igjen fra kravversjonene sendt før det (OV-U118)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  for (const p of [...andre, ...tidligere].flatMap(fristerI)) {',
+        '  for (const p of tidligere.flatMap(fristerI)) {',
+      ],
+    ],
+    mal: ['et brev uten den andre fristen, sendt før kravet som tok den med, tas imot'],
+  },
+  {
+    id: 'F2011h',
+    feilklasse:
+      'en påberopelse sendt før den siste kan ikke oppgi en annen dato for pålegget (OV-U122)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [["  if (sendtFoerSisteKrav(u, 'forhold', sendt)) {", '  if (false) {']],
+    mal: ['med en annen dato for pålegget tas den imot'],
+  },
+  {
+    id: 'F2011i',
+    feilklasse:
+      'en påberopelse sendt før TEs siste opplysning om datoen tas imot uten korrigering (OV-U122)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        '    return opplysningen !== null && foerDagen(sendt, opplysningen)',
+        '    return opplysningen !== null && false',
+      ],
+    ],
+    mal: ['er den siste opplysningen senere enn dagen brevet ble sendt, tas det ikke imot'],
+  },
+  {
+    id: 'F2011j',
+    feilklasse:
+      'en påberopelse sendt før den siste, med en annen gruppe, avvises som en oppdatert påberopelse (OV-U121)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      ["  const eldre = sendtFoerSisteKrav(u, 'forhold', sendt);", '  const eldre = false;'],
+    ],
+    mal: ['en påberopelse med en annen gruppe tas ikke imot'],
   },
 ];
 /** En kopi av arbeidstreet. */

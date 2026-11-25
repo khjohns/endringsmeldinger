@@ -1487,6 +1487,34 @@
       "radetikett": "OV-U105: Et svar byggherren har sendt utenfor løsningen og lagt til som svar med svarskjemaet etter OV-U80, har samme virkning"
     },
     {
+      "id": "OV-U118",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u118",
+      "radetikett": "OV-U118: Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves mot kravversjonene i sporet"
+    },
+    {
+      "id": "OV-U119",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u119",
+      "radetikett": "OV-U119: Når totalentreprenøren legger til et vederlagskrav sendt før det siste kravet i sporet, oppgir totalentreprenøren for"
+    },
+    {
+      "id": "OV-U121",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u121",
+      "radetikett": "OV-U121: En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken, med et annet forhold, en annen"
+    },
+    {
+      "id": "OV-U122",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u122",
+      "radetikett": "OV-U122: En påberopelse av forholdet sendt før totalentreprenørens siste påberopelse i saken tas imot også når den oppgir en"
+    },
+    {
       "id": "AV-1791",
       "type": "arbeidsvalg",
       "issue": 1791,
@@ -3988,6 +4016,38 @@
       "regelkoder": [
         "AKSEPTFRIST_IKKE_TILLATT",
         "AKSEPTFRIST_UGYLDIG_DATO"
+      ]
+    },
+    {
+      "id": "KA-60",
+      "tilfelle": "En part legger til et brev sendt utenfor appen med et krav eller en påberopelse, sendt før totalentreprenørens siste krav i sporet, med annet innhold enn de andre kravversjonene: færre eller andre kravposter eller frister, et annet forhold eller en annen dato for pålegget eller kunnskapen.",
+      "forventet": "Et vederlagskrav eller fristkrav prøves mot kravversjonene sendt før det, også de utenfor rekken, og ikke mot dem sendt etter ([OV-U118](../plans/vedtak.md#ov-u118)). Mangler en kravpost eller frist fra en av dem, avvises det uten trekk i brevet. Totalentreprenøren oppgir hvilke kravposter som er de samme som i sporet, og en ny kravpost får neste betegnelse. En senere kravversjon kan ta den med under betegnelsen uten å måtte ta den med eller trekke den ([OV-U119](../plans/vedtak.md#ov-u119)). En påberopelse med et annet forhold, en annen gruppe eller en annen endringsordre avvises ([OV-U121](../plans/vedtak.md#ov-u121)). En påberopelse med en annen dato tas imot, og totalentreprenørens siste opplysning står, men den avvises når opplysningen er senere enn dagen brevet ble sendt ([OV-U122](../plans/vedtak.md#ov-u122)).",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Kravet blir ikke gjeldende (OV-U102). Et trekk i brevet registreres som brevet sier, og partene vurderer hva det betyr.",
+      "rettidighet": "Ikke vurdert av løsningen.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "OV-U98",
+        "OV-U102",
+        "OV-U104",
+        "OV-U118",
+        "OV-U119",
+        "OV-U121",
+        "OV-U122"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#kravversjoneneKravetProevesMot",
+        "kjerne/spor/vederlag/kommando.ts#kravpostsperre",
+        "kjerne/spor/frist/kommando.ts#fristsperre",
+        "kjerne/spor/forhold/kommando.ts#kategorisperre",
+        "kjerne/spor/forhold/kommando.ts#datosperre"
+      ],
+      "regelkoder": [
+        "KRAVPOSTENE",
+        "FRISTENE",
+        "ANNEN_HJEMMEL",
+        "DATOEN_ETTER_BREVET"
       ]
     }
   ],

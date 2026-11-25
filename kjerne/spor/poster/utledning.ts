@@ -35,7 +35,9 @@ export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
 
 /**
  * Hvorfor postene i den nye kravversjonen strider mot de tidligere versjonene i sporet, eller
- * `null`. `tidligere` er postene i hver tidligere versjon, i rekkefølgen i sporet. `lagret`
+ * `null`. `tidligere` er postene i hver tidligere versjon, i rekkefølgen i sporet, og `andre` postene
+ * i de andre versjonene i sporet, som en post kan være den samme som uten at den må være med
+ * (OV-U119). `lagret`
  * sier om innholdet er en lagret versjon, der en ny post har fått `id` og betegnelse, eller en
  * kommando, der en ny post er uten `id`. `post` er ordet for posten i sporet, som «kravpost»,
  * og meldingen bruker det i bestemt form med «-en».
@@ -44,12 +46,13 @@ export function posteneStrider(
   ny: Versjonsinndata,
   tidligere: readonly (readonly Post[])[],
   lagret: boolean,
-  post: string
+  post: string,
+  andre: readonly (readonly Post[])[] = []
 ): string | null {
   const posten = `${post}en`;
   const forrige = new Map((tidligere.at(-1) ?? []).map((p) => [p.id, p]));
-  const foer = new Map(tidligere.flat().map((p) => [p.id, p]));
-  const brukte = brukteBetegnelser(tidligere);
+  const foer = new Map([...andre, ...tidligere].flat().map((p) => [p.id, p]));
+  const brukte = brukteBetegnelser([...andre, ...tidligere]);
   const trekker = (ny.trekker ?? []) as string[];
   const trekket = trekketStrider(
     trekker,
