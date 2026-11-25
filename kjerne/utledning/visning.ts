@@ -42,6 +42,7 @@ import {
   enighetensVirkning,
   paaberopelseFor,
   kilden,
+  rettedeBrev,
   kraveneErAvgjort,
   sporetErLukket,
   svarIkkeGodtatt,
@@ -484,7 +485,7 @@ function brevVedKravet(u: Utledning, spor: Spor): BrevVedKravet[] {
 
 /** OV-U44: kilden til hver journalpost, og om registreringen er rettet. */
 function kilder(u: Utledning, ikkeTolket: Set<string>) {
-  const rettet = new Set(u.registrerteBrev.filter((b) => b.rettetAv).map((b) => b.dokument));
+  const rettet = rettedeBrev(u.registrerteBrev);
   return u.journal.map((h) => {
     const tolket = h.art !== 'ukjent' && !ikkeTolket.has(h.id);
     return {

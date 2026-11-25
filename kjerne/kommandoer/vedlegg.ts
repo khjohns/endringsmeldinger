@@ -5,15 +5,21 @@
  */
 
 import { erRegistrert } from '../format/leser.ts';
-import { kravSomVarsler, type Utledning } from '../utledning/utled.ts';
+import { kravSomVarsler, rettedeBrev, type Utledning } from '../utledning/utled.ts';
 import { avvis, type Avvisning, type Dokument, type Domenehendelse } from '../typer.ts';
 import type { Kommando } from './kommando.ts';
 import type { Vedleggsoppslag } from './skriving.ts';
 
+/** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
+export const vedleggsnoekkel = (id: string): string => id.toLowerCase();
+
 /** Innholdet i vedleggene, med ID-en for et vedlegg mellomlageret ikke har. */
 export const innholdetIVedleggene = (ider: readonly string[], oppslag: Vedleggsoppslag) =>
   new Set(
-    ider.map((id) => oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`)
+    ider.map((id) => {
+      const noekkel = vedleggsnoekkel(id);
+      return oppslag.get(noekkel)?.innhold_sha256 ?? `id:${noekkel}`;
+    })
   );
 
 /** Innholdet i vedleggene ved dokumentet. */
@@ -53,7 +59,7 @@ export function kravetErVarselet(
   const vedlagte = innholdetIVedleggene(k.dokumentasjon, oppslag);
   if (!vedlagte.size) return null;
   // Brevet er sendt utenfor løsningen og lagt til, og en registrering som er rettet, står ikke.
-  const rettet = new Set(lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : [])));
+  const rettet = rettedeBrev(u.registrerteBrev);
   const brevene = new Map(
     lest.flatMap((h) =>
       h.art === 'dokument' &&

@@ -82,6 +82,7 @@ import type {
   Skrivesteg,
   Sporsskriving,
   Utfall,
+  Vedleggsoppslag,
 } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import {
@@ -503,14 +504,9 @@ function medDokumentvarslene(
   for (const p of poster) {
     if (!erDokumentvarsel(p.varsel)) continue;
     const { sendt, korrespondansetype, sendemaate, beskrivelse } = p.varsel;
-    const like = JSON.stringify([
-      dokumentnoekkel(p.varsel),
-      sendt,
-      korrespondansetype,
-      sendemaate,
-      beskrivelse,
-    ]);
-    for (const id of dokumentnoekkel(p.varsel)) {
+    const noekkel = dokumentnoekkel(p.varsel, skriving.oppslag);
+    const like = JSON.stringify([noekkel, sendt, korrespondansetype, sendemaate, beskrivelse]);
+    for (const id of noekkel) {
       if ((dokumentene.get(id) ?? like) !== like)
         return {
           godtatt: false,
@@ -527,9 +523,12 @@ function medDokumentvarslene(
   return skriving.proevd((kx, jx) => medVarslene(k, [], kx, jx, skriving));
 }
 
-/** Vedleggene i dokumentet, med små bokstaver og sortert, som skiller ett dokument fra et annet. */
-const dokumentnoekkel = (d: Dokumentvarsel): string[] =>
-  [...new Set(d.dokumentasjon.map((id) => id.toLowerCase()))].sort();
+/**
+ * Innholdet i vedleggene i dokumentet, sortert, som skiller ett dokument fra et annet. Samme fil
+ * lastet opp på nytt er samme dokument (#2126, som `innholdetIVedleggene` i fristen, #2100).
+ */
+const dokumentnoekkel = (d: Dokumentvarsel, oppslag: Vedleggsoppslag): string[] =>
+  [...innholdetIVedleggene(d.dokumentasjon, oppslag)].sort();
 
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
@@ -549,9 +548,11 @@ function medVarslene(
   if (i < 0) return skriving.skriv(k, kontekst, journal, vedKravet);
   type Dokumentpost = Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
   const dokumentet = (poster[i] as unknown as Dokumentpost).varsel;
-  const noekkel = JSON.stringify(dokumentnoekkel(dokumentet));
+  const innholdet = dokumentnoekkel(dokumentet, skriving.oppslag);
+  const noekkel = JSON.stringify(innholdet);
   const gruppen = poster.flatMap((p, j) =>
-    erDokumentvarsel(p.varsel) && JSON.stringify(dokumentnoekkel(p.varsel)) === noekkel
+    erDokumentvarsel(p.varsel) &&
+    JSON.stringify(dokumentnoekkel(p.varsel, skriving.oppslag)) === noekkel
       ? [[j, p as unknown as Dokumentpost] as const]
       : []
   );
@@ -582,9 +583,10 @@ function medVarslene(
       },
     };
   // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
-  // `journal` har ikke dokumentet (VS-U51, VS-U53).
-  const iVarslene = vedleggIVarslene(skriving.saken(journal));
-  if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
+  // `journal` har ikke dokumentet (VS-U51, VS-U53). Samme fil lastet opp på nytt er samme
+  // vedlegg (#2144, OV-U80).
+  const iVarslene = innholdetIVarslene(skriving.saken(journal));
+  if (innholdet.some((x) => iVarslene.has(x)))
     return {
       godtatt: false,
       feil: 'REGELBRUDD',
@@ -608,7 +610,7 @@ function medVarslene(
     godtatt: true,
     hendelser: [rad!],
     neste: (kx, jx) =>
-      medVarslene(resten, [...vedKravet, ...dokumentnoekkel(dokumentet)], kx, jx, skriving),
+      medVarslene(resten, [...vedKravet, ...dokumentet.dokumentasjon], kx, jx, skriving),
   };
 }
 
@@ -648,10 +650,24 @@ function vedleggetErEtVarsel(
   if (k.sendt !== undefined) return null;
   // #2100: samme fil lastet opp på nytt er samme vedlegg, som i fristen.
   const vedlagte = innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag);
-  const varselet = varseldokumentene(sak).find((d) =>
-    [...innholdetIDokumentet(d)].some((x) => vedlagte.has(x))
+  const varselet = varseldokumentene(sak).find(({ dokument }) =>
+    [...innholdetIDokumentet(dokument)].some((x) => vedlagte.has(x))
   );
-  return varselet ? vedleggVedEtVarsel('ved kravet', varselet) : null;
+  if (!varselet) return null;
+  // VS-U51, VS-U75: dokumentet kravskjemaet la til som varsel i samme handling, ligger ved kravet
+  // som varseldokumentet (arbeidsvalget 24.11 i #2144).
+  const iSaken = new Set(sak.foer.u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  if (iSaken.has(varselet.id)) return vedleggVedEtVarsel('ved kravet', varselet.dokument);
+  const utsagn = new Set(
+    sak.u.spor.vederlag.kravpostvarsler.flatMap((v) => (v.dokument === varselet.id ? [v.id] : []))
+  );
+  const poster = ((k.innhold.kravposter ?? []) as Record<string, unknown>[]).flatMap((p, j) =>
+    utsagn.has(p.varsel as string) ? [j + 1] : []
+  );
+  return avvis(
+    'KRAVPOSTVARSELET',
+    `Et vedlegg ved kravet ligger alt ved varselet for kravpost nr. ${poster.join(' og ')} i dette kravet. Varselet legges ved kravet, så vedlegget står der én gang.`
+  );
 }
 
 /** Hva som hindrer, med varselet vedlegget ligger ved når det er kjent. */
@@ -664,16 +680,16 @@ function vedleggVedEtVarsel(hvor: string, varselet?: Dokument) {
 }
 
 /** Dokumentene med et varsel for en kravpost i saken (VS-U55). */
-function varseldokumentene({ lest, u }: LestSak): Dokument[] {
+function varseldokumentene({ lest, u }: LestSak): { id: string; dokument: Dokument }[] {
   const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  return lest.flatMap((h) => (h.art === 'dokument' && varslene.has(h.id) ? [h.dokument] : []));
+  return lest.flatMap((h) =>
+    h.art === 'dokument' && varslene.has(h.id) ? [{ id: h.id, dokument: h.dokument }] : []
+  );
 }
 
-/** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
-const vedleggIVarslene = (sak: LestSak): Set<string> =>
-  new Set(
-    varseldokumentene(sak).flatMap((d) => d.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase()))
-  );
+/** Innholdet i vedleggene ved varslene for en kravpost i saken (VS-U55, #2144). */
+const innholdetIVarslene = (sak: LestSak): Set<string> =>
+  new Set(varseldokumentene(sak).flatMap(({ dokument }) => [...innholdetIDokumentet(dokument)]));
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
