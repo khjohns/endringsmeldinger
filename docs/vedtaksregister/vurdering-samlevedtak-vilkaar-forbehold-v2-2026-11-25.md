@@ -122,7 +122,9 @@ grunnen til A er innholdet.
 
 ### Svaret
 
-Venter.
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Ja, A». Spørsmålene ble stilt som 7
+(tilslutning) og 8 (forholdene og OV-U124), med samme tekst som 1 og 2 over. Svaret er spørsmål 1
+«ja», tilslutning til utkastet med E9–E14 uten rettelser, og spørsmål 2 A.
 
 ## Berørt kode og forløp
 
