@@ -25985,6 +25985,253 @@ tekst = '''
 Regelversjonen angir reglene og tekstgeneratorene, og hver endring i ordlyden gir ny regelversjon. Forhold: ingen endring.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U78"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2337"]
+klasse = "design"
+bindende_i = ["lv-u34", "ov-u32"]
+sporsmal = '''
+Spørsmål 1, ordrett slik det ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156572313), «Spørsmål: strukturen i byggherrens svar med lag og flere kravposter (#2337)».
+
+Bakgrunn: Fable, Codex (Astra) og Gemini (Argon) fikk samme bestilling og svarte hver for seg. De er enige om at lagslinjen skal nevne innsigelsen med navn i stedet for punktnummer, at tittelen skal nevne alle kravene brevet svarer på, og at «Forbehold» skal stå én gang, sist i brevet. De er uenige om hvor vilkåret for en kravpost står, og om hvordan et brev med svar på flere krav deles opp.
+
+Én feil i materialet: sparringen fikk brev der teksten under «Forbehold» het «Byggherrens begrunnelse for svaret». Teksten er byggherrens forbehold for hele svaret (KA-U50, KA-U49 punkt 1). Begrunnelsen står under punktet den gjelder (LV-U34, LV-U71). Fable og Gemini foreslår å flytte «begrunnelsen» ut av «Forbehold». Det bygger på feilen og er ikke et alternativ under.
+
+Svaret «A» 25.11 står: et ubesvart forhold gir forbeholdet sist i brevet, og et forhold som er avslått i samme brev, står først som byggherrens standpunkt.
+
+1. Vilkåret når kravpostene i samme lag har ulike vilkår
+
+Etter OV-U117 er en innsigelse som gjelder én kravpost, ikke vilkår for standpunktet til en annen kravpost. I dag har laget én linje med vilkårene fra hele laget foran (brev 01).'''
+valgt = "1 E"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «1 E, 2 A, 3 A, 4 A, 5 A′» ([svaret i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7160455227)). Valgt: 1 E.'''
+forhold = [
+  { art = "endrer", vedtak = "lv-u34" },
+  { art = "presiserer", vedtak = "ov-u32" },
+]
+folge = '''
+Presiseringen som fulgte svaret, ordrett fra spørsmålet 25.11 ([kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7159842510)): «1 E: et standpunkt uten etikett står først i punktet. Poster slås ikke sammen. Begrunnelsen følger posten (LV-U70, LV-U71). Beskrivelsen av posten står i overskriften.» Bygges i #2337.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A"
+tekst = '''
+Laget har én lagslinje, som sier hvilken innsigelse som er vilkåret for hver kravpost. Krever ingen endring i vedtakene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Lagslinjen har vilkårene som gjelder alle standpunktene i laget. Vilkåret som gjelder én kravpost, står først i setningen for kravposten. Presiserer LV-U34: vilkåret for én kravpost kan stå i setningen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 C"
+tekst = '''
+Laget deles i én gruppe per kravpost i samme punkt, med samme etikett og hvert sitt vilkår. Endrer OV-U32: standpunktene i samme lag står ikke lenger under én etikett.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 D"
+tekst = '''
+Laget har én lagslinje med et generelt vilkår: «hvis heller ikke innsigelsen ovenfor mot samme kravpost fører frem». Krever ingen endring i vedtakene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 E"
+tekst = '''
+Svaret på vederlagskravet har ett punkt per post: hver kravpost og den særskilte vederlagsjusteringen. Punktet har standpunktet til beregningsmetoden, varselet som bare gjelder posten, og beløpet i alle lag, med en lagslinje for hvert lag. En innsigelse som bare gjelder posten, står i postens punkt rett over det som er subsidiært til den. En innsigelse som gjelder flere poster, som avslaget av forholdet og varselet etter punkt 34.1.2, står i sitt eget punkt foran postene. Punktet «Beregningsmetode» faller bort. Endrer LV-U34: ett punkt per post i stedet for ett punkt per tema i skjemaets rekkefølge. Presiserer OV-U32: et lag kan stå i flere punkter, med etiketten i hvert punkt, slik LV-U34 alt gjør for svaret på fristen.'''
+anbefalt = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U79"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2337"]
+klasse = "design"
+bindende_i = ["lv-u34"]
+sporsmal = '''
+Spørsmål 2, ordrett slik det ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156572313), «Spørsmål: strukturen i byggherrens svar med lag og flere kravposter (#2337)».
+
+Bakgrunn: Fable, Codex (Astra) og Gemini (Argon) fikk samme bestilling og svarte hver for seg. De er enige om at lagslinjen skal nevne innsigelsen med navn i stedet for punktnummer, at tittelen skal nevne alle kravene brevet svarer på, og at «Forbehold» skal stå én gang, sist i brevet. De er uenige om hvor vilkåret for en kravpost står, og om hvordan et brev med svar på flere krav deles opp.
+
+Én feil i materialet: sparringen fikk brev der teksten under «Forbehold» het «Byggherrens begrunnelse for svaret». Teksten er byggherrens forbehold for hele svaret (KA-U50, KA-U49 punkt 1). Begrunnelsen står under punktet den gjelder (LV-U34, LV-U71). Fable og Gemini foreslår å flytte «begrunnelsen» ut av «Forbehold». Det bygger på feilen og er ikke et alternativ under.
+
+Svaret «A» 25.11 står: et ubesvart forhold gir forbeholdet sist i brevet, og et forhold som er avslått i samme brev, står først som byggherrens standpunkt.
+
+2. Hvordan lagslinjen viser til innsigelsen
+
+I dag viser lagslinjen til punktet: «Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem» (LV-U40). Spørsmålet gjelder lagslinjene som står igjen etter svaret på spørsmål 1.
+
+Spørsmål 2 forutsetter svaret på spørsmål 1.'''
+valgt = "2 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «1 E, 2 A, 3 A, 4 A, 5 A′» ([svaret i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7160455227)). Valgt: 2 A.'''
+forhold = [
+  { art = "endrer", vedtak = "lv-u40" },
+  { art = "endrer", vedtak = "lv-u34" },
+]
+folge = '''
+Presiseringen som fulgte svaret, ordrett fra spørsmålet 25.11 ([kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7159842510)): «2 A: den nærmeste innsigelsen er hovedregelen. Navnet på innsigelsen mot hindringen skal dekke begge alternativene. Kolonnene i oversikten har bare etikettene.» Bygges i #2337.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 A"
+tekst = '''
+Lagslinjen nevner innsigelsen med et fast navn etter hva den gjelder, for eksempel «innsigelsen mot forholdet», «innsigelsen mot varselet etter punkt 34.3.3 for P1» og «innsigelsen mot hindringen», og viser ikke til et punktnummer. Den nevner innsigelsene i det nærmeste laget foran som rammer standpunktet, med «heller ikke» når standpunktet står i tredje lag eller senere. Endrer LV-U40 for lagslinjen og eksemplene på lagslinjen i LV-U34.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Lagslinjen nevner innsigelsen med navn, som i A, men nevner alle innsigelsene i lagene foran som rammer standpunktet, i en liste når de er tre eller flere. Den viser til punktet med «punkt … ovenfor» bare når navnet ikke er entydig. Endrer LV-U40 for lagslinjen og eksemplene på lagslinjen i LV-U34.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 C"
+tekst = '''
+Lagslinjen viser til punktet med innsigelsen, med «ovenfor». Krever ingen endring.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
+utdrag = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U80"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2337"]
+klasse = "design"
+bindende_i = ["lv-u34"]
+sporsmal = '''
+Spørsmål 3, ordrett slik det ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156572313), «Spørsmål: strukturen i byggherrens svar med lag og flere kravposter (#2337)».
+
+Bakgrunn: Fable, Codex (Astra) og Gemini (Argon) fikk samme bestilling og svarte hver for seg. De er enige om at lagslinjen skal nevne innsigelsen med navn i stedet for punktnummer, at tittelen skal nevne alle kravene brevet svarer på, og at «Forbehold» skal stå én gang, sist i brevet. De er uenige om hvor vilkåret for en kravpost står, og om hvordan et brev med svar på flere krav deles opp.
+
+Én feil i materialet: sparringen fikk brev der teksten under «Forbehold» het «Byggherrens begrunnelse for svaret». Teksten er byggherrens forbehold for hele svaret (KA-U50, KA-U49 punkt 1). Begrunnelsen står under punktet den gjelder (LV-U34, LV-U71). Fable og Gemini foreslår å flytte «begrunnelsen» ut av «Forbehold». Det bygger på feilen og er ikke et alternativ under.
+
+Svaret «A» 25.11 står: et ubesvart forhold gir forbeholdet sist i brevet, og et forhold som er avslått i samme brev, står først som byggherrens standpunkt.
+
+3. Brev som svarer på flere krav
+
+I dag har brev 01 og 06 tittelen «Svar på forholdet», selv om de også svarer på vederlagskravet og fristkravet. Innledningen til neste svar står som en løs setning etter forrige svar.'''
+valgt = "3 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «1 E, 2 A, 3 A, 4 A, 5 A′» ([svaret i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7160455227)). Valgt: 3 A.'''
+forhold = [{ art = "presiserer", vedtak = "lv-u34" }]
+folge = '''
+Bygges i #2337.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 A"
+tekst = '''
+Tittelen nevner alle kravene brevet svarer på. Svaret på hvert krav er en del med egen overskrift, for eksempel «Svar på kravet om vederlagsjustering», med innledningen etter LV-U34 under overskriften. Punktene nummereres gjennom hele brevet. Presiserer LV-U34.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Tittelen nevner alle kravene. Alle innledningene står samlet øverst, før punkt 1. Presiserer LV-U34.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 C"
+tekst = '''
+Tittelen nevner alle kravene. Innledningen står foran svaret på hvert krav, uten egen overskrift. Krever ingen endring i vedtakene.'''
+
+
+[[gruppe.vedtak]]
+id = "LV-U81"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2337"]
+klasse = "design"
+bindende_i = ["ka-u49", "gr-u34"]
+sporsmal = '''
+Spørsmål 4, ordrett slik det ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156572313), «Spørsmål: strukturen i byggherrens svar med lag og flere kravposter (#2337)».
+
+Bakgrunn: Fable, Codex (Astra) og Gemini (Argon) fikk samme bestilling og svarte hver for seg. De er enige om at lagslinjen skal nevne innsigelsen med navn i stedet for punktnummer, at tittelen skal nevne alle kravene brevet svarer på, og at «Forbehold» skal stå én gang, sist i brevet. De er uenige om hvor vilkåret for en kravpost står, og om hvordan et brev med svar på flere krav deles opp.
+
+Én feil i materialet: sparringen fikk brev der teksten under «Forbehold» het «Byggherrens begrunnelse for svaret». Teksten er byggherrens forbehold for hele svaret (KA-U50, KA-U49 punkt 1). Begrunnelsen står under punktet den gjelder (LV-U34, LV-U71). Fable og Gemini foreslår å flytte «begrunnelsen» ut av «Forbehold». Det bygger på feilen og er ikke et alternativ under.
+
+Svaret «A» 25.11 står: et ubesvart forhold gir forbeholdet sist i brevet, og et forhold som er avslått i samme brev, står først som byggherrens standpunkt.
+
+4. Punktet «Forbehold»
+
+I dag har svaret på hvert krav sitt eget punkt «Forbehold», sist i svaret på kravet. Der står forbeholdet om forholdet når forholdet er ubesvart (GR-U34), og byggherrens forbehold for hele svaret (KA-U50). Brev 06 har to slike punkter, punkt 5 og 10. Designdelen i KA-U49 sier at teksten i feltet «Forbehold» står sist i brevet, og GR-U34 sier det samme om forbeholdet om forholdet. Det er uklart om «brevet» der betyr hele brevet eller svaret på hvert krav.'''
+valgt = "4 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «1 E, 2 A, 3 A, 4 A, 5 A′» ([svaret i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7160455227)). Valgt: 4 A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u49" },
+  { art = "presiserer", vedtak = "gr-u34" },
+]
+folge = '''
+Presiseringen som fulgte svaret, ordrett fra spørsmålet 25.11 ([kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7159842510)): «4 A: byggherrens forbehold står som ett avsnitt per svar, med navnet på kravet (LV-U70).» Bygges i #2337.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 A"
+tekst = '''
+Brevet har høyst ett punkt «Forbehold», sist i brevet, og bare når det har innhold. Først står forbeholdet om forholdet når forholdet er ubesvart, og så byggherrens forbehold for hele svaret. Har brevet svar på flere krav, står byggherrens forbehold for hvert svar med navnet på kravet. Presiserer designdelen i KA-U49 og GR-U34: «sist i brevet» er sist i hele brevet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+Brevet har høyst ett punkt «Forbehold», sist i brevet, og bare når det har innhold. Først står byggherrens forbehold for hele svaret, med navnet på kravet når brevet har svar på flere krav, og sist forbeholdet om forholdet når forholdet er ubesvart. Presiserer designdelen i KA-U49 og GR-U34: «sist i brevet» er sist i hele brevet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 C"
+tekst = '''
+Svaret på hvert krav har sitt eget punkt «Forbehold», sist i svaret på kravet. Presiserer designdelen i KA-U49 og GR-U34: «sist i brevet» er sist i svaret på kravet.'''
+
+
+[[gruppe.vedtak]]
+id = "LV-U82"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2337"]
+klasse = "design"
+bindende_i = ["ov-u32", "ov-u33"]
+sporsmal = '''
+Spørsmål 5, ordrett slik det ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156572313), «Spørsmål: strukturen i byggherrens svar med lag og flere kravposter (#2337)».
+
+Bakgrunn: Fable, Codex (Astra) og Gemini (Argon) fikk samme bestilling og svarte hver for seg. De er enige om at lagslinjen skal nevne innsigelsen med navn i stedet for punktnummer, at tittelen skal nevne alle kravene brevet svarer på, og at «Forbehold» skal stå én gang, sist i brevet. De er uenige om hvor vilkåret for en kravpost står, og om hvordan et brev med svar på flere krav deles opp.
+
+Én feil i materialet: sparringen fikk brev der teksten under «Forbehold» het «Byggherrens begrunnelse for svaret». Teksten er byggherrens forbehold for hele svaret (KA-U50, KA-U49 punkt 1). Begrunnelsen står under punktet den gjelder (LV-U34, LV-U71). Fable og Gemini foreslår å flytte «begrunnelsen» ut av «Forbehold». Det bygger på feilen og er ikke et alternativ under.
+
+Svaret «A» 25.11 står: et ubesvart forhold gir forbeholdet sist i brevet, og et forhold som er avslått i samme brev, står først som byggherrens standpunkt.
+
+5. «Prinsipalt» på avslaget av forholdet
+
+I brev 01 avslår byggherren forholdet i samme brev, og svaret på vederlagskravet står «Subsidiært, hvis innsigelsen i punkt 2 ovenfor ikke fører frem». Avslaget i punkt 2 har ingen etikett. Er forholdet avslått i et tidligere brev, står avslaget som punkt 1 med «Prinsipalt» (brev 03 og 08). OV-U32 sier at brevet skriver «Prinsipalt» for det første laget, og at grunnlagets standpunkter står først med sin innbyrdes lagdeling. OV-U33 sier: «Har hele svaret bare ett lag og ingen påberopelse, skrives laget uten etikett». Det er uklart om «hele svaret» der er svaret på forholdet eller hele brevet.
+
+Alternativ A′ ble stilt 25.11 i [kommentaren i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7159842510), etter sammenstillingen av runde 2: «5 A: ordlyden er for vid. Med «hele svaret er hele brevet» får et fristsvar uten påberopelse «Prinsipalt» i et samlet brev (Fable). Et avslag som står i andre lag, under punkt 32.2, får også «Prinsipalt», der OV-U32 gir «Subsidiært» (Codex, brev 04). Begge funnene holder.» Spørsmålet slik det ble stilt: «Anbefalt: «1 E, 2 A, 3 A, 4 A, 5 A′», der 5 A′ er: avslaget av forholdet får etiketten «Prinsipalt» når avslaget står i første lag og et standpunkt i brevet står subsidiært til det. Presiseringen av OV-U33 («hele svaret er hele brevet») tas ut.»'''
+valgt = "5 A′"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «1 E, 2 A, 3 A, 4 A, 5 A′» ([svaret i #2337](https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7160455227)). Valgt: 5 A′.'''
+folge = '''
+Bygges i #2337.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 A: «hele svaret» er hele brevet"
+tekst = '''
+Står et standpunkt i brevet subsidiært til avslaget av forholdet, har avslaget etiketten «Prinsipalt», også når svaret på forholdet ellers har ett lag. Presiserer OV-U33: «hele svaret» er hele brevet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 B"
+tekst = '''
+Avslaget av forholdet står uten etikett når svaret på forholdet har ett lag, også når et standpunkt i brevet står subsidiært til det. Presiserer OV-U33: «hele svaret» er svaret på forholdet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 A′"
+tekst = '''
+Avslaget av forholdet får etiketten «Prinsipalt» når avslaget står i første lag og et standpunkt i brevet står subsidiært til det. Presiseringen av OV-U33 («hele svaret er hele brevet») tas ut.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Har hele svaret bare ett lag og ingen påberopelse, skrives laget uten etikett"
+utdrag = true
+
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
