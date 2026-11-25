@@ -7156,7 +7156,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  [...innholdetIVedleggene(d.dokumentasjon, oppslag)].sort();',
+        '  d.dokumentasjon.map((id) => innholdetIVedlegget(id, oppslag)).sort();',
         '  [...new Set(d.dokumentasjon.map((id) => `id:${id.toLowerCase()}`))].sort();',
       ],
     ],

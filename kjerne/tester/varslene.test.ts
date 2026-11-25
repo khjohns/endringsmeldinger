@@ -2346,6 +2346,19 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           )
         )?.regel
       ).toBe('UGYLDIG_FORM');
+      expect(
+        avvisningen(
+          proev(
+            s,
+            vederlagskrav([
+              { ...regning, varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] } },
+              { ...justert, varsel: kopi },
+            ]),
+            { ...kopier, [PLAN]: varsel.dokumentasjon[0]! }
+          )
+        )?.regel,
+        'et dokument med fila to ganger er et annet dokument enn ett med fila én gang'
+      ).toBe('UGYLDIG_FORM');
       const annen = proev(
         s,
         vederlagskrav([

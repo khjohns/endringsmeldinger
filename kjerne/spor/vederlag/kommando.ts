@@ -16,8 +16,12 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
-import { omtalen } from '../../frosset/brevdeler.ts';
-import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
+import { liste, omtalen } from '../../frosset/brevdeler.ts';
+import {
+  innholdetIDokumentet,
+  innholdetIVedlegget,
+  innholdetIVedleggene,
+} from '../../kommandoer/vedlegg.ts';
 import {
   kontroller as kontrollerVederlaget,
   kontrollerOppgivelsenEtter344,
@@ -524,11 +528,12 @@ function medDokumentvarslene(
 }
 
 /**
- * Innholdet i vedleggene i dokumentet, sortert, som skiller ett dokument fra et annet. Samme fil
- * lastet opp på nytt er samme dokument (#2126, som `innholdetIVedleggene` i fristen, #2100).
+ * Innholdet i hvert vedlegg i dokumentet, sortert, som skiller ett dokument fra et annet. Samme
+ * fil lastet opp på nytt er samme dokument (#2126, #2100), og et dokument med fila to ganger er
+ * et annet enn et med fila én gang.
  */
 const dokumentnoekkel = (d: Dokumentvarsel, oppslag: Vedleggsoppslag): string[] =>
-  [...innholdetIVedleggene(d.dokumentasjon, oppslag)].sort();
+  d.dokumentasjon.map((id) => innholdetIVedlegget(id, oppslag)).sort();
 
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
@@ -662,11 +667,11 @@ function vedleggetErEtVarsel(
     sak.u.spor.vederlag.kravpostvarsler.flatMap((v) => (v.dokument === varselet.id ? [v.id] : []))
   );
   const poster = ((k.innhold.kravposter ?? []) as Record<string, unknown>[]).flatMap((p, j) =>
-    utsagn.has(p.varsel as string) ? [j + 1] : []
+    utsagn.has(p.varsel as string) ? [String(j + 1)] : []
   );
   return avvis(
     'KRAVPOSTVARSELET',
-    `Et vedlegg ved kravet ligger alt ved varselet for kravpost nr. ${poster.join(' og ')} i dette kravet. Varselet legges ved kravet, så vedlegget står der én gang.`
+    `Et vedlegg ved kravet ligger alt ved varselet for kravpost nr. ${liste(poster)} i dette kravet. Varselet legges ved kravet, så vedlegget står der én gang.`
   );
 }
 

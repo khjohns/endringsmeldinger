@@ -13,14 +13,15 @@ import type { Vedleggsoppslag } from './skriving.ts';
 /** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
 export const vedleggsnoekkel = (id: string): string => id.toLowerCase();
 
-/** Innholdet i vedleggene, med ID-en for et vedlegg mellomlageret ikke har. */
+/** Innholdet i vedlegget, med ID-en for et vedlegg mellomlageret ikke har. */
+export function innholdetIVedlegget(id: string, oppslag: Vedleggsoppslag): string {
+  const noekkel = vedleggsnoekkel(id);
+  return oppslag.get(noekkel)?.innhold_sha256 ?? `id:${noekkel}`;
+}
+
+/** Innholdet i vedleggene (`innholdetIVedlegget`). */
 export const innholdetIVedleggene = (ider: readonly string[], oppslag: Vedleggsoppslag) =>
-  new Set(
-    ider.map((id) => {
-      const noekkel = vedleggsnoekkel(id);
-      return oppslag.get(noekkel)?.innhold_sha256 ?? `id:${noekkel}`;
-    })
-  );
+  new Set(ider.map((id) => innholdetIVedlegget(id, oppslag)));
 
 /** Innholdet i vedleggene ved dokumentet. */
 export const innholdetIDokumentet = (d: Pick<Dokument, 'dokumentasjon'>) =>

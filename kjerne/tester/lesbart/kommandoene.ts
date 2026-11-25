@@ -417,7 +417,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'Vedlegg',
     'relasjon',
     'innhold_sha256',
-    ['kommandoer/vedlegg.ts:innholdetIVedleggene', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
+    ['kommandoer/vedlegg.ts:innholdetIVedlegget', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
   ],
   // VS-U74, #2133: samme brev som et krav som gjelder som varselet, er ikke et varsel etter samme
   // bestemmelse.
@@ -437,9 +437,15 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/frist/kommando.ts:varseldokumentetISaken',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
-      'spor/vederlag/kommando.ts:dokumentnoekkel',
       'spor/vederlag/kommando.ts:innholdetIVarslene',
     ],
+  ],
+  // #2126: et dokument fra kravskjemaet skilles på innholdet i hvert vedlegg.
+  [
+    'kommandoer/vedlegg.ts',
+    'relasjon',
+    'innholdetIVedlegget',
+    ['spor/vederlag/kommando.ts:dokumentnoekkel'],
   ],
   // #2126: én form for vedleggs-ID-en, så samme vedlegg er samme nøkkel overalt.
   [
