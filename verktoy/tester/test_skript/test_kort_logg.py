@@ -53,7 +53,7 @@ def test_hele_loggen_skrives_til_fil_uten_fargekoder_og_utgangskoden_beholdes(
         "sys.exit(3)\n"
     )
     utfall = kort_logg.main(
-        ["--logg", str(logg), "--hale", "2", "--", sys.executable, "-c", kode]
+        ["--logg", str(logg), "--hale", "2", "--", sys.executable, "-u", "-c", kode]
     )
     assert utfall == 3
     tekst = logg.read_text()
@@ -62,3 +62,9 @@ def test_hele_loggen_skrives_til_fil_uten_fargekoder_og_utgangskoden_beholdes(
     assert "linje 0\n" not in vist
     assert "Utfall: kode 3" in vist
     assert vist.endswith("--- siste 2 linjer ---\nFAIL x.test.ts\nslutt\n")
+
+
+def test_en_linje_med_feil_vises_selv_om_den_ogsaa_sier_null_av_noe_annet():
+    assert kort_logg.er_feillinje("Tests  3 failed | 0 errors")
+    assert kort_logg.er_feillinje("ERROR collecting test_a.py")
+    assert not kort_logg.er_feillinje("Tests  3 passed | 0 failed")

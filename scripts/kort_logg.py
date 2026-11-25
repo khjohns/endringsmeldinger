@@ -9,7 +9,8 @@ Avhengigheter: bare standardbiblioteket.
 
 Skriptet skriver stien til loggen, utfallet, linjene som ser ut som feil (høyst
 `--feil`, uten gjentakelser) og de siste `--hale` linjene, der testverktøyene skriver
-sammendraget. Fargekodene er fjernet. Utgangskoden er kommandoens. Hele loggen leses
+sammendraget. Fargekodene er fjernet. Utgangskoden er kommandoens, 128 pluss
+signalet når den ble drept, og 130 når skriptet ble avbrutt. Hele loggen leses
 med `grep` eller `sed -n` i fila, ikke med `cat`. Testene står i
 verktoy/tester/test_skript/test_kort_logg.py.
 """
@@ -19,6 +20,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import re
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -26,14 +28,14 @@ from pathlib import Path
 LOGGMAPPE = Path("/tmp/kort-logg")
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 FEILLINJE = re.compile(
-    r"error TS\d+|\berror\b|\bErrors?\b|\bFAIL(ED)?\b|\bfailed\b|AssertionError"
-    r"|Traceback|^\s*[✗×]\s|^E\s{2,}",
+    r"error TS\d+|\berror\b|\bErrors?\b|\bERRORS?\b|\bFAIL(ED)?\b|\bfailed\b"
+    r"|AssertionError|Traceback|^\s*[✗×]\s|^E\s{2,}",
 )
 INGEN_FEIL = re.compile(r"\b0 (errors?|failed)\b|\bErrors?: 0\b", re.IGNORECASE)
 
 
 def er_feillinje(linje: str) -> bool:
-    return bool(FEILLINJE.search(linje)) and not INGEN_FEIL.search(linje)
+    return bool(FEILLINJE.search(INGEN_FEIL.sub("", linje)))
 
 
 def kortform(linjer: list[str], maks_feil: int, hale: int) -> list[str]:
@@ -63,14 +65,25 @@ def loggsti(kommando: list[str]) -> Path:
     return LOGGMAPPE / f"{navn.strip('-') or 'kommando'}-{tid}.log"
 
 
+def ikke_negativ(verdi: str) -> int:
+    tall = int(verdi)
+    if tall < 0:
+        raise argparse.ArgumentTypeError("må være 0 eller mer")
+    return tall
+
+
+def avbryt(signum, ramme):
+    raise KeyboardInterrupt
+
+
 def main(argv: list[str] | None = None) -> int:
     tolker = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     tolker.add_argument("--logg", type=Path, help="sti til loggen")
     tolker.add_argument(
-        "--feil", type=int, default=40, help="høyst så mange feillinjer"
+        "--feil", type=ikke_negativ, default=40, help="høyst så mange feillinjer"
     )
     tolker.add_argument(
-        "--hale", type=int, default=15, help="så mange linjer fra slutten"
+        "--hale", type=ikke_negativ, default=15, help="så mange linjer fra slutten"
     )
     tolker.add_argument("kommando", nargs=argparse.REMAINDER)
     args = tolker.parse_args(argv)
@@ -81,21 +94,42 @@ def main(argv: list[str] | None = None) -> int:
     sti = args.logg or loggsti(kommando)
     sti.parent.mkdir(parents=True, exist_ok=True)
     try:
-        prosess = subprocess.run(
-            kommando, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False
+        prosess = subprocess.Popen(
+            kommando, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
-    except FileNotFoundError:
-        print(f"Fant ikke kommandoen {kommando[0]}", file=sys.stderr)
-        return 127
-    tekst = ANSI.sub("", prosess.stdout.decode("utf-8", errors="replace"))
-    sti.write_text(tekst, encoding="utf-8")
+    except OSError as feil:
+        print(f"Kunne ikke starte {kommando[0]}: {feil}", file=sys.stderr)
+        return 127 if isinstance(feil, FileNotFoundError) else 126
 
-    linjer = tekst.splitlines()
+    # Loggen skrives linje for linje, så den finnes også når kjøringen avbrytes.
+    signal.signal(signal.SIGTERM, avbryt)
+    linjer: list[str] = []
+    avbrutt = False
+    with sti.open("w", encoding="utf-8") as logg:
+        try:
+            for raa in prosess.stdout:
+                linje = ANSI.sub("", raa.decode("utf-8", errors="replace")).rstrip("\n")
+                linjer.append(linje)
+                logg.write(linje + "\n")
+                logg.flush()
+            kode = prosess.wait()
+        except KeyboardInterrupt:
+            avbrutt = True
+            prosess.terminate()
+            try:
+                prosess.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                prosess.kill()
+                prosess.wait()
+            kode = 130
+
+    if kode < 0:
+        kode = 128 - kode
     print(f"Logg: {sti} ({len(linjer)} linjer)")
-    print(f"Utfall: kode {prosess.returncode}")
+    print(f"Utfall: {'avbrutt, ' if avbrutt else ''}kode {kode}")
     for linje in kortform(linjer, args.feil, args.hale):
         print(linje[:300])
-    return prosess.returncode
+    return kode
 
 
 if __name__ == "__main__":
