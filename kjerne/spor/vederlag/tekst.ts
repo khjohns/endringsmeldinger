@@ -45,6 +45,7 @@ import {
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
+  svaretGjelderEtVarsel,
 } from './format.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../../typer.ts';
 import type {
@@ -53,6 +54,7 @@ import type {
   Kravpostvarselet,
   Standpunkt,
   Standpunktsvirkning,
+  Virkning,
 } from '../../typer.ts';
 
 // ---------- Brevteksten (LV-U4) ----------
@@ -490,8 +492,9 @@ function leddIVederlaget(
   kravet: Krav | null | undefined,
   forKravposten: ReadonlySet<string>
 ): Linjeledd[] {
-  const sine: Linjeledd[] = [];
   const virkning = (id: string) => virkningen(v, id);
+  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning);
+  const sine: Linjeledd[] = [];
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
   // begrensningen som eget ledd foran posten.
@@ -559,6 +562,30 @@ function leddIVederlaget(
     sine.push({ tekst, virkning: virkning(b.id) });
   });
   return sine;
+}
+
+/**
+ * Linjen for svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene (VS-U79): standpunktet
+ * til varselet og til justeringen. Etter § 34.4 er «i tide» oppgivelsen av innsigelsen (VS-U77
+ * punkt 31).
+ */
+function leddISvaretPaaVarselet(
+  svar: Svarinnhold,
+  virkning: (id: string) => Virkning
+): Linjeledd[] {
+  return svar.standpunkter.flatMap((s): Linjeledd[] => {
+    const tekst =
+      s.art === 'rettidighet'
+        ? !s.iTide
+          ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
+          : s.hjemmel === '34.4'
+            ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
+            : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`
+        : s.art === 'justering'
+          ? `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`
+          : undefined;
+    return tekst === undefined ? [] : [{ tekst, virkning: virkning(s.id) }];
+  });
 }
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */

@@ -27,6 +27,7 @@ import type {
   Utsagn,
   Kravpostvarselhjemmel,
   Krav,
+  Kravpost,
   Spor,
   Standpunkt,
   Standpunktsvirkning,
@@ -130,30 +131,35 @@ export interface StandpunktTilVarselet {
  * Byggherrens siste standpunkt til varselet etter § 34.3.3 eller § 34.4 for hver kravpost i
  * `svarene`: svarene på vederlaget med virkning, med dagen hvert ble sendt og om brevet er lagt
  * til. Svarene leses i rekkefølgen de ble sendt (VS-U77 punkt 8–12, 30 og 31, OV-U103–OV-U105).
- * `dokument` er brevet innsigelsen først ble gjort gjeldende i (punkt 6). Kommandoen og
- * brevteksten leser dem herfra.
+ * `dokument` er brevet innsigelsen først ble gjort gjeldende i (punkt 6). Et standpunkt i svaret
+ * på et varsel som står alene, gjelder varselet og hver kravpost i `poster` som viser til det
+ * (punkt 34, VS-U79). Kommandoen og brevteksten leser dem herfra.
  */
 export function sisteStandpunktTilVarslene(
-  svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[]
+  svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[],
+  poster: readonly Pick<Kravpost, 'id' | 'varsel'>[] = []
 ): StandpunktTilVarselet[] {
   const siste = new Map<string, StandpunktTilVarselet & { dag: string; lagtTil: boolean }>();
   const sendt = [...svarene].sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
   for (const { s, dag, lagtTil } of sendt)
     for (const p of s.standpunkter) {
       if (p.art !== 'rettidighet' || !erKravpostvarselhjemmel(p.hjemmel)) continue;
-      const noekkel = `${p.hjemmel} ${p.gjelder}`;
-      const foer = siste.get(noekkel);
-      if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
-      // VS-U77 punkt 6.
-      const gjentatt = foer && !foer.iTide && !p.iTide;
-      siste.set(noekkel, {
-        gjelder: p.gjelder,
-        hjemmel: p.hjemmel,
-        iTide: p.iTide,
-        dokument: gjentatt ? foer.dokument : s.dokument,
-        dag,
-        lagtTil,
-      });
+      const gjelder = [p.gjelder, ...poster.flatMap((x) => (x.varsel === p.gjelder ? [x.id] : []))];
+      for (const g of gjelder) {
+        const noekkel = `${p.hjemmel} ${g}`;
+        const foer = siste.get(noekkel);
+        if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
+        // VS-U77 punkt 6.
+        const gjentatt = foer && !foer.iTide && !p.iTide;
+        siste.set(noekkel, {
+          gjelder: g,
+          hjemmel: p.hjemmel,
+          iTide: p.iTide,
+          dokument: gjentatt ? foer.dokument : s.dokument,
+          dag,
+          lagtTil,
+        });
+      }
     }
   return [...siste.values()].map(({ gjelder, hjemmel, iTide, dokument }) => ({
     gjelder,

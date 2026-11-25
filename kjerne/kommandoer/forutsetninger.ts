@@ -15,7 +15,10 @@ import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { PARTEN } from '../frosset/brevdeler.ts';
-import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import {
+  FORUTSETNINGER_I_VEDERLAGET,
+  hindrerSvaretPaaVarselet,
+} from '../spor/vederlag/kommando.ts';
 import type {
   Avvisning,
   Kravvarselhjemmel,
@@ -43,6 +46,8 @@ export type Handlingsnoekkel =
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | { type: 'registrere_brev' }
+  /** VS-U79: byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 som står alene. */
+  | { type: 'svare' | 'revidere'; gjelder: string }
   | {
       type:
         | 'bestride'
@@ -99,9 +104,18 @@ export const HANDLINGSTYPER = Object.keys(PART) as Handlingsnoekkel['type'][];
  * registrert enighet omfatter (MM-U34 punkt 13).
  * De andre er utsatt etter OV-U7 og avvises for begge parter.
  */
-function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
+function henvisning(
+  h: Extract<Handlingsnoekkel, { gjelder: string }>,
+  part: Part,
+  u: Utledning,
+  sendt: string | null
+) {
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
+    case 'svare':
+      return hindrerSvaretPaaVarselet(u, h.gjelder, 'Svaret', sendt);
+    case 'revidere':
+      return hindrerSvaretPaaVarselet(u, h.gjelder, 'Revisjonen', sendt);
     case 'innsigelse':
       if (kanFaaInnsigelse(maal, part))
         for (const spor of SPOR) {
@@ -222,7 +236,7 @@ export function forutsetninger(
   const eier = PART[h.type];
   if (eier !== null && eier !== part)
     return avvis('FEIL_PART', `Bare ${PARTEN[eier]} kan gjøre dette.`);
-  if ('gjelder' in h) return henvisning(h, part, u);
+  if ('gjelder' in h) return henvisning(h, part, u, sendt);
   // OV-U7, OV-U99 punkt 2: «ingen krav» venter.
   if (h.type === 'ingen_krav')
     return avvis(

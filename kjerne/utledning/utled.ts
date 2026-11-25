@@ -168,6 +168,13 @@ export interface Sporutledning {
    * journalen. Saken kan ha flere (VS-U48, VS-U52); bare vederlaget har dem.
    */
   kravpostvarsler: LestVarsel[];
+  /**
+   * Byggherrens svar på et varsel etter § 34.3.3 første ledd eller § 34.4 som står alene, i
+   * rekkefølgen i journalen. `gjelder` er varselet (VS-U77 punkt 30–35, VS-U79). Svarene på hvert
+   * varsel er én kjede, som svarene på en kravversjon. Bare vederlaget har dem, og de står ikke i
+   * `svar`.
+   */
+  svarPaaVarsler: Svar[];
   /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
   foresporsler: ForesporselOgSvar[];
   /** Hvorfor hele svaret i sporet er subsidiært til forholdet; tomt for forholdet. */
@@ -185,6 +192,13 @@ export interface Element {
    */
   innsigelse?: boolean;
 }
+
+/**
+ * Svaret gjelder et varsel, ikke en kravversjon (VS-U79). At varselet er etter § 34.3.3 eller
+ * § 34.4, kontrollerer `kontrollerSvarPaaVarselet`.
+ */
+const erSvarPaaVarselet = (s: Pick<Svar, 'gjelder'>, elementer: Record<string, Element>) =>
+  elementer[s.gjelder]?.art === 'varsel';
 
 /** Det en innsigelse kan gjelde (VS-U1). */
 export const KAN_FAA_INNSIGELSE: ReadonlySet<Element['art']> = new Set([
@@ -329,6 +343,7 @@ const tomtSpor = (): Sporutledning => ({
   trukket: false,
   varsler: {},
   kravpostvarsler: [],
+  svarPaaVarsler: [],
   foresporsler: [],
   subsidiaer: [],
 });
@@ -1076,7 +1091,12 @@ function utledSporene(
         if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].innsigelse = true;
       }
       if (harVirkning(s.id))
-        (utenforRekken.has(s.id) ? spor[s.spor].svarUtenforRekken : spor[s.spor].svar).push(s);
+        (erSvarPaaVarselet(s, elementer)
+          ? spor[s.spor].svarPaaVarsler
+          : utenforRekken.has(s.id)
+            ? spor[s.spor].svarUtenforRekken
+            : spor[s.spor].svar
+        ).push(s);
     }
     for (const u of d.utsagn) {
       plasser(u.id, h);
@@ -1223,7 +1243,9 @@ function kontrollerSvarene(
   ugyldig: Ugyldig
 ): void {
   for (const s of alleSvar.values()) {
-    if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))
+    const varselet = varsler.find((v) => v.id === s.gjelder);
+    if (varselet) kontrollerSvarPaaVarselet(s, varselet, bakover, ugyldig);
+    else if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))
       ugyldig(s.id, 'svaret viser til et krav som ikke står før det i sporet');
     if (s.erstatter !== null) {
       const forrige = alleSvar.get(s.erstatter);
@@ -1243,11 +1265,43 @@ function kontrollerSvarene(
         s.id,
         'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'
       );
+    if (varselet) continue;
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, ugyldig);
     const krav = alleKrav.get(s.gjelder);
     if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);
   }
+}
+
+/**
+ * VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene, er et svar på
+ * vederlaget. Standpunktene gjelder varselet: rettidigheten etter varselets bestemmelse og, for
+ * § 34.3.3, justeringen (VS-U77 punkt 30 og 31). Svaret godkjenner ikke noe krav, så det faller
+ * ikke sammen med noe (GR-U7).
+ */
+function kontrollerSvarPaaVarselet(
+  s: Svar,
+  varselet: LestVarsel,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  if (s.spor !== 'vederlag' || !erKravpostvarselhjemmel(varselet.hjemmel))
+    ugyldig(s.id, 'svaret gjelder et varsel som ikke er etter punkt 34.3.3 eller 34.4');
+  else if (!bakover(s.id, s.gjelder))
+    ugyldig(s.id, 'svaret viser til et varsel som ikke står før det');
+  else if (
+    s.standpunkter.some((p) =>
+      p.art === 'rettidighet'
+        ? p.gjelder !== s.gjelder || p.hjemmel !== varselet.hjemmel
+        : p.art !== 'justering' || p.gjelder !== s.gjelder || varselet.hjemmel !== '34.3.3'
+    )
+  )
+    ugyldig(s.id, 'standpunktene i svaret på varselet gjelder ikke varselet');
+  // VS-U77 punkt 30: svaret på varselet etter § 34.3.3 har standpunktet til justeringen.
+  else if (varselet.hjemmel === '34.3.3' && !s.standpunkter.some((p) => p.art === 'justering'))
+    ugyldig(s.id, 'svaret på varselet etter punkt 34.3.3 har ikke standpunktet til justeringen');
+  else if (s.beslutningsgrunnlag.sammenfall)
+    ugyldig(s.id, 'svaret på et varsel faller ikke sammen med et krav');
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */
@@ -1293,14 +1347,15 @@ function kontrollerStandpunktet(
 }
 
 /**
- * Svarene på én kravversjon er én kjede: ett første svar, og hver revisjon
- * erstatter det forrige. To første svar eller en forgrening gjør det tvetydig
+ * Svarene på én kravversjon, eller på ett varsel (VS-U77 punkt 33), er én kjede: ett første
+ * svar, og hver revisjon erstatter det forrige. To første svar eller en forgrening gjør det tvetydig
  * hvilket svar som gjelder.
  */
 function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyldig): void {
   for (const n of SPOR) {
-    for (const k of spor[n].krav) {
-      const paaKravet = spor[n].svar.filter((s) => s.gjelder === k.id);
+    const svarene = [...spor[n].svar, ...spor[n].svarPaaVarsler];
+    for (const k of [...spor[n].krav, ...spor[n].kravpostvarsler]) {
+      const paaKravet = svarene.filter((s) => s.gjelder === k.id);
       if (!paaKravet.length) continue;
       const foerste = paaKravet.filter((s) => s.erstatter === null);
       const kjede = new Set<string>();

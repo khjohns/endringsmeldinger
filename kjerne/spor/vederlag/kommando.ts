@@ -22,6 +22,7 @@ import {
   kontroller as kontrollerVederlaget,
   kontrollerOppgivelsenEtter344,
   kontrollerOppgjoersformen,
+  kontrollerSvaretPaaVarselet,
   kontrollerVarseletForVederlag,
   stilteSpoersmaal,
   stiltIKravposten,
@@ -281,8 +282,8 @@ export function standpunkteneTilVarslene(
   sendt: string | null,
   medSammeDag = false
 ): StandpunktTilVarselet[] {
-  const { svar, svarUtenforRekken } = u.spor.vederlag;
-  const medVirkning = new Set([...svar, ...svarUtenforRekken].map((s) => s.id));
+  const { svar, svarUtenforRekken, svarPaaVarsler, gjeldendeKrav } = u.spor.vederlag;
+  const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));
   // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
   return sisteStandpunktTilVarslene(
     [...dokumenterI(u.journal)]
@@ -297,8 +298,110 @@ export function standpunkteneTilVarslene(
       )
       .filter(
         ({ dag }) => sendt === null || foerDagen(dag, sendt) || (medSammeDag && dag === sendt)
-      )
+      ),
+    gjeldendeKrav ? kravposterI(gjeldendeKrav) : []
   );
+}
+
+/**
+ * VS-U77 punkt 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 34.3.3 eller
+ * § 34.4 som står alene, eller et nytt svar som erstatter det forrige (`hva`). Byggherren kan
+ * svare så lenge ingen sendt kravversjon har en kravpost som gjelder varselet. Et svar lagt til,
+ * sendt på dagen `sendt`, prøves mot kravene sendt før den dagen (OV-U98).
+ */
+export function hindrerSvaretPaaVarselet(
+  u: Utledning,
+  gjelder: string,
+  hva: 'Svaret' | 'Revisjonen',
+  sendt: string | null
+): Avvisning | null {
+  const sporet = u.spor.vederlag;
+  if (!sporet.kravpostvarsler.some((v) => v.id === gjelder))
+    return avvis(
+      'INGEN_VARSEL',
+      `${hva} må gjelde et varsel etter punkt 34.3.3 eller 34.4 fra totalentreprenøren.`
+    );
+  if (u.forholdAvvist)
+    return avvis(
+      'FORHOLD_AVVIST',
+      'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.'
+    );
+  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+  const kravene = [...dokumenterI(u.journal)].flatMap((d) =>
+    d.krav
+      .filter((k) => k.spor === 'vederlag')
+      .map((k) => ({ k, dag: dagenSendt({ id: k.id, dokument: d.id }, d) ?? '' }))
+  );
+  if (
+    kravene.some(
+      ({ k, dag }) =>
+        (sendt === null || !foerDagen(sendt, dag)) &&
+        kravposterI(k).some((p) => p.varsel === gjelder)
+    )
+  )
+    return avvis(
+      'VARSELET_GJELDER_EN_KRAVPOST',
+      `${hva} kan ikke gjelde varselet, fordi en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
+    );
+  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  if (hva === 'Svaret' && forrige)
+    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
+  if (hva === 'Revisjonen' && !forrige)
+    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  return null;
+}
+
+/**
+ * VS-U79, VS-U77 punkt 30 og 31: standpunktene i svaret på varselet `varselet` som står alene, i
+ * rekkefølgen brevet setter dem. Begge gjelder varselet.
+ */
+export function standpunkterPaaVarselet(
+  v: Svarvurdering,
+  varselet: { id: string; hjemmel: Kravpostvarselhjemmel },
+  nyId: () => string
+): Data[] {
+  const iTide = (v as Data).varslet_i_tide;
+  const godtar = (v as Data).godtar_justering;
+  const ut: Data[] = [];
+  if (typeof iTide === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'rettidighet',
+      gjelder: varselet.id,
+      hjemmel: varselet.hjemmel,
+      i_tide: iTide,
+    });
+  if (typeof godtar === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'justering',
+      gjelder: varselet.id,
+      hjemmel: '34.3.2',
+      godtar,
+    });
+  return ut;
+}
+
+/**
+ * Vurderingene i svaret på varselet `varselet` (`kontrollerSvaretPaaVarselet`). En innsigelse
+ * etter § 34.4 står når byggherrens siste standpunkt til varselet før svaret gjorde den gjeldende.
+ */
+export function vurderingeneISvaretPaaVarselet(
+  s: Svarutkast,
+  varselet: { id: string; hjemmel: Kravpostvarselhjemmel },
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
+  const staar = standpunkteneTilVarslene(u, sendt).some(
+    (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
+  );
+  const feil = avvisteFelt(() =>
+    kontrollerSvaretPaaVarselet(varselet.hjemmel, s.vurderinger as Data, staar)
+  );
+  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
+  return grunner.length
+    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
+    : null;
 }
 
 /** VS-U63: kravpostene der byggherrens innsigelse mot varselet etter § 34.4 står. */

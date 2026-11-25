@@ -391,10 +391,59 @@ export const UTREGNINGEN: Lesbar[] = [
   // de ble sendt.
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
   ['spor/vederlag/kommando.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
+  // VS-U79: varselet svaret på et varsel gjelder, og dagen kravene ble sendt.
+  ['spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet', 'relasjon', 'dag k'],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'hindrerSvaretPaaVarselet',
+    ['kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  // VS-U79, VS-U77 punkt 30 og 31: standpunktene i svaret på et varsel som står alene.
+  ['spor/vederlag/kommando.ts:standpunkterPaaVarselet', 'relasjon', 'id hjemmel'],
+  [
+    'spor/vederlag/kommando.ts:standpunkterPaaVarselet(v)',
+    'utsagn',
+    'varslet_i_tide godtar_justering',
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'standpunkterPaaVarselet',
+    ['kommandoer/standpunkter.ts:standpunkter'],
+  ],
+  ['spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet', 'relasjon', 'id hjemmel'],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'vurderingeneISvaretPaaVarselet',
+    ['kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerSvaretPaaVarselet',
+    ['spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet'],
+  ],
+  ['regler/vederlag.ts:kontrollerSvaretPaaVarselet(v)', 'utsagn', 'varslet_i_tide'],
+  [
+    'spor/vederlag/format.ts',
+    'predikat',
+    'svaretGjelderEtVarsel',
+    ['spor/vederlag/frysing.ts', 'spor/vederlag/tekst.ts'],
+  ],
   // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost.
   ['StandpunktTilVarselet', 'relasjon', 'gjelder hjemmel iTide dokument'],
   // OV-U104: brevene lagt til, som gjør rekkefølgen samme dag ukjent.
-  ['Dokument', 'relasjon', 'id', ['spor/vederlag/kommando.ts:standpunkteneTilVarslene']],
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    [
+      'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+    ],
+  ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
   ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],

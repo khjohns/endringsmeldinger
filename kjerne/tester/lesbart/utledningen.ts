@@ -63,6 +63,8 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Sporutledning', 'relasjon', 'foresporsler'],
   // VS-U48, VS-U52: varslene etter § 34.3.3 og § 34.4, utledet av utsagnene i journalen.
   ['Sporutledning', 'relasjon', 'kravpostvarsler'],
+  // VS-U79: svarene på varslene etter § 34.3.3 og § 34.4, utledet av utsagnene i journalen.
+  ['Sporutledning', 'relasjon', 'svarPaaVarsler'],
   // OV-U109: kravet sendt før forespørselen, utledet av datoene.
   ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav kravFoer'],
   // OV-U98: dagen forespørselen ble sendt.
@@ -98,8 +100,11 @@ export const UTLEDNINGEN: Lesbar[] = [
       'utledning/utled.ts:partensPaaberopelser',
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
       'spor/vederlag/kommando.ts:standpunkteneTilVarslene',
+      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],
+  // VS-U79: om svaret gjelder et varsel, og om det står alene.
+  ['utledning/utled.ts:erSvarPaaVarselet(elementer)', 'relasjon', '*'],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['spor/frist/kommando.ts']],
   // KA-U76, KA-U79: versjonsregelen for fristene i kravet, og hvilken frist i kontrakten som har

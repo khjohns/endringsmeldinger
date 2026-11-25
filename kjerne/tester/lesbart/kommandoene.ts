@@ -50,7 +50,10 @@ export const KOMMANDOENE: Lesbar[] = [
     'frosset/utregning.ts:avvikIResultatet',
     'regelsett',
     'sti serveren',
-    ['kommandoer/nyttelast.ts:kontrollerSvar'],
+    [
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet',
+    ],
   ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
@@ -273,6 +276,9 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
+  // VS-U79: et svar på et varsel gjelder varselet.
+  ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'relasjon', 'spor gjelder'],
+  ['kommandoer/nyttelast.ts:paaVarselet', 'relasjon', 'id hjemmel'],
   [
     'typer.ts',
     'relasjon',
@@ -469,6 +475,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],

@@ -30,8 +30,8 @@ export interface TilbudtHandling {
 }
 
 /**
- * Handlingene som kan gjelde saken: hver handling i hvert spor og en innsigelse per
- * varsel, krav og svar. «Ingen krav», bestridelse, protest, påberopt passivitet og senere
+ * Handlingene som kan gjelde saken: hver handling i hvert spor, et svar per varsel etter
+ * § 34.3.3 og § 34.4 (VS-U79) og en innsigelse per varsel, krav og svar. «Ingen krav», bestridelse, protest, påberopt passivitet og senere
  * begrunnelse tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
@@ -45,6 +45,8 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   for (const type of ['varsle', 'sende_varsel'] as const)
     for (const hjemmel of ['34.1.3', '34.3.3', '34.4'] as const)
       ut.push({ type, spor: 'vederlag', hjemmel });
+  for (const v of u.spor.vederlag.kravpostvarsler)
+    for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: v.id });
   for (const [id, e] of Object.entries(u.elementer)) {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
