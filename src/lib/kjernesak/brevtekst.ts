@@ -57,7 +57,7 @@ export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
     /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
     sakerIkkeForstaatt?: readonly string[];
     /**
-     * Dagens dato i norsk tid etter basens klokke, som serveren dateres brevet med (U-5 i BF-46).
+     * Dagens dato i norsk tid etter basens klokke, som serveren daterer brevet med (U-5 i BF-46).
      * Uten den, som i demoruta, brukes nettleserens klokke.
      */
     dagensDato?: string;

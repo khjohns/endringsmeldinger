@@ -161,7 +161,7 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
   });
 
   // Kilde: U-5 i BF-46 og svar 1 A (oppdragsgiver 24.11): brevkontrollen bruker datoen i basen,
-  // i norsk tid, den datoen serveren dateres brevet med.
+  // i norsk tid, den datoen serveren daterer brevet med.
   it('lesingen av saken og av koden gir dagens dato i basen, i norsk tid, som brevet så får (U-5 i BF-46)', async () => {
     const les = (sti: string) => kall(server.url, sti, { bruker: o.te, prosjektId: o.prosjekt.id });
     const sak = await opprettKjernesak(o);
