@@ -374,10 +374,13 @@ export function datoopplysningene(u: Utledning): Datoopplysningen[] {
  * fra svaret på forholdet brevet hadde foran seg, med brevet det står i, eller et standpunkt i
  * svaret.
  */
-export type Standpunktet = { lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean } & (
-  | { grunn: Subsidiaergrunn; brev: Brevref }
-  | { standpunkt: Standpunkt }
-);
+export type Standpunktet = {
+  lag: string | null;
+  vilkaar?: Innsigelsen[];
+  /** Vilkåret med beregningsregelen, for leselinjen til én kravpost (`Svarlaget`). */
+  vilkaarForPosten?: Innsigelsen[];
+  heller?: boolean;
+} & ({ grunn: Subsidiaergrunn; brev: Brevref } | { standpunkt: Standpunkt });
 
 /**
  * Linjene i svaret `svar` i brevets rekkefølge, med laget brevet ga dem (OV-U32). Grunnene
@@ -404,7 +407,12 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
         );
   const vilkaarFor = (lag: number | null) => {
     const laget = lag === null ? undefined : lagene[lag - 1];
-    return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};
+    if (!laget?.vilkaarForPosten.length) return {};
+    return {
+      ...(laget.vilkaar.length ? { vilkaar: laget.vilkaar } : {}),
+      vilkaarForPosten: laget.vilkaarForPosten,
+      heller: laget.heller,
+    };
   };
   return [
     ...grunner.map((grunn, i) => ({
