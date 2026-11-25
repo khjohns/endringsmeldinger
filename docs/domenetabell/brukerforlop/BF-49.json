@@ -1,0 +1,57 @@
+{
+  "id": "BF-49",
+  "tittel": "Partene legger til korrespondanse sendt utenfor løsningen",
+  "brukerhistorie": "En part legger til i saken et brev, en e-post, et møtereferat eller et annet dokument partene har sendt hverandre utenfor løsningen, med typen, avsenderen, datoen, dokumentet og beskrivelsen, og sier hva det er etter kontrakten: dokumentasjon, varsel, krav, svar eller aksept. Avsenderen får samme virkning som om det var sendt fra løsningen, med datoen det ble sendt. BH legger til et svar på vederlaget som ikke sier noe om varselet der BHs innsigelse står, uten at svaret får innsigelsen som eget utsagn.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 1, BH har svart i brev 2, og TE har krevd vederlagsjustering i brev 3. Partene legger til dokumentasjon fra motparten (variant A), varsler (B), et svar på vederlaget der innsigelsen står (C) eller med en tidligere dato (D), et krav uten utfylt skjema (E) og BHs endringsordre som svar (F)."
+  },
+  "bestilling": "BF-49.md",
+  "kilder": [
+    "OV-U114",
+    "OV-U118",
+    "OV-U119",
+    "OV-U121",
+    "OV-U122",
+    "VS-U77",
+    "VS-U80",
+    "VS-U81",
+    "MM-U50",
+    "EO-U39",
+    "OV-U12",
+    "LV-U42",
+    "LV-U62",
+    "GFK-U2",
+    "OV-U102",
+    "OV-U104",
+    "OV-U113",
+    "OV-U84",
+    "OV-U99",
+    "MM-U55",
+    "LV-U45",
+    "OV-U6",
+    "OV-U79",
+    "MM-U2",
+    "OV-U98",
+    "VS-U38",
+    "VS-U40",
+    "OV-U103"
+  ],
+  "venter_paa": [
+    "#807",
+    "#2347",
+    "#2011",
+    "#2389",
+    "#818"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-25",
+      "forhold": "#807, #2347",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-17 og spørsmålet S-1."
+    }
+  ]
+}
