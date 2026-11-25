@@ -1157,7 +1157,9 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     post et gjeldende samlevedtak samler, telles fra samlevedtaket (S2 A 17.11 i #2143). Er posten
     samlet av flere, telles den fra det nyeste. En endring av posten som er nyere enn samlevedtaket,
     telles som en endring av samlevedtaket (S3 A 17.11 i #2143). Hver post telles én gang, som i
-    eksemplet i #1726."""
+    eksemplet i #1726. Et samlevedtak som er samlet av et annet, varsles ikke: tellingen begynner
+    på null for det nye, som når det opphever det gamle (svar 2 A i #2356, svar 10 i #1534). En endring telles da for
+    det nyeste samlevedtaket som er eldre enn endringen."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1182,18 +1184,28 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
                 if f["art"] == "samler":
                     nytt = (p.get("dato", datetime.date.min), s)
                     samlet_av[f["vedtak"]] = max(samlet_av.get(f["vedtak"], nytt), nytt)
+
+    def samlet_i(vedtak: str, dato: datetime.date | None) -> str:
+        """Samlevedtaket vedtaket er samlet i, gjennom hver versjon som er nyere enn dato."""
+        sett = {vedtak}
+        while vedtak in samlet_av and (dato is None or dato > samlet_av[vedtak][0]):
+            vedtak = samlet_av[vedtak][1]
+            if vedtak in sett:
+                break
+            sett.add(vedtak)
+        return vedtak
+
     endrer = collections.defaultdict(list)
     for p in gjeldende:
-        a = anker(p) or etikett(p)
-        fra = samlet_av[a][1] if a in samlet_av else a
+        fra = samlet_i(anker(p) or etikett(p), None)
         for f in p.get("forhold", []):
             if f["art"] in ENDRINGER:
                 til = f["vedtak"]
-                if til in samlet_av and er_ny(p) and p["dato"] > samlet_av[til][0]:
-                    til = samlet_av[til][1]
+                if til in samlet_av and er_ny(p):
+                    til = samlet_i(til, p["dato"])
                 if fra != til:
                     endrer[til].append((fra, f["art"], til))
-    for a in sorted(telles):
+    for a in sorted(telles - (samlevedtak & samlet_av.keys())):
         sett = {a} | {post for post, _, _ in endrer[a]}
         kjede, aapne = [], sorted(sett - {a} - telles)
         while aapne:
