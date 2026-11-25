@@ -22,6 +22,7 @@ import {
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
 import Varselsvar from '#lib/components/varden/Varselsvar.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
 
 const medVarsel = (hjemmel: '34.3.3' | '34.4') =>
   skrevet(medGrunnlag, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
@@ -199,5 +200,44 @@ describe('svaret på varselet i Varden (G-9 i BF-14)', () => {
     expect(
       await screen.findByRole('button', { name: 'Send til totalentreprenøren' })
     ).toBeInTheDocument();
+  });
+});
+
+describe('innsigelsen fra svaret på varselet i svaret på kravposten (VS-U77 punkt 31 og 34, MM-U50)', () => {
+  it('svaret på kravposten gjengir innsigelsen etter punkt 34.4 med ordene brevet brukte, «kom for sent»', async () => {
+    const varslet = medVarsel('34.4');
+    const varsel = varselI(varslet);
+    const journal = skrevet(
+      skrevet(varslet, 'BH', {
+        type: 'brev',
+        svar: [
+          {
+            spor: 'vederlag',
+            gjelder: varsel,
+            regelversjon: KJERNE.regler.versjon,
+            vurderinger: { varslet_i_tide: false },
+            resultat: {},
+          },
+        ],
+      }),
+      'TE',
+      {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }],
+        },
+      }
+    );
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    render(Vederlagssvar, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+    });
+    const linja = await screen.findByText(/Du har gjort gjeldende i .* at varselet kom for sent\./);
+    expect(linja.textContent).not.toMatch(/ikke ble gitt/);
   });
 });

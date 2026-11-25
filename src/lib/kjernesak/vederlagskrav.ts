@@ -142,6 +142,14 @@ export interface VarseletAlene {
   forrigeSvar: string | null;
 }
 
+/**
+ * Om brevet `dokument` er et svar på et varsel som står alene. Innsigelsen etter § 34.4 der sa at
+ * varselet kom for sent, ikke at det ikke ble gitt (VS-U77 punkt 31, MM-U50), som brevteksten
+ * leser det.
+ */
+export const erSvarPaaVarsel = (u: Utledning, dokument: string) =>
+  u.spor.vederlag.svarPaaVarsler.some((s) => s.dokument === dokument);
+
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
   varseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;

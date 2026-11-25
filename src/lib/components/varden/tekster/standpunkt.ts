@@ -26,7 +26,12 @@ export const grunntekst = haerdet((grunn: Subsidiaergrunn, du: boolean, brev: Br
  * `leselinje`). Bare standpunktene til oppgjørsformen, beløpet, varselet etter § 34.3.3 eller
  * § 34.4 og justeringen gjelder én kravpost; ellers `null`.
  */
-function kortStandpunkt(s: Standpunkt, krevd?: number, oppgir = false): string | null {
+function kortStandpunkt(
+  s: Standpunkt,
+  krevd?: number,
+  oppgir = false,
+  ikkeGitt = true
+): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
       const f = oppgjoersformEtter(s.hjemmel);
@@ -46,7 +51,7 @@ function kortStandpunkt(s: Standpunkt, krevd?: number, oppgir = false): string |
       // VS-U63: etter punkt 34.4 er «i tide» at byggherren gir opp innsigelsen.
       if (s.hjemmel === '34.4')
         return s.iTide
-          ? 'Gir opp innsigelsen om at varselet etter punkt 34.4 ikke ble gitt eller kom for sent'
+          ? `Gir opp innsigelsen om at varselet etter punkt 34.4 ${innsigelsesordene('34.4', ikkeGitt)}`
           : 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
       if (s.hjemmel !== '34.3.3') return null;
       // VS-U77 punkt 10: «i tide» etter en innsigelse som står, er at innsigelsen gis opp.
@@ -84,7 +89,8 @@ function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
   post: Kravpost,
   vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string,
-  innsigelsenStaar = false
+  innsigelsenStaar = false,
+  ikkeGitt = true
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
   // kravposten (`rammerKravposten`). Bare et vilkår etter et annet for posten sier «heller ikke»
@@ -98,7 +104,8 @@ function leselinjeneMedVanligeMellomrom(
     const t = kortStandpunkt(
       s,
       s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined,
-      innsigelsenStaar
+      innsigelsenStaar,
+      ikkeGitt
     );
     if (!t) return [];
     const nytt = l.vilkaarForPosten !== forrige;

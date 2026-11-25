@@ -15,7 +15,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
-  import { varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
+  import { erSvarPaaVarsel, varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -174,7 +174,7 @@
   const oppgittI = (s: Standpunkt, post: Kravpost) => {
     if (s.art !== 'rettidighet' || !s.iTide || s.hjemmel !== varselhjemmelFor(post)) return null;
     const foer = varseletFoer(u, post);
-    return foer?.iTide === false ? brevet(u, foer.dokument) : null;
+    return foer?.iTide === false ? foer : null;
   };
   const linjer = $derived(
     nyeStandpunkter.map((l) => {
@@ -191,9 +191,10 @@
             : post && oppgittI(l.standpunkt, post)
               ? oppgivelsestekst(
                   varselhjemmelFor(post)!,
-                  oppgittI(l.standpunkt, post)!,
+                  brevet(u, oppgittI(l.standpunkt, post)!.dokument)!,
                   true,
-                  flere ? post.betegnelse : undefined
+                  flere ? post.betegnelse : undefined,
+                  !erSvarPaaVarsel(u, oppgittI(l.standpunkt, post)!.dokument)
                 )
               : standpunkttekst(
                   l.standpunkt,
@@ -216,7 +217,8 @@
       nyeStandpunkter,
       p,
       VEDERLAGET.lagetVilkaar,
-      varseletFoer(u, p)?.iTide === false
+      varseletFoer(u, p)?.iTide === false,
+      !erSvarPaaVarsel(u, varseletFoer(u, p)?.dokument ?? '')
     );
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
@@ -568,7 +570,11 @@
           varselId={`${uid}-varsel-${p.betegnelse}`}
           justeringId={`${uid}-justering-${p.betegnelse}`}
           hjemmel={regel === 'regningsarbeid' ? '34.4' : '34.3.3'}
-          foer={foer && { iTide: foer.iTide, brev: brevet(u, foer.dokument) }}
+          foer={foer && {
+            iTide: foer.iTide,
+            brev: brevet(u, foer.dokument),
+            ikkeGitt: !erSvarPaaVarsel(u, foer.dokument),
+          }}
           bind:varsletITide={v.varsletITide}
           bind:godtarJustering={v.godtarJustering}
           ikkeGitt

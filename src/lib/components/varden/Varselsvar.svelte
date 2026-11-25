@@ -7,7 +7,7 @@
 <script lang="ts">
   import { SVARTITTEL_PAA_VARSELET } from '#kjerne/frosset/brevtittel.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
+  import { erSvarPaaVarsel, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -53,7 +53,11 @@
   const hjemmel = $derived(varselet.hjemmel);
   const varselbrevet = $derived(brevMedUtsagn(u, varselet.id));
   const foer = $derived(
-    varselet.foer && { iTide: varselet.foer.iTide, brev: brevet(u, varselet.foer.dokument) }
+    varselet.foer && {
+      iTide: varselet.foer.iTide,
+      brev: brevet(u, varselet.foer.dokument),
+      ikkeGitt: !erSvarPaaVarsel(u, varselet.foer.dokument),
+    }
   );
   const utenTekster = (v: Varselsvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn (#1925).
@@ -82,7 +86,7 @@
     const j = fylt.find((l) => 'standpunkt' in l && l.standpunkt.art === 'justering');
     return (j?.vilkaar ?? []).filter((i) => i.art === 'varsel');
   });
-  const oppgir = $derived(iTide === true && foer?.iTide === false ? foer.brev : null);
+  const oppgir = $derived(iTide === true && foer?.iTide === false && foer.brev ? foer : null);
 
   const linjer = $derived(
     nyeStandpunkter.flatMap((l) => {
@@ -90,7 +94,7 @@
       const s = l.standpunkt;
       const tekst =
         s.art === 'rettidighet' && oppgir
-          ? oppgivelsestekst(hjemmel, oppgir, true, undefined, false)
+          ? oppgivelsestekst(hjemmel, oppgir.brev!, true, undefined, oppgir.ikkeGitt)
           : standpunkttekst(s, true, undefined, undefined, false, false);
       return [
         {

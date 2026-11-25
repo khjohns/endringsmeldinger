@@ -36,14 +36,14 @@
     varselId: string;
     justeringId: string;
     hjemmel: Kravpostvarselhjemmel;
-    /** Byggherrens siste standpunkt til varselet før svaret, med brevet det står i. */
-    foer: { iTide: boolean; brev: Brevref | null } | null;
+    /**
+     * Byggherrens siste standpunkt til varselet før svaret, med brevet det står i, og om
+     * innsigelsen etter § 34.4 der var at varselet ikke ble gitt (`ikkeGitt`).
+     */
+    foer: { iTide: boolean; brev: Brevref | null; ikkeGitt: boolean } | null;
     varsletITide: boolean | null;
     godtarJustering: boolean | null;
-    /**
-     * Innsigelsen etter § 34.4 er at varselet «ikke ble gitt eller kom for sent» i svaret på
-     * kravposten, og at det «kom for sent» i svaret på varselet (VS-U77 punkt 31).
-     */
+    /** Innsigelsen etter § 34.4 i dette svaret er at varselet ikke ble gitt (VS-U77 punkt 31). */
     ikkeGitt: boolean;
     justeringValgfri: boolean;
     justeringFeil?: string | null;
@@ -71,7 +71,7 @@
   <div class="setning">
     <p id={`${varselId}-standpunkt`} aria-live="polite">
       {#if varselTittel}<strong>{varselTittel}</strong>{/if}
-      {#if foer?.brev}{SKJEMA.innsigelsenStaar(foer.brev, hjemmel, ikkeGitt)}{/if}
+      {#if foer?.brev}{SKJEMA.innsigelsenStaar(foer.brev, hjemmel, foer.ikkeGitt)}{/if}
       {varsletITide === true ? SKJEMA.girOppInnsigelsen : SKJEMA.gjentarInnsigelsen}
     </p>
     <Knapp variant="lenke" iFlukt onclick={() => (varsletITide = varsletITide !== true)}

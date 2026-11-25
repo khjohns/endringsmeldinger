@@ -57,7 +57,7 @@ export const SKJEMA = haerdet({
   ingenInnsigelse: 'Ingen innsigelse.',
   ikkeGittEllerForSent: 'Du gjør gjeldende at varselet ikke ble gitt eller kom for sent.',
   gjoerGjeldendeVarsel: 'Varselet ble ikke gitt eller kom for sent',
-  // I svaret på varselet som står alene, er innsigelsen at det kom for sent (VS-U77 punkt 31, S-16).
+  // Svaret på varselet som står alene (VS-U77 punkt 31, S-16).
   varseletKomForSent: 'Du gjør gjeldende at varselet kom for sent.',
   gjoerGjeldendeForSent: 'Varselet kom for sent',
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
@@ -158,8 +158,8 @@ const VARSELNAVNET = {
 } as const satisfies Record<Kravpostvarselhjemmel, string>;
 
 /**
- * Innsigelsen mot varselet: etter § 34.4 «ikke ble gitt eller kom for sent» i svaret på
- * kravposten, og «kom for sent» ellers, også i svaret på varselet som står alene (VS-U77 punkt 31).
+ * Ordene for innsigelsen mot varselet, med `ikkeGitt` for innsigelsen etter § 34.4 i svaret på
+ * kravposten (VS-U77 punkt 31).
  */
 export const innsigelsesordene = (hjemmel: Kravpostvarselhjemmel, ikkeGitt = true) =>
   hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
