@@ -87,7 +87,8 @@ function leselinjeneMedVanligeMellomrom(
   innsigelsenStaar = false
 ): string[] {
   // Vilkåret står én gang for standpunktene i samme lag (#2182), med innsigelsene som rammer
-  // kravposten (`rammerKravposten`). Det første vilkåret for posten sier ikke «heller ikke» (#2280).
+  // kravposten (`rammerKravposten`). Bare et vilkår etter et annet for posten sier «heller ikke»
+  // (#2280), uavhengig av vilkårene på laget, som ikke har beregningsregelen.
   let forrige: Innsigelsen[] | undefined;
   let vist = false;
   return linjer.flatMap((l) => {
@@ -104,7 +105,7 @@ function leselinjeneMedVanligeMellomrom(
     forrige = l.vilkaarForPosten;
     const iPosten = (l.vilkaarForPosten ?? []).filter((i) => rammerPosten(i, post.id));
     if (!nytt || !iPosten.length) return [t];
-    const linje = vilkaar(iPosten, vist && l.heller);
+    const linje = vilkaar(iPosten, vist);
     vist = true;
     return [linje, t];
   });

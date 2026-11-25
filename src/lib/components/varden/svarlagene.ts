@@ -40,7 +40,7 @@ export interface Svarlaget {
   vilkaar: Innsigelsen[];
   /** Innsigelsene i laget foran med beregningsregelen, for leselinjen til én kravpost (#2338). */
   vilkaarForPosten: Innsigelsen[];
-  /** Laget kommer etter minst to lag, så vilkåret sier «heller ikke» (LV-U4 punkt 4). */
+  /** Et lag foran har vilkår, så vilkåret i laget sier «heller ikke» (LV-U4 punkt 4, #2280). */
   heller: boolean;
   /** Grunnene fra svaret på forholdet i laget (OV-U33), med brevet de står i. */
   grunner: { grunn: Subsidiaergrunn; brev: Brevet }[];
@@ -113,7 +113,7 @@ export function lageneISvaret(
       iSporet: lag - grunner.length,
       vilkaar: [],
       vilkaarForPosten: [],
-      heller: lag > 2,
+      heller: false,
       grunner: lag <= grunner.length && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
       standpunkter: svar.standpunkter
         .filter((x) => x.art !== utenom && plass.standpunkt(x.id).lag === lag)
@@ -126,6 +126,7 @@ export function lageneISvaret(
   for (const l of lagene.slice(1)) {
     l.vilkaarForPosten = innsigelseneI(lagene[l.lag - 2]!, innsigelsenI);
     l.vilkaar = l.vilkaarForPosten.filter((i) => i.art !== 'beregningsregel');
+    l.heller = lagene.slice(1, l.lag - 1).some((x) => x.vilkaar.length > 0);
   }
   return lagene;
 }

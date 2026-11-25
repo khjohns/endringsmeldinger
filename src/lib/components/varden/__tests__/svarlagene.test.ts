@@ -155,13 +155,22 @@ describe('Leselinjen for en lukket kravpost med en innsigelse mot beregningsrege
       aksepterer: false,
       oensket_oppgjoersform: 'regningsarbeid',
       varslet_i_tide: false,
+      godtar_justering: false,
     });
     const linjer = leselinjenFor(u);
     const vilkaar = linjer.indexOf('Hvis innsigelsen mot beregningsregelen ikke fører frem');
     expect(vilkaar).toBeGreaterThan(0);
     expect(linjer.slice(vilkaar + 1).some((l) => l.includes('34.3.3'))).toBe(true);
-    // Laget i kortet har fortsatt ikke vilkåret; det står ved posten (svar A 24.11 i #2242).
-    expect(k.lagene.every((l) => l.vilkaar.every((i) => i.art !== 'beregningsregel'))).toBe(true);
+    expect(linjer).toContain(
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent fører frem'
+    );
+    // Laget i kortet har ikke vilkåret; det står ved posten (svar A 24.11 i #2242). Det første
+    // vilkåret på laget sier derfor ikke «heller ikke» (LV-U4 punkt 4, #2280).
+    expect(k.lagene.map((l) => [l.vilkaar.map((i) => i.art), l.heller])).toEqual([
+      [[], false],
+      [[], false],
+      [['varsel'], false],
+    ]);
   });
 
   it('byggherren godtar beregningsregelen: leselinjen har ikke vilkåret (kontrollsak)', async () => {
