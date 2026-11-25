@@ -147,7 +147,7 @@ function kategorisperre(
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): en ny grunnlagsversjon kan ikke
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
  * En påberopelse sendt før den siste prøves etter OV-U122.
  */
@@ -185,7 +185,7 @@ function oppgittDatoIForholdet(k: Extract<Kommando, { type: 'krav' }>): OppgittD
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): korrigeringen har datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): korrigeringen har datoen
  * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
  * Forutsetningene har kontrollert at den viser til den siste opplysningen.
  */
@@ -251,7 +251,7 @@ export const NYTTELAST_I_FORHOLDET = {
 } satisfies Sporsnyttelast;
 
 /**
- * VS-U76 punkt 6: standpunktet om rettidigheten i svaret på grunnlaget gjelder
+ * VS-U86 punkt 6: standpunktet om rettidigheten i svaret på grunnlaget gjelder
  * varselet fra `varseletForNyttSvar`. Er det et registrert varsel etter § 32.2, har det ingen
  * brevtekst før #1600 er bygget. Sperren gjelder også et svar uten et slikt standpunkt.
  */
@@ -266,7 +266,7 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TE korrigerer sin siste
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TE korrigerer sin siste
  * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
  * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
  * GR-U5 (MM-U51), så ingen av dem sperrer.
@@ -280,7 +280,7 @@ export function korrigering(gjelder: string, u: Utledning): Avvisning | null {
     );
   const { hovedkategori, underkategori } = kategori(krav);
   const felt = oppgittDato(hovedkategori, underkategori);
-  // MM-U55 punkt 10: kategoriene uten dato i `OPPGITT_DATO`, også endringsordren og force majeure.
+  // MM-U59 punkt 10: kategoriene uten dato i `OPPGITT_DATO`, også endringsordren og force majeure.
   if (felt === null)
     return avvis(
       'INGEN_DATO_I_KATEGORIEN',
@@ -338,7 +338,7 @@ export const FORUTSETNINGER_I_FORHOLDET = {
 } satisfies Sporsforutsetninger;
 
 /**
- * Standpunktene i svaret på forholdet (`standpunkter`). VS-U76 punkt 6 og 10: påberopelsen gjelder
+ * Standpunktene i svaret på forholdet (`standpunkter`). VS-U86 punkt 6 og 10: påberopelsen gjelder
  * det registrerte varselet etter § 32.2, ellers det første grunnlagskravet, ikke versjonen svaret
  * gjelder. Med et registrert varsel avviser forutsetningene svaret til #1600 er bygget.
  */

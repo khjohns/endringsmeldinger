@@ -1,6 +1,6 @@
 <!--
   TE korrigerer datoen pålegget ble mottatt, eller når TE ble klar over forholdet, i et eget brev
-  (BF-02A, BF-02C og BF-02D; MM-U55 punkt 10, 11 og 24). Skjemaet har utkastkortet, opplysningen
+  (BF-02A, BF-02C og BF-02D; MM-U59 punkt 10, 11 og 24). Skjemaet har utkastkortet, opplysningen
   som korrigeres, datofeltet og forklaringen, og panelet til høyre har hovedlinjene og «Se brevet
   før sending». Brevet sendes fra brevkontrollen, som de andre brevene (svaret på S-4b i BF-10,
   oppdragsgiver 06.11). Kjernen lager brevet og avviser det den ikke godtar.

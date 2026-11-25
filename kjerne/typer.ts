@@ -237,7 +237,7 @@ export type Utsagn =
    */
   | { id: string; art: 'begrunnelse'; gjelder: string }
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TE korrigerer sin opplysning
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TE korrigerer sin opplysning
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, kravet eller
    * en tidligere korrigering. Ikke en kravversjon, og avslår ikke byggherrens svar.
    */

@@ -235,7 +235,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
   begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): datoen står i samme felt som
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): datoen står i samme felt som
   // i kravet, og korrigeringen har nøyaktig én av dem.
   korrigering: objekt(
     {

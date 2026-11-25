@@ -463,7 +463,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
           gjelder: u.spor.forhold.gjeldendeKrav!.id,
           ...(u.spor.forhold.gjeldendeSvar ? { erstatter: u.spor.forhold.gjeldendeSvar.id } : {}),
           standpunkter: [
-            // VS-U76 punkt 6: rettidigheten gjelder det første grunnlagskravet.
+            // VS-U86 punkt 6: rettidigheten gjelder det første grunnlagskravet.
             {
               id: randomUUID(),
               art: 'rettidighet',
@@ -622,7 +622,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
             spor: 'forhold',
             gjelder: v2,
             standpunkter: [
-              // VS-U76 punkt 6: rettidigheten gjelder det første grunnlagskravet.
+              // VS-U86 punkt 6: rettidigheten gjelder det første grunnlagskravet.
               {
                 id: randomUUID(),
                 art: 'rettidighet',

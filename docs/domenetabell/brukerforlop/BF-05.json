@@ -470,7 +470,7 @@
             "OV-U52",
             "MM-U41",
             "MM-U52",
-            "MM-U55"
+            "MM-U59"
           ]
         },
         {
@@ -493,7 +493,7 @@
             "MM-U21",
             "MM-U41",
             "MM-U52",
-            "MM-U55",
+            "MM-U59",
             "OV-U84"
           ]
         },
@@ -519,7 +519,7 @@
           "rolle": "mal",
           "kilde": [
             "KT-U11",
-            "VS-U76"
+            "VS-U86"
           ],
           "forventet": {
             "gjeldende_krav.forhold": "K-p1",

@@ -223,7 +223,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(teksten().getAttribute('aria-invalid')).toBeNull();
   });
 
-  it('#1647: brevet med den nye versjonen viser datoen i brevtråden, selv om den gjentar TEs siste opplysning (MM-U55 punkt 10)', async () => {
+  it('#1647: brevet med den nye versjonen viser datoen i brevtråden, selv om den gjentar TEs siste opplysning (MM-U59 punkt 10)', async () => {
     aapne('BF-02C', 'te-vil-sende-ny-versjon');
     await tilForholdet();
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
