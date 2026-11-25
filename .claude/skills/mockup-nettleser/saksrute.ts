@@ -787,6 +787,7 @@ try {
    */
   const nySaksbane = (tittel: string) => {
     let sak: string | null = null;
+    let kode: Sakskode | undefined;
     const opprettet = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, 'TE');
     if (!opprettet.godtatt) throw new Error(`Opprettelsen ble avvist: ${opprettet.avvisning.melding}`);
     const foer: Journalrad[] = [
@@ -806,13 +807,16 @@ try {
     ];
     const bane: Bane = {
       sakId: 'ny-sak',
+      get sakskode() {
+        return kode;
+      },
       aktor: (part) => part.toLowerCase(),
       journal: async () => (sak ? lesJournal(sak) : foer),
       skriv: async () => {
         throw new Error('Saksruta skriver bare gjennom skjemaet og kommandoene til TS-serveren');
       },
       async kommando(kommando, part, forventet) {
-        if (sak) return serverbane(sak, await sakskodeFor(sak)).kommando!(kommando, part, forventet);
+        if (sak) return serverbane(sak, kode!).kommando!(kommando, part, forventet);
         const k = kommando as { type: string; spor?: string; innhold: Record<string, unknown>; utdypning?: string };
         const felt = SKJEMAETS_FORHOLD[String(k.innhold?.underkategori)];
         if (part !== 'TE' || k.type !== 'krav' || k.spor !== 'forhold' || !felt)
@@ -840,6 +844,7 @@ try {
         // S1 i #1414: TE kommer til saken, med kvitteringen.
         await te.waitForURL(new RegExp(`/${katalog.prosjekt}/[0-9a-f-]{36}$`), { timeout: 30_000 });
         sak = new URL(te.url()).pathname.split('/').at(-1)!;
+        kode = await sakskodeFor(sak);
         await te.getByText('Brevet sendes til Catenda.').waitFor({ timeout: 30_000 });
         await te.getByRole('heading', { name: tittel, level: 1 }).waitFor();
         await te.screenshot({ path: join(UT, 'ny-sak-sendt.png'), fullPage: true });
