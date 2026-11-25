@@ -135,7 +135,7 @@
       kjernesak.regler
     )!
   );
-  // HF-U29: et nytt svar erstatter byggherrens gjeldende svar på kravversjonen.
+  // Revisjonen av det gjeldende svaret når kravversjonen har et (HF-U29).
   const utkast = $derived(somNyttSvar(brevutkast, u));
   const forrigeSvar = $derived(
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null

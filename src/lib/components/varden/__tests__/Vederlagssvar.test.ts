@@ -356,7 +356,7 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     )
   );
 
-  it('knappen ved svaret åpner svarskjemaet med svaret det erstatter fylt ut, og viser brevet med det forrige svaret (HF-U29, prototypen `vederlagsoversikt-v2.html`)', async () => {
+  it('knappen ved svaret åpner svarskjemaet med svaret det erstatter fylt ut, og viser brevet med det forrige svaret (HF-U29, prototypen `forholdssvar.html`)', async () => {
     const kjernesak = lagKjernesak({
       sakId: SAK,
       prosjektId: 'p-1',

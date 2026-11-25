@@ -407,7 +407,7 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
   );
   const u = utledJournal(medSvar, KJERNE);
 
-  it('skjemaet åpner med standpunktene i svaret det erstatter, og begrunnelsene skrives på nytt (prototypen `vederlagsoversikt-v2.html`, «Erstatter: Svaret i brev 6»)', () => {
+  it('skjemaet åpner med standpunktene i svaret det erstatter, og begrunnelsene skrives på nytt (prototypen `forholdssvar.html`: «Det forrige svaret er fylt ut, og du endrer det du vil»)', () => {
     expect(valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!)).toEqual(
       foerste
     );

@@ -625,7 +625,7 @@
       skjema: forholdssvar,
     },
     vederlagssvar: {
-      // HF-U29: det nye svaret på kravet erstatter det gjeldende, i samme skjema.
+      // Det nye svaret på kravet har samme skjema som svaret (HF-U29).
       noekler: ['svare:vederlag', 'revidere:vederlag'],
       aapne: (n) => {
         const forrige = u?.spor.vederlag.gjeldendeSvar;
@@ -974,9 +974,7 @@
           onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
           onforholdet={tilForholdet}
           nyttSvarPaaKravet={kjernesak.handlinger.includes('revidere:vederlag')
-            ? skjemanoeklene.includes('revidere:vederlag')
-              ? () => aapne('revidere:vederlag')
-              : 'ikke bygget'
+            ? () => aapne('revidere:vederlag')
             : null}
         />
       {/key}
