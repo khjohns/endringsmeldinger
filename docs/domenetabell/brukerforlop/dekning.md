@@ -232,7 +232,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U12](../../plans/vedtak.md#mm-u12) | — | — | BF-01V, BF-03, BF-06 |
 | [MM-U21](../../plans/vedtak.md#mm-u21) | — | BF-05 start | BF-06 |
 | [MM-U23](../../plans/vedtak.md#mm-u23) | — | — | BF-01V |
-| [MM-U24](../../plans/vedtak.md#mm-u24) | — | BF-46 bh-har-mottatt-aksepten | — |
+| [MM-U24](../../plans/vedtak.md#mm-u24) | — | BF-46 te-etter-akseptfristen, BF-46 bh-har-mottatt-aksepten | — |
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U30](../../plans/vedtak.md#mm-u30) | — | BF-46 bh-har-mottatt-aksepten | — |
