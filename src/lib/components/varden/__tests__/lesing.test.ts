@@ -528,7 +528,7 @@ describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () 
 });
 
 describe('sporene et brev hører til, fra kjernen (#1663)', () => {
-  it('et brev med en korrigering hører til forholdet, også når det korrigerer en korrigering (MM-U55)', async () => {
+  it('et brev med en korrigering hører til forholdet, også når det korrigerer en korrigering (MM-U59)', async () => {
     const u = await utledning([
       PAABEROPELSE,
       { handling: 'korrigering', navn: 'D2', dato: '2026-09-20' },

@@ -166,7 +166,7 @@ export const LESING_I_FORHOLDET = {
   standpunkt: standpunktIForholdet,
 } satisfies Svarlesing;
 
-/** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U76). */
+/** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U86). */
 export type ForutsetningIForholdet = { innsigelse: '32.2'; gjelder: string };
 
 /**

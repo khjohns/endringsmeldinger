@@ -299,7 +299,7 @@ export interface OppgittDato {
 
 /**
  * Datoene partene har oppgitt: når TE mottok pålegget eller ble klar over forholdet
- * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U55 punkt 10) og når et
+ * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U59 punkt 10) og når et
  * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
@@ -327,12 +327,12 @@ export const datoerISporet = (u: Utledning, spor: Spor) =>
     (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('forhold'))
   );
 
-/** TEs siste opplysning om når TE ble klar over forholdet (MM-U55 punkt 10). */
+/** TEs siste opplysning om når TE ble klar over forholdet (MM-U59 punkt 10). */
 export function klarOverForholdet(u: Utledning): OppgittDato | null {
   return oppgitteDatoer(u).findLast((d) => d.hva === 'klar_over_forholdet') ?? null;
 }
 
-/** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U55 punkt 10). */
+/** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U59 punkt 10). */
 export interface Datoopplysningen {
   /** Påberopelsen eller korrigeringen med opplysningen, som handlingen `korrigere:<id>` viser til. */
   id: string;
@@ -571,7 +571,7 @@ export interface Innlegget {
   opplysning: Datoopplysningen | null;
   /**
    * I et svar: TEs siste opplysning om datoen da svaret ble sendt, når TE har korrigert den
-   * senere (designdelen i MM-U55, U-5 i BF-02A).
+   * senere (designdelen i MM-U59, U-5 i BF-02A).
    */
   sisteOpplysningVedSvaret: Datoopplysningen | null;
   /** Standpunktene med laget, og brevet med varselet en påberopelse av sen varsling gjelder. */
@@ -616,7 +616,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
     const kode = innhold.underkategori;
     const o = iBrevet(k.dokument);
     // En ny versjon som gjengir TEs siste opplysning, er ingen ny opplysning i utledningen, men
-    // brevet sier datoen (MM-U55 punkt 10, #1647).
+    // brevet sier datoen (MM-U59 punkt 10, #1647).
     const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
     const gjentatt = felt === null ? null : innhold.datoer[felt];
     ut.set(k.dokument, {

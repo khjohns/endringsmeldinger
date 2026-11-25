@@ -68,14 +68,14 @@ export const FORHOLDET = haerdet({
   forklaringen: 'Forklaringen',
   oppgitt: (hva: 'paalegg_mottatt' | 'klar_over_forholdet', d: string, part: Part) =>
     `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, ifølge ${PARTEN[part]}.`,
-  // Korrigeringen av datoen (BF-02A, MM-U55 punkt 10 og designdelen).
+  // Korrigeringen av datoen (BF-02A, MM-U59 punkt 10 og designdelen).
   korriger: 'Korriger datoen',
   korrigerNavn: (hva: 'paalegg_mottatt' | 'klar_over_forholdet') =>
     `Korriger datoen ${hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'du ble klar over forholdet'}`,
   korrigerer: (forrige: { dato: string; brev: Brevref }) =>
     `Korrigerer ${dato(forrige.dato)}, oppgitt i ${brevref(forrige.brev)}.`,
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
-  /** Ved et svar når TE har korrigert datoen etter svaret (designdelen i MM-U55, U-5 i BF-02A). */
+  /** Ved et svar når TE har korrigert datoen etter svaret (designdelen i MM-U59, U-5 i BF-02A). */
   sisteOpplysningVedSvaret: (o: Pick<Datoopplysningen, 'hva' | 'dato' | 'brev'>) =>
     `Da svaret ble sendt, var totalentreprenørens siste opplysning at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
