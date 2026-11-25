@@ -8,7 +8,7 @@
 
 import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { utgangspunktet, type Eldrekrav } from './eldrekrav';
+import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
 import { korrespondansefeilene, registreringen, type Korrespondansevalg } from './korrespondansen';

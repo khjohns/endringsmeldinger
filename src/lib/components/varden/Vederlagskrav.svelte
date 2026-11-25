@@ -46,7 +46,7 @@
     type Korrespondansevalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { eldreKrav, utgangspunktet } from './eldrekrav';
+  import { eldreKrav, utgangspunktet } from '#lib/kjernesak/eldrekrav.ts';
   import {
     brevene,
     datoerISporet,
@@ -109,7 +109,7 @@
   type Beloepsfelt = 'beloep' | 'anslag' | 'overslag';
 
   // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
-  const eldre = $derived(eldreKrav(u, 'vederlag', lagtTil));
+  const eldre = $derived(eldreKrav(u, 'vederlag', lagtTil?.dato));
   // Et eget utkast for det, så TEs utkast til neste krav står (`eldrekrav.ts`).
   const eldreValg = $state(untrack(() => (eldre ? startvalg(u, eldre) : null)));
   // svelte-ignore state_referenced_locally

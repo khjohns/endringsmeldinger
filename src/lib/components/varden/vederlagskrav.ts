@@ -18,7 +18,7 @@ import {
   tomKorrespondanse,
   type Korrespondansevalg,
 } from './korrespondansen';
-import { utgangspunktet, type Eldrekrav } from './eldrekrav';
+import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
 import { KRAVSKJEMA } from './tekster';
 import type { Mangel } from './mangler';
 

@@ -11,7 +11,6 @@ import {
   sendtFoerSisteKrav,
   type Utledning,
 } from '#kjerne/utledning/utled.ts';
-import type { Korrespondansevalg } from './korrespondansen';
 
 /** Kravversjonene kravet prøves mot (`tidligere`), de andre i sporet (`andre`), og den siste av dem
  * kravet prøves mot (`utgangspunkt`). */
@@ -20,16 +19,16 @@ export type Eldrekrav = ReturnType<typeof kravversjoneneKravetProevesMot> & {
 };
 
 /**
- * Kravversjonene kravet lagt til med `lagtTil` prøves mot, når det er sendt før det siste kravet i
+ * Kravversjonene kravet lagt til, sendt på dagen `dag`, prøves mot, når det er sendt før det siste kravet i
  * sporet. Ellers `null`.
  */
 export function eldreKrav(
   u: Utledning,
   spor: Kravspor,
-  lagtTil: Korrespondansevalg | null
+  dag: string | null | undefined
 ): Eldrekrav | null {
-  if (!lagtTil?.dato || !sendtFoerSisteKrav(u, spor, lagtTil.dato)) return null;
-  const k = kravversjoneneKravetProevesMot(u, spor, lagtTil.dato);
+  if (!dag || !sendtFoerSisteKrav(u, spor, dag)) return null;
+  const k = kravversjoneneKravetProevesMot(u, spor, dag);
   return { ...k, utgangspunkt: k.tidligere.at(-1) ?? null };
 }
 

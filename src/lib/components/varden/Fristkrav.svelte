@@ -36,7 +36,7 @@
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
-  import { eldreKrav, utgangspunktet } from './eldrekrav';
+  import { eldreKrav, utgangspunktet } from '#lib/kjernesak/eldrekrav.ts';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
@@ -111,7 +111,7 @@
   const id = (felt: string) => `${uid}-${felt}`;
 
   // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
-  const eldre = $derived(eldreKrav(u, 'frist', lagtTil));
+  const eldre = $derived(eldreKrav(u, 'frist', lagtTil?.dato));
   const utgangspunkt = $derived(utgangspunktet(u, 'frist', eldre));
   // Et eget utkast for det, så TEs utkast til neste krav står (`eldrekrav.ts`).
   const eldreValg = $state(untrack(() => (eldre ? startvalg(u, eldre) : null)));

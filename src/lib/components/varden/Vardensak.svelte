@@ -39,7 +39,7 @@
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
-  import { eldreKrav } from './eldrekrav';
+  import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
   import {
     tomKorrespondanse,
     tomtLagtTil,
@@ -715,7 +715,7 @@
       aapneUtkast({ art: 'svar' });
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
-      if (!eldreKrav(u, 'frist', lagtTil.valg.korrespondanse))
+      if (!eldreKrav(u, 'frist', lagtTil.valg.korrespondanse.dato))
         utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
       aapneUtkast({ art: 'fristkrav', fraKorrespondansen: true });
     } else aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
@@ -725,7 +725,7 @@
    * `eldrekrav.ts`). Da står TEs utkast til neste krav når det legges til eller forkastes.
    */
   const utkastetStaar = (s: Kravspor) =>
-    !!u && !!eldreKrav(u, s, lagtTilI(s, 'krav')) && utkastene[kravetI[s]] !== null;
+    !!u && !!eldreKrav(u, s, lagtTilI(s, 'krav')?.dato) && utkastene[kravetI[s]] !== null;
   function forkastKravet(s: Kravspor) {
     if (!utkastetStaar(s)) return forkastUtkast(kravetI[s]);
     lagtTil = null;

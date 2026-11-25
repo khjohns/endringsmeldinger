@@ -26,7 +26,7 @@ import Fristkrav from '#lib/components/varden/Fristkrav.svelte';
 import type { Korrespondansevalg } from '#lib/components/varden/korrespondansen.ts';
 import { startvalg, type Kravvalg } from '#lib/components/varden/vederlagskrav.ts';
 import { LEGG_TIL } from '#lib/components/varden/tekster/index.ts';
-import { eldreKrav } from '#lib/components/varden/eldrekrav.ts';
+import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
 import { varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
 
 afterEach(cleanup);
@@ -300,7 +300,7 @@ describe('varselet for en kravpost i et krav sendt før det siste (OV-U118)', ()
   const posten = [{ id: p3.id, oppgjoersform: 'regningsarbeid' as const }];
 
   it('prøves mot kravene sendt før det, så kravet gis som varselet for posten', () => {
-    const eldre = eldreKrav(u, 'vederlag', korrespondansen('2026-10-12'))!;
+    const eldre = eldreKrav(u, 'vederlag', '2026-10-12')!;
     expect(varslenePerKravpost(u, eldre.tidligere, posten)).toEqual([
       { art: 'kravet', hjemmel: '34.4' },
     ]);
