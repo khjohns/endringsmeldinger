@@ -53,9 +53,10 @@ A3 blir tre poster i én PR: versjon 4 av MM-U55, versjon 3 av VS-U76 og versjon
 - **M2 «også når datoen er senere».** MM-U55 punkt 12 lar en senere dato gjelde straks. VS-U83
   avviser en dato som er senere enn datoen brevet er sendt. Lest alene sier punkt 12 at den godtas.
   Løses i E2.
-- **M3 «når det er det første varselet».** VS-U76 punkt 12 lar datoen stå i vederlagskravet når det
-  er det første varselet. Etter VS-U85 står den som totalentreprenørens siste opplysning også når et
-  varsel lagt til senere blir det første. Løses i E2.
+- **M3 Hvor datoen kan stå.** VS-U76 punkt 12 sier at datoen kan stå i det særskilte varselet og i
+  vederlagskravet. Etter VS-U85 kan en ny versjon av vederlagskravet ikke endre en dato som er
+  oppgitt, og et særskilt varsel sendt fra løsningen etter det oppgir ikke en ny dato. Lest alene
+  sier punkt 12 noe annet. Løses i E2.
 - **M4 Punkt 19 i OV-U114** bruker «grunnlagskravet». Løses i E7.
 
 Ingen av dem krever et valg: hver løses av en post vedtatt 25.11, og E1–E7 fører den inn.
@@ -74,8 +75,9 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
   før opplysningen er korrigert etter dette punktet, fordi brevet ellers blir det første varselet med
   en dato før opplysningen (punkt 6a i samlevedtaket for varslingsdatoen).» (OV-U122; E1)
 - **Punkt 12, nytt siste ledd.** «Hvor datoen står, når den avvises, og at den bare endres i et eget
-  utsagn, står i punkt 12, 12a, 12b og 14 i samlevedtaket for varslingsdatoen. For en lukket sak
-  gjelder punkt 24.» (VS-U83; VS-U85; VS-U84; E2, E3)
+  utsagn, står i punkt 12, 12a, 12b og 14 i samlevedtaket for varslingsdatoen; «også når datoen er
+  senere» gjelder innenfor punkt 12a der. I et spor med enighet, når kravene er avgjort, i en lukket
+  sak og i en sak en endringsordre omfatter, gjelder punkt 24.» (VS-U83; VS-U85; VS-U84; E2, E3)
 - **Punkt 18, ny siste setning.** «En retting etter punkt 8 eller dette punktet endrer ikke hvilket
   krav eller svar som er gjeldende (punkt 17 i samlevedtaket for brev sendt utenfor løsningen).»
   (OV-U98 s9; OV-U114 punkt 17; E4)
@@ -96,6 +98,8 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
   annen dato følger punkt 10 i samlevedtaket for retting av sendt brev.» (OV-U122; E1)
 - **Punkt 6a, ny setning.** «For varselet etter punkt 34.3.3 og 34.4 for en kravpost i et
   vederlagskrav sendt før det siste kravet i sporet gjelder OV-U120.» (OV-U120; E6)
+- **Punkt 12, ny setning.** «En dato som er senere enn datoen brevet er sendt, avvises etter punkt
+  12a, og når en oppgitt dato kan endres, står i punkt 12b.» (VS-U83; VS-U85; E2)
 - **Punkt 12a, nytt.** «Løsningen avviser en kunnskapsdato etter punkt 34.1.3 som er senere enn
   datoen brevet med opplysningen er sendt: for et brev fra løsningen datoen det sendes, og for
   korrespondanse datoen den som legger den til, oppgir at den ble sendt. Andre datoer i saken sperrer
@@ -104,9 +108,9 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
 - **Punkt 12b, nytt.** VS-U85 ordrett, med «VS-U76 punkt 9» og «VS-U76 punkt 14» som «punkt 9» og
   «punkt 14», «som OV-U122 sier» som «som punkt 10 i samlevedtaket for retting av sendt brev sier», og
   «(VS-U83)» som «(punkt 12a)». (VS-U85; E2)
-- **Punkt 14, ny setning.** «Avvisningen etter punkt 12a gjelder også utsagnet. Hvor det godtas i en
-  lukket sak og i en sak en endringsordre omfatter, står i punkt 24 i samlevedtaket for retting av
-  sendt brev.» (VS-U83; VS-U84; E2, E3)
+- **Punkt 14, ny setning.** «Avvisningen etter punkt 12a gjelder også utsagnet. At det godtas i et spor
+  med enighet, når kravene er avgjort, i en lukket sak og i en sak en endringsordre omfatter, står i
+  punkt 24 i samlevedtaket for retting av sendt brev.» (VS-U83; VS-U84; E2, E3)
 
 ### Brev sendt utenfor løsningen, versjon 2 (foreløpig OV-U123)
 
@@ -116,8 +120,9 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
   varselet for en kravpost etter punkt 34.3.3 og 34.4, OV-U121 for en påberopelse med et annet
   forhold, og punkt 10 i samlevedtaket for retting av sendt brev for en påberopelse med en annen
   dato.» (OV-U118–OV-U122; E6)
-- **Punkt 18, ny setning.** «Varsel etter punkt 34.3.3 første ledd og 34.4 kan også velges (punkt 28
-  i samlevedtaket for varslene etter punkt 34.3.3 og 34.4).» (VS-U77 punkt 28; E6)
+- **Punkt 18, nye setninger.** «Varsel etter punkt 34.3.3 første ledd og 34.4 kan også velges (punkt
+  28 i samlevedtaket for varslene etter punkt 34.3.3 og 34.4). Gjelder et krav i samme brev som
+  varsel etter bestemmelsen, følger brevet punkt 26 der.» (VS-U77 punkt 26 og 28; E6)
 - **Punkt 19, ny setning og språk.** «Et brev som både varsler og krever i et spor, følger punkt 26 i
   samlevedtaket for varslene etter punkt 34.3.3 og 34.4.» «Grunnlagskravet» blir «påberopelsen av
   forholdet». (VS-U77 punkt 26; E6, E7)
@@ -127,14 +132,14 @@ Punktene som ikke nevnes, står som i versjonen før, og nummereringen står. Ny
 ### Endret innhold
 
 - **E1** MM-U55 punkt 10 og VS-U76 punkt 5: en eldre påberopelse med en annen dato (OV-U122).
-- **E2** VS-U76 punkt 12a, 12b og 14, og MM-U55 punkt 12: avvisningen av en senere kunnskapsdato og
+- **E2** VS-U76 punkt 12, 12a, 12b og 14, og MM-U55 punkt 12: avvisningen av en senere kunnskapsdato og
   hvor datoen endres (VS-U83, VS-U85; M1–M3).
 - **E3** MM-U55 punkt 12 og 24 og VS-U76 punkt 14: utsagnet om kunnskapsdatoen i en lukket sak
   (VS-U84, som MM-U51 for punkt 10).
 - **E4** MM-U55 punkt 18: OV-U98 er samlet i OV-U114 punkt 17, og versjon 4 viser dit.
 - **E5** beslutningsdelen i MM-U55 (VS-U82). OV-U99 punkt 1 viser til beslutningsdelen og leser den.
 - **E6** henvisningene til postene som står (OV-U118–OV-U121, VS-U77), etter spørsmål 2.
-- **E7** språket i OV-U114 punkt 19 (som E5 i VS-U76).
+- **E7** språket i OV-U114 punkt 19 (som E5 i VS-U76). «Grunnlaget» i punkt 10 er sporet og står.
 - **Hovedregelen** (OV-U92): (a) for alle tre. Henvisningene gjelder den nye versjonen.
 
 ### Forholdene (spørsmål 2)
@@ -178,5 +183,8 @@ den uten å samle den.
   for postene i tabellen, på `c8992f4`. Tellingen av filene med `grep`.
 - **Lest:** punktene i MM-U55, VS-U76 og OV-U114 i `vedtak.md`, VS-U77 punkt 21–29, og Følge i
   OV-U98, OV-U99 og MM-U51.
+- **Kontrollert av subagenter 25.11:** prøvingen mot vedtakene (to indre feil, rettet i punkt 12 i
+  VS-U76 og punkt 18 i OV-U114; M3 skrevet om; ingen motstrid) og klassene (som foreslått).
+  OV-U121 avgrenser OV-U114 punkt 15 uten registrert forhold; punkt 15a viser til den.
 - **Ikke kontrollert:** sitatene fra NS 8407 (teksten er ikke klonet), og om koden i `kjerne/` og
   `src/` følger punktene. Prøvingen mot vedtakene og kontrollen av klassene gjøres av subagenter.
