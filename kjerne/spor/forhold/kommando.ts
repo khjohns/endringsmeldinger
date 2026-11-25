@@ -330,8 +330,9 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
   const varslingsplikt = gjelderVarslingsplikten(krav, regler);
   const feil = avvisteFelt(() => kontrollerForholdet(v, hovedkategori, underkategori, regler));
   const feltene = ['grunnlag_varslet_i_tide', 'resultat'] as const;
-  const erUbesvart = (felt: Forholdsfelt) =>
-    mangler(v[felt]) && (felt === 'resultat' || varslingsplikt);
+  // GR-U12, #2279.
+  const stilles = (felt: Forholdsfelt) => felt === 'resultat' || varslingsplikt;
+  const erUbesvart = (felt: Forholdsfelt) => mangler(v[felt]) && stilles(felt);
   const ubesvart = feltene
     .filter((felt) => feil[felt] && erUbesvart(felt))
     .map((spoersmaal) => ({ spoersmaal }));
@@ -360,6 +361,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
       : []
   );
   return {
+    stilt: feltene.filter(stilles).map((spoersmaal) => ({ spoersmaal })),
     ubesvart,
     ugyldig,
     standpunkter: svar.standpunkter.map((s, i) => {

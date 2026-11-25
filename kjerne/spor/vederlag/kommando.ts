@@ -24,8 +24,9 @@ import {
   kontrollerOppgivelsenEtter344,
   kontrollerOppgjoersformen,
   kontrollerVarseletForVederlag,
+  stilteSpoersmaal,
+  stiltIKravposten,
   ubesvartIKravposten,
-  ubesvarteSpoersmaal,
   type UbesvartIVederlaget,
   type Vederlagssvar,
 } from '../../regler/vederlag.ts';
@@ -645,34 +646,38 @@ const iSaerskilt = (
   x.post !== null && 'saerskilt' in x.post;
 
 /**
- * Spørsmålene i utkastet regelen krever svar på, og som er ubesvart (`ubesvarteSpoersmaal` og
- * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
+ * Spørsmålene regelen stiller i utkastet (`stilteSpoersmaal` og `stiltIKravposten`, #2279), og de
+ * som er påkrevd og ubesvart (`ubesvarteSpoersmaal` og `ubesvartIKravposten`, #2025): varselet
+ * etter § 34.1.2 først, så postene i kravets rekkefølge og posten etter § 34.1.3 annet ledd.
  */
-function ubesvartIVederlaget(
+function spoersmaaleneIVederlaget(
   svaret: Vederlagssvar,
   v: Svarvurdering,
   krav: Krav,
   regler: Regelsett
-): LagIVederlaget['ubesvart'] {
-  const ubesvarte = ubesvarteSpoersmaal(svaret, regler);
-  const iPosten = (gjelder: string) =>
-    ubesvarte.flatMap((x) => (iKravpost(x) && x.post.gjelder === gjelder ? [x.felt] : []));
-  return [
-    ...(ubesvarte.some((x) => x.post === null)
-      ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }]
-      : []),
-    ...kravpostvurderinger(v, krav).flatMap(({ post, svar }) =>
-      [...iPosten(post.id), ...ubesvartIKravposten(svar, post)].map((spoersmaal) => ({
-        spoersmaal,
-        gjelder: post.id,
-      }))
-    ),
-    ...ubesvarte.flatMap((x) =>
-      iSaerskilt(x) && x.post.saerskilt === 'produktivitet'
-        ? [{ spoersmaal: PRODUKTIVITETSFELT[x.felt] }]
-        : []
-    ),
-  ];
+): Pick<LagIVederlaget, 'stilt' | 'ubesvart'> {
+  const stilte = stilteSpoersmaal(svaret, regler);
+  const stilt: LagIVederlaget['stilt'] = [];
+  const ubesvart: LagIVederlaget['ubesvart'] = [];
+  const still = (spoersmaal: LagIVederlaget['stilt'][number], besvart: boolean) => {
+    stilt.push(spoersmaal);
+    if (!besvart) ubesvart.push(spoersmaal);
+  };
+  for (const x of stilte)
+    if (x.post === null) still({ spoersmaal: 'hovedkrav_varslet_i_tide' }, x.besvart);
+  for (const { post, svar } of kravpostvurderinger(v, krav)) {
+    for (const x of stilte)
+      if (iKravpost(x) && x.post.gjelder === post.id)
+        still({ spoersmaal: x.felt, gjelder: post.id }, x.besvart);
+    const paakrevd = ubesvartIKravposten(svar, post);
+    for (const felt of stiltIKravposten(svar, post))
+      if (felt !== 'aksepterer')
+        still({ spoersmaal: felt, gjelder: post.id }, !paakrevd.some((x) => x === felt));
+  }
+  for (const x of stilte)
+    if (iSaerskilt(x) && x.post.saerskilt === 'produktivitet')
+      still({ spoersmaal: PRODUKTIVITETSFELT[x.felt] }, x.besvart);
+  return { stilt, ubesvart };
 }
 
 /** Feltene for en kravpost kontrollene av vederlaget fører feil for, med kravposten i nøkkelen. */
@@ -851,8 +856,9 @@ export function lagIVederlaget(
   const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
   const besvart = utkast.vurderinger;
   const svaret = svaretFraVurderingene(besvart, krav, hovedkategori).svar;
-  const ubesvart = ubesvartIVederlaget(svaret, besvart, krav, regler);
+  const { stilt, ubesvart } = spoersmaaleneIVederlaget(svaret, besvart, krav, regler);
   return {
+    stilt,
     ubesvart,
     ugyldig: utenom(
       ugyldigIVederlaget(svaret, besvart, krav, hovedkategori, iOppgjoersformen, regler),
