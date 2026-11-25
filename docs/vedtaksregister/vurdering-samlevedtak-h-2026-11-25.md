@@ -32,7 +32,7 @@ er aksept og hører til tema 1 (gruppe C). H samler den ikke.
 
 **K4. Python-backenden finnes ikke i treet.** Kjørt og observert: `ls` i roten på `e61b097` viser
 `server/` og `kjerne/`, ingen Python-backend. Overgangsreglene for Python i B-17 og B-19 er derfor
-ikke tatt med i samlebeslutningen for tema 41 (E9). Om leveringen og Catenda er flyttet til TS, er
+ikke tatt med i samlebeslutningen for tema 41 (E9). Kravene som gjelder uansett språk, står i punkt 3. Om leveringen og Catenda er flyttet til TS, er
 ikke kontrollert her.
 
 ## Temaene
@@ -40,7 +40,7 @@ ikke kontrollert her.
 | Tema | Står igjen | Utfall |
 | --- | --- | --- |
 | 35 Avgrensningen av første versjon | OV-U1 | Ny versjon av OV-U1 som beslutning (spørsmål 4) |
-| 36 Hvem som oppretter hvilken sak, og topicen | KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10, KT-U11, LV-U9 | Samlevedtak, uten LV-U9 (spørsmål 1) |
+| 36 Hvem som oppretter hvilken sak, og topicen | KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10, KT-U11, LV-U9, og rad 526 (29.09) | Samlevedtak, uten LV-U9 (spørsmål 1) |
 | 39 Medlemskap og lesetilgang | DL-U7–DL-U12, DL-U15, rad 660 (B-02 punkt 4), rad 661 (B-02 punkt 5 og B-04) | Samlevedtak (spørsmål 2 og 3) |
 | 41 Serverlaget, databasen og målarkitekturen | B-12, databasen, B-15, B-17, B-18, B-19, DL-U1, DL-U3, HF-U3, rad 536, 537 (B-14), 655–659 | Samlebeslutning, uten KA-U1 (spørsmål 5) |
 
@@ -56,44 +56,48 @@ Kilden står etter hver setning. «s2» er andre setning.
 ### Avgrensningen av første versjon, versjon 2 (foreløpig OV-U125), beslutning
 
 1. Første versjon er den versjonen av løsningen som skriver den første reelle hendelsen. Den dekker
-   KOE-saken med sporene grunnlaget, vederlaget og fristen, med grunnsettet av handlinger og de
-   handlingene vedtakene sier bygges før første ekte sak. (OV-U1 s1; OV-U97 s1 og s4; E2)
+   KOE-saken med sporene grunnlaget (punkt 32, også punkt 32.2 og endringsordre etter punkt 32.3
+   første ledd a i KOE-saken, GR-U12 og GR-U13), vederlaget og fristen, med grunnsettet av
+   handlinger og de handlingene som bygges før første ekte sak etter OV-U97. (OV-U1 s1; OV-U97 s1
+   og s4; E2)
 2. Forsering etter punkt 33.8 og endringsordre som egen sak avvises til de er bygget, og føres
    utenfor løsningen etter OV-U2. (OV-U1 s2; OV-U2)
-3. Et krav fra byggherren om justering av enhetsprisene etter punkt 34.3.3 avvises i første
-   versjon. Totalentreprenørens krav om justerte enhetspriser etter punkt 34.3.2 og varsel etter
-   punkt 34.3.3 tas imot etter samlevedtaket for vederlagsmetoden. (OV-U1 s2; KA-U68; OV-U115; VS-U87; E1)
+3. Et krav fra byggherren om justering av enhetsprisene etter punkt 34.3.3, og totalentreprenørens
+   svar på det, avvises i første versjon. Totalentreprenørens krav om justerte enhetspriser etter
+   punkt 34.3.2 og varsel etter punkt 34.3.3 tas imot etter samlevedtaket for vederlagsmetoden.
+   (OV-U1 s2; KA-U68; OV-U115; VS-U87; E1)
 4. Det løsningen ennå ikke kan, avvises og forenkles ikke. (OV-U1 s3)
-5. Vedtakene om det som avvises eller er utsatt, står. Avgrensningen gjelder rekkefølgen de bygges
-   i. Hva som er utsatt i et tema, står i samlevedtaket for temaet. (OV-U1 s5; OV-U7 s6; VS-U35 s4; E2)
-6. Etter byttet skriver ingen annen del av løsningen enn TS-serveren i sakene (samlebeslutningen for
-   tema 41, punkt 3). (OV-U1 s4; B-17)
+5. Vedtakene om det som avvises eller er utsatt, står. Avgrensningen gjelder bare rekkefølgen de
+   bygges i. Hva som er utsatt i et tema, står i samlevedtaket for temaet. (OV-U1 s5; OV-U7 s6;
+   VS-U35 s4; E2)
+6. B-17 står (samlebeslutningen for tema 41, punkt 3). (OV-U1 s4; E9)
 
 ### Sakene og topicen (foreløpig KT-U12), vedtak med beslutningsdel og designdel
 
-1. Løsningen har tre sakstyper: krav om endringsordre (KOE), endringsordre (EO) og forsering. (KT-U9 s1)
-2. Totalentreprenørens krav føres i en KOE-sak for alle forhold, også ved forsinkelse eller svikt ved
+1. Totalentreprenørens krav føres i en KOE-sak for alle forhold, også ved forsinkelse eller svikt ved
    byggherrens ytelser, andre forhold byggherren har risikoen for og force majeure. (KT-U9 s2)
-3. Bare totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak. (KT-U10 s3)
-4. En endringsordre kan omfatte én eller flere hele KOE-saker, i alle forhold. (KT-U9 s4)
-5. En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og
-   ikke før. Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic. (KT-U11 s1–s2)
-6. Lager totalentreprenøren en topic i Catenda, opprettes KOE-saken fra den. Topicen er ikke et
-   varsel eller krav i løsningen, og totalentreprenøren sender varsel og krav fra løsningen. Mener
-   totalentreprenøren at topicen var varselet etter punkt 32.2, oppgir totalentreprenøren datoen i
-   et brev fra løsningen etter samlevedtaket for varslingsdatoen. Løsningen avgjør ikke selv om
-   topicen var et varsel. (KT-U6 s1–s4; E3)
-7. Lager byggherren en topic i Catenda, oppretter løsningen ingen sak. (KT-U7 s1; KT-U10 s3)
+2. Bare totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak. (KT-U10 s3)
+3. En endringsordre kan omfatte én eller flere hele KOE-saker (MM-U34 punkt 20), i alle forhold.
+   (KT-U9 s4)
+4. En sak kan opprettes både fra skjemaet i løsningen og fra en topic totalentreprenøren lager i
+   Catenda. Topicen er ikke et varsel eller krav i løsningen, og totalentreprenøren sender varsel og
+   krav fra løsningen. Mener totalentreprenøren at topicen var varselet etter punkt 32.2, oppgir
+   totalentreprenøren datoen i et brev fra løsningen etter samlevedtaket for varslingsdatoen.
+   Løsningen avgjør ikke selv om topicen var et varsel. (rad 526; KT-U6 s2–s4; E3)
 
-**Beslutningsdel.** En sak som opprettes i løsningen, får en topic på det topic-boardet prosjektets
-konfigurasjon angir. Hvert prosjekt angir ett board for alle sakstyper, og sakstypen står i
-topicens type. (KT-U3; KT-U4) En sak opprettet fra en topic får topicens tittel. (KT-U6 s1) Når
-byggherren har laget topicen, beholdes hendelsen i innboksen, og topicen får en kommentar om at
-saken ikke er opprettet fordi bare totalentreprenøren kan opprette en KOE-sak der. (KT-U7 s2) Navnet
-på sakstypen er betegnelsen i byggherrens organisasjon og endrer ikke brevteksten. (KT-U9 s3)
+**Beslutningsdel.** Løsningen har tre sakstyper: krav om endringsordre (KOE), endringsordre (EO) og
+forsering. Navnet på sakstypen er betegnelsen i byggherrens organisasjon og endrer ikke
+brevteksten. (KT-U9 s1 og s3) En sak totalentreprenøren oppretter i løsningen, opprettes når den
+første påberopelsen sendes, og ikke før. Avbryter totalentreprenøren før sending, finnes ingen sak
+og ingen topic. En sak opprettet fra en topic opprettes med topicens tittel. (KT-U11 s1–s3; KT-U6
+s1) En sak som opprettes i løsningen, får en topic på det topic-boardet prosjektets konfigurasjon
+angir. Hvert prosjekt angir ett board for alle sakstyper, og sakstypen står i topicens type. (KT-U3;
+KT-U4) Lager byggherren en topic i Catenda, oppretter løsningen ingen sak. Hendelsen beholdes i
+innboksen, og topicen får en kommentar om at saken ikke er opprettet fordi bare totalentreprenøren
+kan opprette en KOE-sak der. (KT-U7) Handlingen for en ny endringsordre finnes når EO-saken er
+bygget. (KT-U10 s2)
 
-**Designdel.** Handlingene heter ‹Nytt krav om endringsordre› og ‹Ny endringsordre›, og knappen
-‹Ny endringsordre› finnes når EO-saken er bygget. (KT-U10 s1–s2)
+**Designdel.** Handlingene heter ‹Nytt krav om endringsordre› og ‹Ny endringsordre›. (KT-U10 s1)
 
 ### Medlemskap, lesetilgang og tilbakekalling (foreløpig DL-U17), vedtak med beslutningsdel og designdel
 
@@ -110,65 +114,75 @@ på sakstypen er betegnelsen i byggherrens organisasjon og endrer ikke brevtekst
    kan løsningen brukes for bare én av dem. (DL-U14 s1–s3; spørsmål 3)
 4. Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når
    prosjektet har saker. (DL-U13; spørsmål 3)
-5. Navnet på personen bak en hendelse vises for alle som har tilgang til saken. (DL-U12)
+5. Navnet vises ved hver hendelse for alle som har tilgang til saken. (DL-U12)
 6. Retten til nye handlinger opphører straks løsningen har registrert at tilgangen er borte. Klokken
    er tidspunktet synkroniseringen lagrer endringen. En godkjenning gitt mens godkjenneren hadde
    fullmakt, står, og pakken kan utstedes. Nye godkjenninger kan personen ikke gi. Utkast blir hos
    teamet, og en kollega kan fullføre og sende i eget navn. (B-04 punkt 1–3; rad 661)
-7. Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket Catenda-prosjekt. En eldre
-   liste skriver ikke over en nyere. Deaktiveringen ved innlogging og innloggingen er nyere enn en
+7. En eldre medlemsliste skriver ikke over en nyere. Deaktiveringen ved innlogging og innloggingen er nyere enn en
    medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke et medlem aktivt igjen i
-   prosjektet og gir ikke en bruker et nytt medlemskap. (DL-U7 s1–s2; DL-U8; DL-U9)
-8. Feiler synkroniseringen, kan alle fortsatt handle, og drift varsles. Varselet utløses av alderen
-   på listen, ikke bare av feil. (B-04 punkt 4 s1 og s3)
+   prosjektet og gir ikke en bruker et nytt medlemskap. (DL-U7 s2; DL-U8; DL-U9)
+8. Feiler synkroniseringen, kan alle fortsatt handle, unntatt i tilfellene i punkt 9. (B-04 punkt 4
+   s1; DL-U10)
 9. Oppheves eller endres koblingen til Catenda-prosjektet, blir medlemskapene inaktive straks.
    Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede
    Catenda-prosjektet. (DL-U10)
-10. I et inaktivt prosjekt kan medlemmene lese sakene og brevene. Det eneste brevet som kan sendes,
-    er et innlegg, og en part kan bestride en opplysning i det. (DL-U11 s1; MM-U47 E7; E6)
+10. I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller
+    gjøre andre handlinger, unntatt å bestride en opplysning i et innlegg. (DL-U11 s1; MM-U47 E7; E6)
 
-**Beslutningsdel.** Prosjekt og kontraktsteam registreres bare av drift, ikke av serveren. (rad 660)
-Hvor gammel listen kan bli før drift varsles, og om det skal være en ytre grense, fastsettes i
-B-09. (B-04 punkt 4 s4)
+**Beslutningsdel.** Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket
+Catenda-prosjekt. (DL-U7 s1) Prosjekt og kontraktsteam registreres bare av drift, ikke av serveren.
+(rad 660) Feiler synkroniseringen, varsles drift. Varselet utløses av alderen på listen, ikke bare av
+feil. Hvor gammel listen kan bli før drift varsles, og om det skal være en ytre grense, fastsettes i
+B-09. (B-04 punkt 4 s1, s3 og s4)
 
-**Designdel.** Et inaktivt prosjekt vises i lista som inaktivt. (DL-U11 s2) Navnet står ved hver
-hendelse i tidslinjen. (DL-U12)
+**Designdel.** Et inaktivt prosjekt vises i lista som inaktivt. (DL-U11 s2)
 
 ### Serverlaget, databasen og målarkitekturen (foreløpig B-20), beslutning
 
 1. Målformene M2, M1, M4 og M5 legges til grunn med presiseringene 07.10. Løsningen er en modulær
-   monolitt med serverautoritet. (rad 536 s1–s2)
+   monolitt med serverautoritet. M3 følger grensene som endres. (rad 536 s1–s2)
 2. Domenekjernen er skrevet i TypeScript og brukes både i nettleseren og på serveren. Den bygges i en
    egen permanent mappe, som ren kode med typesjekk, arkitekturtest og regelversjonsvakt i CI.
-   (rad 537 s1; merknaden 09.10 til B-14 i Følge)
-3. Backenden er samlet i TS, og TS eier KOE-, EO- og forseringsdomenet: kommandoene, valideringen,
+   Valget godkjenner ikke prøvekoden som produksjonskjerne. (rad 537 s1–s2; merknaden 09.10 til
+   B-14 i Følge)
+3. Backenden samles i TS, og TS eier KOE-, EO- og forseringsdomenet: kommandoene, valideringen,
    utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget. Alt som skriver i
-   eller påvirker en sak, går gjennom TS. En tjeneste ved siden av kan stå for levering og Catenda
-   bare så lenge den ikke leser eller skriver i databasen selv. (B-17 s2–s3; merknaden 09.10 til
-   B-17; B-19 s1 og s4; E9)
+   eller påvirker en sak, går gjennom TS. Levering og Catenda kan ligge i en tjeneste ved siden av
+   så lenge den ikke leser eller skriver i databasen selv, til de flyttes. Tjenesten tolker ikke
+   journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. (B-17 s2–s3 og s6;
+   merknaden 09.10 til B-17; B-19 s1 og s4; E9)
+3a. Testsakene fra før byttet forkastes, og det bygges ingen kompatibilitetsleser for dem. Bevis-sakene
+   og domenetabellen føres videre. (B-17 s8)
 4. Serverlaget velges av utviklerne og IT innenfor tre krav: én autoritativ regelbehandling,
    kontrollert adgang til bindende handlinger og historikk som kan etterprøves. Flere tjenester kan
    rulles ut som én samlet utgivelse. (B-18 s1–s2)
 5. Når nødvendig saksgrunnlag er lastet, kan brukeren utforske vurderinger og se beregninger og
-   brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. (B-15 s1–s2)
+   brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert
+   forhåndsvurdering utredes ikke som erstatning, og B-13 er uendret. (B-15 s1–s4)
 6. Databasen er Azure SQL Database, med forbeholdet at IKT bekrefter at løsningen får en egen
    database på et nivå som kan speiles til Fabric (RP-U1). Datalaget bygges i TS rett mot SQL
    Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt. (B-12 s1–s2;
    DL-U1)
-7. Én bindende kommando er én transaksjon, over direkte tilkobling til databasekommandoene. (rad 656
-   med Følge s1, slik B-12 endret den)
+7. Én bindende kommando er én transaksjon, over direkte tilkobling til databasekommandoene, med en
+   databasedriver og vanlig SQL. Det tas ikke opp igjen uten nytt konkret motbelegg. (rad 656 med
+   Følge s1–s3, slik B-12 endret den)
 8. Tilgangsmekanismen er alternativ C i B-02: radnivåsikkerhet med kontekst for lesing, avgrensede
    kommandoer for bindende skriving og operasjonsmodellen for journal, saksregister og kø, uttrykt
-   og prøvd i T-SQL. Den virker likt lokalt, i CI og i Azure. (rad 657 med Følge; rad 658 Følge s1;
-   E10)
+   og prøvd i T-SQL. Designet avhenger ikke av plattformen, og mekanismen virker likt lokalt, i CI
+   og i Azure. (rad 657 med Følge; rad 658 s1 og Følge s1; E10)
 9. Hvert brev lagres samlet som ett dokument, og det er journalens eneste kilde. Tabellene for
    spørring og rapport lages av brevene, kan lages på nytt og brukes aldri til en bindende handling
-   (B-10). Ukjent innhold bevares og stopper saken (HF-U1). (HF-U3 s1–s3)
+   (B-10). Ukjent innhold bevares og stopper saken (HF-U1, samlet i MM-U43). Punktet gjelder bare
+   lagringsformen; hva tabellene skal inneholde, avgjøres når rapporteringen og veien til Fabric
+   bygges. (HF-U3 s1–s3 med Følge)
 10. Tidspunkter lagres som datetime2(3) i UTC, uten forskyvning. Serveren setter tidspunktet, og
-    visningen gjør om til norsk tid. (DL-U3 s1 og s3)
-11. Hendelseslageret i JSON, metadatalageret i CSV og Supabase-lagrene er ute av kjøretidsstien.
-    Tester som trenger ekte lagring, går mot testbasen over samme slags tilkobling som produksjonen.
-    (rad 659 med Følge, slik B-12 endret den)
+    visningen gjør om til norsk tid. Punktet gjelder det lagrede formatet, ikke innholdet i
+    rapporttabellene. (DL-U3 s1 og s3 med Følge)
+11. Hendelseslageret i JSON, metadatalageret i CSV og Supabase-lagrene er ute av kjøretidsstien, og
+    det bygges ingen vei ut av Supabase for den gamle stakken. Tester som trenger ekte lagring, går
+    mot en skrivbar testbase over samme tilkobling som produksjonen. (rad 659 med Følge, slik B-12
+    endret den; DL-U1 s1)
 
 ## Endret innhold
 
@@ -185,29 +199,33 @@ hendelse i tidslinjen. (DL-U12)
   bestridelsen sendes som innlegg og at innlegget er det eneste brevet. MM-U7 er samlet i MM-U47.
 - **E7** DL-U15 s6 («Ved utdatert medlemsliste gjelder B-04») er punkt 8. Ordene om hva DL-U15
   endrer (B-02, vedtaket 18.09, DB-05), står i Følge.
-- **E8** B-14 s3 (rekkefølgen domenetabell → kontrakt → språkprøve → M2/M1 → M4) og B-17 s6–s9
-  (testsakene, kompatibilitetsleseren, trinnvis bygging og samlet aktivering) gjaldt byttet og tas
-  ikke med.
-- **E9** Overgangsreglene for Python i B-17 (s4–s6, s8), B-18 (Python ved siden av) og B-19 (s2–s3,
-  rekkefølgen og at Python-lagrene ikke skrives om) tas ikke med (K4). Punkt 3 beholder kravet til en
-  tjeneste ved siden av uten å nevne Python.
-- **E10** Rad 658 s2 («Foreløpig mål er Azure Database for PostgreSQL») og kravet om ren PostgreSQL er
-  endret av B-12 og tas ikke med. Rad 655 er opphevet 23.09 og tas ikke med.
+- **E8** Rad 536 s3 (rekkefølgen domenetabell → kontrakt → språkprøve → M2/M1 → M4) og B-17 s9
+  (trinnvis bygging og samlet aktivering av skrivestien) gjaldt byttet og tas ikke med.
+- **E9** Overgangsreglene for Python i B-17 (s4–s5 og s7), B-18 (Python ved siden av), B-19 (s2–s3:
+  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med (K4). Punkt 3 beholder
+  kravet til en tjeneste ved siden av og B-17 s6 uten å nevne Python, og OV-U125 punkt 6 viser til
+  punkt 3. DL-U1 s1 står i punkt 11 uten «Python- og PostgreSQL-stakk».
+- **E10** Rad 658 s2 («Foreløpig mål er Azure Database for PostgreSQL»), kravet om ren PostgreSQL og
+  «på Supabase» i Følge s1 er endret av B-12 og tas ikke med. Rad 655 er opphevet 23.09 og tas ikke
+  med. I punkt 11 er «PostgreSQL» i rad 659 Følge s1 tatt ut, slik B-12 endret den.
+- **E11** KT-U12 punkt 4 tar med raden 29.09 (rad 526), som KT-U3 utvider og KT-U6 presiserer med ord.
+  Delen om en topic gjelder en topic totalentreprenøren lager (KT-U6, KT-U7).
 
 ## Forholdene
 
-- **OV-U125** samler OV-U1. OV-U97 presiserer OV-U1 og OV-U2 står; forholdene står på OV-U1. KT-U7
+- **OV-U125** opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U125, som for OV-U95 i OV-U115. OV-U97 presiserer OV-U1 og OV-U2 står; forholdene står på OV-U1. KT-U7
   presiserte OV-U1 og samles i KT-U12.
-- **KT-U12** samler KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10 og KT-U11. Forholdene fra KT-U9 og KT-U10
+- **KT-U12** samler KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10, KT-U11 og rad 526 (med anker). Forholdene fra KT-U9 og KT-U10
   til EO-U1 og OV-U3 føres videre. LV-U9 presiserer KT-U3 og står med forholdet.
 - **DL-U17** samler DL-U7–DL-U12, DL-U15, og etter spørsmål 3 A DL-U13 og DL-U14. Rad 660 og 661 får
   ankrene `b-02-punkt-4` og `b-04-tilbakekalling` og samles (README, «En rad uten anker»). MM-U47
   presiserer DL-U11 og står med forholdet. Merknaden 23.09 til B-04 står som tekst.
 - **B-20** samler B-12, databasen, B-15, B-17, B-18, B-19, DL-U1, DL-U3 og HF-U3, og rad 536, 537 og
   656–659 med ankre. Rad 655 er opphevet og samles ikke.
-- **Samler, ikke opphever.** Ingen av de fire løser en motsigelse mellom postene. E1 retter en
-  setning som andre poster alt har endret, og E8–E10 tar ikke med det som gjaldt et bytte. Etter svar
-  4 A samler de derfor (spørsmål 6).
+- **Opphever eller samler (svar 4 A).** E1 løser en motsigelse uten registrert forhold mellom OV-U1
+  og KA-U68, OV-U115 og VS-U87 (K2), så OV-U125 opphever OV-U1. KT-U12, DL-U17 og B-20 løser ingen
+  motsigelse: E3–E7 og E11 viser til der innholdet nå står, og E8–E10 tar ikke med det som gjaldt et
+  bytte. De samler derfor (spørsmål 6).
 
 ## Spørsmålene
 
@@ -217,8 +235,9 @@ sende brev) og legges fram som tekst. Spørsmål 3–6 er tekniske og prosessuel
 **Juridiske**
 
 > **1. Tilslutning, tema 36.** Gjelder utkastet «Sakene og topicen» over, med beslutningsdelen,
-> designdelen og E3–E5, som samlevedtak for hvem som oppretter hvilken sak og topicen? Svar «ja»
-> eller rett enkeltpunkter. Belegg: KT-U3–KT-U11. Styrer: posten KT-U12.
+> designdelen, E3–E5 og E11, som samlevedtak for hvem som oppretter hvilken sak og topicen? Svar «ja»
+> eller rett enkeltpunkter. Belegg: KT-U3–KT-U11 og raden 29.09
+> («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). Styrer: posten KT-U12.
 
 > **2. Tilslutning, tema 39.** Gjelder utkastet «Medlemskap, lesetilgang og tilbakekalling» over, med
 > beslutningsdelen, designdelen og E6–E7, som samlevedtak for medlemskap, lesetilgang og
@@ -244,10 +263,12 @@ sende brev) og legges fram som tekst. Spørsmål 3–6 er tekniske og prosessuel
 > leses med Følge.» Anbefaling: A. B-12 endrer fire rader, og B-19 endrer B-18, så hva som gjelder,
 > kan ikke leses av én post. Styrer: posten B-20.
 
-> **6. Forholdene.** **A (anbefalt):** som «Forholdene» over: de fire samler, radene uten anker får
-> anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E. **B:** «Som A, men B-20 opphever
-> B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.» Anbefaling: A. E9 tar ut regler
-> for et bytte som er gjort (K4), ikke en regel som gjelder. Styrer: `forhold` i de nye postene.
+> **6. Forholdene.** **A (anbefalt):** som «Forholdene» over: OV-U125 opphever OV-U1, de tre andre
+> samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.
+> **B:** «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for
+> Python.» Anbefaling: A. E9 tar ut regler for et bytte, ikke en regel som gjelder. Med B viser 24
+> henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
+> kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.
 
 ## Kodefunn
 
@@ -263,5 +284,9 @@ kontrollert mot koden.
   setningene om punkt 34.3.3 i OV-U115 og VS-U87.
 - **Ikke kontrollert:** sitatene fra NS 8407 (teksten er ikke klonet; utkastene siterer ikke
   kontrakten), om koden følger postene, og om leveringen og Catenda er flyttet til TS.
-- Prøvingen av alternativene mot vedtakene og kontrollen av klassene gjøres av subagenter før
-  spørsmålene sendes. Resultatet føres under.
+- **Kontrollert av subagenter 25.11:** prøvingen mot vedtakene og setningskildene (K1, K2 og
+  EO-sak og forsering utenfor første versjon holder; 19 funn om utelatte setninger, feil
+  setningsnummer og en ufullstendig E-liste, rettet; funn 13 førte til at OV-U125 opphever OV-U1, og
+  funn 15 til rad 526 og E11; ingen motstrid i alternativene) og klassene (OV-U125 og B-20 som
+  foreslått; i KT-U12 er sakstypene, opprettelsestidspunktet og byggherrens topic flyttet til
+  beslutningsdelen, og i DL-U17 det synkroniseringen lagrer og varselet til drift).
