@@ -28,6 +28,7 @@
   let {
     id,
     etikett,
+    skjultTillegg,
     hjelp = null,
     feil = null,
     valgfri = false,
@@ -38,6 +39,8 @@
     id: string;
     /** Uten etikett står labelen et annet sted, som overskriften i `Spoersmaal`. */
     etikett?: string;
+    /** Det navnet trenger i tillegg til `etikett`, bare for skjermleseren. Krever `etikett`. */
+    skjultTillegg?: string;
     hjelp?: string | null;
     feil?: string | null;
     /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
@@ -51,7 +54,10 @@
 </script>
 
 <div class="felt">
-  {#if etikett}<Feltetikett for={id} {valgfri} {underordnet}>{etikett}</Feltetikett>{/if}
+  {#if etikett}<Feltetikett for={id} {valgfri} {underordnet}
+      >{etikett}{#if skjultTillegg}<span class="visually-hidden">{skjultTillegg}</span
+        >{/if}</Feltetikett
+    >{/if}
   {#if hjelp}<span class="dempet" id={`${id}-hjelp`}>{hjelp}</span>{/if}
   {@render children()}
   {#if feil}<p class="feilmelding" id={`${id}-feil`}>{feil}</p>{/if}

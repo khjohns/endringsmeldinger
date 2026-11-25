@@ -1,4 +1,5 @@
 import { brevmerking, medSakskode } from '#kjerne/frosset/brevtittel.ts';
+import { sakensKode } from '#kjerne/frosset/tekst.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import { brevene } from './lesing';
@@ -9,10 +10,12 @@ export function utkastetsHode(
   sak: Saksmerking | null | undefined,
   tittel: string,
   foerste = false
-): { tittel: string; nummer: number | null; merking: string | null } {
+): { tittel: string; saken: string | null; nummer: number | null; merking: string | null } {
   const nummer = foerste ? 1 : u ? Math.max(0, ...brevene(u).map((b) => b.nummer ?? 0)) + 1 : null;
   return {
     tittel: sak?.sakskode ? medSakskode(tittel, sak.sakskode) : tittel,
+    // Slutten av tittelen `medSakskode` legger til, som «sak KOE-17».
+    saken: sak?.sakskode ? `sak ${sakensKode(sak.sakskode)}` : null,
     nummer,
     merking:
       nummer !== null && sak?.sakskode && sak.kontraktsforkortelse

@@ -356,6 +356,49 @@ describe('lenken i «Gjelder hvis» når innsigelsen står (Codex-reviewet)', ()
   });
 });
 
+describe('begrunnelsen under punktet i svarskjemaet (#2359, WCAG 2.4.6 og 2.5.3)', () => {
+  it('etiketten sier «Begrunnelse», og navnet sier hvilket punkt den gjelder', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    await radio('Godtar justeringen');
+    const felt = screen.getByRole('textbox', {
+      name: /^Begrunnelse, .*Justering av enhetsprisene/,
+    });
+    const synlig = document.querySelector(`label[for="${felt.id}"]`)!.cloneNode(true) as Element;
+    synlig.querySelectorAll('.visually-hidden').forEach((e) => e.remove());
+    expect(synlig.textContent).toMatch(/^Begrunnelse\s*Valgfri$/);
+  });
+});
+
+describe('saken i tittelen på utkastet brytes ikke (#2359 punkt 4)', () => {
+  it('«sak KOE-17» står samlet i et eget spenn, og navnet på overskriften er uendret', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    const tittel = screen.getByRole('heading', {
+      name: 'Svar på varsel om justering av enhetsprisene i sak KOE-17',
+    });
+    expect(tittel.querySelector('.saksnummer')?.textContent).toBe('sak KOE-17');
+  });
+});
+
+describe('punktene heter det samme før og etter at brevet kan lages (#2359 punkt 3)', () => {
+  it('overskriftene i skjemaet og panelet er ordene i brevet, med nummeret først når brevet finnes', async () => {
+    await svarskjemaet(medVarsel('34.3.3'));
+    const navnene = () =>
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((h) => h.textContent!.trim().replace(/^\d+\.\s*/, ''));
+    const foer = navnene();
+    const forbeholdet = screen.getByRole('textbox', { name: /^Forbehold/ });
+    const etiketten = () => document.querySelector(`label[for="${forbeholdet.id}"]`)!.textContent!;
+    const forbeholdFoer = etiketten();
+    await radio('Kom i tide');
+    await radio('Godtar justeringen');
+    expect(screen.getAllByRole('heading', { level: 3 })[0]!.textContent).toMatch(/^1\. /);
+    expect(navnene()).toEqual(foer);
+    expect(etiketten()).toMatch(/^3\. /);
+    expect(etiketten().replace(/^\d+\.\s*/, '')).toBe(forbeholdFoer);
+  });
+});
+
 describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', () => {
   const mellom = skrevet(medVederlagssvar, 'TE', {
     type: 'send_varsel',
