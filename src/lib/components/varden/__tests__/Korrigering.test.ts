@@ -98,7 +98,7 @@ afterEach(() => {
 });
 
 describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
-  it('BF-02A: TE korrigerer ved datoen gjennom brevkontrollen, og kontrollene etter korrigeringen holder (MM-U55 punkt 10–11, U-1–U-4)', async () => {
+  it('BF-02A: TE korrigerer ved datoen gjennom brevkontrollen, og kontrollene etter korrigeringen holder (MM-U59 punkt 10–11, U-1–U-4)', async () => {
     const BF = finn('BF-02A');
     const punkt = kontrollpunkt(BF, 'te-har-mottatt-svaret');
     const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });
@@ -144,7 +144,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     const korrigeringen = await innlegget(3);
     expect(korrigeringen.getByRole('button', { name: /Korriger datoen/ })).toBeTruthy();
     // U-5: ved svaret står TEs siste opplysning da svaret ble sendt, uten å si hva svaret mente
-    // (designdelen i MM-U55; oppdragsgiver 16.11 i #2093: «A: linje etter korrigering»).
+    // (designdelen i MM-U59; oppdragsgiver 16.11 i #2093: «A: linje etter korrigering»).
     const svaret = (await innlegget(2)).getByRole('heading').closest('li')!.textContent!;
     expect(svaret.replace(/\s+/g, ' ')).toContain(
       'Da svaret ble sendt, var totalentreprenørens siste opplysning at pålegget ble mottatt 15. september 2026, oppgitt i brev 1.'
@@ -265,7 +265,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(kortet.queryByText(/Korriger datoen|Handlingen korrigere/)).toBeNull();
   });
 
-  it('BF-02C: TE korrigerer i stedet for å sende en ny versjon, og kontrollene etter korrigeringen holder (MM-U55, LV-U54)', async () => {
+  it('BF-02C: TE korrigerer i stedet for å sende en ny versjon, og kontrollene etter korrigeringen holder (MM-U59, LV-U54)', async () => {
     const BF = finn('BF-02C');
     const punkt = kontrollpunkt(BF, 'te-vil-sende-ny-versjon');
     const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });

@@ -9,11 +9,9 @@
   },
   "bestilling": "BF-49.md",
   "kilder": [
-    "OV-U114",
     "OV-U118",
     "OV-U119",
     "OV-U121",
-    "OV-U122",
     "VS-U77",
     "VS-U80",
     "VS-U81",
@@ -28,7 +26,6 @@
     "OV-U113",
     "OV-U84",
     "OV-U99",
-    "MM-U55",
     "LV-U45",
     "OV-U6",
     "OV-U79",
@@ -40,7 +37,10 @@
     "OV-U5",
     "VS-U16",
     "OV-U13",
-    "OV-U46"
+    "OV-U46",
+    "OV-U123",
+    "MM-U59",
+    "OV-U122"
   ],
   "venter_paa": [
     "#807",
@@ -61,6 +61,11 @@
       "dato": "2026-11-25",
       "forhold": "Kontrollen av S-1 og D-punktene",
       "hva": "S-1 og D-punktene er rettet etter kontrollen mot vedtakene: vilkårene i D-6, D-8 og D-13, punkt 49 i EO-U39 i D-11 og ordlyden etter OV-U12 i S-1."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "OV-U123, MM-U59, S-1",
+      "hva": "S-1 er besvart med A og ført i D-11 og G-10, og henvisningene til OV-U114 og MM-U55 gjelder nå OV-U123 og MM-U59."
     }
   ]
 }

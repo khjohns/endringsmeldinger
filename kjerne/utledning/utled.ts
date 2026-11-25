@@ -96,7 +96,7 @@ export interface Svarberegning {
    */
   gjaldtEtAnnetVarsel: string[];
   /**
-   * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysning om datoen
+   * Designdelen i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysning om datoen
    * etter VS-U26 som var TEs siste da svaret på grunnlaget ble gitt (`Datoopplysning.id`).
    * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
    */
@@ -112,7 +112,7 @@ export interface Svarberegning {
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): én opplysning fra TE om datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): én opplysning fra TE om datoen
  * etter VS-U26, i grunnlagskravet eller i en korrigering. En ny kravversjon som gjengir TEs
  * siste opplysning, er ikke en ny opplysning.
  */
@@ -280,7 +280,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysninger om datoen
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen
    * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
    * den datoen, og de andre er de tidligere (designdelen). Løsningen avgjør ikke hvilken som er
    * riktig (punkt 11).
@@ -527,7 +527,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
   return [
-    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
+    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u, d, samme))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
     ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme, utenVirkning) : []),
@@ -556,6 +556,31 @@ export function sendtFoerSisteKrav(
 ): boolean {
   const siste = u.spor[spor].gjeldendeKrav;
   return siste !== null && foerDagen(dag, datoenDetBleSendt(u, siste), () => samme(siste.id));
+}
+
+/**
+ * OV-U118, OV-U119: kravversjonene i sporet et krav sendt på dagen `dag` prøves mot (`tidligere`), i
+ * rekkefølgen de ble sendt, og resten (`andre`). For et krav sendt før det siste er `tidligere` de
+ * sendt til og med `dag`, også utenfor rekken (OV-U104); ellers er det rekken. Kommandoen og
+ * `kravetStrider` leser regelen herfra. `samme` får hver kravversjon sendt samme dag.
+ */
+export function kravversjoneneKravetProevesMot(
+  u: Utledning,
+  spor: Spor,
+  dag: string | null,
+  samme: (med: string) => void = () => {}
+): { tidligere: readonly Krav[]; andre: readonly Krav[] } {
+  const { krav, kravUtenforRekken } = u.spor[spor];
+  if (!sendtFoerSisteKrav(u, spor, dag)) return { tidligere: krav, andre: kravUtenforRekken };
+  const foer: { k: Krav; sendt: string }[] = [];
+  const andre: Krav[] = [];
+  for (const k of [...krav, ...kravUtenforRekken]) {
+    const sendt = datoenDetBleSendt(u, k);
+    if (sendt !== null && !foerDagen(dag, sendt, () => samme(k.id))) foer.push({ k, sendt });
+    else andre.push(k);
+  }
+  foer.sort((a, b) => a.sendt.localeCompare(b.sendt));
+  return { tidligere: foer.map((x) => x.k), andre };
 }
 
 /**
@@ -859,12 +884,21 @@ interface Partspaaberopelse {
   hjemmel: (varslingsplikt: boolean) => Hjemmel | Kravpostvarselhjemmel | null;
 }
 
-/** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
-function kravetStrider(k: Krav, u: Utledning): string | null {
+/**
+ * Hvorfor kravversjonen strider mot journalen før den, eller `null`. Et krav lagt til prøves mot
+ * kravversjonene på dagen det ble sendt (`kravversjoneneKravetProevesMot`).
+ */
+function kravetStrider(k: Krav, u: Utledning, d: Dokument, samme: SammeDag): string | null {
   const l = lukket(u);
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
-  const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
+  const { tidligere, andre } = kravversjoneneKravetProevesMot(
+    u,
+    k.spor,
+    erRegistrert(d.opplysninger) ? dagenSendt(k, d) : null,
+    (med) => samme(k.id, med)
+  );
+  const poster = kontrollerI(k.spor).kravet(k, tidligere, andre);
   return poster ? `en kravversjon som ${poster}` : null;
 }
 
@@ -970,8 +1004,11 @@ export type Bakover = (fra: string, til: string) => boolean;
  * leseregel gir en begrensning med `ugyldig`, eller `null` for kravversjonen.
  */
 export interface Sporskontroller {
-  /** Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». */
-  kravet(k: Krav, tidligere: readonly Krav[]): string | null;
+  /**
+   * Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». `andre` er
+   * de andre kravversjonene i sporet (`kravversjoneneKravetProevesMot`).
+   */
+  kravet(k: Krav, tidligere: readonly Krav[], andre: readonly Krav[]): string | null;
   /** Kravversjonene i sporet mot varslene. */
   kravene(
     krav: readonly Krav[],
@@ -1346,7 +1383,7 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // VS-U76 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
+  // VS-U86 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
   // versjon er ikke et nytt varsel. Et svar sendt før VS-U70 viser til det egne varselet,
   // og står med det (MM-U50). Etter § 34.3.3 og § 34.4 gjelder den kravposten (`kontrollerPostene`).
   if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
@@ -1545,7 +1582,7 @@ function fyllSporene(
 }
 
 /**
- * OV-U5, HF-U1, VS-U76 punkt 10: et svar står med virkningen det hadde, også når TE senere
+ * OV-U5, HF-U1, VS-U86 punkt 10: et svar står med virkningen det hadde, også når TE senere
  * har registrert et annet varsel enn det påberopelsen etter § 32.2, § 33.4, § 34.1.2 eller
  * § 34.1.3 gjaldt. Visningen sier det.
  */
@@ -1577,7 +1614,7 @@ function svarberegninger(
 }
 
 /**
- * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): opplysningen om datoen som var
+ * Designdelen i samlevedtaket for retting av sendt brev (MM-U59): opplysningen om datoen som var
  * TEs siste da svaret på grunnlaget ble gitt.
  */
 function settDatoopplysningene(
@@ -1874,7 +1911,7 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
 }
 
 /**
- * VS-U20, OV-U5, HF-U1, VS-U76 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
+ * VS-U20, OV-U5, HF-U1, VS-U86 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
  * eller § 34.1.3 gjelder: varselet etter hjemmelen som var registrert da svaret ble sendt,
  * ellers det første kravet som varsler (`kravSomVarsler`), som er det første varselet appen
  * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Etter § 33.4, § 34.1.2 og § 34.1.3 gjelder

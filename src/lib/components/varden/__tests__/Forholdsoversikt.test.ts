@@ -556,7 +556,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       varselhjemler: [],
     }) as Brevet;
 
-  it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U55 punkt 10–11)', () => {
+  it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U59 punkt 10–11)', () => {
     const k = brev('k5', 5, 'annet', ['forhold']);
     const innlegg = new Map<string, Innlegget>([
       [
