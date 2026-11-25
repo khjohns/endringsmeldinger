@@ -178,7 +178,7 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
                 'Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.',
               ]
             : []),
-          // VS-U76: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
+          // VS-U86: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
           ...dato('paalegg_mottatt'),
         ];
   const ledd = hoved === null ? undefined : LEDD_I_33_1[hoved];
@@ -191,7 +191,7 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
       nyVersjon
         ? `Påberopelsen gjelder ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`
         : `Totalentreprenøren påberoper ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`,
-      // VS-U76: etter kategorisetningen.
+      // VS-U86: etter kategorisetningen.
       ...dato('klar_over_forholdet'),
     ];
   }

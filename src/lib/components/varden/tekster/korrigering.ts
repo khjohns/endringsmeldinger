@@ -15,7 +15,7 @@ export const KORRIGERING = haerdet({
     `${dato(o.dato)}, datoen du oppga for når ${DATOEN[o.hva]}`,
   oppgittI: 'Oppgitt i',
   brevet: (b: Brevref) => `${brevrefStor(b)} av ${dato(b.registrert)}`,
-  /** U-2: et eget brev, og påberopelsen og svaret står som de ble sendt (MM-U55 punkt 10–11). */
+  /** U-2: et eget brev, og påberopelsen og svaret står som de ble sendt (MM-U59 punkt 10–11). */
   egetBrev: (paaberopelse: Brevref, svar: Brevref | null) =>
     `Korrigeringen sendes som et eget brev til byggherren. ${
       svar
