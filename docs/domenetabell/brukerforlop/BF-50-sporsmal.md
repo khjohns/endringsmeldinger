@@ -131,9 +131,10 @@ Ved B bortfaller også setningene om åpne rettinger i S-2.
 
 ## S-2. Hva sier et krav om varseldatoen når totalentreprenøren har rettet den?
 
-**Avhenger av S-1.** Ved S-1 B står ingen retting åpen, setningen om åpne rettinger i A faller, og A og
-B blir like. S-2 stilles da bare om oppdragsgiver vil at kravet ikke skal vise til rettingen. Ved S-1 A
-stilles S-2 som det står.
+**Avhenger av S-1.** Ved S-1 A stilles S-2 som det står. Ved S-1 B står ingen retting åpen og ingen
+aksept finnes: «datoen som gjelder etter punkt 19» er da totalentreprenørens siste opplysning, setningene
+om åpne rettinger og om svaret med aksepten faller, og A og B blir like. S-2 trengs da ikke, og kravet
+oppgir den siste opplysningen med henvisning til rettingen den kommer fra, som arbeidsvalg etter B.
 
 **Bakgrunn.** Har totalentreprenøren lagt til et varsel sendt utenfor løsningen, sier et krav
 totalentreprenøren senere sender fra løsningen, når varselet ble sendt, der kravet har en slik setning
