@@ -16,7 +16,11 @@ export const DOKUMENTENE: Lesbar[] = [
     'Dokument',
     'relasjon',
     'lagtTilAv',
-    ['utledning/utled.ts:registreringer', 'utledning/utled.ts:utledSporene.lesDokumentet'],
+    [
+      'utledning/utled.ts:registreringer',
+      'utledning/utled.ts:utledSporene.lesDokumentet',
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+    ],
   ],
   ['Dokument', 'utsagn', 'krav svar utsagn opplysninger'],
   // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
