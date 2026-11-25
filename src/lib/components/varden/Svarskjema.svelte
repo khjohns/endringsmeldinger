@@ -72,6 +72,7 @@
     onendre = () => {},
     onlagttil = () => {},
     tittel = SVARTITTEL[spor],
+    erstatter = null,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -128,6 +129,8 @@
     onlagttil?: () => void;
     /** Tittelen på brevet, når svaret ikke gjelder kravet i sporet (VS-U79). */
     tittel?: string;
+    /** Brevet med svaret et nytt svar erstatter (HF-U29), eller `null`. */
+    erstatter?: Brevet | null;
   } = $props();
   const uid = $props.id();
 
@@ -308,7 +311,11 @@
   {kjernesak}
   {u}
   avsender="BH"
-  oppfolging={{ tekst: SKJEMA.svarerPaa(kravbrevet), brev: kravbrevet }}
+  oppfolging={{
+    tekst: SKJEMA.svarerPaa(kravbrevet),
+    brev: kravbrevet,
+    erstatter: erstatter ? SKJEMA.erstatter(erstatter) : undefined,
+  }}
   {onvedsiden}
   {lagtTil}
   part={kjernesak.part}

@@ -23,6 +23,8 @@ import {
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
 import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import { tomPost, tomtSvar, vederlagssvaret } from '#lib/components/varden/kommandoer.ts';
 
 const svikt = skrevet(
   skrevet([opprettet], 'TE', {
@@ -336,5 +338,52 @@ describe('innsigelsen mot varselet for kravposten fra et tidligere svar (VS-U77 
     ).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Kom i tide' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
+  });
+});
+
+describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
+  const besvart = skrevet(
+    svikt,
+    'BH',
+    vederlagssvaret(
+      {
+        ...tomtSvar(),
+        iTide: true,
+        poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '200 000' } },
+      },
+      utledJournal(svikt, KJERNE),
+      KJERNE.regler
+    )
+  );
+
+  it('knappen ved svaret åpner svarskjemaet med svaret det erstatter fylt ut, og brevet viser at det erstatter svaret (HF-U29, prototypen `vederlagsoversikt-v2.html`)', async () => {
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => ({
+        versjon: besvart.at(-1)!.versjon,
+        part: 'BH',
+        visning: null as never,
+        journal: besvart.map(linje),
+        leveringsoppdrag: [],
+        catenda_lenke: null,
+        sakskode: null,
+        kontraktsforkortelse: null,
+        kan_foreslaa_sakskode: false,
+        merking: MERKING,
+      }),
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    expect(kjernesak.handlinger).toContain('revidere:vederlag');
+    await fireEvent.click(await screen.findByRole('button', { name: /^Send nytt svar/ }));
+    expect(await screen.findByText(/^Erstatter svaret i brev 3/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
+    ).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Deler av beløpet' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Varslet i tide' })).toBeChecked();
+    expect(screen.queryByText(/ikke bygget/)).toBeNull();
   });
 });

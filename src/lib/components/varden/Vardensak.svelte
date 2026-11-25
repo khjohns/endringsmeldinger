@@ -55,7 +55,13 @@
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
-  import { tomtSvar, tomtVarselsvar, type Korrigeringsvalg, type Varselsvalg } from './kommandoer';
+  import {
+    tomtSvar,
+    tomtVarselsvar,
+    valgFraSvaret,
+    type Korrigeringsvalg,
+    type Varselsvalg,
+  } from './kommandoer';
   import {
     kontraktFraProsjektet,
     kontraktsrader,
@@ -619,12 +625,20 @@
       skjema: forholdssvar,
     },
     vederlagssvar: {
-      noekler: ['svare:vederlag'],
-      aapne: () => {
+      // HF-U29: det nye svaret på kravet erstatter det gjeldende, i samme skjema.
+      noekler: ['svare:vederlag', 'revidere:vederlag'],
+      aapne: (n) => {
+        const forrige = u?.spor.vederlag.gjeldendeSvar;
+        // Et påbegynt nytt svar står; ellers åpner skjemaet med svaret det erstatter.
+        if (n === 'revidere:vederlag' && forrige && !harSvarutkast('vederlag'))
+          utkastene.vederlagssvar = valgFraSvaret(forrige, u!.spor.vederlag.gjeldendeKrav!);
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>
-        a.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag'),
+        a.art === 'svar' &&
+        valgt === 'vederlag' &&
+        (kjernesak.handlinger.includes('svare:vederlag') ||
+          kjernesak.handlinger.includes('revidere:vederlag')),
       skjema: vederlagssvar,
     },
     fristsvar: {

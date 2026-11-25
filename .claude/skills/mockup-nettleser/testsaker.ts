@@ -192,7 +192,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
     ],
     // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står i høyre kolonne og kan ikke endres
-    // der (VS-U65); lenken åpner et nytt svar på kravet.
+    // der (VS-U65); lenken åpner et nytt svar på kravet (#2365).
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
       const svar = bh.getByRole('button', { name: 'Svar på varselet om justering av enhetsprisene' });
@@ -204,12 +204,16 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 390, height: 844 });
       await bh.screenshot({ path: `${ut}/varselsvar-mellom-390.png`, fullPage: true });
       await bh.setViewportSize({ width: 1440, height: 900 });
-      // Varden har ikke skjemaet for et nytt svar på kravet ennå (G4 i handlingsregisteret).
-      await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
-      await bh.getByRole('status').filter({ hasText: 'ikke bygget' }).waitFor({ timeout: 10_000 });
       const svarene = bh.getByRole('region', { name: /^Svarene på kravet i brev/ });
       if (await svarene.getByRole('button', { name: /^(Endre|Svar på)/ }).count())
         throw new Error('Svarene fra forrige brev har «Endre» i svaret på varselet (VS-U65)');
+      // #2365: lenken åpner det nye svaret på kravet, fylt ut med svaret i brev 3.
+      await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
+      await bh.getByText(/^Erstatter svaret i brev 3/).waitFor({ timeout: 10_000 });
+      await bh.screenshot({ path: `${ut}/nytt-vederlagssvar.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/nytt-vederlagssvar-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
 };
