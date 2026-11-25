@@ -29,6 +29,7 @@ import {
 } from '#lib/components/varden/tekster/index.ts';
 import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { kravetOgSvaret } from '#lib/components/varden/vederlagsoversikt.ts';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };
@@ -256,7 +257,7 @@ describe('vilkåret i den lukkede kravposten (#2182, svar 4B)', () => {
   });
 });
 
-describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4)', () => {
+describe('vilkåret i leselinjen for én kravpost (#2280, LV-U4 punkt 4)', () => {
   const p1 = { id: 'P1', betegnelse: 'P1', oppgjoersform: 'enhetspriser' } as Kravpost;
   const justering = (gjelder: string): Standpunkt => ({
     id: `j-${gjelder}`,
@@ -275,7 +276,7 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'videre subsidiært',
-        vilkaarForPosten: [varselet('P1')],
+        vilkaar: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
@@ -290,13 +291,13 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaarForPosten: [{ art: 'varsel', hjemmel: '34.1.2' }],
+        vilkaar: [{ art: 'varsel', hjemmel: '34.1.2' }],
         heller: false,
         standpunkt: { ...justering('P1'), id: 'a' },
       },
       {
         lag: 'videre subsidiært',
-        vilkaarForPosten: [varselet('P1')],
+        vilkaar: [varselet('P1')],
         heller: true,
         standpunkt: justering('P1'),
       },
@@ -309,23 +310,11 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     ]);
   });
 
-  it('innsigelsen mot varselet for en annen kravpost, og etter § 34.1.3, er ikke vilkår for posten (OV-U117, OV-U22)', () => {
-    const linjer: Standpunktet[] = [
-      {
-        lag: 'subsidiært',
-        vilkaarForPosten: [varselet('P2'), { art: 'varsel', hjemmel: '34.1.3' }],
-        heller: false,
-        standpunkt: justering('P1'),
-      },
-    ];
-    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual(['Bestrider justeringen']);
-  });
-
   it('kontrollsak: innsigelsen mot varselet for samme kravpost er vilkår for posten', () => {
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaarForPosten: [varselet('P1'), varselet('P2')],
+        vilkaar: [varselet('P1')],
         heller: false,
         standpunkt: justering('P1'),
       },
@@ -336,23 +325,11 @@ describe('vilkåret i leselinjen for én kravpost (#2280, OV-U117, LV-U4 punkt 4
     ]);
   });
 
-  it('innsigelsen mot beregningsregelen for en annen kravpost er ikke vilkår for posten (OV-U117, #2338)', () => {
-    const linjer: Standpunktet[] = [
-      {
-        lag: 'subsidiært',
-        vilkaarForPosten: [{ art: 'beregningsregel', gjelder: 'P2' }],
-        heller: false,
-        standpunkt: justering('P1'),
-      },
-    ];
-    expect(leselinjene(linjer, p1, VEDERLAGET.lagetVilkaar)).toEqual(['Bestrider justeringen']);
-  });
-
   it('kontrollsak: innsigelsen mot beregningsregelen for samme kravpost er vilkår for posten', () => {
     const linjer: Standpunktet[] = [
       {
         lag: 'subsidiært',
-        vilkaarForPosten: [{ art: 'beregningsregel', gjelder: 'P1' }],
+        vilkaar: [{ art: 'beregningsregel', gjelder: 'P1' }],
         heller: false,
         standpunkt: justering('P1'),
       },
@@ -636,5 +613,118 @@ describe('Meldingen om oppgjørsformen (#1848)', () => {
     expect(SKJEMA.manglerForm('tilbud')).toBe(
       'Velg om du godkjenner fast sum (punkt\u00a034.2.1).'
     );
+  });
+});
+
+describe('vilkåret for et standpunkt om én kravpost (OV-U117, LV-U79, #2337)', () => {
+  // Scenariet i #2337: for P1 godtar byggherren beregningsregelen og gjør gjeldende at varselet
+  // etter punkt 34.3.3 kom for sent. For P2 godtar byggherren ikke beregningsregelen.
+  async function vilkaarene() {
+    const u = await utledning([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [
+          { oppgjoersform: 'enhetspriser', justert: true },
+          { oppgjoersform: 'enhetspriser', justert: true },
+        ],
+      },
+      brevet({
+        spor: 'vederlag',
+        navn: 'S-v1',
+        kravposter: [
+          { post: 'P1', metode_akseptert: true, varslet_i_tide: false, godtar_justering: false },
+          {
+            post: 'P2',
+            metode_akseptert: false,
+            oensket_metode: 'regningsarbeid',
+            varslet_i_tide: true,
+            godtar_justering: false,
+          },
+        ],
+      }),
+    ]);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const justeringen = (post: Kravpost) =>
+      standpunktene(u.spor.vederlag.svar[0]!, u).find(
+        (l) =>
+          'standpunkt' in l && l.standpunkt.art === 'justering' && l.standpunkt.gjelder === post.id
+      )!.vilkaar;
+    return {
+      p1: justeringen(p1!),
+      p2: justeringen(p2!),
+      p1Id: p1!.id,
+      p2Id: p2!.id,
+      lagene: kravetOgSvaret(u, brevene(u))!.lagene.map((l) => l.vilkaar),
+      // Vilkåret ved hvert standpunkt om justeringen i kortet, etter posten.
+      justeringene: kravetOgSvaret(u, brevene(u))!.lagene.flatMap((l) =>
+        l.standpunkter.flatMap((x) =>
+          x.standpunkt.art === 'justering'
+            ? [[x.standpunkt.gjelder === p1!.id ? 'P1' : 'P2', x.vilkaar?.vilkaar ?? []]]
+            : []
+        )
+      ),
+    };
+  }
+
+  it('innsigelsen mot varselet etter punkt 34.3.3 for P1 er ikke vilkår for justeringen for P2', async () => {
+    const { p2, p2Id } = await vilkaarene();
+    expect(p2).toEqual([{ art: 'beregningsregel', gjelder: p2Id }]);
+  });
+
+  it('kontrollsak: vilkåret for justeringen for P1 er innsigelsen mot varselet for P1, ikke beregningsregelen for P2', async () => {
+    const { p1, p1Id } = await vilkaarene();
+    expect(p1).toEqual([{ art: 'varsel', hjemmel: '34.3.3', gjelder: p1Id }]);
+  });
+
+  it('vilkåret for hele laget i «Kravet og svaret» har ikke innsigelsen mot varselet for P1, som bare rammer én av postene', async () => {
+    const { lagene } = await vilkaarene();
+    expect(lagene.flat()).toEqual([]);
+  });
+
+  it('i kortet står justeringen for P1 med innsigelsen mot varselet for P1, og justeringen for P2 uten den (OV-U117, LV-U79)', async () => {
+    const { justeringene, p1Id } = await vilkaarene();
+    expect(justeringene).toEqual([
+      ['P1', [{ art: 'varsel', hjemmel: '34.3.3', gjelder: p1Id }]],
+      ['P2', []],
+    ]);
+  });
+
+  it('samme vilkår for to kravposter i samme lag er samme liste, så det står én gang (#2182)', async () => {
+    const u = await utledning([
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        navn: 'K-g1',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [
+          { oppgjoersform: 'tilbud', belop: 100000 },
+          { oppgjoersform: 'tilbud', belop: 50000 },
+        ],
+      },
+      brevet({
+        spor: 'vederlag',
+        navn: 'S-v1',
+        varslet_i_tide: false,
+        kravposter: [
+          { post: 'P1', vurdering: 'godkjent' },
+          { post: 'P2', vurdering: 'godkjent' },
+        ],
+      }),
+    ]);
+    const beloepene = standpunktene(u.spor.vederlag.svar[0]!, u).filter(
+      (l) => 'standpunkt' in l && l.standpunkt.art === 'beloep' && l.vilkaar
+    );
+    expect(beloepene).toHaveLength(2);
+    expect(beloepene[0]!.vilkaar).toEqual([{ art: 'varsel', hjemmel: '34.1.2' }]);
+    expect(beloepene[1]!.vilkaar).toBe(beloepene[0]!.vilkaar);
   });
 });

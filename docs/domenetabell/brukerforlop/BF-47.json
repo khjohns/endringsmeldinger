@@ -1,0 +1,48 @@
+{
+  "id": "BF-47",
+  "tittel": "Byggherren ber om antall dager i fristforlengelsen",
+  "brukerhistorie": "BH åpner fristforlengelsen der TE har påberopt forholdet og varslet etter punkt 33.4 uten dager, velger «Be om antall dager», kontrollerer brevet med forespørselen etter punkt 33.6.2 og eventuelt forbeholdet for innsigelsene byggherren alt har gjort gjeldende, og sender det. Begge partene ser forespørselen i tråden med datoen og veiledningen, og TE kan svare på den.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 2 og varslet etter punkt 33.4 i brev 4, uten dager. Byggherren har ikke svart på forholdet (variant A), eller har gjort gjeldende at varselet etter punkt 33.4 kom for sent (variant B)."
+  },
+  "bestilling": "BF-47.md",
+  "kilder": [
+    "VS-U47",
+    "VS-U3",
+    "HF-U11",
+    "LV-U2",
+    "LV-U18",
+    "LV-U25",
+    "LV-U27",
+    "LV-U39",
+    "LV-U53",
+    "LV-U76",
+    "LV-U77",
+    "OV-U99",
+    "OV-U104",
+    "OV-U109",
+    "OV-U111",
+    "FO-U6"
+  ],
+  "venter_paa": [
+    "#2015",
+    "#2379",
+    "#2380"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2015",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-9 og spørsmålene S-1 og S-2."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2015",
+      "hva": "S-1 følger av vedtaket 23.09 («Nøytralt fristvarsel») og står som arbeidsvalg i D-7: forespørselen går utenom intern godkjenning."
+    }
+  ]
+}
