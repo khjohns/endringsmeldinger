@@ -27669,6 +27669,61 @@ tekst = '''
 Som A, men OV-U118–OV-U121 samles også i versjon 2 av brev sendt utenfor løsningen, med teksten deres i punkt 15a. Forholdene deres til OV-U115, KA-U76, VS-U77, VS-U80 og GR-U40 står på de samlede postene.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U124"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#807", "PR #2391", "BF-49 S-1"]
+sporsmal = '''
+Spørsmålet S-1 i bestillingen for brukerforløpet BF-49 (#807, PR #2391), stilt 25.11. Det står ordrett i `docs/domenetabell/brukerforlop/BF-49.md`, under «Spørsmålene»:
+
+> - **S-1** Hvilket krav byggherrens endringsordre kan svare på når den legges til som svar.
+>   [OV-U12](../../plans/vedtak.md#ov-u12) sier at en endringsordre byggherren registrerer etter OV-U6,
+>   må være svar på en kravversjon totalentreprenøren har sendt fra løsningen, eller et nytt svar etter
+>   et svar sendt derfra. Etter OV-U114 punkt 5 har en påberopelse totalentreprenøren har lagt til som
+>   krav, samme virkning som en sendt fra løsningen, og etter EO-U39 punkt 46 godtas endringsordren der
+>   et svar fra løsningen ville vært godtatt.
+>   - **A (anbefalt):** En endringsordre byggherren legger til som svar etter OV-U6, godtas også som
+>     svar på en påberopelse totalentreprenøren har lagt til som krav, og som nytt svar etter et svar
+>     byggherren har lagt til som svar, fordi de har samme virkning som et krav eller svar sendt fra
+>     løsningen. Viser endringsordren til et krav eller svar som står som dokumentasjon, avvises den som
+>     svar, med beskjed om at totalentreprenøren må ha sendt kravet fra løsningen eller lagt det til som
+>     krav. Byggherren kan legge brevet til som dokumentasjon. Forhold: endrer OV-U12 og OV-U46 for
+>     henvisningen til OV-U12; i tråd med OV-U114 punkt 5 og EO-U39 punkt 46.
+>   - **B:** OV-U12 står: en endringsordre som legges til som svar, godtas bare som svar på en
+>     påberopelse totalentreprenøren har sendt fra løsningen, eller som nytt svar etter et svar sendt
+>     derfra. Svarer den på en påberopelse som er lagt til, avvises den som svar, med beskjed om at
+>     kravet må være sendt fra løsningen. Byggherren kan legge brevet til som dokumentasjon. Forhold:
+>     i tråd med OV-U12; snevrer inn OV-U114 punkt 5 og EO-U39 punkt 46 for endringsordren.
+>
+>   Under B kan byggherren ikke legge til endringsordren som svar når den gjeldende påberopelsen er lagt
+>   til. Igjen står et nytt svar fra løsningen (punkt 7), som får dagens dato og ikke datoen
+>   endringsordren ble sendt. Valget styrer forutsetningen for endringsordren i kjernen (G-10). Det rører ikke MM-U50 eller
+>   MM-U55.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett: «S1  A». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u12" },
+  { art = "endrer", vedtak = "ov-u46" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «endrer OV-U12 og OV-U46 for henvisningen til OV-U12; i tråd med OV-U114 punkt 5 og EO-U39 punkt 46.» OV-U114 er opphevet 25.11 av [OV-U123](#ov-u123), og punkt 5 står med samme tekst i versjon 2 av samlevedtaket. Gjelder BF-49 (#807).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En endringsordre byggherren legger til som svar etter OV-U6, godtas også som svar på en påberopelse totalentreprenøren har lagt til som krav, og som nytt svar etter et svar byggherren har lagt til som svar, fordi de har samme virkning som et krav eller svar sendt fra løsningen. Viser endringsordren til et krav eller svar som står som dokumentasjon, avvises den som svar, med beskjed om at totalentreprenøren må ha sendt kravet fra løsningen eller lagt det til som krav. Byggherren kan legge brevet til som dokumentasjon. Forhold: endrer OV-U12 og OV-U46 for henvisningen til OV-U12; i tråd med OV-U114 punkt 5 og EO-U39 punkt 46.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+OV-U12 står: en endringsordre som legges til som svar, godtas bare som svar på en påberopelse totalentreprenøren har sendt fra løsningen, eller som nytt svar etter et svar sendt derfra. Svarer den på en påberopelse som er lagt til, avvises den som svar, med beskjed om at kravet må være sendt fra løsningen. Byggherren kan legge brevet til som dokumentasjon. Forhold: i tråd med OV-U12; snevrer inn OV-U114 punkt 5 og EO-U39 punkt 46 for endringsordren.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
