@@ -19,6 +19,9 @@ export const SKJEMA = haerdet({
     b.nummer === null && b.omtale
       ? `Svarer på ${b.omtale}`
       : `Svarer på ${brevref(b)} fra ${PARTEN[b.avsender]}, ${dato(b.sendt ?? b.registrert)}`,
+  // U-13 og T-2 i BF-08.
+  forrigeSvar: (b: Brevref) =>
+    `Det forrige svaret er ${brevref(b)}, og det står som det ble sendt.`,
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevet: 'Les brevet ved siden av',
   lesBrevetHer: 'Les brevet',

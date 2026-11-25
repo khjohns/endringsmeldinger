@@ -55,7 +55,13 @@
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
-  import { tomtSvar, tomtVarselsvar, type Korrigeringsvalg, type Varselsvalg } from './kommandoer';
+  import {
+    tomtSvar,
+    tomtVarselsvar,
+    valgFraSvaret,
+    type Korrigeringsvalg,
+    type Varselsvalg,
+  } from './kommandoer';
   import {
     kontraktFraProsjektet,
     kontraktsrader,
@@ -619,12 +625,24 @@
       skjema: forholdssvar,
     },
     vederlagssvar: {
-      noekler: ['svare:vederlag'],
-      aapne: () => {
+      // Det nye svaret på kravet har samme skjema som svaret (HF-U29).
+      noekler: ['svare:vederlag', 'revidere:vederlag'],
+      aapne: (n) => {
+        const forrige = u?.spor.vederlag.gjeldendeSvar;
+        // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
+        // med handlingen, så skjemaet åpner med svaret det erstatter, eller tomt.
+        const erstatter = n === 'revidere:vederlag' ? forrige?.id : undefined;
+        if (utkastene.vederlagssvar.erstatter !== erstatter)
+          utkastene.vederlagssvar =
+            forrige && erstatter
+              ? valgFraSvaret(forrige, u!.spor.vederlag.gjeldendeKrav!)
+              : tomtSvar();
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>
-        a.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag'),
+        a.art === 'svar' &&
+        valgt === 'vederlag' &&
+        ['svare:vederlag', 'revidere:vederlag'].some((n) => kjernesak.handlinger.includes(n)),
       skjema: vederlagssvar,
     },
     fristsvar: {
@@ -961,9 +979,7 @@
           onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
           onforholdet={tilForholdet}
           nyttSvarPaaKravet={kjernesak.handlinger.includes('revidere:vederlag')
-            ? skjemanoeklene.includes('revidere:vederlag')
-              ? () => aapne('revidere:vederlag')
-              : 'ikke bygget'
+            ? () => aapne('revidere:vederlag')
             : null}
         />
       {/key}

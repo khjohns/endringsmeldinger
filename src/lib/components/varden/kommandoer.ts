@@ -16,15 +16,19 @@ import {
 } from '#kjerne/regler/vederlag.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
-import type { Krav, Kravpost, Oppgjoersform, Spor } from '#kjerne/typer.ts';
+import type { Krav, Kravpost, Oppgjoersform, Spor, Standpunkt, Svar } from '#kjerne/typer.ts';
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { lesKroner } from '#lib/utils/belop.ts';
+import { lesKroner, visKroner } from '#lib/utils/belop.ts';
 import { kroner } from '#kjerne/frosset/tekst.ts';
 import { KRAVSKJEMA } from './tekster';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { varseletFoer, type VarseletAlene } from '#lib/kjernesak/vederlagskrav.ts';
+import {
+  varseletFoer,
+  varselhjemmelFor,
+  type VarseletAlene,
+} from '#lib/kjernesak/vederlagskrav.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -66,6 +70,11 @@ export interface Svarvalg {
   begrunnelser: Record<string, string>;
   /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U49 punkt 1). */
   forbehold: string;
+  /**
+   * Svaret et nytt svar ble fylt ut fra og erstatter (`valgFraSvaret`). Kjernen avviser
+   * revisjonen når det ikke lenger er det gjeldende svaret (`FEIL_SVARREFERANSE`).
+   */
+  erstatter?: string;
 }
 
 export const tomPost = (): Postvalg => ({
@@ -259,6 +268,62 @@ export function svarbrevet(
         ...utdypningene(tekster, punktene),
       },
     ],
+  };
+}
+
+/** Brevet som revisjon av svaret `erstatter`, når valgene er et nytt svar (HF-U29). */
+export function somNyttSvar(
+  brev: { type: 'brev'; svar: Svarutkast[] },
+  erstatter: string | undefined
+):
+  | { type: 'brev'; svar: Svarutkast[] }
+  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
+  return erstatter ? { type: 'revisjon', erstatter, svar: brev.svar[0] } : brev;
+}
+
+/**
+ * Valgene i skjemaet for et nytt svar, fylt ut med standpunktene i svaret det erstatter, så
+ * byggherren endrer det byggherren vil (HF-U29). Svaret på varselet for kravposten fylles ut som
+ * det ble sendt; en innsigelse som står, gjentas uansett (`varseletIValgene`). Begrunnelsene og
+ * forbeholdet skrives på nytt.
+ */
+export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
+  const finn = <A extends Standpunkt['art']>(
+    art: A,
+    hvis: (s: Extract<Standpunkt, { art: A }>) => boolean
+  ) =>
+    svar.standpunkter.filter((s): s is Extract<Standpunkt, { art: A }> => s.art === art).find(hvis);
+  const varselet = (hjemmel: string, gjelder?: string) =>
+    finn(
+      'rettidighet',
+      (s) => s.hjemmel === hjemmel && (gjelder === undefined || s.gjelder === gjelder)
+    )?.iTide ?? null;
+  const postvalg = (post: Kravpost): Postvalg => {
+    const form = finn('oppgjoersform', (s) => s.gjelder === post.id);
+    const godkjent = finn('beloep', (s) => !s.saerskilt && s.gjelder === post.id)?.godkjent;
+    const hjemmel = varselhjemmelFor(post);
+    const beloep: Beloepsvalg | null =
+      godkjent === undefined
+        ? null
+        : godkjent === 0
+          ? 'ingenting'
+          : godkjent === post.beloep
+            ? 'hele'
+            : 'deler';
+    return {
+      form: form ? (form.aksepterer ? 'godtar' : (form.oensket ?? null)) : null,
+      beloep,
+      delbeloep: beloep === 'deler' ? visKroner(godkjent) : '',
+      kreverTilbud: !!form?.kreverTilbud,
+      varsletITide: hjemmel ? varselet(hjemmel, post.id) : null,
+      godtarJustering: finn('justering', (s) => s.gjelder === post.id)?.godtar ?? null,
+    };
+  };
+  return {
+    ...tomtSvar(),
+    erstatter: svar.id,
+    iTide: varselet('34.1.2'),
+    poster: Object.fromEntries(kravposterI(krav).map((p) => [p.betegnelse, postvalg(p)])),
   };
 }
 

@@ -35,6 +35,7 @@
     kravetIKortform,
     postvalget,
     regelen,
+    somNyttSvar,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -42,7 +43,7 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, standpunktene } from './lesing';
+  import { brevet, brevMedElement, standpunktene } from './lesing';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -127,16 +128,23 @@
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
   // tekstfelt (#1925).
-  const utkast = $derived(
+  const brevutkast = $derived(
     vederlagssvaret(
       { iTide: valg.iTide, poster: valg.poster, begrunnelser: {}, forbehold: '' },
       u,
       kjernesak.regler
     )!
   );
+  // Revisjonen av det gjeldende svaret når kravversjonen har et (HF-U29).
+  const utkast = $derived(somNyttSvar(brevutkast, valg.erstatter));
+  const forrigeSvar = $derived(
+    utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
+  );
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
-  const lagene = $derived(stoppet ? null : kjernesak.lagForUtkastet(utkast.svar[0], 'vederlag'));
+  const lagene = $derived(
+    stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag')
+  );
   const beloepSporsmaal = (felt: string) => felt === 'vurdering' || felt === 'godkjent_beloep';
   const foerstePunkt = $derived.by(() => {
     const sporsmaalene = lagene?.ubesvart ?? [];
@@ -445,7 +453,9 @@
   {u}
   spor="vederlag"
   {utkast}
-  medTekstene={(punktene) => vederlagssvaret(valg, u, kjernesak.regler, punktene)!}
+  {forrigeSvar}
+  medTekstene={(punktene) =>
+    somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
   bind:tekster={valg}
   {linjer}
   {alternativer}
