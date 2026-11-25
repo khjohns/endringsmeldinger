@@ -2,7 +2,7 @@
 
 Kontrolltilfellet. Byggherren har godkjent forholdet i et tidligere brev og svarer på et vederlagskrav med én kravpost med fast sum. Byggherren godkjenner deler av beløpet. Brevet har ingen lag og ikke noe forbehold.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 
@@ -24,4 +24,4 @@ Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.
 
 ### 3. Forbehold
 
-_Byggherrens begrunnelse for svaret på vederlagskravet._
+_Byggherrens forbehold for hele svaret på vederlagskravet._

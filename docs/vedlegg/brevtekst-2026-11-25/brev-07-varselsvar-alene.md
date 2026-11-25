@@ -2,7 +2,7 @@
 
 Totalentreprenøren har varslet justering av enhetsprisene etter punkt 34.3.3 i et eget brev, uten et vederlagskrav (G-9, #2344). Byggherren har ikke svart på påberopelsen. Byggherren gjør gjeldende at varselet kom for sent, og bestrider subsidiært justeringen.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 

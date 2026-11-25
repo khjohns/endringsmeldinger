@@ -2,7 +2,7 @@
 
 Som brev 7, men byggherren har avslått forholdet i et tidligere brev. Svaret på varselet står da i tre lag: avslaget, innsigelsen mot varselet og justeringen.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 

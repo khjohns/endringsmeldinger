@@ -2,7 +2,7 @@
 
 Byggherren har ikke svart på påberopelsen. I svaret på fristkravet gjør byggherren gjeldende at varselet etter punkt 33.4 kom for sent, at fremdriften ikke er hindret, og at kravet ble spesifisert for sent. Byggherren sier hvor mange dager totalentreprenøren har krav på etter punkt 33.6.1, og godkjenner subsidiært 10 av 20 dager.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 
@@ -42,4 +42,4 @@ For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.
 
 Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.
 
-_Byggherrens begrunnelse for svaret på fristkravet._
+_Byggherrens forbehold for hele svaret på fristkravet._

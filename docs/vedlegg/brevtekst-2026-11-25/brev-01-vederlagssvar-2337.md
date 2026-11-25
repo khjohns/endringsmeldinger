@@ -2,7 +2,7 @@
 
 Tilfellet i #2337. Totalentreprenøren krever justering av vederlaget for P1 og P2, begge etter justerte enhetspriser. Byggherren avslår forholdet i samme brev. For P1 godtar byggherren beregningsregelen, men gjør gjeldende at varselet etter punkt 34.3.3 kom for sent, og godtar justeringen subsidiært. For P2 godtar byggherren ikke beregningsregelen og mener regningsarbeid, sier at varselet kom i tide, og bestrider justeringen.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 
@@ -40,4 +40,4 @@ Byggherren godtar at enhetsprisene for P1 justeres (punkt 34.3.2). Det godkjenn
 
 ### 4. Forbehold
 
-_Byggherrens begrunnelse for svaret på vederlagskravet._
+_Byggherrens forbehold for hele svaret på vederlagskravet._

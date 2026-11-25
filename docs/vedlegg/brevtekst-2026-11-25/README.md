@@ -28,10 +28,14 @@ Skriptet skriver `brev-NN-*.md` og tabellene mellom merkene under. Brevene ble l
 25.11.2026 på grenen `claude/brevtekst-sparring-2337`, med kjernen fra `main` etter #2344.
 Lages de på nytt etter en endring i kjernen, kan teksten avvike.
 
-Byggherrens og totalentreprenørens begrunnelser er plassholdere. Gjengivelsen setter
-overskriften i hvert punkt som en overskrift i Markdown og begrunnelsen i kursiv der kjernen
+Byggherrens og totalentreprenørens tekster er plassholdere. Gjengivelsen setter
+overskriften i hvert punkt som en overskrift i Markdown og partens tekst i kursiv der kjernen
 setter den. Brevhodet har bare tittelen, merkingen og Deres ref.; hodet og underskriften fra
 Oslo-brevmalen står i forslaget, ikke her.
+
+**Rettet 25.11.** Til og med `f41bb7b` het plassholderen under «Forbehold» «Byggherrens
+begrunnelse for svaret på …». Teksten der er byggherrens forbehold for hele svaret (KA-U50).
+Sparringen fikk materialet med den gamle plassholderen. Sammenstillingen tar det med.
 
 ## Tilfellene
 
@@ -56,11 +60,11 @@ Lest ut av brevene over. Ingen av punktene er vurdert.
 
 - **Forbeholdet om forholdet** står i punktet «Forbehold», sist i svaret på sporet
   (brev 02, 05 og 07). I forslaget står det også sist, som punkt 6.
-- **Punktet «Forbehold» står også når forholdet er besvart.** Det har da bare overskriften og
-  byggherrens begrunnelse for hele svaret (brev 01, 03, 06 og 09). Byggherrens begrunnelse for
-  hele svaret på vederlaget eller fristen står alltid der. Begrunnelsen for svaret på forholdet
-  står under punktet «Forholdet» (brev 01, 04 og 06). I forslaget står begrunnelsen under
-  punktet den gjelder.
+- **Punktet «Forbehold» står også når forholdet er besvart**, når byggherren har skrevet
+  forbehold for hele svaret (brev 01, 03, 06 og 09). Feltet for hele svaret står under
+  «Forbehold» etter KA-U50 og KA-U49 punkt 1. Byggherrens begrunnelse for hvert punkt står
+  under punktet (LV-U71), og begrunnelsen for svaret på forholdet under punktet «Forholdet»
+  (brev 01, 04 og 06).
 - **Et brev med svar på flere krav har ett punkt «Forbehold» per svar** (brev 06: punkt 5 og
   10). Svaret på hvert krav har sin egen innledning, og punktene er nummerert gjennom hele
   brevet.
@@ -81,15 +85,15 @@ Lest ut av brevene over. Ingen av punktene er vurdert.
 
 | Brev | Avsender | Punkter | Punktet «Forbehold» | Henvisninger i brevet |
 | --- | --- | --- | --- | --- |
-| [01-vederlagssvar-2337](brev-01-vederlagssvar-2337.md) | byggherren | 4 | 4. Forbehold, sist i brevet: bare overskriften og begrunnelsen for svaret | 2 |
-| [02-vederlagssvar-forbehold](brev-02-vederlagssvar-forbehold.md) | byggherren | 6 | 6. Forbehold, sist i brevet: forbeholdet om forholdet og begrunnelsen for svaret | 4 |
-| [03-vederlagssvar-etter-avslag](brev-03-vederlagssvar-etter-avslag.md) | byggherren | 4 | 4. Forbehold, sist i brevet: bare overskriften og begrunnelsen for svaret | 2 |
+| [01-vederlagssvar-2337](brev-01-vederlagssvar-2337.md) | byggherren | 4 | 4. Forbehold, sist i brevet: byggherrens forbehold for hele svaret | 2 |
+| [02-vederlagssvar-forbehold](brev-02-vederlagssvar-forbehold.md) | byggherren | 6 | 6. Forbehold, sist i brevet: forbeholdet om forholdet og byggherrens forbehold for hele svaret | 4 |
+| [03-vederlagssvar-etter-avslag](brev-03-vederlagssvar-etter-avslag.md) | byggherren | 4 | 4. Forbehold, sist i brevet: byggherrens forbehold for hele svaret | 2 |
 | [04-forholdet-avslaatt](brev-04-forholdet-avslaatt.md) | byggherren | 2 | ingen | 1 |
-| [05-fristsvar-lag](brev-05-fristsvar-lag.md) | byggherren | 5 | 5. Forbehold, sist i brevet: forbeholdet om forholdet og begrunnelsen for svaret | 4 |
-| [06-samlet-svar](brev-06-samlet-svar.md) | byggherren | 10 | 5. Forbehold: bare overskriften og begrunnelsen for svaret; 10. Forbehold, sist i brevet: bare overskriften og begrunnelsen for svaret | 8 |
+| [05-fristsvar-lag](brev-05-fristsvar-lag.md) | byggherren | 5 | 5. Forbehold, sist i brevet: forbeholdet om forholdet og byggherrens forbehold for hele svaret | 4 |
+| [06-samlet-svar](brev-06-samlet-svar.md) | byggherren | 10 | 5. Forbehold: byggherrens forbehold for hele svaret; 10. Forbehold, sist i brevet: byggherrens forbehold for hele svaret | 8 |
 | [07-varselsvar-alene](brev-07-varselsvar-alene.md) | byggherren | 3 | 3. Forbehold, sist i brevet: forbeholdet om forholdet | 2 |
 | [08-varselsvar-etter-avslag](brev-08-varselsvar-etter-avslag.md) | byggherren | 3 | ingen | 2 |
-| [09-vederlagssvar-uten-lag](brev-09-vederlagssvar-uten-lag.md) | byggherren | 3 | 3. Forbehold, sist i brevet: bare overskriften og begrunnelsen for svaret | 1 |
+| [09-vederlagssvar-uten-lag](brev-09-vederlagssvar-uten-lag.md) | byggherren | 3 | 3. Forbehold, sist i brevet: byggherrens forbehold for hele svaret | 1 |
 | [10-paaberopelse](brev-10-paaberopelse.md) | totalentreprenøren | 0 | ingen | 0 |
 | [11-vederlagskrav](brev-11-vederlagskrav.md) | totalentreprenøren | 4 | ingen | 0 |
 | [12-fristkrav](brev-12-fristkrav.md) | totalentreprenøren | 3 | ingen | 0 |

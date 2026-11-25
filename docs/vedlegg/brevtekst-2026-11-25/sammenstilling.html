@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brevteksten side om side</title>
+<style>
+:root { --bg:#fff; --fg:#1d1d1f; --demp:#5b5b66; --kant:#d8d8de; --flate:#f6f6f8; --merke:#2a5bd7; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#16161a; --fg:#e8e8ec; --demp:#a3a3ad; --kant:#33333b; --flate:#1f1f25; --merke:#8fb0ff; } }
+:root[data-theme="dark"] { --bg:#16161a; --fg:#e8e8ec; --demp:#a3a3ad; --kant:#33333b; --flate:#1f1f25; --merke:#8fb0ff; }
+body { background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; margin:0; padding:24px 16px 64px; }
+main { max-width:1500px; margin:0 auto; }
+h1 { font-size:1.6rem; } h2 { margin-top:2.5rem; border-bottom:1px solid var(--kant); padding-bottom:.3rem; }
+a { color:var(--merke); }
+table { border-collapse:collapse; margin:.5rem 0 1rem; font-size:.92rem; }
+th, td { border:1px solid var(--kant); padding:.35rem .5rem; text-align:left; vertical-align:top; }
+th { background:var(--flate); }
+.rutenett { display:grid; grid-template-columns:repeat(4, minmax(280px, 1fr)); gap:12px; overflow-x:auto; }
+.brev { background:var(--flate); border:1px solid var(--kant); border-radius:8px; padding:12px 14px; font-size:.9rem; }
+.brev h4.kolonne { margin:0 0 .6rem; color:var(--demp); font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; }
+.brev h3, .brev h4, .brev h5, .brev h6 { font-size:.95rem; margin:1rem 0 .3rem; }
+.brev p { margin:.4rem 0; }
+blockquote { margin:0; padding:0; }
+@media (max-width: 900px) { .rutenett { grid-template-columns:repeat(4, 85vw); } }
+</style>
+</head>
+<body>
+<main>
+<h1>Brevteksten side om side</h1>
+<p>Steg 3 i <a href="https://github.com/khjohns/endringsmeldinger/issues/2337">#2337</a>: forslagene fra<br>sparringen som hele brev, med dagens brev ved siden av. Svarene står ordrett i<br><a href="sparring-fable.md"><code>sparring-fable.md</code></a>, <a href="sparring-codex.md"><code>sparring-codex.md</code></a> og<br><a href="sparring-gemini.md"><code>sparring-gemini.md</code></a>, og i #2337. Dagens brev er laget av kjernen med<br><a href="lag-brevene.ts"><code>lag-brevene.ts</code></a>. Fila lages av<br><a href="lag-sammenstillingen.py"><code>lag-sammenstillingen.py</code></a> fra <a href="sammenstilling-tekst.md"><code>sammenstilling-tekst.md</code></a>.<br>Forslagene er kontrollert én gang av en subagent mot <a href="vedtakene.md">vedtakene</a> og<br><a href="../../sprak.md">språkfila</a>. Funnene står under hvert brev og samlet nederst.</p>
+<p><strong>Les først:</strong> brevene er av to slag. <strong>Forholdet er avslått i samme brev</strong> (brev 01) eller<br><strong>byggherren gjør gjeldende at varselet etter punkt 32.2 kom for sent</strong> (brev 06): da er det<br>byggherrens standpunkt og står først, og lagene under bygger på det. <strong>Forholdet er ubesvart</strong><br>(brev 02 og 05): da står forbeholdet om forholdet sist i brevet. Det er svaret «A» fra<br>oppdragsgiver 25.11 (<a href="https://github.com/khjohns/endringsmeldinger/issues/2337#issuecomment-7156411576">7156411576</a>).</p>
+<p><strong>Én feil i materialet.</strong> Sparringen fikk brev der teksten under «Forbehold» het «Byggherrens<br>begrunnelse for svaret på …». Teksten er byggherrens forbehold for hele svaret: vilkår og<br>forbehold som gjelder hele svaret, står under «Forbehold» (KA-U50, KA-U49 punkt 1). Begrunnelsen<br>står under hvert punkt (LV-U71). Kolonnen «I dag» viser den rettede plassholderen. Fable og<br>Gemini flytter «begrunnelsen» ut av «Forbehold». Det bygger på den gale plassholderen og er ikke<br>tatt med i anbefalingen.</p>
+<h2>Kort fortalt</h2>
+<p><strong>De tre er enige om dette:</strong></p>
+<ul><li>Lagslinjen nevner innsigelsen med navn, ikke med punktnummer: «Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem». Codex tillater punktnummeret der navnet ikke er entydig.</li><li>Lagslinjen nevner bare innsigelsene som rammer standpunktet (OV-U117).</li><li>Et brev med svar på flere krav har en tittel som nevner alle kravene.</li><li>«Forbehold» står én gang, sist i brevet, og bare når det har innhold.</li><li>«Etter begrensningen i punkt 1 ovenfor» faller bort. Beløpet etter begrensningen står i samme punkt som innsigelsen.</li></ul>
+<p><strong>De er uenige om dette:</strong></p>
+<table><thead><tr><th>Spørsmålet</th><th>Fable</th><th>Codex (Astra)</th><th>Gemini (Argon)</th></tr></thead><tbody><tr><td>Vilkåret når kravpostene i samme lag har ulike vilkår</td><td>Ett punkt per kravpost, med alt om posten. Innsigelsen for posten står rett over det som er subsidiært til den</td><td>Alternativ B: lagslinjen har det felles vilkåret, og vilkåret for kravposten står først i setningen</td><td>Som Fable</td></tr><tr><td>Punktet «Beregningsmetode»</td><td>Faller bort</td><td>Står</td><td>Faller bort</td></tr><tr><td>Hvilke innsigelser lagslinjen nevner</td><td>Den nærmeste, med «heller ikke»</td><td>Alle, også som en liste under linjen</td><td>Den nærmeste, med «heller ikke»</td></tr><tr><td>Navnene på innsigelsene</td><td>Faste navn i en tabell</td><td>Fritt, med punktnummer der det trengs</td><td>Fritt</td></tr><tr><td>Brev med svar på flere krav</td><td>Én del per krav med overskrift og innledning</td><td>Innledning foran hvert svar, og overskrifter uten nummer i brev 06</td><td>Alle innledningene samlet øverst</td></tr><tr><td>Byggherrens forbehold for hele svaret</td><td>Eget punkt «Begrunnelse» (bygger på feilen over)</td><td>Under «Forbehold», foran forbeholdet om forholdet</td><td>Under det siste punktet, eller tatt ut</td></tr><tr><td>«Prinsipalt» på avslaget av forholdet i brev 01</td><td>Som i dag, uten</td><td>Legger til</td><td>Legger til</td></tr></tbody></table>
+<p><strong>Anbefalingen</strong>, utdypet i <a href="https://github.com/khjohns/endringsmeldinger/issues/2337">spørsmålene</a>:<br>Fables struktur med ett punkt per kravpost og faste navn på innsigelsene, én del per krav, og<br>punktet «Forbehold» én gang sist med forbeholdet om forholdet først og byggherrens forbehold for<br>hele svaret etter, som i oppdragsgivers forslag v4. Lagene endres ikke.</p>
+<h2>Brev 01: forholdet avslått i samme brev, to kravposter med ulike vilkår</h2>
+<p><strong>Tilfellet:</strong> forholdet er avslått i samme brev og står først. Det er ikke et forbehold.<br>P1 og P2 har ulike vilkår i samme lag (#2337).</p>
+<div class="rutenett"><section class="brev"><h4 class="kolonne">I dag (kjernen)</h4><p><strong>Svar på forholdet i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<h5>1. Varselet etter punkt 32.2</h5>
+<p>Byggherren gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h5>2. Forholdet</h5>
+<p>Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h5>3. Beregningsmetode (punkt 34.2)</h5>
+<p>Byggherren gjør ikke gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P2 kom for sent.</p>
+<p>Subsidiært, hvis innsigelsen i punkt 2 ovenfor ikke fører frem</p>
+<p>Byggherren godtar at vederlaget for P1 justeres etter enhetspriser (punkt 34.3). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P1 kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til. Byggherren godtar ikke at vederlaget for P2 justeres etter enhetspriser (punkt 34.3), og mener det skal justeres som regningsarbeid (punkt 34.4).</p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen ovenfor fører frem</p>
+<p>Byggherren godtar at enhetsprisene for P1 justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp. Byggherren bestrider at enhetsprisene for P2 skal justeres (punkt 34.3.2), og mener P2 skal gjøres opp etter kontraktens enhetspriser.</p>
+<h5>4. Forbehold</h5>
+<p><em>Byggherrens forbehold for hele svaret på vederlagskravet.</em></p></section><section class="brev"><h4 class="kolonne">Fable</h4><p><strong>Svar på påberopelse av irregulær endring og krav om vederlagsjustering i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02<br>Avsender: byggherren</p>
+<p><strong>Svar på påberopelsen</strong></p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<p><strong>1. Varselet etter punkt 32.2</strong></p>
+<p>Byggherren gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<p><strong>2. Forholdet</strong></p>
+<p>Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<p><strong>Svar på kravet om vederlagsjustering</strong></p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<p><strong>3. Vederlagsjustering for P1 (punkt 34.1.1)</strong></p>
+<p>Subsidiært, hvis innsigelsen mot forholdet ikke fører frem</p>
+<p>Byggherren godtar at vederlaget for P1 justeres etter enhetspriser (punkt 34.3). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P1 kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.</p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 34.3.3 for P1 fører frem</p>
+<p>Byggherren godtar at enhetsprisene for P1 justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.</p>
+<p><em>Byggherrens begrunnelse for svaret på P1.</em></p>
+<p><strong>4. Vederlagsjustering for P2 (punkt 34.1.1)</strong></p>
+<p>Byggherren gjør ikke gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P2 kom for sent.</p>
+<p>Subsidiært, hvis innsigelsen mot forholdet ikke fører frem</p>
+<p>Byggherren godtar ikke at vederlaget for P2 justeres etter enhetspriser (punkt 34.3), og mener det skal justeres som regningsarbeid (punkt 34.4).</p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot beregningsregelen for P2 fører frem</p>
+<p>Byggherren bestrider at enhetsprisene for P2 skal justeres (punkt 34.3.2), og mener P2 skal gjøres opp etter kontraktens enhetspriser.</p>
+<p><em>Byggherrens begrunnelse for svaret på P2.</em></p>
+<p><strong>5. Begrunnelse</strong></p>
+<p><em>Byggherrens begrunnelse for hele svaret på vederlagskravet.</em></p></section><section class="brev"><h4 class="kolonne">Codex (Astra)</h4><p><strong>Svar på forholdet og kravet om vederlagsjustering i sak KOE-17</strong></p>
+<p><strong>Vår ref.</strong> K201-KOE-017-03<br><strong>Deres ref.</strong> K201-KOE-017-01, K201-KOE-017-02<br><strong>Avsender</strong> Byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<h6>1. Varselet etter NS 8407 punkt 32.2</h6>
+<p>Byggherren gjør ikke gjeldende at totalentreprenørens varsel i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h6>2. Forholdet</h6>
+<p><strong>Prinsipalt</strong></p>
+<p>Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h6>3. Beregningsmetode (punkt 34.2)</h6>
+<p><strong>P2 – varselet om justering av enhetsprisene.</strong> Byggherren gjør ikke gjeldende at varselet for P2 etter punkt 34.3.3 første ledd kom for sent.</p>
+<p><strong>Subsidiært – hvis byggherren ikke får medhold i avslaget på kravet på endringsordre</strong></p>
+<p><strong>P1.</strong> Byggherren godtar at vederlaget for P1 justeres etter enhetspriser (punkt 34.3). Dette innebærer ingen godkjenning av mengder, priser, kostnader eller beløp. Byggherren gjør gjeldende at varselet om justering av enhetsprisene for P1 etter punkt 34.3.3 første ledd kom for sent. Byggherren mener derfor at totalentreprenøren bare har krav på den justeringen av enhetsprisene som byggherren måtte forstå at forholdet ville føre til.</p>
+<p><strong>P2.</strong> Byggherren godtar ikke at vederlaget for P2 justeres etter enhetspriser (punkt 34.3). Byggherren mener at P2 skal gjøres opp som regningsarbeid (punkt 34.4).</p>
+<p><strong>Videre subsidiært – hvis byggherren ikke får medhold i avslaget på kravet på endringsordre</strong></p>
+<p><strong>P1.</strong> Hvis byggherren heller ikke får medhold i at varselet om justering av enhetsprisene for P1 kom for sent, godtar byggherren at enhetsprisene for P1 justeres (punkt 34.3.2). Dette innebærer ingen godkjenning av priser, mengder eller beløp.</p>
+<p><strong>P2.</strong> Hvis enhetspriser likevel skal legges til grunn for P2, bestrider byggherren at enhetsprisene skal justeres (punkt 34.3.2). Byggherren mener i så fall at P2 skal gjøres opp etter kontraktens enhetspriser.</p>
+<h6>4. Forbehold</h6>
+<p><em>Byggherrens begrunnelse for svaret på vederlagskravet.</em></p></section><section class="brev"><h4 class="kolonne">Gemini (Argon)</h4><p><strong>Svar på forholdet og krav om vederlagsjustering i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h5>1. Varselet etter punkt 32.2</h5>
+<p>Byggherren gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h5>2. Forholdet</h5>
+<p>Prinsipalt</p>
+<p>Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<h5>3. Vederlagsjustering – P1 Spunt (punkt 34.1.1)</h5>
+<p>Subsidiært, hvis avslaget på forholdet ikke fører frem</p>
+<p>Byggherren godtar at vederlaget for P1 justeres etter enhetspriser (punkt 34.3). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P1 kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.</p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 34.3.3 fører frem</p>
+<p>Byggherren godtar at enhetsprisene for P1 justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.</p>
+<p><em>Byggherrens begrunnelse for svaret på P1.</em></p>
+<h5>4. Vederlagsjustering – P2 Masseutskifting (punkt 34.1.1)</h5>
+<p>Subsidiært, hvis avslaget på forholdet ikke fører frem</p>
+<p>Byggherren godtar ikke at vederlaget for P2 justeres etter enhetspriser (punkt 34.3), og mener det skal justeres som regningsarbeid (punkt 34.4).</p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot beregningsregelen fører frem</p>
+<p>Byggherren gjør ikke gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P2 kom for sent. Byggherren bestrider at enhetsprisene for P2 skal justeres (punkt 34.3.2), og mener P2 skal gjøres opp etter kontraktens enhetspriser.</p>
+<p><em>Byggherrens begrunnelse for svaret på P2.</em></p></section></div>
+<p><strong>Kontrollen fant:</strong></p>
+<ul><li><strong>Fable:</strong> OV-U117 holder. Hvert lag har riktig vilkår. Brevet har et punkt «Begrunnelse» med overskrift; LV-U34 sier at begrunnelsen står uten den overskriften.</li><li><strong>Codex:</strong> lagslinjen for «Videre subsidiært» har samme vilkår som «Subsidiært», uten «heller ikke», så forskjellen mellom lagene står bare i setningene. Vilkåret for P2 («Hvis enhetspriser likevel skal legges til grunn») navngir ikke innsigelsen. Etter VS-U4 <em>gjør</em> byggherren <em>gjeldende</em> hva totalentreprenøren har krav på; Codex skriver «mener derfor». «Hvis byggherren ikke får medhold» gjør vilkåret til et spørsmål om en avgjørelse, der LV-U34 har «fører frem».</li><li><strong>Gemini:</strong> flytter «gjør ikke gjeldende at varselet for P2 kom for sent» inn i laget «Videre subsidiært». Det endrer laget standpunktet står i, og er ikke en ren ordlyd. Lagslinjen for P1 mangler «for P1».</li><li><strong>Alle:</strong> byggherrens forbehold for hele svaret er borte (Gemini) eller flyttet (Fable).</li></ul>
+<h2>Brev 06: svar på tre krav i samme brev, med mange henvisninger</h2>
+<p><strong>Tilfellet:</strong> byggherren gjør gjeldende at varselet etter punkt 32.2 kom for sent. Det er<br>byggherrens standpunkt og står først. Forholdet er besvart, så brevet har ikke noe forbehold om<br>forholdet.</p>
+<div class="rutenett"><section class="brev"><h4 class="kolonne">I dag (kjernen)</h4><p><strong>Svar på forholdet i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-04<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02, K201-KOE-017-03<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<h5>1. Varselet etter punkt 32.2</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h5>2. Forholdet</h5>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren er enig i at pålegget innebærer en endring.</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h5>3. Beregningsmetode (punkt 34.2)</h5>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.</p>
+<h5>4. Vederlagsjustering (punkt 34.1.1)</h5>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<h5>5. Forbehold</h5>
+<p><em>Byggherrens forbehold for hele svaret på vederlagskravet.</em></p>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 4. oktober 2026.</p>
+<h5>6. Varselet om fristforlengelse (punkt 33.4)</h5>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<h5>7. Hindringen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen i punkt 6 ovenfor fører frem</p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).</p>
+<h5>8. Spesifiseringen av kravet (punkt 33.6.1)</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen i punkt 7 ovenfor fører frem</p>
+<p>Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).</p>
+<h5>9. Dagene for frist Sluttfristen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen i punkt 7 ovenfor fører frem</p>
+<p>For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.</p>
+<h5>10. Forbehold</h5>
+<p><em>Byggherrens forbehold for hele svaret på fristkravet.</em></p></section><section class="brev"><h4 class="kolonne">Fable</h4><p><strong>Svar på påberopelse av irregulær endring, krav om vederlagsjustering og krav om fristforlengelse i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-04<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02, K201-KOE-017-03<br>Avsender: byggherren</p>
+<p><strong>Svar på påberopelsen</strong></p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<p><strong>1. Varselet etter punkt 32.2</strong></p>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<p><em>Byggherrens begrunnelse for innsigelsen mot varselet.</em></p>
+<p><strong>2. Forholdet</strong></p>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren er enig i at pålegget innebærer en endring.</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<p><strong>Svar på kravet om vederlagsjustering</strong></p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<p><strong>3. Vederlagsjustering (punkt 34.1.1)</strong></p>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<p><em>Byggherrens begrunnelse for beløpet.</em></p>
+<p><strong>Svar på kravet om fristforlengelse</strong></p>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 4. oktober 2026.</p>
+<p><strong>4. Varselet om fristforlengelse (punkt 33.4)</strong></p>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<p><em>Byggherrens begrunnelse for innsigelsen mot varselet.</em></p>
+<p><strong>5. Hindringen</strong></p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 33.4 fører frem</p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).</p>
+<p><em>Byggherrens begrunnelse for innsigelsen mot hindringen.</em></p>
+<p><strong>6. Spesifiseringen av kravet (punkt 33.6.1)</strong></p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot hindringen fører frem</p>
+<p>Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).</p>
+<p><strong>7. Dagene for frist Sluttfristen</strong></p>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot hindringen fører frem</p>
+<p>For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.</p>
+<p><em>Byggherrens begrunnelse for dagene.</em></p></section><section class="brev"><h4 class="kolonne">Codex (Astra)</h4><p><strong>Svar på forholdet, kravet om vederlagsjustering og kravet om fristforlengelse i sak KOE-17</strong></p>
+<p><strong>Vår ref.</strong> K201-KOE-017-04<br><strong>Deres ref.</strong> K201-KOE-017-01, K201-KOE-017-02, K201-KOE-017-03<br><strong>Avsender</strong> Byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<h6>1. Varselet etter NS 8407 punkt 32.2</h6>
+<p><strong>Prinsipalt</strong></p>
+<p>Byggherren gjør gjeldende at totalentreprenørens varsel om irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h6>2. Forholdet</h6>
+<p><strong>Subsidiært – hvis innsigelsen om sent varsel om irregulær endring ikke fører frem</strong></p>
+<p>Byggherren er enig i at pålegget innebærer en endring.</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<h6>Vederlagskravet</h6>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h6>Subsidiært – hvis innsigelsen om sent varsel om irregulær endring ikke fører frem</h6>
+<p><strong>3. Beregningsmetode (punkt 34.2)</strong></p>
+<p>Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.</p>
+<p><strong>4. Vederlagsjustering (punkt 34.1.1)</strong></p>
+<p>For P1 godkjenner byggherren 100 000 kr av de krevde 125 000 kr.</p>
+<h6>Fristkravet</h6>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 4. oktober 2026.</p>
+<p><strong>5. Varselet om fristforlengelse (punkt 33.4)</strong></p>
+<p><strong>Subsidiært – hvis innsigelsen om sent varsel om irregulær endring ikke fører frem</strong></p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<p><strong>6. Hindringen (punkt 33.1)</strong></p>
+<p><strong>Videre subsidiært – hvis ingen av innsigelsene om sent varsel fører frem, verken for varselet om irregulær endring eller for varselet om fristforlengelse</strong></p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.</p>
+<h6>Videre subsidiært – hvis ingen av disse tre innsigelsene fører frem</h6>
+<ul><li>At varselet om irregulær endring kom for sent.</li><li>At varselet om fristforlengelse kom for sent.</li><li>At byggherren bestrider at forholdet har hindret fremdriften.</li></ul>
+<p><strong>7. Spesifiseringen av kravet (punkt 33.6.1)</strong></p>
+<p>Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent.</p>
+<p><strong>8. Forlengelse av sluttfristen</strong></p>
+<p>Byggherren godkjenner 10 dagers forlengelse av sluttfristen. Totalentreprenøren har krevd 20 dager.</p>
+<h6>9. Forbehold</h6>
+<p><strong>Vederlagskravet</strong></p>
+<p><em>Byggherrens begrunnelse for svaret på vederlagskravet.</em></p>
+<p><strong>Fristkravet</strong></p>
+<p><em>Byggherrens begrunnelse for svaret på fristkravet.</em></p></section><section class="brev"><h4 class="kolonne">Gemini (Argon)</h4><p><strong>Svar på forholdet, krav om vederlagsjustering og krav om fristforlengelse i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-04<br>Deres ref.: K201-KOE-017-01, K201-KOE-017-02, K201-KOE-017-03<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026.</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 4. oktober 2026.</p>
+<h5>1. Varselet etter punkt 32.2</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.</p>
+<h5>2. Forholdet</h5>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren er enig i at pålegget innebærer en endring.</p>
+<p><em>Byggherrens begrunnelse for svaret på forholdet.</em></p>
+<h5>3. Vederlagsjustering (punkt 34.1.1)</h5>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<p><em>Byggherrens begrunnelse for svaret på vederlagskravet.</em></p>
+<h5>4. Varselet om fristforlengelse (punkt 33.4)</h5>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem</p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<h5>5. Hindringen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 33.4 fører frem</p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).</p>
+<h5>6. Spesifiseringen av kravet (punkt 33.6.1)</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen om hindringen fører frem</p>
+<p>Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).</p>
+<h5>7. Dagene for frist Sluttfristen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen om hindringen fører frem</p>
+<p>For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.</p>
+<p><em>Byggherrens begrunnelse for svaret på fristkravet.</em></p></section></div>
+<p><strong>Kontrollen fant:</strong></p>
+<ul><li><strong>Fable:</strong> ingen henvisninger til punktnumre igjen. Byggherrens forbehold for hele vederlags- og fristsvaret er erstattet av nye plassholdere per punkt.</li><li><strong>Codex:</strong> standpunktet til hindringen er skrevet om til «bestrider at forholdet har hindret fremdriften». Dagens brev har to alternativer: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet. «Bestrider» brukes etter språkfila om beregningsregelen og justeringen. Hjemmelen er tatt ut av setningen om varselet etter punkt 32.2, der den er selve påberopelsen (LV-U34). Byggherrens forbehold står under «Forbehold», som i dag.</li><li><strong>Gemini:</strong> innledningene står samlet øverst, så «Beløpene i brevet er eks. mva.» står over forholdet. Byggherrens forbehold for hele fristsvaret står under punktet om dagene og ser ut til å gjelde bare dem.</li></ul>
+<h2>Brev 02: forholdet ubesvart, tre poster</h2>
+<p><strong>Tilfellet:</strong> forholdet er ubesvart, så forbeholdet om forholdet står sist i brevet.</p>
+<div class="rutenett"><section class="brev"><h4 class="kolonne">I dag (kjernen)</h4><p><strong>Svar på krav om vederlagsjustering i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h5>1. Varselet om særskilt vederlagsjustering (punkt 34.1.3)</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.</p>
+<h5>2. Beregningsmetode (punkt 34.2)</h5>
+<p>Byggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godtar at vederlaget for P2 justeres som regningsarbeid (punkt 34.4). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P2 ikke ble gitt eller kom for sent.</p>
+<h5>3. Vederlagsjustering (punkt 34.1.1)</h5>
+<p>P1 Ny fundamentering.</p>
+<p>Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<h5>4. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)</h5>
+<p>Prinsipalt</p>
+<p>Byggherren godkjenner 10 000 kr etter begrensningen i punkt 1 ovenfor.</p>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren godkjenner 20 000 kr av de krevde 40 000 kr.</p>
+<h5>5. Oversikt</h5>
+<table><thead><tr><th>Post</th><th>Krevd</th><th>Prinsipalt</th><th>Subsidiært</th></tr></thead><tbody><tr><td>P1</td><td>125 000 kr</td><td>100 000 kr</td><td>100 000 kr</td></tr><tr><td>Særskilt vederlagsjustering</td><td>40 000 kr</td><td>10 000 kr</td><td>20 000 kr</td></tr><tr><td>Sum</td><td>165 000 kr</td><td>110 000 kr</td><td>120 000 kr</td></tr></tbody></table>
+<h5>6. Forbehold</h5>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p>
+<p><em>Byggherrens forbehold for hele svaret på vederlagskravet.</em></p></section><section class="brev"><h4 class="kolonne">Fable</h4><p><strong>Svar på krav om vederlagsjustering i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<p><strong>1. Vederlagsjustering for P1 Ny fundamentering (punkt 34.1.1)</strong></p>
+<p>Byggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<p><em>Byggherrens begrunnelse for svaret på P1.</em></p>
+<p><strong>2. Vederlagsjustering for P2 (punkt 34.1.1)</strong></p>
+<p>Byggherren godtar at vederlaget for P2 justeres som regningsarbeid (NS 8407 punkt 34.4). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P2 ikke ble gitt eller kom for sent.</p>
+<p><em>Byggherrens begrunnelse for svaret på P2.</em></p>
+<p><strong>3. Særskilt vederlagsjustering (punkt 34.1.3)</strong></p>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner etter dette 10 000 kr av de krevde 40 000 kr.</p>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 34.1.3 ikke fører frem</p>
+<p>Byggherren godkjenner 20 000 kr av de krevde 40 000 kr.</p>
+<p><em>Byggherrens begrunnelse for svaret på den særskilte vederlagsjusteringen.</em></p>
+<p><strong>4. Oversikt</strong></p>
+<table><thead><tr><th>Post</th><th>Krevd</th><th>Prinsipalt</th><th>Subsidiært</th></tr></thead><tbody><tr><td>P1</td><td>125 000 kr</td><td>100 000 kr</td><td>100 000 kr</td></tr><tr><td>Særskilt vederlagsjustering</td><td>40 000 kr</td><td>10 000 kr</td><td>20 000 kr</td></tr><tr><td>Sum</td><td>165 000 kr</td><td>110 000 kr</td><td>120 000 kr</td></tr></tbody></table>
+<p><strong>5. Forbehold</strong></p>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p>
+<p><em>Byggherrens egne forbehold.</em></p>
+<p>Fristsvaret i brev 05 og varselsvaret i brev 07 beholder strukturen de har. Der er hver innsigelse allerede vilkår for alt som kommer etter. Det som endres, er lagslinjen («Subsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem») og at begrunnelsen flyttes ut av «Forbehold».</p></section><section class="brev"><h4 class="kolonne">Codex (Astra)</h4><p><strong>Svar på krav om vederlagsjustering i sak KOE-17</strong></p>
+<p><strong>Vår ref.</strong> K201-KOE-017-03<br><strong>Deres ref.</strong> K201-KOE-017-02<br><strong>Avsender</strong> Byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h6>1. Varselet om særskilt vederlagsjustering (NS 8407 punkt 34.1.3)</h6>
+<p><strong>Prinsipalt</strong></p>
+<p>Byggherren gjør gjeldende at varselet om særskilt vederlagsjustering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent. Byggherren gjør derfor gjeldende at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for dette kravet.</p>
+<h6>2. Beregningsmetode (punkt 34.2)</h6>
+<p><strong>P1 – ny fundamentering.</strong> Byggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret.</p>
+<p><strong>P2 – pumping.</strong> Byggherren godtar at vederlaget for P2 justeres som regningsarbeid (punkt 34.4). Dette innebærer ingen godkjenning av mengder, priser, kostnader eller beløp. Byggherren gjør gjeldende at varselet om regningsarbeid for P2 etter punkt 34.4 ikke ble gitt eller kom for sent.</p>
+<h6>3. Vederlagsjustering (punkt 34.1.1)</h6>
+<p>For P1, ny fundamentering, godkjenner byggherren 100 000 kr av de krevde 125 000 kr.</p>
+<h6>4. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)</h6>
+<p><strong>Prinsipalt</strong></p>
+<p>Med den begrensningen som følger av at det særskilte varselet kom for sent, godkjenner byggherren 10 000 kr av de krevde 40 000 kr.</p>
+<p><strong>Subsidiært – hvis innsigelsen om at det særskilte varselet kom for sent, ikke fører frem</strong></p>
+<p>Byggherren godkjenner 20 000 kr av de krevde 40 000 kr.</p>
+<h6>5. Oversikt over beløpene</h6>
+<table><thead><tr><th>Post</th><th>Krevd</th><th>Prinsipalt</th><th>Subsidiært</th></tr></thead><tbody><tr><td>P1 – ny fundamentering</td><td>125 000 kr</td><td>100 000 kr</td><td>100 000 kr</td></tr><tr><td>Særskilt vederlagsjustering</td><td>40 000 kr</td><td>10 000 kr</td><td>20 000 kr</td></tr><tr><td><strong>Sum</strong></td><td><strong>165 000 kr</strong></td><td><strong>110 000 kr</strong></td><td><strong>120 000 kr</strong></td></tr></tbody></table>
+<h6>6. Forbehold</h6>
+<p><em>Byggherrens begrunnelse for svaret på vederlagskravet.</em></p>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p></section><section class="brev"><h4 class="kolonne">Gemini (Argon)</h4><p><strong>Svar på krav om vederlagsjustering i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026. Beløpene i brevet er eks. mva.</p>
+<h5>1. Vederlagsjustering – P1 Ny fundamentering (punkt 34.1.1)</h5>
+<p>Byggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.</p>
+<p><em>Byggherrens begrunnelse for svaret på P1.</em></p>
+<h5>2. Vederlagsjustering – P2 Pumping (punkt 34.1.1)</h5>
+<p>Byggherren godtar at vederlaget for P2 justeres som regningsarbeid (NS 8407 punkt 34.4). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P2 ikke ble gitt eller kom for sent.</p>
+<p><em>Byggherrens begrunnelse for svaret på P2.</em></p>
+<h5>3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner 10 000 kr etter denne begrensningen.</p>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 34.1.3 ikke fører frem</p>
+<p>Byggherren godkjenner 20 000 kr av de krevde 40 000 kr.</p>
+<p><em>Byggherrens begrunnelse for svaret på den særskilte vederlagsjusteringen.</em></p>
+<h5>4. Oversikt</h5>
+<table><thead><tr><th>Post</th><th>Krevd</th><th>Prinsipalt</th><th>Subsidiært</th></tr></thead><tbody><tr><td>P1</td><td>125 000 kr</td><td>100 000 kr</td><td>100 000 kr</td></tr><tr><td>Særskilt vederlagsjustering</td><td>40 000 kr</td><td>10 000 kr</td><td>20 000 kr</td></tr><tr><td>Sum</td><td>165 000 kr</td><td>110 000 kr</td><td>120 000 kr</td></tr></tbody></table>
+<h5>5. Forbehold</h5>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p></section></div>
+<p><strong>Kontrollen fant:</strong></p>
+<ul><li><strong>Fable:</strong> forbeholdet etter GR-U34 står ordrett og sist. Byggherrens forbehold for hele svaret er erstattet av «Byggherrens egne forbehold», som Fable selv sier ikke finnes som felt i dag.</li><li><strong>Codex:</strong> byggherrens forbehold for hele svaret står foran forbeholdet om forholdet, så forbeholdet om forholdet står sist.</li><li><strong>Gemini:</strong> forbeholdet etter GR-U34 står ordrett og sist. Byggherrens forbehold for hele svaret er tatt ut. Gemini påpeker at oversikten ikke viser P2, som er regningsarbeid uten beløp (OV-U73).</li></ul>
+<h2>Brev 05: fristsvaret med fire lag, forholdet ubesvart</h2>
+<p><strong>Tilfellet:</strong> forholdet er ubesvart, så forbeholdet om forholdet står sist. Bare Gemini skrev<br>brevet om. Fable beholder strukturen og bytter bare lagslinjen.</p>
+<div class="rutenett"><section class="brev"><h4 class="kolonne">I dag (kjernen)</h4><p><strong>Svar på krav om fristforlengelse i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-02 av 3. oktober 2026.</p>
+<h5>1. Varselet om fristforlengelse (punkt 33.4)</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<h5>2. Hindringen</h5>
+<p>Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).</p>
+<h5>3. Spesifiseringen av kravet (punkt 33.6.1)</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem</p>
+<p>Byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 5 dager for frist Sluttfristen (punkt 33.6.1).</p>
+<h5>4. Dagene for frist Sluttfristen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem</p>
+<p>For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.</p>
+<h5>5. Forbehold</h5>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p>
+<p><em>Byggherrens forbehold for hele svaret på fristkravet.</em></p></section><section class="brev"><h4 class="kolonne">Fable</h4><p><em>Ikke skrevet om i dette svaret.</em></p></section><section class="brev"><h4 class="kolonne">Codex (Astra)</h4><p><em>Ikke skrevet om i dette svaret.</em></p></section><section class="brev"><h4 class="kolonne">Gemini (Argon)</h4><p><strong>Svar på krav om fristforlengelse i sak KOE-17</strong></p>
+<p>Vår ref.: K201-KOE-017-03<br>Deres ref.: K201-KOE-017-02<br>Avsender: byggherren</p>
+<p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-02 av 3. oktober 2026.</p>
+<h5>1. Varselet om fristforlengelse (punkt 33.4)</h5>
+<p>Prinsipalt</p>
+<p>Byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.</p>
+<h5>2. Hindringen</h5>
+<p>Subsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem</p>
+<p>Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).</p>
+<h5>3. Spesifiseringen av kravet (punkt 33.6.1)</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen om hindringen fører frem</p>
+<p>Byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 5 dager for frist Sluttfristen (punkt 33.6.1).</p>
+<h5>4. Dagene for frist Sluttfristen</h5>
+<p>Videre subsidiært, hvis heller ikke innsigelsen mot spesifiseringen fører frem</p>
+<p>For frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.</p>
+<p><em>Byggherrens begrunnelse for svaret på fristkravet.</em></p>
+<h5>5. Forbehold</h5>
+<p>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p></section></div>
+<p><strong>Kontrollen fant:</strong> Gemini bevarer KA-U84 og VS-U4. Byggherrens forbehold for hele fristsvaret<br>står under punktet om dagene.</p>
+<h2>Lagene endres ikke</h2>
+<p>To av forslagene endrer hvilket lag et standpunkt står i. Det er ikke ordlyd, og det er ikke tatt<br>med i anbefalingen:</p>
+<ul><li>Gemini flytter «gjør ikke gjeldende at varselet kom for sent» for P2 i brev 01 fra å stå uten etikett til det tredje laget. Kjernen gir et slikt standpunkt ingen virkning og intet lag. Unntaket er spesifiseringen etter punkt 33.6.1, som følger innsigelsene (KA-U84, brev 06).</li><li>Codex og Gemini legger «Prinsipalt» på avslaget av forholdet i brev 01. Det er spørsmål 5.</li></ul>
+<h2>Vedtakene forslagene rører</h2>
+<table><thead><tr><th>Post</th><th>Hva</th><th>Fable</th><th>Codex</th><th>Gemini</th></tr></thead><tbody><tr><td>LV-U34</td><td>Ett punkt per tema, eksemplene på lagslinjen, innledningen per svar</td><td>Endres</td><td>Endres</td><td>Endres</td></tr><tr><td>LV-U40</td><td>Lagslinjen viser til punktet med «ovenfor»</td><td>Endres</td><td>Presiseres</td><td>Endres</td></tr><tr><td>OV-U32</td><td>«Standpunktene i samme lag står under én etikett»</td><td>Leses som én etikett per punkt</td><td>Ingen endring</td><td>Presiseres</td></tr><tr><td>OV-U33 og OV-U32</td><td>«Prinsipalt» på avslaget av forholdet</td><td>Ingen endring</td><td>Ikke nevnt</td><td>Presiseres</td></tr><tr><td>GR-U34, KA-U49 og KA-U50</td><td>Hvor «Forbehold» står, og hva som står der</td><td>Endres</td><td>Presiseres</td><td>Endres</td></tr><tr><td>LV-U70 og LV-U71</td><td>Avsnittene og partens tekst per punkt</td><td>Endres</td><td>Presiseres</td><td>Endres</td></tr><tr><td>OV-U28</td><td>Setningen om innsigelsen mot det særskilte varselet</td><td>Ingen endring</td><td>Endres</td><td>Ingen endring</td></tr></tbody></table>
+<p>Ingen av forslagene endrer budskapet i OV-U117, VS-U4, KA-U84, OV-U73 eller MM-U9. Et sendt brev<br>endres ikke.</p>
+</main>
+</body>
+</html>

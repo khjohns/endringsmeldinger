@@ -2,7 +2,7 @@
 
 Byggherren har ikke svart på påberopelsen, så brevet har forbeholdet om forholdet. Kravet har P1 med fast sum, P2 som regningsarbeid og særskilt vederlagsjustering for produktivitet. Byggherren godkjenner deler av P1, godtar regningsarbeid for P2, men sier at varselet etter punkt 34.4 kom for sent, og gjør gjeldende at varselet etter punkt 34.1.3 kom for sent, med en delvis godkjenning subsidiært.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 
@@ -52,4 +52,4 @@ Byggherren godkjenner 20 000 kr av de krevde 40 000 kr.
 
 Byggherren har ennå ikke svart på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.
 
-_Byggherrens begrunnelse for svaret på vederlagskravet._
+_Byggherrens forbehold for hele svaret på vederlagskravet._

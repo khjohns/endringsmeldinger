@@ -2,7 +2,7 @@
 
 Byggherren svarer på totalentreprenørens påberopelse av irregulær endring. Byggherren gjør gjeldende at varselet etter punkt 32.2 kom for sent, og avslår subsidiært kravet på endringsordre.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 

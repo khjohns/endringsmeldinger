@@ -2,7 +2,7 @@
 
 Totalentreprenøren krever justering av vederlaget med P1 som fast sum, P2 som regningsarbeid og P3 og P4 etter justerte enhetspriser, og særskilt vederlagsjustering for produktivitet. Kravpostene etter en beregningsregel er også varsel etter punkt 34.3.3 og 34.4.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 

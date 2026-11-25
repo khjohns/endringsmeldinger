@@ -2,7 +2,7 @@
 
 Forholdet er svikt i grunnforholdene, så varslingsplikten etter punkt 34.1.2 gjelder. Byggherren har avslått forholdet i et tidligere brev. I svaret på vederlagskravet gjør byggherren gjeldende at varselet etter punkt 34.1.2 kom for sent, aksepterer ikke tilbudet for P1 og mener regningsarbeid, og godtar beregningsregelen for P2.
 
-Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.
+Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.
 
 ---
 
@@ -34,4 +34,4 @@ Byggherren aksepterer ikke totalentreprenørens tilbud for P1 (punkt 34.2.2 fø
 
 ### 4. Forbehold
 
-_Byggherrens begrunnelse for svaret på vederlagskravet._
+_Byggherrens forbehold for hele svaret på vederlagskravet._

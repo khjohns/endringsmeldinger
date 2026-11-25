@@ -89,11 +89,11 @@ function vederlagssvar(s: Saken, kravposter: Record<string, Data>, resten: Data 
   } catch (e) {
     if (!(e instanceof UgyldigVurdering)) throw e;
   }
-  return svar('vederlag', k.id, v, resultat, 'Byggherrens begrunnelse for svaret på vederlagskravet.');
+  return svar('vederlag', k.id, v, resultat, 'Byggherrens forbehold for hele svaret på vederlagskravet.');
 }
 
 const fristsvar = (s: Saken, vurderinger: Data, resultat: Data) =>
-  svar('frist', s.krav('frist'), vurderinger, resultat, 'Byggherrens begrunnelse for svaret på fristkravet.');
+  svar('frist', s.krav('frist'), vurderinger, resultat, 'Byggherrens forbehold for hele svaret på fristkravet.');
 
 const brev = (...svarene: Data[]) => ({ type: 'brev', svar: svarene });
 
@@ -382,7 +382,7 @@ function somMarkdown(t: Tilfelle, rad: Journalrad): string {
     '',
     t.beskrivelse,
     '',
-    'Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og byggherrens og totalentreprenørens begrunnelser er plassholdere i kursiv der kjernen setter dem.',
+    'Brevet er laget av [`lag-brevene.ts`](lag-brevene.ts) med kjernens kode og er ikke skrevet for hånd. Overskriftene i brevet er satt som overskrifter, og partenes tekster er plassholdere i kursiv der kjernen setter dem.',
     '',
     '---',
     '',
@@ -417,7 +417,11 @@ function kartlegging(t: Tilfelle, rad: Journalrad): { rad: string; henvisninger:
       const navn = a.overskrift!.replace(/ /g, ' ');
       const medForbeholdet = a.laast.includes('ennå ikke svart');
       const sist = a === avsnitt.at(-1);
-      return `${navn}${sist ? ', sist i brevet' : ''}: ${medForbeholdet ? 'forbeholdet om forholdet' : 'bare overskriften'}${a.utdypning ? ' og begrunnelsen for svaret' : ''}`;
+      const innhold = [
+        ...(medForbeholdet ? ['forbeholdet om forholdet'] : []),
+        ...(a.utdypning ? ['byggherrens forbehold for hele svaret'] : []),
+      ];
+      return `${navn}${sist ? ', sist i brevet' : ''}: ${innhold.join(' og ') || 'bare overskriften'}`;
     });
   const h = henvisningene(rad);
   return {
