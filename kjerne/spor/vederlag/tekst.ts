@@ -69,6 +69,9 @@ import type {
 
 // ---------- Brevteksten (LV-U4) ----------
 
+/** Betegnelsen og beskrivelsen av kravposten, uten punktum: «P1 Ny fundamentering» (KA-U53). */
+const kravpostnavnet = (p: Kravpost) => `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}`;
+
 const SAERSKILT_JUSTERING = 'Særskilt vederlagsjustering';
 
 /** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
@@ -86,9 +89,7 @@ function kravposttekst(
   varselet: Kravpostvarselet | undefined,
   t: Pick<Tekst, 'j' | 'nytt'>
 ): string {
-  const deler = [
-    `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}.`,
-  ];
+  const deler = [`${kravpostnavnet(p)}${p.pns ? ` (PNS ${p.pns})` : ''}.`];
   if (p.oppgjoersform === 'tilbud') deler.push(`Totalentreprenøren krever ${eksMva(p.beloep!)}`);
   else if (p.oppgjoersform === 'enhetspriser') {
     deler.push(
@@ -201,7 +202,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
       punkt: p.betegnelse,
       overskrift: null,
       avsnitt: [
-        `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`,
+        `${kravpostnavnet(p)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`,
       ],
     });
   }
@@ -317,27 +318,18 @@ function svarpunkteneIVederlaget(krav: Krav, { saken }: Tekst, regler: Regelsett
       punkt: p.betegnelse,
       overskrift:
         kravposter.length > 1
-          ? `Vederlagsjustering for ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)} (punkt ${hjemmel})`
+          ? `Vederlagsjustering for ${kravpostnavnet(p)} (punkt ${hjemmel})`
           : `Vederlagsjustering (punkt ${hjemmel})`,
     })),
     { punkt: 'produktivitet', overskrift: `${SAERSKILT_JUSTERING} (punkt 34.1.3 annet ledd)` },
   ];
 }
 
-/** Punktet standpunktet står i etter LV-U78: posten det gjelder, eller varselet etter § 34.1.2. */
+/** Punktet standpunktet står i etter LV-U78: punktet for posten det gjelder (`posten`), ellers `punktet`. */
 function svarpunktet(p: Standpunkt, krav: Krav): string | undefined {
-  switch (p.art) {
-    case 'rettidighet':
-      if (p.hjemmel === '34.1.3') return 'produktivitet';
-      return erKravpostvarselhjemmel(p.hjemmel)
-        ? kravpostenI(krav, p.gjelder).betegnelse
-        : undefined;
-    case 'oppgjoersform':
-    case 'justering':
-      return kravpostenI(krav, p.gjelder).betegnelse;
-    default:
-      return punktet(p, krav);
-  }
+  const post = posten(p);
+  if (post === undefined) return punktet(p, krav);
+  return post === null ? 'produktivitet' : kravpostenI(krav, post).betegnelse;
 }
 
 /** Kravposten standpunktet gjelder, den særskilte justeringen (`null`) eller hele kravet. */

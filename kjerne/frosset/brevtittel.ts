@@ -3,7 +3,8 @@
  * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import type { Dokument, Sakskode, Spor, Svar } from '../typer.ts';
+import { SPOR, type Dokument, type Sakskode, type Spor, type Svar } from '../typer.ts';
+import { liste } from './brevdeler.ts';
 import { svaretGjelderEtVarsel } from '../spor/vederlag/format.ts';
 import { medHardeMellomrom, sakensKode } from './tekst.ts';
 import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
@@ -120,8 +121,9 @@ export const SVARTITTEL_PAA_VARSELET = {
 export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter'>) =>
   SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
 
-/** Rekkefølgen svarene står i brevet og i tittelen (LV-U34, LV-U80). */
-export const SPORENE_I_BREVET: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
+/** Svarene i rekkefølgen de står i brevet og i tittelen: forholdet først (LV-U34, LV-U80). */
+export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly S[]): S[] =>
+  [...svar].sort((a, b) => SPOR.indexOf(a.spor) - SPOR.indexOf(b.spor));
 
 /** Bestemmelsen varselet er gitt etter: standpunktet til justeringen står bare etter § 34.3.3. */
 const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): '34.3.3' | '34.4' =>
@@ -146,12 +148,8 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 
 function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
   // LV-U80: tittelen nevner alle kravene brevet svarer på.
-  if (d.svar.length) {
-    const kravene = [...d.svar]
-      .sort((a, b) => SPORENE_I_BREVET.indexOf(a.spor) - SPORENE_I_BREVET.indexOf(b.spor))
-      .map((s) => svaretGjelder(s).tittel);
-    return `Svar på ${kravene.length > 1 ? `${kravene.slice(0, -1).join(', ')} og ${kravene.at(-1)}` : kravene[0]}`;
-  }
+  if (d.svar.length)
+    return `Svar på ${liste(iBrevetsRekkefoelge(d.svar).map((s) => svaretGjelder(s).tittel))}`;
   const f = paaberoptForhold(d);
   if (f) return paaberopelsenAv(f.navn);
   if (d.krav.length) return KRAVTITTEL[d.krav[0].spor];

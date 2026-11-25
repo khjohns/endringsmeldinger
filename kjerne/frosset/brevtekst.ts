@@ -26,7 +26,7 @@ import {
   svaretGjelderPaaberopelsen,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
-import { SPORENE_I_BREVET, svaretGjelder } from './brevtittel.ts';
+import { iBrevetsRekkefoelge, svaretGjelder } from './brevtittel.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { tilTall } from '../regler/beloep.ts';
 import {
@@ -220,18 +220,21 @@ export function lagBrevtekst(
     leggPunkter(k.id, tekst.krav(k, t, regler), tekst.utdypningensPunkt);
   }
   // LV-U34, LV-U72: svaret på forholdet står først, så lagene i de andre svarene bygger på det.
-  const svarene = [...nytt.svar].sort(
-    (a, b) => SPORENE_I_BREVET.indexOf(a.spor) - SPORENE_I_BREVET.indexOf(b.spor)
-  );
+  const svarene = iBrevetsRekkefoelge(nytt.svar);
   const ns = { nevnt: false };
   const flere = svarene.length > 1;
   // LV-U82: avslaget av forholdet får «Prinsipalt» når et standpunkt i brevet står subsidiært til det.
-  const subsidiaertTilForholdet = svarene.some(
-    (s) =>
-      s.spor !== 'forhold' &&
-      forholdetsLag(s, t).forskyvning > 0 &&
-      s.beslutningsgrunnlag.virkninger.some((v) => laget(v.virkning) !== null)
-  );
+  const forholdssvaret = svarene.find((s) => s.spor === 'forhold');
+  const subsidiaertTilForholdet =
+    !!forholdssvaret &&
+    grunnerFraForholdet(forholdssvaret, forholdssvaret.beslutningsgrunnlag.virkninger).length > 0 &&
+    svarene.some(
+      (s) =>
+        s.spor !== 'forhold' &&
+        s.beslutningsgrunnlag.virkninger.some((v) => laget(v.virkning) !== null)
+    );
+  // «12 A» i #2337: punktet «Forholdet» fra et tidligere brev står bare i den første delen.
+  let forholdetStaar = false;
   const forbeholdene: Forbeholdet[] = [];
   let omForholdet: OmForholdet | null = null;
   for (const s of svarene) {
@@ -248,27 +251,24 @@ export function lagBrevtekst(
       );
     const tekst = utdypning || iPunktet || forbehold;
     if (tekst) forbeholdene.push({ s, tekst });
-    const setninger = forbeholdetForForholdet(s, t);
-    if (setninger.length) {
-      if (omForholdet && omForholdet.setninger.join(' ') !== setninger.join(' '))
+    const setninger = forbeholdetForForholdet(s, t).join(' ');
+    if (setninger) {
+      if (omForholdet && omForholdet.setninger !== setninger)
         throw new KanIkkeUttrykkes('svarene i brevet har ulike forbehold om forholdet');
       omForholdet ??= { s, setninger };
     }
-    leggPunkter(
-      s.id,
-      svarpunkter(s, t, regler, {
-        ns,
-        del: flere ? `Svar på ${svaretGjelder(s).del}` : null,
-        subsidiaertTilForholdet,
-      }),
-      undefined,
-      UTEN_BEGRUNNELSE_I_SVARET,
-      {
-        utdypninger: Object.fromEntries(
-          Object.entries(perPunkt).filter(([punkt]) => punkt !== FORBEHOLDET)
-        ),
-      }
-    );
+    const punktene = svarpunkter(s, t, regler, {
+      ns,
+      del: flere ? `Svar på ${svaretGjelder(s).del}` : null,
+      subsidiaertTilForholdet,
+      forholdetStaar,
+    });
+    forholdetStaar ||= punktene.some((p) => p.punkt === FORHOLDET);
+    leggPunkter(s.id, punktene, undefined, UTEN_BEGRUNNELSE_I_SVARET, {
+      utdypninger: Object.fromEntries(
+        Object.entries(perPunkt).filter(([punkt]) => punkt !== FORBEHOLDET)
+      ),
+    });
   }
   // LV-U81: høyst ett punkt «Forbehold», sist i brevet. Først forbeholdet om forholdet (GR-U34),
   // så byggherrens forbehold for hvert svar, med navnet på kravet når brevet har flere svar.
@@ -276,8 +276,7 @@ export function lagBrevtekst(
   if (forbeholdene.length) {
     const overskrift = medHardeMellomrom(`${++nummer}. ${FORBEHOLDSPUNKTET.overskrift}`);
     forbeholdene.forEach(({ s, tekst }, i) => {
-      const foerst =
-        i === 0 ? [overskrift, ...(omForholdet ? [omForholdet.setninger.join(' ')] : [])] : [];
+      const foerst = i === 0 ? [overskrift, ...(omForholdet ? [omForholdet.setninger] : [])] : [];
       const ledetekst = tekst && flere ? [`Forbehold for svaret på ${svaretGjelder(s).del}:`] : [];
       avsnitt.push({
         gjelder: s.id,
@@ -306,7 +305,7 @@ interface Forbeholdet {
 /** Forbeholdet om forholdet etter GR-U34, med svaret det står for (LV-U81). */
 interface OmForholdet {
   s: Svar;
-  setninger: string[];
+  setninger: string;
 }
 
 /** En innsigelse med brevet den står i. */
@@ -407,6 +406,8 @@ interface Svardelen {
   /** Overskriften på svaret når brevet svarer på flere krav, ellers `null` (LV-U80). */
   del: string | null;
   subsidiaertTilForholdet: boolean;
+  /** Punktet «Forholdet» står alt i en tidligere del av brevet («12 A» i #2337). */
+  forholdetStaar: boolean;
 }
 
 /** Et standpunkt i et punkt i svaret, med laget, posten og innsigelsen det er (LV-U78, LV-U79). */
@@ -432,7 +433,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
   const krav = j.krav(s.gjelder);
   const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
-  const fra = forholdetsLag(s, t);
+  const fra = forholdetsLag(s, t, nr.forholdetStaar);
   const ledd: Svarledd[] = [...fra.ledd];
   const beloepene: Lagbeloep[] = [];
   const plassen = plassenI(s, fra.forskyvning);
@@ -551,7 +552,7 @@ function punkteneISvaret(
     {
       punkt: INNLEDNINGEN,
       overskrift: nr.del,
-      ...(nr.del ? { unummerert: true as const } : {}),
+      unummerert: true,
       avsnitt: [utenGjentattNs(innledning, nr.ns)],
     },
   ];
@@ -604,7 +605,7 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
   const hjemmel = varselhjemmel(s.gjelder, j);
   if (hjemmel !== '34.3.3' && hjemmel !== '34.4')
     throw new KanIkkeUttrykkes(`svaret gjelder et varsel etter § ${hjemmel}, som står i kravet`);
-  const fra = forholdetsLag(s, t);
+  const fra = forholdetsLag(s, t, nr.forholdetStaar);
   const plassen = plassenI(s, fra.forskyvning);
   const ledd: Svarledd[] = [
     ...fra.ledd,
@@ -637,7 +638,8 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
 
 /**
  * HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
- * å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
+ * å si hva den betyr (punkt 5). Ordlyden er arbeidsvalget 14.11 i #502. Punktet «Forbehold» står
+ * etter, sist i brevet (LV-U81, ordvalg 6 i #2337).
  */
 const akseptfristpunktet = (s: Svar): Brevpunkt[] =>
   s.akseptfrist === null
@@ -693,18 +695,20 @@ const GRUNNEN_I_LAGSLINJEN: Record<Subsidiaergrunn, string> = {
  * OV-U32 og LV-U34: et avslått eller prekludert forhold står først, og lagene i sporet flyttes
  * ned med antallet lag det opptar, ett for preklusjonen etter § 32.2 og ett for avslaget. Står
  * svaret på forholdet i samme brev, nevner lagslinjene innsigelsene i det (`vilkaar`, LV-U79).
- * Står det i et tidligere brev, har svaret et eget punkt «Forholdet» med det byggherren sa der.
+ * Står det i et tidligere brev, har svaret et eget punkt «Forholdet» med det byggherren sa der,
+ * med mindre punktet alt står i brevet (`staar`, «12 A» i #2337).
  */
 function forholdetsLag(
   s: Svar,
-  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>,
+  staar: boolean
 ): { forskyvning: number; ledd: Svarledd[]; vilkaar: Map<number, Vilkaar[]> } {
   const ingen = { forskyvning: 0, ledd: [], vilkaar: new Map() };
   if (s.spor === 'forhold') return ingen;
   const g = svaretPaaForholdet({ j, saken, nytt });
   if (!g) return ingen;
   const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
-  if (nytt.id === g.dokument)
+  if (nytt.id === g.dokument || staar)
     return {
       forskyvning: grunner.length,
       ledd: [],

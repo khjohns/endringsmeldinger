@@ -1081,7 +1081,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F120',
     feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (nytt.id === g.dokument)\n', '  if (true)\n']],
+    endringer: [['  if (nytt.id === g.dokument || staar)\n', '  if (true)\n']],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
@@ -3544,8 +3544,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    const setninger = forbeholdetForForholdet(s, t);',
-        '    const setninger: string[] = [];',
+        "    const setninger = forbeholdetForForholdet(s, t).join(' ');",
+        "    const setninger = '';",
       ],
     ],
     mal: [
@@ -4891,7 +4891,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [['...(alle.length > 1 ? { foerst:', '...(false ? { foerst:']],
+    endringer: [
+      [
+        '        kravposter.length > 1\n          ? `Vederlagsjustering for',
+        '        false\n          ? `Vederlagsjustering for',
+      ],
+    ],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
   {
@@ -6938,7 +6943,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en utdypning for innledningen eller oversikten i svaret godtas og står under punktet (LV-U71, #2153)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['      UTEN_BEGRUNNELSE_I_SVARET', '      [FORHOLDET]']],
+    endringer: [['undefined, UTEN_BEGRUNNELSE_I_SVARET,', 'undefined, [FORHOLDET],']],
     mal: ['i svaret avvises, fordi skjemaet ikke har noe felt for den'],
   },
   {
@@ -6948,7 +6953,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['  FORHOLDET,\n  AKSEPTFRISTEN,\n];', '  FORHOLDET,\n];']],
     mal: [
-      'linjen med akseptfristen står etter utdypningen under «Forbehold», og har ingen utdypning',
+      'linjen med akseptfristen står foran utdypningen under «Forbehold», og har ingen utdypning',
     ],
   },
   {
@@ -7345,7 +7350,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2337f',
     feilklasse: 'tittelen på et brev med flere svar nevner bare det første kravet (LV-U80, #2337)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [['kravene.length > 1 ?', 'false ?']],
+    endringer: [
+      [
+        'liste(iBrevetsRekkefoelge(d.svar).map(',
+        'liste(iBrevetsRekkefoelge(d.svar).slice(0, 1).map(',
+      ],
+    ],
     mal: ['LV-U78, LV-U80: ett punkt per kravpost'],
   },
   {
@@ -7353,8 +7363,16 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet etter begrensningen etter § 34.1.3 står i et annet punkt enn innsigelsen (LV-U78, #2337)',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [["      if (p.hjemmel === '34.1.3') return 'produktivitet';\n", '']],
+    endringer: [["      if (p.hjemmel === '34.1.3') return null;\n", '']],
     mal: ['varselet etter punkt 34.1.3 og beløpet etter begrensningen står i samme avsnitt'],
+  },
+  {
+    id: 'F2337h',
+    feilklasse:
+      'avslaget av forholdet fra et tidligere brev står som et punkt i hver del av et brev med flere svar («12 A» i #2337)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  if (nytt.id === g.dokument || staar)\n', '  if (nytt.id === g.dokument)\n']],
+    mal: ['står som punktet «Forholdet» én gang, i den første delen'],
   },
 ];
 /** En kopi av arbeidstreet. */

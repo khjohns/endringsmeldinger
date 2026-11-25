@@ -239,4 +239,38 @@ describe('strukturen i byggherrens svar (#2337, LV-U78–LV-U82)', () => {
       grunn: expect.stringContaining('et avsnitt i brevteksten gjelder ikke ett element i brevet'),
     });
   });
+
+  it('«12 A» i #2337: avslaget av forholdet fra et tidligere brev står som punktet «Forholdet» én gang, i den første delen, og den neste delen nevner det i lagslinjen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    s.send('TE', vederlagskrav([fastSum('Ny fundamentering', 125000)]));
+    s.send('TE', FRISTKRAV);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        vederlagssvar(s, {
+          P1: { aksepterer: true, vurdering: 'delvis', godkjent_beloep: 100000 },
+        }),
+        svar(
+          'frist',
+          s.krav('frist'),
+          { frist_varsel_ok: true, spesifisert_krav_ok: true, vilkar_oppfylt: true, dager: 10 },
+          { resultat: 'delvis_godkjent', godkjent_dager: 10 },
+          FORBEHOLD_F
+        ),
+      ],
+    });
+    expect(overskriftene(rad).filter((o) => o.endsWith('Forholdet'))).toEqual(['1. Forholdet']);
+    expect(overskriftene(rad).indexOf('1. Forholdet')).toBe(
+      overskriftene(rad).indexOf(DELEN.vederlag) + 1
+    );
+    const dagene = lagslinjeneI(rad, overskriftene(rad).find((o) => o.includes('Dagene'))!);
+    expect(dagene).toEqual([`Subsidiært, hvis ${MOT.forholdet} ikke fører frem`]);
+  });
 });

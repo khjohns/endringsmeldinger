@@ -611,10 +611,11 @@ function lesDokument(h: Journalrad): Dokument {
     // elementene, og er da det siste avsnittet for svaret.
     const sett = new Set<string>();
     const forbeholdetSist = new Set<string>();
+    const svarene = new Set(dokument.svar.map((s) => s.id));
     let forrige: (typeof data.brevtekst)[number] | undefined;
     for (const a of data.brevtekst) {
       const fortsetter = forrige?.gjelder === a.gjelder;
-      const forbeholdet = a.punkt === FORBEHOLDET && dokument.svar.some((s) => s.id === a.gjelder);
+      const forbeholdet = a.punkt === FORBEHOLDET && svarene.has(a.gjelder);
       if (
         !elementer.has(a.gjelder) ||
         forbeholdetSist.has(a.gjelder) ||

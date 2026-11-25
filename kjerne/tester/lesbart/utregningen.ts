@@ -58,6 +58,8 @@ export const UTREGNINGEN: Lesbar[] = [
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsLag',
+      // LV-U82: «Prinsipalt» på avslaget når et standpunkt i brevet står subsidiært til det.
+      'frosset/brevtekst.ts:lagBrevtekst',
       'frosset/brevtekst.ts:innsigelseneIForesporselen',
       'kommandoer/utkastlag.ts:lageneIUtkastet',
     ],

@@ -113,7 +113,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/brevtittel.ts',
     'brevtekst',
-    'SPORENE_I_BREVET svaretGjelder',
+    'iBrevetsRekkefoelge svaretGjelder',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
@@ -375,7 +375,12 @@ export const BREVTEKSTEN: Lesbar[] = [
   ],
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
   ['Svarledd', 'brevtekst', 'punkt plass post vilkaar tekst', ['frosset/brevtekst.ts']],
-  ['Svardelen', 'brevtekst', 'ns del subsidiaertTilForholdet', ['frosset/brevtekst.ts']],
+  [
+    'Svardelen',
+    'brevtekst',
+    'ns del subsidiaertTilForholdet forholdetStaar',
+    ['frosset/brevtekst.ts'],
+  ],
   // VS-U77 punkt 30 og 31: svaret på kravet og på varselet skrives med de samme punktene.
   [
     'frosset/brevtekst.ts:punkteneISvaret',
@@ -404,6 +409,8 @@ export const BREVTEKSTEN: Lesbar[] = [
   ['frosset/brevdeler.ts', 'brevtekst', 'opplistet', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
   // #2144: kravpostene avvisningen nevner.
   ['frosset/brevdeler.ts', 'brevtekst', 'liste', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  // LV-U80: tittelen nevner alle kravene brevet svarer på.
+  ['frosset/brevdeler.ts', 'brevtekst', 'liste', ['frosset/brevtittel.ts']],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevdeler.ts',
