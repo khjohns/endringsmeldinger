@@ -351,7 +351,6 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start | BF-14, BF-49 |
 | [VS-U39](../../plans/vedtak.md#vs-u39) | — | BF-05 start | — |
 | [VS-U40](../../plans/vedtak.md#vs-u40) | — | — | BF-49 |
-| [VS-U47](../../plans/vedtak.md#vs-u47) | — | BF-45 bh-har-mottatt-kravet | BF-14, BF-47 |
 | [VS-U48](../../plans/vedtak.md#vs-u48) | — | — | BF-14, BF-37 |
 | [VS-U49](../../plans/vedtak.md#vs-u49) | — | — | BF-14, BF-37 |
 | [VS-U50](../../plans/vedtak.md#vs-u50) | — | — | BF-14, BF-37 |
@@ -379,3 +378,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U84](../../plans/vedtak.md#vs-u84) | — | — | BF-48 |
 | [VS-U85](../../plans/vedtak.md#vs-u85) | — | — | BF-48 |
 | [VS-U86](../../plans/vedtak.md#vs-u86) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt | BF-02A te-har-mottatt-svaret | BF-48 |
+| [VS-U88](../../plans/vedtak.md#vs-u88) | — | BF-45 bh-har-mottatt-kravet | BF-14, BF-47 |

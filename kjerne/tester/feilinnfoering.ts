@@ -2741,7 +2741,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F324',
     feilklasse:
-      'et fristkrav lagt til med kravskjemaet sperrer ikke forespørselen (VS-U47 spørsmål 2)',
+      'et fristkrav lagt til med kravskjemaet sperrer ikke forespørselen (VS-U88 punkt 3)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
@@ -2749,12 +2749,12 @@ const MUTASJONER: Mutasjon[] = [
         "if (d.krav.some((k) => k.spor === 'frist' && d.opplysninger.length === 0)) return true;",
       ],
     ],
-    mal: ['VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen'],
+    mal: ['VS-U88 punkt 3: et fristkrav lagt til med kravskjemaet stopper forespørselen'],
   },
   {
     id: 'F357',
     feilklasse:
-      'et fristkrav lagt til med kravskjemaet gjør ikke en senere forespørsel ugyldig i utledningen (VS-U47 spørsmål 2)',
+      'et fristkrav lagt til med kravskjemaet gjør ikke en senere forespørsel ugyldig i utledningen (VS-U88 punkt 3)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
@@ -2763,7 +2763,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått',
+      'VS-U88 punkt 3: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått',
     ],
   },
   {

@@ -44,7 +44,7 @@ export const KONTROLLER_I_FRISTEN = {
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: (s, bakover, ugyldig) => {
-    // VS-U47 spørsmål 2: kravene om dager, også de lagt til og de uten virkning.
+    // VS-U88 punkt 3: kravene om dager, også de lagt til og de uten virkning.
     const fristkrav: Krav[] = [];
     for (const d of s.dokumenter) for (const k of d.krav) if (k.spor === 'frist') fristkrav.push(k);
     kontrollerForesporslene(s.foresporsler, fristkrav, s.henvisninger, bakover, ugyldig);
@@ -60,7 +60,7 @@ export const KONTROLLER_I_FRISTEN = {
 } satisfies Sporskontroller;
 
 /**
- * VS-U19, VS-U47 spørsmål 2: forespørselen sendes før TE har krevd dager, ikke etter TEs begrunnelse
+ * VS-U19, VS-U88 punkt 3: forespørselen sendes før TE har krevd dager, ikke etter TEs begrunnelse
  * (VS-U30), og høyst én gang fra appen (VS-U31).
  */
 function kontrollerForesporslene(
@@ -82,7 +82,7 @@ function kontrollerForesporslene(
 /**
  * HF-U1, LV-U18 punkt 3: fristkravet viser til forespørselen etter § 33.6.2 det svarer på, og
  * et krav om dager mens forespørselen er ubesvart, er svaret og viser til den
- * (avgrensningen i #1567). Et krav lagt til med kravskjemaet svarer også (VS-U47 spørsmål 2).
+ * (avgrensningen i #1567). Et krav lagt til med kravskjemaet svarer også (VS-U88 punkt 3).
  */
 function kontrollerSvaretPaaForesporselen(
   kravMedUten: ReadonlyMap<string, Krav>,
@@ -143,7 +143,7 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
 }
 
 /**
- * VS-U19, VS-U47 spørsmål 2: TE har fremmet et krav om dager, fra løsningen eller lagt til med
+ * VS-U19, VS-U88 punkt 3: TE har fremmet et krav om dager, fra løsningen eller lagt til med
  * kravskjemaet, også uten virkning, som kontrollen av forespørselen i utledningen.
  */
 export function fristkravErFremmet(u: Utledning): boolean {

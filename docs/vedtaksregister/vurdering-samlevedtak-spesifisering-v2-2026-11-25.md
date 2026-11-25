@@ -152,6 +152,12 @@ OV-U109 og OV-U111 står med sine forhold, og forholdene til VS-U47 og KA-U77 gj
 > for samme regel. Med B står rekkefølgen i to poster til lagene er samlet. Styrer: `folge` i den
 > nye posten.
 
+### Svaret
+
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Samlevedtak: ja, A». Spørsmålene ble
+stilt som 9 (tilslutning) og 10 (forholdene og KA-U85), med samme tekst som 1 og 2 over. Svaret er
+spørsmål 1 «ja», tilslutning til utkastet med E7–E11 uten rettelser, og spørsmål 2 A. Ført som VS-U88.
+
 ## Berørt kode og forløp
 
 - **Henvisningene.** Når versjon 2 opphever VS-U47, skiftes henvisningene ut i samme PR: kommentarene
