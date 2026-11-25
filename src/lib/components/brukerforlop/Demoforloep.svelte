@@ -3,7 +3,8 @@
    * Et brukerforløp i Varden (#1330, #1331), med en journal i minnet fra kontrollpunktet.
    * Panelet velger kontrollpunkt og side, og starter forløpet på nytt. Visningen lages på
    * nytt når siden byttes, som når en annen bruker åpner saken. Med `panel` lik `false`
-   * vises saken uten panelet, til en brukertest.
+   * vises saken uten panelet, til en brukertest. Sporet saken åpner i og datoen i panelet:
+   * G-12 og G-11 i BF-46.
    */
   import { ChevronRight } from 'lucide-svelte';
   import NySak from '#lib/components/varden/NySak.svelte';
@@ -19,7 +20,10 @@
     type Startjournal,
   } from '#lib/kjernesak/demosak.ts';
   import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { Part } from '#kjerne/typer.ts';
+  import { dato } from '#lib/components/varden/tekster/format.ts';
+  import { dokumenterI, lesJournal } from '#kjerne/format/leser.ts';
+  import { KJERNE } from '#kjerne/versjon.ts';
+  import type { Part, Spor } from '#kjerne/typer.ts';
 
   let {
     forloep,
@@ -68,6 +72,24 @@
     return kjernesak;
   }
 
+  /** G-12 i BF-46. En aksept eller et trekk har sporet til kravet eller svaret det gjelder. */
+  function sisteSpor(demosak: Demosak): Spor | undefined {
+    const sporFor: Record<string, Spor> = {};
+    let spor: Spor | undefined;
+    for (const d of dokumenterI(lesJournal(demosak.journal(), KJERNE.leserformat))) {
+      for (const k of [...d.krav, ...d.svar]) sporFor[k.id] = spor = k.spor;
+      for (const u of d.utsagn)
+        if (u.art === 'aksept' || u.art === 'trekk') spor = sporFor[u.gjelder] ?? spor;
+    }
+    return spor;
+  }
+
+  const med = (demosak: Demosak) => ({
+    demosak,
+    kjernesak: kjernesakFor(demosak),
+    spor: sisteSpor(demosak),
+  });
+
   // Et forløp som oppretter saken (BF-05), starter med skjemaet for ny sak (KT-U11).
   let utenSak = $state(false);
   let kvittering = $state<string | undefined>(undefined);
@@ -76,9 +98,9 @@
     const demosak = lagDemosak(forloep, punkt, startside());
     utenSak = demosak.journal().length === 0;
     kvittering = undefined;
-    const kjernesak = kjernesakFor(demosak);
-    onstart?.(demosak, kjernesak);
-    return { demosak, kjernesak };
+    const aapnet = med(demosak);
+    onstart?.(demosak, aapnet.kjernesak);
+    return aapnet;
   }
 
   let aapen = $state.raw(aapne());
@@ -87,16 +109,19 @@
   const vedPunktet = $derived(versjon === kontrollpunkt.versjon);
   let omstarter = $state(0);
 
+  // Klokka i demoen, som brevkontrollen lager teksten med (U-9 og G-11 i BF-46).
+  const iDag = $derived((void versjon, aapen.demosak.klokke()));
+
   function byttSide(part: Part) {
     if (part === aapen.demosak.part) return;
     aapen.demosak.part = part;
     kvittering = undefined;
-    aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
+    aapen = med(aapen.demosak);
   }
 
   function opprettet() {
     utenSak = false;
-    aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
+    aapen = med(aapen.demosak);
     kvittering = NYSAK.kvittering;
   }
 
@@ -132,6 +157,7 @@
       kjernesak={aapen.kjernesak}
       kontrakt={DEMOKONTRAKT}
       {kvittering}
+      spor={aapen.spor}
       saksliste="/demo"
       {nySakLenke}
     />
@@ -145,6 +171,10 @@
       <div class="innhold">
         <p class="tittel">{forloep.tittel}</p>
         <p class="merknad">Ingenting sendes. Journalen ligger i minnet i nettleseren.</p>
+        <p class="felt">
+          <span class="etikett">Dagens dato i demoen</span>
+          {dato(iDag)}
+        </p>
 
         <label class="felt">
           <span class="etikett">Start fra kontrollpunktet</span>
@@ -203,6 +233,8 @@
   /* Lukket som standard, nederst til venstre, der det dekker minst av saken. */
   .demopanel {
     position: fixed;
+    max-height: calc(100vh - 2 * var(--spacing-4));
+    overflow: auto;
     left: var(--spacing-4);
     bottom: var(--spacing-4);
     z-index: 30;
