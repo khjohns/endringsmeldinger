@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksrute.ts sender stegene i et brukerforløp mot TS-serveren og testbasen i SQL Server, med innlogging og skjermbilder. demoruta.mjs driver brukerforløpene i Varden mot en journal i minnet. prototype.mjs forprøver en HTML-skisse av et nytt mønster. skjermbilder.sh legger skjermbildene i en PR. uu.mjs kjører axe for WCAG 2.1 A og AA. Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR og prøve universell utforming.
+description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksrute.ts sender stegene i et brukerforløp eller en testsak mot TS-serveren og testbasen i SQL Server, med innlogging og skjermbilder. demoruta.mjs driver brukerforløpene i Varden mot en journal i minnet. prototype.mjs forprøver en HTML-skisse av et nytt mønster. skjermbilder.sh legger skjermbildene i en PR. uu.mjs kjører axe for WCAG 2.1 A og AA. Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR og prøve universell utforming.
 ---
 
 # Saksruta og demoruta i nettleseren
@@ -12,7 +12,7 @@ for en diff i saksvisningen, etter leveranseskillen, «Review og funn». Den kj�
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--klokke] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>] | --testsak <navn>] [--spor <spor>] [--feil] [--klokke] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -62,6 +62,12 @@ ikke er det forventede:
    kontrollerer at TE kommer til saken med kvitteringen, og at påberopelsen i journalen har
    feltene TE fylte ut. Til slutt avbryter TE et nytt skjema og kommer til sakslisten
    (`ny-sak-avbrutt.png`).
+   Med `--testsak` sender skriptet stegene i en testsak fra
+   [`testsaker.ts`](testsaker.ts) på samme måte, med kjøreren og gjennom kommandoruta, uten
+   kontrollpunkter (#2349). Saken får testsakens tittel, og skjermbildene åpner sporet i `spor`
+   når `--spor` ikke er gitt. Har testsaken `iNettleseren`, drives siden videre etter
+   skjermbildene i punkt 7, for eksempel et svarskjema som ikke sendes. `testsaker.test.ts`
+   kjører stegene i minnet, så en testsak kjernen avviser, feiler i testene.
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta ved 1440 × 900, med
    `--spor` av siden for sporet (`?spor=vederlag`),
    `saksrute-te-390.png` og `saksrute-bh-390.png` ved 390 × 844 og `saksliste-te.png` av
@@ -97,18 +103,26 @@ ikke er det forventede:
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene; unntaket er de tilbakedaterte radene i punkt 9. Slik drives skjemaene videre:
 
-1. Start med `--forlop` og `--til` for det saken skal ha før skjemaet du vil vise. Mangler
-   forløpet, skriv det i `docs/domenetabell/brukerforlop/`. Med `--behold`
+1. Start med `--forlop` og `--til` for det saken skal ha før skjemaet du vil vise, eller med
+   `--testsak` når ingen forløp når tilstanden (under). Med `--behold`
    skriver skriptet adressen til saksruta, og du kan se den selv.
-2. Kopier `saksrute.ts` til en fil ved siden av, så importstiene virker, og bygg videre
-   etter forløpet. Der finnes `loggInn`, `kjerneKall`, `serverbane`, sidene `te` og `bh`
-   og saken. Commit ikke kopien.
+2. Det skjermbildet skal vise i et skjema som ikke sendes, drives i `iNettleseren` i
+   testsaken, med sidene `te` og `bh`. Lag ikke en kopi av `saksrute.ts`.
 3. Det skjermbildet ikke skal vise, hører hjemme i forløpet. Formen på hver handling står
    i `kommandoFor` i `kjerne/tester/klient.ts`. Kjernen avviser en kommando som ikke passer
    saken, og meldingen sier hvorfor.
 4. Det skjermbildet skal vise, drives i skjemaet: fyll ut, «Se brev og send»,
    avkrysningen og «Send til byggherren» (eller BHs knapp for svaret). Ta bildet før og
    etter sendingen. Vent på teksten i siden, ikke på en fast tid.
+
+**Testsak eller forløp.** Et forløp i `docs/domenetabell/brukerforlop/` er en brukerhistorie
+fra designsløyfa og teller i dekningen. Er tilstanden en del av en brukerhistorie, prøves den i
+forløpet, og et forløp som mangler steg, utvides der. Trengs tilstanden bare for å prøve en
+endring i nettleseren, for eksempel flere kravposter, flere lag eller en kombinasjon ingen
+brukerhistorie har, skrives en testsak i `testsaker.ts`. Den teller ikke i dekningen, og PR-en
+skriver «prøvd med testsaken X», ikke «prøvd i BF-xx». Viser en testsak seg å være en
+brukerhistorie, går den til designsløyfa og blir et forløp der. En testsak løser ikke ekstern
+tilstand (vedlegg i Catenda, leveringen) eller tid som går ut over `--klokke`.
 
 Det skriptet ikke dekker:
 

@@ -103,6 +103,7 @@ export default defineConfig({
             'kjerne/**/*.test.ts',
             'sprakprove/**/*.test.ts',
             '.claude/hooks/*.test.ts',
+            '.claude/skills/*/*.test.ts',
             'verktoy/**/*.test.ts',
           ],
         },
