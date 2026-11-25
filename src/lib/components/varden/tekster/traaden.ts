@@ -32,7 +32,7 @@ export const TRAADEN = haerdet({
   nummer: (n: number) => `brev ${n}`,
   siste: (b: Brevet) =>
     b.art === 'registrert'
-      ? `${stor(PARTEN[b.avsender])} la til korrespondanse ${dato(b.registrert)}.`
+      ? `${stor(PARTEN[b.lagtTilAv])} la til korrespondanse ${dato(b.registrert)}.`
       : `${stor(PARTEN[b.avsender])} sendte siste brev ${dato(b.registrert)}.`,
   /** Et eldre krav, oppdatert i et nytt brev med kravet (U-5 i BF-44). */
   fulgtOpp: (b: Brevref) => ` · oppdatert i ${brevref(b)}`,

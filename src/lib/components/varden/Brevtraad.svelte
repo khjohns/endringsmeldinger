@@ -155,7 +155,7 @@
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
           {/if}
           {#if registrert}
-            <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
+            <p class="datolinje">{TRAADEN.registrert(b.lagtTilAv, b.sendt, b.registrert)}</p>
           {/if}
           {#if samme.length}
             <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(samme)}</Melding>

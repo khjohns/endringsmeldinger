@@ -34,7 +34,8 @@ beskrivelse = """
 Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det.
 Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har
 minst ett krav, ett svar eller ett utsagn, eller er et brev registrert som
-dokumentasjon. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten
+dokumentasjon. Avsenderen er `actorrole`, eller `avsender` når et brev registrert
+som dokumentasjon er sendt av motparten (OV-U79). Et brev appen sender, har brevteksten
 (`brevtekst`); et registrert brev har ingen. Et brev appen sender med krav, svar,
 aksept, trekk eller innsigelse, har også tittelen på brevet, frosset med teksten
 (`brevtittel`, MM-U3, #1536), og hvert brev appen sender, har nummeret sitt i saken
@@ -49,8 +50,8 @@ LV-U42), og et brev fra appen har den ikke. Et registrert brev kan ha sendemåte
 annen korrespondanse har den ikke. All registrert korrespondanse kan ha den korte beskrivelsen
 med egne ord (`beskrivelse`, OV-U79). Et brev registrert som
 dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
-til (`spor`, uten dem saken), datoen det ble sendt og brevet som vedlegg, og
-ikke noe annet. En retting av en slik registrering fra samme side viser til den
+til (`spor`, uten dem saken), datoen det ble sendt, brevet som vedlegg og
+eventuelt avsenderen, og ikke noe annet. En retting av en slik registrering fra samme side viser til den
 (`retter`): enten en fullstendig ny registrering, eller, når brevet ikke hører
 til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står.
 Et krav, et svar eller en aksept i registrert korrespondanse har samme virkning

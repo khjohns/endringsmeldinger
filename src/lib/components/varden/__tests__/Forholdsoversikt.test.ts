@@ -507,6 +507,31 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
       'Lagt til 3. november 2026.'
     );
   });
+
+  it('korrespondanse totalentreprenøren la til fra byggherren, står med byggherren som avsender og datoen ifølge totalentreprenøren (OV-U79, samlevedtaket punkt 11, #2069)', () => {
+    const r = {
+      ...brev('r', 'registrert', ['forhold']),
+      avsender: 'BH',
+      lagtTilAv: 'TE',
+      sendt: '2026-10-20',
+      registrert: '2026-11-03T10:00:00Z',
+      nummer: null,
+      avsnitt: null,
+      merking: null,
+      brevtittel: null,
+    } as Brevet;
+    render(Brevtraad, {
+      brev: [{ ...r, beskrivelse: null, vedlegg: [] }],
+      spor: 'forhold',
+      dokumentasjon: [],
+      venterPaaSvar: false,
+      onles: () => {},
+    });
+    expect(document.querySelector('.datolinje')?.textContent?.trim()).toBe(
+      'Sendt 20. oktober 2026, ifølge totalentreprenøren. Lagt til 3. november 2026.'
+    );
+    expect(document.querySelector('.part')?.textContent).toBe('BH');
+  });
 });
 
 describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
@@ -517,6 +542,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       art,
       spor,
       avsender: art === 'svar' ? 'BH' : 'TE',
+      lagtTilAv: art === 'svar' ? 'BH' : 'TE',
       registrert: '2026-10-01T10:00:00Z',
       sendt: null,
       merking: null,

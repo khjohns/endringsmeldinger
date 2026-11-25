@@ -544,8 +544,7 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt('dokumentet har spor, men er ikke dokumentasjon (OV-U16)');
   else if (data.beskrivelse !== undefined && !erRegistrert(dokument.opplysninger))
     throw new Uforstaatt('beskrivelsen står bare i registrert korrespondanse (OV-U79)');
-  // OV-U79, OV-U80: korrespondanse motparten legger til, står som dokumentasjon. Feltet står bare
-  // når avsenderen er motparten, så hver avsender har én form.
+  // OV-U79, OV-U80. Feltet står bare når avsenderen er motparten, så hver avsender har én form.
   if (data.avsender !== undefined && (data.krav || data.svar || data.utsagn))
     throw new Uforstaatt(
       'bare et brev registrert som dokumentasjon har en oppgitt avsender (OV-U80)'

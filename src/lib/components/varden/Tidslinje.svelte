@@ -65,7 +65,7 @@
           hva: TIDSLINJE.hva(b),
           kilde:
             b.art === 'registrert'
-              ? TIDSLINJE.registrert(b.avsender, b.registrert)
+              ? TIDSLINJE.registrert(b.lagtTilAv, b.registrert)
               : `${TIDSLINJE.sendt(b.avsender, b)} ${kl(b.registrert)}`,
         })
       ),
