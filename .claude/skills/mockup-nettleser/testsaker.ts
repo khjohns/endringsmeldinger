@@ -216,6 +216,40 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
+  'eldre-krav-varsel': {
+    tittel: 'Regningsarbeid i heissjakt',
+    formaal:
+      '#2394: et eldre vederlagskrav lagt til etter byggherrens innsigelse mot varselet for P1, som blir varselet for posten (OV-U120).',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt ny utsparing i heissjakten.',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [{ spor: 'vederlag', navn: 'S-v1', kravposter: [{ post: 'P1', varslet_i_tide: false }] }],
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v0',
+        sendt: '2026-01-02',
+        kravposter: [{ post: 'P1', oppgjoersform: 'regningsarbeid' }],
+      },
+    ],
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
