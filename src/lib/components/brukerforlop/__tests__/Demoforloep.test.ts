@@ -206,3 +206,38 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(b.journal()).toEqual(START.journal.filter((r) => r.versjon <= 4));
   });
 });
+
+describe('demoruta for brukerforløpet BF-46', () => {
+  const BF46 = finnForloep('BF-46')!;
+  // Fanen har betegnelsen og siste brev under navnet på sporet (panel B).
+  const valgtSpor = () =>
+    document
+      .querySelector('[aria-current="page"]')
+      ?.textContent?.trim()
+      .split(/\s{2,}/)[0];
+
+  // G-11 og U-9 i BF-46.md: tiden har gått til dagen etter akseptfristen 15. oktober 2026.
+  it('panelet viser dagens dato i demoen etter at tiden har gått', async () => {
+    render(Demoforloep, { forloep: BF46, punkt: 'te-etter-akseptfristen', onpunkt: () => {} });
+    const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
+    expect(await panel.findByText('16. oktober 2026')).toBeInTheDocument();
+    expect(panel.getByText('Dagens dato i demoen')).toBeInTheDocument();
+  });
+
+  // G-12 i BF-46.md: saken åpner i sporet til det siste brevet med et krav eller et svar.
+  it.each(['te-etter-akseptfristen', 'bh-har-mottatt-aksepten'])(
+    'saken åpner i fristforlengelsen ved %s',
+    async (punkt) => {
+      render(Demoforloep, { forloep: BF46, punkt, onpunkt: () => {} });
+      expect(await screen.findByRole('heading', { name: BF46.tittel })).toBeInTheDocument();
+      expect(valgtSpor()).toBe('Fristforlengelse');
+    }
+  );
+
+  it('kontrollsak: BF-01 åpner i forholdet når svaret på påberopelsen er siste brev', async () => {
+    render(Demoforloep, { forloep: START, punkt: 'forholdet-er-godkjent', onpunkt: () => {} });
+    expect(await screen.findByRole('heading', { name: BF.tittel })).toBeInTheDocument();
+    // Fanen for forholdet har navnet på forholdet i BF-01.
+    expect(valgtSpor()).toBe('Manglende medvirkning eller leveranser fra byggherren');
+  });
+});
