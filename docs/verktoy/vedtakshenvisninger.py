@@ -67,6 +67,7 @@ HISTORISKE_DOKUMENTER = frozenset(
         "docs/domenetabell/brukerforlop/BF-05-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-06-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-10-sporsmal.md",
+        "docs/domenetabell/brukerforlop/BF-49-sporsmal.md",
     }
 )
 GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
