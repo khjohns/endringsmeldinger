@@ -166,9 +166,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       await settInn(r, 'app_membership_sync', {
         project_id: p.id,
         catenda_project_id: p.catenda,
+        // Kuttet til millisekunder, så avrundingen til datetime2(3) ikke gjør listen
+        // yngre enn `alder` når alderen leses i samme tikk på basens klokke (#2372).
         synced_at: {
           sql:
-            liste === 'fersk' ? 'SYSUTCDATETIME()' : `DATEADD(second, -${alder}, SYSUTCDATETIME())`,
+            liste === 'fersk'
+              ? 'SYSUTCDATETIME()'
+              : `DATEADD(second, -${alder}, DATETRUNC(millisecond, SYSUTCDATETIME()))`,
         },
       });
     for (const [side, team] of [
