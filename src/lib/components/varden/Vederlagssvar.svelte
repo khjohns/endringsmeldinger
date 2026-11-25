@@ -33,9 +33,6 @@
     etterRegel,
     postvalget,
     regelen,
-    spoerOmBeloepet,
-    spoerOmHovedvarselet,
-    stiltIPosten,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -44,7 +41,7 @@
     type Svarvalg,
   } from './kommandoer';
   import { brevet, standpunktene } from './lesing';
-  import { begrunnelserForTemaene, manglene, ubesvart } from './svarskjema';
+  import { begrunnelserForTemaene, manglene, stilt, ubesvart, ugyldig } from './svarskjema';
   import {
     BREVKONTROLL,
     VIRKNING,
@@ -140,7 +137,7 @@
       const iPosten = sporsmaalene.filter((s) => s.gjelder === p.id);
       // Oppgjørsformen står foran beløpet i skjemaet, som kan vise dem i hvert sitt punkt.
       if (iPosten.some((s) => !beloepSporsmaal(s.spoersmaal))) return 'metode';
-      if (iPosten.length && spoerOmBeloepet(postvalget(valg, p.betegnelse), p)) return p.betegnelse;
+      if (iPosten.length && stilt(lagene, 'vurdering', p.id)) return p.betegnelse;
     }
     return undefined;
   });
@@ -224,7 +221,7 @@
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
     const regel = regelen(p);
-    const tilbud = stiltIPosten(v, p).includes('krever_tilbud') && v.kreverTilbud;
+    const tilbud = stilt(lagene, 'krever_tilbud', p.id) && v.kreverTilbud;
     const form =
       v.form === null
         ? tilbud && regel
@@ -257,11 +254,11 @@
     if (beloepsvalget(v, p) !== 'deler') return null;
     const lest = lesKroner(v.delbeloep);
     if ('feil' in lest) return lest.feil;
-    if (lest.verdi !== undefined && (lest.verdi <= 0 || lest.verdi >= krevdI(p)))
-      return HOVEDLINJER.beloepUtenfor(krevdI(p));
+    // KA-U42: kjernen avgjør om beløpet kan godtas (#2279).
+    if (ugyldig(lagene, 'godkjent_beloep', p.id)) return HOVEDLINJER.beloepUtenfor(krevdI(p));
     return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
   };
-  const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
+  const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
   const svartemaene = $derived(
     svartemaerIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((tema) => {
       if (tema.punkt === '34.1.2' || tema.punkt === 'metode') return [tema];
@@ -290,7 +287,7 @@
       const post = poster.find((p) => p.betegnelse === punkt);
       return (
         !!post &&
-        spoerOmBeloepet(postvalget(valg, punkt), post) &&
+        stilt(lagene, 'vurdering', post.id) &&
         lagene.standpunkter.some((s) => s.art === 'beloep' && s.gjelder === post.id && s.besvart) &&
         !feil.some((s) => s.gjelder === post.id && beloepSporsmaal(s.spoersmaal))
       );
@@ -321,9 +318,8 @@
               if (p.punkt === 'metode') return true;
               const post = poster.find((q) => q.betegnelse === p.punkt);
               if (!post || etterRegel(post)) return false;
-              const v = postvalget(valg, p.punkt);
               return !nyttSvar
-                ? v.form === null || spoerOmBeloepet(v, post)
+                ? stilt(lagene, 'vurdering', post.id)
                 : linjer.some((l) => l.punkt === p.punkt);
             })
             .map((p) => {
@@ -489,7 +485,7 @@
       {@const beloepFeil = feil(`${uid}-delbeloep-${p.betegnelse}`)}
       <!-- Spørsmålet om beløpet står bare når BH godkjenner fast sum (KA-U72). Det er i
          samme lag som oppgjørsformen og viser til forutsetningene over. -->
-      {#if spoerOmBeloepet(v, p)}
+      {#if stilt(lagene, 'vurdering', p.id)}
         <Valg
           navn={`${uid}-beloep-${p.betegnelse}`}
           spoersmaal={SKJEMA.beloepSpoersmaal}
@@ -539,7 +535,7 @@
         lett
         stablet
       />
-      {#if stiltIPosten(v, p).includes('krever_tilbud')}
+      {#if stilt(lagene, 'krever_tilbud', p.id)}
         <Valg
           navn={`${uid}-tilbud-${p.betegnelse}`}
           spoersmaal={SKJEMA.tilbudSpoersmaal}
@@ -549,7 +545,7 @@
           lett
         />
       {/if}
-      {#if stiltIPosten(v, p).includes('varslet_i_tide')}
+      {#if stilt(lagene, 'varslet_i_tide', p.id)}
         {@const foer = varseletFoer(u, p)}
         {@const foerBrev = foer && brevet(u, foer.dokument)}
         {@const staar = foer?.iTide === false}
@@ -671,7 +667,7 @@
     {#snippet postvalgene(p: Kravpost)}
       {@render metodevalgene(p)}
       {@const v = valg.poster[p.betegnelse]}
-      {#if v && spoerOmBeloepet(v, p)}
+      {#if v && stilt(lagene, 'vurdering', p.id)}
         {@render beloepsvalgene(p, v, forutsetningene(p, 'oppgjoersform').length > 0)}
       {/if}
     {/snippet}
@@ -718,7 +714,7 @@
     {#if !flere && poster[0]}
       {@const p = poster[0]}
       {@const v = valg.poster[p.betegnelse]}
-      {#if v && spoerOmBeloepet(v, p)}
+      {#if v && stilt(lagene, 'vurdering', p.id)}
         <Spoersmaal
           id={`${uid}-sp-beloep`}
           tittel={overskrift(p.betegnelse) ?? SKJEMA.beloepTittel}

@@ -48,6 +48,7 @@
     kravbrevetI,
     kravetSendt,
     manglene,
+    stilt,
     ugyldig,
   } from './svarskjema';
   import { brevref, dato, FORHOLDSSVAR, kalenderdager, SKJEMA } from './tekster';
@@ -160,6 +161,8 @@
   );
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
+  // GR-U12: kjernen stiller spørsmålet om varselet etter punkt 32.2 (#2279).
+  const varseletStilt = $derived(stilt(lagene, 'grunnlag_varslet_i_tide'));
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(BREVTEKSTEN_I_FORHOLDET.temaer(), (punkt) =>
       punkt === '32.2'
@@ -233,7 +236,7 @@
   );
   const skjemapunkter = $derived(
     begrunnelserISkjemaet
-      .filter((p) => p.punkt !== '32.2' || f.varslingsplikt)
+      .filter((p) => p.punkt !== '32.2' || varseletStilt)
       .map((p) => {
         const varsel = p.punkt === '32.2';
         const tekst = varsel
@@ -270,7 +273,7 @@
       {
         felt: 'varsel',
         post: null,
-        tekst: f.varslingsplikt && valg.forSent === null ? FORHOLDSSVAR.manglerVarsel : null,
+        tekst: varseletStilt && valg.forSent === null ? FORHOLDSSVAR.manglerVarsel : null,
       },
       {
         felt: 'forhold',
@@ -314,7 +317,7 @@
       </div>
     {/if}
 
-    {#if f.varslingsplikt}
+    {#if varseletStilt}
       <Spoersmaal
         id={`${uid}-sp-varsel`}
         aktiv={foersteSporsmaal === 'grunnlag_varslet_i_tide'}

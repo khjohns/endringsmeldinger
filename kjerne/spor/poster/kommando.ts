@@ -16,6 +16,12 @@ export type SpoersmaalIUtkastet<S extends string> = { spoersmaal: S; gjelder?: s
  */
 export interface Utkastlag<F, S extends string, P extends object = object> {
   /**
+   * Spørsmålene regelen stiller i utkastet, besvart eller ikke, i rekkefølgen den stiller dem
+   * (#2156, #2279). `ubesvart` er de av dem som er ubesvart og påkrevd. Et spørsmål som ikke
+   * står her, stilles ikke for kravet, og skjemaet viser det ikke.
+   */
+  stilt: SpoersmaalIUtkastet<S>[];
+  /**
    * Spørsmålene regelen krever svar på før svaret kan sendes, og som er ubesvart i utkastet, i
    * rekkefølgen regelen stiller dem (#2025). Et spørsmål er feltet i vurderingene, også en verdi
    * som kreves av et annet svar, som dagene eller beløpet ved en delvis godkjenning. Er lista
