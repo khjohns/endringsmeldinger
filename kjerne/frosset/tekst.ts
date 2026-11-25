@@ -71,7 +71,7 @@ export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.
 export const erLagslinje = (avsnitt: string): boolean =>
   /^(Prinsipalt|Subsidiært|Videre subsidiært)(, hvis .+ fører frem)?$/.test(avsnitt);
 
-/** Navnet lagslinjen gir innsigelsen et lag bygger på, etter hva den gjelder (LV-U79). */
+/** Navnet lagslinjen gir innsigelsen et lag bygger på, etter hva den gjelder (LV-U79, LV-U34). */
 export const INNSIGELSEN_MOT = {
   forholdet: 'innsigelsen mot forholdet',
   varselet: (hjemmel: string, post?: string) =>
@@ -85,7 +85,7 @@ export const INNSIGELSEN_MOT = {
 } as const;
 
 /**
- * Vilkåret i lagslinjen (LV-U79): innsigelsene i det nærmeste laget foran som rammer
+ * Vilkåret i lagslinjen (LV-U79, LV-U34): innsigelsene i det nærmeste laget foran som rammer
  * standpunktet, med «heller ikke» når standpunktet står i tredje lag eller senere.
  */
 export function vilkaaretILagslinjen(innsigelsene: readonly string[], hellerIkke: boolean): string {

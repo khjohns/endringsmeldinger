@@ -147,7 +147,7 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
-  // LV-U80: tittelen nevner alle kravene brevet svarer på.
+  // LV-U80, LV-U34: tittelen nevner alle kravene brevet svarer på.
   if (d.svar.length)
     return `Svar på ${liste(iBrevetsRekkefoelge(d.svar).map((s) => svaretGjelder(s).tittel))}`;
   const f = paaberoptForhold(d);

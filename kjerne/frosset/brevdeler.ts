@@ -234,7 +234,7 @@ export interface Brevpunkt {
   avsnitt: string[];
   /** Nøkkelen til posten i hver rad i oversiktstabellen (`Avsnitt.poster`). */
   poster?: string[];
-  /** Overskriften har ikke nummer, som overskriften på svaret på hvert krav (LV-U80). */
+  /** Overskriften har ikke nummer, som overskriften på svaret på hvert krav (LV-U80, LV-U34). */
   unummerert?: true;
 }
 
@@ -320,7 +320,7 @@ export interface Sporsbrevtekst {
    * (OV-U32, OV-U117, LV-U79), eller `null`.
    */
   vilkaaret(p: Standpunkt, krav: Krav): Vilkaar | null;
-  /** Posten standpunktet gjelder, når sporet har poster (LV-U78). */
+  /** Posten standpunktet gjelder, når sporet har poster (LV-U78, LV-U34, OV-U32). */
   posten?(p: Standpunkt): PostenISvaret;
   /**
    * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet

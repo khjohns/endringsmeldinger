@@ -223,7 +223,7 @@ export function lagBrevtekst(
   const svarene = iBrevetsRekkefoelge(nytt.svar);
   const ns = { nevnt: false };
   const flere = svarene.length > 1;
-  // LV-U82: avslaget av forholdet får «Prinsipalt» når et standpunkt i brevet står subsidiært til det.
+  // LV-U82, OV-U32, OV-U33: avslaget av forholdet får «Prinsipalt» når et standpunkt i brevet står subsidiært til det.
   const forholdssvaret = svarene.find((s) => s.spor === 'forhold');
   const subsidiaertTilForholdet =
     !!forholdssvaret &&
@@ -295,7 +295,7 @@ export function lagBrevtekst(
   return avsnitt;
 }
 
-/** Teksten i punktet «Forbehold» for svaret `s` (LV-U81): byggherrens forbehold, eller ingen. */
+/** Teksten i punktet «Forbehold» for svaret `s` (LV-U81, KA-U49, GR-U34): byggherrens forbehold, eller ingen. */
 interface Forbeholdet {
   s: Svar;
   tekst?: string;
@@ -402,14 +402,14 @@ const FORBEHOLDSPUNKTET = { punkt: FORBEHOLDET, overskrift: 'Forbehold' } as con
  */
 interface Svardelen {
   ns: { nevnt: boolean };
-  /** Overskriften på svaret når brevet svarer på flere krav, ellers `null` (LV-U80). */
+  /** Overskriften på svaret når brevet svarer på flere krav, ellers `null` (LV-U80, LV-U34). */
   del: string | null;
   subsidiaertTilForholdet: boolean;
   /** Punktet «Forholdet» står alt i en tidligere del av brevet («12 A» i #2337). */
   forholdetStaar: boolean;
 }
 
-/** Et standpunkt i et punkt i svaret, med laget, posten og innsigelsen det er (LV-U78, LV-U79). */
+/** Et standpunkt i et punkt i svaret, med laget, posten og innsigelsen det er (LV-U78, LV-U34, OV-U32, LV-U79). */
 interface Svarledd {
   punkt: string;
   plass: number | null;
@@ -452,7 +452,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
       ),
     });
     if (p.art === 'beloep') beloepene.push({ post: punkt, plass, beloep: p.godkjent! });
-    // LV-U78: beløpet etter begrensningen etter § 34.1.3 står i samme avsnitt som innsigelsen.
+    // LV-U78, LV-U34, OV-U32: beløpet etter begrensningen etter § 34.1.3 står i samme avsnitt som innsigelsen.
     if (p.art === 'rettidighet' && p.hjemmel === '34.1.3' && !p.iTide) {
       ledd.push({
         punkt: 'produktivitet',
@@ -533,7 +533,7 @@ function punkteneISvaret(
   const punkter: Tema[] = temaene.filter((tema) => ledd.some((l) => l.punkt === tema.punkt));
   if (oversikten) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
 
-  // LV-U79: lagslinjen nevner innsigelsene i det nærmeste laget foran som rammer standpunktet.
+  // LV-U79, LV-U34: lagslinjen nevner innsigelsene i det nærmeste laget foran som rammer standpunktet.
   const vilkaarI = (lag: number): Vilkaar[] => [
     ...(fra.vilkaar.get(lag) ?? []),
     ...ledd.flatMap((l) => (l.vilkaar && l.plass === lag ? [l.vilkaar] : [])),
@@ -684,7 +684,7 @@ function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
   throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
 }
 
-/** Navnet på innsigelsen fra svaret på forholdet i lagslinjen (LV-U79). */
+/** Navnet på innsigelsen fra svaret på forholdet i lagslinjen (LV-U79, LV-U34). */
 const GRUNNEN_I_LAGSLINJEN: Record<Subsidiaergrunn, string> = {
   prekludert: INNSIGELSEN_MOT.varselet('32.2'),
   avslaatt: INNSIGELSEN_MOT.forholdet,

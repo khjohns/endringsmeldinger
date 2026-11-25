@@ -34,7 +34,7 @@ import { svarPaaForesporsler } from './frysing.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
 
-/** Navnet på innsigelsen i lagslinjen (LV-U79). */
+/** Navnet på innsigelsen i lagslinjen (LV-U79, LV-U34). */
 const INNSIGELSENE_I_FRISTEN: Record<InnsigelseIFristen['innsigelse'], string> = {
   '33.4': INNSIGELSEN_MOT.varselet('33.4'),
   '33.6.2': INNSIGELSEN_MOT.forespoerselssvaret,

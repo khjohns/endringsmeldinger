@@ -269,7 +269,7 @@ function kravetsBeloep(krav: Krav): string {
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';
 }
 
-/** Punktene i byggherrens svar (LV-U78). */
+/** Punktene i byggherrens svar (LV-U78, LV-U34, OV-U32). */
 export function svarpunkteneIVederlaget(
   krav: Krav,
   paaberopelse: Krav | null,
@@ -287,7 +287,7 @@ export function svarpunkteneIVederlaget(
   ];
 }
 
-/** Punktet standpunktet står i (LV-U78): punktet for posten det gjelder. */
+/** Punktet standpunktet står i (LV-U78, LV-U34, OV-U32): punktet for posten det gjelder. */
 export function svarpunktet(p: Standpunkt, krav: Krav): string | undefined {
   const post = posten(p);
   if (post === undefined) return undefined;
