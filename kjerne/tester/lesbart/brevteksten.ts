@@ -18,7 +18,12 @@ export const BREVTEKSTEN: Lesbar[] = [
   // LV-U70: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
   // overskriften står først i den låste delen. Teksten lager punktene.
   ['Avsnitt', 'brevtekst', 'laast punkt overskrift poster', ['format/leser.ts']],
-  ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt poster', ['frosset/brevtekst.ts']],
+  [
+    'Brevpunkt',
+    'brevtekst',
+    'punkt overskrift avsnitt poster unummerert',
+    ['frosset/brevtekst.ts'],
+  ],
   // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
   ['Utdypning', 'brevtekst', 'utdypning utdypninger forbehold', ['frosset/brevtekst.ts']],
   [
@@ -102,8 +107,15 @@ export const BREVTEKSTEN: Lesbar[] = [
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse korrigering', ['frosset/brevtittel.ts']],
-  // VS-U77 punkt 30 og 31, VS-U79: tittelen på svaret på varselet.
-  ['SVARTITTEL_PAA_VARSELET', 'brevtekst', '34.3.3 34.4', ['frosset/brevtittel.ts']],
+  // LV-U80, LV-U81: det svaret gjelder, i tittelen, overskriften på svaret og forbeholdet.
+  ['SVARET_GJELDER', 'brevtekst', 'tittel', ['frosset/brevtittel.ts']],
+  ['SVARET_GJELDER', 'brevtekst', 'del', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevtittel.ts',
+    'brevtekst',
+    'iBrevetsRekkefoelge svaretGjelder',
+    ['frosset/brevtekst.ts'],
+  ],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
   ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
   // LV-U49, U-2 i BF-07: Deres ref. står i rekkefølgen etter brevnummeret.
@@ -118,6 +130,36 @@ export const BREVTEKSTEN: Lesbar[] = [
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['frosset/brevtekst.ts']],
+  // LV-U81: forbeholdet i et svar kan stå i punktet «Forbehold» sist i brevet.
+  ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['format/leser.ts']],
+  // LV-U79: navnet på innsigelsen og vilkåret i lagslinjen.
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'INNSIGELSEN_MOT',
+    [
+      'frosset/brevtekst.ts',
+      'spor/forhold/tekst.ts',
+      'spor/frist/tekst.ts',
+      'spor/vederlag/tekst.ts',
+    ],
+  ],
+  [
+    'INNSIGELSEN_MOT',
+    'brevtekst',
+    'forholdet varselet forespoerselssvaret spesifiseringen hindringen beregningsregelen tilbudet',
+  ],
+  ['frosset/tekst.ts', 'brevtekst', 'vilkaaretILagslinjen', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'helt',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/frist/tekst.ts'],
+  ],
+  ['Vilkaar', 'brevtekst', 'navn rammer', ['frosset/brevtekst.ts']],
+  ['Forbeholdet', 'brevtekst', 's tekst', ['frosset/brevtekst.ts']],
+  ['OmForholdet', 'brevtekst', 's setninger', ['frosset/brevtekst.ts']],
+  ['FORBEHOLDSPUNKTET', 'brevtekst', 'overskrift', ['frosset/brevtekst.ts']],
   // #2145: punktet med forholdet i svaret på vederlaget og fristen har ingen begrunnelse.
   [
     'frosset/tekst.ts',
@@ -186,11 +228,11 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetUtenVarsel oversikt ingenBeloep',
+    'krav svaretGjelder utdypningensPunkt innledning temaer punktet vilkaaret posten rettidighetUtenVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
-  ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
+  ['Tema', 'brevtekst', 'punkt overskrift', ['frosset/brevtekst.ts']],
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
@@ -332,8 +374,13 @@ export const BREVTEKSTEN: Lesbar[] = [
     ],
   ],
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
-  ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
-  ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
+  ['Svarledd', 'brevtekst', 'punkt plass post vilkaar tekst', ['frosset/brevtekst.ts']],
+  [
+    'Svardelen',
+    'brevtekst',
+    'ns del subsidiaertTilForholdet forholdetStaar',
+    ['frosset/brevtekst.ts'],
+  ],
   // VS-U77 punkt 30 og 31: svaret på kravet og på varselet skrives med de samme punktene.
   [
     'frosset/brevtekst.ts:punkteneISvaret',
@@ -344,7 +391,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/brevtekst.ts:forholdetsLag',
     'brevtekst',
-    'ledd forskyvning henvisninger',
+    'ledd forskyvning vilkaar',
     ['frosset/brevtekst.ts'],
   ],
   ['frosset/brevtekst.ts:utenGjentattNs', 'brevtekst', 'nevnt', ['frosset/brevtekst.ts']],
@@ -362,6 +409,8 @@ export const BREVTEKSTEN: Lesbar[] = [
   ['frosset/brevdeler.ts', 'brevtekst', 'opplistet', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
   // #2144: kravpostene avvisningen nevner.
   ['frosset/brevdeler.ts', 'brevtekst', 'liste', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  // LV-U80: tittelen nevner alle kravene brevet svarer på.
+  ['frosset/brevdeler.ts', 'brevtekst', 'liste', ['frosset/brevtittel.ts']],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevdeler.ts',

@@ -83,6 +83,7 @@ export const SKJEMA = haerdet({
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
   beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
+  kravpostene: 'Kravpostene',
   ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',

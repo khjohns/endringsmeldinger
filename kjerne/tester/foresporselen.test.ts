@@ -18,6 +18,7 @@ import {
   FRISTKRAV,
   FRIST_FULLT,
   I_SAKEN,
+  MOT,
   PAABEROPELSE,
   SLUTTFRISTEN_20,
   TITTEL,
@@ -366,9 +367,9 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
         .match(/^(Prinsipalt|Subsidiært|Videre subsidiært).*$/gm)
     ).toEqual([
       'Prinsipalt',
-      'Subsidiært, hvis innsigelsen i punkt\u00a01 ovenfor ikke fører frem',
-      'Videre subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem',
-      'Videre subsidiært, hvis heller ikke innsigelsen i punkt\u00a02 ovenfor fører frem',
+      `Subsidiært, hvis ${MOT.varselet('33.4')} ikke fører frem`,
+      `Videre subsidiært, hvis heller ikke ${MOT.forespoerselssvaret} fører frem`,
+      `Videre subsidiært, hvis heller ikke ${MOT.forespoerselssvaret} fører frem`,
     ]);
   });
 

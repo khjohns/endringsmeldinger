@@ -234,6 +234,8 @@ export interface Brevpunkt {
   avsnitt: string[];
   /** Nøkkelen til posten i hver rad i oversiktstabellen (`Avsnitt.poster`). */
   poster?: string[];
+  /** Overskriften har ikke nummer, som overskriften på svaret på hvert krav (LV-U80, LV-U34). */
+  unummerert?: true;
 }
 
 /**
@@ -305,19 +307,21 @@ export interface Sporsbrevtekst {
   kravetOm?: string;
   /** Innledningen i byggherrens svar, uten setningene om byggherrens forrige svar (LV-U34, LV-U41, LV-U73). */
   innledning(krav: Krav, t: Pick<Tekst, 'j'>): string;
-  /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34). */
+  /** Punktene i byggherrens svar, i brevets rekkefølge (LV-U34, LV-U78). */
   temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
   /**
-   * Punktet et standpunkt i svaret står i (LV-U34), eller `undefined` når sporet ikke har et eget
+   * Punktet et standpunkt i svaret står i (LV-U34, LV-U78), eller `undefined` når sporet ikke har et eget
    * punkt for det. Et standpunkt om rettidighet står da i punktet for bestemmelsen, og et annet
    * avvises (`punktetFor`).
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**
-   * Et standpunkt i en art bare sporet har, er en innsigelse et senere lag bygger på (LV-U34,
-   * OV-U32). Rettidigheten er felles (`erInnsigelse` i `brevtekst.ts`).
+   * Innsigelsen standpunktet er, som et senere lag bygger på, med navnet og postene den rammer
+   * (OV-U32, OV-U117, LV-U79), eller `null`.
    */
-  erInnsigelse(p: Exclude<Standpunkt, { art: 'rettidighet' }>): boolean;
+  vilkaaret(p: Standpunkt, krav: Krav): Vilkaar | null;
+  /** Posten standpunktet gjelder, når sporet har poster (LV-U78, LV-U34, OV-U32). */
+  posten?(p: Standpunkt): PostenISvaret;
   /**
    * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet
    * standpunktets `gjelder` står i. En protest omtaler påberopelsen da med det som kom for sent,
@@ -338,12 +342,25 @@ export interface Sporsbrevtekst {
   ingenBeloep?(krav: Krav): string;
 }
 
+/**
+ * Posten et standpunkt i svaret gjelder: kravposten med id-en, den særskilte justeringen etter
+ * § 34.1.3 annet ledd (`null`), eller hele kravet (`undefined`).
+ */
+export type PostenISvaret = string | null | undefined;
+
+/** En innsigelse et senere lag bygger på: navnet i lagslinjen og postene den rammer (LV-U79, OV-U117). */
+export interface Vilkaar {
+  navn: string;
+  rammer(post: PostenISvaret): boolean;
+}
+
+/** En innsigelse som rammer hele kravet, som innsigelsene i fristen (KA-U78). */
+export const helt = (navn: string): Vilkaar => ({ navn, rammer: () => true });
+
 /** Et tema i byggherrens svar: punktet og overskriften (LV-U34). */
 export interface Tema {
   punkt: string;
   overskrift: string | null;
-  /** Linjen som sier hva punktet gjelder, først i punktet, som kravposten i kravet. */
-  foerst?: string;
 }
 
 /** Oversiktstabellen i svaret (OV-U73) med nøklene til postene (`Avsnitt.poster`). */

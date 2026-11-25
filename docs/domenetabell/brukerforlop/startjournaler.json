@@ -334,21 +334,15 @@
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
-                "punkt": "metode",
-                "overskrift": "2. Beregningsmetode (punkt 34.2)",
-                "laast": "2. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
-              },
-              {
-                "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "punkt": "P1",
-                "overskrift": "3. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "3. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
+                "overskrift": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)",
+                "laast": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.1.2 ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr av de krevde 100 000 kr."
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "punkt": "forbehold",
-                "overskrift": "4. Forbehold",
-                "laast": "4. Forbehold",
+                "overskrift": "3. Forbehold",
+                "laast": "3. Forbehold",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
             ],
@@ -554,7 +548,7 @@
                 "gjelder": "ca5f0a19-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -754,7 +748,7 @@
                 "gjelder": "c85f06f3-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -952,7 +946,7 @@
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -1352,25 +1346,19 @@
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "34.1.2",
                 "overskrift": "2. Varselet om vederlagsjustering (punkt 34.1.2)",
-                "laast": "2. Varselet om vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
-              },
-              {
-                "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
-                "punkt": "metode",
-                "overskrift": "3. Beregningsmetode (punkt 34.2)",
-                "laast": "3. Beregningsmetode (punkt 34.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+                "laast": "2. Varselet om vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen mot forholdet ikke fører frem\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "P1",
-                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
+                "overskrift": "3. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)",
+                "laast": "3. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 34.1.2 fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr av de krevde 100 000 kr."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "forbehold",
-                "overskrift": "5. Forbehold",
-                "laast": "5. Forbehold",
+                "overskrift": "4. Forbehold",
+                "laast": "4. Forbehold",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
             ],
@@ -1710,7 +1698,7 @@
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet kom lenge etter pålegget i byggemøtet. Subsidiært er byggherren enig i at pålegget innebærer en endring."
               }
             ],
@@ -2128,33 +2116,21 @@
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
-                "punkt": "34.1.3",
-                "overskrift": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)",
-                "laast": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet."
-              },
-              {
-                "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
-                "punkt": "metode",
-                "overskrift": "3. Beregningsmetode (punkt 34.2)",
-                "laast": "3. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
-              },
-              {
-                "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "P1",
-                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 100 000 kr av de krevde 150 000 kr."
+                "overskrift": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)",
+                "laast": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.1.2 ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 100 000 kr av de krevde 150 000 kr."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "produktivitet",
-                "overskrift": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
-                "laast": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 10 000 kr etter begrensningen i punkt 2 ovenfor.\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
+                "overskrift": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
+                "laast": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.1.2 ikke fører frem\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner etter dette 10 000 kr av de krevde 40 000 kr.\n\nVidere subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 34.1.3 fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "oversikt",
-                "overskrift": "6. Oversikt",
-                "laast": "6. Oversikt\n\nPost\tKrevd\tPrinsipalt\tSubsidiært\tVidere subsidiært\nVederlagsjustering\t150 000 kr\t0 kr\t100 000 kr\t100 000 kr\nSærskilt vederlagsjustering\t40 000 kr\t0 kr\t10 000 kr\t30 000 kr\nSum\t190 000 kr\t0 kr\t110 000 kr\t130 000 kr",
+                "overskrift": "4. Oversikt",
+                "laast": "4. Oversikt\n\nPost\tKrevd\tPrinsipalt\tSubsidiært\tVidere subsidiært\nVederlagsjustering\t150 000 kr\t0 kr\t100 000 kr\t100 000 kr\nSærskilt vederlagsjustering\t40 000 kr\t0 kr\t10 000 kr\t30 000 kr\nSum\t190 000 kr\t0 kr\t110 000 kr\t130 000 kr",
                 "poster": [
                   "P1",
                   "produktivitet"
@@ -2162,15 +2138,15 @@
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
-                "punkt": "forbehold",
-                "overskrift": "7. Forbehold",
-                "laast": "7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.",
-                "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært kom også varselet etter punkt 34.1.3 for sent for den særskilte vederlagsjusteringen. Kalkylen for pelingen er gjennomgått, og 100 000 kr er dokumentert."
+                "punkt": "akseptfrist",
+                "laast": "Akseptfrist: 15. oktober 2026."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
-                "punkt": "akseptfrist",
-                "laast": "Akseptfrist: 15. oktober 2026."
+                "punkt": "forbehold",
+                "overskrift": "5. Forbehold",
+                "laast": "5. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.",
+                "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært kom også varselet etter punkt 34.1.3 for sent for den særskilte vederlagsjusteringen. Kalkylen for pelingen er gjennomgått, og 100 000 kr er dokumentert."
               }
             ],
             "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
@@ -2606,44 +2582,44 @@
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "hindring",
                 "overskrift": "2. Hindringen",
-                "laast": "2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
+                "laast": "2. Hindringen\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
                 "utdypning": "Fremdriftsplanen viser at pelingen ligger på kritisk linje for overtakelsen."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "spesifisering",
                 "overskrift": "3. Spesifiseringen av kravet (punkt 33.6.1)",
-                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
+                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000012",
                 "overskrift": "4. Dagene for frist 3 Mekanisk ferdigstillelse",
-                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
+                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
                 "utdypning": "Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000013",
                 "overskrift": "5. Dagene for frist 2 Overtakelse",
-                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000014",
                 "overskrift": "6. Dagene for frist 8 Overtakelse av utomhusarbeider",
-                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+              },
+              {
+                "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
+                "punkt": "akseptfrist",
+                "laast": "Akseptfrist: 15. oktober 2026."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "forbehold",
                 "overskrift": "7. Forbehold",
                 "laast": "7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet."
-              },
-              {
-                "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
-                "punkt": "akseptfrist",
-                "laast": "Akseptfrist: 15. oktober 2026."
               }
             ],
             "brevtittel": "Svar på krav om fristforlengelse i sak KOE-17",
@@ -3070,44 +3046,44 @@
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "hindring",
                 "overskrift": "2. Hindringen",
-                "laast": "2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
+                "laast": "2. Hindringen\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
                 "utdypning": "Fremdriftsplanen viser at pelingen ligger på kritisk linje for overtakelsen."
               },
               {
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "spesifisering",
                 "overskrift": "3. Spesifiseringen av kravet (punkt 33.6.1)",
-                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
+                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 33.4 ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
               },
               {
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "a66c106a-0000-4000-8000-000000000012",
                 "overskrift": "4. Dagene for frist 3 Mekanisk ferdigstillelse",
-                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
+                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
                 "utdypning": "Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
               },
               {
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "a66c106a-0000-4000-8000-000000000013",
                 "overskrift": "5. Dagene for frist 2 Overtakelse",
-                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
               },
               {
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "a66c106a-0000-4000-8000-000000000014",
                 "overskrift": "6. Dagene for frist 8 Overtakelse av utomhusarbeider",
-                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen mot spesifiseringen etter punkt 33.6.1 fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+              },
+              {
+                "gjelder": "a66c106a-0000-4000-8000-000000000024",
+                "punkt": "akseptfrist",
+                "laast": "Akseptfrist: 15. oktober 2026."
               },
               {
                 "gjelder": "a66c106a-0000-4000-8000-000000000024",
                 "punkt": "forbehold",
                 "overskrift": "7. Forbehold",
                 "laast": "7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet."
-              },
-              {
-                "gjelder": "a66c106a-0000-4000-8000-000000000024",
-                "punkt": "akseptfrist",
-                "laast": "Akseptfrist: 15. oktober 2026."
               }
             ],
             "brevtittel": "Svar på krav om fristforlengelse i sak KOE-17",

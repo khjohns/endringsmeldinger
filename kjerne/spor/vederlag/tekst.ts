@@ -25,6 +25,8 @@ import {
   type Kravsporsbrevtekst,
   type Standpunktstekster,
   type Tekst,
+  type PostenISvaret,
+  type Vilkaar,
 } from '../../frosset/brevdeler.ts';
 import {
   etikett,
@@ -36,16 +38,23 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
-import { FORHOLDET, INNLEDNINGEN, kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
+import {
+  FORHOLDET,
+  INNLEDNINGEN,
+  INNSIGELSEN_MOT,
+  kroner,
+  SENT_I_LINJEN,
+} from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
-  erInnsigelseIVederlaget,
   harProduktivitetspost,
+  innsigelsenIVederlaget,
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
+  rammerPosten,
   svaretGjelderEtVarsel,
 } from './format.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../../typer.ts';
@@ -59,6 +68,9 @@ import type {
 } from '../../typer.ts';
 
 // ---------- Brevteksten (LV-U4) ----------
+
+/** Betegnelsen og beskrivelsen av kravposten, uten punktum: «P1 Ny fundamentering» (KA-U53). */
+const kravpostnavnet = (p: Kravpost) => `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}`;
 
 const SAERSKILT_JUSTERING = 'Særskilt vederlagsjustering';
 
@@ -77,9 +89,7 @@ function kravposttekst(
   varselet: Kravpostvarselet | undefined,
   t: Pick<Tekst, 'j' | 'nytt'>
 ): string {
-  const deler = [
-    `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}.`,
-  ];
+  const deler = [`${kravpostnavnet(p)}${p.pns ? ` (PNS ${p.pns})` : ''}.`];
   if (p.oppgjoersform === 'tilbud') deler.push(`Totalentreprenøren krever ${eksMva(p.beloep!)}`);
   else if (p.oppgjoersform === 'enhetspriser') {
     deler.push(
@@ -192,7 +202,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
       punkt: p.betegnelse,
       overskrift: null,
       avsnitt: [
-        `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`,
+        `${kravpostnavnet(p)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`,
       ],
     });
   }
@@ -259,8 +269,8 @@ function kravetsBeloep(krav: Krav): string {
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';
 }
 
-/** Temaene i byggherrens svar i skjemaets rekkefølge, med overskriften (LV-U34, KA-U53). */
-export function svartemaerIVederlaget(
+/** Punktene i byggherrens svar (LV-U78, LV-U34, OV-U32). */
+export function svarpunkteneIVederlaget(
   krav: Krav,
   paaberopelse: Krav | null,
   regler: Regelsett
@@ -269,31 +279,52 @@ export function svartemaerIVederlaget(
   return [
     { punkt: FORHOLDET, overskrift: 'Forholdet' },
     { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
-    { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
-    { punkt: 'metode', overskrift: 'Beregningsmetode (punkt 34.2)' },
-    // Med flere kravposter står betegnelsen og beskrivelsen først, som i kravet (KA-U53).
-    ...kravposterI(krav).map((p, _, alle) => ({
+    ...kravposterI(krav).map((p) => ({
       punkt: p.betegnelse,
-      overskrift: `Vederlagsjustering (punkt ${hjemmel})`,
-      ...(alle.length > 1 ? { foerst: `${p.betegnelse} ${punktum(p.beskrivelse)}` } : {}),
+      overskrift: `Vederlagsjustering for ${kravpostnavnet(p)} (punkt ${hjemmel})`,
     })),
     { punkt: 'produktivitet', overskrift: `${SAERSKILT_JUSTERING} (punkt 34.1.3 annet ledd)` },
   ];
 }
 
-/** Punktet standpunktet står i (LV-U34). Varselet for en kravpost står med beregningsmetoden. */
-function punktet(p: Standpunkt, krav: Krav): string | undefined {
+/** Punktet standpunktet står i (LV-U78, LV-U34, OV-U32): punktet for posten det gjelder. */
+export function svarpunktet(p: Standpunkt, krav: Krav): string | undefined {
+  const post = posten(p);
+  if (post === undefined) return undefined;
+  return post === null ? 'produktivitet' : kravpostenI(krav, post).betegnelse;
+}
+
+/** Kravposten standpunktet gjelder, den særskilte justeringen (`null`) eller hele kravet. */
+function posten(p: Standpunkt): PostenISvaret {
   switch (p.art) {
-    case 'rettidighet':
-      return erKravpostvarselhjemmel(p.hjemmel) ? 'metode' : undefined;
+    case 'beloep':
+      return p.saerskilt ? null : p.gjelder;
     case 'oppgjoersform':
     case 'justering':
-      return 'metode';
-    case 'beloep':
-      return p.saerskilt ? 'produktivitet' : kravpostenI(krav, p.gjelder!).betegnelse;
+      return p.gjelder;
+    case 'rettidighet':
+      if (p.hjemmel === '34.1.3') return null;
+      return erKravpostvarselhjemmel(p.hjemmel) ? p.gjelder : undefined;
     default:
       return undefined;
   }
+}
+
+/** Innsigelsen standpunktet er, med navnet og postene den rammer (OV-U117, LV-U79). */
+function vilkaaret(p: Standpunkt, krav: Krav): Vilkaar | null {
+  const i = innsigelsenIVederlaget(p);
+  if (i === null) return null;
+  const post = (id: string) => kravpostenI(krav, id).betegnelse;
+  const navn =
+    'oppgjoersform' in i
+      ? p.art === 'oppgjoersform' && p.hjemmel === '34.2.2'
+        ? INNSIGELSEN_MOT.tilbudet(post(i.oppgjoersform))
+        : INNSIGELSEN_MOT.beregningsregelen(post(i.oppgjoersform))
+      : INNSIGELSEN_MOT.varselet(
+          i.innsigelse,
+          i.innsigelse === '34.3.3' ? post(i.gjelder) : undefined
+        );
+  return { navn, rammer: (x) => x === undefined || rammerPosten(i, x) };
 }
 
 /** LV-U38: følgen av påberopelsen etter § 34.1.2 for postene i kravet, når svaret ikke har tabell. */
@@ -403,9 +434,10 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   kravetOm: KRAVET_OM,
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
-  temaer: (krav, { saken }, regler) => svartemaerIVederlaget(krav, saken.paaberopelse, regler),
-  punktet,
-  erInnsigelse: erInnsigelseIVederlaget,
+  temaer: (krav, { saken }, regler) => svarpunkteneIVederlaget(krav, saken.paaberopelse, regler),
+  punktet: svarpunktet,
+  vilkaaret,
+  posten,
   oversikt,
   ingenBeloep,
   enigI: 'beløpet',
