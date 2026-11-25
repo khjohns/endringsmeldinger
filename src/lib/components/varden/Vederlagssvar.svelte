@@ -11,7 +11,7 @@
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
   import { BREVTEKSTEN_I_VEDERLAGET, svartemaerIVederlaget } from '#kjerne/spor/vederlag/tekst.ts';
-  import { FORHOLDET, kroner } from '#kjerne/frosset/tekst.ts';
+  import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
@@ -32,6 +32,7 @@
   import {
     beloepsvalget,
     etterRegel,
+    kravetIKortform,
     postvalget,
     regelen,
     tomPost,
@@ -48,7 +49,6 @@
     VIRKNING,
     BREVSTEG,
     HOVEDLINJER,
-    KRAVSKJEMA,
     SKJEMA,
     SVARSKJEMA,
     grunntekst,
@@ -656,7 +656,7 @@
           beskrivelse={(p) => p.beskrivelse}
           krever={(p) =>
             etterRegel(p) ? SKJEMA.teKreverRegel(p) : SKJEMA.teKrever(krevdI(p), p.pns)}
-          kravet={(p) => (etterRegel(p) ? KRAVSKJEMA.formnavn[p.oppgjoersform] : kroner(krevdI(p)))}
+          kravet={kravetIKortform}
           {leselinje}
           foersteFelt={(p) => `${uid}-form-${p.betegnelse}`}
           valgene={postvalgene}
