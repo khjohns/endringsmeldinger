@@ -92,6 +92,10 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   passordfila til testbasen var usynlige, `git diff` og `rg` virket i klonen, og skriving i
   klonen ble avvist. `codex debug prompt-input` viste at profilen ble valgt. `codex exec`
   ber aldri om å kjøre en kommando utenfor sandkassen.
+- **Kontroller profilen før kallet.** Kjør `codex debug prompt-input` med de samme flaggene, og
+  se at profilen `review` er valgt. Loggen er ikke et bevis, for den viser `sandbox: read-only`
+  både med og uten profilen. Kopier hele kallet, og samle ikke flaggene i en ny variabel. I
+  #2337 falt `-c 'default_permissions="review"'` ut på den måten.
 - **`< /dev/null` er påkrevd.** Med `run_in_background` har kommandoen en åpen stdin-pipe, og
   Codex står og venter på den («Reading additional input from stdin...», tom logg).
 - **Skjemaet** (`--output-schema`) må være strengt: `additionalProperties: false` og alle
@@ -136,6 +140,8 @@ cd "$KLON" && env -i HOME="$HOME" PATH="$PATH" TERM=xterm \
   sekunder og 55 000 tokens.
 - Kontroller `git status --porcelain` i klonen og i hovedkopien etterpå. Det skal være likt.
 - **Oppfølging i samme samtale.** `codex exec resume <id>` er prøvd og virker, og `-o` virker med den. Id-en står i loggen som «session id» (#2256).
+  Etter en kjøring med `--ephemeral` kan samtalen ikke fortsettes (#2337). Sparring som kan få
+  oppfølging, kjøres derfor uten `--ephemeral`.
 
 ## Bestillingen
 
@@ -158,4 +164,4 @@ postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 - Bygging og commit i en klon med `workspace-write`, og testkommandoene med
   `node_modules`-lenke.
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.
-- Om `codex exec resume` virker etter en kjøring med `--ephemeral`, er ikke prøvd.
+- Oppfølging med `codex exec resume` av en sparring som er kjørt uten `--ephemeral`.

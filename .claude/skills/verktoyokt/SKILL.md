@@ -48,7 +48,7 @@ Orkestratoren sier i bestillingen til byggeøkta om PR-en skal ha review eller s
 verktøyøkta, og med hvilket verktøy. Byggeøkta sender da én melding med `send_message` til
 verktøyøkta:
 
-- **Review:** PR-nummeret og SHA-en til commiten `/code-review` gjelder. Reviewet kjøres bare
+- **Review:** PR-nummeret og den fulle SHA-en til commiten `/code-review` gjelder. Reviewet kjøres bare
   på en commit som er pushet. Verktøyøkta kan ikke lese filene i byggeøktas container.
   Byggeøkta sender meldingen rett etter pushen av commiten `/code-review` skal gjelde, altså
   etter `/simplify` når den er bestilt, og kjører `/code-review` mens den venter.
@@ -67,13 +67,18 @@ denne skillen.
 1. **Kontroller commiten.** Hent PR-en med `pull_request_read` (`get`). Reviewet gjelder
    `head` i PR-en, og `base` gir målgrenen. Er SHA-en i bestillingen en eldre commit, gjelder
    reviewet `head`, og svaret sier hvilken SHA det gjelder. En bestilling på en eldre commit
-   avvises ikke (#2256, 24.11).
+   avvises ikke (#2256, 24.11). Er SHA-en kort, utvides den med `git rev-parse` i klonen.
+   Kontroller så at den bestilte commiten er en forfar til `head`, med
+   `git merge-base --is-ancestor <bestilt> <head>` (#2337).
 2. **Klonen og kjøremappa** etter codex-skillen eller gemini-skillen, én per oppdrag, med
    commiten hentet fra `origin`.
 3. **Bestillingen til verktøyet** er malen under for review, eller teksten fra byggeøkta for
    sparring. Verktøyøkta fyller inn feltene og legger ikke til noe. Codex leser
    diffen fra `diff.patch` i kjøremappa (codex-skillen, «Kommandoen»). For Gemini står den
-   i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»).
+   i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»). Viser bestillingen
+   til tekst på GitHub, som kommentarer i et issue, legges teksten i filer i klonens rot, og
+   bestillingen peker på filene. Verktøyene når ikke GitHub (#2337). Kommentarene hentes etter
+   gemini-skillen, «Bestillingen».
 4. **Kjør** med `run_in_background`, etter «Kommandoen» i codex-skillen eller
    «Arbeidsformen» i gemini-skillen. Uavhengige oppdrag kjøres samtidig, hver i sin klon.
 
@@ -121,6 +126,11 @@ først (oppdragsgiver 24.11). Kommentaren begynner med denne linja, og svaret f�
 Økta som spurte, får én linje med lenken. Sparring som ikke gjelder et issue, sendes ordrett i
 en melding. En melding tar høyst 64 KiB. Et svar som er for langt for én kommentar eller én
 melding, deles på flere i rekkefølge, uten noe tillegg.
+
+Er svaret postet som kommentar, er kommentaren leveransen, og meldingen er et varsel. Avvises
+`send_message`, prøver ikke verktøyøkta en annen vei. Den skriver i økta at meldingen ikke er
+levert. Etter en omstart ser verktøyøkta etter om meldingen ble sendt, og sender den hvis ikke.
+En godkjenning som ventet, går tapt ved omstarten (#2337).
 
 **Feil**, som tidsavbrudd, tomt svar, en avvist kommando eller manglende innlogging, går bare
 som melding til økta som spurte, med de siste linjene i loggen, høyst 20. Verktøyøkta kjører
