@@ -101,8 +101,8 @@ tilstander = "Åpner «byggherren har svart» og «pålegg frafalt», og lukker 
 status = "grunnsett"
 noekler = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:forhold", "revidere:vederlag", "revidere:frist", "svare:*", "revidere:*"]
 kommandoer = ["brev", "revisjon"]
-skjema = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:vederlag", "svare:*", "revidere:*"]
-mangler = "Skjemaet i Varden for nytt svar på kravet i forholdet og fristen. Nytt svar på kravet i vederlaget har skjema (`revidere:vederlag`, #2365). Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene, og det nye svaret på det, har skjema (`svare:*`, `revidere:*`, VS-U79)."
+skjema = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:vederlag", "revidere:frist", "svare:*", "revidere:*"]
+mangler = "Skjemaet i Varden for nytt svar på kravet i forholdet. Nytt svar på kravet i vederlaget og fristen har skjema (`revidere:vederlag`, #2365, og `revidere:frist`, G-8 i BF-46). Svaret på et varsel etter punkt 34.3.3 eller 34.4 som står alene, og det nye svaret på det, har skjema (`svare:*`, `revidere:*`, VS-U79)."
 
 [[handling]]
 id = "G5"

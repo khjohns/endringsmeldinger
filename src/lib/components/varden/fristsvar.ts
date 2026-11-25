@@ -10,7 +10,9 @@ import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import { innholdIFristen, type FristIKravet } from '#kjerne/spor/frist/format.ts';
 import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { definert, svarbrevet } from './kommandoer';
+import { definert, standpunktet, svarbrevet } from './kommandoer';
+import type { Krav, Svar } from '#kjerne/typer.ts';
+import { HJEMMEL } from '#kjerne/format/format.ts';
 
 export type Dagevalg = 'alle' | 'deler' | 'avslaatt';
 
@@ -41,6 +43,11 @@ export interface Fristsvarvalg {
   begrunnelser: Record<string, string>;
   /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet. */
   forbehold: string;
+  /**
+   * Svaret et nytt svar ble fylt ut fra og erstatter (`valgFraFristsvaret`). Kjernen avviser
+   * revisjonen når det ikke lenger er det gjeldende svaret (`FEIL_SVARREFERANSE`).
+   */
+  erstatter?: string;
 }
 
 export const tomFrist = (): Fristvalg => ({ dager: null, deldager: '', maatteForstaa: '' });
@@ -151,3 +158,38 @@ export function fristsvaret(
     punktene
   );
 }
+
+/**
+ * Valgene i skjemaet for et nytt svar på kravet, fylt ut med standpunktene i svaret det erstatter,
+ * så byggherren endrer det byggherren vil (HF-U29, G-8 i BF-46). Dagene for hver frist er dagene
+ * byggherren vurderte, også når de står subsidiært. Begrunnelsene og forbeholdet skrives på nytt.
+ */
+export function valgFraFristsvaret(svar: Svar, krav: Krav): Fristsvarvalg {
+  const iTide = (hjemmel: string) =>
+    standpunktet(svar, 'rettidighet', (s) => s.hjemmel === hjemmel)?.iTide ?? null;
+  const spesifisering = standpunktet(svar, 'spesifisering');
+  const frister: Record<string, Fristvalg> = {};
+  for (const f of innholdIFristen(krav).frister) {
+    const vurdert = standpunktet(svar, 'dager', (s) => s.gjelder === f.id)?.vurdert;
+    const maatte = spesifisering?.maatteForstaa?.find((m) => m.frist === f.id)?.dager;
+    const dager = dagevalget(vurdert, f.dager);
+    frister[f.id] = {
+      dager,
+      deldager: dager === 'deler' ? String(vurdert) : '',
+      maatteForstaa: maatte === undefined ? '' : String(maatte),
+    };
+  }
+  return {
+    ...tomtFristsvar(),
+    erstatter: svar.id,
+    varselITide: iTide(HJEMMEL.frist),
+    foresporselITide: iTide('33.6.2'),
+    hindret: standpunktet(svar, 'hindring')?.oppfylt ?? null,
+    spesifisertITide: spesifisering?.iTide ?? null,
+    frister,
+  };
+}
+
+/** Valget for dagene byggherren vurderte, av `krevd` dager. */
+const dagevalget = (vurdert: number | undefined, krevd: number): Dagevalg | null =>
+  vurdert === undefined ? null : vurdert === krevd ? 'alle' : vurdert === 0 ? 'avslaatt' : 'deler';

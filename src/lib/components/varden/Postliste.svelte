@@ -128,7 +128,8 @@
       {:else}
         {@const lest = leselinje(p)}
         <div class="postlinje">
-          {@render tittel(p, false)}
+          <!-- Navnet og brevoverskriften er én celle i rutenettet. -->
+          <div>{@render tittel(p, false)}</div>
           <p class="krav">
             <span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
             {kravet(p)}
@@ -256,7 +257,7 @@
     .postlinje {
       grid-template-columns: minmax(0, 1fr) auto;
     }
-    .postlinje h4,
+    .postlinje > div:first-child,
     .krav,
     .lest {
       grid-column: 1;

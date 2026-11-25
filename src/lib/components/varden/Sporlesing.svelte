@@ -310,11 +310,15 @@
   /** Linja under handlingen: hva den gjør med saken. */
   const virkningen = (n: string): string | null => omtalen(n)?.linje?.() ?? null;
 
-  /** Det aksepten omfatter, og beløpet og vilkåret kjernen regner ut, av svaret slik det ble sendt. */
-  function akseptensVirkning(): string[] {
+  /**
+   * Det aksepten omfatter, og beløpet og vilkåret kjernen regner ut, av svaret slik det ble sendt.
+   * Sendes aksepten etter akseptfristen, står det sist (U-4 i BF-46).
+   */
+  function akseptensVirkning(kommando: Record<string, unknown>): string[] {
     if (!svarbrevet) return [];
+    const oversittet = kjernesak.akseptfristenAkseptenOversitter(kommando, spor);
     return [
-      ...paaberopt.map((h) => STILLING.omfatter(h)),
+      ...paaberopt.map((h) => STILLING.omfatter(h, spor)),
       ...(enighet?.grunnlag.utfall.beloep !== undefined
         ? STILLING.beloepet(
             enighet.grunnlag.utfall.beloep,
@@ -326,6 +330,7 @@
         ? [STILLING.vilkaar]
         : []),
       STILLING.kilde(svarbrevet),
+      ...(oversittet ? [STILLING.etterAkseptfristen(oversittet)] : []),
     ];
   }
 
@@ -346,7 +351,7 @@
       kommando,
       kanIkkeLages: STILLING.godta,
       tilBrevkontrollen: (brevet) =>
-        onakseptbrev({ kommando, ...brevet, virkninger: akseptensVirkning() }),
+        onakseptbrev({ kommando, ...brevet, virkninger: akseptensVirkning(kommando) }),
     });
   }
 </script>

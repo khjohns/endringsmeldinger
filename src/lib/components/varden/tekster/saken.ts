@@ -55,5 +55,7 @@ export const SAKEN = haerdet({
   nyttKrav: 'Nytt krav om endringsordre',
   iCatenda: 'Åpne saken i Catenda',
   akseptfrist: (frist: string) => `Akseptfrist ${dato(frist)}`,
+  /** U-6 i BF-46: aksepten er sendt etter akseptfristen, uten tolkning (HF-U23 punkt 7). */
+  akseptEtterFristen: (frist: string) => `Aksepten er sendt etter akseptfristen ${dato(frist)}`,
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 });
