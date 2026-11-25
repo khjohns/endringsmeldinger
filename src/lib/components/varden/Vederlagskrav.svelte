@@ -46,7 +46,7 @@
     type Korrespondansevalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { eldreKrav, utgangspunktet, utgangspunktnoekkel } from './eldrekrav';
+  import { eldreKrav, startesPaaNytt, utgangspunktet } from './eldrekrav';
   import {
     brevene,
     datoerISporet,
@@ -110,9 +110,9 @@
 
   // OV-U118: et krav lagt til, sendt før det siste i sporet, tar utgangspunkt i kravversjonen før det.
   const eldre = $derived(eldreKrav(u, 'vederlag', lagtTil));
-  // svelte-ignore state_referenced_locally
-  if (valg === null || valg.utgangspunkt !== utgangspunktnoekkel(u, 'vederlag', eldre))
-    valg = startvalg(u, eldre);
+  untrack(() => {
+    if (startesPaaNytt(valg, eldre)) valg = startvalg(u, eldre);
+  });
   const v = $derived(valg!);
 
   const forrige = $derived(utgangspunktet(u, 'vederlag', eldre));
@@ -268,10 +268,9 @@
     eldre ? [] : trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id))
   );
   /** Kravpostene i sporet posten kan være den samme som: ikke en annen post i skjemaet har valgt. */
+  const iSporet = $derived(eldre ? kravposteneISporet(eldre) : []);
   const sammeSom = (p: Kravpostvalg) =>
-    eldre
-      ? kravposteneISporet(eldre).filter((q) => !v.poster.some((x) => x !== p && x.id === q.id))
-      : [];
+    iSporet.filter((q) => !v.poster.some((x) => x !== p && x.id === q.id));
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
@@ -611,10 +610,10 @@
 {#snippet aapenPost(p: Kravpostvalg)}
   {@const n = p.noekkel}
   {@const vs = varselFor(p)}
+  {@const kandidater = p.id && forrigePoster.has(p.id) ? [] : sammeSom(p)}
   <div class="aapen">
     <h4>{navnet(p)} · {p.beskrivelse || KRAVSKJEMA.nyPost}</h4>
-    {#if !(p.id && forrigePoster.has(p.id)) && sammeSom(p).length}
-      {@const kandidater = sammeSom(p)}
+    {#if kandidater.length}
       <Valg
         navn={id(`samme-${n}`)}
         spoersmaal={KRAVSKJEMA.sammeKravpost}

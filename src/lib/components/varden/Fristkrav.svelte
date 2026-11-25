@@ -36,7 +36,7 @@
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
-  import { eldreKrav, utgangspunktet, utgangspunktnoekkel } from './eldrekrav';
+  import { eldreKrav, startesPaaNytt, utgangspunktet } from './eldrekrav';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
@@ -114,8 +114,7 @@
   const eldre = $derived(eldreKrav(u, 'frist', lagtTil));
   const utgangspunkt = $derived(utgangspunktet(u, 'frist', eldre));
   untrack(() => {
-    if (!valg || valg.utgangspunkt !== utgangspunktnoekkel(u, 'frist', eldre))
-      valg = startvalg(u, eldre);
+    if (startesPaaNytt(valg, eldre)) valg = startvalg(u, eldre);
   });
   const v = $derived(valg!);
 

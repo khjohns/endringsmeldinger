@@ -6,7 +6,7 @@
  */
 
 import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import type { Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
+import type { Krav, Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Varselet } from '#lib/kjernesak/vederlagskrav.ts';
 import { lesKroner, visKroner } from '#lib/utils/belop.ts';
@@ -126,7 +126,7 @@ export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Kravval
     saerskilt: null,
     forbehold: '',
     nye: 0,
-    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(u, 'vederlag', eldre) } : {}),
+    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(eldre) } : {}),
   };
   if (!krav) {
     v.poster.push(nyKravpost(v));
@@ -148,9 +148,14 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
       (p) => p.id
     )
   );
+  return sistePerPost(u.spor.vederlag.krav).filter((p) => !gjeldende.has(p.id));
+}
+
+/** Kravpostene i kravversjonene, hver som den sto i den siste versjonen den er med i. */
+function sistePerPost(krav: readonly Krav[]): Kravpost[] {
   const sist = new Map<string, Kravpost>();
-  for (const k of u.spor.vederlag.krav) for (const p of kravposterI(k)) sist.set(p.id, p);
-  return [...sist.values()].filter((p) => !gjeldende.has(p.id));
+  for (const k of krav) for (const p of kravposterI(k)) sist.set(p.id, p);
+  return [...sist.values()];
 }
 
 /**
@@ -158,13 +163,12 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
  * som de sto sist, uten postene i utgangspunktet, som skjemaet har eller trekker.
  */
 export function kravposteneISporet(eldre: Eldrekrav): Kravpost[] {
-  const utgangspunktet = new Set(
-    (eldre.tidligere.at(-1) ? kravposterI(eldre.tidligere.at(-1)!) : []).map((p) => p.id)
+  const iUtgangspunktet = new Set(
+    (eldre.utgangspunkt ? kravposterI(eldre.utgangspunkt) : []).map((p) => p.id)
   );
-  const sist = new Map<string, Kravpost>();
-  for (const k of [...eldre.tidligere, ...eldre.andre])
-    for (const p of kravposterI(k)) if (!utgangspunktet.has(p.id)) sist.set(p.id, p);
-  return [...sist.values()];
+  return sistePerPost([...eldre.tidligere, ...eldre.andre]).filter(
+    (p) => !iUtgangspunktet.has(p.id)
+  );
 }
 
 /** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */

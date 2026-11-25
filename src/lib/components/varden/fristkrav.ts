@@ -71,7 +71,7 @@ export function startvalg(u: Utledning, eldre: Eldrekrav | null = null): Fristkr
     utenfor: null,
     bokstav: 'a' as const,
     grunnB: '',
-    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(u, 'frist', eldre) } : {}),
+    ...(eldre ? { utgangspunkt: utgangspunktnoekkel(eldre) } : {}),
   };
   const krav = utgangspunktet(u, 'frist', eldre);
   if (!krav) return { ...felles, frister: [nyFristpost()], begrunnelse: '' };
