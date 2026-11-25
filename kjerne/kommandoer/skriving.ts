@@ -377,7 +377,7 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
  * VS-U86 punkt 12: datoen i varselet etter § 34.1.3, når TE har oppgitt den. Formen tillater den
  * bare etter § 34.1.3 (`formfeil`).
  */
-const medKunnskapsdatoen = (k: { klar_over_utgiftene?: string }) =>
+const medKunnskapsdatoen = (k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>) =>
   k.klar_over_utgiftene === undefined ? {} : { klar_over_utgiftene: k.klar_over_utgiftene };
 
 /** Innholdet i dokumentet kommandoen gir. */
