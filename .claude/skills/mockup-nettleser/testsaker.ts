@@ -207,7 +207,8 @@ export const TESTSAKER: Record<string, Testsak> = {
       // Varden har ikke skjemaet for et nytt svar på kravet ennå (G4 i handlingsregisteret).
       await bh.getByRole('button', { name: 'Nytt svar på kravet' }).click();
       await bh.getByRole('status').filter({ hasText: 'ikke bygget' }).waitFor({ timeout: 10_000 });
-      if (await bh.getByRole('button', { name: /^Endre/ }).count())
+      const svarene = bh.getByRole('region', { name: /^Svarene på kravet i brev/ });
+      if (await svarene.getByRole('button', { name: /^(Endre|Svar på)/ }).count())
         throw new Error('Svarene fra forrige brev har «Endre» i svaret på varselet (VS-U65)');
     },
   },
