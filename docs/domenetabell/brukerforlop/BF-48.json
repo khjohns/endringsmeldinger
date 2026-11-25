@@ -1,0 +1,52 @@
+{
+  "id": "BF-48",
+  "tittel": "Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen",
+  "brukerhistorie": "TE oppgir datoen TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser ville påløpe, i det særskilte varselet etter punkt 34.1.3 annet ledd, i vederlagskravet når det gir varselet, eller i et særskilt varsel lagt til som korrespondanse. Senere supplerer eller endrer TE datoen i et eget brev med henvisning til varselet. Begge partene ser den siste og de tidligere datoene ved varselet, og BH ser datoen når BH tar stilling til om varselet kom i tide.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 1, og BH har svart i brev 2. TE varsler særskilt etter punkt 34.1.3 fra løsningen (variant A), i vederlagskravet (B) eller som korrespondanse (C), eller oppgir datoen først i et eget brev etter BHs svar (D). I variant E er saken lukket."
+  },
+  "bestilling": "BF-48.md",
+  "kilder": [
+    "VS-U76",
+    "MM-U55",
+    "VS-U82",
+    "VS-U83",
+    "VS-U84",
+    "VS-U85",
+    "VS-U58",
+    "OV-U89",
+    "OV-U114",
+    "OV-U122",
+    "MM-U50",
+    "MM-U51",
+    "MM-U53",
+    "GR-U27",
+    "LV-U25"
+  ],
+  "venter_paa": [
+    "#2012",
+    "#2010",
+    "#807"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2012",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, kartleggingen G-1–G-10 og spørsmålene S-1 og S-2."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#2012",
+      "hva": "S-1 og S-2 er besvart med A og ført i bestillingen: utsagnet godtas også i en lukket sak og endrer ikke utfallet, og datoen endres bare i det egne brevet."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "VS-U84, VS-U85",
+      "hva": "Svarene på S-1 og S-2 er ført som VS-U84 og VS-U85, og bestillingen viser til dem."
+    }
+  ]
+}
