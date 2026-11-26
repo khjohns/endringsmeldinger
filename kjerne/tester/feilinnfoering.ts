@@ -7754,7 +7754,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      !bakover(s.id, p.gjelder) ||\n      spor.frist.krav.find((k) => k.id === s.gjelder)?.erstatter !== null)',
+        '      !bakover(s.id, p.gjelder) ||\n      [...spor.frist.krav, ...spor.frist.kravUtenforRekken].find((k) => k.id === s.gjelder)\n        ?.erstatter !== null)',
         '      !bakover(s.id, p.gjelder))',
       ],
     ],

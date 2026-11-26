@@ -240,7 +240,9 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   // Står begge, gjelder svaret på spørsmålet i lagene, og kontrollen avviser standpunktet
   // (`ugyldigIFristen`).
   const ikkeSvar =
-    v.begrunnelse_ikke_svar === true && foresporselForFristsvar(u)?.art === 'begrunnelse';
+    v.begrunnelse_ikke_svar === true &&
+    foresporselForFristsvar(u)?.art === 'begrunnelse' &&
+    u.spor.frist.gjeldendeKrav?.erstatter === null;
   const ubesvart = new Set(
     ikkeSvar ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok') : manglende
   );

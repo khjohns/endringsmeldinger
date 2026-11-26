@@ -1368,7 +1368,8 @@ function kontrollerStandpunktet(
     p.art === 'ikke_svar' &&
     (!besvart.some((f) => f.svar === p.gjelder && !f.medKrav && f.kravFoer === null) ||
       !bakover(s.id, p.gjelder) ||
-      spor.frist.krav.find((k) => k.id === s.gjelder)?.erstatter !== null)
+      [...spor.frist.krav, ...spor.frist.kravUtenforRekken].find((k) => k.id === s.gjelder)
+        ?.erstatter !== null)
   )
     ugyldig(
       s.id,
