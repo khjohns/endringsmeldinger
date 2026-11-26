@@ -13,6 +13,7 @@ import type { Handling } from '#kjerne/tester/klient.ts';
 import { kroner } from '#kjerne/frosset/tekst.ts';
 import {
   brevene,
+  innleggSomViserTil,
   kravposterUtenFastBeloep,
   standpunktene,
   tilknyttetKrav,
@@ -726,5 +727,25 @@ describe('vilkåret for et standpunkt om én kravpost (OV-U117, LV-U79, #2337)',
     expect(beloepene).toHaveLength(2);
     expect(beloepene[0]!.vilkaar).toEqual([{ art: 'varsel', hjemmel: '34.1.2' }]);
     expect(beloepene[1]!.vilkaar).toBe(beloepene[0]!.vilkaar);
+  });
+});
+
+describe('innleggene i brevene (G-7 i BF-03)', () => {
+  it('innlegget hører til sporet til brevet det viser til, også gjennom et annet innlegg', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'brev', navn: 'D2', svar: [forholdet('godkjent')] },
+      VEDERLAG,
+      { handling: 'brev', navn: 'D4', svar: [vederlaget] },
+      { handling: 'innlegg', part: 'TE', gjelder: 'D4', navn: 'D5', tittel: 'Om svaret' },
+      { handling: 'innlegg', part: 'BH', gjelder: 'D5', navn: 'D6', tittel: 'Begrunnelse' },
+    ]);
+    const alle = brevene(u);
+    const [svaret, te, bh] = alle.slice(-3);
+    expect(svaret.spor).toEqual(['vederlag']);
+    expect([te.art, te.spor, te.viserTil]).toEqual(['innlegg', ['vederlag'], svaret.id]);
+    expect([bh.art, bh.spor, bh.viserTil]).toEqual(['innlegg', ['vederlag'], te.id]);
+    // D-8: bare innlegget som viser direkte til svaret.
+    expect(innleggSomViserTil(alle, svaret.id).map((b) => b.id)).toEqual([te.id]);
   });
 });

@@ -15,7 +15,7 @@
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
   import type { Brevet, Brevref, Brevinnholdet } from './lesing';
-  import { FORHOLDET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
+  import { FORHOLDET, INNLEGGET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -37,7 +37,7 @@
     brevet,
     oeverst,
     nederst,
-    leggTilKorrespondanse,
+    traadlenkene,
   }: {
     /** Brevene i tråden i rekkefølgen i journalen (`brevITraaden`). Tråden viser dem nyest først. */
     brev: Brevet[];
@@ -82,16 +82,20 @@
     oeverst?: Snippet<[Brevet]>;
     /** Det siden viser sist under brevet, over handlingen, som akseptfristen (U-11 i BF-44). */
     nederst?: Snippet<[Brevet]>;
-    leggTilKorrespondanse?: Snippet;
+    traadlenkene?: Snippet;
   } = $props();
   const uid = $props.id();
+
+  /** Teksten parten skrev i innlegget, som følger henvisningen i brevet (MM-U47 punkt 2). */
+  const partensTekst = (b: Brevet) =>
+    (b.avsnitt ?? []).flatMap((a) => a.utdypning?.trim() || []).join('\n\n');
 
   const nyestFoerst = $derived(brev.map((b, n) => ({ b, n })).reverse());
 </script>
 
 <div class="traadhode">
   <h3 id={`${uid}-tittel`}>{TRAADEN.tittel(spor)}</h3>
-  {@render leggTilKorrespondanse?.()}
+  {@render traadlenkene?.()}
 </div>
 <ol class="traad" aria-labelledby={`${uid}-tittel`}>
   {#if venterPaaSvar}
@@ -131,6 +135,7 @@
         </span>
         <span class="meta">
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
+          {#if b.art === 'innlegg'}<span>{INNLEGGET.merke}</span>{/if}
           {#if b.avsnitt}
             {#if tilHoeyre}
               <span class="vises">{TRAADEN.vises}</span>
@@ -150,7 +155,7 @@
           {hva}<span class="visually-hidden">{TRAADEN.fra(b.avsender)}</span>
         </h4>
       </div>
-      {#if registrert || i || b.vedlegg.length || oeverst || nederst || samme.length}
+      {#if registrert || i || b.art === 'innlegg' || b.vedlegg.length || oeverst || nederst || samme.length}
         <div class="innhold">
           {#if oeverst}
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
@@ -229,6 +234,17 @@
                   null
               )}
               {#if staar}<Melding art="info" levende={false}>{staar}</Melding>{/if}
+            {/if}
+          {/if}
+          {#if b.art === 'innlegg'}
+            <!-- MM-U47 punkt 2: brevet innlegget viser til, og teksten parten skrev. -->
+            {@const til = brev.find((x) => x.id === b.viserTil)}
+            {@const tekst = partensTekst(b)}
+            {#if til}<p class="datolinje">{INNLEGGET.viserTilBrev(til)}</p>{/if}
+            {#if tekst}
+              <Sitat>
+                <p class="utdrag" class:bh={b.avsender === 'BH'}>«{tekst}»</p>
+              </Sitat>
             {/if}
           {/if}
           {#if b.vedlegg.length}

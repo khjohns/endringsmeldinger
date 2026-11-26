@@ -35,6 +35,7 @@
     brevITraaden,
     fristtabellen,
     handlingerISporet,
+    innleggSomViserTil,
     kravposterUtenFastBeloep,
     kunnskapsdatoTilbudt,
     leveringene,
@@ -46,6 +47,7 @@
     FRISTEN,
     HANDLINGENE,
     FORHOLDET,
+    INNLEGGET,
     LEGG_TIL,
     STILLING,
     TOMT_SPOR,
@@ -384,8 +386,25 @@
       mangler: null,
       kommando,
       kanIkkeLages: STILLING.godta,
-      tilBrevkontrollen: (brevet) =>
-        onakseptbrev({ kommando, ...brevet, virkninger: akseptensVirkning(kommando) }),
+      tilBrevkontrollen: (brevet) => {
+        // D-8 i BF-03: innleggene som viser til svaret, uten tolkning. De inngår ikke i aksepten.
+        const innlegg = svarbrevet ? innleggSomViserTil(alleBrev, svarbrevet.id) : [];
+        onakseptbrev({
+          kommando,
+          ...brevet,
+          virkninger: [
+            ...akseptensVirkning(kommando),
+            ...(innlegg.length ? [INNLEGGET.inngaarIkke] : []),
+          ],
+          innleggene:
+            svarbrevet && innlegg.length
+              ? {
+                  tittel: INNLEGGET.iAksepten(svarbrevet),
+                  rader: innlegg.map(INNLEGGET.innleggsrad),
+                }
+              : null,
+        });
+      },
     });
   }
 </script>
@@ -490,11 +509,28 @@
   <Brevpanel brev={b} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
 {/snippet}
 
-{#snippet leggTilKorrespondanse()}
-  {#if kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
-    <Knapp variant="lenke" kompakt onclick={() => onvelg('registrere_brev')}>
-      {LEGG_TIL.tittel}
-    </Knapp>
+<!-- Lenkene i hodet til tråden (unntaket 26.11 i #1377). Innlegget viser til et brev i tråden,
+     så lenken står når tråden har brev (U-2 i BF-03). -->
+{#snippet traadlenkene()}
+  {@const innlegg =
+    kjernesak.handlinger.includes('sende_innlegg') &&
+    skjemaene.includes('sende_innlegg') &&
+    brevITraaden(alleBrev, spor).length > 0}
+  {@const korrespondanse =
+    kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
+  {#if innlegg || korrespondanse}
+    <span class="traadlenker">
+      {#if innlegg}
+        <Knapp variant="lenke" kompakt onclick={() => onvelg('sende_innlegg')}>
+          {INNLEGGET.send}
+        </Knapp>
+      {/if}
+      {#if korrespondanse}
+        <Knapp variant="lenke" kompakt onclick={() => onvelg('registrere_brev')}>
+          {LEGG_TIL.tittel}
+        </Knapp>
+      {/if}
+    </span>
   {/if}
 {/snippet}
 
@@ -517,7 +553,7 @@
       handling={vedBrevene}
       brevet={lestBrevet}
       {levering}
-      {leggTilKorrespondanse}
+      {traadlenkene}
       merknad={tomt ? tomtHode : undefined}
     />
     {#if handlingVed === null && !tomt && (primaer || flyt.hindring)}
@@ -577,6 +613,11 @@
   }
   .annen a:hover {
     text-decoration-thickness: 2px;
+  }
+  .traadlenker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-5);
   }
   .kort {
     background: var(--surface);

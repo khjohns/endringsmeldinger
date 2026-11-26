@@ -41,7 +41,7 @@ import type {
   Utfall,
   Varselhjemmel,
 } from '#kjerne/typer.ts';
-import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { GjeldendeFristdato } from '#lib/kjernesak/brevtekst.ts';
@@ -64,7 +64,9 @@ export interface Brevet {
    */
   sendt: string | null;
   spor: Spor[];
-  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'varsel' | 'registrert' | 'annet';
+  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'varsel' | 'innlegg' | 'registrert' | 'annet';
+  /** Brevet innlegget viser til (MM-U47 punkt 2), og `null` for et brev som ikke er et innlegg. */
+  viserTil: string | null;
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
   /** Vår ref., merkingen som ble frosset med brevet (LV-U44, LV-U24), eller `null`. */
@@ -92,7 +94,7 @@ function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
   if (d.krav.length) return 'krav';
-  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'varsel'].includes(x.art));
+  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'varsel', 'innlegg'].includes(x.art));
   return (u?.art as Brevet['art']) ?? 'annet';
 }
 
@@ -124,9 +126,12 @@ export function brevene(u: Utledning): Brevet[] {
 
 function lesBrevene(u: Utledning): Brevet[] {
   const spor = elementenesSpor(u);
+  // Innlegget hører til sporene til brevet det viser til, som står før det i journalen (G-7 i BF-03).
+  const brevetsSpor = new Map<string, Spor[]>();
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
+    const innlegg = d.utsagn.find((x): x is Utsagn<'innlegg'> => x.art === 'innlegg');
     const i = new Set<Spor>([
       ...d.spor,
       ...d.krav.map((k) => k.spor),
@@ -136,7 +141,9 @@ function lesBrevene(u: Utledning): Brevet[] {
         const s = ('gjelder' in x ? spor.get(x.gjelder) : undefined) ?? spor.get(x.id);
         return s ? [s] : [];
       }),
+      ...((innlegg && brevetsSpor.get(innlegg.gjelder)) ?? []),
     ]);
+    brevetsSpor.set(d.id, [...i]);
     return [
       {
         id: d.id,
@@ -147,6 +154,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         sendt: datoForDokumentet(d.opplysninger, 'sendt')?.dato ?? null,
         spor: [...i],
         art: artAv(d),
+        viserTil: innlegg?.gjelder ?? null,
         forhold: innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori,
         merking: d.merking,
         deresRef: d.deresRef,
@@ -548,6 +556,10 @@ export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brev
       )
     : undefined) ?? brev.filter((b) => b.spor.includes(spor)).at(-1);
 
+/** Innleggene som viser til brevet `id`, i rekkefølgen i journalen (D-8 i BF-03). */
+export const innleggSomViserTil = (brev: Brevet[], id: string): Brevet[] =>
+  brev.filter((b) => b.art === 'innlegg' && b.viserTil === id);
+
 /**
  * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).
  * Uten krav, eller med en kode lista ikke har, er begge `null`.
@@ -603,7 +615,8 @@ export const fristtabellen = (
 /** Det sidene for forholdet, vederlaget og fristen får fra `Sporlesing` (oppsett B, #1997). */
 export interface Sideprops {
   u: Utledning;
-  leggTilKorrespondanse?: Snippet;
+  /** Lenkene i hodet til tråden: «Send innlegg» og «Legg til korrespondanse» (BF-03, OV-U80). */
+  traadlenkene?: Snippet;
   /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
   betegnelser: Record<Spor, Betegnelse | null>;
   /** Fristtabellen, til siden for fristen. */

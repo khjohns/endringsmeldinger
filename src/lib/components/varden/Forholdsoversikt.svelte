@@ -31,7 +31,7 @@
     handlingerVed = [],
     handling,
     brevet,
-    leggTilKorrespondanse,
+    traadlenkene,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
@@ -53,7 +53,7 @@
     {/if}
   {/snippet}
   <Brevtraad
-    {leggTilKorrespondanse}
+    {traadlenkene}
     brev={traad}
     spor="forhold"
     {innhold}

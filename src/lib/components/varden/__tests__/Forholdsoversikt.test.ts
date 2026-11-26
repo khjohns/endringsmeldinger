@@ -558,6 +558,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       nummer,
       art,
       spor,
+      viserTil: null,
       avsender: art === 'svar' ? 'BH' : 'TE',
       lagtTilAv: art === 'svar' ? 'BH' : 'TE',
       registrert: '2026-10-01T10:00:00Z',
