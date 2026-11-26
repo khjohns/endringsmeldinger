@@ -270,6 +270,13 @@ sende brev) og legges fram som tekst. Spørsmål 3–6 er tekniske og prosessuel
 > henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
 > kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.
 
+### Svaret
+
+Oppdragsgivers svar står ordrett i
+[7183967699](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7183967699),
+ført av orkestratoren 26.11: spørsmål 1 og 2 «ja», altså tilslutning til utkastene uten rettelser,
+og A på spørsmål 3–6.
+
 ## Kodefunn
 
 Ingen. Utkastene endrer ingenting som er vedtatt, unntatt E1, der vedtakene alt er endret (K2).
