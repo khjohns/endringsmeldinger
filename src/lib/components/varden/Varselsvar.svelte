@@ -104,8 +104,9 @@
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
-  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, tilbys ikke standpunktet.
   const varselPaakrevd = $derived(hjemmel === '34.1.2' || hjemmel === '34.1.3');
+  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, tilbys ikke standpunktet. Kjernen
+  // tilbyr handlingen likevel til #2464 er rettet, og da fjernes grenen.
   const varselKrevesIkke = $derived(
     hjemmel === '34.1.2' &&
       !!kjernesak.visning?.spor.vederlag.etiketter.includes('varsel_kreves_ikke')
