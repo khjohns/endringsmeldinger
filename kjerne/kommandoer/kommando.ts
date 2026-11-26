@@ -72,7 +72,8 @@ interface Brevtekst {
 
 /**
  * Ett varsel i brevet, etter hjemmelen. Sporet følger hjemmelen (`VARSELSPOR`, OV-U5). Brevet kan
- * ha flere varsler (beslutningsdelen i VS-U87, arbeidsvalg 2 26.11 i #2408). Fra løsningen er
+ * ha flere varsler (beslutningsdelen i VS-U87, arbeidsvalg 2 26.11 i #2408, og med varselet etter
+ * § 32.2 svaret A 26.11 i #1823). Fra løsningen er
  * påberopelsen varselet etter § 32.2 (GR-U31), så `H` er `Kravvarselhjemmel` i `send_varsel`.
  */
 export interface Varselposten<H extends Varselhjemmel = Varselhjemmel> {
@@ -190,7 +191,8 @@ export type Kommando = (
   /**
    * Registrerer ett eller flere varsler etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller
    * § 34.4 sendt utenfor appen i samme brev (MM-U1, SK-12, OV-U5, VS-U34, VS-U52, VS-U87 punkt 28
-   * og beslutningsdelen), med brevet som vedlegg (OV-U4). `dokumentasjon` er ID-ene i
+   * og beslutningsdelen, og med varselet etter § 32.2 svaret A 26.11 i #1823), med brevet som
+   * vedlegg (OV-U4). `dokumentasjon` er ID-ene i
    * mellomlageret (LV-U14). Datoen gjelder alle varslene.
    */
   | {
@@ -615,10 +617,6 @@ function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): s
       feil.push(`${sti}.hjemmel: brevet har alt et varsel etter punkt ${v.hjemmel}`);
     sett.add(v.hjemmel);
   });
-  // Beslutningsdelen i VS-U87 dekker et registrert brev med varsler i vederlaget og fristen, ikke
-  // varselet etter § 32.2 sammen med andre. Det avvises til det er avgjort.
-  if (k.varsler.length > 1 && k.varsler.some((v) => v.hjemmel === '32.2'))
-    feil.push('$.varsler: varselet etter punkt 32.2 registreres i et eget brev');
   const spor = new Set(k.varsler.map(sporetFor));
   if (k.type === 'send_varsel' && spor.size > 1)
     feil.push(
