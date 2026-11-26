@@ -4,6 +4,7 @@
   akseptfristen over handlingene ved byggherrens svar (U-11, HF-U23 punkt 4).
 -->
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import type { Brevet, OppgittDato } from './lesing';
   import { TRAADEN, dato, kalenderdager } from './tekster';
 
@@ -12,6 +13,7 @@
     klar,
     varselbrev,
     akseptfrist,
+    etterKlar,
   }: {
     b: Brevet;
     /** Datoen TE oppgir for når TE ble klar over forholdet (`klarOverForholdet`). */
@@ -20,6 +22,8 @@
     varselbrev: string | null;
     /** Akseptfristen i svaret, med brevet (`akseptfristen`). */
     akseptfrist: { brev: string; dato: string } | null;
+    /** Linjene under datoen for forholdet og over akseptfristen, som datoen etter § 34.1.3. */
+    etterKlar?: Snippet;
   } = $props();
 </script>
 
@@ -28,6 +32,7 @@
     {TRAADEN.klarOver(klar.dato, klar.brev, kalenderdager(klar.dato, b.sendt ?? b.registrert))}
   </p>
 {/if}
+{@render etterKlar?.()}
 {#if akseptfrist?.brev === b.id}
   <p class="akseptfrist">{TRAADEN.akseptfrist} <b>{dato(akseptfrist.dato)}</b>.</p>
 {/if}

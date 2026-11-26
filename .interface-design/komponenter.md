@@ -11,25 +11,26 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 
 | Komponent | Importører | Hva den er |
 | --- | ---: | --- |
-| [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 7 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
+| [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 6 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
 | [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
 | [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 14 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
 | [`Brevskjema`](../src/lib/components/varden/Brevskjema.svelte) | 3 | Skallet for et skjema som blir et brev (#2119): utkastkortet med linja for korrespondanse lagt til, oppsummeringen av det som mangler, spørsmålene, «Forkast utkast» nederst og høyre kolonne med panelet, sendeknappen og tidslinja, eller brevet ved siden av. |
 | [`Brevsteg`](../src/lib/components/varden/Brevsteg.svelte) | 2 | Stegviseren for skjemaet og brevkontrollen (#2190). |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
+| [`Datobrev`](../src/lib/components/varden/Datobrev.svelte) | 2 | Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A) og datoen etter punkt 34.1.3 (BF-48). |
 | [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 2 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
-| [`Datofelt`](../src/lib/components/varden/Datofelt.svelte) | 5 | Et datofelt i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
+| [`Datofelt`](../src/lib/components/varden/Datofelt.svelte) | 4 | Et datofelt i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
 | [`Datolinjer`](../src/lib/components/varden/Datolinjer.svelte) | 2 | Datoene under et brev i tråden på siden for et krav: datoen TE oppgir og avstanden til varselet under brevet med varselet (U-8 i BF-44 og BF-45, uten vurdering av fristen, MM-U50), og akseptfristen over handlingene ved byggherrens svar (U-11, HF-U23 punkt 4). |
 | [`Felt`](../src/lib/components/varden/Felt.svelte) | 3 | Rammen rundt et felt i skjemaene: labelen over, hjelpeteksten under labelen, feltet og feilmeldingen under (system.md, «Feltene står under hverandre», #2119). |
 | [`Feltetikett`](../src/lib/components/varden/Feltetikett.svelte) | 2 | Labelen over et felt i skjemaene, med «Valgfri» til høyre på linja (system.md, «Feltene står under hverandre» og «Høyst tre nivåer av flater», #2059). |
 | [`Filvalg`](../src/lib/components/varden/Filvalg.svelte) | 2 | Filvalget i Varden (F-7 i BF-05, #1037): nettleserens filvelger, som i skissen, med filene lastet opp etter hvert som de velges. |
 | [`Forbeholdet`](../src/lib/components/varden/Forbeholdet.svelte) | 2 | Forbeholdet etter GR-U34 i kortet «Kravet og svaret», én gang: det svaret ble sendt med, og stillingen i forholdet nå (U-3 og D-3 i BF-44, D-11 i BF-45), med lenke til forholdet. |
 | [`Forholdsgrunn`](../src/lib/components/varden/Forholdsgrunn.svelte) | 3 | Grunnen fra svaret på forholdet i «Gjelder hvis» i svaret på et krav. |
-| [`Forkastutkast`](../src/lib/components/varden/Forkastutkast.svelte) | 6 | «Forkast utkast» nederst i utkastet, med en dialog som spør først (oppdragsgiver 06.11 og 07.11, PR 1650). |
+| [`Forkastutkast`](../src/lib/components/varden/Forkastutkast.svelte) | 5 | «Forkast utkast» nederst i utkastet, med en dialog som spør først (oppdragsgiver 06.11 og 07.11, PR 1650). |
 | [`Gjeldendefrist`](../src/lib/components/varden/Gjeldendefrist.svelte) | 2 | Gjeldende frist for én frist i fristtabellen (D-9, KA-U77): datoen i kontrakten med forlengelsene partene er enige om i andre saker, med lenker til sakene, eller hvorfor den ikke kan regnes (MM-U2, KA-U79). |
 | [`Gjelderhvis`](../src/lib/components/varden/Gjelderhvis.svelte) | 4 | «Gjelder hvis» over et spørsmål i svaret: det i et foregående lag som rammer standpunktet, én forutsetning per linje i brevets rekkefølge (oppdragsgiver 30.10, #1391, #1400). |
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
-| [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 5 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
+| [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 4 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
 | [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 26 | Knappen i Varden: 6 px radius, minst 44 px høy. |
 | [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
@@ -44,10 +45,11 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Sitat`](../src/lib/components/varden/Sitat.svelte) | 2 | Et sitat fra et brev utenfor brevet, med etiketten for hva det er: utdraget i tråden og setningen om endringsordren i svarskjemaet for forholdet (#2035). |
 | [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 5 | Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), feltene under (#1925, #2035). |
 | [`Sporside`](../src/lib/components/varden/Sporside.svelte) | 3 | Kortet øverst på siden for forholdet og for et krav, med overskriften og hjemmelen dempet etter (U-1 i BF-44 og BF-45), hvem som sendte siste brev, og brevtråden under (#2180). |
+| [`Stoettekort`](../src/lib/components/varden/Stoettekort.svelte) | 2 | Et lite kort i høyre kolonne i svarskjemaet, under panelet, med det byggherren trenger ved svaret som ikke er en del av brevet: svarene fra forrige brev (VS-U65) og totalentreprenørens dato etter punkt 34.1.3 (U-9 i BF-48). |
 | [`Svarskjema`](../src/lib/components/varden/Svarskjema.svelte) | 4 | Byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist, i skallet for brevskjemaene (`Brevskjema`, #1925, #2009, #2119): skjemaet vurderer, panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3). |
-| [`Tekstomraade`](../src/lib/components/varden/Tekstomraade.svelte) | 8 | Et tekstfelt over flere linjer i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
+| [`Tekstomraade`](../src/lib/components/varden/Tekstomraade.svelte) | 7 | Et tekstfelt over flere linjer i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
 | [`Tidslinje`](../src/lib/components/varden/Tidslinje.svelte) | 7 | Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. |
-| [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 5 | Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178). |
+| [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 4 | Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178). |
 | [`Utkaststempel`](../src/lib/components/varden/Utkaststempel.svelte) | 2 | Stempelet i brevhodet mens brevet skrives og kontrolleres (system.md, #2178). |
 | [`Valg`](../src/lib/components/varden/Valg.svelte) | 9 | Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én avkrysning med samme form. |
 | [`Valgfri`](../src/lib/components/varden/Valgfri.svelte) | 4 | Teksten i en label eller et spørsmål over et valgfritt felt, med «Valgfri» til høyre på linja (system.md, «Et valgfritt felt har «Valgfri» til høyre», oppdragsgiver 16.11). |

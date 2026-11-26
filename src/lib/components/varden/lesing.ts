@@ -411,6 +411,8 @@ export interface Kunnskapsdatoen {
  * et varsel lagt til etter TEs siste opplysning står som opplysningen i det brevet (VS-U85).
  */
 export function kunnskapsdatoene(u: Utledning): Kunnskapsdatoen[] {
+  const lest = kunnskapsdatoenePerUtledning.get(u);
+  if (lest) return lest;
   const brev = new Map(brevene(u).map((b) => [b.id, b]));
   const egne = new Set(
     u.journal.flatMap((h) =>
@@ -439,8 +441,20 @@ export function kunnskapsdatoene(u: Utledning): Kunnskapsdatoen[] {
     ut.push(x);
   }
   if (siste) siste.siste = true;
+  kunnskapsdatoenePerUtledning.set(u, ut);
   return ut;
 }
+
+const kunnskapsdatoenePerUtledning = new WeakMap<Utledning, Kunnskapsdatoen[]>();
+
+/** TEs siste opplysning om kunnskapsdatoen, eller `null` når datoen ikke er oppgitt (VS-U85). */
+export const sisteKunnskapsdatoen = (u: Utledning): Kunnskapsdatoen | null =>
+  kunnskapsdatoene(u).find((o) => o.siste) ?? null;
+
+/** Varselet etter § 34.1.3 kjernen tilbyr TE å oppgi datoen for (`oppgi_kunnskapsdato:<id>`). */
+export const kunnskapsdatoTilbudt = (
+  tilbudte: readonly { type: string; gjelder: string | null }[]
+): string | null => tilbudte.find((h) => h.type === 'oppgi_kunnskapsdato')?.gjelder ?? null;
 
 /**
  * Én linje i et svar, med etiketten for laget den står i når svaret har flere lag: en grunn

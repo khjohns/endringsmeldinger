@@ -53,11 +53,19 @@
     datoerISporet,
     forholdetISaken,
     klarOverForholdet,
-    kunnskapsdatoene,
+    kunnskapsdatoTilbudt,
+    sisteKunnskapsdatoen,
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { dagensDato, kalenderdager, KRAVSKJEMA, KUNNSKAPSDATO, LEGG_TIL } from './tekster';
+  import {
+    dagensDato,
+    kalenderdager,
+    KRAVSKJEMA,
+    KUNNSKAPSDATO,
+    LEGG_TIL,
+    OPPGITT,
+  } from './tekster';
   import { punktoverskriftene } from './svarskjema';
   import {
     PNS_GRENSE,
@@ -376,10 +384,8 @@
   const klarOver = $derived(klarOverForholdet(u));
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
   // U-10 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet.
-  const sisteKunnskapsdato = $derived(kunnskapsdatoene(u).find((o) => o.siste) ?? null);
-  const kunnskapsdatoVarselet = $derived(
-    kjernesak.tilbudte.find((h) => h.type === 'oppgi_kunnskapsdato')?.gjelder ?? null
-  );
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
     varslerUtenKravpost(u).filter(
@@ -594,7 +600,7 @@
       ? [
           {
             naar: v.saerskilt.klarOver,
-            hva: KUNNSKAPSDATO.tidslinje,
+            hva: OPPGITT.klar_over_utgiftene,
             kilde: KRAVSKJEMA.oppgisIKravet,
           },
         ]

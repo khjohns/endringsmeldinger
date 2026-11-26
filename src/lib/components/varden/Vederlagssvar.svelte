@@ -30,6 +30,7 @@
   import Svarskjema from './Svarskjema.svelte';
   import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
+  import Stoettekort from './Stoettekort.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
@@ -46,7 +47,7 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, brevMedElement, kunnskapsdatoene, standpunktene } from './lesing';
+  import { brevet, brevMedElement, sisteKunnskapsdatoen, standpunktene } from './lesing';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -116,7 +117,7 @@
   );
   const stoppet = $derived(harPost || hinder !== null);
   // U-9 i BF-48: TEs siste opplysning om datoen etter § 34.1.3 ved svaret på kravet med posten.
-  const sisteKunnskapsdato = $derived(kunnskapsdatoene(u).find((o) => o.siste) ?? null);
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
 
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
@@ -419,10 +420,9 @@
 {/snippet}
 
 {#snippet kunnskapsdatokortet()}
-  <section class="kort" aria-labelledby={`${uid}-kunnskapsdato`}>
-    <h2 class="hode" id={`${uid}-kunnskapsdato`}>{KUNNSKAPSDATO.stoettetittel}</h2>
-    <p class="innhold">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
-  </section>
+  <Stoettekort id={`${uid}-kunnskapsdato`} tittel={KUNNSKAPSDATO.stoettetittel}>
+    <p class="kunnskapsdato">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
+  </Stoettekort>
 {/snippet}
 
 <Svarskjema
@@ -676,19 +676,7 @@
 </Svarskjema>
 
 <style>
-  .kort {
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .hode {
-    padding: var(--spacing-4) var(--spacing-5);
-    border-bottom: var(--rule);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .innhold {
-    padding: var(--spacing-4) var(--spacing-5);
+  .kunnskapsdato {
     font-size: 14px;
     color: var(--ink-2);
   }

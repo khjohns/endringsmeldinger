@@ -60,7 +60,6 @@ export const KUNNSKAPSDATO = haerdet({
       ? `Klar over at utgiftene ville påløpe ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`
       : 'Du har ikke oppgitt når du ble klar over at utgiftene ville påløpe.',
   egetBrevLenke: (oppgitt: boolean) => `${oppgitt ? 'Endre' : 'Oppgi'} datoen i et eget brev`,
-  tidslinje: 'Klar over at utgiftene ville påløpe',
 
   // Skjemaet for det egne brevet (U-5, U-6).
   gjelder: 'Gjelder',
@@ -75,7 +74,6 @@ export const KUNNSKAPSDATO = haerdet({
         : 'Varselet står som det ble sendt.'
     } Den nye datoen gjelder straks som din siste opplysning.`,
   lukket: 'Saken står lukket. Brevet endrer ikke utfallet.',
-  nyDato: 'Når ble du klar over at utgiftene ville påløpe?',
   datoHjelp: 'Datoen kan ikke være etter dagens dato.',
   forklaring: 'Forklaring',
   forklaringHjelp: 'Forklaringen står i brevet under datoen.',

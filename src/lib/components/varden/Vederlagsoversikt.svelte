@@ -77,23 +77,24 @@
   {/if}
 {/snippet}
 
-<!-- Datoen etter punkt 34.1.3 og handlingen står sist ved varselet, under datoen for forholdet,
-     og akseptfristen sist over handlingene ved svaret (U-4 i BF-48). -->
+<!-- Datoen etter punkt 34.1.3 og handlingen står under datoen for forholdet, og akseptfristen
+     sist over handlingene ved svaret (U-4 i BF-48). -->
 {#snippet fristen(b: Brevet)}
-  <Datolinjer {b} {klar} varselbrev={varselbrevet} akseptfrist={null} />
-  <Kunnskapsdatolinje
-    {b}
-    {traad}
-    opplysningene={kunnskapsdatoer}
-    varselbrev={saerskiltvarselet}
-    vedSvaret={svaretI.get(b.id)}
-    lukket={u.forholdAvvist}
-    kanOppgi={kunnskapsdatoVarselet !== null}
-    onkunnskapsdato={kunnskapsdatoVarselet && onkunnskapsdato
-      ? () => onkunnskapsdato(kunnskapsdatoVarselet)
-      : undefined}
-  />
-  <Datolinjer {b} klar={null} varselbrev={null} {akseptfrist} />
+  <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist}>
+    {#snippet etterKlar()}
+      <Kunnskapsdatolinje
+        {b}
+        {traad}
+        opplysningene={kunnskapsdatoer}
+        varselbrev={saerskiltvarselet}
+        vedSvaret={svaretI.get(b.id)}
+        lukket={u.forholdAvvist}
+        onkunnskapsdato={kunnskapsdatoVarselet && onkunnskapsdato
+          ? () => onkunnskapsdato(kunnskapsdatoVarselet)
+          : undefined}
+      />
+    {/snippet}
+  </Datolinjer>
 {/snippet}
 
 <Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>

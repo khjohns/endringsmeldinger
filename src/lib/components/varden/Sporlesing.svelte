@@ -35,6 +35,7 @@
     fristtabellen,
     handlingerISporet,
     kravposterUtenFastBeloep,
+    kunnskapsdatoTilbudt,
     leveringene,
     type Brevet,
     type Sideprops,
@@ -153,9 +154,7 @@
     kjernesak.tilbudte.flatMap((h) => (h.type === 'korrigere' && h.gjelder ? [h.gjelder] : []))
   );
   // Datoen etter § 34.1.3 oppgis ved varselet i brevtråden, ikke i lista (U-4 i BF-48).
-  const kunnskapsdatoVarselet = $derived(
-    kjernesak.tilbudte.find((h) => h.type === 'oppgi_kunnskapsdato')?.gjelder ?? null
-  );
+  const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Innsigelsen om at et brev kom for sent er ikke en handling i Varden. Den hører hjemme i
   // svaret på brevet eller i et innlegg (oppdragsgiver 06.11, PR 1650).
   const menyvalg = $derived(

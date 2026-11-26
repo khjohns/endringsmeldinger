@@ -22,6 +22,7 @@
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
+  import Stoettekort from './Stoettekort.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
@@ -232,36 +233,33 @@
     {@const f = forrigeSvar}
     <!-- Et lite kort i høyre kolonne, fordi svarene ikke er en del av brevet (VS-U65,
        oppdragsgiver 25.11 i #2358). -->
-    <section class="kort" aria-labelledby={`${uid}-svarene-foer`}>
-      <h2 class="hode" id={`${uid}-svarene-foer`}>{VARSELSVARET.svareneFoer(f.brev)}</h2>
-      <div class="innhold">
-        <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
-        <p class="dempet">
-          {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
-        </p>
-        <ul>
-          {#each f.poster as p (p.id)}
-            {@const lest = leselinje(f, p)}
-            <li>
-              <strong
-                ><span class="betegnelse">{p.betegnelse}</span>
-                {p.beskrivelse}</strong
-              >
-              <span class="krav"
-                ><span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
-                {kravetIKortform(p)}</span
-              >
-              <span class="visually-hidden">{VARSELSVARET.svaretI(f.brev)}:</span>
-              {#each lest as l, i (i)}<span>{l}</span>{:else}<span class="dempet"
-                  >{SKJEMA.ikkeBesvart}</span
-                >{/each}
-            </li>
-          {/each}
-        </ul>
-      </div>
-      {#if nyttSvarPaaKravet}
-        {@const aapne = nyttSvarPaaKravet}
-        <div class="bunn">
+    <Stoettekort id={`${uid}-svarene-foer`} tittel={VARSELSVARET.svareneFoer(f.brev)}>
+      <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
+      <p class="dempet">
+        {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
+      </p>
+      <ul>
+        {#each f.poster as p (p.id)}
+          {@const lest = leselinje(f, p)}
+          <li>
+            <strong
+              ><span class="betegnelse">{p.betegnelse}</span>
+              {p.beskrivelse}</strong
+            >
+            <span class="krav"
+              ><span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
+              {kravetIKortform(p)}</span
+            >
+            <span class="visually-hidden">{VARSELSVARET.svaretI(f.brev)}:</span>
+            {#each lest as l, i (i)}<span>{l}</span>{:else}<span class="dempet"
+                >{SKJEMA.ikkeBesvart}</span
+              >{/each}
+          </li>
+        {/each}
+      </ul>
+      {#snippet bunn()}
+        {#if nyttSvarPaaKravet}
+          {@const aapne = nyttSvarPaaKravet}
           <Knapp
             variant="lenke"
             kompakt
@@ -273,9 +271,9 @@
             <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
             <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
           {/if}
-        </div>
-      {/if}
-    </section>
+        {/if}
+      {/snippet}
+    </Stoettekort>
   {/if}
 {/snippet}
 
@@ -371,23 +369,6 @@
 </Svarskjema>
 
 <style>
-  .kort {
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .hode {
-    padding: var(--spacing-4) var(--spacing-5);
-    border-bottom: var(--rule);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .innhold {
-    padding: var(--spacing-4) var(--spacing-5);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
@@ -426,9 +407,5 @@
   }
   .krav {
     color: var(--ink-3);
-  }
-  .bunn {
-    padding: var(--spacing-3) var(--spacing-5) var(--spacing-4);
-    border-top: var(--rule);
   }
 </style>

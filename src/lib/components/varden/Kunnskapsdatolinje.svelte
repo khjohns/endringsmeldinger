@@ -19,7 +19,6 @@
     varselbrev,
     vedSvaret,
     lukket,
-    kanOppgi,
     onkunnskapsdato,
   }: {
     b: Brevet;
@@ -36,8 +35,7 @@
     vedSvaret: string | null | undefined;
     /** Saken er lukket etter GR-U27, så brevet endrer ikke utfallet (VS-U84). */
     lukket: boolean;
-    /** Kjernen tilbyr TE å oppgi datoen (`oppgi_kunnskapsdato`). */
-    kanOppgi: boolean;
+    /** TE oppgir eller endrer datoen, når kjernen tilbyr det (`oppgi_kunnskapsdato`). */
     onkunnskapsdato?: () => void;
   } = $props();
 
@@ -46,7 +44,7 @@
   const siste = $derived(opplysningene.find((o) => o.siste) ?? null);
   const ingen = $derived(siste === null);
   const handling = $derived(
-    kanOppgi && !!onkunnskapsdato && (iBrevet?.siste || (ingen && varselbrev === b.id))
+    !!onkunnskapsdato && (iBrevet?.siste || (ingen && varselbrev === b.id))
   );
   // U-8: bare når TE har sendt et eget brev med datoen etter svaret.
   const svaretsOpplysning = $derived.by(() => {
