@@ -5,7 +5,7 @@
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har påberopt forholdet i brev 1, BH har svart i brev 2, og TE har krevd vederlagsjustering i brev 3. Partene legger til dokumentasjon fra motparten (variant A), varsler (B), et svar på vederlaget der innsigelsen står (C) eller med en tidligere dato (D), et krav uten utfylt skjema (E) og BHs endringsordre som svar (F)."
+    "beskrivelse": "TE har påberopt forholdet i brev 1, BH har svart i brev 2, og TE har krevd vederlagsjustering i brev 3. Partene legger til dokumentasjon fra motparten (variant A), varsler (B), et svar på vederlaget der innsigelsen står (C) eller med en tidligere dato (D), et krav uten utfylt skjema (E), BHs endringsordre som svar (F) og et eldre krav lagt til som varselet for en kravpost (G)."
   },
   "bestilling": "BF-49.md",
   "kilder": [
@@ -41,13 +41,13 @@
     "OV-U123",
     "OV-U124",
     "MM-U59",
-    "OV-U122"
+    "OV-U122",
+    "OV-U120",
+    "VS-U91"
   ],
   "venter_paa": [
     "#807",
     "#2347",
-    "#2011",
-    "#2389",
     "#818"
   ],
   "bevis_saker": [],
@@ -72,6 +72,11 @@
       "dato": "2026-11-25",
       "forhold": "OV-U124",
       "hva": "ID-en for svaret på S-1 er satt inn i D-11, G-10 og S-1."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "OV-U120, #807",
+      "hva": "Variant G er ny: et eldre vederlagskrav lagt til er varselet for kravposten etter OV-U120. #2011 og #2389 er levert og står ikke lenger under venter_paa."
     }
   ]
 }
