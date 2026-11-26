@@ -581,9 +581,10 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
         ],
       });
       expect(s.avvist('BH', brev(ikkeSvar())), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', brev({ ...ikkeSvar(), foresporsel_svar_ok: true }))).toBe(
-        'UGYLDIG_VURDERING'
-      );
+      // Regelsettet avviser kombinasjonen før formatet, med feltet og grunnen.
+      expect(
+        JSON.stringify(s.avvisning('BH', brev({ ...ikkeSvar(), foresporsel_svar_ok: true })))
+      ).toContain('tar da ikke stilling til om den kom for sent');
       expect(
         s.avvist('BH', brev({ ...FRIST_FULLT[0], begrunnelse_ikke_svar: false })),
         'uten standpunktet etter § 33.6.2 mangler svaret spørsmålet'
