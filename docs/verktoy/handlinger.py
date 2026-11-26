@@ -2,7 +2,8 @@
 
 Brukes av datamodell.py, som skriver handlinger.md. Vakttesten
 verktoy/tester/test_datamodell/test_handlinger.py prøver formen, kildene mot
-vedtaksregisteret og at hvert skjema i Varden har en rad. At kjernens kommandoer,
+vedtaksregisteret og at hvert skjema i Varden har en rad, også et som åpnes utenfor
+`skjemaene`. At kjernens kommandoer,
 handlingsnøkler og betegnelser har rad, og at kjernen ikke tilbyr en handling som venter,
 sendes som innlegg eller er opphevet, prøves i kjerne/tester/ (steg 2 i #2003).
 """
@@ -15,6 +16,8 @@ ROT = pathlib.Path(__file__).resolve().parents[2]
 REGISTER = ROT / "docs" / "datamodell" / "handlinger.toml"
 MARKDOWN = ROT / "docs" / "datamodell" / "handlinger.md"
 VARDENSAK = ROT / "src" / "lib" / "components" / "varden" / "Vardensak.svelte"
+# Mappene der Varden åpner skjemaene. Tekstene og testene viser ikke til en handling som åpnes.
+VARDEN = (ROT / "src" / "lib" / "components" / "varden", ROT / "src" / "lib" / "kjernesak")
 
 HANDLINGSFELT = (
     "id", "navn", "part", "spor", "kilde", "finnes", "form", "naar", "tilstander",
@@ -195,6 +198,33 @@ def skjemaene_i_varden(sti: pathlib.Path = VARDENSAK) -> set[str]:
         siste = [siste[1], token]
         i += len(token)
     return noekler
+
+
+# En nøkkel i en streng eller malstreng (`'godta:` og `` `korrigere:${``), eller en sammenlikning
+# med typen i en tilbudt handling (`type === 'svare_paa_foresporsel'`).
+_TYPEN = re.compile(r"""['`]([a-z_]+):|\btype\s*===\s*['"]([a-z_]+)['"]""")
+
+
+def handlingstypene_i_varden(typene: set[str], mapper: tuple[pathlib.Path, ...] = VARDEN) -> set[str]:
+    """Handlingstypene i `typene` som Varden viser til som en handlingsnøkkel, også der et skjema
+    åpnes utenfor `skjemaene` i Vardensak.svelte (korrigeringen, kunnskapsdatoen, svaret på
+    forespørselen og aksepten, #2454). Leses som tekst fra .svelte- og .ts-filene, uten
+    `tekster/` og `__tests__/`.
+
+    Feiler når ingen fil er lest, så vakttesten ikke blir grønn av en lesing som ikke fant noe."""
+    filer = [
+        f
+        for m in mapper
+        for f in sorted(m.rglob("*"))
+        if f.suffix in (".svelte", ".ts") and not {"tekster", "__tests__"} & set(f.relative_to(m).parts)
+    ]
+    if not filer:
+        raise ValueError(f"Ingen filer i {', '.join(map(str, mapper))}")
+    funnet = set()
+    for f in filer:
+        for m in _TYPEN.finditer(f.read_text(encoding="utf-8")):
+            funnet.add(m.group(1) or m.group(2))
+    return funnet & typene
 
 
 def _tekst(verdi: str) -> str:

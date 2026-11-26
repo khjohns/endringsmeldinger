@@ -90,11 +90,46 @@ def test_en_ukjent_eller_opphevet_kilde_gir_feil(register):
     assert any("GR-U35 er opphevet" in f for f in feil), feil
 
 
+def _typen(noekkel: str) -> str:
+    return noekkel.partition(":")[0]
+
+
 def test_hvert_skjema_i_varden_har_en_rad(register):
     i_registeret = {s for h in register["handling"] for s in h["skjema"]}
+    noeklene = {n for h in register["handling"] for n in h["noekler"]}
+    utenfor = hr.handlingstypene_i_varden({_typen(n) for n in noeklene})
     i_varden = hr.skjemaene_i_varden()
     assert i_varden - i_registeret == set(), "Skjemaet i Varden mangler rad i handlinger.toml"
-    assert i_registeret - i_varden == set(), "Raden viser til et skjema Varden ikke har"
+    # #2454: et skjema Varden åpner utenfor `skjemaene`, som korrigeringen og aksepten.
+    assert utenfor - {_typen(s) for s in i_registeret} == set(), (
+        "Varden viser til handlingen, men ingen rad i handlinger.toml har skjemaet"
+    )
+    assert {s for s in i_registeret - i_varden if _typen(s) not in utenfor} == set(), (
+        "Raden viser til et skjema Varden ikke har"
+    )
+
+
+def test_handlingstypene_i_varden_leses_av_noeklene_og_typene_i_filene(tmp_path):
+    varden = tmp_path / "varden"
+    (varden / "tekster").mkdir(parents=True)
+    (varden / "__tests__").mkdir()
+    (varden / "Skjema.svelte").write_text(
+        "const vises = (a) => handlinger.includes(`korrigere:${a.gjelder}`);\n"
+        "const svar = tilbudte.filter((h) => h.type === 'svare_paa_foresporsel');\n"
+        "const godta = 'godta:' + spor;\n"
+        "const art = 'korrespondanse:';\n",
+        encoding="utf-8",
+    )
+    (varden / "tekster" / "handlingene.ts").write_text("{ type: 'trekke' }, 'trekke:x'", encoding="utf-8")
+    (varden / "__tests__" / "a.test.ts").write_text("'ingen_krav:frist'", encoding="utf-8")
+    typene = {"korrigere", "svare_paa_foresporsel", "godta", "trekke", "ingen_krav"}
+    assert hr.handlingstypene_i_varden(typene, (varden,)) == {
+        "korrigere",
+        "svare_paa_foresporsel",
+        "godta",
+    }
+    with pytest.raises(ValueError, match="Ingen filer"):
+        hr.handlingstypene_i_varden(typene, (tmp_path / "tom",))
 
 
 def test_skjemaene_i_varden_leses_av_noeklene_i_hvert_skjema(tmp_path):
