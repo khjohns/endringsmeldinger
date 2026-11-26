@@ -258,7 +258,7 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     expect(screen.getAllByText('3 varsler').length).toBeGreaterThan(0);
   });
 
-  it('byggherren får ikke svaret på varselet etter punkt 34.1.2 som står alene, før skjemaet er bygget, og svarene på de to varslene om regningsarbeid i samme brev har arbeidet (#2447, U-8)', async () => {
+  it('byggherren får svaret på varselet etter punkt 34.1.2 som står alene i samme svarskjema, og svarene på de to varslene om regningsarbeid i samme brev har arbeidet (#2447, VS-U87 punkt 32, U-8)', async () => {
     const demosak = await aapneSom('te-har-varslet', 'BH');
     const u = utledJournal(demosak().journal(), KJERNE);
     const varselet = u.spor.vederlag.varsler['34.1.2']!.id;
@@ -269,13 +269,27 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       k.textContent?.trim().startsWith('Svar på')
     );
     const svarene = knappene.map((k) => k.textContent?.trim() ?? '');
-    // Én primærknapp per brev (system.md, «Handlingene i Varden»).
-    expect(knappene.filter((k) => k.classList.contains('knapp-primaer'))).toHaveLength(1);
+    // Én primærknapp per brev (system.md, «Handlingene i Varden»): varslene etter punkt 34.4 og
+    // 34.3.3 står i brev 3, og varselet etter punkt 34.1.2 i et annet brev.
+    expect(knappene.map((k) => k.classList.contains('knapp-primaer'))).toEqual([
+      true,
+      false,
+      false,
+      true,
+    ]);
     expect(svarene).toEqual([
       'Svar på varselet om regningsarbeid i brev 3: Ekstra graving i grøften ved kum 4',
       'Svar på varselet om regningsarbeid i brev 3: Omlegging av fjernvarmerør langs fasade nord',
       'Svar på varselet om justering av enhetsprisene',
+      'Svar på varselet om vederlagsjustering',
     ]);
+    await fireEvent.click(knappene[3]!);
+    const skjema = within(await screen.findByRole('form'));
+    expect(
+      skjema.getByRole('heading', { level: 2, name: /^Svar på varsel om vederlagsjustering/ })
+    ).toBeTruthy();
+    expect(skjema.getByRole('radio', { name: 'Kom i tide' })).toBeTruthy();
+    expect(skjema.queryByRole('radio', { name: 'Godtar justeringen' })).toBeNull();
   });
 });
 

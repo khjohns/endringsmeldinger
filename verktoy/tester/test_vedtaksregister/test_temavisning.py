@@ -215,6 +215,7 @@ def test_kjeden_viser_forholdene_begge_veier_i_raden_til_vedtaket(tema, kilder):
     assert "Bygger på [GR-U15](#gr-u15)" in aktive and passive == [
         "Samlet av [VS-U77](#vs-u77)",
         "Samlet av [VS-U87](#vs-u87)",
+        "Samlet av [VS-U96](#vs-u96)",
     ]
 
 

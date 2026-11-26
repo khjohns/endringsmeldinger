@@ -1,5 +1,5 @@
 <!--
-  BH svarer på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14), i samme
+  BH svarer på et varsel i vederlaget som står alene (G-9 i BF-14, G-7 i BF-37), i samme
   svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
   svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
   (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
@@ -104,11 +104,19 @@
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
+  const varselPaakrevd = $derived(hjemmel === '34.1.2' || hjemmel === '34.1.3');
+  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, tilbys ikke standpunktet. Kjernen
+  // tilbyr handlingen likevel til #2464 er rettet, og da fjernes grenen.
+  const varselKrevesIkke = $derived(
+    hjemmel === '34.1.2' &&
+      !!kjernesak.visning?.spor.vederlag.etiketter.includes('varsel_kreves_ikke')
+  );
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen, også før de er
   // besvart. Som i utfyllingen for kravposten (`lagIVederlaget`) regnes et ubesvart varsel som
   // innsigelse og en ubesvart justering som bestridt.
   const utfylt = $derived(
-    hjemmel === '34.3.3' && (valg.varsletITide === null || valg.godtarJustering === null)
+    hjemmel !== '34.4' &&
+      (valg.varsletITide === null || (hjemmel === '34.3.3' && valg.godtarJustering === null))
       ? nyttSvarI(
           varselsvaret(
             utenTekster({
@@ -171,10 +179,18 @@
   const punkteneForVarselet = $derived(
     hjemmel === '34.4'
       ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
-      : [
-          punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
-          punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
-        ]
+      : hjemmel !== '34.3.3'
+        ? [
+            punktet(
+              hjemmel,
+              varselpunktet,
+              varselKrevesIkke ? VARSELSVARET.krevesIkkeLinje : SKJEMA.ikkeBesvart
+            ),
+          ]
+        : [
+            punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
+            punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
+          ]
   );
   const forholdet = $derived(linjer.filter((l) => l.punkt === FORHOLDET));
   const skjemapunkter = $derived([
@@ -188,7 +204,17 @@
       {
         felt: 'varsel-standpunkt',
         post: null,
-        tekst: hjemmel === '34.4' && iTide === null ? VARSELSVARET.manglerInnsigelse : null,
+        tekst: varselKrevesIkke
+          ? VARSELSVARET.krevesIkke
+          : hjemmel === '34.4' && iTide === null
+            ? VARSELSVARET.manglerInnsigelse
+            : null,
+      },
+      // VS-U87 punkt 32: svaret på varselet etter § 34.1.2 og § 34.1.3 har bare standpunktet.
+      {
+        felt: 'varsel',
+        post: null,
+        tekst: varselPaakrevd && !varselKrevesIkke && iTide === null ? SKJEMA.manglerITide : null,
       },
       {
         felt: 'justering',
@@ -337,6 +363,8 @@
         bind:varsletITide={valg.varsletITide}
         bind:godtarJustering={valg.godtarJustering}
         ikkeGitt={false}
+        varselValgfri={!varselPaakrevd}
+        varselFeil={feil(`${uid}-varsel`)}
         justeringValgfri={false}
         justeringFeil={feil(`${uid}-justering`)}
         {foranVarselet}
@@ -356,11 +384,15 @@
        (`system.md`, «Utkastet er brevet mens det skrives»). -->
     <Spoersmaal
       id={`${uid}-sp-varselet`}
-      aktiv={hjemmel === '34.4' && iTide === null}
+      aktiv={hjemmel !== '34.3.3' && !varselKrevesIkke && iTide === null}
       tittel={overskrift(hjemmel) ?? varselpunktet}
     >
       {#if varselet.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(varselet.arbeid)}</p>{/if}
-      {@render standpunktet('varselet')}
+      {#if varselKrevesIkke}
+        <p class="dempet" id={`${uid}-varsel-standpunkt`}>{VARSELSVARET.krevesIkkeLinje}</p>
+      {:else}
+        {@render standpunktet('varselet')}
+      {/if}
     </Spoersmaal>
     {#if hjemmel === '34.3.3'}
       <Spoersmaal

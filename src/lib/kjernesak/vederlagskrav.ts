@@ -11,10 +11,10 @@ import {
 } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import {
-  erKravpostvarselhjemmel,
   type Krav,
   type Kravpost,
   type Kravpostvarselhjemmel,
+  type Vederlagsvarselhjemmel,
 } from '#kjerne/typer.ts';
 import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
 import {
@@ -198,10 +198,10 @@ export function varseletFoerBrevet(
   return varseletFoer({ ...u, journal: u.journal.slice(0, i) }, post);
 }
 
-/** Varselet etter § 34.3.3 eller § 34.4 et svar som står alene gjelder (VS-U79). */
+/** Varselet i vederlaget et svar som står alene gjelder (VS-U79, VS-U87 punkt 30–32). */
 export interface VarseletAlene {
   id: string;
-  hjemmel: Kravpostvarselhjemmel;
+  hjemmel: Vederlagsvarselhjemmel;
   /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
   foer: StandpunktTilVarselet | null;
   /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U77 punkt 33). */
@@ -218,31 +218,13 @@ export interface VarseletAlene {
 export const erSvarPaaVarsel = (u: Utledning, dokument: string) =>
   u.spor.vederlag.svarPaaVarsler.some((s) => s.dokument === dokument);
 
-/**
- * Varselet etter § 34.3.3 eller § 34.4 `gjelder`, når byggherren kan svare på det alene. Svaret
- * på varselet etter § 34.1.2 og § 34.1.3 (VS-U87 punkt 32) er ikke bygget i Varden (G-7 i BF-37).
- */
-function kravpostvarseletSvaretGjelder(u: Utledning, gjelder: string) {
-  const v = varseletSvaretGjelder(u, gjelder);
-  return v && erKravpostvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
-}
-
-/**
- * Svaret på varselet `gjelder` etter § 34.1.2 eller § 34.1.3 (VS-U87 punkt 32), som Varden ikke har
- * skjema for ennå. Handlingen vises ikke, så den ikke åpner et tomt skjema (#2447).
- */
-export function svaretPaaVarseletErIkkeBygget(u: Utledning, gjelder: string): boolean {
-  const v = varseletSvaretGjelder(u, gjelder);
-  return !!v && !erKravpostvarselhjemmel(v.hjemmel);
-}
-
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
-  kravpostvarseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
+  varseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
 
 /** Varselet `gjelder` i vederlaget som byggherren kan svare på, eller `null` (`varseletSvaretGjelder`). */
 export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
-  const v = kravpostvarseletSvaretGjelder(u, gjelder);
+  const v = varseletSvaretGjelder(u, gjelder);
   if (!v) return null;
   return {
     ...v,

@@ -12,11 +12,7 @@
   import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
-  import {
-    arbeidetI,
-    hjemmelenForVarselet,
-    svaretPaaVarseletErIkkeBygget,
-  } from '#lib/kjernesak/vederlagskrav.ts';
+  import { arbeidetI, hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -178,12 +174,7 @@
           h.noekkel !== primaer &&
           h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
-          h.type !== 'oppgi_kunnskapsdato' &&
-          !(
-            (h.type === 'svare' || h.type === 'revidere') &&
-            h.gjelder &&
-            svaretPaaVarseletErIkkeBygget(u, h.gjelder)
-          )
+          h.type !== 'oppgi_kunnskapsdato'
       )
       .map((h) => h.noekkel)
   );

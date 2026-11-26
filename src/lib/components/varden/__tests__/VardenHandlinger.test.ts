@@ -6,9 +6,6 @@ import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import { SMAL } from '#lib/components/varden/medie.svelte.ts';
 import { registrerOppsett, BF, START, demopanel } from './vardenOppsett.ts';
-import { svaretPaaVarseletErIkkeBygget } from '#lib/kjernesak/vederlagskrav.ts';
-import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
-import { KJERNE } from '#kjerne/versjon.ts';
 
 registrerOppsett();
 
@@ -21,28 +18,20 @@ describe('Varden med brukerforløpet BF-01', () => {
     'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet unntatt innsigelsen',
     async (punkt, part) => {
       let kjernesak: ReturnType<typeof lagKjernesak> | null = null;
-      let demosak: Demosak | null = null;
       render(Demoforloep, {
         forloep: START,
         punkt,
         onpunkt: () => {},
-        onstart: (d: Demosak, k: ReturnType<typeof lagKjernesak>) => {
-          demosak = d;
+        onstart: (_: Demosak, k: ReturnType<typeof lagKjernesak>) => {
           kjernesak = k;
         },
       });
       const radio = demopanel().getByRole('radio', { name: part });
       if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
       await screen.findByRole('heading', { name: BF.tittel, level: 1 });
-      // Handlingene kjernen gir vederlagssporet (`tilbudte` i `kjerne/kommandoer/handlinger.ts`),
-      // uten svaret på et varsel etter § 34.1.2 eller § 34.1.3 som står alene, som ikke har
-      // skjema ennå (#2447).
-      const u = utledJournal(demosak!.journal(), KJERNE);
+      // Handlingene kjernen gir vederlagssporet (`tilbudte` i `kjerne/kommandoer/handlinger.ts`).
       const tilbudt = kjernesak!.tilbudte
-        .filter(
-          (h) =>
-            h.spor === 'vederlag' && !(h.gjelder && svaretPaaVarseletErIkkeBygget(u, h.gjelder))
-        )
+        .filter((h) => h.spor === 'vederlag')
         .map((h) => h.noekkel);
       const iVarden = [...document.querySelectorAll('[data-handling]')].map(
         (e) => e.getAttribute('data-handling')!
