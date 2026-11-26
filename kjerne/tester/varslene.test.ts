@@ -2063,12 +2063,24 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     ).toBe('KRAVPOSTVARSELET');
   });
 
-  it('en kravpost i en ny versjon kan gjenta varselet, og et feil valg rettes til et annet varsel uten å åpne tidsrommet for svaret igjen (KA-U56, VS-U87 punkt 23 og 33)', () => {
+  it('en kravpost i en ny versjon kan gjenta varselet, og et feil valg rettes til et annet varsel uten å åpne tidsrommet for svaret igjen (KA-U56, VS-U96 punkt 23 og 33)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     s.send('TE', registrertVarsel('34.4'));
     const [foerste, andre] = varslene(s).map((v) => v.id);
     s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: foerste } }]));
+    expect(handlinger(s.u(), 'BH'), 'kontrollsaken: ikke besvart').toContain(`svare:${foerste}`);
+    // Byggherren svarer på kravversjonen med kravposten, så tidsrommet er over (punkt 33).
+    const krav = s.u().spor.vederlag.gjeldendeKrav!;
+    const vurderinger = {
+      kravposter: kravposterI(krav).map((p) => ({ gjelder: p.id, aksepterer: true })),
+    };
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', krav.id, vurderinger, { resultat: 'godkjent', godkjent_beloep: 0 }, null),
+      ],
+    });
     expect(
       s.avvist(
         'TE',

@@ -44,6 +44,51 @@ const vederlagskrav = (kravposter: Data[]) => ({
   innhold: { kravposter },
 });
 
+/** Svaret på gjeldende vederlagskrav, med `postsvar` som svaret på hver kravpost, ellers godkjent, og resultatet kjernen regner ut. */
+function svarPaaKravet(s: ReturnType<typeof sak>, vurderinger: Data, postsvar?: Data) {
+  const u = s.u();
+  const k = u.spor.vederlag.gjeldendeKrav!;
+  const v = {
+    ...vurderinger,
+    kravposter: kravposterI(k).map((p) => ({
+      gjelder: p.id,
+      ...(postsvar ?? { aksepterer: true, vurdering: 'godkjent', godkjent_beloep: p.beloep }),
+    })),
+  };
+  let resultat: Data = {};
+  try {
+    const r = regnUtSvar(
+      'vederlag',
+      v,
+      { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
+      KJERNE.regler
+    );
+    resultat = { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep };
+    if ('subsidiaert_godkjent_beloep' in r)
+      resultat.subsidiaert_godkjent_beloep = r.subsidiaert_godkjent_beloep;
+    if ('poster' in r) resultat.poster = r.poster;
+  } catch (e) {
+    if (!(e instanceof UgyldigVurdering)) throw e;
+  }
+  return { type: 'brev', svar: [svar('vederlag', k.id, v, resultat, null)] };
+}
+
+const feltet = {
+  '34.1.2': 'hovedkrav_varslet_i_tide',
+  '34.1.3': 'produktivitet_varslet_i_tide',
+} as const;
+/** Svaret på kravet med standpunktet `iTide` til varselet, eller uten det. */
+const vurderingene = (hjemmel: '34.1.2' | '34.1.3', iTide?: boolean): Data => ({
+  ...(hjemmel === '34.1.3'
+    ? {
+        hovedkrav_varslet_i_tide: true,
+        produktivitet_vurdering: 'godkjent',
+        ...(iTide === false ? { produktivitet_begrenset_beloep: 10000 } : {}),
+      }
+    : {}),
+  ...(iTide === undefined ? {} : { [feltet[hjemmel]]: iTide }),
+});
+
 describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 30, VS-U79)', () => {
   it('byggherren får tilbud om å svare på varselet, ikke om å erstatte et svar som ikke finnes (punkt 33)', () => {
     const { s, varsel } = medVarsel('34.3.3');
@@ -96,7 +141,7 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
     ).toBeNull();
   });
 
-  it('svaret kan ikke gis når en sendt kravversjon har en kravpost som gjelder varselet (punkt 33)', () => {
+  it('svaret kan gis etter kravversjonen med en kravpost som gjelder varselet, til byggherren har svart på den (VS-U96 punkt 33)', () => {
     const { s, varsel } = medVarsel('34.3.3');
     s.send(
       'TE',
@@ -109,15 +154,18 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
         },
       ])
     );
-    expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
-    expect(
+    const svaret = () =>
       s.avvist(
         'BH',
         lagtTil(dagen(s), [
           svar('vederlag', varsel, { varslet_i_tide: false, godtar_justering: false }, {}, null),
         ])
-      )
-    ).toBe('VARSELET_GJELDER_EN_KRAVPOST');
+      );
+    expect(handlinger(s.u(), 'BH')).toContain(`svare:${varsel}`);
+    expect(svaret()).toBeNull();
+    s.send('BH', svarPaaKravet(s, {}, { aksepterer: true, godtar_justering: true }));
+    expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
+    expect(svaret()).toBe('KRAVET_ER_BESVART');
   });
 });
 
@@ -608,22 +656,45 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
   );
 
   it.each([
-    ['34.1.2', tilbud(125000), 'VEDERLAGSKRAV_SENDT'],
-    ['34.1.3', tilbud(125000), null],
-    [
-      '34.1.3',
-      tilbud(125000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
-      'VARSELET_GJELDER_ET_SENDT_KRAV',
-    ],
+    ['34.1.2', tilbud(125000)],
+    ['34.1.3', tilbud(125000, { saerskilt: { produktivitet: { beloep: 40000 } } })],
   ] as const)(
-    'svaret på varselet etter punkt %s etter et vederlagskrav (punkt 33)',
-    (hjemmel, innhold, kode) => {
+    'svaret på varselet etter punkt %s kan gis etter vederlagskravet, til byggherren har svart på det (VS-U96 punkt 33)',
+    (hjemmel, innhold) => {
       const { s, varsel } = medVarselEtter(hjemmel, 'svikt');
       s.send('TE', { type: 'krav', spor: 'vederlag', innhold });
-      expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBe(kode);
-      expect(handlinger(s.u(), 'BH').includes(`svare:${varsel}`)).toBe(kode === null);
+      expect(handlinger(s.u(), 'BH')).toContain(`svare:${varsel}`);
+      expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBeNull();
+      s.send('BH', svarPaaKravet(s, vurderingene(hjemmel, true)));
+      expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
+      expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBe('KRAVET_ER_BESVART');
     }
   );
+
+  it('svaret på det særskilte varselet etter punkt 34.1.3 kan gis etter svaret på et vederlagskrav uten den særskilte justeringen (VS-U96 punkt 33)', () => {
+    const { s, varsel } = medVarselEtter('34.1.3', 'svikt');
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
+    expect(handlinger(s.u(), 'BH')).toContain(`svare:${varsel}`);
+    expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBeNull();
+  });
+
+  it('det nye svaret på varselet etter punkt 34.1.2 kan sendes til byggherren har svart på vederlagskravet (VS-U96 punkt 33)', () => {
+    const { s, varsel } = medVarselEtter('34.1.2', 'svikt');
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    const [svaret] = s.u().spor.vederlag.svarPaaVarsler;
+    const nytt = {
+      type: 'revisjon',
+      erstatter: svaret.id,
+      svar: svar('vederlag', varsel, { varslet_i_tide: true }, {}, null),
+    };
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
+    expect(handlinger(s.u(), 'BH')).toContain(`revidere:${varsel}`);
+    expect(s.avvist('BH', nytt)).toBeNull();
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
+    expect(handlinger(s.u(), 'BH')).not.toContain(`revidere:${varsel}`);
+    expect(s.avvist('BH', nytt)).toBe('KRAVET_ER_BESVART');
+  });
 });
 
 describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 står mot svaret på kravet (VS-U87 punkt 9, 10, 12 og 34, #2429)', () => {
@@ -648,52 +719,6 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     return s;
   }
 
-  /** Svaret på gjeldende vederlagskrav, med resultatet kjernen regner ut. */
-  function svarPaaKravet(s: ReturnType<typeof sak>, vurderinger: Data) {
-    const u = s.u();
-    const k = u.spor.vederlag.gjeldendeKrav!;
-    const v = {
-      ...vurderinger,
-      kravposter: kravposterI(k).map((p) => ({
-        gjelder: p.id,
-        aksepterer: true,
-        vurdering: 'godkjent',
-        godkjent_beloep: p.beloep,
-      })),
-    };
-    let resultat: Data = {};
-    try {
-      const r = regnUtSvar(
-        'vederlag',
-        v,
-        { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
-        KJERNE.regler
-      );
-      resultat = { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep };
-      if ('subsidiaert_godkjent_beloep' in r)
-        resultat.subsidiaert_godkjent_beloep = r.subsidiaert_godkjent_beloep;
-      if ('poster' in r) resultat.poster = r.poster;
-    } catch (e) {
-      if (!(e instanceof UgyldigVurdering)) throw e;
-    }
-    return { type: 'brev', svar: [svar('vederlag', k.id, v, resultat, null)] };
-  }
-
-  const feltet = {
-    '34.1.2': 'hovedkrav_varslet_i_tide',
-    '34.1.3': 'produktivitet_varslet_i_tide',
-  } as const;
-  /** Svaret på kravet med standpunktet `iTide` til varselet, eller uten det. */
-  const vurderingene = (hjemmel: '34.1.2' | '34.1.3', iTide?: boolean): Data => ({
-    ...(hjemmel === '34.1.3'
-      ? {
-          hovedkrav_varslet_i_tide: true,
-          produktivitet_vurdering: 'godkjent',
-          ...(iTide === false ? { produktivitet_begrenset_beloep: 10000 } : {}),
-        }
-      : {}),
-    ...(iTide === undefined ? {} : { [feltet[hjemmel]]: iTide }),
-  });
   const omVarselet = {
     '34.1.2': 'varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2',
     '34.1.3':

@@ -6558,10 +6558,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2177b',
     feilklasse:
-      'byggherren kan svare på varselet alene også når en sendt kravversjon har en kravpost som gjelder det (VS-U77 punkt 33, #2177)',
+      'byggherren kan svare på varselet alene også etter svaret på en kravversjon med en kravpost som gjelder det (VS-U96 punkt 33, #2177, #2456)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder)', 'false']],
-    mal: ['svaret kan ikke gis når en sendt kravversjon har en kravpost som gjelder varselet'],
+    mal: [
+      'svaret kan gis etter kravversjonen med en kravpost som gjelder varselet, til byggherren har svart på den',
+    ],
   },
   {
     id: 'F2177c',
@@ -7356,10 +7358,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2409a',
     feilklasse:
-      'svaret på varselet etter punkt 34.1.2 tas imot etter at vederlagskravet er sendt (VS-U87 punkt 33, #2409)',
+      'svaret på varselet etter punkt 34.1.2 tas imot etter at byggherren har svart på vederlagskravet (VS-U96 punkt 33, #2409, #2456)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["        (varselet.hjemmel === '34.1.2' ||", '        (false ||']],
-    mal: ['etter et vederlagskrav (punkt 33)'],
+    mal: ['kan gis etter vederlagskravet, til byggherren har svart på det (VS-U96 punkt 33)'],
   },
   {
     id: 'F2409b',
@@ -7820,6 +7822,21 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'bare når punktet krever varsel (OV-U89 punkt 13, #2464)',
       'der TE krever endring, sier visningen at varselet ikke kreves',
+    ],
+  },
+  {
+    id: 'F2456a',
+    feilklasse:
+      'svaret på varselet som står alene avvises når kravversjonen med det varselet gjelder er sendt, ikke når byggherren har svart på den (VS-U96 punkt 33, #2456)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['    d.svar.some((x) => {', '    d.krav.some((x) => {'],
+      ['      const k = kravene.get(x.gjelder);', '      const k = kravene.get(x.id);'],
+    ],
+    mal: [
+      'til byggherren har svart på det (VS-U96 punkt 33)',
+      'til byggherren har svart på den (VS-U96 punkt 33)',
+      'kan sendes til byggherren har svart på vederlagskravet (VS-U96 punkt 33)',
     ],
   },
 ];
