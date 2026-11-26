@@ -200,6 +200,27 @@ describe('det innlegget må ha (MM-U47 punkt 2 og designdelen)', () => {
     expect(s.avvist('TE', innlegg(brev.event_id, { utdypning: ' ' }))).toBe('UGYLDIG_FORM');
   });
 
+  it('innlegget kan ikke vise til en rettet registrering, men til den siste registreringen (OV-U17, OV-U18)', () => {
+    const { s } = medSvaret();
+    const registrering = {
+      type: 'registrert_brev',
+      ...SOM_BREV,
+      sendt: '2026-10-04',
+      beskrivelse: 'Brev om fremdriften',
+      dokumentasjon: [VEDLEGGET],
+    };
+    const foerste = s.send('BH', registrering);
+    expect(s.avvist('TE', innlegg(foerste.event_id)), 'kontrollsak').toBeNull();
+    // OV-U17: en ny registrering med en annen dato retter den første.
+    const ny = s.send('BH', { ...registrering, sendt: '2026-10-01', retter: foerste.event_id });
+    expect(s.avvist('TE', innlegg(foerste.event_id))).toBe('INGEN_BREV');
+    expect(s.avvist('TE', innlegg(ny.event_id))).toBeNull();
+    // OV-U18: brevet hører ikke til saken.
+    const retting = s.send('BH', { type: 'ikke_i_saken', retter: ny.event_id });
+    expect(s.avvist('TE', innlegg(ny.event_id))).toBe('INGEN_BREV');
+    expect(s.avvist('TE', innlegg(retting.event_id))).toBe('INGEN_BREV');
+  });
+
   it('innlegget har ingen dato fra avsenderen: et innlegg sendt utenfor løsningen legges til som korrespondanse (D-6)', () => {
     const { s, brev } = medSvaret();
     expect(s.avvist('TE', innlegg(brev.event_id, { sendt: '2026-10-04' }))).toBe('UGYLDIG_FORM');

@@ -7734,8 +7734,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  return avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');",
-        "  return u.elementer[gjelder] ? null : avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');",
+        "  return avvis(\n    'INGEN_BREV',",
+        "  return u.elementer[gjelder] ? null : avvis(\n    'INGEN_BREV',",
       ],
     ],
     mal: ['innlegget må vise til et brev i saken, ikke til et element i brevet'],
@@ -7788,6 +7788,13 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [["    throw new Uforstaatt('innlegget har ingen tittel');", '    void 0;']],
     mal: ['et innlegg fra løsningen uten tittel er ikke forstått'],
+  },
+  {
+    id: 'F1377i',
+    feilklasse: 'innlegget kan vise til en rettet registrering (OV-U17, OV-U18, MM-U47 punkt 2)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['!d.ikkeISaken && !rettet.has(d.id)', '!d.ikkeISaken']],
+    mal: ['innlegget kan ikke vise til en rettet registrering'],
   },
 ];
 

@@ -659,6 +659,7 @@ export function formfeil(kommando: unknown): string[] {
     for (const felt of ['tittel', 'utdypning'] as const)
       if (!(kommando[felt] as string).trim())
         feil.push(`$.${felt}: innlegget har ingen ${felt === 'tittel' ? 'tittel' : 'tekst'}`);
+
   // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
   if (
     type === 'krav' &&

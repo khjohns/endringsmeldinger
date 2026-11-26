@@ -39,6 +39,7 @@ import {
   datoenDetBleSendt,
   kravSomVarsler,
   kravversjonenPaaDagen,
+  rettedeBrev,
   sendtFoerGjeldendeSvar,
   type Utledning,
 } from '../utledning/utled.ts';
@@ -493,11 +494,17 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
 
 /**
  * MM-U47 punkt 2: innlegget viser til ett brev i saken, også et registrert brev. Rettingen som sier
- * at et brev ikke hører til saken (OV-U18), er ikke et brev.
+ * at et brev ikke hører til saken, er ikke et brev (OV-U18), og en rettet registrering står bare i
+ * historikken (OV-U17, OV-U18), som for vedleggene (`kravetErVarselet`).
  */
 function henvisningenIInnlegget(gjelder: string, u: Utledning): Avvisning | null {
-  for (const d of dokumenterI(u.journal)) if (d.id === gjelder && !d.ikkeISaken) return null;
-  return avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');
+  const rettet = rettedeBrev(u.registrerteBrev);
+  for (const d of dokumenterI(u.journal))
+    if (d.id === gjelder && !d.ikkeISaken && !rettet.has(d.id)) return null;
+  return avvis(
+    'INGEN_BREV',
+    'Innlegget må vise til et brev i saken, eller til den siste registreringen av det.'
+  );
 }
 
 /**
