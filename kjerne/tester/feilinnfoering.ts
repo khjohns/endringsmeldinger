@@ -7704,7 +7704,7 @@ const MUTASJONER: Mutasjon[] = [
       'opplysningen som gjaldt ved svaret, tar med en opplysning gitt etter svaret (U-8 i BF-48, VS-U86 punkt 15, #2012)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['versjonen(o.id) < svaret', 'versjonen(o.id) > 0']],
-    mal: ['variant D: totalentreprenøren oppgir datoen etter byggherrens svar'],
+    mal: ['et varsel lagt til etter svaret, sendt samme dag som svaret'],
   },
   {
     id: 'F2012i',

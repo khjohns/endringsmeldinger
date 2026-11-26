@@ -222,6 +222,17 @@ describe('det egne brevet som supplerer eller endrer datoen (VS-U86 punkt 14, MM
     expect(siste(s)).toBe('2026-09-28');
   });
 
+  it('et varsel lagt til etter svaret, sendt samme dag som svaret, er ikke opplysningen svaret står med (U-8 i BF-48, VS-U86 punkt 15)', () => {
+    const s = medPaaberopelsen();
+    s.send('TE', kravet());
+    // Svaret sendes 4. oktober, og varselet lagt til etterpå ble sendt samme dag.
+    s.send('BH', forSent(s));
+    const svaret = s.u().spor.vederlag.gjeldendeSvar!;
+    s.send('TE', registrer('2026-10-04', '2026-10-01'));
+    expect(siste(s)).toBe('2026-10-01');
+    expect(s.u().svar[svaret.id].kunnskapsdato).toBeNull();
+  });
+
   it('variant D: totalentreprenøren oppgir datoen etter byggherrens svar, og svaret står med opplysningen det hadde (MM-U59 punkt 12, U-5 og U-8 i BF-48)', () => {
     const s = medPaaberopelsen();
     const krav = s.send('TE', kravet());
