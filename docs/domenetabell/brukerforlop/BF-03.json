@@ -59,7 +59,7 @@
             "staar": "Varselet ble sendt samme dag som tegningene kom."
           },
           {
-            "staar": "Det endrer ikke svaret i brev 5"
+            "staar": "Det endrer ikke svaret i brev 5 eller beløpet etter svaret."
           },
           {
             "klikk": "Tilbake til utkastet",
@@ -189,7 +189,7 @@
             "staar": "Byggherren viser til brev K201-KOE-005-06 av 1. november 2026:"
           },
           {
-            "staar": "Et innlegg er ikke en påberopelse i svaret."
+            "staar": "Et innlegg endrer ikke standpunktene i svaret"
           },
           {
             "kryss": "Jeg har kontrollert brevet."
@@ -203,6 +203,17 @@
           },
           {
             "staar": "Innlegg fra byggherren etter siste brev, 3. november 2026."
+          },
+          {
+            "klikk": "Totalentreprenøren",
+            "tilstand": "te-traad"
+          },
+          {
+            "klikk": "Send innlegg",
+            "tilstand": "te-skjema"
+          },
+          {
+            "staar": "Brev 8 til byggherren"
           }
         ]
       }
@@ -241,7 +252,8 @@
     "MM-U35",
     "MM-U36",
     "OV-U79",
-    "OV-U81"
+    "OV-U81",
+    "MM-U44"
   ],
   "venter_paa": [
     "#1377",
@@ -291,6 +303,11 @@
       "dato": "2026-11-25",
       "forhold": "#1377, #1657",
       "hva": "Versjon 5: forløpet for innlegget for begge parter, med skissen innlegget.html av mønsteret i stedet for bf-03-uenig.html. Kildene er byttet med de gjeldende vedtakene: samlevedtakene MM-U47, KA-U46, KA-U52, KA-U87, VS-U87, HF-U23, MM-U60, MM-U59 og OV-U123 i stedet for postene de samler, og MM-U48, MM-U56, OV-U97, OV-U99, GR-U27, EO-U25, GFK-U2 og HF-U3. Venter også på #1657 (S-4 og S-5)."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#1657, PR #2415",
+      "hva": "Svarene S-4 A og S-5 A: innsigelsen etter punkt 5 tredje ledd og passiviteten er ikke egne handlinger. MM-U44 står i kildene (innlegget godtas i en sak løsningen ikke forstår). Klikkstiene følger teksten i skissen etter den kognitive forprøven."
     }
   ]
 }

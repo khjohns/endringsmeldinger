@@ -257,6 +257,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U40](../../plans/vedtak.md#mm-u40) | — | BF-44 bh-har-mottatt-kravet, BF-44 te-har-mottatt-svaret | — |
 | [MM-U41](../../plans/vedtak.md#mm-u41) | — | BF-05 start | BF-06 |
 | [MM-U43](../../plans/vedtak.md#mm-u43) | — | — | BF-03 |
+| [MM-U44](../../plans/vedtak.md#mm-u44) | — | — | BF-03 |
 | [MM-U47](../../plans/vedtak.md#mm-u47) | — | BF-02A te-har-mottatt-svaret, BF-02D korrigeringen-er-sendt | BF-03, BF-10 |
 | [MM-U48](../../plans/vedtak.md#mm-u48) | — | BF-44 te-har-mottatt-svaret | BF-03 |
 | [MM-U50](../../plans/vedtak.md#mm-u50) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret, BF-46 bh-har-mottatt-aksepten | BF-01 te-har-godtatt-svaret, BF-02A korrigeringen-er-sendt, BF-44 te-har-mottatt-svaret, BF-45 bh-har-mottatt-kravet, BF-45 te-har-mottatt-svaret, BF-46 bh-har-mottatt-aksepten | BF-01V, BF-06, BF-07, BF-48, BF-49, BF-50 |
