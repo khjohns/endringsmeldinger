@@ -19,7 +19,7 @@ import {
   type Korrespondansevalg,
 } from './korrespondansen';
 import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
-import { KRAVSKJEMA } from './tekster';
+import { KRAVSKJEMA, KUNNSKAPSDATO } from './tekster';
 import type { Mangel } from './mangler';
 
 /**
@@ -56,8 +56,11 @@ export interface Kravpostvalg {
 
 export interface Kravvalg {
   poster: Kravpostvalg[];
-  /** Kravet etter § 34.1.3 annet ledd, med beløpet som tekst, eller `null` uten posten. */
-  saerskilt: { beloep: string } | null;
+  /**
+   * Kravet etter § 34.1.3 annet ledd, med beløpet som tekst, eller `null` uten posten. `klarOver`
+   * er datoen TE ble klar over at utgiftene ville påløpe, når kravet gir varselet (U-1 i BF-48).
+   */
+  saerskilt: { beloep: string; klarOver?: string } | null;
   /** TE trekker den særskilte vederlagsjusteringen fra forrige versjon (KA-U83). */
   trekkerSaerskilt?: boolean;
   /** Forbeholdet i kravet (LV-U74). */
@@ -177,9 +180,14 @@ export const postene = (v: Kravvalg) => v.poster.filter((p) => !p.trukket);
 /**
  * Kommandoen for kravet. `varslene` er varselet hver post trenger, i rekkefølgen i
  * `postene(v)`, fra kjernen. Varselvalget sendes bare for en post kravet ellers er varselet for
- * (VS-U50).
+ * (VS-U50), og datoen i posten etter § 34.1.3 bare når kravet gir det særskilte varselet
+ * (`saerskiltVarsler`, VS-U86 punkt 12, D-2 i BF-48).
  */
-export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null)[]) {
+export function vederlagskravet(
+  v: Kravvalg,
+  varslene: readonly (Varselet | null)[],
+  saerskiltVarsler = false
+) {
   const kravposter = postene(v).map((p, i) => {
     const valg = gjeldendeVarselvalg(v, p);
     const varsel =
@@ -202,13 +210,16 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
   });
   const trekker = v.poster.filter((p) => p.trukket && p.id).map((p) => p.id!);
   const saerskilt = v.saerskilt ? beloepet(v.saerskilt.beloep) : undefined;
+  const klarOver = (saerskiltVarsler && v.saerskilt?.klarOver) || undefined;
   const forbehold = v.forbehold.trim();
   return {
     type: 'krav' as const,
     spor: 'vederlag' as const,
     innhold: definert({
       kravposter: kravposter.length ? kravposter : undefined,
-      saerskilt: v.saerskilt ? { produktivitet: { beloep: saerskilt } } : undefined,
+      saerskilt: v.saerskilt
+        ? { produktivitet: definert({ beloep: saerskilt, klar_over_utgiftene: klarOver }) }
+        : undefined,
       trekker: trekker.length ? trekker : undefined,
       trekker_saerskilt: v.trekkerSaerskilt && !v.saerskilt ? ['produktivitet'] : undefined,
     }),
@@ -238,13 +249,16 @@ function beloepsfeil(t: string, paakrevd: boolean, mangler: string): string | nu
 
 /**
  * Det som hindrer brevet, med skjemaets ord og ID-en til feltet etter `prefiks`. Kjernen avviser
- * det samme med feltkoder (D-1, D-19, «Ugyldig valg» i BF-14).
+ * det samme med feltkoder (D-1, D-19, «Ugyldig valg» i BF-14). `sendes` er datoen brevet sendes,
+ * eller ble sendt for et krav lagt til, når kravet gir det særskilte varselet etter § 34.1.3, og
+ * datoen TE oppgir i posten kan ikke være senere (U-6 i BF-48, VS-U83).
  */
 export function manglerIKravet(
   v: Kravvalg,
   varslene: readonly (Varselet | null)[],
   prefiks: string,
-  navnet: (p: Kravpostvalg) => string
+  navnet: (p: Kravpostvalg) => string,
+  sendes: string | null = null
 ): Mangel[] {
   const ut: Mangel[] = [];
   const med = postene(v);
@@ -299,6 +313,11 @@ export function manglerIKravet(
         tekst: KRAVSKJEMA.iSaerskilt(f),
         ved: f,
       });
+    const klarOver = v.saerskilt.klarOver;
+    if (sendes && klarOver && klarOver > sendes) {
+      const t = KUNNSKAPSDATO.etterBrevet(klarOver, sendes);
+      ut.push({ felt: `${prefiks}-klar-over`, post: null, tekst: t, ved: t });
+    }
   }
   return ut;
 }

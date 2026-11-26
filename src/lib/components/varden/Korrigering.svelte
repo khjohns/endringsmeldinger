@@ -6,24 +6,18 @@
   oppdragsgiver 06.11). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { FileText } from 'lucide-svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
-  import Arbeidsflate from './Arbeidsflate.svelte';
-  import Datofelt from './Datofelt.svelte';
-  import Forkastutkast from './Forkastutkast.svelte';
-  import Hovedlinjer from './Hovedlinjer.svelte';
+  import Datobrev from './Datobrev.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
-  import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
-  import Utkastkort from './Utkastkort.svelte';
   import { korrigeringen, type Korrigeringsvalg } from './kommandoer';
   import { brevene, datoerISporet, datoopplysningene } from './lesing';
-  import { FORHOLDET, KORRIGERING } from './tekster';
+  import { FORHOLDET, KORRIGERING, dagensDato } from './tekster';
 
   let {
     kjernesak,
@@ -44,7 +38,6 @@
     onforkast: () => void;
   } = $props();
   const uid = $props.id();
-  const id = (felt: string) => `${uid}-${felt}`;
 
   const opplysningen = $derived(datoopplysningene(u).find((o) => o.id === gjelder)!);
   const svarbrevet = $derived.by(() => {
@@ -61,7 +54,7 @@
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes('forhold')));
 
   // Dagens dato i Oslo, som datofeltet ikke kan gå forbi (U-3).
-  const idag = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date());
+  const idag = dagensDato();
 
   const kommando = $derived(korrigeringen(valg, opplysningen));
   const hode = $derived(utkastetsHode(u, kjernesak.sak?.merking, UTSAGNSTITTEL.korrigering));
@@ -77,7 +70,7 @@
           ? KORRIGERING.etterIdag
           : null
   );
-  const flyt = sendeflyt(() => kjernesak, id('hindring'));
+  const flyt = sendeflyt(() => kjernesak, `${uid}-hindring`);
   const visDatofeil = $derived(flyt.forsoekt ? datofeil : null);
 
   const linjer = $derived(
@@ -92,7 +85,7 @@
 
   function seBrevet() {
     return flyt.send({
-      mangler: datofeil ? () => document.getElementById(id('dato')) : null,
+      mangler: datofeil ? () => document.getElementById(`${uid}-dato`) : null,
       kommando,
       kanIkkeLages: KORRIGERING.kanIkkeLages,
       tilBrevkontrollen: (brevet) =>
@@ -108,123 +101,34 @@
 {#snippet sendeknapp()}
   <Sendeknapp {flyt} onclick={seBrevet}>{KORRIGERING.seBrevet}</Sendeknapp>
 {/snippet}
+{#snippet tidslinje()}
+  <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
+{/snippet}
 
-<Arbeidsflate>
-  {#snippet hoved()}
-    <Utkastkort id={id('tittel')} {...hode} avsender="TE" onsubmit={seBrevet}>
-      <div class="gjelder">
-        <FileText size={16} aria-hidden="true" />
-        <dl>
-          <div>
-            <dt>{KORRIGERING.duKorrigerer}</dt>
-            <dd>{KORRIGERING.opplysningen(opplysningen)}</dd>
-          </div>
-          <div>
-            <dt>{KORRIGERING.oppgittI}</dt>
-            <dd>{KORRIGERING.brevet(opplysningen.brev)}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="innhold">
-        <div class="virkning">
-          <p>{KORRIGERING.egetBrev(paaberopelsen, svarbrevet)}</p>
-          {#if lukket}<p>{KORRIGERING.lukket}</p>{/if}
-        </div>
-
-        <Datofelt
-          id={id('dato')}
-          etikett={KORRIGERING.nyDato(opplysningen.hva)}
-          hjelp={KORRIGERING.datoHjelp}
-          maks={idag}
-          bind:verdi={valg.dato}
-          paakrevd
-          feil={visDatofeil || null}
-        />
-
-        <Tekstomraade
-          id={id('forklaring')}
-          etikett={KORRIGERING.forklaring}
-          valgfri
-          hjelp={KORRIGERING.forklaringHjelp}
-          rader={4}
-          bind:verdi={valg.forklaring}
-        />
-
-        <div class="skjemafot">
-          <Forkastutkast tekst={KORRIGERING.forkastTekst} {onforkast} />
-        </div>
-      </div>
-    </Utkastkort>
-  {/snippet}
-
-  {#snippet hoeyre()}
-    <div class="feste">
-      <Hovedlinjer
-        tittel={KORRIGERING.panel}
-        tom={KORRIGERING.panelTom}
-        {linjer}
-        alternativer={false}
-        handling={sendeknapp}
-      />
-    </div>
-    <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
-  {/snippet}
-</Arbeidsflate>
-
-<style>
-  .gjelder {
-    display: flex;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface-inset);
-    border-top: var(--rule);
-    border-bottom: var(--rule);
-    font-size: 14px;
-  }
-  .gjelder :global(svg) {
-    flex: none;
-    margin-top: 3px;
-  }
-  .gjelder dl {
-    display: grid;
-    gap: var(--spacing-1);
-    margin: 0;
-  }
-  .gjelder dl > div {
-    display: grid;
-    grid-template-columns: 8rem 1fr;
-    gap: var(--spacing-3);
-  }
-  .gjelder dt {
-    color: var(--ink-3);
-  }
-  .gjelder dd {
-    margin: 0;
-    color: var(--ink);
-  }
-  .innhold {
-    display: grid;
-    gap: var(--spacing-6);
-    padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
-  }
-  .virkning {
-    display: grid;
-    gap: var(--spacing-2);
-    color: var(--ink-2);
-  }
-  .skjemafot {
-    padding-top: var(--spacing-4);
-    border-top: var(--rule);
-  }
-  .feste {
-    position: sticky;
-    top: var(--spacing-6);
-  }
-  @media (max-width: 560px) {
-    .gjelder dl > div {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-  }
-</style>
+<Datobrev
+  id={uid}
+  {hode}
+  onsubmit={seBrevet}
+  rader={[
+    { dt: KORRIGERING.duKorrigerer, dd: KORRIGERING.opplysningen(opplysningen) },
+    { dt: KORRIGERING.oppgittI, dd: KORRIGERING.brevet(opplysningen.brev) },
+  ]}
+  virkninger={[
+    KORRIGERING.egetBrev(paaberopelsen, svarbrevet),
+    ...(lukket ? [KORRIGERING.lukket] : []),
+  ]}
+  dato={{
+    etikett: KORRIGERING.nyDato(opplysningen.hva),
+    hjelp: KORRIGERING.datoHjelp,
+    maks: idag,
+    feil: visDatofeil || null,
+  }}
+  bind:datoen={valg.dato}
+  forklaring={{ etikett: KORRIGERING.forklaring, hjelp: KORRIGERING.forklaringHjelp }}
+  bind:forklaringen={valg.forklaring}
+  panel={{ tittel: KORRIGERING.panel, tom: KORRIGERING.panelTom, linjer }}
+  {sendeknapp}
+  {tidslinje}
+  forkastTekst={KORRIGERING.forkastTekst}
+  {onforkast}
+/>

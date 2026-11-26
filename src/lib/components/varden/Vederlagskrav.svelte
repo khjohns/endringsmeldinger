@@ -29,6 +29,7 @@
   import Tekstomraade from './Tekstomraade.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Knapp from './Knapp.svelte';
+  import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
@@ -52,10 +53,19 @@
     datoerISporet,
     forholdetISaken,
     klarOverForholdet,
+    kunnskapsdatoTilbudt,
+    sisteKunnskapsdatoen,
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { dagensDato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
+  import {
+    dagensDato,
+    kalenderdager,
+    KRAVSKJEMA,
+    KUNNSKAPSDATO,
+    LEGG_TIL,
+    OPPGITT,
+  } from './tekster';
   import { punktoverskriftene } from './svarskjema';
   import {
     PNS_GRENSE,
@@ -86,6 +96,7 @@
     lagtTil = null,
     onendre = () => {},
     onlagttil = () => {},
+    onkunnskapsdato,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -103,6 +114,8 @@
     onendre?: () => void;
     /** Kravet er lagt til. */
     onlagttil?: () => void;
+    /** TE oppgir eller endrer datoen etter § 34.1.3 i et eget brev, og utkastet står (U-10 i BF-48). */
+    onkunnskapsdato?: (varselet: string) => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -146,7 +159,10 @@
   );
   const varselPerPost = $derived(new Map(med.map((p, i) => [p.noekkel, varslene[i] ?? null])));
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
-  const kommando = $derived(vederlagskravet(v, varslene));
+  // VS-U86 punkt 12: datoen etter § 34.1.3 står i kravet når kravet gir det særskilte varselet.
+  const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
+  const iDag = dagensDato();
+  const kommando = $derived(vederlagskravet(v, varslene, saerskiltvarselet === null));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
   const varselkolonner = $derived(
     lagtTil ? KRAVSKJEMA.varselkolonnerLagtTil : KRAVSKJEMA.varselkolonner
@@ -276,8 +292,17 @@
     iSporet.filter((q) => !v.poster.some((x) => x !== p && x.id === q.id));
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
-  const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
-  const iVarselseksjonen = (m: Mangel) => /-(varsel|type|dato|dokument)-/.test(m.felt);
+  const mangler = $derived(
+    manglerIKravet(
+      v,
+      varslene,
+      uid,
+      navnet,
+      saerskiltvarselet === null ? (lagtTil?.dato ?? iDag) : null
+    )
+  );
+  const iVarselseksjonen = (m: Mangel) =>
+    /-(varsel|type|dato|dokument)-/.test(m.felt) || m.felt === id('klar-over');
   const ventendePunkt = $derived.by(() => {
     if (mangler.some((m) => m.felt !== id('saerskilt') && !iVarselseksjonen(m)))
       return id('postene');
@@ -357,9 +382,10 @@
     return b.art === 'krav' ? KRAVSKJEMA.gittMedKravet(b) : KRAVSKJEMA.gittI(b);
   };
   const klarOver = $derived(klarOverForholdet(u));
-  const iDag = dagensDato();
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
-  const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
+  // U-10 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet.
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
     varslerUtenKravpost(u).filter(
@@ -569,6 +595,16 @@
           ]
         : [];
     }),
+    // U-2 i BF-48: datoen i posten etter § 34.1.3, når kravet gir varselet.
+    ...(saerskiltvarselet === null && v.saerskilt?.klarOver
+      ? [
+          {
+            naar: v.saerskilt.klarOver,
+            hva: OPPGITT.klar_over_utgiftene,
+            kilde: KRAVSKJEMA.oppgisIKravet,
+          },
+        ]
+      : []),
     { naar: iDag, hva: KRAVSKJEMA.tidslinjeSendes, kilde: KRAVSKJEMA.naarDuSender },
   ]);
 
@@ -1065,7 +1101,33 @@
           <div class="brevet">
             <span class="visually-hidden">{varselkolonner[2]}:</span>
             <p>{varselI(saerskiltvarselet)}</p>
+            {#if saerskiltvarselet !== null}
+              <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
+              {#if kunnskapsdatoVarselet && onkunnskapsdato}
+                <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
+                  >{KUNNSKAPSDATO.egetBrevLenke(sisteKunnskapsdato !== null)}</Knapp
+                >
+              {/if}
+            {/if}
           </div>
+          {#if saerskiltvarselet === null && v.saerskilt}
+            <div class="varselvalgene">
+              <Datofelt
+                id={id('klar-over')}
+                etikett={KUNNSKAPSDATO.etikett}
+                hjelp={KUNNSKAPSDATO.hjelp}
+                maks={lagtTil?.dato ?? iDag}
+                valgfri
+                bind:verdi={
+                  () => v.saerskilt?.klarOver ?? '',
+                  (x) => {
+                    if (v.saerskilt) v.saerskilt.klarOver = x;
+                  }
+                }
+                feil={feil('klar-over')}
+              />
+            </div>
+          {/if}
         </li>
       {/if}
       {#each postvarsler as { p, vs } (p.noekkel)}
@@ -1332,6 +1394,11 @@
   }
   .brevet .dempet {
     font-size: 12px;
+  }
+  /* Lenken til det egne brevet står ved teksten, ikke strukket over kolonnen (U-10 i BF-48). */
+  .brevet :global(.knapp) {
+    align-self: flex-start;
+    margin-left: calc(-1 * var(--spacing-2));
   }
   .varselvalgene {
     grid-column: 2 / -1;

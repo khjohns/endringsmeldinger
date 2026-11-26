@@ -34,6 +34,7 @@ export * from './forholdet';
 export * from './forholdssvar';
 export * from './traaden';
 export * from './korrigering';
+export * from './kunnskapsdato';
 export * from './nyversjon';
 export * from './saken';
 export * from './korrespondansen';

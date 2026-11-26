@@ -291,7 +291,7 @@ export function sendtSammeDag(u: Utledning): Map<string, Brevet[]> {
 /** En dato en part har oppgitt i et brev, med brevet den står i. */
 export interface OppgittDato {
   dato: string;
-  hva: 'paalegg_mottatt' | 'klar_over_forholdet' | 'sendt' | 'mottatt';
+  hva: 'paalegg_mottatt' | 'klar_over_forholdet' | 'klar_over_utgiftene' | 'sendt' | 'mottatt';
   oppgittAv: Part;
   brev: Brevref;
   spor: Spor[];
@@ -299,7 +299,8 @@ export interface OppgittDato {
 
 /**
  * Datoene partene har oppgitt: når TE mottok pålegget eller ble klar over forholdet
- * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U59 punkt 10) og når et
+ * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U59 punkt 10), når TE
+ * ble klar over at utgiftene etter § 34.1.3 ville påløpe (`kunnskapsdatoer`, VS-U86) og når et
  * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
@@ -308,6 +309,18 @@ export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   for (const o of u.datoopplysninger) {
     const b = brev.get(o.dokument);
     if (b) ut.push({ dato: o.dato, hva: o.felt, oppgittAv: 'TE', brev: ref(b), spor: ['forhold'] });
+  }
+  // U-2 i BF-48: hver dato TE har oppgitt for når utgiftene etter § 34.1.3 ble kjent.
+  for (const o of u.kunnskapsdatoer) {
+    const b = brev.get(o.dokument);
+    if (b)
+      ut.push({
+        dato: o.dato,
+        hva: 'klar_over_utgiftene',
+        oppgittAv: 'TE',
+        brev: ref(b),
+        spor: ['vederlag'],
+      });
   }
   for (const { opplysning: o } of u.opplysninger) {
     const b = brev.get(o.dokument);
@@ -373,6 +386,75 @@ export function datoopplysningene(u: Utledning): Datoopplysningen[] {
   }
   return ut;
 }
+
+/**
+ * TEs opplysning om datoen TE ble klar over at utgiftene etter § 34.1.3 annet ledd ville påløpe,
+ * i varselet, i vederlagskravet eller i et eget brev (VS-U86 punkt 12–14, G-7 i BF-48).
+ */
+export interface Kunnskapsdatoen {
+  /** Varselet, kravet eller det egne utsagnet med opplysningen (`Kunnskapsopplysning.id`). */
+  id: string;
+  dato: string;
+  brev: Brevref;
+  /** Opplysningen står i et eget brev etter VS-U86 punkt 14. */
+  egen: boolean;
+  /** TEs siste opplysning da det egne brevet ble sendt, som brevet nevner. */
+  forrige: Kunnskapsdatoen | null;
+  /** TEs siste opplysning (VS-U85). */
+  siste: boolean;
+  /** Det egne brevet med TEs neste opplysning, `null` når ingen er sendt etter denne. */
+  endretI: Brevref | null;
+}
+
+/**
+ * TEs opplysninger om kunnskapsdatoen i rekkefølgen i journalen, med brevene de står i. Datoen i
+ * et varsel lagt til etter TEs siste opplysning står som opplysningen i det brevet (VS-U85).
+ */
+export function kunnskapsdatoene(u: Utledning): Kunnskapsdatoen[] {
+  const lest = kunnskapsdatoenePerUtledning.get(u);
+  if (lest) return lest;
+  const brev = new Map(brevene(u).map((b) => [b.id, b]));
+  const egne = new Set(
+    u.journal.flatMap((h) =>
+      h.art === 'dokument'
+        ? h.dokument.utsagn.flatMap((x) => (x.art === 'kunnskapsdato' ? [x.id] : []))
+        : []
+    )
+  );
+  const ut: Kunnskapsdatoen[] = [];
+  let siste: Kunnskapsdatoen | null = null;
+  for (const o of u.kunnskapsdatoer) {
+    const b = brev.get(o.dokument);
+    if (!b) continue;
+    const egen = egne.has(o.id);
+    const x: Kunnskapsdatoen = {
+      id: o.id,
+      dato: o.dato,
+      brev: ref(b),
+      egen,
+      forrige: egen ? siste : null,
+      siste: false,
+      endretI: null,
+    };
+    if (egen && siste) siste.endretI = ref(b);
+    if (o.blirSiste) siste = x;
+    ut.push(x);
+  }
+  if (siste) siste.siste = true;
+  kunnskapsdatoenePerUtledning.set(u, ut);
+  return ut;
+}
+
+const kunnskapsdatoenePerUtledning = new WeakMap<Utledning, Kunnskapsdatoen[]>();
+
+/** TEs siste opplysning om kunnskapsdatoen, eller `null` når datoen ikke er oppgitt (VS-U85). */
+export const sisteKunnskapsdatoen = (u: Utledning): Kunnskapsdatoen | null =>
+  kunnskapsdatoene(u).find((o) => o.siste) ?? null;
+
+/** Varselet etter § 34.1.3 kjernen tilbyr TE å oppgi datoen for (`oppgi_kunnskapsdato:<id>`). */
+export const kunnskapsdatoTilbudt = (
+  tilbudte: readonly { type: string; gjelder: string | null }[]
+): string | null => tilbudte.find((h) => h.type === 'oppgi_kunnskapsdato')?.gjelder ?? null;
 
 /**
  * Én linje i et svar, med etiketten for laget den står i når svaret har flere lag: en grunn
@@ -536,6 +618,9 @@ export interface Sideprops {
   /** Brukeren går til et annet spor, som forholdet fra forbeholdet. */
   onspor?: (spor: Spor) => void;
   onkorriger?: (opplysning: string) => void;
+  /** Varselet etter § 34.1.3 kjernen tilbyr TE å oppgi datoen for (`oppgi_kunnskapsdato:<id>`). */
+  kunnskapsdatoVarselet?: string | null;
+  onkunnskapsdato?: (varselet: string) => void;
   /** Brevene som har en handling ved seg, den brevet svarer på (U-16 i BF-44). */
   handlingerVed?: readonly string[];
   /** Handlingene ved brevet med ID-en. */
