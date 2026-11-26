@@ -277,6 +277,11 @@ Oppdragsgivers svar står ordrett i
 ført av orkestratoren 26.11: spørsmål 1 og 2 «ja», altså tilslutning til utkastene uten rettelser,
 og A på spørsmål 3–6.
 
+Postene er ført 26.11 som OV-U127 (foreløpig OV-U125, som var tatt), KT-U12, DL-U17 og B-20.
+Radene som samles, har fått ankrene `saker-fra-skjema-og-topic` (rad 526), `b-14-maalformene` og
+`b-14-spraaket` (536 og 537), `b-02-transport`, `b-02-hovedvalg`, `b-02-plattform` og `ts2-02`
+(656–659), og `b-02-punkt-4` og `b-04-tilbakekalling` (660 og 661).
+
 ## Kodefunn
 
 Ingen. Utkastene endrer ingenting som er vedtatt, unntatt E1, der vedtakene alt er endret (K2).

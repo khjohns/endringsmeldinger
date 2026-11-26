@@ -30934,6 +30934,60 @@ forkastet = true
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
+etter = '''
+##### <a id="samlevedtak-sakene-og-topicen"></a>Samlevedtaket for sakene og topicen (KT-U12)
+
+Teksten under er samlevedtaket [KT-U12](#kt-u12), vedtatt 26.11 av oppdragsgiver (#1534), slik det
+ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md), med
+tilslutning og svaret 6 A. Det samler [KT-U3](#kt-u3), [KT-U4](#kt-u4), [KT-U6](#kt-u6),
+[KT-U7](#kt-u7), [KT-U9](#kt-u9), [KT-U10](#kt-u10), [KT-U11](#kt-u11) og
+[raden 29.09](#saker-fra-skjema-og-topic).
+
+Samlevedtaket er et *vedtak*. Kildene står i parentes; «s» er setningen i posten.
+
+1. Totalentreprenørens krav føres i en KOE-sak for alle forhold, også ved forsinkelse eller svikt ved
+   byggherrens ytelser, andre forhold byggherren har risikoen for og force majeure. (KT-U9 s2)
+2. Bare totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak. (KT-U10 s3)
+3. En endringsordre kan omfatte én eller flere hele KOE-saker (MM-U34 punkt 20), i alle forhold.
+   (KT-U9 s4)
+4. En sak kan opprettes både fra skjemaet i løsningen og fra en topic totalentreprenøren lager i
+   Catenda. Topicen er ikke et varsel eller krav i løsningen, og totalentreprenøren sender varsel og
+   krav fra løsningen. Mener totalentreprenøren at topicen var varselet etter punkt 32.2, oppgir
+   totalentreprenøren datoen i et brev fra løsningen etter samlevedtaket for varslingsdatoen.
+   Løsningen avgjør ikke selv om topicen var et varsel. (raden 29.09; KT-U6 s2–s4; E3)
+
+###### Beslutningsdel
+
+Løsningen har tre sakstyper: krav om endringsordre (KOE), endringsordre (EO) og forsering. Navnet på
+sakstypen er betegnelsen i byggherrens organisasjon og endrer ikke brevteksten. (KT-U9 s1 og s3) En
+sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke
+før. Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic. En sak opprettet fra
+en topic opprettes med topicens tittel. (KT-U11 s1–s3; KT-U6 s1) En sak som opprettes i løsningen,
+får en topic på det topic-boardet prosjektets konfigurasjon angir. Hvert prosjekt angir ett board for
+alle sakstyper, og sakstypen står i topicens type. (KT-U3; KT-U4) Lager byggherren en topic i
+Catenda, oppretter løsningen ingen sak. Hendelsen beholdes i innboksen, og topicen får en kommentar
+om at saken ikke er opprettet fordi bare totalentreprenøren kan opprette en KOE-sak der. (KT-U7)
+Handlingen for en ny endringsordre finnes når EO-saken er bygget. (KT-U10 s2)
+
+###### Designdel
+
+Handlingene heter ‹Nytt krav om endringsordre› og ‹Ny endringsordre›. (KT-U10 s1)
+
+###### Endret innhold
+
+- **E3** KT-U6 s3: «etter OV-U5» viser til samlevedtaket for varslingsdatoen, der OV-U5 er samlet.
+- **E4** «appen» er «løsningen» (språkfila). Ordlyden ellers er uendret der ikke annet står.
+- **E5** KT-U11 s4 («Det endrer avgjørelsen 16.10 (#666)») er historikk og tas ikke med.
+- **E11** Punkt 4 tar med raden 29.09, som KT-U3 utvider og KT-U6 presiserer med ord. Delen om en
+  topic gjelder en topic totalentreprenøren lager (KT-U6, KT-U7).
+
+###### Forholdene
+
+Samler KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10, KT-U11 og raden 29.09, som har fått anker.
+Forholdene fra KT-U9 og KT-U10 til EO-U1 og OV-U3 er ført videre. LV-U9 presiserer KT-U3 og står
+med forholdet.
+
+'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
@@ -31001,6 +31055,7 @@ Flyttet fra 3.4 ved sluttredigeringen 09.10'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "saker-fra-skjema-og-topic"
 vedtak = '''
 Saker opprettes både fra skjemaet i appen og fra en topic i Catenda'''
 vedtatt = "29.09, oppdragsgiver"
@@ -31394,6 +31449,58 @@ tekst = '''
 Som i dag: saken opprettes før brevkontrollen og står når totalentreprenøren avbryter. Neste forsøk går til samme sak, og totalentreprenøren kan velge et annet forhold der så lenge ingen påberopelse er sendt.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "KT-U12"
+dato = 2026-11-26
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 25.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b2a2297/docs/vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md#spørsmålene). Alternativene står i posten.
+
+**1. Tilslutning, tema 36.** Gjelder utkastet «Sakene og topicen» over, med beslutningsdelen,
+designdelen, E3–E5 og E11, som samlevedtak for hvem som oppretter hvilken sak og topicen? Svar «ja»
+eller rett enkeltpunkter. Belegg: KT-U3–KT-U11 og raden 29.09
+(«Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). Styrer: posten KT-U12.
+
+**6. Forholdene.** **A (anbefalt):** som «Forholdene» over: OV-U125 opphever OV-U1, de tre andre
+samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.
+**B:** «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for
+Python.» Anbefaling: A. E9 tar ut regler for et bytte, ikke en regel som gjelder. Med B viser 24
+henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
+kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.'''
+valgt = "Ja, 6 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Ja, 6 ja, 7-10 A», og 26.11 på oppfølgingsspørsmålet om «Ja» gjaldt både 4 og 5: «Ja til både 4 og 5» ([#1534, 7183967699](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7183967699)). Spørsmålene ble stilt som 5–10 og står som 1–6 i vurderingsfila. Spørsmål 1 og 6 gjelder denne posten: spørsmål 1 «ja», altså tilslutning til utkastet uten rettelser, og 6 A. Valgt samlet: Ja, 6 A.'''
+forhold = [
+  { art = "samler", vedtak = "kt-u3" },
+  { art = "samler", vedtak = "kt-u4" },
+  { art = "samler", vedtak = "kt-u6" },
+  { art = "samler", vedtak = "kt-u7" },
+  { art = "samler", vedtak = "kt-u9" },
+  { art = "samler", vedtak = "kt-u10" },
+  { art = "samler", vedtak = "kt-u11" },
+  { art = "samler", vedtak = "saker-fra-skjema-og-topic" },
+  { art = "presiserer", vedtak = "eo-u1" },
+  { art = "presiserer", vedtak = "ov-u3" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for sakene og topicen](#samlevedtak-sakene-og-topicen). Samler KT-U3, KT-U4, KT-U6, KT-U7, KT-U9, KT-U10, KT-U11 og raden 29.09, som har fått anker, og opphever dem ikke (svar 6 A). Forholdene fra KT-U9 og KT-U10 til EO-U1 og OV-U3 er ført videre. LV-U9 presiserer KT-U3 og står med forholdet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, 6 A"
+tekst = '''
+Spørsmål 1: Utkastet «Sakene og topicen» i vurderingsfila, med beslutningsdelen, designdelen, E3–E5 og E11, gjelder som samlevedtak for hvem som oppretter hvilken sak og topicen. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "6 B"
+tekst = '''
+Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
 etter = '''
@@ -31421,10 +31528,132 @@ etter = '''
 > Gjennomføringsdetaljene står i [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md);
 > oppfølgingen er koblet i [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md).
 
+##### <a id="forste-versjon-2"></a>Avgrensningen av første versjon, versjon 2 (OV-U127)
+
+Teksten under er [OV-U127](#ov-u127), vedtatt 25.11 av oppdragsgiver (#1534), slik den ble lagt
+fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md) som foreløpig
+OV-U125, med svarene 4 A og 6 A. Den opphever [OV-U1](#ov-u1), og henvisningene til OV-U1 gjelder
+OV-U127.
+
+Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten.
+
+1. Første versjon er den versjonen av løsningen som skriver den første reelle hendelsen. Den dekker
+   KOE-saken med sporene grunnlaget (punkt 32, også punkt 32.2 og endringsordre etter punkt 32.3
+   første ledd a i KOE-saken, GR-U12 og GR-U13), vederlaget og fristen, med grunnsettet av
+   handlinger og de handlingene som bygges før første ekte sak etter OV-U97. (OV-U1 s1; OV-U97 s1
+   og s4; E2)
+2. Forsering etter punkt 33.8 og endringsordre som egen sak avvises til de er bygget, og føres
+   utenfor løsningen etter OV-U2. (OV-U1 s2; OV-U2)
+3. Et krav fra byggherren om justering av enhetsprisene etter punkt 34.3.3, og totalentreprenørens
+   svar på det, avvises i første versjon. Totalentreprenørens krav om justerte enhetspriser etter
+   punkt 34.3.2 og varsel etter punkt 34.3.3 tas imot etter samlevedtaket for vederlagsmetoden.
+   (OV-U1 s2; KA-U68; OV-U115; VS-U87; E1)
+4. Det løsningen ennå ikke kan, avvises og forenkles ikke. (OV-U1 s3)
+5. Vedtakene om det som avvises eller er utsatt, står. Avgrensningen gjelder bare rekkefølgen de
+   bygges i. Hva som er utsatt i et tema, står i samlevedtaket for temaet. (OV-U1 s5; OV-U7 s6;
+   VS-U35 s4; E2)
+6. B-17 står (samlebeslutningen for tema 41, [B-20](#b-20), punkt 3). (OV-U1 s4; E9)
+
+###### Endret innhold
+
+- **E1** OV-U1 s2: «justering av enhetspriser (§ 34.3.3) avvises» gjelder nå bare et krav fra
+  byggherren. Totalentreprenørens krav og varsel tas imot (KA-U68, OV-U115). Uten forhold før
+  OV-U127.
+- **E2** OV-U1 s1: «svar, aksept, trekk, «ingen krav», innsigelse etter § 5, forespørsel …» er
+  erstattet av grunnsettet (OV-U97) og vedtakene om hva som bygges før første ekte sak. «Ingen krav»
+  er utsatt (OV-U7), og innsigelsen etter punkt 5 som eget brev er utsatt (VS-U35). Forkastet-teksten
+  om B-01 og rekkefølgen i FK tas ikke med; den gjaldt rekkefølgen 10.10.
+- **E4** «appen» er «løsningen» (språkfila). Ordlyden ellers er uendret der ikke annet står.
+- **E9** OV-U1 s4 tas ikke med. Punkt 6 viser til punkt 3 i B-20.
+
+###### Forholdene
+
+Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127, som for OV-U95 i OV-U115. OV-U97
+presiserer OV-U1, og OV-U2 står; forholdene står på OV-U1. KT-U7 presiserte OV-U1 og er samlet i
+[KT-U12](#kt-u12).
+
+##### <a id="samlebeslutning-serverlaget"></a>Samlebeslutningen for serverlaget, databasen og målarkitekturen (B-20)
+
+Teksten under er [B-20](#b-20), vedtatt 25.11 av oppdragsgiver (#1534), slik den ble lagt fram i
+[vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md), med svarene 5 A og 6 A.
+Den samler [B-12, databasen](#b-12-databasen), [B-15](#b-15), [B-17](#b-17), [B-18](#b-18),
+[B-19](#b-19), [DL-U1](#dl-u1), [DL-U3](#dl-u3) og [HF-U3](#hf-u3), og radene for
+[B-14](#b-14-maalformene), [B-14, språket](#b-14-spraaket),
+[direkte tilkobling](#b-02-transport), [B-02 hovedvalg](#b-02-hovedvalg),
+[plattformen](#b-02-plattform) og [TS2-02](#ts2-02).
+
+Samlebeslutningen er en *beslutning*. Kildene står i parentes; «s» er setningen i posten.
+
+1. Målformene M2, M1, M4 og M5 legges til grunn med presiseringene 07.10. Løsningen er en modulær
+   monolitt med serverautoritet. M3 følger grensene som endres. (B-14 s1–s2)
+2. Domenekjernen er skrevet i TypeScript og brukes både i nettleseren og på serveren. Den bygges i en
+   egen permanent mappe, som ren kode med typesjekk, arkitekturtest og regelversjonsvakt i CI.
+   Valget godkjenner ikke prøvekoden som produksjonskjerne. (B-14, språket, s1–s2; merknaden 09.10
+   til B-14 i Følge)
+3. Backenden samles i TS, og TS eier KOE-, EO- og forseringsdomenet: kommandoene, valideringen,
+   utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget. Alt som skriver i
+   eller påvirker en sak, går gjennom TS. Levering og Catenda kan ligge i en tjeneste ved siden av
+   så lenge den ikke leser eller skriver i databasen selv, til de flyttes. Tjenesten tolker ikke
+   journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. (B-17 s2–s3 og s6;
+   merknaden 09.10 til B-17; B-19 s1 og s4; E9)
+3a. Testsakene fra før byttet forkastes, og det bygges ingen kompatibilitetsleser for dem.
+    Bevis-sakene og domenetabellen føres videre. (B-17 s8)
+4. Serverlaget velges av utviklerne og IT innenfor tre krav: én autoritativ regelbehandling,
+   kontrollert adgang til bindende handlinger og historikk som kan etterprøves. Flere tjenester kan
+   rulles ut som én samlet utgivelse. (B-18 s1–s2)
+5. Når nødvendig saksgrunnlag er lastet, kan brukeren utforske vurderinger og se beregninger og
+   brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert
+   forhåndsvurdering utredes ikke som erstatning, og B-13 er uendret. (B-15 s1–s4)
+6. Databasen er Azure SQL Database, med forbeholdet at IKT bekrefter at løsningen får en egen
+   database på et nivå som kan speiles til Fabric (RP-U1). Datalaget bygges i TS rett mot SQL
+   Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt. (B-12 s1–s2;
+   DL-U1)
+7. Én bindende kommando er én transaksjon, over direkte tilkobling til databasekommandoene, med en
+   databasedriver og vanlig SQL. Det tas ikke opp igjen uten nytt konkret motbelegg. (raden om
+   direkte tilkobling med Følge s1–s3, slik B-12 endret den)
+8. Tilgangsmekanismen er alternativ C i B-02: radnivåsikkerhet med kontekst for lesing, avgrensede
+   kommandoer for bindende skriving og operasjonsmodellen for journal, saksregister og kø, uttrykt
+   og prøvd i T-SQL. Designet avhenger ikke av plattformen, og mekanismen virker likt lokalt, i CI
+   og i Azure. (raden for B-02 hovedvalg med Følge; raden om plattformen s1 og Følge s1; E10)
+9. Hvert brev lagres samlet som ett dokument, og det er journalens eneste kilde. Tabellene for
+   spørring og rapport lages av brevene, kan lages på nytt og brukes aldri til en bindende handling
+   (B-10). Ukjent innhold bevares og stopper saken (HF-U1, samlet i MM-U43). Punktet gjelder bare
+   lagringsformen; hva tabellene skal inneholde, avgjøres når rapporteringen og veien til Fabric
+   bygges. (HF-U3 s1–s3 med Følge)
+10. Tidspunkter lagres som datetime2(3) i UTC, uten forskyvning. Serveren setter tidspunktet, og
+    visningen gjør om til norsk tid. Punktet gjelder det lagrede formatet, ikke innholdet i
+    rapporttabellene. (DL-U3 s1 og s3 med Følge)
+11. Hendelseslageret i JSON, metadatalageret i CSV og Supabase-lagrene er ute av kjøretidsstien, og
+    det bygges ingen vei ut av Supabase for den gamle stakken. Tester som trenger ekte lagring, går
+    mot en skrivbar testbase over samme tilkobling som produksjonen. (raden for TS2-02 med Følge,
+    slik B-12 endret den; DL-U1 s1)
+
+###### Endret innhold
+
+- **E4** «appen» er «løsningen» (språkfila). Ordlyden ellers er uendret der ikke annet står.
+- **E8** B-14 s3 (rekkefølgen domenetabell → kontrakt → språkprøve → M2/M1 → M4) og B-17 s9
+  (trinnvis bygging og samlet aktivering av skrivestien) gjaldt byttet og tas ikke med.
+- **E9** Overgangsreglene for Python i B-17 (s4–s5 og s7), B-18 (Python ved siden av), B-19 (s2–s3:
+  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med. Python-backenden finnes
+  ikke i treet (vurderingen, K4). Punkt 3 beholder kravet til en tjeneste ved siden av og B-17 s6
+  uten å nevne Python, og OV-U127 punkt 6 viser til punkt 3. DL-U1 s1 står i punkt 11 uten «Python-
+  og PostgreSQL-stakk».
+- **E10** Setning 2 i raden om plattformen («Foreløpig mål er Azure Database for PostgreSQL»),
+  kravet om ren PostgreSQL og «på Supabase» i Følge s1 er endret av B-12 og tas ikke med. Raden om
+  RPC over PostgREST er opphevet 23.09 og tas ikke med. I punkt 11 er «PostgreSQL» i Følge s1 i
+  raden for TS2-02 tatt ut, slik B-12 endret den.
+
+###### Forholdene
+
+Samler B-12 (databasen), B-15, B-17, B-18, B-19, DL-U1, DL-U3 og HF-U3, og radene for B-14, B-14
+språket, direkte tilkobling, B-02 hovedvalg, plattformen og TS2-02, som har fått anker. Raden om RPC
+over PostgREST er opphevet og samles ikke. KA-U1 samles ikke (gruppe C).
+
 '''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "b-14-maalformene"
 vedtak = '''
 B-14: målformene for M2, M1, M4 og M5 legges til grunn med presiseringene 07.10; M3
 følger grensene som endres. Modulær monolitt og serverautoritet beholdes. Domenetabell
@@ -31440,6 +31669,7 @@ Målformen M2 er presisert 08.10 av [KA-U1](#ka-u1). Retningen for språket er v
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "b-14-spraaket"
 vedtak = '''
 B-14, språket: TypeScript er retning for den delte domenekjernen, som brukes både i
 nettleseren og på serveren. Valget godkjenner ikke `sprakprove/kjerne/` som
@@ -37256,6 +37486,115 @@ forkastet = true
 kilde = "hovedplanen"
 tekst = "Appen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i tide, eller at taushet har gitt virkning (MM-U12)."
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+id = "OV-U127"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 25.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b2a2297/docs/vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md#spørsmålene). Alternativene står i posten.
+
+**4. Tema 35.** **A (anbefalt):** OV-U1 får en ny versjon som beslutning, som utkastet over med E1
+og E2. **B:** «Temaet står. OV-U1 får forholdet ‹endret av KA-U68› for setningen om punkt 34.3.3,
+og resten leses med Følge.» Anbefaling: A. Med B står lista over det første versjon dekker, fortsatt
+med «ingen krav» og innsigelsen etter punkt 5, og VS-U87 viser til en setning som er endret.
+Styrer: posten OV-U125 og om VS-U87 kan vise til den.
+
+**6. Forholdene.** **A (anbefalt):** som «Forholdene» over: OV-U125 opphever OV-U1, de tre andre
+samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.
+**B:** «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for
+Python.» Anbefaling: A. E9 tar ut regler for et bytte, ikke en regel som gjelder. Med B viser 24
+henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
+kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.'''
+valgt = "4 A, 6 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Ja, 6 ja, 7-10 A», og 26.11 på oppfølgingsspørsmålet om «Ja» gjaldt både 4 og 5: «Ja til både 4 og 5» ([#1534, 7183967699](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7183967699)). Spørsmålene ble stilt som 5–10 og står som 1–6 i vurderingsfila. Spørsmål 4 og 6 gjelder denne posten. Valgt samlet: 4 A, 6 A. Den foreløpige ID-en OV-U125 var tatt da posten ble ført, og posten har fått OV-U127.'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u1" },
+  { art = "samler", vedtak = "ov-u1" },
+]
+folge = '''
+Teksten står under tabellen, i [Avgrensningen av første versjon, versjon 2](#forste-versjon-2). Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127 (svar 6 A). Forholdene til OV-U1 står på OV-U1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 A, 6 A"
+tekst = '''
+Spørsmål 4: OV-U1 får en ny versjon som beslutning, som utkastet «Avgrensningen av første versjon, versjon 2» i vurderingsfila, med E1 og E2. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+Temaet står. OV-U1 får forholdet ‹endret av KA-U68› for setningen om punkt 34.3.3, og resten leses med Følge.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "6 B"
+tekst = '''
+Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+id = "B-20"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 25.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b2a2297/docs/vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md#spørsmålene). Alternativene står i posten.
+
+**5. Tema 41.** **A (anbefalt):** én samlebeslutning for serverlaget, databasen og
+målarkitekturen, som utkastet over med E8–E10. **B:** «Temaet står. Postene er beslutninger og
+leses med Følge.» Anbefaling: A. B-12 endrer fire rader, og B-19 endrer B-18, så hva som gjelder,
+kan ikke leses av én post. Styrer: posten B-20.
+
+**6. Forholdene.** **A (anbefalt):** som «Forholdene» over: OV-U125 opphever OV-U1, de tre andre
+samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.
+**B:** «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for
+Python.» Anbefaling: A. E9 tar ut regler for et bytte, ikke en regel som gjelder. Med B viser 24
+henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
+kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.'''
+valgt = "5 A, 6 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Ja, 6 ja, 7-10 A», og 26.11 på oppfølgingsspørsmålet om «Ja» gjaldt både 4 og 5: «Ja til både 4 og 5» ([#1534, 7183967699](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7183967699)). Spørsmålene ble stilt som 5–10 og står som 1–6 i vurderingsfila. Spørsmål 5 og 6 gjelder denne posten. Valgt samlet: 5 A, 6 A.'''
+forhold = [
+  { art = "samler", vedtak = "b-12-databasen" },
+  { art = "samler", vedtak = "b-15" },
+  { art = "samler", vedtak = "b-17" },
+  { art = "samler", vedtak = "b-18" },
+  { art = "samler", vedtak = "b-19" },
+  { art = "samler", vedtak = "dl-u1" },
+  { art = "samler", vedtak = "dl-u3" },
+  { art = "samler", vedtak = "hf-u3" },
+  { art = "samler", vedtak = "b-14-maalformene" },
+  { art = "samler", vedtak = "b-14-spraaket" },
+  { art = "samler", vedtak = "b-02-transport" },
+  { art = "samler", vedtak = "b-02-hovedvalg" },
+  { art = "samler", vedtak = "b-02-plattform" },
+  { art = "samler", vedtak = "ts2-02" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlebeslutningen for serverlaget, databasen og målarkitekturen](#samlebeslutning-serverlaget). Samler B-12 (databasen), B-15, B-17, B-18, B-19, DL-U1, DL-U3 og HF-U3, og seks rader for B-14, B-02 og TS2-02, som har fått anker, og opphever dem ikke (svar 6 A). Raden om RPC over PostgREST er opphevet 23.09 og samles ikke. KA-U1 samles ikke.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 A, 6 A"
+tekst = '''
+Spørsmål 5: Én samlebeslutning for serverlaget, databasen og målarkitekturen, som utkastet i vurderingsfila, med E8–E10. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 B"
+tekst = '''
+Temaet står. Postene er beslutninger og leses med Følge.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "6 B"
+tekst = '''
+Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
@@ -37305,6 +37644,71 @@ etter = '''
 > ikke sende et varsel med frist (L 23.09, ikke kjørt). Endringen hører til F1
 > sammen med tilbakekallingen.
 
+##### <a id="samlevedtak-medlemskap"></a>Samlevedtaket for medlemskap, lesetilgang og tilbakekalling (DL-U17)
+
+Teksten under er samlevedtaket [DL-U17](#dl-u17), vedtatt 25.11 av oppdragsgiver (#1534), slik det
+ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md), med
+tilslutning og svarene 3 A og 6 A. Det samler [DL-U7](#dl-u7)–[DL-U15](#dl-u15) og radene for
+[B-02 punkt 4](#b-02-punkt-4) og [B-02 punkt 5 og B-04](#b-04-tilbakekalling).
+
+Samlevedtaket er et *vedtak*. Kildene står i parentes; «s» er setningen i posten.
+
+1. Sakene og brevene kan leses i løsningen av dem som er med i et team drift har registrert for
+   totalentreprenøren eller byggherren i prosjektet, og av medlemmer som har fått leserolle.
+   Godkjennere leser etter GFK-U9. Andre medlemmer av Catenda-prosjektet ser ikke sakene i
+   løsningen. I Catenda styrer mappen hvem som leser brevene (LV-U13). Kan løsningen ikke bekrefte
+   teamet, vises ingenting. (DL-U15 s1–s5)
+2. En navngitt administrator hos drift bestemmer hvilke Catenda-team som representerer
+   totalentreprenøren og byggherren. (raden for B-02 punkt 4 med Følge s1)
+3. Et prosjekt i løsningen gjelder én entreprisekontrakt mellom byggherren og én totalentreprenør.
+   Teamene drift registrerer for totalentreprenøren, hører alle til denne totalentreprenøren, og
+   drift bekrefter det når teamene registreres. Har et Catenda-prosjekt flere entreprisekontrakter,
+   kan løsningen brukes for bare én av dem. (DL-U14 s1–s3; spørsmål 3)
+4. Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når
+   prosjektet har saker. (DL-U13; spørsmål 3)
+5. Navnet vises ved hver hendelse for alle som har tilgang til saken. (DL-U12)
+6. Retten til nye handlinger opphører straks løsningen har registrert at tilgangen er borte. Klokken
+   er tidspunktet synkroniseringen lagrer endringen. En godkjenning gitt mens godkjenneren hadde
+   fullmakt, står, og pakken kan utstedes. Nye godkjenninger kan personen ikke gi. Utkast blir hos
+   teamet, og en kollega kan fullføre og sende i eget navn. (B-04 punkt 1–3; raden for B-02 punkt 5
+   og B-04)
+7. En eldre medlemsliste skriver ikke over en nyere. Deaktiveringen ved innlogging og innloggingen er
+   nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke et medlem aktivt
+   igjen i prosjektet og gir ikke en bruker et nytt medlemskap. (DL-U7 s2; DL-U8; DL-U9)
+8. Feiler synkroniseringen, kan alle fortsatt handle, unntatt i tilfellene i punkt 9. (B-04 punkt 4
+   s1; DL-U10)
+9. Oppheves eller endres koblingen til Catenda-prosjektet, blir medlemskapene inaktive straks.
+   Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede
+   Catenda-prosjektet. (DL-U10)
+10. I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller
+    gjøre andre handlinger, unntatt å bestride en opplysning i et innlegg. (DL-U11 s1; MM-U47 E7; E6)
+
+###### Beslutningsdel
+
+Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket Catenda-prosjekt. (DL-U7 s1)
+Prosjekt og kontraktsteam registreres bare av drift, ikke av serveren. (raden for B-02 punkt 4)
+Feiler synkroniseringen, varsles drift. Varselet utløses av alderen på listen, ikke bare av feil.
+Hvor gammel listen kan bli før drift varsles, og om det skal være en ytre grense, fastsettes i B-09.
+(B-04 punkt 4 s1, s3 og s4)
+
+###### Designdel
+
+Et inaktivt prosjekt vises i lista som inaktivt. (DL-U11 s2)
+
+###### Endret innhold
+
+- **E4** «appen» er «løsningen» (språkfila). Ordlyden ellers er uendret der ikke annet står.
+- **E6** DL-U11: «unntatt å bestride en opplysning etter MM-U7» er lest med MM-U47 E7, som sier at
+  bestridelsen sendes som innlegg og at innlegget er det eneste brevet. MM-U7 er samlet i MM-U47.
+- **E7** DL-U15 s6 («Ved utdatert medlemsliste gjelder B-04») er punkt 8. Ordene om hva DL-U15
+  endrer (B-02, vedtaket 18.09, DB-05), står i Følge.
+
+###### Forholdene
+
+Samler DL-U7–DL-U12, DL-U15, og etter spørsmål 3 A DL-U13 og DL-U14. Radene for B-02 punkt 4 og for
+B-02 punkt 5 og B-04 har fått ankrene b-02-punkt-4 og b-04-tilbakekalling og samles. MM-U47
+presiserer DL-U11 og står med forholdet. Merknaden 23.09 til B-04 står som tekst over.
+
 '''
 
 [[gruppe.vedtak]]
@@ -37317,6 +37721,7 @@ Se raden under og merknaden etter tabellen'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "b-02-transport"
 vedtak = '''
 PostgreSQL over direkte tilkobling er utgangspunkt for transaksjoner (B-02 alternativ C,
 transport T2)'''
@@ -37330,6 +37735,7 @@ per bindende kommando gjelder fortsatt'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "b-02-hovedvalg"
 vedtak = '''
 B-02 hovedvalg: alternativ C. RLS med kontekst for lesing, avgrensede `SECURITY
 DEFINER`-kommandoer for bindende skriving, og operasjonsmodellen for journal,
@@ -37344,6 +37750,7 @@ T-SQL (#395)'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "b-02-plattform"
 vedtak = '''
 Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL
 (Flexible Server, versjon 17)'''
@@ -37356,6 +37763,7 @@ databasen](#b-12-databasen); alternativ C må prøves i T-SQL (#395)'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
+anker = "ts2-02"
 vedtak = '''
 TS2-02: JSON-hendelseslageret, CSV-metadatalageret og Supabase-lagrene går ut av
 kjøretidsstien'''
@@ -37370,6 +37778,7 @@ ikke om ([B-19](#b-19))'''
 [[gruppe.vedtak]]
 klasse = "vedtak"
 beslutningsdel = "registreringen hos drift"
+anker = "b-02-punkt-4"
 vedtak = '''
 B-02 punkt 4: prosjekt og kontraktsteam registreres bare av drift (TM-12)'''
 vedtatt = "23.09, oppdragsgiver"
@@ -37379,6 +37788,7 @@ Runtime får ikke kalle `koe_register_project` eller `koe_set_contract_teams` (F
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+anker = "b-04-tilbakekalling"
 vedtak = '''
 B-02 punkt 5 og B-04: tilbakekalling'''
 vedtatt = "23.09, oppdragsgiver"
@@ -38038,6 +38448,71 @@ forkastet = true
 navn = "Nedgraderingsfiler"
 tekst = '''
 Hver migrasjon får en fil som reverserer den. Det er dyrt, kan miste data og passer dårlig med en journal som bare legges til.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "DL-U17"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 25.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b2a2297/docs/vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md#spørsmålene). Alternativene står i posten.
+
+**2. Tilslutning, tema 39.** Gjelder utkastet «Medlemskap, lesetilgang og tilbakekalling» over, med
+beslutningsdelen, designdelen og E6–E7, som samlevedtak for medlemskap, lesetilgang og
+tilbakekalling? Punkt 3 og 4 avhenger av spørsmål 3. Svar «ja» eller rett enkeltpunkter. Belegg:
+DL-U7–DL-U15, B-02 punkt 4 og merknaden 23.09 til B-04. Styrer: posten DL-U17.
+
+**3. Omfanget av tema 39.** DL-U13 og DL-U14 sier hvilke team som kan representere partene, og
+DL-U14 presiserer B-02 punkt 4, som samles. **A (anbefalt):** DL-U13 og DL-U14 samles i DL-U17 som
+punkt 3 og 4. **B:** «DL-U13 og DL-U14 står for seg, og punkt 3 og 4 tas ut. Forholdet fra DL-U14
+står på den samlede raden for B-02 punkt 4.» Anbefaling: A, fordi hvem som representerer en part,
+da står ett sted. Styrer: omfanget av DL-U17.
+
+**6. Forholdene.** **A (anbefalt):** som «Forholdene» over: OV-U125 opphever OV-U1, de tre andre
+samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.
+**B:** «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for
+Python.» Anbefaling: A. E9 tar ut regler for et bytte, ikke en regel som gjelder. Med B viser 24
+henvisninger i `kjerne/`, `server/` og `src/` til opphevede ID-er (B-17 14, B-19 6, B-18 4), og
+kontrollen av vedtakshenvisningene feiler til de er skiftet ut. Styrer: `forhold` i de nye postene.'''
+valgt = "Ja, 3 A, 6 A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren: «Ja, 6 ja, 7-10 A», og 26.11 på oppfølgingsspørsmålet om «Ja» gjaldt både 4 og 5: «Ja til både 4 og 5» ([#1534, 7183967699](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7183967699)). Spørsmålene ble stilt som 5–10 og står som 1–6 i vurderingsfila. Spørsmål 2, 3 og 6 gjelder denne posten: spørsmål 2 «ja», altså tilslutning til utkastet uten rettelser, og 3 A og 6 A. Valgt samlet: Ja, 3 A, 6 A.'''
+forhold = [
+  { art = "samler", vedtak = "dl-u7" },
+  { art = "samler", vedtak = "dl-u8" },
+  { art = "samler", vedtak = "dl-u9" },
+  { art = "samler", vedtak = "dl-u10" },
+  { art = "samler", vedtak = "dl-u11" },
+  { art = "samler", vedtak = "dl-u12" },
+  { art = "samler", vedtak = "dl-u13" },
+  { art = "samler", vedtak = "dl-u14" },
+  { art = "samler", vedtak = "dl-u15" },
+  { art = "samler", vedtak = "b-02-punkt-4" },
+  { art = "samler", vedtak = "b-04-tilbakekalling" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for medlemskap, lesetilgang og tilbakekalling](#samlevedtak-medlemskap). Samler DL-U7–DL-U15 og radene for B-02 punkt 4 og for B-02 punkt 5 og B-04, som har fått anker, og opphever dem ikke (svar 3 A og 6 A). MM-U47 presiserer DL-U11 og står med forholdet. Merknaden 23.09 til B-04 står som tekst.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, 3 A, 6 A"
+tekst = '''
+Spørsmål 2: Utkastet «Medlemskap, lesetilgang og tilbakekalling» i vurderingsfila, med beslutningsdelen, designdelen og E6–E7, gjelder som samlevedtak for medlemskap, lesetilgang og tilbakekalling. Spørsmål 3: DL-U13 og DL-U14 samles i samlevedtaket som punkt 3 og 4. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+DL-U13 og DL-U14 står for seg, og punkt 3 og 4 tas ut. Forholdet fra DL-U14 står på den samlede raden for B-02 punkt 4.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "6 B"
+tekst = '''
+Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.'''
 forkastet = true
 
 [[gruppe]]

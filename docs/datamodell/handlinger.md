@@ -35,9 +35,9 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 | U4 | «Ingen krav» | TE | vederlag, frist | KA-U17, OV-U7, OV-U99 | Ja. Avkall. | Strukturert. | Senere. Tidspunktet betyr ingenting. | «Ingen krav» går ut. | `ingen_krav:vederlag`, `ingen_krav:frist` | `ingen_krav` | – | Ingen. Kjernen tilbyr den ikke, kommandoen avvises, og en journal med utsagnet er ikke forstått (#2016). |
 | U9 | Interne notater | TE og BH | saken | OV-U99 | Ikke et utsagn til motparten. | Ingen. Notatet står i `koe.notat`, ikke i journalen. | Senere, og først ved et nytt vedtak. | Ingen. | – | – | – | Ingen. Tabellen finnes. |
 | V1 | Det senere valget for korrespondanse som er lagt til som dokumentasjon | TE og BH | forhold, vederlag, frist | OV-U84, OV-U17, OV-U99 | Ja. Valget gir korrespondansen virkning. | En form av U6. | Senere. Til den er bygget, legger avsenderen korrespondansen til på nytt med valget. | Som U6. | – | – | – | Ingen nå. |
-| V2 | Forsering | TE | frist | punkt 33.8, OV-U1, OV-U99 | Ja. | Egen sak. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
-| V3 | Endringsordre som egen sak | BH | saken | punkt 31.3, OV-U1, OV-U99 | Ja. | Egen sak. Endringsordren som svar i KOE-saken er en form av G4 og U6. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
-| V4 | Justering av enhetspriser etter punkt 34.3.3 | TE og BH | vederlag | punkt 34.3.3, OV-U1, OV-U99 | Ja. | Egen. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
+| V2 | Forsering | TE | frist | punkt 33.8, OV-U127, OV-U99 | Ja. | Egen sak. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
+| V3 | Endringsordre som egen sak | BH | saken | punkt 31.3, OV-U127, OV-U99 | Ja. | Egen sak. Endringsordren som svar i KOE-saken er en form av G4 og U6. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
+| V4 | Justering av enhetspriser etter punkt 34.3.3 | TE og BH | vederlag | punkt 34.3.3, OV-U127, OV-U99 | Ja. | Egen. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
 
 ## Sendes som innlegg
 
