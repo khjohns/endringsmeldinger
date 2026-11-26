@@ -17267,6 +17267,54 @@ tekst = "Det gjelder et varsel etter punkt 34.3.3 eller 34.4 som er sendt eller 
 kilde = "hovedplanen"
 tekst = "Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt."
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["mm-u10", "ov-u123"]
+id = "VS-U92"
+dato = 2026-11-26
+hvem = "oppdragsgiver"
+kilde = ["#1823", "#2437", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 26.11 i [#1823, 7191679418](https://github.com/khjohns/endringsmeldinger/issues/1823#issuecomment-7191679418).
+
+**Varselet etter punkt 32.2 i et brev sendt utenfor løsningen som også varslet i vederlaget eller fristforlengelsen**
+
+Klasse: *beslutning*. Setningene som binder, står alt i MM-U10 og OV-U123 punkt 9, 12 og 18. Det som står igjen, er hvordan løsningen legger brevet til. Den samme setningen for vederlaget og fristforlengelsen er en beslutning i beslutningsdelen i VS-U87 (VS-U71 s5).
+
+Bakgrunn:
+- Beslutningsdelen i VS-U87: «Et brev sendt utenfor løsningen som varslet i både vederlaget og fristforlengelsen, registreres én gang med begge varslene.» Den sier ikke noe om varselet etter punkt 32.2. PR-en avviser derfor inntil videre et slikt brev når det også har varselet etter punkt 32.2.
+- I skjemaet for ny sak legges bare varselet etter punkt 32.2 til (VS-U38). Varslene etter punkt 33.4 og 34.1.2 legges til i kravskjemaet (VS-U39).
+- Avgrensning for begge alternativene: hvert varsel prøves på vilkårene det har alene (OV-U123 punkt 10). Et brev som også krever, følger VS-U87 punkt 26.
+
+**A (anbefalt).** «Et brev sendt utenfor løsningen som varslet etter punkt 32.2 og i vederlaget eller fristforlengelsen, legges til i saken én gang med alle varslene. I skjemaet for ny sak legges brevet til bare med varselet etter punkt 32.2 (VS-U38 og VS-U39). De andre varslene i det brevet legges til etter at saken er opprettet, som et eget brev med det samme dokumentet.» Forhold: utvider beslutningsdelen i VS-U87 (VS-U71 s5) til varselet etter punkt 32.2, i tråd med MM-U10, OV-U123 punkt 18, VS-U38 og VS-U39.
+
+**B.** «Et brev sendt utenfor løsningen legges til med varselet etter punkt 32.2 alene. Har det samme brevet også varslet i vederlaget eller fristforlengelsen, legges det til en gang til med de varslene, som et eget brev med det samme dokumentet.» Forhold: presiserer beslutningsdelen i VS-U87 (VS-U71 s5) og snevrer inn MM-U10, fordi ett brev står i løsningen som to.
+
+Anbefalingen: A følger det som er vedtatt for vederlaget og fristforlengelsen (MM-U10, VS-U71). Brevet får ett nummer og én dato, og byggherrens svar og kravet viser til det samme brevet. Det er en antakelse, ikke prøvd, at slike brev forekommer i praksis.
+
+Styrer: om PR #2437 godtar varselet etter punkt 32.2 sammen med andre varsler i et brev som legges til, og D-4 og F-5 i BF-37 og skjemaet for flere varsler i Varden.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1823 ([7192100638](https://github.com/khjohns/endringsmeldinger/issues/1823#issuecomment-7192100638)): «A». B er forkastet.'''
+forhold = [
+  { art = "utvider", vedtak = "vs-u87" },
+]
+folge = '''
+Utvider beslutningsdelen i VS-U87 (VS-U71 s5) til varselet etter punkt 32.2, i tråd med MM-U10, OV-U123 punkt 18, VS-U38 og VS-U39.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Et brev sendt utenfor løsningen som varslet etter punkt 32.2 og i vederlaget eller fristforlengelsen, legges til i saken én gang med alle varslene. I skjemaet for ny sak legges brevet til bare med varselet etter punkt 32.2 (VS-U38 og VS-U39). De andre varslene i det brevet legges til etter at saken er opprettet, som et eget brev med det samme dokumentet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et brev sendt utenfor løsningen legges til med varselet etter punkt 32.2 alene. Har det samme brevet også varslet i vederlaget eller fristforlengelsen, legges det til en gang til med de varslene, som et eget brev med det samme dokumentet.'''
+forkastet = true
+
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
