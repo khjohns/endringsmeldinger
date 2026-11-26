@@ -434,15 +434,23 @@ def test_leseren_melder_det_den_ikke_kan_lese(folge, ulest):
 def test_verktoyet_skriver_ikke_forholdene_i_en_importert_post(register):
     """#423: forholdet står allerede i Følge, så raden blir lik byte for byte.
 
-    Posten er en importert post med forhold som ingen ny post har forhold til; KA-U20
-    fikk et senere forhold 01.11 (OV-U79)."""
-    _, senere = vr.indeks(register)
-    importert = next(
+    Prøves i registeret uten de nye postene, fordi de nye postene etter hvert har forhold til
+    nesten hver importert post. «Bygger på» skriver verktøyet alltid først i Følge, så en
+    post med det forholdet blir ikke lik byte for byte."""
+    importerte = copy.deepcopy(register)
+    for gruppe in importerte["gruppe"]:
+        gruppe["vedtak"] = [p for p in gruppe["vedtak"] if not vr.er_ny(p)]
+    _, senere = vr.indeks(importerte)
+    kandidater = [
         p
-        for p in vr.poster(register)
-        if not vr.er_ny(p) and p.get("forhold") and vr.anker(p) not in senere
-    )
-    assert vr.folgecelle(importert, register) == vr.linje(importert["folge"])
+        for p in vr.poster(importerte)
+        if p.get("forhold")
+        and vr.anker(p) not in senere
+        and all(f["art"] != "bygger på" for f in p["forhold"])
+    ]
+    assert kandidater
+    for importert in kandidater:
+        assert vr.folgecelle(importert, importerte) == vr.linje(importert["folge"])
 
 
 @pytest.mark.parametrize(
