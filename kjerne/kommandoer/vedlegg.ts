@@ -6,7 +6,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import { kravSomVarsler, rettedeBrev, type Utledning } from '../utledning/utled.ts';
-import { avvis, type Avvisning, type Dokument, type Domenehendelse } from '../typer.ts';
+import { avvis, VARSELSPOR, type Avvisning, type Dokument, type Domenehendelse } from '../typer.ts';
 import type { Kommando } from './kommando.ts';
 import type { Vedleggsoppslag } from './skriving.ts';
 
@@ -45,17 +45,16 @@ const kravetErVarsel = (h: string): h is (typeof KRAVET_ER_VARSEL)[number] =>
   (KRAVET_ER_VARSEL as readonly string[]).includes(h);
 
 /**
- * VS-U74: brevet med varselet etter punkt 33.4, 34.1.2 eller 34.1.3 står alt i saken som et krav
- * totalentreprenøren har lagt til i sporet som gjelder som varselet etter bestemmelsen (`kravSomVarsler`). Varslene etter
- * `ogsaaEtter` er i samme dokument (VS-U52). Et varsel lagt til før kravet står (VS-U73).
+ * VS-U74: brevet med et av varslene etter punkt 33.4, 34.1.2 eller 34.1.3 står alt i saken som et
+ * krav totalentreprenøren har lagt til i sporet som gjelder som varselet etter bestemmelsen
+ * (`kravSomVarsler`). Et varsel lagt til før kravet står (VS-U73).
  */
 export function kravetErVarselet(
   k: Extract<Kommando, { type: 'varsel' }>,
-  ogsaaEtter: readonly string[],
   { lest, u }: { lest: readonly Domenehendelse[]; u: Utledning },
   oppslag: Vedleggsoppslag
 ): Avvisning | null {
-  const hjemlene = [k.hjemmel, ...ogsaaEtter].filter(kravetErVarsel);
+  const hjemlene = k.varsler.map((v) => v.hjemmel).filter(kravetErVarsel);
   if (!hjemlene.length) return null;
   const vedlagte = innholdetIVedleggene(k.dokumentasjon, oppslag);
   if (!vedlagte.size) return null;
@@ -72,7 +71,7 @@ export function kravetErVarselet(
     )
   );
   for (const hjemmel of hjemlene) {
-    const kravet = kravSomVarsler(hjemmel, u.spor[k.spor], () => true).find((kr) => {
+    const kravet = kravSomVarsler(hjemmel, u.spor[VARSELSPOR[hjemmel]], () => true).find((kr) => {
       const d = brevene.get(kr.dokument);
       return d !== undefined && sammeDokument(d, vedlagte);
     });

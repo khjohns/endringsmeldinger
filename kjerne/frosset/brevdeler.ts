@@ -442,8 +442,12 @@ export function liste(deler: string[]): string {
  * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
  * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
  */
-export function gitt(varsel: string, hva: string, { j, nytt }: Pick<Tekst, 'j' | 'nytt'>): string {
+export function gitt(varsel: string, om: string, { j, nytt }: Pick<Tekst, 'j' | 'nytt'>): string {
   const brevet = j.brevet(j.dokumentetTil(varsel));
+  // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
+  const e = j.element(varsel);
+  const arbeid = e.art === 'utsagn' && e.utsagn.art === 'varsel' ? e.utsagn.arbeid : undefined;
+  const hva = arbeid === undefined ? om : `${om} for arbeidet «${arbeid}»`;
   const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   const dokumentet = j.dokumentMed(varsel)?.dokumentasjon ?? [];
   return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))

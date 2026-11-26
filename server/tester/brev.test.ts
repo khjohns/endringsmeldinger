@@ -62,8 +62,7 @@ describe.skipIf(!TESTBASE_URL)('nedlasting av et sendt brev som PDF', () => {
         kommando_id: randomUUID(),
         kommando: {
           type: 'varsel',
-          spor: 'frist',
-          hjemmel: '33.4',
+          varsler: [{ hjemmel: '33.4' }],
           sendt: '2026-10-01',
           korrespondansetype: 'brev' as const,
           sendemaate: 'post' as const,

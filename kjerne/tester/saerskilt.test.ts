@@ -36,12 +36,11 @@ import {
 } from './brevsak.ts';
 
 describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–OV-U25, #1047)', () => {
-  const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' };
+  const sendVarsel = { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] };
   const registrer = (hjemmel: '34.1.2' | '34.1.3') => ({
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel }],
     sendt: '2026-09-28',
     dokumentasjon: [randomUUID()],
   });
@@ -68,7 +67,9 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
 
   it('det særskilte varselet kan sendes etter vederlagskravet, varselet etter § 34.1.2 ikke (OV-U8 (opphevet av OV-U89), VS-U16)', () => {
     const s = sakMedKrav();
-    expect(s.avvist('TE', { ...sendVarsel, hjemmel: '34.1.2' })).toBe('VEDERLAGSKRAV_SENDT');
+    expect(s.avvist('TE', { ...sendVarsel, varsler: [{ hjemmel: '34.1.2' }] })).toBe(
+      'VEDERLAGSKRAV_SENDT'
+    );
     expect(s.avvist('TE', sendVarsel)).toBeNull();
     expect(handlinger(s.u(), 'TE')).toEqual(
       expect.arrayContaining(['sende_varsel:34.1.3', 'varsle:34.1.3'])
@@ -800,8 +801,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'vederlag',
-      hjemmel: '34.1.3',
+      varsler: [{ hjemmel: '34.1.3' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -821,7 +821,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
 
   it('svaret gjentar byggherrens egen innsigelse mot det særskilte varselet (VS-U24)', () => {
     const s = sakMedPost();
-    const varsel = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' });
+    const varsel = s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] });
     const innsigelse = s.send('BH', {
       type: 'innsigelse',
       gjelder: (varsel.data.utsagn as Data[])[0].id,

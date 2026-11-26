@@ -12381,7 +12381,7 @@
       "forslag": "VS-U50, VS-U54: kravposten viser til et varsel etter samme bestemmelse i saken",
       "rader": ["VS-08"],
       "start": "krav_irreg",
-      "steg": [{ "handling": "varsel", "spor": "vederlag", "hjemmel": "34.4", "navn": "V1" }],
+      "steg": [{ "handling": "varsel", "spor": "vederlag", "hjemmel": "34.4", "arbeid": "Pumping", "navn": "V1" }],
       "kontroller": [
         {
           "etter": 1,

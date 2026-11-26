@@ -516,7 +516,7 @@ function varseletIKravet(
         'Kravet oppgir datoen varselet etter punkt 33.4 ble sendt, men brevet med varselet ligger ikke ved.'
       ),
     };
-  const kommando = { type: 'varsel', spor: 'frist', hjemmel: '33.4', ...varsel };
+  const kommando = { type: 'varsel', varsler: [{ hjemmel: '33.4' }], ...varsel };
   const form = skriving.formen(kommando);
   // Formfeilene får stien i fristkravet, som formfeilene i varselet ellers har.
   if (form && !form.godtatt)

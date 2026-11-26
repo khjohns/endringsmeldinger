@@ -522,7 +522,9 @@ export function kunnskapsdatoIVarselet(
   k: Extract<Kommando, { type: 'send_varsel' }>,
   u: Utledning
 ): Avvisning | null {
-  return k.klar_over_utgiftene === undefined ? null : kunnskapsdatoenErOppgitt(u, 'Varselet');
+  return k.varsler.some((v) => v.klar_over_utgiftene !== undefined)
+    ? kunnskapsdatoenErOppgitt(u, 'Varselet')
+    : null;
 }
 
 /**
@@ -665,8 +667,8 @@ const dokumentnoekkel = (d: Dokumentvarsel, oppslag: Vedleggsoppslag): string[] 
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
  * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53). Gjelder dokumentet
- * flere kravposter, er det ett brev med ett varsel per bestemmelse, og hver kravpost viser til
- * varselet etter sin (VS-U52).
+ * flere kravposter, er det ett brev med ett varsel per kravpost, og hver kravpost viser til sitt
+ * (VS-U87 punkt 23 og 27, G-3 i BF-37).
  */
 function medVarslene(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -699,12 +701,15 @@ function medVarslene(
           `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4.`
         ),
       };
-    if (!hjemler.includes(hjemmel)) hjemler.push(hjemmel);
+    hjemler.push(hjemmel);
   }
-  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel: hjemler[0], ...dokumentet };
+  const kommando = {
+    type: 'varsel',
+    varsler: hjemler.map((hjemmel) => ({ hjemmel })),
+    ...dokumentet,
+  };
   const varselet =
-    skriving.formen(kommando) ??
-    skriving.skriv(kommando as Kommando, kontekst, journal, [], hjemler.slice(1));
+    skriving.formen(kommando) ?? skriving.skriv(kommando as Kommando, kontekst, journal, []);
   if (!varselet.godtatt)
     return {
       ...varselet,
@@ -727,18 +732,14 @@ function medVarslene(
       avvisning: vedleggVedEtVarsel(`i varselet for kravpost nr. ${i + 1}`),
     };
   const [rad] = varselet.hendelser;
-  const utsagn = new Map(
-    (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
-  );
+  const utsagn = (rad!.data.utsagn as { id: string }[]).map((x) => x.id);
   const resten = {
     ...k,
     innhold: {
       ...k.innhold,
       kravposter: poster.map((p, j) => {
-        const medlem = gruppen.find(([g]) => g === j);
-        return medlem
-          ? { ...p, varsel: { art: 'gitt', varsel: utsagn.get(varselhjemmel(medlem[1])!) } }
-          : p;
+        const n = gruppen.findIndex(([g]) => g === j);
+        return n < 0 ? p : { ...p, varsel: { art: 'gitt', varsel: utsagn[n] } };
       }),
     },
   };
