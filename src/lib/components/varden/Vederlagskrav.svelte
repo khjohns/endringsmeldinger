@@ -25,6 +25,7 @@
     varslenePerKravpost,
     varsleneISaken,
     varslerUtenKravpost,
+    type Kravpostvarsel,
     type Varselet,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import Tekstomraade from './Tekstomraade.svelte';
@@ -406,12 +407,14 @@
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
-    varslerUtenKravpost(u).filter(
+    varslerUtenKravpost(u, lagtTil?.dato ?? null).filter(
       (x) =>
-        !med.some(
-          (p) =>
-            varselFor(p)?.art === 'kravet' && p.varsel.art === 'saken' && p.varsel.varsel === x.id
-        )
+        !med.some((p) => {
+          const vs = varselFor(p);
+          if (vs?.art !== 'kravet') return false;
+          const valgt = gjeldendeVarselvalg(v, p, vs);
+          return valgt.art === 'saken' && valgt.varsel === x.id;
+        })
     )
   );
   const iSaken = $derived(varsleneISaken(u));
@@ -421,9 +424,10 @@
       return vs.varsel
         ? varselI(iSaken.find((x) => x.id === vs.varsel)?.dokument ?? null)
         : varselI(vs.krav);
-    const valgt = gjeldendeVarselvalg(v, p);
-    if (p.varsel.art === 'saken' && valgt.varsel)
+    const valgt = gjeldendeVarselvalg(v, p, vs);
+    if (valgt.art === 'saken' && valgt.varsel)
       return varselI(iSaken.find((x) => x.id === valgt.varsel)?.dokument ?? null);
+    if (valgt.art === 'saken') return KRAVSKJEMA.ikkeValgt;
     if (p.varsel.art !== 'kravet' && valgt.art === 'dokument' && valgt.dato)
       return KRAVSKJEMA.gittIDokumentet(valgt.type, valgt.dato);
     return KRAVSKJEMA.gisIBrevet;
@@ -461,7 +465,8 @@
     (vederlagsvarselet === null ? 1 : 0) +
       (v.saerskilt && girSaerskilt ? 1 : 0) +
       postvarsler.filter(
-        ({ p, vs }) => vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet'
+        ({ p, vs }) =>
+          vs.art === 'kravet' && ['kravet', 'ingen'].includes(gjeldendeVarselvalg(v, p, vs).art)
       ).length
   );
   // Postene må velges før varslene som følger av dem. I brevet kommer varslene først.
@@ -602,8 +607,8 @@
   // Datoene TE fyller ut, i tidslinja (U-17).
   const utfylt = $derived([
     ...med.flatMap((p) => {
-      const valgt = gjeldendeVarselvalg(v, p);
-      return varselFor(p)?.art === 'kravet' && p.varsel.art === 'dokument' && valgt.dato
+      const valgt = gjeldendeVarselvalg(v, p, varselFor(p));
+      return varselFor(p)?.art === 'kravet' && valgt.art === 'dokument' && valgt.dato
         ? [
             {
               naar: valgt.dato,
@@ -818,7 +823,7 @@
         <p>{KRAVSKJEMA.trekket(navnet(p))}</p>
       {:else}
         {#if endret}<p>{endret}</p>{/if}
-        {#if vs && vs.art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel) && gjeldendeVarselvalg(v, p).art === 'kravet'}
+        {#if vs && vs.art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel) && gjeldendeVarselvalg(v, p, vs).art === 'kravet'}
           <p>
             {KRAVSKJEMA.utenKravpost(vs.hjemmel)}
             <a href={`#${id(`varselrad-${p.noekkel}`)}`}>{KRAVSKJEMA.seVarselet(navnet(p))}</a>
@@ -826,6 +831,55 @@
         {/if}
       {/if}
     </div>
+  </div>
+{/snippet}
+
+{#snippet hvilketAvVarslene(p: Kravpostvalg, hjemmel: string, velges: Kravpostvarsel[])}
+  {@const n = p.noekkel}
+  {@const valgt = gjeldendeVarselvalg(v, p, varselFor(p))}
+  {@const brevet = brevMed(velges.find((x) => x.id === valgt.varsel)?.dokument ?? null)}
+  {@const sier =
+    valgt.art === 'ingen'
+      ? KRAVSKJEMA.brevetSierKravet(navnet(p), velges.length)
+      : brevet
+        ? KRAVSKJEMA.brevetSierGitt(navnet(p), brevet)
+        : null}
+  <div class="varselvalg" id={id(`varselvalg-${n}`)}>
+    <Valg
+      navn={id(`varsel-${n}`)}
+      spoersmaal={KRAVSKJEMA.hvilketAvVarslene(hjemmel, navnet(p))}
+      hjelp={KRAVSKJEMA.ubrukteVarsler(hjemmel, velges.length, navnet(p))}
+      stablet
+      lett
+      valg={[
+        ...velges.map((x) => {
+          const b = brevMed(x.dokument);
+          const tekst = b ? KRAVSKJEMA.varseletMedArbeid(b, x.arbeid) : x.id;
+          // To varsler i samme brev uten arbeidet skilles med rekkefølgen i brevet.
+          const like = iSaken.filter((y) => y.dokument === x.dokument && y.hjemmel === hjemmel);
+          return {
+            verdi: x.id,
+            tekst:
+              x.arbeid || like.length < 2
+                ? tekst
+                : KRAVSKJEMA.nrIBrevet(tekst, like.findIndex((y) => y.id === x.id) + 1, hjemmel),
+          };
+        }),
+        { verdi: 'ingen', tekst: KRAVSKJEMA.ingenAvDem(hjemmel, velges.length, navnet(p)) },
+      ]}
+      bind:verdi={
+        () => (valgt.art === 'ingen' ? 'ingen' : valgt.varsel),
+        (x) => {
+          if (x === null) return;
+          p.varsel =
+            x === 'ingen'
+              ? { ...tomtVarselvalg(), art: 'ingen' }
+              : { ...tomtVarselvalg(), art: 'saken', varsel: x };
+        }
+      }
+      feil={feil(`varsel-${n}`)}
+    />
+    <p class="brevet-sier" class:fylt={sier} aria-live="polite">{sier ?? ''}</p>
   </div>
 {/snippet}
 
@@ -1175,11 +1229,13 @@
           <div class="brevet">
             <span class="visually-hidden">{varselkolonner[2]}:</span>
             <p>{postvarseltekst(p, vs)}</p>
-            {#if vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel)}
+            {#if vs.art === 'kravet' && gjeldendeVarselvalg(v, p, vs).art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel)}
               <p class="dempet">{KRAVSKJEMA.utenKravpost(vs.hjemmel)}</p>
             {/if}
           </div>
-          {#if vs.art === 'kravet' && aapentVarsel !== p.noekkel}
+          {#if vs.art === 'kravet' && vs.velges?.length}
+            <div class="varselvalgene">{@render hvilketAvVarslene(p, vs.hjemmel, vs.velges)}</div>
+          {:else if vs.art === 'kravet' && aapentVarsel !== p.noekkel}
             <Knapp
               variant="lenke"
               aria-label={KRAVSKJEMA.endreVarselet(navnet(p))}
@@ -1193,7 +1249,7 @@
               }}>{KRAVSKJEMA.endre}</Knapp
             >
           {/if}
-          {#if vs.art === 'kravet' && aapentVarsel === p.noekkel}
+          {#if vs.art === 'kravet' && !vs.velges?.length && aapentVarsel === p.noekkel}
             <div class="varselvalgene">{@render varselvalgene(p, vs.hjemmel)}</div>
           {/if}
         </li>
@@ -1247,7 +1303,7 @@
   .seksjon.venter {
     box-shadow: inset 3px 0 0 var(--ink);
   }
-  .seksjon.venter :global(legend) {
+  .seksjon.venter :global(legend:not(.varselvalgene legend)) {
     font-size: 20px;
     line-height: 1.3;
   }
@@ -1372,6 +1428,16 @@
   }
   .aapen h4 {
     font-size: 16px;
+  }
+  /* U-7 i BF-37: det brevet vil si, innfelt som i skissen `#kravpost`. */
+  .brevet-sier {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .brevet-sier.fylt {
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-innfelt);
   }
   .hjelp,
   .dempet {
