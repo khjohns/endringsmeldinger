@@ -1447,16 +1447,15 @@ derfor uten anførselstegn. Ikke nytt innhold.
 
 Teksten under er samlevedtaket [HF-U36](#hf-u36), vedtatt 26.11 av oppdragsgiver (#1534), med
 svarene på spørsmål 1 og 2 i [vurderingen](../vedtaksregister/vurdering-samlevedtak-revisjon-v3-2026-11-26.md).
-Samlevedtaket samler [HF-U29](#hf-u29), versjon 2, og postene som er bindende i det. Punktnumrene
-står som i versjon 2, så en henvisning til «HF-U29 punkt n» gjelder punkt n her.
+Samlevedtaket samler [HF-U29](#hf-u29), versjon 2, HF-U26, HF-U27, HF-U30–HF-U34 og LV-U73. Punkt
+1–12 har samme nummer som i versjon 2, og punkt 13 er nytt (K7 i vurderingen).
 
 ###### Forslaget
 
 Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Det er versjon 2 med punkt 13 og
 «Endret innhold» E10–E17 og E16b, og det endrer ikke innholdet, bare hvor reglene står. Kildene i
 parentes står som i versjon 2, og «E1»–«E9» i dem er E-punktene i [versjon 1](#samlevedtak-revisjon)
-og [versjon 2](#samlevedtak-revisjon-2). «Spørsmål» i kildene i punkt 1–9 gjelder vurderingene for
-versjon 1 og 2.
+og [versjon 2](#samlevedtak-revisjon-2).
 
 ###### A. Byggherrens nye svar
 
@@ -1531,6 +1530,7 @@ versjon 1 og 2.
   mens forholdet er ubesvart sier. Punkt 34.3.3 annet ledd vises når byggherren senker det
   godkjente beløpet for en kravpost med enhetspriser, og også når byggherren i et nytt svar ikke
   lenger godtar justeringen av enhetsprisene etter punkt 34.3.2 for en kravpost.
+- Et forløp for det nye svaret skrives når det bygges.
 
 ###### Beslutningsdel
 
@@ -1538,7 +1538,6 @@ versjon 1 og 2.
   Byggherrens forrige svar står i brev … av …›. Den konkrete ordlyden avgjøres i byggingen, og
   endringen gjelder bare nye brev (MM-U9). Det gjelder også brevet i designdelen i samlevedtaket
   for retting av sendt brev, versjon 4. (LV-U73; E17)
-- Et forløp for det nye svaret skrives når det bygges.
 
 ###### Endret innhold
 
@@ -1547,7 +1546,8 @@ Gammel tekst er ordrett fra versjon 2.
 **E10 Brevet (punkt 2; LV-U73).** Gammel tekst: «Brevet sier: ‹Svaret erstatter byggherrens svar i
 brev <n> av <dato>.› (LV-U34)». Ny tekst: «Brevet sier at svaret er byggherrens siste svar i
 løsningen, uten totalentreprenørens aksept.» Budskapet er det samme. At brevet ikke bruker ordet
-«erstatter», og at ordlyden avgjøres i byggingen, står i beslutningsdelen. Kilde: LV-U73.
+«erstatter», og at ordlyden avgjøres i byggingen, står i beslutningsdelen, som i designdelen i
+samlevedtaket for retting av sendt brev, versjon 4 (E7 der). Kilde: LV-U73.
 
 **E11 Aksepten i et svar som erstattes (punkt 2; spørsmål 2 A).** Ny tekst: punkt 2 viser til punkt
 6 og 20 i samlevedtaket for retting av sendt brev, versjon 4, for hva det nye svaret erstatter når
@@ -1557,17 +1557,21 @@ det tidligere svaret godtok en retting av varseldatoen. Setningene står der. Ki
 samlevedtaket for «ingen krav», avkall og godtatt avslag». Kilde: HF-U35 E5.
 
 **E13 Henvisningene i C (punkt 10–12).** Gammel tekst: punkt 10 «følger GR-U26», punkt 11 «følger
-MM-U34 punkt 6» og punkt 12 «følger HF-U21 og kjeden for grunnlagskravet». Ny tekst: henvisningene
-til samlevedtakene som har samlet dem, GR-U34, VS-U87 og GR-U40 (E5 der).
+MM-U34 punkt 6» og punkt 12 «følger HF-U21 og kjeden for grunnlagskravet». Ny tekst: punkt 10 viser
+til punkt 12 og 14 i GR-U34, punkt 11 til punkt 13 i VS-U87, og punkt 12 til punkt 4 i GR-U40 og
+punkt 14 i GR-U34, som E5 i GR-U40 sier om HF-U21. Kildene står.
 
 **E14 Brev sendt utenfor løsningen (punkt 13).** Nytt punkt som viser til punkt 16 i samlevedtaket
 for brev sendt utenfor løsningen, versjon 2, som har samlet OV-U98.
 
 **E15 Henvisningene i samlevedtaket for sendte brev og regelendring, versjon 2.** I punkt 24 leses
-«HF-U25 punkt 1–3» som punkt 1–3 her, og i designdelen «etter HF-U26» som punkt 9 her.
+«HF-U25 punkt 1–3» som punkt 1–3 her, og i designdelen «etter HF-U26» som punkt 9 her. Bare
+henvisningene flyttes. Grensen i punkt 7 (en KOE-sak som en endringsordre omfatter) tas ikke inn i
+punkt 24, fordi HF-U25 punkt 1–3 heller ikke hadde den.
 
 **E16 Designdelen.** HF-U30–HF-U34 står i designdelen, med to rettinger: HF-U33 er skrevet som en
-fullstendig setning (alternativ A og B i HF-U33), og «slik GR-U26 sier» i HF-U34 viser til
+fullstendig setning (alternativ A og B i HF-U33), der «etter sammenlikningen i spørsmål 2 og 3» i
+A er erstattet av sammenlikningsleddene foran i designdelen, og «slik GR-U26 sier» i HF-U34 viser til
 samlevedtaket som har samlet GR-U26. Punkt 9, unntatt siste setning, og visningsleddene i punkt 3
 og 4 er designdel.
 
@@ -1575,7 +1579,8 @@ og 4 er designdel.
 
 **E17 Beslutningsdelen.** LV-U73 står i beslutningsdelen og gjelder også brevet i designdelen i
 samlevedtaket for retting av sendt brev, versjon 4. Endringen LV-U73 gjør i LV-U34 (setningen om en
-revisjon), står i LV-U73.
+revisjon), står i LV-U73. Forholdet «LV-U73 endrer MM-U52» overtas ikke: MM-U52 er opphevet, og
+brevteksten står i designdelen i samlevedtaket for retting av sendt brev, versjon 4.
 
 ##### <a id="samlevedtak-vilkaar-forbehold"></a>Samlevedtaket for vilkår og forbehold i byggherrens svar (KA-U49)
 
