@@ -27,6 +27,7 @@ Establish two things:
 
 - **What's under review** — the current build, a named component, or the branch's UI changes. Bound it.
 - **What it's trying to be** — read `.interface-design/system.md` if it exists, and infer the intended user, task, and feel. *You review against the design's own intent, not a generic ideal.* A deliberately dense trading terminal is not failing for being dense. If intent is genuinely unknowable, say so and review against general craft — but note the assumption.
+- **I dette repoet:** les også `docs/sprak.md` før reviewet. Hver synlig tekst i diffen, også `aria-label` og feilmeldinger, leses mot språkfila og «Ordene i brevene og skjemaene» der. En tekst som strider mot språkfila, er et funn med språkfila som kilde og raden som belegg. Står ordlyden i en bestilling (U-punkt) og bestillingen strider mot språkfila, er det et funn mot bestillingen. Ordlyden velges ikke i stillhet.
 
 ## Step 2 — See the whole first
 
