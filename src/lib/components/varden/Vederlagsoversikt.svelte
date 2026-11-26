@@ -23,8 +23,7 @@
     sendtSammeDag,
   } from './lesing';
   import { TRAADEN, VEDERLAGET } from './tekster';
-  import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
-  import { varseletFoerBrevet } from '#kjerne/utledning/utled.ts';
+  import { foersteVarsel3413, varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
   import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
   import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
 
@@ -59,10 +58,10 @@
   // Datoen TE ble klar over at utgiftene etter punkt 34.1.3 ville påløpe, ved varselet og brevene
   // med den (U-7 i BF-48).
   const kunnskapsdatoer = $derived(kunnskapsdatoene(u));
-  // Varselet kjernen tilbyr handlingen for, også et krav utenfor rekken (`varseletFoerBrevet`).
+  // Varselet kjernen tilbyr handlingen for, også et krav utenfor rekken (`foersteVarsel3413`).
   const saerskiltvarselet = $derived.by(() => {
-    const id = varseletFoerBrevet(u, '34.1.3');
-    return id === undefined ? null : (brevMedUtsagn(u, id)?.id ?? null);
+    const id = foersteVarsel3413(u);
+    return id === null ? null : (brevMedUtsagn(u, id)?.id ?? null);
   });
   const svaretI = $derived(
     new Map(u.spor.vederlag.svar.map((s) => [s.dokument, u.svar[s.id]?.kunnskapsdato ?? null]))
