@@ -1375,7 +1375,7 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
     expect(s.journal).toHaveLength(foer);
   });
 
-  it('den egne innsigelsen etter punkt 5 og påberopt passivitet er ukjente kommandoer for begge parter, og ingen hendelse skrives (VS-U89, svar 1 A i #2442)', () => {
+  it('den egne innsigelsen etter punkt 5 og påberopt passivitet er ukjente kommandoer for begge parter, og ingen hendelse skrives (VS-U89, VS-U94)', () => {
     const { s, svarId } = medSvaret();
     const foer = s.journal.length;
     for (const part of ['TE', 'BH'] as const)
@@ -1454,7 +1454,7 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
     expect(u.svar).toEqual(foer.svar);
   });
 
-  it('en lagret egen innsigelse etter punkt 5 eller påberopt passivitet gjør saken ikke forstått, også med grunnen at noe ikke er et svar etter punkt 33.6.2 (VS-U89, MM-U2, svar 1 A i #2442)', () => {
+  it('en lagret egen innsigelse etter punkt 5 eller påberopt passivitet gjør saken ikke forstått, også med grunnen at noe ikke er et svar etter punkt 33.6.2 (VS-U89, MM-U2, VS-U94)', () => {
     const { s, svarId, rettidighet } = medSvaret();
     const lest = (part: Part, data: Data) =>
       utledJournal(

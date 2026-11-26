@@ -708,7 +708,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['svarutkastet blir en endringsordre som brevet det gir'],
   },
   // Byggedel 1 av #309: #344, #373, #342, MM-U18 (opphevet av MM-U43) (#326), KA-U16/KA-U20, KA-U22, § 5,
-  // VS-U11, VS-U12 og «ingen krav».
+  // VS-U11 og «ingen krav».
   {
     id: 'F61',
     feilklasse: 'en importert verdi leses i en annen funksjon enn den den er avgrenset til (#344)',

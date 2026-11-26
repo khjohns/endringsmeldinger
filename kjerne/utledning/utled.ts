@@ -222,7 +222,7 @@ const erSvarPaaVarselet = (s: Pick<Svar, 'gjelder'>, elementer: Record<string, E
 
 /**
  * VS-U1, MP-U6: en protest gjelder motpartens påberopelse i et svar, eller et dokument fra
- * motparten med påberopelser, og da alle påberopelsene i det (svar 1 A i #2442).
+ * motparten med påberopelser, og da alle påberopelsene i det (VS-U94).
  */
 export function kanFaaProtest(id: string, part: Part, elementer: Record<string, Element>): boolean {
   const maal = elementer[id];

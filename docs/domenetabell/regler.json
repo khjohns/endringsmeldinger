@@ -699,18 +699,25 @@
       "radetikett": "VS-U20: Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak"
     },
     {
-      "id": "VS-U12",
-      "type": "vedtak",
-      "dato": "2026-10-10",
-      "ref": "../plans/vedtak.md#vs-u12",
-      "radetikett": "VS-U12: TE kan påberope byggherrens passivitet etter § 32.3 annet ledd som eget utsagn som viser til TEs varsel etter § 32.2, både før byggherren har svart og etter et svar TE mener kom for sent"
-    },
-    {
       "id": "VS-U89",
       "type": "vedtak",
       "dato": "2026-11-25",
       "ref": "../plans/vedtak.md#vs-u89",
       "radetikett": "VS-U89: Den egne innsigelsen etter punkt 5 tredje ledd er ikke en egen handling i løsningen, heller ikke i vederlaget og fristen"
+    },
+    {
+      "id": "VS-U90",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#vs-u90",
+      "radetikett": "VS-U90: Totalentreprenørens påberopelse av byggherrens passivitet etter punkt 32.3 annet ledd er ikke en egen handling i løsningen"
+    },
+    {
+      "id": "VS-U94",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#vs-u94",
+      "radetikett": "VS-U94: Den egne innsigelsen etter punkt 5 tredje ledd og totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd fjernes også som hendelsestyper"
     },
     {
       "id": "VS-U14",
@@ -3461,13 +3468,15 @@
     {
       "id": "VS-01",
       "tilfelle": "En part vil gjøre gjeldende at motpartens varsel, krav eller svar kom for sent, i et eget brev, eller totalentreprenøren vil påberope byggherrens passivitet etter § 32.3 annet ledd.",
-      "forventet": "Løsningen har ingen kommando for den egne innsigelsen etter § 5 tredje ledd eller påberopt passivitet. Parten sender det som innlegg eller under «Forbehold» i et krav eller svar, og løsningen tolker det ikke (VS-U89, S-5 i BF-03). En lagret hendelse med den egne innsigelsen eller påberopt passivitet gjør saken ikke forstått (svar 1 A i #2442). Byggherrens påberopelse av at et varsel kom for sent, står i svaret. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: den gjelder byggherrens påberopelse i et svar, eller et svar med påberopelser, og da alle påberopelsene i det. En protest mot egen påberopelse er ikke forstått.",
+      "forventet": "Løsningen har ingen kommando for den egne innsigelsen etter § 5 tredje ledd eller påberopt passivitet. Parten sender det som innlegg eller under «Forbehold» i et krav eller svar, og løsningen tolker det ikke (VS-U89, VS-U90). En lagret hendelse med den egne innsigelsen eller påberopt passivitet gjør saken ikke forstått (VS-U94). Byggherrens påberopelse av at et varsel kom for sent, står i svaret. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: den gjelder byggherrens påberopelse i et svar, eller et svar med påberopelser, og da alle påberopelsene i det. En protest mot egen påberopelse er ikke forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om påberopelsen kom i tide.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "VS-U89",
+        "VS-U90",
+        "VS-U94",
         "VS-U9",
         "MP-U6",
         "OV-U7"
@@ -4017,7 +4026,7 @@
     "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
-    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente, som den egne innsigelsen og påberopt passivitet (svar 1 A i #2442). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. Den prøves i `kjerne/tester/svaret.test.ts`.",
+    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente, som den egne innsigelsen og påberopt passivitet (VS-U94). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. Den prøves i `kjerne/tester/svaret.test.ts`.",
     "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/avvisningen.test.ts`.",
     "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",

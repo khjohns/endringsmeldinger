@@ -1081,6 +1081,9 @@ KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset(
     {
         ("lv-u53", "endrer", "lv-u52", "#1988"),
         ("lv-u56", "endrer", "lv-u52", "#1988"),
+        # HF-U11 presiserer VS-U12 etter forholdet i F6 (#504), som oppdragsgiver svarte ja på.
+        # VS-U90 opphever VS-U12 (S-5 A i BF-03, #2442).
+        ("hf-u11", "presiserer", "vs-u12", "#2442"),
     }
 )
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")

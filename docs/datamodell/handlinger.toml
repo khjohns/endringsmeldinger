@@ -354,7 +354,7 @@ status = "innlegg"
 noekler = []
 kommandoer = []
 skjema = []
-mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret egen innsigelse gjør saken ikke forstått (svar 1 A i #2442)."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret egen innsigelse gjør saken ikke forstått (VS-U94)."
 
 [[handling]]
 id = "I2"
@@ -393,16 +393,16 @@ id = "I4"
 navn = "Påberopt passivitet"
 part = "TE"
 spor = ["forhold", "vederlag", "frist"]
-kilde = ["VS-U12", "OV-U99"]
+kilde = ["VS-U90", "OV-U99"]
 finnes = "Nei."
-form = "Innlegg, varig (S-5 A i BF-03, #2442)."
+form = "Innlegg, varig (VS-U90)."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
 noekler = []
 kommandoer = []
 skjema = []
-mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret påberopelse gjør saken ikke forstått (svar 1 A i #2442)."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret påberopelse gjør saken ikke forstått (VS-U94)."
 
 [[handling]]
 id = "I5"

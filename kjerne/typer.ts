@@ -231,7 +231,7 @@ export type Utsagn =
   | { id: string; art: 'foresporselssvar'; gjelder: string }
   /**
    * VS-U1, MP-U6: TEs protest mot byggherrens påberopelse i et svar: standpunktet om
-   * rettidighet, eller svaret, som da gjelder alle påberopelsene i det (svar 1 A i #2442).
+   * rettidighet, eller svaret, som da gjelder alle påberopelsene i det (VS-U94).
    */
   | { id: string; art: 'protest'; gjelder: string }
   /**

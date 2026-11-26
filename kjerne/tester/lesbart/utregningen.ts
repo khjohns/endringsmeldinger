@@ -16,7 +16,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'virkningerIForholdetOgFristen',
     ['spor/frist/frysing.ts', 'spor/forhold/frysing.ts'],
   ],
-  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
+  // GR-U11: varslingsplikten etter § 32.2 gjelder kategorien. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
   [
     'frosset/byggeklosser.ts',

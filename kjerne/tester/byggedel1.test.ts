@@ -240,7 +240,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
-    // VS-U89, svar 1 A i #2442: ikke hendelsestyper.
+    // VS-U89, VS-U94: ikke hendelsestyper.
     ['en egen innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', false],
     ['en egen innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', false],
     ['en påberopt passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', false],
