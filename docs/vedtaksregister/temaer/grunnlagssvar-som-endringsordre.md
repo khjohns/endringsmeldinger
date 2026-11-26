@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `90b556aebe59af751c42b3f755b6adcc3f7733cedd5e9fb5bda3402dad3f3907`
+Kontrollsum (SHA-256 over utdraget visningen leser): `40dffe46f652af71bca6c09a43f4ed661d36daa3e9432da41e5c63f1cb682395`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -3943,7 +3943,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.11, oppdragsgiver (#1534, #2436)
 
-**Følge:** Samler [LV-U4](../../plans/vedtak.md#lv-u4). Samler [LV-U5](../../plans/vedtak.md#lv-u5). Samler [LV-U8](../../plans/vedtak.md#lv-u8). Samler [LV-U18](../../plans/vedtak.md#lv-u18). Samler [LV-U20](../../plans/vedtak.md#lv-u20). Samler [LV-U41](#lv-u41). Samler [LV-U76](../../plans/vedtak.md#lv-u76). Samler [LV-U77](../../plans/vedtak.md#lv-u77). Samler [GR-U32](#gr-u32). Teksten står under tabellen, i [Samlevedtaket for det brevene meddeler](../../plans/vedtak.md#samlevedtak-brevteksten). Del av LV-U4: punkt 7, 8, 10, 11 og 12 tas ikke med (E1–E3). Står: LV-U6, LV-U35, LV-U36, LV-U39, LV-U42 og LV-U53 (design).
+**Følge:** Samler [LV-U4](../../plans/vedtak.md#lv-u4). Samler [LV-U5](../../plans/vedtak.md#lv-u5). Samler [LV-U8](../../plans/vedtak.md#lv-u8). Samler [LV-U18](../../plans/vedtak.md#lv-u18). Samler [LV-U20](../../plans/vedtak.md#lv-u20). Samler [LV-U41](#lv-u41). Samler [LV-U76](../../plans/vedtak.md#lv-u76). Samler [LV-U77](../../plans/vedtak.md#lv-u77). Samler [GR-U32](#gr-u32). Teksten står under tabellen, i [Samlevedtaket for det brevene meddeler](../../plans/vedtak.md#samlevedtak-brevteksten). Det som ikke tas med, står under «Endret innhold» (E1–E3 og E8). Står: LV-U6, LV-U35, LV-U36, LV-U39, LV-U42 og LV-U53 (design).
 
 **Regelrader:** —
 
@@ -3957,7 +3957,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.11, oppdragsgiver (#1534, #2436)
 
-**Følge:** Samler [LV-U33](../../plans/vedtak.md#lv-u33). Samler [LV-U34](#lv-u34). Samler [LV-U38](../../plans/vedtak.md#lv-u38). Samler [OV-U28](#ov-u28). Samler [OV-U30](#ov-u30). Samler [OV-U32](#ov-u32). Samler [OV-U33](#ov-u33). Samler [OV-U73](#ov-u73). Samler [OV-U100](#ov-u100). Samler [OV-U117](#ov-u117). Endrer [OV-U42](#ov-u42). Teksten står under tabellen, i [Samlevedtaket for oppbygningen og lagene i byggherrens svar](../../plans/vedtak.md#samlevedtak-lagene). Endrer OV-U42 for standpunktet om at fremdriften er hindret (punkt 11, svar 5 A); OV-U42 står for de andre standpunktene. Revisjonssetningen i LV-U34 er samlet slik LV-U73 endret den (punkt 12). Versjon 3 av samlevedtaket for revisjon er HF-U36. Står: LV-U37, LV-U40, LV-U78, LV-U79, LV-U80, OV-U42 og OV-U74 (design).
+**Følge:** Samler [LV-U33](../../plans/vedtak.md#lv-u33). Samler [LV-U34](#lv-u34). Samler [LV-U38](../../plans/vedtak.md#lv-u38). Samler [OV-U28](#ov-u28). Samler [OV-U30](#ov-u30). Samler [OV-U32](#ov-u32). Samler [OV-U33](#ov-u33). Samler [OV-U73](#ov-u73). Samler [OV-U100](#ov-u100). Samler [OV-U117](#ov-u117). Endrer [OV-U42](#ov-u42). Teksten står under tabellen, i [Samlevedtaket for oppbygningen og lagene i byggherrens svar](../../plans/vedtak.md#samlevedtak-lagene). Endrer OV-U42 for standpunktet om at fremdriften er hindret (punkt 11, svar 5 A); OV-U42 står for de andre standpunktene. Punkt 12 bygger på LV-U34 s3 og LV-U73. Versjon 3 av samlevedtaket for revisjon er HF-U36. Står: LV-U37, LV-U40, LV-U78, LV-U79, LV-U80, OV-U42 (unntatt for hindringen, punkt 11) og OV-U74 (design).
 
 **Regelrader:** —
 

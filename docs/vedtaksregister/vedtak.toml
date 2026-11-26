@@ -31078,7 +31078,7 @@ forhold = [
   { art = "samler", vedtak = "gr-u32" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for det brevene meddeler](#samlevedtak-brevteksten). Del av LV-U4: punkt 7, 8, 10, 11 og 12 tas ikke med (E1–E3). Står: LV-U6, LV-U35, LV-U36, LV-U39, LV-U42 og LV-U53 (design).'''
+Teksten står under tabellen, i [Samlevedtaket for det brevene meddeler](#samlevedtak-brevteksten). Det som ikke tas med, står under «Endret innhold» (E1–E3 og E8). Står: LV-U6, LV-U35, LV-U36, LV-U39, LV-U42 og LV-U53 (design).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 A, 2 A"
@@ -31155,7 +31155,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u42" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for oppbygningen og lagene i byggherrens svar](#samlevedtak-lagene). Endrer OV-U42 for standpunktet om at fremdriften er hindret (punkt 11, svar 5 A); OV-U42 står for de andre standpunktene. Revisjonssetningen i LV-U34 er samlet slik LV-U73 endret den (punkt 12). Versjon 3 av samlevedtaket for revisjon er HF-U36. Står: LV-U37, LV-U40, LV-U78, LV-U79, LV-U80, OV-U42 og OV-U74 (design).'''
+Teksten står under tabellen, i [Samlevedtaket for oppbygningen og lagene i byggherrens svar](#samlevedtak-lagene). Endrer OV-U42 for standpunktet om at fremdriften er hindret (punkt 11, svar 5 A); OV-U42 står for de andre standpunktene. Punkt 12 bygger på LV-U34 s3 og LV-U73. Versjon 3 av samlevedtaket for revisjon er HF-U36. Står: LV-U37, LV-U40, LV-U78, LV-U79, LV-U80, OV-U42 (unntatt for hindringen, punkt 11) og OV-U74 (design).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 A, 3 A, 5 A"
