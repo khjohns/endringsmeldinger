@@ -32,6 +32,10 @@ async function aapneSomTe(punkt: string) {
 }
 
 const knapp = (name: string | RegExp) => screen.getByRole('button', { name });
+
+/** Det første kravet er hovedvalget i et vederlagsspor uten varsel eller krav (U-1 i BF-51). */
+const aapneKravet = async () =>
+  fireEvent.click(await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' }));
 const felt = (name: string) => screen.getByLabelText(name, { exact: true }) as HTMLInputElement;
 const skriv = (name: string, value: string) => fireEvent.input(felt(name), { target: { value } });
 
@@ -51,11 +55,7 @@ async function sendBrevet() {
 describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
   it('viser poster før varsler i skjemaet med nummer fra brevet, der varslene står først (#2190)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
@@ -81,11 +81,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('#2185: tabellhodet vises først når en kravpost er ferdig', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     const postene = screen.getByRole('region', { name: /Vederlagsjustering.*pkt\./ });
     expect(postene.querySelector('.kolonner')).toBeNull();
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
@@ -97,11 +93,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('det første kravet begynner med én åpen kravpost, og det som mangler, står øverst og ved feltet (MM-U32, D-1)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     expect(await screen.findByRole('heading', { name: /^P1 · Ny kravpost/ })).toBeTruthy();
     await fireEvent.click(knapp('Se brevet før sending'));
     const mangler = within(
@@ -114,11 +106,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('TE sender fast sum og regningsarbeid med PNS, og kravet bærer oppgjørsformen, beløpet og overslaget per post (D-1, D-3, D-5, KA-U61, KA-U66)', async () => {
     const demosak = await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
@@ -260,11 +248,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('panelet «Punktene» markerer punktet for avsnittet du står i, når dokumentet eller et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     const panelet = within(
       screen.getByRole('heading', { name: 'Punktene i brevet' }).closest('section')!
     );
@@ -338,11 +322,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('den særskilte vederlagsjusteringen står åpen når den legges til, og som en leselinje med «Endre» etter «Ferdig» (system.md «Én leselinje til du åpner», #1827 punkt 2)', async () => {
     const demosak = await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
@@ -380,11 +360,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('brevkontrollen for kravet viser overskriftene i punktene som overskrifter (#1824, kommentaren 6833409907)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
@@ -409,11 +385,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 describe('«Forkast utkast» i kravskjemaet (system.md «Forkast utkast», #2119)', () => {
   it('spør i dialogen, og «Behold utkastet» lar kravposten stå', async () => {
     await aapneSomTe('forholdet-er-godkjent');
-    await fireEvent.click(
-      within(
-        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
-      ).getByRole('button')
-    );
+    await aapneKravet();
     await screen.findByRole('heading', { name: /^P1 · Ny kravpost/ });
     await fireEvent.click(
       within(screen.getByRole('form')).getByRole('button', { name: 'Forkast utkast' })
