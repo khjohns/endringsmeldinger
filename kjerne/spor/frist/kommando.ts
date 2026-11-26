@@ -237,12 +237,15 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   );
   const manglende = paakrevde.filter((felt) => mangler(v[felt]));
   // VS-U95: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2.
+  // Står begge, gjelder svaret på spørsmålet i lagene, og kontrollen avviser standpunktet
+  // (`ugyldigIFristen`).
+  const ikkeSvar =
+    v.begrunnelse_ikke_svar === true && foresporselForFristsvar(u)?.art === 'begrunnelse';
   const ubesvart = new Set(
-    v.begrunnelse_ikke_svar === true
-      ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok')
-      : manglende
+    ikkeSvar ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok') : manglende
   );
   const utfylt: Record<string, unknown> = { ...v };
+  if (!ikkeSvar || !mangler(v.foresporsel_svar_ok)) delete utfylt.begrunnelse_ikke_svar;
   for (const felt of ubesvart) utfylt[felt] = true;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
     utfylt.frister = v.frister.map((r: unknown) =>

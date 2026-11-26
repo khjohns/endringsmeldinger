@@ -911,6 +911,40 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       besvart: true,
       virkning: 'uten_virkning',
     });
+    // VS-U88 punkt 8: med begge svarene gir lagene en ugyldig rad, ikke en feil.
+    const begge = { ...v, foresporsel_svar_ok: false };
+    expect(() =>
+      lagForUtkastet(utkastet(s, 'frist', begge) as Svarutkast, s.u(), KJERNE.regler)
+    ).not.toThrow();
+    expect(ugyldig(s, 'frist', begge)).toEqual(['foresporsel_svar_ok']);
+  });
+
+  it('fristen: når kravet svarte på forespørselen, besvarer standpunktet om at begrunnelsen ikke er et svar, ikke spørsmålet etter § 33.6.2 (VS-U95)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const v = {
+      frist_varsel_ok: true,
+      begrunnelse_ikke_svar: true,
+      vilkar_oppfylt: true,
+      frister: [{ dager: 20 }],
+    };
+    expect(ubesvart(s, 'frist', v)).toEqual(['foresporsel_svar_ok']);
+    // Besvart står standpunktet som ugyldig under spørsmålet etter § 33.6.2.
+    expect(ugyldig(s, 'frist', { ...v, foresporsel_svar_ok: true })).toEqual([
+      'foresporsel_svar_ok',
+    ]);
+    expect(
+      ugyldig(s, 'frist', { ...v, begrunnelse_ikke_svar: undefined, foresporsel_svar_ok: true }),
+      'kontrollsak'
+    ).toEqual([]);
   });
 
   it('fristen: spørsmålene regelen stiller, står også når de er besvart, og er de samme som uten svar (§ 33.4, § 33.6.1, § 33.1, § 33.5, #2156)', () => {

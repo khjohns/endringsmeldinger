@@ -2752,7 +2752,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'VS-U88 punkt 8: svaret på det første kravet etter begrunnelsen påberoper at den kom for sent',
+      'VS-U88 punkt 8: standpunktet står i stedet for påberopelsen',
+      'fristen: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet',
     ],
   },
   {
@@ -4895,7 +4896,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['      if (e) sporet.set(e.id, spor);', "      if (e) sporet.set(e.id, 'vederlag');"],
     ],
-    mal: ['hver handling unntatt registreringen av et brev hører til et spor'],
+    mal: ['et element som viser til svaret utenfor rekken, får sporet til svaret'],
   },
   {
     id: 'F533',

@@ -391,12 +391,21 @@ describe('lesereglene for referansene (4.2)', () => {
     const bane = minnebane();
     const k = await bygg(bane, varselet as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
-    const tittel = radMed(rader, k, 'K-f1').data.brevtittel;
-    expect(tittel, 'forutsetning: kravet har en tittel').toEqual(expect.any(String));
+    // En tittel løsningen gir andre brev, som ikke påberoper et forhold (GR-U31).
+    const tittel = 'Aksept av svaret';
+    // Med tekst fra løsningen, så det er tittelen og ikke den manglende teksten som avvises.
+    const medTekst = (r: Journalrad[]) => {
+      const rad = medBestridelse(r, k);
+      const u = (rad.data.utsagn as Data[])[0];
+      rad.data.brevtekst = [
+        { gjelder: u.id, laast: 'Byggherren bestrider at brevet ble mottatt.' },
+      ];
+      return rad;
+    };
     const kontroll = structuredClone(rader);
-    medBestridelse(kontroll, k);
+    medTekst(kontroll);
     expect(utled(lesJournal(kontroll, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(true);
-    medBestridelse(rader, k).data.brevtittel = tittel;
+    medTekst(rader).data.brevtittel = tittel;
     expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
   });
 
