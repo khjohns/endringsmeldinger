@@ -135,15 +135,14 @@ export interface Feltene {
   dato: OppgittDato | null;
   beskrivelse: string;
   datotekst: string | null;
-  /** Spørsmålet om varselet som alt er sendt, gjelder bare der punkt 32.2 gjelder (F-5). */
+  /** Brevet sier at TE varsler etter punkt 32.2, der bestemmelsen gjelder (GR-U31, F-5). */
   punkt322: boolean;
   endringsordre: boolean;
 }
 
 /**
  * Feltene før forholdet er valgt: ledetekstene for et pålegg, som i skissen versjon 3. De
- * følger forholdet når det er valgt, og spørsmålet om varsel som alt er sendt, vises først
- * når punkt 32.2 gjelder for forholdet (F-5, akseptkriterium 1 i #1481).
+ * følger forholdet når det er valgt (F-5, akseptkriterium 1 i #1481).
  */
 export const FELTENE_UTEN_FORHOLD: Feltene = {
   dato: null,
