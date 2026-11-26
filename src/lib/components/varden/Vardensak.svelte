@@ -439,10 +439,15 @@
           : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        // Et innlegg etter siste brev står med parten og datoen (D-9 i BF-03).
+        // Et innlegg etter siste brev står med parten og datoen, også ved akseptfristen (D-9 og
+        // D-4 i BF-03).
         siste:
-          akseptlinje ??
-          (b ? (b.art === 'innlegg' ? TRAADEN.siste(b) : SAKEN.siste(b, b.avsender)) : null),
+          [
+            akseptlinje ?? (b && b.art !== 'innlegg' ? SAKEN.siste(b, b.avsender) : null),
+            b?.art === 'innlegg' ? TRAADEN.siste(b) : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || null,
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
@@ -968,18 +973,22 @@
     return { gjelder: b?.id ?? '', tittel: '', tekst: '', vedlegg: [] };
   }
 
-  /** Det svaret i sporet innlegget ikke endrer, og det parten fortsatt kan gjøre (U-3, D-4, D-10). */
-  function innleggetsVirkning() {
+  /**
+   * Svaret innlegget ikke endrer, og det parten fortsatt kan gjøre (U-3, D-4, D-10). Svaret er det
+   * gjeldende i sporet til brevet innlegget viser til (G-7), det første sporet som har et svar.
+   */
+  function innleggetsVirkning(viserTil: Brevet) {
     const mottaker = kjernesak.part === 'TE' ? 'BH' : 'TE';
-    const svaret = brev.find((b) => b.id === u?.spor[valgt].gjeldendeSvar?.dokument) ?? null;
+    const spor = viserTil.spor.find((s) => u?.spor[s].gjeldendeSvar) ?? viserTil.spor[0] ?? valgt;
+    const svaret = brev.find((b) => b.id === u?.spor[spor].gjeldendeSvar?.dokument) ?? null;
     const kanGodta =
-      kjernesak.handlinger.includes(`godta:${valgt}`) &&
-      kjernesak.handlinger.includes(`krav:${valgt}`);
+      kjernesak.handlinger.includes(`godta:${spor}`) &&
+      kjernesak.handlinger.includes(`krav:${spor}`);
     const te = kjernesak.part === 'TE' && svaret && kanGodta;
     const bh = kjernesak.part === 'BH' && svaret;
     return {
       virkninger: [
-        INNLEGGET.sendesTil(mottaker, svaret, valgt),
+        INNLEGGET.sendesTil(mottaker, svaret, spor),
         ...(te ? [INNLEGGET.fortsattTE] : bh ? [INNLEGGET.standpunkteneBH] : []),
       ],
       kvittering: INNLEGGET.kvittering(
@@ -1120,7 +1129,7 @@
       {u}
       spor={valgt}
       bind:valg={utkastene.innlegg}
-      virkninger={innleggetsVirkning().virkninger}
+      virkninger={(b) => innleggetsVirkning(b).virkninger}
       onforkast={() => forkastUtkast('innlegg')}
       onvedsiden={(v) => (vedSiden = v)}
       onbrevkontroll={({ viserTil, ...k }) => {
@@ -1133,7 +1142,7 @@
           tilbakeTil: INNLEGGET.tilbakeTil,
           svarerPaa: viserTil,
           henvisning: BREVKONTROLL.viserTil,
-          kvittering: innleggetsVirkning().kvittering,
+          kvittering: innleggetsVirkning(viserTil).kvittering,
           tilbake: { art: 'innlegg' },
           utkastet: null,
         });

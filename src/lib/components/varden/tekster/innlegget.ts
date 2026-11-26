@@ -45,7 +45,7 @@ export const INNLEGGET = haerdet({
   viserTilBrev: (b: Brevref) => `Viser til ${brevref(b)}`,
   /** «Når du sender»: innlegget er et eget brev og endrer ikke svaret (U-3, D-2, D-4). */
   sendesTil: (mottaker: Part, svaret: Brevref | null, spor: Spor) =>
-    `Innlegget sendes til ${PARTEN[mottaker]} og står i saken. ` +
+    `Innlegget sendes til ${PARTEN[mottaker]}. Det står i saken. ` +
     (svaret
       ? `Det endrer ikke svaret i ${brevref(svaret)} eller ${ETTER_SVARET[spor]}.`
       : 'Det endrer ingen krav eller svar i saken.'),

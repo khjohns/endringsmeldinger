@@ -37,8 +37,8 @@
     /** Siden innlegget er åpnet fra, som gir tidslinja. */
     spor: Spor;
     valg: Innleggsvalg;
-    /** «Når du sender» i brevkontrollen. */
-    virkninger: string[];
+    /** «Når du sender» i brevkontrollen, for brevet innlegget viser til. */
+    virkninger: (viserTil: Brevet) => string[];
     onbrevkontroll: (
       k: TilBrevkontrollen & { viserTil: Brevet; vedlegg: ReturnType<typeof vedleggskart> }
     ) => void;
@@ -85,7 +85,8 @@
       vedlegg,
       kanIkkeLages: INNLEGGET.kanIkkeLages,
       tilBrevkontrollen: (brevet) =>
-        b && onbrevkontroll({ kommando, ...brevet, virkninger, viserTil: b, vedlegg }),
+        b &&
+        onbrevkontroll({ kommando, ...brevet, virkninger: virkninger(b), viserTil: b, vedlegg }),
     });
   }
 

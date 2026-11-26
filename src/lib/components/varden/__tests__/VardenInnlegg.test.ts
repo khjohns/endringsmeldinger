@@ -14,8 +14,8 @@ import { registrerOppsett, sendBrevet } from './vardenOppsett.ts';
 
 registrerOppsett();
 
-async function aapneSaken(part: Part) {
-  const demosak = lagDemosak(finnForloep('BF-01')!, 'te-har-mottatt-svaret', part);
+async function aapneSaken(part: Part, forloep = 'BF-01') {
+  const demosak = lagDemosak(finnForloep(forloep)!, 'te-har-mottatt-svaret', part);
   const kjernesak = lagKjernesak({
     sakId: demosak.sakId,
     prosjektId: 'demo',
@@ -76,7 +76,7 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     // U-3: innlegget endrer ikke svaret, og TE kan fortsatt godta det (MM-U47 punkt 4).
     expect(
       screen.getByText(
-        'Innlegget sendes til byggherren og står i saken. Det endrer ikke svaret i brev 4 eller beløpet etter svaret.'
+        'Innlegget sendes til byggherren. Det står i saken. Det endrer ikke svaret i brev 4 eller beløpet etter svaret.'
       )
     ).toBeVisible();
     expect(
@@ -126,6 +126,37 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     const liste = await screen.findByRole('list', { name: 'Innlegg som viser til brev 4' });
     expect(within(liste).getByText(/^Brev 5 · Totalentreprenøren · .* · Varselet kom i tide$/));
     expect(screen.getByText('Innlegget inngår ikke i aksepten.')).toBeVisible();
+  });
+});
+
+describe('innlegget og sporet til brevet det viser til', () => {
+  it('G-7 og U-3: et innlegg fra vederlagsjusteringen som viser til svaret på påberopelsen, nevner det svaret', async () => {
+    await aapneSaken('TE');
+    await skrivInnlegget('Om forholdet', 'Tegningene kom tre uker for sent.');
+    const valg = screen.getByRole('combobox', { name: 'Brevet innlegget viser til' });
+    const brev2 = [...(valg as HTMLSelectElement).options].find((o) =>
+      o.textContent!.startsWith('Brev 2 ·')
+    )!;
+    await fireEvent.change(valg, { target: { value: brev2.value } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    await screen.findByRole('article', { name: 'Om forholdet i sak KOE-17' });
+    expect(
+      screen.getByText(
+        'Innlegget sendes til byggherren. Det står i saken. Det endrer ikke svaret i brev 2 eller utfallet av det.'
+      )
+    ).toBeVisible();
+  });
+
+  it('D-9 og D-4: med akseptfrist står både fristen og innlegget under betegnelsen (BF-44)', async () => {
+    await aapneSaken('TE', 'BF-44');
+    await skrivInnlegget('Om svaret', 'Totalentreprenøren er uenig.');
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    await screen.findByRole('article', { name: 'Om svaret i sak KOE-17' });
+    await sendBrevet('Send til byggherren');
+    await fireEvent.click(await screen.findByRole('button', { name: /Tilbake til saken/ }));
+    expect(
+      screen.getByText(/^Akseptfrist 15\. oktober 2026 · Totalentreprenøren har sendt et innlegg /)
+    ).toBeTruthy();
   });
 });
 
