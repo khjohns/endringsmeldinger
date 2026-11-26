@@ -7,20 +7,23 @@
 <script lang="ts">
   import Brevtraad from './Brevtraad.svelte';
   import Datolinjer from './Datolinjer.svelte';
+  import Kunnskapsdatolinje from './Kunnskapsdatolinje.svelte';
   import Sporside from './Sporside.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
   import {
     brevITraaden,
+    brevMedUtsagn,
     brevene,
     eldreKravISporet,
     klarOverForholdet,
+    kunnskapsdatoene,
     oppfoelgingene,
     type Brevet,
     type Sideprops,
     sendtSammeDag,
   } from './lesing';
   import { TRAADEN, VEDERLAGET } from './tekster';
-  import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
+  import { foersteVarsel3413, varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
   import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
   import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
 
@@ -36,6 +39,8 @@
     brevet,
     levering = new Map(),
     leggTilKorrespondanse,
+    kunnskapsdatoVarselet = null,
+    onkunnskapsdato,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
@@ -50,6 +55,17 @@
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
   const varselbrevet = $derived(varseletFoerKravet(u, '34.1.2'));
   const klar = $derived(klarOverForholdet(u));
+  // Datoen TE ble klar over at utgiftene etter punkt 34.1.3 ville påløpe, ved varselet og brevene
+  // med den (U-7 i BF-48).
+  const kunnskapsdatoer = $derived(kunnskapsdatoene(u));
+  // Varselet kjernen tilbyr handlingen for, også et krav utenfor rekken (`foersteVarsel3413`).
+  const saerskiltvarselet = $derived.by(() => {
+    const id = foersteVarsel3413(u);
+    return id === null ? null : (brevMedUtsagn(u, id)?.id ?? null);
+  });
+  const svaretI = $derived(
+    new Map(u.spor.vederlag.svar.map((s) => [s.dokument, u.svar[s.id]?.kunnskapsdato ?? null]))
+  );
 </script>
 
 <!-- Beløpet i kravet ved brevet med kravet, med hjemlene kravet også varsler etter (U-12), og
@@ -66,8 +82,24 @@
   {/if}
 {/snippet}
 
+<!-- Datoen etter punkt 34.1.3 og handlingen står under datoen for forholdet, og akseptfristen
+     sist over handlingene ved svaret (U-4 i BF-48). -->
 {#snippet fristen(b: Brevet)}
-  <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist} />
+  <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist}>
+    {#snippet etterKlar()}
+      <Kunnskapsdatolinje
+        {b}
+        {traad}
+        opplysningene={kunnskapsdatoer}
+        varselbrev={saerskiltvarselet}
+        vedSvaret={svaretI.get(b.id)}
+        lukket={u.forholdAvvist}
+        onkunnskapsdato={kunnskapsdatoVarselet && onkunnskapsdato
+          ? () => onkunnskapsdato(kunnskapsdatoVarselet)
+          : undefined}
+      />
+    {/snippet}
+  </Datolinjer>
 {/snippet}
 
 <Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>

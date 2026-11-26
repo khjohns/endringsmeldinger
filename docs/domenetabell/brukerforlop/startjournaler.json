@@ -3132,6 +3132,490 @@
       ]
     },
     {
+      "id": "BF-48",
+      "tittel": "Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen",
+      "brukerhistorie": "TE oppgir datoen TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser ville påløpe, i det særskilte varselet etter punkt 34.1.3 annet ledd, i vederlagskravet når det gir varselet, eller i et særskilt varsel lagt til som korrespondanse. Senere supplerer eller endrer TE datoen i et eget brev med henvisning til varselet. Begge partene ser den siste og de tidligere datoene ved varselet, og BH ser datoen når BH tar stilling til om varselet kom i tide.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "1c4d36ec",
+      "kontrollpunkter": [
+        {
+          "id": "te-skal-kreve-vederlaget",
+          "beskrivelse": "Forholdet er godkjent. TE har ikke krevd vederlag og ikke varslet etter punkt 34.1.3.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE finner feltet for datoen ved varselet etter punkt 34.1.3 når kravet gir varselet, ser at det er valgfritt, og ser datoen i tidslinja og i brevet før sending.",
+            "TE ser at en dato etter datoen brevet sendes, stoppes ved feltet med begge datoene."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
+          "id": "bh-har-mottatt-kravet",
+          "beskrivelse": "TE har krevd 150 000 kr og 40 000 kr i særskilt vederlagsjustering i brev 3, uten datoen.",
+          "versjon": 4,
+          "forstaaelse": [
+            "BH ser i svarskjemaet at TE ikke har oppgitt når TE ble klar over at utgiftene ville påløpe."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          }
+        },
+        {
+          "id": "te-har-mottatt-svaret",
+          "beskrivelse": "BH har påberopt at varselet etter punkt 34.1.3 kom for sent.",
+          "versjon": 5,
+          "forstaaelse": [
+            "TE finner «Oppgi datoen» ved varselet i tråden, ser skjemaet med varselet det gjelder og at datoen ikke er oppgitt, og ser brevet før sending.",
+            "TE ser at forklaringen er valgfri og står i brevet under den faste teksten.",
+            "TE ser at svaret byggherren har gitt, står som det ble sendt.",
+            "TE ser at datoen også kan oppgis når saken er lukket, og at det ikke endrer utfallet."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "kunnskapsdato"
+          }
+        },
+        {
+          "id": "datoen-er-oppgitt",
+          "beskrivelse": "TE har oppgitt 28.09.2026 i brev 5.",
+          "versjon": 6,
+          "forstaaelse": [
+            "Begge ser 28.09.2026 ved varselet som TEs siste opplysning, og ved svaret at TE ikke hadde oppgitt datoen da svaret ble sendt. Handlingen heter nå «Endre datoen»."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "kunnskapsdato"
+          }
+        },
+        {
+          "id": "datoen-er-endret",
+          "beskrivelse": "TE har oppgitt 25.09.2026 i brev 6.",
+          "versjon": 7,
+          "forstaaelse": [
+            "Begge ser 25.09.2026 som TEs siste opplysning, med 28.09.2026 i brev 5 som den tidligere. Svaret i brev 4 står som det ble sendt.",
+            "TE ser at datoen bare endres i et eget brev, og at en ny versjon av vederlagskravet har datoen fast ved varselet med veien til det egne brevet."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "986bfa60-0000-4000-8000-000000000002",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-000000000005",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "986bfa60-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "svikt",
+                "underkategori": "prosjektering",
+                "klar_over_forholdet": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+              }
+            ],
+            "brevtittel": "Påberopelse av svikt i byggherrens prosjektering i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-00000000000b",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "986bfa60-0000-4000-8000-00000000000c",
+                "spor": "forhold",
+                "gjelder": "986bfa60-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000000a",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: godkjent.",
+                  "sammenfall": true,
+                  "varslingsplikt": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "986bfa60-0000-4000-8000-00000000000a",
+                      "lag": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-00000000000c",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens påberopelse av svikt i byggherrens prosjektering i brev K201-KOE-017-01 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-00000000000c",
+                "punkt": "forhold",
+                "overskrift": "1. Forholdet",
+                "laast": "1. Forholdet\n\nByggherren har risikoen for forholdet (NS 8407 punkt 24.1).",
+                "utdypning": "Byggherren er enig i at forholdet er en svikt i prosjekteringen."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-000000000010",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "986bfa60-0000-4000-8000-000000000011",
+                "spor": "vederlag",
+                "kravposter": [
+                  {
+                    "id": "986bfa60-0000-4000-8000-000000000012",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "tilbud",
+                    "beloep": 150000
+                  }
+                ],
+                "saerskilt": {
+                  "produktivitet": {
+                    "beloep": 40000
+                  }
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "punkt": "34.1.2",
+                "overskrift": "1. Varselet om vederlagsjustering",
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "punkt": "34.1.3",
+                "overskrift": "2. Varselet om særskilt vederlagsjustering",
+                "laast": "2. Varselet om særskilt vederlagsjustering\n\nTotalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "punkt": "P1",
+                "overskrift": "3. Vederlagsjustering",
+                "laast": "3. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 150 000 kr eks. mva."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "punkt": "produktivitet",
+                "overskrift": "4. Særskilt vederlagsjustering",
+                "laast": "4. Særskilt vederlagsjustering\n\nTotalentreprenøren krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med 40 000 kr eks. mva."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "punkt": "tilbud",
+                "laast": "Kravet for P1 og den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1."
+              }
+            ],
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-00000000001f",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:05:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "986bfa60-0000-4000-8000-000000000020",
+                "spor": "vederlag",
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "paaberopelse": "986bfa60-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000001a",
+                    "art": "rettidighet",
+                    "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                    "hjemmel": "34.1.2",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000001b",
+                    "art": "oppgjoersform",
+                    "gjelder": "986bfa60-0000-4000-8000-000000000012",
+                    "hjemmel": "34.2.2",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000001c",
+                    "art": "beloep",
+                    "beloep": 150000,
+                    "gjelder": "986bfa60-0000-4000-8000-000000000012"
+                  },
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000001d",
+                    "art": "rettidighet",
+                    "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                    "hjemmel": "34.1.3",
+                    "i_tide": false,
+                    "begrenset_beloep": 10000
+                  },
+                  {
+                    "id": "986bfa60-0000-4000-8000-00000000001e",
+                    "art": "beloep",
+                    "beloep": 30000,
+                    "saerskilt": "produktivitet"
+                  }
+                ],
+                "utregning": {
+                  "resultat": "delvis_godkjent",
+                  "godkjent_beloep": 160000,
+                  "poster": [
+                    {
+                      "gjelder": "986bfa60-0000-4000-8000-000000000012",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 150000
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 150000
+                        }
+                      ]
+                    },
+                    {
+                      "saerskilt": "produktivitet",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 10000
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 30000
+                        }
+                      ]
+                    }
+                  ],
+                  "subsidiaert_resultat": "delvis_godkjent",
+                  "subsidiaert_godkjent_beloep": 180000
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: godkjent med 150 000 kr for justeringen ellers, prinsipalt begrenset etter punkt 34.1.3 til 10 000 kr, subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd).",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "986bfa60-0000-4000-8000-00000000001d",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "986bfa60-0000-4000-8000-00000000001e",
+                      "lag": 2
+                    }
+                  ],
+                  "upaavirket": [
+                    "986bfa60-0000-4000-8000-00000000001b",
+                    "986bfa60-0000-4000-8000-00000000001c"
+                  ],
+                  "uten_virkning": [
+                    "986bfa60-0000-4000-8000-00000000001a"
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-03 av 1. oktober 2026. Beløpene i brevet er eks. mva."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "34.1.2",
+                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
+                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nByggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "P1",
+                "overskrift": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)",
+                "laast": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 150 000 kr."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "produktivitet",
+                "overskrift": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
+                "laast": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner etter dette 10 000 kr av de krevde 40 000 kr.\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.1.3 ikke fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "oversikt",
+                "overskrift": "4. Oversikt",
+                "laast": "4. Oversikt\n\nPost\tKrevd\tPrinsipalt\tSubsidiært\nVederlagsjustering\t150 000 kr\t150 000 kr\t150 000 kr\nSærskilt vederlagsjustering\t40 000 kr\t10 000 kr\t30 000 kr\nSum\t190 000 kr\t160 000 kr\t180 000 kr",
+                "poster": [
+                  "P1",
+                  "produktivitet"
+                ]
+              },
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000020",
+                "punkt": "forbehold",
+                "overskrift": "5. Forbehold",
+                "laast": "5. Forbehold",
+                "utdypning": "Varselet etter punkt 34.1.3 kom for sent for den særskilte vederlagsjusteringen."
+              }
+            ],
+            "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04",
+            "deres_ref": [
+              "K201-KOE-017-03"
+            ]
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-000000000023",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-01T08:07:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "986bfa60-0000-4000-8000-000000000024",
+                "art": "kunnskapsdato",
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "klar_over_utgiftene": "2026-09-28"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000024",
+                "laast": "Totalentreprenøren oppgir nå å ha blitt klar over at utgiftene ville påløpe 28. september 2026. Opplysningen gjelder varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026.",
+                "utdypning": "Utgiftene ble kjent da peleriggen sto stille i uke 41."
+              }
+            ],
+            "brevtittel": "Når utgiftene etter punkt 34.1.3 ble kjent i sak KOE-17",
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05"
+          }
+        },
+        {
+          "event_id": "986bfa60-0000-4000-8000-000000000027",
+          "sak_id": "986bfa60-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 7,
+          "tidsstempel": "2026-10-01T08:09:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "986bfa60-0000-4000-8000-000000000028",
+                "art": "kunnskapsdato",
+                "gjelder": "986bfa60-0000-4000-8000-000000000011",
+                "klar_over_utgiftene": "2026-09-25"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "986bfa60-0000-4000-8000-000000000028",
+                "laast": "Totalentreprenøren oppgir nå å ha blitt klar over at utgiftene ville påløpe 25. september 2026. Opplysningen gjelder varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026. I brev K201-KOE-017-05 av 1. oktober 2026 oppga totalentreprenøren 28. september 2026."
+              }
+            ],
+            "brevtittel": "Når utgiftene etter punkt 34.1.3 ble kjent i sak KOE-17",
+            "brevnummer": 6,
+            "merking": "K201-KOE-017-06"
+          }
+        }
+      ]
+    },
+    {
       "id": "BF-51",
       "tittel": "Vederlag og frist uten varsel eller krav fra totalentreprenøren",
       "brukerhistorie": "Byggherren har svart på påberopelsen av forholdet. Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse. TE ser at sporene ikke har varsel eller krav, og sender det første varselet eller kravet som hovedvalg. BH ser i saken at TE ikke har sendt eller lagt til et varsel eller krav i sporet, uten at løsningen sier hva som er sendt utenfor den. Når kravene er avgjort og fristsporet fortsatt er tomt, kan TE sende det første fristkravet.",

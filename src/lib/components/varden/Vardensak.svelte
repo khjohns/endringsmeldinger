@@ -55,6 +55,7 @@
   };
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
+  import Kunnskapsdato from './Kunnskapsdato.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import {
     tomtSvar,
@@ -86,6 +87,7 @@
     FRISTKRAV,
     LEGG_TIL,
     KORRIGERING,
+    KUNNSKAPSDATO,
     KRAVSKJEMA,
     MOTTATT,
     NYVERSJON,
@@ -158,6 +160,7 @@
     | { art: 'les' }
     | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
+    | { art: 'kunnskapsdato'; gjelder: string }
     | { art: 'varselsvar'; gjelder: string }
     | { art: 'nyversjon' }
     | { art: 'vederlagskrav'; fraKorrespondansen?: true }
@@ -237,6 +240,7 @@
     vederlagskrav: (): Kravvalg | null => null,
     fristkrav: (): Fristkravvalg | null => null,
     korrigering: (): Korrigeringsvalg => ({ dato: '', forklaring: '' }),
+    kunnskapsdato: (): Korrigeringsvalg => ({ dato: '', forklaring: '' }),
     nyversjon: (): string | null => null,
     // Ett utkast per varsel som står alene, med varselet som nøkkel (G-9 i BF-14).
     varselsvar: (): Record<string, Varselsvalg> => ({}),
@@ -331,6 +335,7 @@
     ({
       svar: SVARTITTEL[valgt],
       korrigering: UTSAGNSTITTEL.korrigering,
+      kunnskapsdato: UTSAGNSTITTEL.kunnskapsdato,
       nyversjon: FORHOLDET.oppdater,
       vederlagskrav: KRAVTITTEL.vederlag,
       fristkrav: KRAVTITTEL.frist,
@@ -605,6 +610,13 @@
       vises: (a) => a.art === 'korrigering' && kanKorrigere(a.gjelder),
       skjema: korrigering,
     },
+    kunnskapsdato: {
+      noekler: [],
+      vises: (a) =>
+        a.art === 'kunnskapsdato' &&
+        kjernesak.handlinger.includes(`oppgi_kunnskapsdato:${a.gjelder}`),
+      skjema: kunnskapsdato,
+    },
     nyversjon: {
       noekler: ['krav:forhold'],
       aapne: () => aapneUtkast({ art: 'nyversjon' }),
@@ -853,6 +865,38 @@
   {/if}
 {/snippet}
 
+{#snippet kunnskapsdato(u: Utledning)}
+  {#if arbeid.art === 'kunnskapsdato'}
+    {@const gjelder = arbeid.gjelder}
+    <Kunnskapsdato
+      {kjernesak}
+      {u}
+      {gjelder}
+      bind:valg={utkastene.kunnskapsdato}
+      onforkast={() => forkastUtkast('kunnskapsdato')}
+      onbrevkontroll={(k) => {
+        melding = null;
+        tilArbeid({
+          art: 'kontroll',
+          versjon: kjernesak.versjon,
+          ...k,
+          sendTekst: KUNNSKAPSDATO.sendTekst,
+          tilbakeTil: KUNNSKAPSDATO.tilbakeTil,
+          svarerPaa: brevMedUtsagn(u, gjelder),
+          henvisning: BREVKONTROLL.viserTil,
+          kvittering: KUNNSKAPSDATO.kvittering(
+            k.kommando.klar_over_utgiftene as string,
+            u.forholdAvvist,
+            !!u.spor.vederlag.gjeldendeSvar
+          ),
+          tilbake: { art: 'kunnskapsdato', gjelder },
+          utkastet: null,
+        });
+      }}
+    />
+  {/if}
+{/snippet}
+
 {#snippet nyversjon(u: Utledning)}
   <Paaberopelsesversjon
     {kjernesak}
@@ -915,6 +959,10 @@
     onforkast={() => forkastKravet('vederlag')}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
+    onkunnskapsdato={(gjelder) => {
+      melding = null;
+      aapneUtkast({ art: 'kunnskapsdato', gjelder });
+    }}
   />
 {/snippet}
 
@@ -1232,6 +1280,10 @@
             onkorriger={(gjelder) => {
               melding = null;
               aapneUtkast({ art: 'korrigering', gjelder });
+            }}
+            onkunnskapsdato={(gjelder) => {
+              melding = null;
+              aapneUtkast({ art: 'kunnskapsdato', gjelder });
             }}
             skjemaene={skjemanoeklene}
             utkast={harUtkast(valgt) ? utkastkortene : undefined}
