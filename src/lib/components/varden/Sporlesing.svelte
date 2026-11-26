@@ -68,6 +68,7 @@
     onspor,
     utkast,
     onkorriger,
+    onkunnskapsdato,
     onakseptbrev,
     nySak,
     sakslenke,
@@ -87,6 +88,8 @@
     nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
     onkorriger?: (opplysning: string) => void;
+    /** TE oppgir eller endrer kunnskapsdatoen for varselet etter § 34.1.3 (BF-48). */
+    onkunnskapsdato?: (varselet: string) => void;
     /** Aksepten til brevkontrollen, med virkningen slik kjernen regner den. */
     onakseptbrev: (k: TilBrevkontrollen) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (BF-45 U-5). */
@@ -149,11 +152,21 @@
   const korrigerbare = $derived(
     kjernesak.tilbudte.flatMap((h) => (h.type === 'korrigere' && h.gjelder ? [h.gjelder] : []))
   );
+  // Datoen etter § 34.1.3 oppgis ved varselet i brevtråden, ikke i lista (U-4 i BF-48).
+  const kunnskapsdatoVarselet = $derived(
+    kjernesak.tilbudte.find((h) => h.type === 'oppgi_kunnskapsdato')?.gjelder ?? null
+  );
   // Innsigelsen om at et brev kom for sent er ikke en handling i Varden. Den hører hjemme i
   // svaret på brevet eller i et innlegg (oppdragsgiver 06.11, PR 1650).
   const menyvalg = $derived(
     iSporet
-      .filter((h) => h.noekkel !== primaer && h.type !== 'korrigere' && h.type !== 'innsigelse')
+      .filter(
+        (h) =>
+          h.noekkel !== primaer &&
+          h.type !== 'korrigere' &&
+          h.type !== 'oppgi_kunnskapsdato' &&
+          h.type !== 'innsigelse'
+      )
       .map((h) => h.noekkel)
   );
   // Handlingen står ved brevet den svarer på: kravet når parten kan svare, ellers svaret (U-16).
@@ -464,6 +477,8 @@
       {onspor}
       {korrigerbare}
       {onkorriger}
+      {kunnskapsdatoVarselet}
+      {onkunnskapsdato}
       {handlingerVed}
       handling={vedBrevene}
       brevet={lestBrevet}

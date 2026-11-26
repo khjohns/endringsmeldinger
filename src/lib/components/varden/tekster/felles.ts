@@ -82,6 +82,7 @@ export const brevhode = (b: Pick<Brevet, 'merking' | 'art' | 'brevtittel'>) =>
 export const OPPGITT: Record<OppgittDato['hva'], string> = haerdet({
   paalegg_mottatt: 'Pålegget mottatt',
   klar_over_forholdet: 'Klar over forholdet',
+  klar_over_utgiftene: 'Klar over at utgiftene ville påløpe',
   sendt: 'Dokumentet sendt',
   mottatt: 'Dokumentet mottatt',
 });

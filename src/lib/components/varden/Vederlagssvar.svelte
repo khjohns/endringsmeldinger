@@ -46,7 +46,7 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, brevMedElement, standpunktene } from './lesing';
+  import { brevet, brevMedElement, kunnskapsdatoene, standpunktene } from './lesing';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -66,6 +66,7 @@
     innsigelsenOmVarselet,
     leselinjene,
     oppgivelsestekst,
+    KUNNSKAPSDATO,
     VEDERLAGET,
     standpunkttekst,
   } from './tekster';
@@ -114,6 +115,8 @@
         : SKJEMA.godkjennAlleFormerBlandet
   );
   const stoppet = $derived(harPost || hinder !== null);
+  // U-9 i BF-48: TEs siste opplysning om datoen etter § 34.1.3 ved svaret på kravet med posten.
+  const sisteKunnskapsdato = $derived(kunnskapsdatoene(u).find((o) => o.siste) ?? null);
 
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
@@ -415,6 +418,13 @@
   {/if}
 {/snippet}
 
+{#snippet kunnskapsdatokortet()}
+  <section class="kort" aria-labelledby={`${uid}-kunnskapsdato`}>
+    <h2 class="hode" id={`${uid}-kunnskapsdato`}>{KUNNSKAPSDATO.stoettetittel}</h2>
+    <p class="innhold">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
+  </section>
+{/snippet}
+
 <Svarskjema
   lagfeil={!stoppet && lagene === null}
   {kjernesak}
@@ -436,6 +446,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
+  stoettekort={harPost ? kunnskapsdatokortet : undefined}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet metodevalgene(p: Kravpost)}
@@ -665,6 +676,22 @@
 </Svarskjema>
 
 <style>
+  .kort {
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+  }
+  .hode {
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: var(--rule);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .innhold {
+    padding: var(--spacing-4) var(--spacing-5);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;

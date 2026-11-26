@@ -7,6 +7,7 @@
 <script lang="ts">
   import Brevtraad from './Brevtraad.svelte';
   import Datolinjer from './Datolinjer.svelte';
+  import Kunnskapsdatolinje from './Kunnskapsdatolinje.svelte';
   import Sporside from './Sporside.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
   import {
@@ -14,6 +15,7 @@
     brevene,
     eldreKravISporet,
     klarOverForholdet,
+    kunnskapsdatoene,
     oppfoelgingene,
     type Brevet,
     type Sideprops,
@@ -36,6 +38,8 @@
     brevet,
     levering = new Map(),
     leggTilKorrespondanse,
+    kunnskapsdatoVarselet = null,
+    onkunnskapsdato,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
@@ -50,6 +54,13 @@
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
   const varselbrevet = $derived(varseletFoerKravet(u, '34.1.2'));
   const klar = $derived(klarOverForholdet(u));
+  // Datoen TE ble klar over at utgiftene etter punkt 34.1.3 ville påløpe, ved varselet og brevene
+  // med den (U-7 i BF-48).
+  const kunnskapsdatoer = $derived(kunnskapsdatoene(u));
+  const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
+  const svaretI = $derived(
+    new Map(u.spor.vederlag.svar.map((s) => [s.dokument, u.svar[s.id]?.kunnskapsdato ?? null]))
+  );
 </script>
 
 <!-- Beløpet i kravet ved brevet med kravet, med hjemlene kravet også varsler etter (U-12), og
@@ -67,6 +78,18 @@
 {/snippet}
 
 {#snippet fristen(b: Brevet)}
+  <Kunnskapsdatolinje
+    {b}
+    {traad}
+    opplysningene={kunnskapsdatoer}
+    varselbrev={saerskiltvarselet}
+    vedSvaret={svaretI.get(b.id)}
+    lukket={u.forholdAvvist}
+    kanOppgi={kunnskapsdatoVarselet !== null}
+    onkunnskapsdato={kunnskapsdatoVarselet && onkunnskapsdato
+      ? () => onkunnskapsdato(kunnskapsdatoVarselet)
+      : undefined}
+  />
   <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist} />
 {/snippet}
 
