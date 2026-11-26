@@ -11,18 +11,21 @@ import { dato, kortDato, punkt, haerdet } from './format';
  * «versjon», og et trekk kalles ikke avkall (KA-U75, D-18).
  */
 /** Varselet i spørsmålet etter U-7 i BF-37, etter bestemmelsen. */
-const UBRUKT_VARSEL: Record<string, { spoersmaal: string; ett: string; flere: string }> = {
-  '34.3.3': {
-    spoersmaal: 'varsel om justering av enhetsprisene',
-    ett: 'varsel om justering av enhetsprisene',
-    flere: 'varsler om justering av enhetsprisene',
-  },
-  '34.4': {
-    spoersmaal: 'varsel før regningsarbeidet',
-    ett: 'varsel før regningsarbeidet settes i gang',
-    flere: 'varsler før regningsarbeidet settes i gang',
-  },
-};
+const UBRUKT_VARSEL: Record<string, { spoersmaal: string; i: string; ett: string; flere: string }> =
+  {
+    '34.3.3': {
+      spoersmaal: 'varsel om justering av enhetsprisene',
+      i: 'om justering av enhetsprisene',
+      ett: 'varsel om justering av enhetsprisene',
+      flere: 'varsler om justering av enhetsprisene',
+    },
+    '34.4': {
+      spoersmaal: 'varsel før regningsarbeidet',
+      i: 'før regningsarbeidet',
+      ett: 'varsel før regningsarbeidet settes i gang',
+      flere: 'varsler før regningsarbeidet settes i gang',
+    },
+  };
 
 export const KRAVSKJEMA = haerdet({
   forholdet: (navn: string, b: Brevref) =>
@@ -172,16 +175,20 @@ export const KRAVSKJEMA = haerdet({
     `Hvilket ${UBRUKT_VARSEL[hjemmel].spoersmaal} gjelder ${post}?`,
   ubrukteVarsler: (hjemmel: string, antall: number, post: string) =>
     `Saken har ${antall === 1 ? `et ${UBRUKT_VARSEL[hjemmel].ett}` : `${antall} ${UBRUKT_VARSEL[hjemmel].flere}`} som ingen kravpost viser til. Velg det som gjelder arbeidet i ${post}.`,
-  ingenAvDem: (post: string) => `Ingen av dem. Dette kravet er varselet for ${post}`,
+  /** Oppdragsgiver 26.11 i PR #2461, etter raden «Varselet i kravet» i språkfila. */
+  ingenAvDem: (hjemmel: string, antall: number, post: string) =>
+    antall === 1
+      ? `Nei, varselet ${UBRUKT_VARSEL[hjemmel].i} i ${post} gis i dette brevet.`
+      : `Ingen av dem. Varselet ${UBRUKT_VARSEL[hjemmel].i} i ${post} gis i dette brevet.`,
   /** Hva brevet vil si om varselet for posten (U-7 i BF-37, VS-U87 punkt 23). */
   brevetSierKravet: (post: string, antall: number) =>
-    `Brevet sier at kravet er varselet for ${post}. ${antall === 1 ? 'Varselet i saken gjelder' : 'Varslene i saken gjelder'} ikke ${post}.`,
+    `Brevet sier at varselet for ${post} gis i dette brevet. ${antall === 1 ? 'Varselet i saken gjelder' : 'Varslene i saken gjelder'} ikke ${post}.`,
   brevetSierGitt: (post: string, b: Brevref) =>
     `Brevet sier at varselet for ${post} ble gitt i ${brevref(b)}. Gjør byggherren gjeldende i svaret på det varselet at det kom for sent, står det bare mot kravpostene som gjelder varselet.`,
   ikkeValgt: 'Ikke valgt ennå.',
   nrIBrevet: (tekst: string, n: number, hjemmel: string) =>
     `${tekst}, varsel ${n} etter ${punkt(hjemmel)} i brevet`,
-  manglerValget: 'Velg varselet posten gjelder, eller at kravet er varselet.',
+  manglerValget: 'Velg varselet posten gjelder, eller at varselet gis i dette brevet.',
   /** U-7 i BF-37: varselet i saken med brevet, datoen og arbeidet (VS-U87 punkt 27). */
   varseletMedArbeid: (b: Brevref & { sendt: string | null }, arbeid: string | undefined) =>
     `${b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)}, ${dato(b.sendt ?? b.registrert)}${arbeid ? `: ${arbeid}` : ''}`,

@@ -865,7 +865,7 @@
                 : KRAVSKJEMA.nrIBrevet(tekst, like.findIndex((y) => y.id === x.id) + 1, hjemmel),
           };
         }),
-        { verdi: 'ingen', tekst: KRAVSKJEMA.ingenAvDem(navnet(p)) },
+        { verdi: 'ingen', tekst: KRAVSKJEMA.ingenAvDem(hjemmel, velges.length, navnet(p)) },
       ]}
       bind:verdi={
         () => (valgt.art === 'ingen' ? 'ingen' : valgt.varsel),

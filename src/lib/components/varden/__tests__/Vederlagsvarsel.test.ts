@@ -186,7 +186,7 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       valget.getByRole('radio', { name }) as HTMLInputElement;
     const graving = radio(/^Brev 3, .*: Ekstra graving i grøften ved kum 4$/);
     const omlegging = radio(/^Brev 3, .*: Omlegging av fjernvarmerør langs fasade nord$/);
-    const ingen = radio('Ingen av dem. Dette kravet er varselet for P1');
+    const ingen = radio(/^Ingen av dem\. Varselet før regningsarbeidet i P1 gis i dette brevet\.$/);
     expect([graving, omlegging, ingen].map((r) => r.checked)).toEqual([false, false, false]);
     expect(valget.queryByRole('radio', { name: /Økte mengder sprengstein/ })).toBeNull();
     expect(screen.queryByText(/^Brevet sier/)).toBeNull();
@@ -198,7 +198,7 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       await screen.findByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
     expect(
-      oppsummering.getByText(/Velg varselet posten gjelder, eller at kravet er varselet\./)
+      oppsummering.getByText(/Velg varselet posten gjelder, eller at varselet gis i dette brevet\./)
     ).toBeTruthy();
 
     // Lenken fra «Dette mangler» åpner ikke det tredelte spørsmålet ved siden av (Gemini, funn 1).
@@ -221,7 +221,7 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     ).toBeNull();
     expect(
       screen.getByText(
-        'Brevet sier at kravet er varselet for P1. Varslene i saken gjelder ikke P1.'
+        'Brevet sier at varselet for P1 gis i dette brevet. Varslene i saken gjelder ikke P1.'
       )
     ).toBeTruthy();
   });
@@ -242,6 +242,12 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       ).checked
     ).toBe(true);
     expect(screen.getByText(/^Brevet sier at varselet for P1 ble gitt i brev 3\./)).toBeTruthy();
+    // Ordlyden med ett varsel (oppdragsgiver 26.11 i PR #2461).
+    expect(
+      valget.getByRole('radio', {
+        name: 'Nei, varselet om justering av enhetsprisene i P1 gis i dette brevet.',
+      })
+    ).toBeTruthy();
   });
 
   it('tidslinja kaller brevet med flere varsler «3 varsler», ikke navnet på varselet etter punkt 34.1.2 (U-2 i BF-37)', async () => {
