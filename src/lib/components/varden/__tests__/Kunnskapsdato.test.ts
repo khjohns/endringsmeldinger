@@ -228,7 +228,10 @@ describe('datoen i vederlagskravet (BF-48 variant B)', () => {
   async function kravMedPosten() {
     aapne('te-skal-kreve-vederlaget');
     await tilVederlaget();
-    await fireEvent.click(await screen.findByRole('button', { name: /^Oppdater kravet/ }));
+    // Det første kravet er hovedvalget i et spor uten varsel eller krav (U-1 i BF-51).
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
+    );
     await fireEvent.click(screen.getByRole('button', { name: 'Fjern posten' }));
     await fireEvent.click(
       screen.getByRole('button', { name: 'Legg til særskilt vederlagsjustering' })

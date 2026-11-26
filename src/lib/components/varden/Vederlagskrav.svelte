@@ -18,7 +18,7 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
     varseletFoerKravet,
     varslenePerKravpost,
@@ -28,6 +28,7 @@
   } from '#lib/kjernesak/vederlagskrav.ts';
   import Tekstomraade from './Tekstomraade.svelte';
   import Brevskjema from './Brevskjema.svelte';
+  import Foerstekrav from './Foerstekrav.svelte';
   import Knapp from './Knapp.svelte';
   import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -925,6 +926,10 @@
   {#snippet tidslinje()}
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
   {/snippet}
+
+  {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
+    <Foerstekrav {u} spor="vederlag" hjemmel="34.1.2" />
+  {/if}
 
   <section
     class="seksjon"

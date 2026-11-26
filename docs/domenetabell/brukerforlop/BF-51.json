@@ -206,7 +206,8 @@
         {
           "tekst": "TE ser at fristsporet ikke har et varsel eller krav, og kan sende det første fristkravet, selv om kravene som er sendt, er avgjort (U-4).",
           "kilde": [
-            "OV-U3"
+            "OV-U3",
+            "MM-U62"
           ]
         },
         {
@@ -243,6 +244,11 @@
       "dato": "2026-11-26",
       "forhold": "#2418, #2410",
       "hva": "S-1 og S-2 er ført som OV-U125 og OV-U126, og står i forståelsen for sporene og for forholdet. Prototypen er godkjent for tekstene og handlingene. S-3 er design og har ingen post."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2428, #2410",
+      "hva": "D-1 følger MM-U62 punkt 5: at kravene er avgjort, sperrer ingen handling. MM-U62 står i forståelsen for det tomme fristsporet."
     }
   ]
 }
