@@ -10,6 +10,7 @@ import {
   artfelt,
   DATO,
   ID,
+  KALENDERDAG,
   liste,
   objekt,
   TEKST,
@@ -70,7 +71,13 @@ export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies rea
 >[];
 
 const POSITIVT_BELOEP: Skjema = { type: 'number', exclusiveMinimum: 0 };
-const BELOEPSPOST = objekt({ beloep: POSITIVT_BELOEP }, ['beloep']);
+/**
+ * Posten etter § 34.1.3 annet ledd, med datoen TE oppgir å ha blitt klar over at utgiftene ville
+ * påløpe, når kravet er det første varselet løsningen kjenner (VS-U86 punkt 9 og 12).
+ */
+const PRODUKTIVITETSPOST = objekt({ beloep: POSITIVT_BELOEP, klar_over_utgiftene: KALENDERDAG }, [
+  'beloep',
+]);
 
 /** Betegnelsen kommandoen tildeler en kravpost: P1, P2 … (KA-U53). */
 export const BETEGNELSE = '^P[1-9][0-9]*$';
@@ -151,7 +158,7 @@ export function vederlagsinnhold(lagret: boolean): {
   return {
     properties: {
       kravposter: liste(kravpost(lagret)),
-      saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),
+      saerskilt: objekt({ produktivitet: PRODUKTIVITETSPOST }, ['produktivitet']),
       trekker: liste(ID),
       trekker_saerskilt: liste({ enum: ['produktivitet'] }),
     },
@@ -242,7 +249,10 @@ export const UTREGNINGSSKJEMA_I_VEDERLAGET: Skjema = objekt(
 /** Vederlagskravet, etter `KRAVINNHOLD.vederlag`: kravpostene, postene utenfor dem og trekket. */
 export interface Vederlagsinnhold {
   kravposter: readonly Kravpost[];
-  saerskilt: { produktivitet?: { beloep: number }; rigg_og_drift?: { beloep: number } };
+  saerskilt: {
+    produktivitet?: { beloep: number; klar_over_utgiftene?: string };
+    rigg_og_drift?: { beloep: number };
+  };
   trekker: readonly string[];
   trekker_saerskilt: readonly 'produktivitet'[];
 }
@@ -305,6 +315,13 @@ export const krevdIKravposten = (krav: Krav, post: Kravpost): Oere | null =>
 /** Det krevde beløpet for rigg og drift i forlenget byggetid, i øre, eller `null` uten posten (OV-U89 punkt 17). */
 export const krevdRigg = (krav: Krav): Oere | null =>
   lesKrevd(krav, innholdIVederlaget(krav).saerskilt.rigg_og_drift?.beloep);
+
+/**
+ * Datoen TE oppgir i kravet å ha blitt klar over at utgiftene etter § 34.1.3 annet ledd ville
+ * påløpe (VS-U86 punkt 12), eller `undefined`.
+ */
+export const kunnskapsdatoIKravet = (krav: Pick<Krav, 'innhold'>): string | undefined =>
+  innholdIVederlaget(krav).saerskilt.produktivitet?.klar_over_utgiftene;
 
 /** Det krevde beløpet i posten etter § 34.1.3 annet ledd, i øre, eller `null` uten posten. */
 export const krevdProduktivitet = (krav: Krav): Oere | null =>

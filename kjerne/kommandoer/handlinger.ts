@@ -11,7 +11,7 @@ import {
   VARSEL_I_SPORET,
   type Handlingsnoekkel,
 } from './forutsetninger.ts';
-import { KAN_FAA_INNSIGELSE, type Utledning } from '../utledning/utled.ts';
+import { KAN_FAA_INNSIGELSE, varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
 import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typer.ts';
 
 /**
@@ -54,6 +54,9 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): korrigeringen viser til TEs
   // siste opplysning om datoen.
   for (const o of u.datoopplysninger) ut.push({ type: 'korrigere', gjelder: o.id });
+  // VS-U86 punkt 14 (VS-U85): det egne utsagnet viser til det første varselet etter § 34.1.3.
+  const varselet = varseletFoerBrevet(u, '34.1.3');
+  if (varselet !== undefined) ut.push({ type: 'oppgi_kunnskapsdato', gjelder: varselet });
   return ut;
 }
 

@@ -68,6 +68,8 @@ export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] 
       return [{ type: 'begrunne', gjelder: k.gjelder }];
     case 'korrigering':
       return [{ type: 'korrigere', gjelder: k.gjelder }];
+    case 'kunnskapsdato':
+      return [{ type: 'oppgi_kunnskapsdato', gjelder: k.gjelder }];
   }
 }
 

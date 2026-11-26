@@ -16,7 +16,7 @@ import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
-import type { Utledning } from '../utledning/utled.ts';
+import { varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Sendemaate, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
@@ -114,6 +114,10 @@ export class Navn {
   }
 }
 
+/** Datoen TE oppgir å ha blitt klar over at utgiftene etter § 34.1.3 ville påløpe, i handlingen. */
+const kunnskapsdatoI = (h: Handling) =>
+  typeof h.klar_over_utgiftene === 'string' ? { klar_over_utgiftene: h.klar_over_utgiftene } : {};
+
 export const PART: Record<string, Part> = {
   krav: 'TE',
   aksept: 'TE',
@@ -121,6 +125,7 @@ export const PART: Record<string, Part> = {
   varsel: 'TE',
   passivitet: 'TE',
   korrigering: 'TE',
+  kunnskapsdato: 'TE',
   brev: 'BH',
   revisjon: 'BH',
 };
@@ -286,13 +291,21 @@ const INNHOLD = {
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
   // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6), bare i
   // versjonen handlingen lager; uten `belop` og `kravposter` har kravet bare posten (OV-U23).
-  // `trekker_saerskilt: true` trekker posten fra forrige versjon (KA-U83).
+  // `trekker_saerskilt: true` trekker posten fra forrige versjon (KA-U83). `klar_over_utgiftene`
+  // er datoen i posten (VS-U86 punkt 12).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => ({
     ...(typeof h.produktivitet === 'number' && h.belop === undefined && !h.kravposter
       ? {}
       : kravposterIKravet(h, u, nyId, navn)),
     ...(typeof h.produktivitet === 'number'
-      ? { saerskilt: { produktivitet: { beloep: h.produktivitet } } }
+      ? {
+          saerskilt: {
+            produktivitet: {
+              beloep: h.produktivitet,
+              ...kunnskapsdatoI(h),
+            },
+          },
+        }
       : {}),
     ...(h.trekker_saerskilt === true ? { trekker_saerskilt: ['produktivitet'] } : {}),
   }),
@@ -460,11 +473,13 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
               hjemmel: (h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2',
             } as const)
           : ({ spor: 'frist', hjemmel: '33.4' } as const);
-      // VS-U15: uten en dato sender appen varselet.
-      if (typeof h.sendt !== 'string') return { type: 'send_varsel', ...varselet };
+      // VS-U15: uten en dato sender appen varselet. VS-U86 punkt 12: `klar_over_utgiftene`.
+      if (typeof h.sendt !== 'string')
+        return { type: 'send_varsel', ...varselet, ...kunnskapsdatoI(h) };
       return {
         type: 'varsel',
         ...varselet,
+        ...kunnskapsdatoI(h),
         sendt: h.sendt as string,
         ...lagtTil(h),
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
@@ -534,6 +549,17 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         [felt]: h.dato as string,
       };
     }
+    case 'kunnskapsdato':
+      // VS-U86 punkt 14: uten `gjelder` viser utsagnet til det første varselet etter § 34.1.3.
+      return {
+        type: 'kunnskapsdato',
+        gjelder:
+          typeof h.gjelder === 'string'
+            ? navn.id(h.gjelder)
+            : (varseletFoerBrevet(u, '34.1.3') ?? 'ingen'),
+        klar_over_utgiftene: h.klar_over_utgiftene as string,
+        ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
+      };
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }

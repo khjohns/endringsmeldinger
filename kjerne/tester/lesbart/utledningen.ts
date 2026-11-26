@@ -134,7 +134,18 @@ export const UTLEDNINGEN: Lesbar[] = [
     ['spor/frist/kommando.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
   // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
-  ['utledning/utled.ts', 'relasjon', 'varseletFoerBrevet', ['kommandoer/skriving.ts:brevtekstFor']],
+  // VS-U85: det egne utsagnet om kunnskapsdatoen viser til det første varselet etter § 34.1.3.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'varseletFoerBrevet',
+    [
+      'kommandoer/skriving.ts:brevtekstFor',
+      'kommandoer/handlinger.ts:kandidater',
+      'spor/vederlag/kommando.ts:kunnskapsdatoen',
+      'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
+    ],
+  ],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
   [
     'utledning/utled.ts',
@@ -162,6 +173,8 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+      // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
+      'spor/vederlag/kommando.ts:datoenForVarselet',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],

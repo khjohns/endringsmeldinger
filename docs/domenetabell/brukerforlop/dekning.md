@@ -341,6 +341,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U124](../../plans/vedtak.md#ov-u124) | — | — | BF-49 |
 | [OV-U125](../../plans/vedtak.md#ov-u125) | — | BF-51 sporene-er-tomme | — |
 | [OV-U126](../../plans/vedtak.md#ov-u126) | — | BF-51 sporene-er-tomme | — |
+| [OV-U127](../../plans/vedtak.md#ov-u127) | — | — | BF-06 |
 | [VS-U1](../../plans/vedtak.md#vs-u1) | — | — | BF-14 |
 | [VS-U2](../../plans/vedtak.md#vs-u2) | — | — | BF-14, BF-20 |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-45 bh-har-mottatt-kravet | BF-14, BF-20, BF-47 |

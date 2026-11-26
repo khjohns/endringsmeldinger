@@ -30,7 +30,12 @@ import {
   sammeSlag,
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
-import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
+import {
+  KONTROLLER_I_VEDERLAGET,
+  kontrollerKunnskapsdatoene,
+  opplysningerOmKunnskapsdatoen,
+  sisteKunnskapsdato,
+} from '../spor/vederlag/utledning.ts';
 import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -102,6 +107,12 @@ export interface Svarberegning {
    */
   datoopplysning: string | null;
   /**
+   * TEs opplysning om datoen TE ble klar over at utgiftene etter § 34.1.3 annet ledd ville påløpe,
+   * som var TEs siste da svaret i vederlaget ble gitt (`Kunnskapsopplysning.id`, VS-U86 punkt
+   * 15, U-8 i BF-48). `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
+   */
+  kunnskapsdato: string | null;
+  /**
    * Svaret på forholdet hvis grunner brevet satte foran sporet, som frysingen regnet dem:
    * svaret på forholdet i samme dokument, ellers svaret på påberopelsesversjonen svaret ble
    * regnet mot som gjaldt før dokumentet (OV-U32, OV-U33, svaret i #1199). Et svar på
@@ -124,6 +135,24 @@ export interface Datoopplysning {
   felt: OppgittDatofelt;
   dato: string;
   korrigering: boolean;
+}
+
+/**
+ * VS-U86 punkt 12–14 (VS-U82, VS-U85): én opplysning fra TE om datoen TE ble klar over at økte
+ * utgifter etter § 34.1.3 annet ledd ville påløpe, i varselet etter § 34.1.3, i vederlagskravet
+ * eller i det egne utsagnet.
+ */
+export interface Kunnskapsopplysning {
+  /** Varselet, kravet eller utsagnet med opplysningen. */
+  id: string;
+  /** Dokumentet opplysningen står i. */
+  dokument: string;
+  dato: string;
+  /**
+   * Opplysningen ble TEs siste da den ble gitt: den første i løsningen og hvert eget utsagn.
+   * Datoen i et varsel lagt til etter det står som opplysningen i det brevet (VS-U85).
+   */
+  blirSiste: boolean;
 }
 
 export interface Enighet {
@@ -287,6 +316,13 @@ export interface Utledning {
    */
   datoopplysninger: Datoopplysning[];
   /**
+   * VS-U86 punkt 12–14 og designdelen: TEs opplysninger om datoen TE ble klar over at utgiftene
+   * etter § 34.1.3 annet ledd ville påløpe, i rekkefølgen i journalen. Den siste som `blirSiste`,
+   * er TEs siste opplysning (`sisteKunnskapsdato`). Løsningen avgjør ikke hvilken som er riktig
+   * (punkt 16).
+   */
+  kunnskapsdatoer: Kunnskapsopplysning[];
+  /**
    * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
@@ -372,6 +408,7 @@ function tom(
     protester: [],
     passivitet: [],
     datoopplysninger: [],
+    kunnskapsdatoer: [],
     utenVirkning: [],
     spor: tommeSpor(),
     forholdAvklart: false,
@@ -1082,6 +1119,7 @@ function utledSporene(
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
   const korrigeringer: Utsagn<'korrigering'>[] = [];
+  const kunnskapsdatoer: Utsagn<'kunnskapsdato'>[] = [];
   const opplysninger: Opplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
@@ -1108,6 +1146,8 @@ function utledSporene(
         return foresporsler.push(u);
       case 'korrigering':
         return korrigeringer.push(u);
+      case 'kunnskapsdato':
+        return kunnskapsdatoer.push(u);
       default:
         return henvisninger.push(u);
     }
@@ -1235,6 +1275,14 @@ function utledSporene(
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
   kontrollerKorrigeringene(korrigeringer, kravMedUten, elementer, bakover, ugyldig);
+  kontrollerKunnskapsdatoene(
+    kunnskapsdatoer,
+    spor.vederlag,
+    varsler,
+    kravMedUten,
+    bakover,
+    ugyldig
+  );
 
   begrensninger.push(...registreringer(journal).feil);
   if (begrensninger.length) return tom(journal, regler, begrensninger);
@@ -1243,6 +1291,18 @@ function utledSporene(
   const datoopplysninger = opplysningerOmDatoen(journal, spor.forhold.krav, korrigeringer);
   const svar = svarberegninger(alleSvar, spor);
   settDatoopplysningene(svar, datoopplysninger, (id) => plass.get(id)!.versjon);
+  const kunnskapsopplysninger = opplysningerOmKunnskapsdatoen(
+    journal,
+    spor.vederlag,
+    varsler,
+    kunnskapsdatoer
+  );
+  settKunnskapsdatoene(
+    svar,
+    kunnskapsopplysninger,
+    (id) => plass.get(id)!.versjon,
+    dagene(journal).dagen
+  );
   settForholdssvarene(
     svar,
     spor.forhold.svar,
@@ -1266,6 +1326,7 @@ function utledSporene(
     protester: paaberopelser(henvisninger, elementer, 'protest'),
     passivitet: paaberopelser(henvisninger, elementer, 'passivitet'),
     datoopplysninger,
+    kunnskapsdatoer: kunnskapsopplysninger,
     utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
     opplysninger: opplysninger.map((o) => ({
       opplysning: o,
@@ -1617,6 +1678,7 @@ function svarberegninger(
       virkninger: s.beslutningsgrunnlag.virkninger,
       gjaldtEtAnnetVarsel: s.standpunkter.filter(annetVarsel).map((p) => p.id),
       datoopplysning: null,
+      kunnskapsdato: null,
       forholdssvaret: null,
     };
   }
@@ -1638,16 +1700,40 @@ function settDatoopplysningene(
         datoopplysninger.filter((o) => versjonen(o.id) < versjonen(b.svar.id)).at(-1)?.id ?? null;
 }
 
+/**
+ * U-8 i BF-48 (VS-U86 punkt 15): TEs siste opplysning om kunnskapsdatoen da svaret i vederlaget
+ * ble sendt. For et svar lagt til teller ikke en opplysning sendt etter dagen svaret ble sendt.
+ */
+function settKunnskapsdatoene(
+  svar: Record<string, Svarberegning>,
+  kunnskapsdatoer: readonly Kunnskapsopplysning[],
+  versjonen: (id: string) => number,
+  dagen: (x: Pick<Svar, 'id' | 'dokument'>) => string | null
+): void {
+  for (const b of Object.values(svar)) {
+    if (b.svar.spor !== 'vederlag') continue;
+    const svaret = versjonen(b.svar.id);
+    const sendt = dagen(b.svar);
+    b.kunnskapsdato =
+      sisteKunnskapsdato({
+        kunnskapsdatoer: kunnskapsdatoer.filter(
+          (o) => versjonen(o.id) < svaret && !foerDagen(sendt, dagen(o))
+        ),
+      })?.id ?? null;
+  }
+}
+
 /** Dagen et svar ble sendt (OV-U98), og om det står i et brev lagt til. */
 function dagene(journal: Domenehendelse[]) {
   const dokumentene = new Map([...dokumenterI(journal)].map((d) => [d.id, d]));
-  const dokumentet = (x: Svar) => {
+  const dokumentet = (x: Pick<Svar, 'id' | 'dokument'>) => {
     const d = dokumentene.get(x.dokument);
     if (!d) throw new Error(`${x.id} står ikke i et dokument i journalen.`);
     return d;
   };
   return {
-    dagen: (x: Svar) => dagenSendt({ id: x.id, dokument: x.dokument }, dokumentet(x)),
+    dagen: (x: Pick<Svar, 'id' | 'dokument'>) =>
+      dagenSendt({ id: x.id, dokument: x.dokument }, dokumentet(x)),
     lagtTil: (x: Svar) => erRegistrert(dokumentet(x).opplysninger),
   };
 }

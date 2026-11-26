@@ -7,7 +7,11 @@
  */
 
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
-import { standpunkteneTilVarslene, varslerIEldreKrav } from '../spor/vederlag/utledning.ts';
+import {
+  sisteKunnskapsdato,
+  standpunkteneTilVarslene,
+  varslerIEldreKrav,
+} from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
@@ -373,6 +377,13 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
   };
 }
 
+/**
+ * VS-U86 punkt 12: datoen i varselet etter § 34.1.3, når TE har oppgitt den. Formen tillater den
+ * bare etter § 34.1.3 (`formfeil`).
+ */
+const medKunnskapsdatoen = (k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>) =>
+  k.klar_over_utgiftene === undefined ? {} : { klar_over_utgiftene: k.klar_over_utgiftene };
+
 /** Innholdet i dokumentet kommandoen gir. */
 function dokument(
   k: Kommando,
@@ -454,6 +465,7 @@ function dokument(
           id: nyId(),
           art: 'varsel',
           hjemmel,
+          ...(hjemmel === k.hjemmel ? medKunnskapsdatoen(k) : {}),
         })),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
@@ -480,7 +492,9 @@ function dokument(
       return { retter: k.retter, ikke_i_saken: true };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
-      return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
+      return {
+        utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel, ...medKunnskapsdatoen(k) }],
+      };
     case 'innsigelse':
       return {
         utsagn: [
@@ -522,6 +536,22 @@ function dokument(
       // MM-U53: TEs forklaring følger som utdypningen.
       if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
+    }
+    case 'kunnskapsdato': {
+      // VS-U86 punkt 14 (VS-U82): et eget utsagn med henvisning til varselet.
+      const id = nyId();
+      // D-5 i BF-48, etter MM-U53: TEs forklaring følger som utdypningen.
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
+      return {
+        utsagn: [
+          {
+            id,
+            art: 'kunnskapsdato',
+            gjelder: k.gjelder,
+            klar_over_utgiftene: k.klar_over_utgiftene,
+          },
+        ],
+      };
     }
     case 'bestridelse':
     case 'ingen_krav':
@@ -907,6 +937,7 @@ function brevtekstFor(
       svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
       utenVirkning: u.utenVirkning.map((x) => x.element),
       datoopplysninger: u.datoopplysninger,
+      sisteKunnskapsdato: sisteKunnskapsdato(u),
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
       varslerIEldreKrav: varslerIEldreKrav(u),

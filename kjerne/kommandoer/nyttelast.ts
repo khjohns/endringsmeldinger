@@ -6,6 +6,8 @@
  */
 
 import {
+  kontrollerKunnskapsdatoen,
+  kunnskapsdatoIVarselet,
   NYTTELAST_I_VEDERLAGET,
   varseletSvaretGjelder,
   vurderingeneISvaretPaaVarselet,
@@ -14,10 +16,16 @@ import type { Svaretsvarsel } from './standpunkter.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
+import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import { BARE_LAGT_TIL, erRegistrering, type Kommando, type Svarutkast } from './kommando.ts';
+import {
+  BARE_LAGT_TIL,
+  erRegistrering,
+  kunnskapsdatoIKommandoen,
+  type Kommando,
+  type Svarutkast,
+} from './kommando.ts';
 import {
   korrigertDato,
   kontrollerKorrigering,
@@ -375,6 +383,8 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
         )
       : null;
   }
+  const kunnskapsdato = kunnskapsdatoEtterBrevet(k, brevetsDato);
+  if (kunnskapsdato) return kunnskapsdato;
   for (const oppgitt of oppgittDatoI(k)) {
     // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
     const dag = typeof oppgitt.dato === 'string' ? kalenderdag(oppgitt.dato) : null;
@@ -385,6 +395,23 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
       );
   }
   return null;
+}
+
+/**
+ * VS-U83 (VS-U86 punkt 12a): kunnskapsdatoen etter § 34.1.3 er ikke senere enn datoen brevet med
+ * opplysningen er sendt: for et brev fra løsningen brevets dato, og for korrespondanse datoen den
+ * som legger den til, oppgir at den ble sendt. Andre datoer i saken sperrer ikke.
+ */
+function kunnskapsdatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
+  const oppgitt = kunnskapsdatoIKommandoen(k);
+  const dag = oppgitt === undefined ? null : kalenderdag(oppgitt);
+  const lagtTil = k.type === 'varsel' || erRegistrering(k);
+  const sendt = lagtTil ? kalenderdag(k.sendt) : brevetsDato;
+  if (dag === null || sendt === null || dag <= sendt) return null;
+  return avvis(
+    'DATO_ETTER_BREVET',
+    `Totalentreprenøren har oppgitt ${klarOverUtgiftene(dag)}, etter datoen brevet ${lagtTil ? 'ble sendt' : 'sendes'}, ${norskDato(sendt)}.`
+  );
 }
 
 /** Hvorfor et svar ikke kan ha en akseptfrist (HF-U23 punkt 1), som meldingen sier det. */
@@ -589,8 +616,11 @@ export function nyttelastkontroll(
         (k.hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
         (erVarselOmForholdet(k.hjemmel) ? varseletFoerGrunnlagsdatoen(k.hjemmel, k.sendt, u) : null)
       );
-    case 'trekk':
     case 'send_varsel':
+      return kunnskapsdatoIVarselet(k, u);
+    case 'kunnskapsdato':
+      return kontrollerKunnskapsdatoen(k, u);
+    case 'trekk':
     case 'foresporsel':
     case 'foresporselssvar':
     case 'ingen_krav':
