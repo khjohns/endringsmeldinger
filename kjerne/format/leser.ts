@@ -521,6 +521,7 @@ function lesDokument(h: Journalrad): Dokument {
           ...(e.klar_over_utgiftene === undefined
             ? {}
             : { klar_over_utgiftene: e.klar_over_utgiftene as string }),
+          ...(e.arbeid === undefined ? {} : { arbeid: e.arbeid as string }),
         };
       if (art === 'korrigering') {
         // Formatet krever nøyaktig ett av feltene.

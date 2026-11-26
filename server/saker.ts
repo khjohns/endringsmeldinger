@@ -444,7 +444,7 @@ async function opprettMedPaaberopelse(
         const varselet =
           varsel === undefined
             ? null
-            : { type: 'varsel', spor: 'forhold', hjemmel: '32.2', ...varsel };
+            : { type: 'varsel', varsler: [{ hjemmel: '32.2' }], ...varsel };
         const lagVarsel = (t: Date) => {
           const v = vurder(varselet, kjernekontekst(t), [opprettet, rad], avh.kjerne, vedlegg);
           if (!v.godtatt) return { skriv: false as const, avvisning: v };

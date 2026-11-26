@@ -101,8 +101,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     const varsel = (sendt: string) => ({
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt,
       dokumentasjon: [VARSELBREVET],
     });
@@ -511,8 +510,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
@@ -540,8 +538,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'forhold',
-      hjemmel: '32.2',
+      varsler: [{ hjemmel: '32.2' }],
       sendt: '2026-09-28',
       dokumentasjon: [VARSELBREVET],
     });
@@ -612,8 +609,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
@@ -636,8 +632,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
@@ -656,8 +651,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET, vedlegget],
     });
@@ -673,8 +667,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
@@ -697,8 +690,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'forhold',
-      hjemmel: '32.2',
+      varsler: [{ hjemmel: '32.2' }],
       sendt: '2026-09-28',
       dokumentasjon: [VARSELBREVET],
     });
@@ -762,8 +754,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     const kommando = {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [vedlegg.toUpperCase()],
     };
@@ -989,7 +980,7 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
 });
 
 describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
-  const sendVarsel = { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
+  const sendVarsel = { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] };
   const medVarsel = () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -1114,7 +1105,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
 });
 
 describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
-  const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' };
+  const sendVarsel = { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] };
   const vederlagskrav = {
     type: 'krav',
     spor: 'vederlag',
@@ -1188,8 +1179,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     const rad = s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'vederlag',
-      hjemmel: '34.1.2',
+      varsler: [{ hjemmel: '34.1.2' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -1211,8 +1201,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     const registrering = {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'vederlag',
-      hjemmel: '34.1.2',
+      varsler: [{ hjemmel: '34.1.2' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     };
@@ -1294,8 +1283,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
   const registrering = (sendt = '2026-09-28') => ({
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'forhold',
-    hjemmel: '32.2',
+    varsler: [{ hjemmel: '32.2' }],
     sendt,
     dokumentasjon: [randomUUID()],
   });
@@ -1361,7 +1349,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
   it('står i forholdet og sendes ikke fra løsningen, der påberopelsen er varselet (VS-U34, GR-U31)', () => {
     const s = medPaaberopelse();
     expect(s.avvist('TE', { ...registrering(), spor: 'frist' })).toBe('UGYLDIG_FORM');
-    expect(s.avvist('TE', { type: 'send_varsel', spor: 'forhold', hjemmel: '32.2' })).toBe(
+    expect(s.avvist('TE', { type: 'send_varsel', varsler: [{ hjemmel: '32.2' }] })).toBe(
       'UGYLDIG_FORM'
     );
   });
@@ -1505,7 +1493,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
   it('en korrigering til en dato etter et varsel sendt fra løsningen avvises (VS-U59)', () => {
     const s = medForhold(svikt);
     // Varselet sendes fra løsningen 3. oktober (brev 2); grunnlagskravet sier 25. september.
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
     expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toBe(
       'VARSEL_FOER_GRUNNLAGSDATOEN'
     );
@@ -1737,8 +1725,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U86 punkt 6 
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'forhold',
-      hjemmel: '32.2',
+      varsler: [{ hjemmel: '32.2' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -1888,7 +1875,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
   it('byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter på økt 2, mens innsigelsen mot varselet etter punkt 34.1.3 godtas (G-9 i BF-14)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.3.3'));
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] });
     const u = s.u();
     const varsel = u.spor.vederlag.kravpostvarsler[0]!.id;
     expect(handlinger(u, 'BH')).not.toContain(`innsigelse:${varsel}`);

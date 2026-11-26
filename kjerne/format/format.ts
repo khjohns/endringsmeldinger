@@ -196,16 +196,19 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   // VS-U34: varselet etter § 32.2 sendt utenfor løsningen registreres som de andre.
   // VS-U48, VS-U52: varslene etter § 34.3.3 første ledd og § 34.4, sendt eller registrert.
   // VS-U86 punkt 12: datoen TE ble klar over at utgiftene ville påløpe, bare etter § 34.1.3.
+  // VS-U87 punkt 27: arbeidet bare etter § 34.3.3 og § 34.4.
   varsel: objekt(
     {
       ...artfelt('varsel'),
       hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
       klar_over_utgiftene: KALENDERDAG,
+      arbeid: { type: 'string', minLength: 1 },
     },
     ['id', 'art', 'hjemmel'],
     [
-      { properties: { hjemmel: { const: '34.1.3' } } },
-      { properties: { klar_over_utgiftene: { enum: [] } } },
+      { properties: { hjemmel: { const: '34.1.3' }, arbeid: { enum: [] } } },
+      { properties: { hjemmel: { enum: ['34.3.3', '34.4'] }, klar_over_utgiftene: { enum: [] } } },
+      { properties: { arbeid: { enum: [] }, klar_over_utgiftene: { enum: [] } } },
     ]
   ),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),

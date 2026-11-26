@@ -349,7 +349,11 @@ export type OppgittDato = {
  */
 function oppgittDatoI(k: Kommando): OppgittDato[] {
   if (k.type === 'varsel')
-    return [{ dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' }];
+    return k.varsler.map(({ hjemmel }) => ({
+      dato: k.sendt,
+      gjelder: varseletSendt(hjemmel),
+      av: 'Totalentreprenøren',
+    }));
   // OV-U98: kravet, svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
   const registrering: OppgittDato[] = erRegistrering(k)
     ? [
@@ -622,10 +626,13 @@ export function nyttelastkontroll(
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'varsel':
-      return (
-        (k.hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
-        (erVarselOmForholdet(k.hjemmel) ? varseletFoerGrunnlagsdatoen(k.hjemmel, k.sendt, u) : null)
-      );
+      for (const { hjemmel } of k.varsler) {
+        const hinder =
+          (hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
+          (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, k.sendt, u) : null);
+        if (hinder) return hinder;
+      }
+      return null;
     case 'send_varsel':
       return kunnskapsdatoIVarselet(k, u);
     case 'kunnskapsdato':

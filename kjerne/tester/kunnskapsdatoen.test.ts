@@ -27,15 +27,13 @@ const OPPGIR = (dato: string) =>
 
 const sendVarsel = (dato?: string) => ({
   type: 'send_varsel',
-  spor: 'vederlag',
-  hjemmel: '34.1.3',
+  varsler: [{ hjemmel: '34.1.3' }],
   ...(dato ? { klar_over_utgiftene: dato } : {}),
 });
 const registrer = (sendt: string, dato?: string) => ({
   type: 'varsel',
   ...SOM_BREV,
-  spor: 'vederlag',
-  hjemmel: '34.1.3',
+  varsler: [{ hjemmel: '34.1.3' }],
   sendt,
   dokumentasjon: [randomUUID()],
   ...(dato ? { klar_over_utgiftene: dato } : {}),

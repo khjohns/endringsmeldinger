@@ -15,8 +15,7 @@ import { KLAR_OVER, laast, MOT, PAABEROPELSE, sak, svar, tilbud, type Data } fro
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
   type: 'send_varsel',
-  spor: 'vederlag',
-  hjemmel,
+  varsler: [{ hjemmel, arbeid: 'Graving ved kum 4' }],
 });
 
 /** Byggherrens svar lagt til med datoen det ble sendt (OV-U98, OV-U105). */
@@ -531,7 +530,7 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
           }
         : PAABEROPELSE
     );
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel }] });
     const varsel = s.u().spor.vederlag.varsler[hjemmel]!.id;
     return { s, varsel };
   }
@@ -643,7 +642,7 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
       ...PAABEROPELSE,
       innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
     });
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel }] });
     const varsel = s.u().spor.vederlag.varsler[hjemmel]!.id;
     if (forSent) s.send('BH', brev(varsel, { varslet_i_tide: false }));
     s.send('TE', {
@@ -782,7 +781,7 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
       ...PAABEROPELSE,
       innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
     });
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
     const varsel = s.u().spor.vederlag.varsler['34.1.2']!.id;
     s.send('BH', brev(varsel, { varslet_i_tide: false }));
     s.send('BH', { type: 'innsigelse', gjelder: varsel });

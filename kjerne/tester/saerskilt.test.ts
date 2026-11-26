@@ -36,7 +36,7 @@ import {
 } from './brevsak.ts';
 
 describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–OV-U25, #1047)', () => {
-  const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' };
+  const sendVarsel = { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] };
   const registrer = (hjemmel: '34.1.2' | '34.1.3') => ({
     type: 'varsel',
     ...SOM_BREV,
@@ -800,8 +800,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'vederlag',
-      hjemmel: '34.1.3',
+      varsler: [{ hjemmel: '34.1.3' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -821,7 +820,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
 
   it('svaret gjentar byggherrens egen innsigelse mot det særskilte varselet (VS-U24)', () => {
     const s = sakMedPost();
-    const varsel = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' });
+    const varsel = s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] });
     const innsigelse = s.send('BH', {
       type: 'innsigelse',
       gjelder: (varsel.data.utsagn as Data[])[0].id,
