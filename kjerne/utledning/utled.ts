@@ -147,8 +147,6 @@ export interface Kunnskapsopplysning {
   /** Dokumentet opplysningen står i. */
   dokument: string;
   dato: string;
-  /** Opplysningen er det egne utsagnet etter punkt 14. */
-  utsagn: boolean;
   /**
    * Opplysningen ble TEs siste da den ble gitt: den første i løsningen og hvert eget utsagn.
    * Datoen i et varsel lagt til etter det står som opplysningen i det brevet (VS-U85).

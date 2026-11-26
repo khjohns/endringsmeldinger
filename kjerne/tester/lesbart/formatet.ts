@@ -116,12 +116,13 @@ export const FORMATET: Lesbar[] = [
     [
       'kommandoer/kommando.ts:kunnskapsdatoIKommandoen',
       'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
+      'spor/vederlag/kommando.ts:kravfeil',
       'spor/vederlag/utledning.ts:kontrollerKunnskapsdatoene',
       'spor/vederlag/utledning.ts:opplysningerOmKunnskapsdatoen',
       'spor/vederlag/tekst.ts:vederlagstekst',
     ],
   ],
-  ['kommandoer/kommando.ts:kunnskapsdatoIKommandoen', 'kommando', 'dato sti'],
+  ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'klar_over_utgiftene'],
   [
     'kommandoer/kommando.ts',
     'kommando',
@@ -147,6 +148,7 @@ export const FORMATET: Lesbar[] = [
     [
       'spor/vederlag/kommando.ts:kunnskapsdatoenErOppgitt',
       'spor/vederlag/kommando.ts:kontrollerKunnskapsdatoen',
+      'kommandoer/skriving.ts:brevtekstFor',
     ],
   ],
   [

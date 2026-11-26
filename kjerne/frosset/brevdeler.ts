@@ -43,11 +43,8 @@ export interface Saken {
    * journalen. Den siste i feltet er den en ny versjon må gjengi (`DATOEN_KAN_IKKE_ENDRES`).
    */
   datoopplysninger: { felt: OppgittDato; dato: string; dokument: string }[];
-  /**
-   * TEs opplysninger om datoen TE ble klar over at utgiftene etter § 34.1.3 annet ledd ville
-   * påløpe, før brevet, slik utledningen leser dem (VS-U86 punkt 12–14, VS-U85).
-   */
-  kunnskapsdatoer: { id: string; dato: string; dokument: string; blirSiste: boolean }[];
+  /** TEs siste opplysning om kunnskapsdatoen etter § 34.1.3 før brevet (VS-U85, `sisteKunnskapsdato`). */
+  sisteKunnskapsdato: { dato: string; dokument: string } | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
   avklartVedFrafall: boolean;
   /** Varselet etter § 34.3.3 eller § 34.4 for hver kravpost i brevet som har et (`kravpostvarslene`). */
@@ -96,7 +93,11 @@ export function norskDato(tid: string): string {
  * (designdelen i samlevedtaket for varslingsdatoen, VS-U86).
  */
 export const kunnskapsdatoTekst = (dato: string): string =>
-  `Totalentreprenøren oppgir å ha blitt klar over at utgiftene ville påløpe ${norskDato(dato)}.`;
+  `Totalentreprenøren oppgir ${klarOverUtgiftene(dato)}.`;
+
+/** Kunnskapsdatoen etter § 34.1.3 som leddsetning, i brevene og meldingene (VS-U86 punkt 12). */
+export const klarOverUtgiftene = (dato: string): string =>
+  `å ha blitt klar over at utgiftene ville påløpe ${norskDato(dato)}`;
 
 /** Et beløp i brevet er uten merverdiavgift, og teksten sier det (LV-U4 punkt 2). */
 export const eksMva = (n: number) => `${kroner(n)} eks. mva.`;

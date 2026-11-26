@@ -367,10 +367,19 @@ export const BREVTEKSTEN: Lesbar[] = [
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],
   // VS-U86 punkt 14 og designdelen: TEs siste opplysning om kunnskapsdatoen før brevet, i det
-  // egne utsagnet og i svaret (`Kunnskapsopplysning`).
-  ['Saken', 'utsagn', 'kunnskapsdatoer kunnskapsdatoer.dato', ['frosset/brevtekst.ts']],
-  ['Saken', 'relasjon', 'kunnskapsdatoer.dokument', ['frosset/brevtekst.ts']],
-  ['Saken', 'predikat', 'kunnskapsdatoer.blirSiste', ['frosset/brevtekst.ts']],
+  // egne utsagnet og i svaret (`sisteKunnskapsdato`).
+  ['Saken', 'utsagn', 'sisteKunnskapsdato sisteKunnskapsdato.dato', ['frosset/brevtekst.ts']],
+  ['Saken', 'relasjon', 'sisteKunnskapsdato.dokument', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'klarOverUtgiftene',
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
+      'spor/vederlag/kommando.ts',
+    ],
+  ],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -441,7 +450,6 @@ export const BREVTEKSTEN: Lesbar[] = [
       'kommandoer/nyttelast.ts:varseletFoerGrunnlagsdatoen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
       'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
-      'spor/vederlag/kommando.ts:klarOverUtgiftene',
     ],
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.

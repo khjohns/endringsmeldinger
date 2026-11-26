@@ -7682,7 +7682,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'vederlagskravet oppgir datoen når et varsel etter § 34.1.3 er gitt før (VS-U86 punkt 9 og 12, D-2 i BF-48, #2012)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [["    (s.varsler['34.1.3'] !== undefined ||", '    (false ||']],
+    endringer: [["    (varseletFoerBrevet(u, '34.1.3') !== undefined", '    (false']],
     mal: ['vederlagskravet oppgir ikke datoen når et varsel etter § 34.1.3 er gitt før'],
   },
   {

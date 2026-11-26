@@ -16,7 +16,7 @@ import type { Svaretsvarsel } from './standpunkter.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
+import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import {
@@ -404,13 +404,13 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
  */
 function kunnskapsdatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
   const oppgitt = kunnskapsdatoIKommandoen(k);
-  const dag = oppgitt === undefined ? null : kalenderdag(oppgitt.dato);
+  const dag = oppgitt === undefined ? null : kalenderdag(oppgitt);
   const lagtTil = k.type === 'varsel' || erRegistrering(k);
   const sendt = lagtTil ? kalenderdag(k.sendt) : brevetsDato;
   if (dag === null || sendt === null || dag <= sendt) return null;
   return avvis(
     'DATO_ETTER_BREVET',
-    `Totalentreprenøren har oppgitt å ha blitt klar over at utgiftene ville påløpe ${norskDato(dag)}, etter datoen brevet ${lagtTil ? 'ble sendt' : 'sendes'}, ${norskDato(sendt)}.`
+    `Totalentreprenøren har oppgitt ${klarOverUtgiftene(dag)}, etter datoen brevet ${lagtTil ? 'ble sendt' : 'sendes'}, ${norskDato(sendt)}.`
   );
 }
 

@@ -16,7 +16,7 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
-import { liste, norskDato, omtalen } from '../../frosset/brevdeler.ts';
+import { klarOverUtgiftene, liste, omtalen } from '../../frosset/brevdeler.ts';
 import {
   innholdetIDokumentet,
   innholdetIVedleggene,
@@ -45,12 +45,11 @@ import {
   kravposterI,
   krevdRigg,
   kunnskapsdatoIKravet,
-  harProduktivitetspost,
   OPPGJOERSHJEMMEL,
   varselhjemmel,
   vederlagsinnhold,
 } from './format.ts';
-import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
+import { erKalenderdato, erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
@@ -236,6 +235,12 @@ function kravfeil(innhold: unknown): string[] {
       ]
     : feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   if (!feil.length) feil.push(...oerefeil(innhold as Innhold));
+  // VS-U86 punkt 12: datoen i posten er en kalenderdag.
+  const dato = feil.length ? undefined : kunnskapsdatoIKravet({ innhold: innhold as Innhold });
+  if (dato !== undefined && !erKalenderdato(dato))
+    feil.push(
+      `$.innhold.saerskilt.produktivitet.klar_over_utgiftene: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
+    );
   return feil;
 }
 
@@ -439,10 +444,6 @@ function oppgivelseUtenInnsigelse(
     : null;
 }
 
-/** Datoen TE ble klar over at utgiftene ville påløpe, som meldingene sier det (VS-U86 punkt 12). */
-const klarOverUtgiftene = (dato: string) =>
-  `å ha blitt klar over at utgiftene ville påløpe ${norskDato(dato)}`;
-
 /**
  * VS-U85: har TE oppgitt kunnskapsdatoen etter § 34.1.3 i løsningen, endres den bare i det egne
  * utsagnet etter VS-U86 punkt 14. Et varsel lagt til kan ha datoen det oppga (`varsel`).
@@ -464,11 +465,9 @@ function kunnskapsdatoenErOppgitt(u: Utledning, hva: string): Avvisning | null {
  */
 function kunnskapsdatoISperren(k: Extract<Kommando, { type: 'krav' }>, u: Utledning) {
   if (k.spor !== 'vederlag' || kunnskapsdatoIKravet(k) === undefined) return null;
-  const s = u.spor.vederlag;
   return (
     kunnskapsdatoenErOppgitt(u, 'Vederlagskravet') ??
-    (s.varsler['34.1.3'] !== undefined ||
-    [...s.krav, ...s.kravUtenforRekken].some(harProduktivitetspost)
+    (varseletFoerBrevet(u, '34.1.3') !== undefined
       ? avvis(
           'KRAVET_ER_IKKE_VARSELET',
           'Vederlagskravet er ikke det første varselet om den særskilte vederlagsjusteringen etter punkt 34.1.3, så datoen totalentreprenøren ble klar over at utgiftene ville påløpe, oppgis ikke i kravet. Den oppgis i et eget brev.'

@@ -7,7 +7,11 @@
  */
 
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
-import { standpunkteneTilVarslene, varslerIEldreKrav } from '../spor/vederlag/utledning.ts';
+import {
+  sisteKunnskapsdato,
+  standpunkteneTilVarslene,
+  varslerIEldreKrav,
+} from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
@@ -933,7 +937,7 @@ function brevtekstFor(
       svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
       utenVirkning: u.utenVirkning.map((x) => x.element),
       datoopplysninger: u.datoopplysninger,
-      kunnskapsdatoer: u.kunnskapsdatoer,
+      sisteKunnskapsdato: sisteKunnskapsdato(u),
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
       varslerIEldreKrav: varslerIEldreKrav(u),

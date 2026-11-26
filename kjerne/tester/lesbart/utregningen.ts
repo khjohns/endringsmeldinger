@@ -275,8 +275,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'krevdProduktivitet harProduktivitetspost',
     [
       'utledning/utled.ts',
-      // VS-U86 punkt 9: kravet er det første varselet uten et tidligere krav med posten.
-      'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
       'spor/vederlag/utledning.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',

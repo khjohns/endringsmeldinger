@@ -435,7 +435,7 @@ export function kontrollerKunnskapsdatoene(
         'opplysningen om kunnskapsdatoen viser ikke til et varsel etter § 34.1.3 før den'
       );
   }
-  const [foerste] = vederlag.krav.filter(harProduktivitetspost);
+  const foerste = vederlag.krav.find(harProduktivitetspost);
   for (const k of vederlag.krav)
     if (k !== foerste && kunnskapsdatoIKravet(k) !== undefined)
       ugyldig(
@@ -461,7 +461,7 @@ export function opplysningerOmKunnskapsdatoen(
   const egne = new Set(utsagn.map((x) => x.id));
   const ut: Kunnskapsopplysning[] = [];
   const legg = (id: string, dokument: string, dato: string, egen: boolean) =>
-    ut.push({ id, dokument, dato, utsagn: egen, blirSiste: egen || ut.length === 0 });
+    ut.push({ id, dokument, dato, blirSiste: egen || ut.length === 0 });
   for (const h of journal) {
     if (h.art !== 'dokument') continue;
     const d = h.dokument;

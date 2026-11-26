@@ -496,25 +496,11 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
 };
 
-/**
- * Datoen TE oppgir i kommandoen å ha blitt klar over at utgiftene etter § 34.1.3 annet ledd ville
- * påløpe (VS-U86 punkt 12 og 14), med stien i kommandoen, eller `undefined`. Kalles etter formen.
- */
-export function kunnskapsdatoIKommandoen(k: Kommando): { dato: string; sti: string } | undefined {
-  const dato =
-    k.type === 'varsel' || k.type === 'send_varsel' || k.type === 'kunnskapsdato'
-      ? k.klar_over_utgiftene
-      : k.type === 'krav' && k.spor === 'vederlag'
-        ? kunnskapsdatoIKravet(k)
-        : undefined;
-  if (dato === undefined) return undefined;
-  return {
-    dato,
-    sti:
-      k.type === 'krav'
-        ? '$.innhold.saerskilt.produktivitet.klar_over_utgiftene'
-        : '$.klar_over_utgiftene',
-  };
+/** Kunnskapsdatoen etter § 34.1.3 i kommandoen, eller `undefined` (VS-U86 punkt 12 og 14). */
+export function kunnskapsdatoIKommandoen(k: Kommando): string | undefined {
+  if (k.type === 'varsel' || k.type === 'send_varsel' || k.type === 'kunnskapsdato')
+    return k.klar_over_utgiftene;
+  return k.type === 'krav' && k.spor === 'vederlag' ? kunnskapsdatoIKravet(k) : undefined;
 }
 
 /** Kommandotypene kjernen tar imot, med et skjema for hver. */
@@ -632,13 +618,11 @@ export function formfeil(kommando: unknown): string[] {
         `$.klar_over_utgiftene: bare varselet etter punkt 34.1.3 har datoen totalentreprenøren ble klar over at utgiftene ville påløpe`
       );
   }
-  // VS-U86 punkt 12 og 14: datoen er en kalenderdag.
-  const kunnskapsdato = feil.length
-    ? undefined
-    : kunnskapsdatoIKommandoen(kommando as unknown as Kommando);
-  if (kunnskapsdato !== undefined && !erKalenderdato(kunnskapsdato.dato))
+  // VS-U86 punkt 12 og 14: datoen er en kalenderdag. I vederlagskravet kontrollerer sporet den.
+  const kunnskapsdato = kommando.klar_over_utgiftene;
+  if (!feil.length && typeof kunnskapsdato === 'string' && !erKalenderdato(kunnskapsdato))
     feil.push(
-      `${kunnskapsdato.sti}: ${JSON.stringify(kunnskapsdato.dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
+      `$.klar_over_utgiftene: ${JSON.stringify(kunnskapsdato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
     );
   const {
     sti,

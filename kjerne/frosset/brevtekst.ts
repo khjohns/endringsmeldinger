@@ -54,6 +54,7 @@ import {
   type PostenISvaret,
   type Vilkaar,
   helt,
+  klarOverUtgiftene,
   kunnskapsdatoTekst,
   PARTENS,
   UtdypningUtenPunkt,
@@ -458,7 +459,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
     if (p.art === 'rettidighet' && p.hjemmel === '34.1.3' && !p.iTide) {
       // Designdelen i VS-U86, U-9 i BF-48: TEs siste opplysning om kunnskapsdatoen før svaret
       // står ved siden av varselet.
-      const kunnskapsdato = t.saken.kunnskapsdatoer.filter((o) => o.blirSiste).at(-1);
+      const kunnskapsdato = t.saken.sisteKunnskapsdato;
       if (kunnskapsdato)
         ledd.push({
           punkt: 'produktivitet',
@@ -1108,12 +1109,10 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
       return `Totalentreprenøren oppgir nå at ${DATOEN_GJELDER[u.felt]} ${norskDato(u.dato)}. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;
     }
     case 'kunnskapsdato': {
-      // VS-U86 punkt 14 og U-5 i BF-48: den nye datoen, varselet den gjelder og TEs siste
-      // opplysning før brevet med brevet den sto i, som brevet etter punkt 10 i samlevedtaket for
-      // retting av sendt brev.
-      const tidligere = saken.kunnskapsdatoer.filter((o) => o.blirSiste).at(-1);
+      // VS-U86 punkt 14, U-5 i BF-48, som brevet etter punkt 10 i MM-U59.
+      const tidligere = saken.sisteKunnskapsdato;
       return [
-        `Totalentreprenøren oppgir nå å ha blitt klar over at utgiftene ville påløpe ${norskDato(u.klar_over_utgiftene)}.`,
+        `Totalentreprenøren oppgir nå ${klarOverUtgiftene(u.klar_over_utgiftene)}.`,
         `Opplysningen gjelder ${VARSELET_I_SVARET['34.1.3']} i ${j.brevet(j.dokumentetTil(u.gjelder))}.`,
         ...(tidligere
           ? [

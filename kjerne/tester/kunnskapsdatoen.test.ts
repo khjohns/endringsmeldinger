@@ -93,7 +93,7 @@ describe('datoen i brevet med varselet (VS-U86 punkt 12 og 13, VS-U82)', () => {
       `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.1.3 tredje ledd at totalentreprenøren vil kreve særskilt justering av vederlaget etter annet ledd for ${PRODUKTIVITET} på annet arbeid som følge av forholdet i sak KOE-17 («Endret fundamentering»). ${OPPGIR('28. september 2026')}`,
     ]);
     expect(s.u().kunnskapsdatoer).toEqual([
-      { id: utsagn.id, dokument: rad.event_id, dato: '2026-09-28', utsagn: false, blirSiste: true },
+      { id: utsagn.id, dokument: rad.event_id, dato: '2026-09-28', blirSiste: true },
     ]);
   });
 
@@ -220,10 +220,10 @@ describe('det egne brevet som supplerer eller endrer datoen (VS-U86 punkt 14, MM
     // det kom for sent.
     expect(laast(s.journal.at(-1)!).join('\n')).toContain(OPPGIR('15. september 2026'));
     expect(s.u().svar[svaret.id].kunnskapsdato).toBe((tilbake.data.utsagn as Data[])[0].id);
-    expect(s.u().kunnskapsdatoer.map((o) => [o.dato, o.utsagn, o.blirSiste])).toEqual([
-      ['2026-09-20', false, true],
-      ['2026-09-28', true, true],
-      ['2026-09-15', true, true],
+    expect(s.u().kunnskapsdatoer.map((o) => [o.dato, o.blirSiste])).toEqual([
+      ['2026-09-20', true],
+      ['2026-09-28', true],
+      ['2026-09-15', true],
     ]);
   });
 
