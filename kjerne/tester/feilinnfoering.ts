@@ -7759,6 +7759,19 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['VS-U95: en lest rad med standpunktet i svaret på en senere kravversjon'],
   },
+  {
+    id: 'F2442g',
+    feilklasse:
+      'svaret på en senere kravversjon viser ikke til brevet med påberopelsen etter § 33.4 eller § 33.6.2 (VS-U88 punkt 9, LV-U4 punkt 5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'iSvaret?.dokument ?? paaberopelsenFoerIFristen(p, { j, saken, nytt })',
+        'iSvaret?.dokument',
+      ],
+    ],
+    mal: ['VS-U88 punkt 9, LV-U4 punkt 5: svaret på en senere kravversjon gjentar påberopelsen'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

@@ -666,6 +666,32 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       );
     });
 
+    it('VS-U88 punkt 9, LV-U4 punkt 5: svaret på en senere kravversjon gjentar påberopelsen etter § 33.6.2 og § 33.4 med brevet den står i, eller gir den opp', () => {
+      const tekstPaaV2 = (v: Data, resultat: Data) => {
+        const { s } = medKravEtterBegrunnelsen();
+        fristsvar(
+          s,
+          { ...FRIST_FULLT[0], frist_varsel_ok: false, foresporsel_svar_ok: false },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        );
+        s.send('TE', {
+          ...utenFelt(FRISTKRAV, 'varsel'),
+          innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+        });
+        return laast(fristsvar(s, { ...FRIST_FULLT[0], dager: 25, ...v }, resultat)).join('\n\n');
+      };
+      const gjentatt = tekstPaaV2(
+        { frist_varsel_ok: false, foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      expect(gjentatt.match(/jf\. innsigelsen i brev K201-KOE-017-05/g)).toHaveLength(2);
+      const oppgitt = tekstPaaV2(
+        { frist_varsel_ok: true, foresporsel_svar_ok: true },
+        { resultat: 'godkjent', godkjent_dager: 25 }
+      );
+      expect(oppgitt.match(/gir opp innsigelsen i brev K201-KOE-017-05/g)).toHaveLength(2);
+    });
+
     it('VS-U95: en lest rad med standpunktet i svaret på en senere kravversjon gjør saken ikke forstått', () => {
       const { s } = medKravEtterBegrunnelsen();
       const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });

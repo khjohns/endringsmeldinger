@@ -894,7 +894,8 @@ function rettidighetstekst(
   const iSvaret = erVederlagsvarselhjemmel(p.hjemmel)
     ? innsigelsenFoer(p, [], { j, saken, nytt })
     : undefined;
-  const brevet = iSvaret ? j.brevet(iSvaret.dokument) : null;
+  const foer = iSvaret?.dokument ?? paaberopelsenFoerIFristen(p, { j, saken, nytt });
+  const brevet = foer ? j.brevet(foer) : null;
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide)
@@ -906,6 +907,32 @@ function rettidighetstekst(
     );
   if (!brevet) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
   return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+}
+
+/**
+ * Påberopelsen etter § 33.4 eller § 33.6.2 standpunktet `p` gjentar eller gir opp, fra et tidligere
+ * svar i fristen: brevet med den første påberopelsen som ikke er gitt opp siden (VS-U88 punkt 9,
+ * VS-U87 punkt 6, 9 og 10, LV-U4 punkt 5), ellers `undefined`.
+ */
+function paaberopelsenFoerIFristen(
+  p: Extract<Standpunkt, { art: 'rettidighet' }>,
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+): string | undefined {
+  if (p.hjemmel !== '33.4' && p.hjemmel !== '33.6.2') return undefined;
+  const svarene = j.dokumenter
+    .filter((d) => d.id !== nytt.id)
+    .flatMap((d) =>
+      d.svar
+        .filter((x) => x.spor === 'frist' && !saken.utenVirkning.includes(x.id))
+        .map((x): [string, Svar] => [dagenSendt({ id: x.id, dokument: d.id }, d) ?? '', x])
+    )
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  let foerste: string | undefined;
+  for (const [, x] of svarene)
+    for (const q of x.standpunkter)
+      if (q.art === 'rettidighet' && q.hjemmel === p.hjemmel && q.gjelder === p.gjelder)
+        foerste = q.iTide ? undefined : (foerste ?? x.dokument);
+  return foerste;
 }
 
 /**
