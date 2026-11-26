@@ -31538,6 +31538,7 @@ til da viser grunnlagssvaret ikke til en EO-sak. Ikke bygget'''
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "statusteksten og påminnelsen i skjemaet ved første krav i sporet"
+flyttet_til = "BF-51.md#u-3"
 id = "OV-U3"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
