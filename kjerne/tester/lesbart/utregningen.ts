@@ -116,7 +116,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'frosset/standpunkt.ts',
     'relasjon',
     'sisteStandpunktTilVarslene',
-    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+    ['frosset/brevtekst.ts:innsigelsenFoer', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
@@ -407,7 +407,7 @@ export const UTREGNINGEN: Lesbar[] = [
   ['regler/vederlag.ts:kontrollerInnsigelsenSomStaar', 'utsagn', 'varslet_i_tide'],
   // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
   // de ble sendt.
-  ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil'],
+  ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil paaVarselet'],
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
   // VS-U79: varselet svaret på et varsel gjelder, og dagen kravene ble sendt.
   [
