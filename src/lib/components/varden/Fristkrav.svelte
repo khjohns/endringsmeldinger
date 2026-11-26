@@ -737,12 +737,7 @@
   {/snippet}
 
   {#if !lagtTil && !varsel && nesteKravErDetFoerste(u, 'frist')}
-    <Foerstekrav
-      {u}
-      spor="frist"
-      brev={alleBrev}
-      onregistrer={kanRegistrere ? registrerVarselet : undefined}
-    />
+    <Foerstekrav {u} spor="frist" onregistrer={kanRegistrere ? registrerVarselet : undefined} />
   {/if}
 
   {#if kanVarsle}

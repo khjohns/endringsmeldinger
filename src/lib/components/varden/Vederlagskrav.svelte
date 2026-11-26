@@ -928,7 +928,7 @@
   {/snippet}
 
   {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
-    <Foerstekrav {u} spor="vederlag" brev={alleBrev} />
+    <Foerstekrav {u} spor="vederlag" />
   {/if}
 
   <section

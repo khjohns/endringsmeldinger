@@ -149,7 +149,7 @@ describe('påminnelsen ved det første kravet (U-3 i BF-51)', () => {
     const forloep: Forloep = { id: 'foerstekrav', rader: [], start: null, steg, kontroller: [] };
     const k = await kjoer(forloep, minnebane({ sakstittel: 'Tegningene' }));
     const u = await k.utledning();
-    render(Foerstekrav, { u, spor: 'frist', brev: brevene(u) });
+    render(Foerstekrav, { u, spor: 'frist' });
     const varselbrevet = brevene(u).find((b) => b.spor.includes('frist'))!;
     const linje = screen.getByRole('listitem').textContent!;
     expect(linje).toMatch(

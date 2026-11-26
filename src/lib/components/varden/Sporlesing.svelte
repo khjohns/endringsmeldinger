@@ -22,6 +22,7 @@
   import Fristoversikt from './Fristoversikt.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
+  import Tomtspor from './Tomtspor.svelte';
   import Vederlagsoversikt from './Vederlagsoversikt.svelte';
   import { aksepten } from './kommandoer';
   import { fokuser } from './mangler';
@@ -462,6 +463,11 @@
   {/if}
 {/snippet}
 
+<!-- Et spor uten varsel eller krav har betegnelsen og handlingene i hodet (U-2 i BF-51). -->
+{#snippet tomtHode()}
+  {#if spor !== 'forhold'}<Tomtspor {spor} handlinger={primaer ? vedBrevet : undefined} />{/if}
+{/snippet}
+
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
   {#if id === handlingVed}{@render vedBrevet()}{/if}
@@ -508,7 +514,7 @@
       brevet={lestBrevet}
       {levering}
       {leggTilKorrespondanse}
-      tomtSpor={tomt && primaer ? vedBrevet : undefined}
+      merknad={tomt ? tomtHode : undefined}
     />
     {#if handlingVed === null && !tomt && (primaer || flyt.hindring)}
       <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->

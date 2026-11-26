@@ -10,7 +10,6 @@
   import Datolinjer from './Datolinjer.svelte';
   import Kravkort from './Kravkort.svelte';
   import Sporside from './Sporside.svelte';
-  import Tomtspor from './Tomtspor.svelte';
   import KravetOgSvaretIFristen from './KravetOgSvaretIFristen.svelte';
   import Melding from './Melding.svelte';
   import {
@@ -40,7 +39,7 @@
     handling,
     brevet,
     leggTilKorrespondanse,
-    tomtSpor,
+    merknad,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
@@ -80,15 +79,7 @@
   <Datolinjer {b} {klar} varselbrev={varsel?.dokument ?? null} {akseptfrist} />
 {/snippet}
 
-<!-- Et spor uten varsel eller krav har betegnelsen og handlingene i hodet (U-2 i BF-51). -->
-{#snippet tomt()}<Tomtspor spor="frist" handlinger={tomtSpor} />{/snippet}
-
-<Sporside
-  tittel={FRISTEN.tittel}
-  hjemmel={FRISTEN.hjemmel}
-  siste={traad.at(-1)}
-  merknad={betegnelser.frist === 'ingen_varsel_eller_krav' ? tomt : undefined}
->
+<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel} siste={traad.at(-1)} {merknad}>
   <Brevtraad
     brev={traad}
     {leggTilKorrespondanse}

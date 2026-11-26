@@ -9,26 +9,22 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import type { Brevet } from './lesing';
+  import { brevet } from './lesing';
   import { BREVTYPER, HANDLINGENE, TOMT_SPOR } from './tekster';
 
   let {
     u,
     spor,
-    brev,
     onregistrer,
   }: {
     u: Utledning;
     spor: 'vederlag' | 'frist';
-    /** Brevene i saken (`brevene(u)`). */
-    brev: Brevet[];
     /** Registreringen av et varsel sendt på annen måte, når den er bygget for sporet. */
     onregistrer?: () => void;
   } = $props();
   const uid = $props.id();
 
   const varslene = $derived(varsleneISporet(u, spor));
-  const brevet = (id: string) => brev.find((b) => b.id === id) ?? null;
   let ikkeBygget = $state(false);
   const registrer = BREVTYPER.find((b) => b.type === 'varsle')!.tekst;
 </script>
@@ -38,7 +34,7 @@
   {#if varslene.length}
     <ul>
       {#each varslene as v (v.id)}
-        <li>{TOMT_SPOR.varselet(v.hjemmel, brevet(v.dokument), v.sendt, v.oppgitt)}</li>
+        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument))}</li>
       {/each}
     </ul>
   {:else}

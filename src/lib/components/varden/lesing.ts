@@ -629,8 +629,8 @@ export interface Sideprops {
   brevet?: Snippet<[Brevet]>;
   /** Leveringen av brevene sendt herfra til Catenda (`leveringene`). */
   levering?: ReadonlyMap<string, string | null>;
-  /** Handlingene i et spor uten varsel eller krav, i hodet på siden (U-1 og U-2 i BF-51). */
-  tomtSpor?: Snippet;
+  /** Det som står i hodet på siden under overskriften, som et spor uten varsel eller krav (U-2 i BF-51). */
+  merknad?: Snippet;
 }
 
 /**
