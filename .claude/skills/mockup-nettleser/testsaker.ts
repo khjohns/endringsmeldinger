@@ -524,7 +524,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.getByRole('button', { name: 'Svar på varselet om vederlagsjustering' }).click({ timeout: 30_000 });
       await bh.getByRole('heading', { name: /^Svar på varsel om vederlagsjustering/ }).waitFor();
       await bh.screenshot({ path: `${ut}/varselsvar-3412-endring.png`, fullPage: true });
-      await bh.getByText(/krever ikke punkt.34\.1\.2 varsel/).first().waitFor({ timeout: 5_000 });
+      await bh.getByText(/krever ikke punkt.34\.1\.2 varsel\. Du tar ikke/).first().waitFor({ timeout: 5_000 });
       await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
       await bh.screenshot({ path: `${ut}/varselsvar-3412-endring-mangler.png`, fullPage: true });
     },

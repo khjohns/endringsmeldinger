@@ -705,10 +705,16 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     const sendt = await svarskjemaet(journal);
     expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
     expect(screen.queryByRole('radio', { name: 'Kom for sent' })).toBeNull();
-    expect(screen.getAllByText(/krever ikke punkt 34\.1\.2 varsel/).length).toBeGreaterThan(0);
+    // Punktet og panelet sier det samme, og panelet sier ikke «Ikke besvart» (system.md).
+    expect(screen.getAllByText(/krever ikke punkt 34\.1\.2 varsel\. Du tar ikke/)).toHaveLength(2);
+    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panelet.queryByText('Ikke besvart')).toBeNull();
     await seBrevet();
     expect(sendt).toHaveLength(0);
     // Mangelen er bare at det ikke er noe å sende, ikke et valg som ikke tilbys.
+    expect(
+      screen.getByRole('link', { name: /^Ingenting å sende\. Punkt.34\.1\.2 krever ikke varsel/ })
+    ).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeNull();
   });
 

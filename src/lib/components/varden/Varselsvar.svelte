@@ -179,7 +179,13 @@
     hjemmel === '34.4'
       ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
       : hjemmel !== '34.3.3'
-        ? [punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart)]
+        ? [
+            punktet(
+              hjemmel,
+              varselpunktet,
+              varselKrevesIkke ? VARSELSVARET.krevesIkkeLinje : SKJEMA.ikkeBesvart
+            ),
+          ]
         : [
             punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
             punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
@@ -377,12 +383,12 @@
        (`system.md`, «Utkastet er brevet mens det skrives»). -->
     <Spoersmaal
       id={`${uid}-sp-varselet`}
-      aktiv={hjemmel !== '34.3.3' && iTide === null}
+      aktiv={hjemmel !== '34.3.3' && !varselKrevesIkke && iTide === null}
       tittel={overskrift(hjemmel) ?? varselpunktet}
     >
       {#if varselet.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(varselet.arbeid)}</p>{/if}
       {#if varselKrevesIkke}
-        <p id={`${uid}-varsel-standpunkt`}>{VARSELSVARET.krevesIkke}</p>
+        <p class="dempet" id={`${uid}-varsel-standpunkt`}>{VARSELSVARET.krevesIkkeLinje}</p>
       {:else}
         {@render standpunktet('varselet')}
       {/if}
