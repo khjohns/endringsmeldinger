@@ -134,8 +134,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -1655,8 +1654,7 @@ describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 pun
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });

@@ -20,6 +20,7 @@ import {
   formfeil,
   vedleggI,
   type Kommando,
+  type Varselposten,
   type Registrering,
   type Svarutkast,
 } from './kommando.ts';
@@ -74,7 +75,6 @@ import {
   type Krav,
   type Domenehendelse,
   type Kravpostvarselet,
-  type Kravpostvarselhjemmel,
   type Opplysning,
   type Part,
   type Sakskode,
@@ -313,8 +313,7 @@ export interface Skrivesteg {
     k: Kommando,
     kontekst: Kontekst,
     journal: Journalrad[],
-    vedKravet?: readonly string[],
-    ogsaaEtter?: readonly Kravpostvarselhjemmel[]
+    vedKravet?: readonly string[]
   ): Utfall;
   /**
    * Handlingen `kjede` lager fra konteksten og journalen. Når den sendes, prøves hele handlingen
@@ -375,8 +374,21 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
  * VS-U86 punkt 12: datoen i varselet etter § 34.1.3, når TE har oppgitt den. Formen tillater den
  * bare etter § 34.1.3 (`formfeil`).
  */
-const medKunnskapsdatoen = (k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>) =>
-  k.klar_over_utgiftene === undefined ? {} : { klar_over_utgiftene: k.klar_over_utgiftene };
+const medKunnskapsdatoen = (v: Varselposten) =>
+  v.klar_over_utgiftene === undefined ? {} : { klar_over_utgiftene: v.klar_over_utgiftene };
+
+/**
+ * Ett utsagn per varsel i brevet (beslutningsdelen i VS-U87), med arbeidet etter punkt 27 og
+ * kunnskapsdatoen etter VS-U86 punkt 12.
+ */
+const varselutsagn = (varsler: readonly Varselposten[], nyId: () => string) =>
+  varsler.map((v) => ({
+    id: nyId(),
+    art: 'varsel',
+    hjemmel: v.hjemmel,
+    ...(v.arbeid === undefined ? {} : { arbeid: v.arbeid }),
+    ...medKunnskapsdatoen(v),
+  }));
 
 /** Innholdet i dokumentet kommandoen gir. */
 function dokument(
@@ -386,8 +398,7 @@ function dokument(
   kontekst: Kontekst,
   utdypninger: Utdypninger,
   bygde: Bygde,
-  bundne: Vedlegg[],
-  ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
+  bundne: Vedlegg[]
 ): Data {
   const nyId = kontekst.nyId;
   // OV-U98: dagen et brev lagt til ble sendt, og `null` for et brev fra løsningen.
@@ -453,14 +464,8 @@ function dokument(
     case 'trekk':
       return { utsagn: [{ id: nyId(), art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }] };
     case 'varsel':
-      // VS-U52: dokumentet fra kravskjemaet kan være varsel etter begge bestemmelsene (VS-U53).
       return {
-        utsagn: [k.hjemmel, ...ogsaaEtter].map((hjemmel) => ({
-          id: nyId(),
-          art: 'varsel',
-          hjemmel,
-          ...(hjemmel === k.hjemmel ? medKunnskapsdatoen(k) : {}),
-        })),
+        utsagn: varselutsagn(k.varsler, nyId),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
         ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
@@ -486,9 +491,7 @@ function dokument(
       return { retter: k.retter, ikke_i_saken: true };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
-      return {
-        utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel, ...medKunnskapsdatoen(k) }],
-      };
+      return { utsagn: varselutsagn(k.varsler, nyId) };
     case 'innsigelse':
       return {
         utsagn: [
@@ -658,8 +661,8 @@ function handlingen(
     jx === journal && jx.length === antall ? foer : les(jx);
   const skriving: Skrivesteg = {
     formen,
-    skriv: (kx, kont, jx, vedKravet, ogsaaEtter) =>
-      skriv(kx, kont, jx, kjerne, vedlegg, sendes, saken, foer, vedKravet, ogsaaEtter),
+    skriv: (kx, kont, jx, vedKravet) =>
+      skriv(kx, kont, jx, kjerne, vedlegg, sendes, saken, foer, vedKravet),
     proevd: (kjede) => {
       // Den første raden er den samme i prøven; `neste` lager de andre fra sin egen journal.
       const foerste = kjede(kontekst, journal);
@@ -692,8 +695,7 @@ function skriv(
   sendes: boolean,
   saken: (journal: Journalrad[]) => LestSak,
   foer: LestSak,
-  vedKravet: readonly string[] = [],
-  ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
+  vedKravet: readonly string[] = []
 ): Utfall {
   const kommando: unknown = k;
   // Saken kan være delt med de andre radene i handlingen (`Skrivesteg.saken`).
@@ -736,7 +738,7 @@ function skriv(
       ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
         iSporet(SKRIVING, k.spor).saksperre?.(k, { lest, u, foer, vedKravet, oppslag: vedlegg }))
       : k.type === 'varsel'
-        ? kravetErVarselet(k, ogsaaEtter, lestSak, vedlegg)
+        ? kravetErVarselet(k, lestSak, vedlegg)
         : null;
   if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
@@ -756,7 +758,7 @@ function skriv(
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst, utdypninger, bygde, bundne, ogsaaEtter);
+    data = dokument(k, u, kjerne, kontekst, utdypninger, bygde, bundne);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)

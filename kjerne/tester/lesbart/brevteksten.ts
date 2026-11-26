@@ -137,6 +137,8 @@ export const BREVTEKSTEN: Lesbar[] = [
   ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['frosset/brevtekst.ts']],
   // LV-U81: forbeholdet i et svar kan stå i punktet «Forbehold» sist i brevet.
   ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['format/leser.ts']],
+  // U-6 i BF-37: punktet for hvert varsel i et brev med flere varsler, som leseren godtar.
+  ['frosset/tekst.ts', 'brevtekst', 'VARSELPUNKTET', ['frosset/brevtekst.ts', 'format/leser.ts']],
   // LV-U79: navnet på innsigelsen og vilkåret i lagslinjen.
   [
     'frosset/tekst.ts',

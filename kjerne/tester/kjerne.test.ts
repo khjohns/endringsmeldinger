@@ -122,8 +122,7 @@ describe('formen på kravet', () => {
   it('avviser et registrert varsel uten vedlegg, med tom ID eller med samme vedlegg to ganger', () => {
     const varsel = {
       type: 'varsel',
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-02',
       ...SOM_BREV,
     };
@@ -152,8 +151,7 @@ describe('formen på kravet', () => {
   it('OV-U79: møtereferat og notat er typer, og bare et brev har sendemåten, også i varselet i fristkravet', () => {
     const varsel = {
       type: 'varsel',
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-02',
       beskrivelse: 'Varsel om fristforlengelse',
       dokumentasjon: ['vedlegg-1'],
@@ -191,8 +189,7 @@ describe('formen på kravet', () => {
   it('OV-U79: korrespondanse lagt til må ha beskrivelsen, og et brev sendemåten (arbeidsvalget 2 A i #807)', () => {
     const varsel = {
       type: 'varsel',
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-02',
       dokumentasjon: ['vedlegg-1'],
     };

@@ -641,8 +641,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
             kommando_id: randomUUID(),
             kommando: {
               type: 'varsel',
-              spor: 'frist',
-              hjemmel: '33.4',
+              varsler: [{ hjemmel: '33.4' }],
               sendt: '2026-10-01',
               dokumentasjon: [vedleggId],
             },

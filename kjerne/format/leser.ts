@@ -31,7 +31,13 @@ import {
   avvikITittelen,
   ulikSakIMerkingenOgTittelen,
 } from '../frosset/brevtittel.ts';
-import { FORBEHOLDET, OVERSIKTEN, postradene, tabellenIAvsnittet } from '../frosset/tekst.ts';
+import {
+  FORBEHOLDET,
+  OVERSIKTEN,
+  postradene,
+  tabellenIAvsnittet,
+  VARSELPUNKTET,
+} from '../frosset/tekst.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -521,6 +527,7 @@ function lesDokument(h: Journalrad): Dokument {
           ...(e.klar_over_utgiftene === undefined
             ? {}
             : { klar_over_utgiftene: e.klar_over_utgiftene as string }),
+          ...(e.arbeid === undefined ? {} : { arbeid: e.arbeid as string }),
         };
       if (art === 'korrigering') {
         // Formatet krever nøyaktig ett av feltene.
@@ -639,15 +646,23 @@ function lesDokument(h: Journalrad): Dokument {
         (fortsetter && (a.punkt === undefined || forrige!.punkt === undefined))
       )
         throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
-      // Bare et krav og et svar har punkter; kjernen skriver ikke punkter for andre elementer
-      // (MM-U2, LV-U72).
+      // Bare et krav, et svar og et varsel i et brev med flere varsler (U-6 i BF-37) har punkter;
+      // kjernen skriver ikke punkter for andre elementer (MM-U2, LV-U72).
       if (
         a.punkt !== undefined &&
         !dokument.krav.some((k) => k.id === a.gjelder) &&
-        !dokument.svar.some((s) => s.id === a.gjelder)
+        !dokument.svar.some((s) => s.id === a.gjelder) &&
+        !(
+          a.punkt === VARSELPUNKTET &&
+          !dokument.krav.length &&
+          !dokument.svar.length &&
+          dokument.utsagn.length > 1 &&
+          dokument.utsagn.every((u) => u.art === 'varsel') &&
+          dokument.utsagn.some((u) => u.id === a.gjelder)
+        )
       )
         throw new Uforstaatt(
-          'et avsnitt i brevteksten har et punkt, men gjelder ikke et krav eller et svar'
+          'et avsnitt i brevteksten har et punkt, men gjelder ikke et krav, et svar eller et varsel'
         );
       if (a.punkt !== undefined) {
         if (sett.has(`${a.gjelder}\u0000${a.punkt}`))

@@ -46,8 +46,7 @@ const PAABEROPELSE = {
 
 const varsel = (dokumentasjon: string[]) => ({
   type: 'varsel',
-  spor: 'frist',
-  hjemmel: '33.4',
+  varsler: [{ hjemmel: '33.4' }],
   sendt: '2026-10-01',
   korrespondansetype: 'brev' as const,
   sendemaate: 'post' as const,

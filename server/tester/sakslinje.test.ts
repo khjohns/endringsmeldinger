@@ -781,7 +781,10 @@ describe('linja i sakslisten (#1022)', () => {
   it('varselet etter punkt 34.4 som står alene, gir har_varsel i vederlaget (VS-U48)', () => {
     const l = linje((sak) => {
       sak.send('TE', PAABEROPELSE);
-      sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.4' });
+      sak.send('TE', {
+        type: 'send_varsel',
+        varsler: [{ hjemmel: '34.4', arbeid: 'Graving ved kum 4' }],
+      });
     });
     expect(l.vederlag).toMatchObject({ har_varsel: true, krav: null });
     expect(l.frist.har_varsel, 'kontrollsak: sporet uten varsel').toBe(false);
@@ -790,7 +793,7 @@ describe('linja i sakslisten (#1022)', () => {
   it('har_varsel følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30)', () => {
     const varsel: Steg = (sak) => {
       sak.send('TE', PAABEROPELSE);
-      sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+      sak.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
     };
     const varslet = linje(varsel);
     expect(varslet.frist).toMatchObject({
@@ -828,7 +831,7 @@ describe('linja i sakslisten (#1022)', () => {
   it('varselet står ikke når saken ellers har et varsel som står, men kjernen ikke forstår den (MM-U38, MM-U2)', () => {
     const sak = new Sak();
     sak.send('TE', PAABEROPELSE);
-    sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    sak.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
     expect(sak.linje().frist.varselet_staar, 'kontrollsak: forstått').toBe(true);
     const siste = sak.journal.at(-1)!;
     sak.journal.push({
