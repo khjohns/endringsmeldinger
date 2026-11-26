@@ -79,6 +79,7 @@ const FRISTVURDERINGER = new Set<string>([
   'frist_varsel_ok',
   'spesifisert_krav_ok',
   'foresporsel_svar_ok',
+  'begrunnelse_ikke_svar',
   'vilkar_oppfylt',
   'frister',
 ]);
@@ -138,6 +139,7 @@ export const vurderingenAvFristen = (v: Svarvurdering, f: Dagvurdering): Fristvu
   frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
   spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
   foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
+  begrunnelse_ikke_svar: v.begrunnelse_ikke_svar as boolean | undefined,
   vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
   godkjent_dager: f.dager,
 });
@@ -182,6 +184,9 @@ export function standpunkterIFristen(
       hjemmel: '33.6.2',
       i_tide: v.foresporsel_svar_ok,
     });
+  // VS-U95: i stedet for rettidigheten, uten virkning.
+  if (v.begrunnelse_ikke_svar === true && foresporsel?.art === 'begrunnelse')
+    ut.push({ id: nyId(), art: 'ikke_svar', gjelder: foresporsel.gjelder, hjemmel: '33.6.2' });
   if (typeof v.vilkar_oppfylt === 'boolean')
     ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
   const frister = fristvurderinger(v, krav);

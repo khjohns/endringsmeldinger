@@ -220,7 +220,8 @@ export const fristpunktForSpoersmaal = (spoersmaal: string | undefined): string 
 /** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
 function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
   if (s.art === 'dager') return null;
-  const noekkel = s.art === 'rettidighet' ? s.hjemmel : s.art;
+  // VS-U95: standpunktet om at begrunnelsen ikke er et svar, svarer på spørsmålet etter § 33.6.2.
+  const noekkel = s.art === 'rettidighet' || s.art === 'ikke_svar' ? s.hjemmel : s.art;
   const felt = fristspoersmaalForPunkt(noekkel);
   if (!felt) throw new Error(`standpunktet ${noekkel} svarer ikke på noe spørsmål i fristen`);
   return felt;
@@ -234,7 +235,13 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   const paakrevde = paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u))).map(
     ([felt]) => felt
   );
-  const ubesvart = new Set(paakrevde.filter((felt) => mangler(v[felt])));
+  const manglende = paakrevde.filter((felt) => mangler(v[felt]));
+  // VS-U95: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2.
+  const ubesvart = new Set(
+    v.begrunnelse_ikke_svar === true
+      ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok')
+      : manglende
+  );
   const utfylt: Record<string, unknown> = { ...v };
   for (const felt of ubesvart) utfylt[felt] = true;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))

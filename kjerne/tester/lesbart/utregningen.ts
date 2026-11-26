@@ -268,7 +268,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'Svarvurdering',
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide kravposter
-     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt
+     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok begrunnelse_ikke_svar vilkar_oppfylt
      frister produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
      rigg_varslet_i_tide hold_tilbake`,

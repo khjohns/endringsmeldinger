@@ -114,6 +114,7 @@ export interface Svarvurdering {
   frist_varsel_ok?: unknown;
   spesifisert_krav_ok?: unknown;
   foresporsel_svar_ok?: unknown;
+  begrunnelse_ikke_svar?: unknown;
   vilkar_oppfylt?: unknown;
   /** Vurderingen av dagene for hver frist i kravet (`Fristvurdering` i `spor/frist/frysing.ts`). */
   frister?: unknown;
@@ -224,6 +225,9 @@ export function virkningerIForholdetOgFristen(
       // KA-U84, KA-U86: de øvrige standpunktene til fristkravet følger etter § 33.4 og § 33.6.2.
       if (virker && (s.hjemmel === '33.4' || s.hjemmel === '33.6.2')) etterInnsigelseOmTap = true;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
+    } else if (s.art === 'ikke_svar') {
+      // VS-U95: standpunktet om at begrunnelsen ikke er et svar, har ingen virkning.
+      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'oppgjoersform' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {

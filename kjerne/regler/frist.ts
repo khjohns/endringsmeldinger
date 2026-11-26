@@ -22,6 +22,11 @@ export interface Fristvurdering {
   frist_varsel_ok?: boolean | null;
   spesifisert_krav_ok?: boolean | null;
   foresporsel_svar_ok?: boolean | null;
+  /**
+   * VS-U95: byggherren gjør gjeldende at begrunnelsen etter § 33.6.2 annet ledd b ikke er et svar
+   * etter annet ledd. Med `true` står det i stedet for `foresporsel_svar_ok`.
+   */
+  begrunnelse_ikke_svar?: boolean | null;
   vilkar_oppfylt?: boolean | null;
   godkjent_dager?: unknown;
 }
@@ -79,8 +84,10 @@ export function paakrevdeSpoersmaal(krav: Fristkrav): [Fristspoersmaal, string][
 
 export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   const feil: Record<string, string> = {};
+  const ikkeSvar = v.begrunnelse_ikke_svar === true;
   for (const [felt, hjemmel] of paakrevdeSpoersmaal(krav)) {
-    if (mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
+    if (mangler(v[felt]) && !(ikkeSvar && felt === 'foresporsel_svar_ok'))
+      feil[felt] = `mangler (${hjemmel})`;
   }
   // Et svar som ikke er ja eller nei, gir ikke et standpunkt, så det avvises (#2242).
   const spoersmaalene: Fristspoersmaal[] = [
@@ -92,6 +99,17 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   for (const felt of spoersmaalene)
     if (!mangler(v[felt]) && typeof v[felt] !== 'boolean')
       feil[felt] = 'er verken true eller false';
+  // VS-U88 punkt 8, VS-U95: ett standpunkt etter § 33.6.2, og bare om begrunnelsen.
+  if (!mangler(v.begrunnelse_ikke_svar)) {
+    if (typeof v.begrunnelse_ikke_svar !== 'boolean')
+      feil.begrunnelse_ikke_svar = 'er verken true eller false';
+    else if (!krav.har_begrunnelse_etter_b)
+      feil.begrunnelse_ikke_svar =
+        'totalentreprenøren har ikke begrunnet etter punkt 33.6.2 annet ledd b før kravet';
+    else if (ikkeSvar && !mangler(v.foresporsel_svar_ok))
+      feil.begrunnelse_ikke_svar =
+        'byggherren gjør gjeldende at begrunnelsen ikke er et svar, og tar da ikke stilling til om den kom for sent';
+  }
   // VS-U88 punkt 8 og 9: standpunktet etter § 33.6.2 gjelder svaret eller begrunnelsen.
   if (
     !krav.er_svar_paa_foresporsel &&

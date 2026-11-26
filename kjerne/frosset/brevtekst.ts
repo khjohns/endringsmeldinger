@@ -1216,7 +1216,7 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[], bestrider: s
  * filteret på avsender i `lagDeresRef`.
  */
 const detRettidighetenGjelder = (p: Standpunkt): string[] =>
-  p.art === 'rettidighet' ? [p.gjelder] : [];
+  p.art === 'rettidighet' || p.art === 'ikke_svar' ? [p.gjelder] : [];
 
 /** LV-U51: svaret på kravversjonen som ingen senere revisjon erstatter, eller ingen. */
 function sisteSvarPaa(krav: string, j: Journalen): string[] {

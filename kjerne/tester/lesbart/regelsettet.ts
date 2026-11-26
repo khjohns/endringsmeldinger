@@ -52,7 +52,8 @@ export const REGELSETTET: Lesbar[] = [
   [
     'Fristvurdering',
     'utsagn',
-    'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt godkjent_dager',
+    `frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok begrunnelse_ikke_svar
+     vilkar_oppfylt godkjent_dager`,
   ],
   [
     'regler/frist.ts:beregnSynlighet',

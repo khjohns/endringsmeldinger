@@ -322,7 +322,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/linje.ts:beslutningslinje(grunntekst)',
     'brevtekst',
-    'forhold beloep oppgjoersform justering hindring spesifisering dager',
+    'forhold ikke_svar beloep oppgjoersform justering hindring spesifisering dager',
     ['frosset/linje.ts:beslutningslinje'],
   ],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],

@@ -130,6 +130,11 @@ export type Standpunkt =
       iTide: boolean;
       begrenset?: number;
     }
+  /**
+   * § 33.6.2 annet ledd, VS-U95: byggherren gjør gjeldende at TEs begrunnelse `gjelder` ikke er et
+   * svar etter annet ledd. Står i stedet for rettidigheten etter § 33.6.2 og har ingen virkning.
+   */
+  | { id: string; art: 'ikke_svar'; gjelder: string; hjemmel: '33.6.2' }
   /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
   | { id: string; art: 'forhold'; resultat: Forholdsresultat }
   /**

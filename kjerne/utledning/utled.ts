@@ -1363,6 +1363,15 @@ function kontrollerStandpunktet(
   // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
   if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
     ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
+  // VS-U95: standpunktet gjelder TEs begrunnelse etter § 33.6.2 annet ledd b før svaret.
+  if (
+    p.art === 'ikke_svar' &&
+    (!besvart.some((f) => f.svar === p.gjelder && !f.medKrav) || !bakover(s.id, p.gjelder))
+  )
+    ugyldig(
+      s.id,
+      'standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse etter § 33.6.2 annet ledd b før svaret'
+    );
   if (p.art !== 'rettidighet') return;
   // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
   if (p.hjemmel === '33.6.2') {

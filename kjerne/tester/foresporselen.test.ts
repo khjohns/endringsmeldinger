@@ -512,6 +512,143 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
+  describe('VS-U95: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd', () => {
+    const ikkeSvar = () => {
+      const v: Data = { ...FRIST_FULLT[0], begrunnelse_ikke_svar: true };
+      return v;
+    };
+    const medKravEtterBegrunnelsen = () => {
+      const m = medBegrunnelse();
+      m.s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      return m;
+    };
+
+    it('VS-U95, VS-U88 punkt 8 og 9: standpunktet står i svaret på det første kravet etter begrunnelsen, registreres og vises uten utledet virkning', () => {
+      const { s, b } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      const svaret = (rad.data.svar as Data[])[0];
+      const standpunkter = svaret.standpunkter as Data[];
+      const p = standpunkter.find((x) => x.art === 'ikke_svar')!;
+      expect(p).toMatchObject({ gjelder: b, hjemmel: '33.6.2' });
+      expect(
+        standpunkter.filter((x) => x.hjemmel === '33.6.2'),
+        'ett standpunkt etter § 33.6.2 (VS-U88 punkt 8)'
+      ).toHaveLength(1);
+      const grunnlag = svaret.beslutningsgrunnlag as Data;
+      expect(grunnlag.uten_virkning).toContain(p.id);
+      expect(grunnlag.virkninger, 'ingen lag fra standpunktet').toHaveLength(1);
+      expect(svaret.utregning).toEqual({
+        frister: [
+          expect.objectContaining({
+            resultat: 'godkjent',
+            godkjent_dager: 20,
+            lag: [{ lag: 1, dager: 20 }],
+          }),
+        ],
+      });
+      expect(laast(rad).join('\n\n')).toContain(
+        '2. Svaret på forespørselen (punkt\u00a033.6.2)\n\nByggherren gjør gjeldende at totalentreprenørens begrunnelse i brev K201-KOE-017-03 av 4. oktober 2026 ikke er et svar på forespørselen etter punkt\u00a033.6.2 annet ledd.'
+      );
+      expect(rad.data.deres_ref, 'LV-U49: brevet med begrunnelsen').toEqual([
+        'K201-KOE-017-03',
+        'K201-KOE-017-04',
+      ]);
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('VS-U95: kontrollsak, at begrunnelsen kom for sent, gir laget etter § 33.6.2 tredje ledd', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const svaret = (rad.data.svar as Data[])[0];
+      const r = (svaret.standpunkter as Data[]).find((x) => x.hjemmel === '33.6.2')!;
+      expect((svaret.beslutningsgrunnlag as Data).virkninger).toContainEqual({
+        standpunkt: r.id,
+        lag: 1,
+      });
+      expect((svaret.utregning as { frister: Data[] }).frister[0].resultat).toBe('avslaatt');
+    });
+
+    it('VS-U88 punkt 8: standpunktet står i stedet for påberopelsen av at begrunnelsen kom for sent, ikke ved siden av', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const brev = (vurderinger: Data) => ({
+        type: 'brev',
+        svar: [
+          svar('frist', s.krav('frist'), vurderinger, { resultat: 'godkjent', godkjent_dager: 20 }),
+        ],
+      });
+      expect(s.avvist('BH', brev(ikkeSvar())), 'kontrollsak').toBeNull();
+      expect(s.avvist('BH', brev({ ...ikkeSvar(), foresporsel_svar_ok: true }))).toBe(
+        'UGYLDIG_VURDERING'
+      );
+      expect(
+        s.avvist('BH', brev({ ...FRIST_FULLT[0], begrunnelse_ikke_svar: false })),
+        'uten standpunktet etter § 33.6.2 mangler svaret spørsmålet'
+      ).toBe('UGYLDIG_VURDERING');
+    });
+
+    it('VS-U95: standpunktet gjelder bare en begrunnelse, ikke et krav som svarer på forespørselen', () => {
+      const { s } = medForesporsel();
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const vurderinger = {
+        ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+        begrunnelse_ikke_svar: true,
+      };
+      expect(
+        s.avvist('BH', {
+          type: 'brev',
+          svar: [
+            svar('frist', s.krav('frist'), vurderinger, {
+              resultat: 'godkjent',
+              godkjent_dager: 20,
+            }),
+          ],
+        })
+      ).toBe('UGYLDIG_VURDERING');
+    });
+
+    it('VS-U95: en lest rad der standpunktet viser til noe annet enn begrunnelsen, gjør saken ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+      const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+        (x) => x.art === 'ikke_svar'
+      )!;
+      p.gjelder = s.krav('frist');
+      expect(s.u().forstaatt).toBe(false);
+      expect(
+        s
+          .u()
+          .begrensninger.map((x) => x.grunn)
+          .join()
+      ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
+    });
+
+    it('VS-U88 punkt 8: en lest rad med både standpunktet og rettidigheten etter § 33.6.2 er ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const svaret = (rad.data.svar as Data[])[0];
+      const standpunkter = svaret.standpunkter as Data[];
+      const r = standpunkter.find((x) => x.hjemmel === '33.6.2')!;
+      const med = [
+        ...standpunkter.slice(0, 2),
+        { id: randomUUID(), art: 'ikke_svar', gjelder: r.gjelder, hjemmel: '33.6.2' },
+        ...standpunkter.slice(2),
+      ];
+      expect(() => standpunkterISvaret('frist', svaret), 'kontrollsak').not.toThrow();
+      expect(() => standpunkterISvaret('frist', { ...svaret, standpunkter: med })).toThrow(
+        /to standpunkter etter § 33.6.2/
+      );
+    });
+  });
+
   it('standpunktet etter § 33.6.2 gir TEs brev med begrunnelsen under Deres ref., men ikke forespørselen (LV-U49, D-1 i BF-07, arbeidsvalget A i #1497)', () => {
     const { s } = medBegrunnelse();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));

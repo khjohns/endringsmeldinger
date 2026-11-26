@@ -880,6 +880,39 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(melding(s, 'frist', besvart)).not.toContain('mangler');
   });
 
+  it('fristen: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2 uten et lag (VS-U95, VS-U88 punkt 8)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    const f = s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    const foresporsel = ((f.data.utsagn as Data[])[0] as Data).id;
+    s.send('TE', { type: 'foresporselssvar', gjelder: foresporsel, utdypning: 'Ikke kjent ennå.' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const v = {
+      frist_varsel_ok: true,
+      begrunnelse_ikke_svar: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: true,
+      frister: [{ dager: 20 }],
+    };
+    expect(ubesvart(s, 'frist', v)).toEqual([]);
+    expect(melding(s, 'frist', v)).not.toContain('mangler');
+    expect(
+      ubesvart(s, 'frist', { ...v, begrunnelse_ikke_svar: undefined }),
+      'kontrollsak: uten standpunktet er spørsmålet ubesvart'
+    ).toEqual(['foresporsel_svar_ok']);
+    const lag = lagForUtkastet(utkastet(s, 'frist', v) as Svarutkast, s.u(), KJERNE.regler);
+    expect(lag.standpunkter.find((x) => x.art === 'ikke_svar')).toMatchObject({
+      besvart: true,
+      virkning: 'uten_virkning',
+    });
+  });
+
   it('fristen: spørsmålene regelen stiller, står også når de er besvart, og er de samme som uten svar (§ 33.4, § 33.6.1, § 33.1, § 33.5, #2156)', () => {
     const s = saken(FRISTKRAV);
     const spoersmaalene = [

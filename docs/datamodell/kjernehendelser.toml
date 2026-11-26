@@ -220,6 +220,13 @@ felt = ["id", "art", "beloep", "gjelder", "saerskilt"]
 grunnlag = "B-13, OV-U26, OV-U31, KA-U57, KA-U72, arbeidsvalget i #1047 (6362745637), navnene 09.11 i #1663"
 
 [[standpunkt]]
+art = "ikke_svar"
+spor = ["frist"]
+beskrivelse = "Byggherren gjør gjeldende at totalentreprenørens begrunnelse `gjelder` etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd. Står i stedet for rettidigheten etter § 33.6.2 i svaret på det første fristkravet etter begrunnelsen, og har ingen virkning."
+felt = ["id", "art", "gjelder", "hjemmel"]
+grunnlag = "VS-U95, VS-U88 punkt 8 og 9"
+
+[[standpunkt]]
 art = "hindring"
 spor = ["frist"]
 beskrivelse = "Om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1)."

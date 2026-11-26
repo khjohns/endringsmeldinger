@@ -7689,6 +7689,53 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['FO-U1: etter at TE har godtatt preklusjonen av forholdet'],
   },
+  {
+    id: 'F2442a',
+    feilklasse:
+      'standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2, får et lag som preklusjonen (VS-U95)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "      // VS-U95: standpunktet om at begrunnelsen ikke er et svar, har ingen virkning.\n      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });",
+        '      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });\n      lag++;\n      etterInnsigelseOmTap = true;',
+      ],
+    ],
+    mal: ['VS-U95, VS-U88 punkt 8 og 9: standpunktet står i svaret på det første kravet'],
+  },
+  {
+    id: 'F2442b',
+    feilklasse:
+      'svaret godtas med både standpunktet om at begrunnelsen ikke er et svar og påberopelsen av at den kom for sent (VS-U88 punkt 8)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [
+      [
+        '    else if (ikkeSvar && !mangler(v.foresporsel_svar_ok))',
+        '    else if (ikkeSvar && !mangler(v.foresporsel_svar_ok) && false)',
+      ],
+    ],
+    mal: ['VS-U88 punkt 8: standpunktet står i stedet for påberopelsen'],
+  },
+  {
+    id: 'F2442c',
+    feilklasse:
+      'standpunktet om at begrunnelsen ikke er et svar, kan vise til noe annet enn begrunnelsen (VS-U95)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["    p.art === 'ikke_svar' &&\n", "    p.art === 'ikke_svar' && false &&\n"]],
+    mal: ['VS-U95: en lest rad der standpunktet viser til noe annet enn begrunnelsen'],
+  },
+  {
+    id: 'F2442d',
+    feilklasse:
+      'en lest rad med to standpunkter etter § 33.6.2 om begrunnelsen leses (VS-U88 punkt 8)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [
+      [
+        "    ut.some((s) => s.art === 'ikke_svar') &&\n    ut.some((s) => s.art === 'rettidighet' && s.hjemmel === '33.6.2')",
+        '    false',
+      ],
+    ],
+    mal: ['VS-U88 punkt 8: en lest rad med både standpunktet og rettidigheten'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
