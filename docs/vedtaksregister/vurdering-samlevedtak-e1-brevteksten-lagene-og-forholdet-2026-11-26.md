@@ -361,10 +361,12 @@ Funnene er rettet én gang i utkastene over. Disse er ikke tatt til følge:
 
 Kartleggingen har ikke lest koden utover dette, og ingenting er kjørt.
 
-- `src/lib/components/varden/svarlagene.ts` viser standpunktene uten eget lag, som hindringen, etter
-  OV-U42. Svar 5 A krever at visningen og brevteksten endres.
-- Forløpene som viser til postene (`grep -l`): BF-01, BF-05, BF-08, BF-20, BF-44, BF-45 og BF-50. Ikke
-  kontrollert om de bør vise til samlevedtakene.
+- Svar 5 A krever at kjernen og visningen endres for hindringen. Stedene er funnet av en subagent og
+  står i #2438: `virkningerIForholdetOgFristen` i `kjerne/frosset/byggeklosser.ts`, `utenLag` i
+  `src/lib/components/varden/svarlagene.ts` med fristoversikten, testene, BF-45 U-3 og D-3 og en
+  forventning i `bevis-saker-maalmodell.json`.
+- Forløpene som viser til postene (`grep -l`): BF-01, BF-05, BF-08, BF-20, BF-44, BF-45 og BF-50.
+  BF-45 og BF-46 berøres av svar 5 A. Ikke kontrollert om de andre bør vise til samlevedtakene.
 
 ## Funn utenfor E1–E3
 
