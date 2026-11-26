@@ -1,7 +1,7 @@
 {
   "id": "BF-08",
   "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
-  "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
+  "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar svaret. Avslår BH forholdet, også subsidiært, avsluttes saken. Gjør BH gjeldende at varselet kom for sent og er subsidiært enig i forholdet, avsluttes saken ikke.",
   "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
@@ -375,9 +375,11 @@
           ]
         },
         {
-          "tekst": "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, og at saken avsluttes med kravene om vederlag og frist (T-5).",
+          "tekst": "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, at enigheten om vederlag og frist da ikke får virkning, og at saken ikke avsluttes, fordi byggherren er subsidiært enig i forholdet (T-5).",
           "kilde": [
-            "GR-U27",
+            "HF-U35",
+            "HF-U37",
+            "GR-U34",
             "KA-U87"
           ]
         },
@@ -401,18 +403,23 @@
       ]
     },
     {
-      "id": "te-har-godtatt-avslaget",
+      "id": "te-har-godtatt-svaret",
       "etter": 4,
-      "beskrivelse": "TE har godtatt avslaget, også at varselet kom for sent.",
+      "beskrivelse": "TE har godtatt svaret, også at varselet kom for sent. Byggherren er subsidiært enig i forholdet, så saken avsluttes ikke.",
       "kontroller": [
         {
           "rolle": "mal",
           "kilde": [
-            "GR-U27"
+            "HF-U35",
+            "HF-U37",
+            "MM-U62"
           ],
           "forventet": {
             "enighet.forhold": "finnes",
-            "forhold_avvist": true,
+            "forhold_avvist": false,
+            "preklusjon_godtatt": true,
+            "kan_inngaa_i_eo": true,
+            "visning.status": null,
             "handlinger.TE": {
               "mangler": [
                 "godta:forhold"
@@ -423,9 +430,10 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser at saken avsluttes, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13).",
+          "tekst": "TE ser at saken ikke avsluttes, at enigheten om vederlag og frist ikke får virkning, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13).",
           "kilde": [
-            "GR-U27",
+            "HF-U35",
+            "GR-U34",
             "KA-U87"
           ]
         }
@@ -489,6 +497,11 @@
       "dato": "2026-11-18",
       "forhold": "#2183",
       "hva": "U-3 viser «Ja» før «Nei» i en loddrett liste."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2426, HF-U35, HF-U37",
+      "hva": "TEs aksept av svaret i steg 4 lukker ikke saken, fordi byggherren er subsidiært enig i forholdet (HF-U35 punkt 10). Et svar som også avslår forholdet subsidiært, lukker saken (HF-U37). Kontrollpunktet heter te-har-godtatt-svaret, og M-7, F-9, U-12, T-5, D-13 og G-13 følger vedtakene."
     }
   ]
 }

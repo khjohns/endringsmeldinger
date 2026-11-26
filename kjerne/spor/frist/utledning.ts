@@ -25,6 +25,7 @@ import {
 } from './frysing.ts';
 import { betegnelsen, innholdIFristen, utregningIFristen, type FristIKravet } from './format.ts';
 import { trekketStrider, utelattUtenTrekk } from '../poster/utledning.ts';
+import { forholdetErAvvistVedEnighet } from '../forhold/utledning.ts';
 
 /**
  * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`: lesereglene
@@ -201,9 +202,9 @@ export function forlengelseneISaken(u: Utledning): {
   const tattMed: Forlengelse[] = [];
   const ikkeTattMed: Forlengelse[] = [];
   if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };
-  // GR-U7, KA-U6: er forholdet avvist ved enighet, har dagene ingen virkning, med eller uten
-  // enighet i fristen (`enighetensVirkning`; et trukket krav er alt ute).
-  if (u.forholdAvvist) return { tattMed, ikkeTattMed };
+  // GR-U7, KA-U6, GR-U34 punkt 12: er forholdet avvist ved enighet, har dagene ingen virkning,
+  // med eller uten enighet i fristen (`enighetensVirkning`; et trukket krav er alt ute).
+  if (forholdetErAvvistVedEnighet(u)) return { tattMed, ikkeTattMed };
   const frister = new Map(innholdIFristen(s.gjeldendeKrav).frister.map((f) => [f.id, f]));
   const fristId = (gjelder: string) => frister.get(gjelder)?.frist_id;
   if (s.enighet) {

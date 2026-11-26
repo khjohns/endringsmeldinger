@@ -42,8 +42,8 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **BF-02C:** TE begynner på en ny versjon av grunnlagskravet for å rette datoen og blir vist
   til korrigeringen. Etter korrigeringen gjengir den nye versjonen datoen med henvisning til
   brevet med korrigeringen.
-- **BF-02D:** TE har godtatt svaret, saken er lukket etter [GR-U27](../../plans/vedtak.md#gr-u27),
-  og TE korrigerer datoen ([MM-U51](../../plans/vedtak.md#mm-u51)).
+- **BF-02D:** TE har godtatt et svar som påberoper preklusjon og avslår forholdet subsidiært, saken
+  er lukket, og TE korrigerer datoen ([MM-U51](../../plans/vedtak.md#mm-u51)).
 
 ## Avgrensningen
 

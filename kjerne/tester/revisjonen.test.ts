@@ -1586,7 +1586,7 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     expect(s.avvisning('TE', { type: 'trekk', spor: 'frist' })).toEqual({
       regel: 'FORHOLD_AVVIST',
       melding:
-        'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.',
+        'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet, og saken er lukket.',
     });
   });
 

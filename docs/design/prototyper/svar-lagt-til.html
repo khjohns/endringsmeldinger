@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Byggherrens svar lagt til på vederlaget</title>
+<!--
+  Skisse v1 for BF-49 (#807): byggherren legger til et svar på vederlagskravet som er sendt med
+  e-post utenfor løsningen. Mønsteret er svarskjemaet for et svar lagt til, med korrespondansen i
+  støttekortet, valget om varselet der innsigelsen står (U-7), advarselen for et eldre svar (U-8),
+  spørsmålet ved avbrudd (U-9), kvitteringen (U-14) og varselet i et eldre krav (U-15).
+  Tilstandene er ankre: #svar, #ikke-noe, #kvittering, #tidligere, #avbrudd, #avbrudd-lagt-til,
+  #eldre-krav. Stilen følger Varden (.tema-varden i theme.css) og svarskjemaet i demoruta.
+  Teksten er prototypetekst. Ingenting sendes eller lagres.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #eef0f2; --surface: #ffffff; --surface-inset: #f3f4f6; --surface-selected: #e6e9ee;
+  --ink: #15181d; --ink-2: #343a43; --ink-3: #545b66; --ink-4: #5f6672;
+  --rule-color: #dadde2; --rule-subtle-color: #e6e8eb; --rule-strong-color: #c3c8cf;
+  --danger: #b33e33; --danger-bg: #fceded; --danger-border: #e8b7b2;
+  --draft: #5f4a00; --draft-bg: #fff3c4; --draft-border: #9e7f12;
+  --control-border-color: #80868f; --control-focus: #2457d6;
+  --spor: #2457d6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--control-focus); outline-offset: 2px; }
+.topp { background: var(--surface); border-bottom: 1px solid var(--rule-color); }
+.topp .indre { max-width: 1144px; margin: 0 auto; padding: 14px 16px 0; }
+.sti { margin: 0 0 10px; font-size: 14px; color: var(--ink-3); }
+.sti b { color: var(--ink); font-weight: 600; }
+.faner { display: flex; gap: 24px; font-size: 14px; }
+.faner span { padding-bottom: 8px; }
+.faner .aktiv { font-weight: 600; border-bottom: 2px solid var(--ink); }
+.prove { max-width: 1144px; margin: 12px auto 0; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--ink-3); }
+.prove a { color: var(--ink-2); }
+.prove a[aria-current] { font-weight: 600; color: var(--ink); }
+main { max-width: 1144px; margin: 0 auto; padding: 20px 16px 64px; }
+.tilstand { display: none; }
+.tilstand.vist { display: block; }
+.tilbake { display: inline-block; margin: 8px 0 16px; font-size: 15px; text-decoration: none; }
+.kolonner { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+@media (max-width: 980px) { .kolonner { grid-template-columns: 1fr; } }
+.kort { background: var(--surface); border: 1px solid var(--rule-color); border-radius: 8px; }
+.skjema { border: 1px dashed var(--draft-border); }
+.hode { padding: 20px 24px 14px; border-bottom: 1px solid var(--rule-subtle-color); }
+.hode .rad { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.hode h1 { font-size: 21px; line-height: 1.3; margin: 0; font-weight: 600; }
+.merke { flex: none; font-size: 12px; padding: 2px 8px; border: 1px dashed var(--draft-border); background: var(--draft-bg); color: var(--draft); border-radius: 3px; }
+.meta { margin: 8px 0 0; font-size: 13px; color: var(--ink-3); }
+.seksjon { padding: 20px 24px; border-bottom: 1px solid var(--rule-subtle-color); }
+.seksjon h2 { font-size: 16px; margin: 0 0 10px; font-weight: 600; }
+.datoboks { background: var(--surface-inset); border-radius: 6px; padding: 12px 16px; font-size: 14px; margin: 0 0 16px; }
+.datoboks p { margin: 0; }
+.datoboks p + p { margin-top: 4px; }
+fieldset { border: 0; margin: 0; padding: 0; }
+legend { font-size: 18px; font-weight: 600; padding: 0; margin-bottom: 10px; }
+.valg { display: flex; flex-direction: column; gap: 4px; }
+.valg label { display: flex; gap: 12px; align-items: center; padding: 10px 16px; border-radius: 6px; cursor: pointer; }
+.valg label:hover { background: var(--surface-inset); }
+.valg input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+.valg small { display: block; color: var(--ink-3); font-size: 13px; }
+.underspm { font-size: 15px; font-weight: 600; margin: 18px 0 6px; }
+.feilmelding { color: var(--danger); font-weight: 600; font-size: 14px; margin: 0 0 8px; display: none; }
+.feil .feilmelding { display: block; }
+.feil .valg { border-left: 3px solid var(--danger); padding-left: 8px; }
+.feilliste { display: none; margin: 16px 24px 0; padding: 12px 16px; border: 1px solid var(--danger-border); background: var(--danger-bg); border-radius: 6px; font-size: 14px; }
+.feilliste.vist { display: block; }
+.feilliste p { margin: 0 0 4px; font-weight: 600; }
+.feilliste a { color: var(--danger); }
+.melding { border-left: 3px solid var(--ink); background: var(--surface-inset); padding: 12px 16px; font-size: 14px; margin: 16px 24px 0; }
+.melding p { margin: 0; }
+.fot { padding: 16px 24px 20px; display: flex; gap: 20px; align-items: center; }
+.knapp { font: inherit; font-weight: 600; background: var(--ink); color: #fff; border: 0; border-radius: 6px; padding: 12px 20px; cursor: pointer; text-decoration: none; display: inline-block; }
+.knapp.sekundaer { background: var(--surface); color: var(--ink); border: 1px solid var(--ink); }
+.lenke { font: inherit; background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; color: var(--ink); }
+.hoeyre { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; }
+.hoeyre h2 { font-size: 16px; margin: 0; padding: 16px 20px; border-bottom: 1px solid var(--rule-subtle-color); font-weight: 600; }
+.hoeyre .innhold { padding: 14px 20px; font-size: 14px; }
+.punktliste { list-style: none; margin: 0; padding: 0; }
+.punktliste li { padding: 8px 0; border-bottom: 1px solid var(--rule-subtle-color); }
+.punktliste li:last-child { border-bottom: 0; }
+.punktliste b { display: block; font-weight: 600; }
+.punktliste span { color: var(--ink-3); }
+.lag { margin: 0; padding: 0; list-style: none; }
+.lag li { padding: 4px 0; }
+.panelfot { padding: 16px 20px; border-top: 1px solid var(--rule-subtle-color); }
+.panelfot p { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
+.stoette dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+.stoette dt { color: var(--ink-3); }
+.stoette dd { margin: 0; }
+.tidslinje { list-style: none; margin: 0; padding: 0; }
+.tidslinje li { position: relative; padding: 0 0 12px 20px; }
+.tidslinje li::before { content: ""; position: absolute; left: 0; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-2); }
+.tidslinje li.utfylt::before { background: var(--surface); border: 2px solid var(--ink-2); width: 6px; height: 6px; }
+.tidslinje b { display: block; }
+.tidslinje small { color: var(--ink-3); }
+/* Tråden */
+.traad { max-width: 560px; }
+.traad .topp2 { padding: 20px 24px 12px; border-bottom: 1px solid var(--rule-subtle-color); }
+.traad h1 { font-size: 24px; margin: 0; }
+.traad .linje { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 24px; border-bottom: 1px solid var(--rule-subtle-color); }
+.traad .linje h2 { font-size: 15px; margin: 0; }
+.brev { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--rule-subtle-color); }
+.brev:last-child { border-bottom: 0; }
+.part { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--ink-2); font-size: 12px; display: grid; place-items: center; }
+.part.lagttil { border-style: dashed; }
+.brev .dato { font-size: 13px; color: var(--ink-3); margin: 0; }
+.brev h3 { font-size: 16px; margin: 2px 0 4px; font-weight: 600; }
+.brev p { margin: 2px 0; font-size: 14px; }
+.brev .fakta { font-size: 13px; color: var(--ink-3); }
+.lapp { display: inline-block; font-size: 12px; padding: 1px 8px; border: 1px solid var(--ink-3); border-radius: 3px; margin-top: 6px; }
+.dialog { max-width: 520px; margin: 40px auto; padding: 24px; }
+.dialog h1 { font-size: 20px; margin: 0 0 8px; }
+.dialog p { margin: 0 0 16px; }
+.dialog .knapper { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+/* Sporbarhet */
+.vis-spor [data-spor] { outline: 1px dashed var(--spor); position: relative; }
+.vis-spor [data-spor]::after { content: attr(data-spor); position: absolute; top: -9px; right: 4px; font: 600 11px/1 Inter, sans-serif; background: var(--spor); color: #fff; padding: 2px 5px; border-radius: 3px; z-index: 2; }
+</style>
+</head>
+<body>
+<div class="topp">
+  <div class="indre">
+    <p class="sti"><b>Varden</b> › Operatunnelen — Parsell 3 › <b>KOE-17</b> · Grunnforhold i akse C–F</p>
+    <div class="faner" aria-hidden="true"><span>Svikt i byggherrens prosjektering</span><span class="aktiv">Vederlagsjustering</span><span>Fristforlengelse</span></div>
+  </div>
+</div>
+<nav class="prove" aria-label="Tilstandene i skissen">
+  <span>Skisse v1, BF-49:</span>
+  <a href="#svar">Svaret med innsigelsen som står (C)</a>
+  <a href="#ikke-noe">Sier ikke noe om varselet</a>
+  <a href="#kvittering">Lagt til</a>
+  <a href="#tidligere">Et eldre svar (D)</a>
+  <a href="#avbrudd">Avbrudd</a>
+  <a href="#avbrudd-lagt-til">Lagt til uten skjemaet</a>
+  <a href="#eldre-krav">Et eldre krav som varsel (G)</a>
+  <button class="lenke" type="button" id="sporbryter" aria-pressed="false">Vis sporbarhet</button>
+</nav>
+
+<main>
+
+<!-- Variant C og steg 3–4: svarskjemaet for et svar lagt til der innsigelsen står -->
+<section class="tilstand" id="svar" data-mal="svar" aria-label="Svaret lagt til, variant C">
+  <a class="tilbake" href="#kvittering">‹ Tilbake til vederlagsjusteringen</a>
+  <div class="kolonner">
+    <form class="kort skjema" novalidate onsubmit="return false" data-spor="U-6">
+      <div class="hode">
+        <div class="rad"><h1>Legg til svar på krav om vederlagsjustering</h1><span class="merke">Ikke lagt til</span></div>
+        <p class="meta">Svarer på brev 5 fra totalentreprenøren, 12. mars 2026 · Svaret står i e-posten under, uten begrunnelsen</p>
+      </div>
+      <div class="feilliste" role="alert" tabindex="-1">
+        <p>Før svaret kan legges til</p>
+        <a href="#varselvalg">Velg hva svaret sier om varselet.</a>
+      </div>
+      <div class="seksjon">
+        <h2>Varselet for P1 Peling i akse C–F (punkt 34.3.3)</h2>
+        <div class="datoboks" data-spor="U-7">
+          <p>Totalentreprenøren varslet justerte enhetspriser for P1 i e-post 20. februar 2026.</p>
+          <p>Byggherren gjorde gjeldende i brev 4, 10. mars 2026, at varselet kom for sent.</p>
+        </div>
+        <fieldset id="varselvalg" data-spor="U-7 D-8">
+          <legend>Hva sier svaret om varselet?</legend>
+          <p class="feilmelding" id="varselfeil">Velg hva svaret sier om varselet.</p>
+          <div class="valg">
+            <label><input type="radio" name="varsel" value="sent" aria-describedby="varselfeil"> <span>Varslet for sent<small>Som i brev 4</small></span></label>
+            <label><input type="radio" name="varsel" value="tide" aria-describedby="varselfeil"> Varslet i tide</label>
+            <label><input type="radio" name="varsel" value="ikke" aria-describedby="varselfeil"> Svaret sier ikke noe om varselet</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="seksjon">
+        <h2>Vederlagsjustering for P1 Peling i akse C–F (punkt 34.3)</h2>
+        <p class="meta" style="margin:0 0 6px">Totalentreprenøren krever justerte enhetspriser, 150 000 kr</p>
+        <p class="underspm">Hvor mye av beløpet godkjenner du?</p>
+        <div class="valg">
+          <label><input type="radio" name="beloep"> Hele beløpet</label>
+          <label><input type="radio" name="beloep" checked> Deler av beløpet</label>
+          <label><input type="radio" name="beloep"> Ingenting</label>
+        </div>
+      </div>
+      <div class="fot">
+        <button class="knapp" type="button" data-legg-til>Legg til</button>
+        <a href="#avbrudd" data-spor="U-9">Avbryt</a>
+      </div>
+    </form>
+    <aside class="hoeyre" aria-label="Hovedlinjene og korrespondansen">
+      <section class="kort">
+        <h2>Punktene i svaret</h2>
+        <div class="innhold">
+          <ul class="punktliste">
+            <li><b>Varselet for P1 (punkt 34.3.3)</b><span data-punkt-varsel>Ikke besvart</span></li>
+            <li><b>Vederlagsjustering for P1</b><span>Deler av beløpet</span></li>
+          </ul>
+        </div>
+        <div class="innhold" style="border-top:1px solid var(--rule-subtle-color)" data-spor="U-7" data-lag hidden>
+          <p style="margin:0 0 6px;font-weight:600">Lagene</p>
+          <ul class="lag">
+            <li>Prinsipalt: varselet for P1 kom for sent, som gjort gjeldende i et tidligere svar (brev 4).</li>
+            <li>Subsidiært: godkjent med 100 000 kr.</li>
+          </ul>
+        </div>
+        <div class="panelfot" data-spor="U-14 D-10">
+          <button class="knapp" type="button" data-legg-til>Legg til</button>
+          <p>Svaret går til godkjenning hos Kari Nordmann, som har fullmakt.</p>
+        </div>
+      </section>
+      <section class="kort stoette" data-spor="U-6 U-10">
+        <h2>Korrespondansen</h2>
+        <div class="innhold">
+          <dl>
+            <dt>Type</dt><dd>E-post</dd>
+            <dt>Fra</dt><dd>Byggherren</dd>
+            <dt>Sendt</dt><dd>15. mars 2026</dd>
+            <dt>Dokument</dt><dd><a href="#svar">Svar på krav om vederlag.pdf</a></dd>
+          </dl>
+        </div>
+      </section>
+      <section class="kort">
+        <h2>Tidslinje</h2>
+        <div class="innhold">
+          <ol class="tidslinje">
+            <li><b>20. februar 2026</b>Varsel om justerte enhetspriser for P1<br><small>E-post fra TE, lagt til</small></li>
+            <li><b>10. mars 2026</b>Svar med innsigelse mot varselet<br><small>Brev 4 sendt av BH</small></li>
+            <li><b>12. mars 2026</b>Krav om vederlagsjustering<br><small>Brev 5 sendt av TE</small></li>
+            <li class="utfylt"><b>15. mars 2026</b>Svaret i e-posten<br><small>Datoen du oppgir</small></li>
+          </ol>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+
+<!-- Steg 5, variant D: svaret er sendt før byggherrens gjeldende svar -->
+<section class="tilstand" id="tidligere" aria-label="Et eldre svar, variant D">
+  <a class="tilbake" href="#kvittering">‹ Tilbake til vederlagsjusteringen</a>
+  <div class="kolonner">
+    <form class="kort skjema" novalidate onsubmit="return false">
+      <div class="hode">
+        <div class="rad"><h1>Legg til svar på krav om vederlagsjustering</h1><span class="merke">Ikke lagt til</span></div>
+        <p class="meta">Svarer på brev 3 fra totalentreprenøren, 1. mars 2026 · Svaret står i e-posten under, uten begrunnelsen</p>
+      </div>
+      <div class="melding" role="status" data-spor="U-8 D-7">
+        <p>Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.</p>
+      </div>
+      <div class="seksjon">
+        <h2>Varselet for P1 Peling i akse C–F (punkt 34.3.3)</h2>
+        <div class="datoboks">
+          <p>Totalentreprenøren varslet justerte enhetspriser for P1 i e-post 20. februar 2026.</p>
+        </div>
+        <fieldset data-spor="U-7">
+          <legend>Kom varselet i tide?</legend>
+          <div class="valg">
+            <label><input type="radio" name="varsel-d"> Varslet i tide</label>
+            <label><input type="radio" name="varsel-d"> Varslet for sent</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="fot">
+        <button class="knapp" type="button">Legg til</button>
+        <a href="#avbrudd">Avbryt</a>
+      </div>
+    </form>
+    <aside class="hoeyre">
+      <section class="kort stoette">
+        <h2>Korrespondansen</h2>
+        <div class="innhold">
+          <dl>
+            <dt>Type</dt><dd>E-post</dd>
+            <dt>Fra</dt><dd>Byggherren</dd>
+            <dt>Sendt</dt><dd>2. mars 2026</dd>
+            <dt>Dokument</dt><dd><a href="#tidligere">Svar på krav.pdf</a></dd>
+          </dl>
+        </div>
+      </section>
+      <section class="kort">
+        <h2>Tidslinje</h2>
+        <div class="innhold">
+          <ol class="tidslinje">
+            <li><b>1. mars 2026</b>Krav om vederlagsjustering<br><small>Brev 3 sendt av TE</small></li>
+            <li class="utfylt"><b>2. mars 2026</b>Svaret i e-posten<br><small>Datoen du oppgir</small></li>
+            <li><b>10. mars 2026</b>Svar med innsigelse mot varselet<br><small>Brev 4 sendt av BH</small></li>
+          </ol>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+
+<!-- Steg 6: avbruddet -->
+<section class="tilstand" id="avbrudd" aria-label="Avbrudd">
+  <div class="kort dialog" role="dialog" aria-modal="false" aria-labelledby="avbrudd-tittel" data-spor="U-9 D-12">
+    <h1 id="avbrudd-tittel">Legge til e-posten uten svaret?</h1>
+    <p>E-posten står da i saken som dokumentasjon, med merket «Skjemaet er ikke fylt ut». Den sier ingenting om kravet før du legger den til på nytt som svar.</p>
+    <div class="knapper">
+      <a class="knapp" href="#avbrudd-lagt-til">Legg til som dokumentasjon</a>
+      <a class="knapp sekundaer" href="#kvittering-tom">Ikke legg til</a>
+      <a href="#svar">Tilbake til skjemaet</a>
+    </div>
+  </div>
+</section>
+
+<!-- Steg 4: kvitteringen og tråden -->
+<section class="tilstand" id="kvittering" aria-label="Svaret er lagt til">
+  <div class="kort traad">
+    <div class="topp2"><h1>Vederlagsjustering</h1></div>
+    <div class="melding" role="status" style="margin:16px 24px" data-spor="U-14 D-10">
+      <p><b>Svaret er lagt til og går til godkjenning.</b> Til det er godkjent, står e-posten som dokumentasjon.</p>
+    </div>
+    <div class="linje"><h2>Brevene, nyeste først</h2><a href="#svar">Legg til korrespondanse</a></div>
+    <article class="brev" data-spor="U-10 U-11">
+      <span class="part lagttil" aria-hidden="true">BH</span>
+      <div>
+        <p class="dato">15. mars 2026 · e-post · lagt til</p>
+        <h3>Svar på krav om vederlagsjustering</h3>
+        <p class="fakta">E-post fra byggherren, sendt 15. mars 2026 ifølge byggherren. Lagt til av Ola Hansen 16. mars 2026.</p>
+        <span class="lapp">Til godkjenning</span>
+      </div>
+    </article>
+    <article class="brev">
+      <span class="part" aria-hidden="true">TE</span>
+      <div>
+        <p class="dato">12. mars 2026 · brev 5</p>
+        <h3>Krav om vederlagsjustering</h3>
+        <p>150 000 kr med justerte enhetspriser for P1.</p>
+      </div>
+    </article>
+    <article class="brev">
+      <span class="part" aria-hidden="true">BH</span>
+      <div>
+        <p class="dato">10. mars 2026 · brev 4</p>
+        <h3>Svar på krav om vederlagsjustering</h3>
+        <p>Varselet for P1 kom for sent.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- Steg 6 og 7: lagt til uten skjemaet -->
+<section class="tilstand" id="avbrudd-lagt-til" aria-label="Lagt til uten skjemaet">
+  <div class="kort traad">
+    <div class="topp2"><h1>Vederlagsjustering</h1></div>
+    <div class="linje"><h2>Brevene, nyeste først</h2><a href="#svar">Legg til korrespondanse</a></div>
+    <article class="brev" data-spor="U-11 U-12 D-12 D-13">
+      <span class="part lagttil" aria-hidden="true">BH</span>
+      <div>
+        <p class="dato">15. mars 2026 · e-post · lagt til</p>
+        <h3>Svar på krav om vederlag</h3>
+        <p class="fakta">E-post fra byggherren, sendt 15. mars 2026 ifølge byggherren. Lagt til av Ola Hansen 16. mars 2026. Dokumentasjon.</p>
+        <span class="lapp">Skjemaet er ikke fylt ut</span>
+        <p style="margin-top:8px"><a href="#svar">Legg til på nytt</a></p>
+      </div>
+    </article>
+    <article class="brev">
+      <span class="part" aria-hidden="true">TE</span>
+      <div>
+        <p class="dato">12. mars 2026 · brev 5</p>
+        <h3>Krav om vederlagsjustering</h3>
+        <p>150 000 kr med justerte enhetspriser for P1.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="tilstand" id="kvittering-tom" aria-label="Ikke lagt til">
+  <div class="kort traad">
+    <div class="topp2"><h1>Vederlagsjustering</h1></div>
+    <div class="linje"><h2>Brevene, nyeste først</h2><a href="#svar">Legg til korrespondanse</a></div>
+    <article class="brev">
+      <span class="part" aria-hidden="true">TE</span>
+      <div>
+        <p class="dato">12. mars 2026 · brev 5</p>
+        <h3>Krav om vederlagsjustering</h3>
+        <p>150 000 kr med justerte enhetspriser for P1.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- Steg 10, variant G: det eldre kravet er varselet for P1 -->
+<section class="tilstand" id="eldre-krav" aria-label="Et eldre krav som varsel, variant G">
+  <a class="tilbake" href="#kvittering">‹ Tilbake til vederlagsjusteringen</a>
+  <div class="kolonner">
+    <form class="kort skjema" novalidate onsubmit="return false">
+      <div class="hode">
+        <div class="rad"><h1>Legg til svar på krav om vederlagsjustering</h1><span class="merke">Ikke lagt til</span></div>
+        <p class="meta">Svarer på brev 5 fra totalentreprenøren, 12. mars 2026 · Svaret står i e-posten under, uten begrunnelsen</p>
+      </div>
+      <div class="seksjon">
+        <h2>Varselet for P1 Peling i akse C–F (punkt 34.3.3)</h2>
+        <div class="datoboks" data-spor="U-15 D-15">
+          <p>Varselet for P1 er kravet i e-posten fra totalentreprenøren 15. februar 2026, lagt til 16. mars 2026.</p>
+        </div>
+        <fieldset data-spor="U-7 D-15">
+          <legend>Kom varselet i tide?</legend>
+          <div class="valg">
+            <label><input type="radio" name="varsel-g"> Varslet i tide</label>
+            <label><input type="radio" name="varsel-g"> Varslet for sent</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="fot">
+        <button class="knapp" type="button">Legg til</button>
+        <a href="#avbrudd">Avbryt</a>
+      </div>
+    </form>
+    <aside class="hoeyre">
+      <section class="kort stoette">
+        <h2>Korrespondansen</h2>
+        <div class="innhold">
+          <dl>
+            <dt>Type</dt><dd>E-post</dd>
+            <dt>Fra</dt><dd>Byggherren</dd>
+            <dt>Sendt</dt><dd>18. mars 2026</dd>
+            <dt>Dokument</dt><dd><a href="#eldre-krav">Svar på krav.pdf</a></dd>
+          </dl>
+        </div>
+      </section>
+      <section class="kort">
+        <h2>Tidslinje</h2>
+        <div class="innhold">
+          <ol class="tidslinje" data-spor="U-15">
+            <li><b>15. februar 2026</b>Krav om vederlagsjustering, varselet for P1<br><small>E-post fra TE, lagt til 16. mars 2026</small></li>
+            <li><b>1. mars 2026</b>Krav om vederlagsjustering<br><small>Brev 3 sendt av TE</small></li>
+            <li><b>10. mars 2026</b>Svar med innsigelse mot varselet i brev 3<br><small>Brev 4 sendt av BH</small></li>
+            <li><b>12. mars 2026</b>Krav om vederlagsjustering<br><small>Brev 5 sendt av TE</small></li>
+            <li class="utfylt"><b>18. mars 2026</b>Svaret i e-posten<br><small>Datoen du oppgir</small></li>
+          </ol>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+
+</main>
+<script>
+const tilstander = [...document.querySelectorAll('.tilstand')];
+function vis() {
+  let id = location.hash.slice(1) || 'svar';
+  let mal = id;
+  if (id === 'ikke-noe') mal = 'svar';
+  if (!document.getElementById(mal)) mal = id = 'svar';
+  for (const t of tilstander) t.classList.toggle('vist', t.id === mal);
+  for (const a of document.querySelectorAll('.prove a')) a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + id);
+  if (mal === 'svar') {
+    const ikke = document.querySelector('#svar input[value="ikke"]');
+    if (id === 'ikke-noe') { ikke.checked = true; ikke.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+  window.scrollTo(0, 0);
+}
+const skjema = document.querySelector('#svar form');
+skjema.addEventListener('change', () => {
+  const valgt = skjema.querySelector('input[name="varsel"]:checked');
+  const tekst = { sent: 'Varslet for sent, som i brev 4', tide: 'Varslet i tide', ikke: 'Sier ikke noe om varselet' };
+  document.querySelector('[data-punkt-varsel]').textContent = valgt ? tekst[valgt.value] : 'Ikke besvart';
+  document.querySelector('[data-lag]').hidden = !valgt || valgt.value === 'tide';
+  if (valgt) { skjema.querySelector('#varselvalg').classList.remove('feil'); skjema.querySelector('.feilliste').classList.remove('vist'); }
+  if (valgt && valgt.value === 'sent') document.querySelector('[data-lag] li').textContent = 'Prinsipalt: varselet for P1 kom for sent.';
+  if (valgt && valgt.value === 'ikke') document.querySelector('[data-lag] li').textContent = 'Prinsipalt: varselet for P1 kom for sent, som gjort gjeldende i et tidligere svar (brev 4).';
+});
+for (const k of document.querySelectorAll('[data-legg-til]')) k.addEventListener('click', () => {
+  if (!skjema.querySelector('input[name="varsel"]:checked')) {
+    skjema.querySelector('#varselvalg').classList.add('feil');
+    const liste = skjema.querySelector('.feilliste');
+    liste.classList.add('vist');
+    liste.focus();
+    return;
+  }
+  location.hash = '#kvittering';
+});
+document.getElementById('sporbryter').addEventListener('click', (e) => {
+  const paa = document.body.classList.toggle('vis-spor');
+  e.currentTarget.setAttribute('aria-pressed', String(paa));
+});
+addEventListener('hashchange', vis);
+vis();
+</script>
+</body>
+</html>
