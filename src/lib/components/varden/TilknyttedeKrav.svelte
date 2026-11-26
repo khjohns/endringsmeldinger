@@ -42,12 +42,15 @@
     (['vederlag', 'frist'] as const).flatMap((spor) => {
       const b = betegnelser[spor];
       const siste = brevForLinja(brev, spor, b === 'trukket');
-      return b && siste
+      // Et spor uten varsel eller krav står også, uten brev (U-6 i BF-51, OV-U125).
+      const tomt = b === 'ingen_varsel_eller_krav';
+      return b && (siste || tomt)
         ? [
             {
               ...tilknyttetKrav(u, spor),
               betegnelse: BETEGNELSE[b],
               trukket: b === 'trukket',
+              tomt,
               siste,
             },
           ]
@@ -63,9 +66,10 @@
   const rot = $derived(
     FORHOLDET.forholdsrot(forholdetISaken(u)?.navn ?? FORHOLDET.utenNavn, forholdssvaret)
   );
-  // Hvorfor svaret er, eller blir, subsidiært til forholdet. Et trukket krav har ikke noe vilkår.
+  // Hvorfor svaret er, eller blir, subsidiært til forholdet. Et trukket krav og et spor uten krav
+  // har ikke noe vilkår.
   const vilkaaret = (k: (typeof kravene)[number]): string | null =>
-    !k.grunner.length || k.trukket
+    !k.grunner.length || k.trukket || k.tomt
       ? null
       : k.svaret
         ? FORHOLDET.gjelderHvis(k.grunner)
@@ -165,7 +169,10 @@
               <div class="tittel">
                 <h3 class="navn">{SPORNAVN[k.spor]}</h3>
                 <span class="merke">{k.betegnelse}</span>
-                {#if k.trukket}<span class="brev">{brevrefFra(k.siste, k.siste.avsender)}</span
+                <!-- Trekket, og et brev lagt til som dokumentasjon i et spor uten varsel eller krav
+                     (OV-U125, OV-U4). -->
+                {#if (k.trukket || k.tomt) && k.siste}<span class="brev"
+                    >{brevrefFra(k.siste, k.siste.avsender)}</span
                   >{/if}
               </div>
               {#if onspor}<Knapp
@@ -198,28 +205,28 @@
                 )}
               </div>
             {/if}
-            <div class="del">
-              {#if k.svaret}
-                {@const s = svarradene(k)}
-                <p class="delhode">
-                  <span class="part">{FORHOLDET.byggherren}</span>
-                  <span class="brev">{brevref(k.svaret.brev)}</span>
-                  {#if s.hode || (!k.frister.length && !k.svaret.lagene.length && k.svaret.utenFast)}<span
-                      class="verdi"
-                      >{#if s.hode}<span class="num">{s.hode}</span
-                        >{#if k.svaret.utenFast}{@render utenFast(
-                            k.svaret.utenFast
-                          )}{/if}{:else}{FORHOLDET.ingenFastBeloep}{/if}</span
-                    >{/if}
-                </p>
-                {@render radene(s.rader)}
-              {:else}
-                <p class="delhode">
-                  <span class="part">{FORHOLDET.byggherren}</span>
-                  <span class="verdi dempet">{FORHOLDET.ikkeSvart}</span>
-                </p>
-              {/if}
-            </div>
+            {#if !k.tomt}<div class="del">
+                {#if k.svaret}
+                  {@const s = svarradene(k)}
+                  <p class="delhode">
+                    <span class="part">{FORHOLDET.byggherren}</span>
+                    <span class="brev">{brevref(k.svaret.brev)}</span>
+                    {#if s.hode || (!k.frister.length && !k.svaret.lagene.length && k.svaret.utenFast)}<span
+                        class="verdi"
+                        >{#if s.hode}<span class="num">{s.hode}</span
+                          >{#if k.svaret.utenFast}{@render utenFast(
+                              k.svaret.utenFast
+                            )}{/if}{:else}{FORHOLDET.ingenFastBeloep}{/if}</span
+                      >{/if}
+                  </p>
+                  {@render radene(s.rader)}
+                {:else}
+                  <p class="delhode">
+                    <span class="part">{FORHOLDET.byggherren}</span>
+                    <span class="verdi dempet">{FORHOLDET.ikkeSvart}</span>
+                  </p>
+                {/if}
+              </div>{/if}
             {#if vilkaaret(k)}<p class="vilkaar">{vilkaaret(k)}</p>{/if}
           </li>
         {/each}

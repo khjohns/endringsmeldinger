@@ -13,10 +13,11 @@
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Brevskjema from './Brevskjema.svelte';
+  import Foerstekrav from './Foerstekrav.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
@@ -91,8 +92,11 @@
       k: TilBrevkontrollen & { vedlegg: ReturnType<typeof vedleggIFristkravet> }
     ) => void;
     onforkast: () => void;
-    /** Varselet sendt utenfor løsningen er registrert (U-13). */
-    onregistrert: () => void;
+    /**
+     * Varselet sendt utenfor løsningen er registrert (U-13). `kravetStaar` når det ble registrert fra
+     * påminnelsen ved det første kravet, så kravet TE har begynt på, står som utkast (U-3 i BF-51).
+     */
+    onregistrert: (kravetStaar: boolean) => void;
     /** Brevet leses ved siden av skjemaet, så panelet til venstre felles inn (system.md). */
     onvedsiden?: (vedSiden: boolean) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
@@ -184,9 +188,17 @@
     !lagtTil && (varsel ? kanRegistrere : !varselbrev && !bokstavB) ? v.utenfor : null
   );
   const registreres = $derived(varsel && utenfor !== null);
+  /** «Registrer et varsel som er sendt på annen måte» fra påminnelsen ved det første kravet (U-3 i BF-51). */
+  let fraPaaminnelsen = $state(false);
+  async function registrerVarselet() {
+    v.utenfor ??= tomKorrespondanse();
+    await velgHva('varsel');
+    fraPaaminnelsen = true;
+  }
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
   async function velgHva(hva: Fristkravvalg['hva'] | null) {
     v.hva = hva ?? 'krav';
+    fraPaaminnelsen = false;
     if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomKorrespondanse();
     // En registrering TE ikke har fylt ut, blir ikke et varsel gitt før i kravet.
     if (v.hva === 'krav' && v.utenfor && erTomKorrespondanse(v.utenfor)) v.utenfor = null;
@@ -482,7 +494,7 @@
         : null,
       kommando,
       vedlegg,
-      registrert: registreres ? onregistrert : null,
+      registrert: registreres ? () => onregistrert(fraPaaminnelsen) : null,
       kanIkkeLages: HOVEDLINJER.kanIkkeLages,
       tilBrevkontrollen: (brevet) =>
         onbrevkontroll({
@@ -729,6 +741,15 @@
   {#snippet tidslinje()}
     <Tidslinje brev={sporbrev} {datoer} frister={fristeneITidslinja} />
   {/snippet}
+
+  {#if !lagtTil && modus === 'krav' && nesteKravErDetFoerste(u, 'frist')}
+    <Foerstekrav
+      {u}
+      spor="frist"
+      hjemmel="33.4"
+      onregistrer={kanRegistrere ? registrerVarselet : undefined}
+    />
+  {/if}
 
   {#if kanVarsle}
     <Spoersmaal>
