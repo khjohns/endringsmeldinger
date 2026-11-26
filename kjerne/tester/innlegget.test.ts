@@ -10,7 +10,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { sporetErLukket } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
-import { medKravpostIder } from './klient.ts';
+import { innholdssummen, medKravpostIder } from './klient.ts';
 import { SOM_BREV } from './brevet.ts';
 import {
   type Data,
@@ -211,9 +211,15 @@ describe('det innlegget må ha (MM-U47 punkt 2 og designdelen)', () => {
       utsagn: [{ id: randomUUID(), art: 'innlegg', gjelder: brev.event_id }],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-04' }],
       ...SOM_BREV,
-      dokumentasjon: [],
+      dokumentasjon: [
+        {
+          vedlegg_id: VEDLEGGET,
+          filnavn: 'innlegg.pdf',
+          innhold_sha256: innholdssummen(VEDLEGGET),
+        },
+      ],
     });
-    expect(s.u().forstaatt).toBe(false);
+    expect(s.u().begrensninger.map((b) => b.grunn)).toEqual(['et registrert brev har et innlegg']);
   });
 });
 
