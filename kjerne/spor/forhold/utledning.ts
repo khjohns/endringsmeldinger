@@ -27,7 +27,7 @@ import type {
   Svar,
 } from '../../typer.ts';
 import { innholdIForholdet, oppgittDato } from './format.ts';
-import { blirEndringsordre, forholdetErAvklart } from './frysing.ts';
+import { blirEndringsordre, forholdetErAvklart, preklusjonPaaberopt } from './frysing.ts';
 
 /** Kontrollene i forholdet, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`. */
 export const KONTROLLER_I_FORHOLDET = {
@@ -147,15 +147,23 @@ export const frafaller = (s: Svar): boolean =>
   prinsipalt(s.beslutningsgrunnlag.virkninger)?.art === 'forhold' &&
   standpunktet(s, 'forhold')?.resultat === 'paalegg_frafalt';
 
-/** Virkningen av svaret på forholdet: om forholdet er avklart, avvist eller frafalt, og om svaret er en endringsordre. */
+/**
+ * Virkningen av svaret på forholdet: om forholdet er avklart, avvist eller frafalt, om TE har
+ * godtatt en påberopt preklusjon, og om svaret er en endringsordre.
+ */
 export function forholdssvaretsVirkning(
   spor: Record<Spor, Sporutledning>,
   svar: Record<string, Svarberegning>,
   dokumenter: Map<string, Dokument>
-): Pick<Utledning, 'forholdAvklart' | 'forholdAvvist' | 'endringsordre' | 'frafalt'> {
+): Pick<
+  Utledning,
+  'forholdAvklart' | 'forholdAvvist' | 'preklusjonGodtatt' | 'endringsordre' | 'frafalt'
+> {
   const gSvar = spor.forhold.gjeldendeSvar;
   const eg = spor.forhold.enighet;
   const gBrev = gSvar ? svar[gSvar.id] : null;
+  // En enighet om et svar byggherren senere har erstattet, gjelder ikke gjeldende svar (OV-U112).
+  const godtatt = eg?.grunnlag.kilde === 'aksept' && gBrev !== null;
   // GR-U23: venter en ny påberopelsesversjon på svar etter et frafall, er forholdet avklart
   // ved frafallet til byggherren svarer. Det siste svaret leses, så et frafall byggherren
   // senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7). Et registrert svar har
@@ -173,13 +181,12 @@ export function forholdssvaretsVirkning(
     forholdAvklart:
       venterEtterFrafall ||
       (!spor.forhold.trukket && gBrev !== null && forholdetErAvklart(gBrev.svar, gBrev.virkninger)),
-    // SK-01, #213, MM-U13: TE har godtatt svaret på påberopelsen, og det avklarer ikke forholdet
-    // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning. En enighet om et
-    // svar byggherren senere har erstattet, lukker ikke saken (OV-U112).
-    forholdAvvist:
-      eg?.grunnlag.kilde === 'aksept' &&
-      gBrev !== null &&
-      !forholdetErAvklart(gBrev.svar, gBrev.virkninger),
+    // HF-U35 punkt 9, HF-U37: TE har godtatt et svar som avslår forholdet, også subsidiært til
+    // en påberopt preklusjon.
+    forholdAvvist: godtatt && standpunktet(gBrev.svar, 'forhold')?.resultat === 'avslaatt',
+    // HF-U35 punkt 10 (svar 6 B), MM-U13: TE har godtatt et svar som prinsipalt påberoper
+    // preklusjon etter § 32.2.
+    preklusjonGodtatt: godtatt && preklusjonPaaberopt(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
@@ -207,10 +214,18 @@ export function forholdssvaretsVirkning(
 export const trekkAvPaaberopelsenErSperret = (u: Utledning): boolean => u.endringsordre === 'ja';
 
 /**
+ * GR-U7, GR-U34 punkt 12: TE har godtatt et svar som avslår forholdet eller påberoper
+ * preklusjon, så en enighet om vederlag eller frist har ingen virkning. Bare et godtatt
+ * avslag lukker saken (HF-U35 punkt 9 og 10, HF-U37).
+ */
+export const forholdetErAvvistVedEnighet = (u: Utledning): boolean =>
+  u.forholdAvvist || u.preklusjonGodtatt;
+
+/**
  * MM-U34 punkt 20: byggherren kan la en endringsordre omfatte hele KOE-saken når
  * forholdet er sendt, også uten registrert enighet. Unntatt er en sak som er lukket
- * etter GR-U27, fordi TE har godtatt et svar som avslår forholdet eller påberoper
- * preklusjon, eller har trukket forholdet.
+ * etter HF-U35 punkt 9, fordi TE har godtatt et svar som avslår forholdet (HF-U37), eller
+ * har trukket forholdet. En godtatt preklusjon hindrer ikke (HF-U35 punkt 10).
  * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
  * endringsordre (EO-U3 (opphevet av EO-U34, EO-U38 og EO-U39)), leses der EO-saken bygges (#1378).
  */

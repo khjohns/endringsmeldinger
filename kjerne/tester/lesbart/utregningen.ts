@@ -76,6 +76,13 @@ export const UTREGNINGEN: Lesbar[] = [
     'forholdetErAvklart',
     ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
   ],
+  // MM-U13, HF-U35 punkt 10: utledningen regner `preklusjonGodtatt` av den.
+  [
+    'spor/forhold/frysing.ts',
+    'predikat',
+    'preklusjonPaaberopt',
+    ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
+  ],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   [
     'frosset/standpunkt.ts',

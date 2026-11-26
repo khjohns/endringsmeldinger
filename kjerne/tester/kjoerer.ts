@@ -424,6 +424,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.forholdAvklart;
     case 'forhold_avvist':
       return u.forholdAvvist;
+    case 'preklusjon_godtatt':
+      return u.preklusjonGodtatt;
     case 'frafalt':
       return u.frafalt;
     case 'endringsordre':
