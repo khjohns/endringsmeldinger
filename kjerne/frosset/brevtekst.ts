@@ -25,6 +25,7 @@ import {
   sisteStandpunktTilVarslene,
   utenStandpunkterForanEldreKrav,
   svaretGjelderPaaberopelsen,
+  type StandpunktTilVarselet,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { iBrevetsRekkefoelge, svaretGjelder } from './brevtittel.ts';
@@ -941,10 +942,6 @@ function rettidighetstekst(
   sporet: Sporsbrevtekst,
   { saken, nytt }: Pick<Tekst, 'saken' | 'nytt'>
 ): string {
-  const aapne = innsigelsene.filter((i) => i.hjemmel === p.hjemmel);
-  const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
-  const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
-  const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
   if (erKravpostvarselhjemmel(p.hjemmel))
     return varseltekst(
       p,
@@ -952,12 +949,52 @@ function rettidighetstekst(
       kravposterI(krav),
       { j, saken, nytt }
     );
+  // VS-U87 punkt 34: innsigelsen i svaret på varselet etter § 34.1.2 eller § 34.1.3. Står den,
+  // viser svaret bare til den: løsningen tolker ikke den egne innsigelsen (VS-U89).
+  const iSvaret = erVederlagsvarselhjemmel(p.hjemmel)
+    ? innsigelsenFoer(p, [], { j, saken, nytt })
+    : undefined;
+  const aapne = iSvaret ? [] : innsigelsene.filter((i) => i.hjemmel === p.hjemmel);
+  const dokumentene = [
+    ...new Set([...(iSvaret ? [iSvaret] : []), ...aapne].map((i) => i.dokument)),
+  ];
+  const brevene = liste(dokumentene.map((d) => j.brevet(d)));
+  const henvisning = dokumentene.length > 1 ? 'innsigelsene' : 'innsigelsen';
+  const jf = dokumentene.length ? `, jf. ${henvisning} i ${brevene}` : '';
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide) return forSentMedFoelgen(sporet, omVarselet, p.hjemmel, jf);
-  return aapne.length
-    ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`
-    : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+  if (!dokumentene.length) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+  const punkt5 = aapne.length ? ' etter NS 8407 punkt 5' : '';
+  return `byggherren gir opp ${henvisning}${punkt5} i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+}
+
+/**
+ * Byggherrens innsigelse mot varselet standpunktet `p` gjelder, fra et tidligere svar i vederlaget,
+ * når den står før brevet (`sisteStandpunktTilVarslene`, VS-U87 punkt 9, 10 og 34), ellers
+ * `undefined`.
+ */
+function innsigelsenFoer(
+  p: Extract<Standpunkt, { art: 'rettidighet' }>,
+  poster: readonly Kravpost[],
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+): StandpunktTilVarselet | undefined {
+  const plass = new Map(j.dokumenter.map((d, i) => [d.id, i]));
+  return sisteStandpunktTilVarslene(
+    j.dokumenter
+      .filter((d) => d.id !== nytt.id)
+      .flatMap((d) =>
+        d.svar
+          .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
+          .map((x) => ({
+            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),
+            dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
+            lagtTil: erRegistrert(d.opplysninger),
+            paaVarselet: j.element(x.gjelder).art === 'utsagn',
+          }))
+      ),
+    poster
+  ).find((x) => x.gjelder === p.gjelder && x.hjemmel === p.hjemmel && !x.iTide);
 }
 
 /**
@@ -973,21 +1010,7 @@ function varseltekst(
   poster: readonly Kravpost[],
   { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
 ): string {
-  const plass = new Map(j.dokumenter.map((d, i) => [d.id, i]));
-  const foer = sisteStandpunktTilVarslene(
-    j.dokumenter
-      .filter((d) => d.id !== nytt.id)
-      .flatMap((d) =>
-        d.svar
-          .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
-          .map((x) => ({
-            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),
-            dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
-            lagtTil: erRegistrert(d.opplysninger),
-          }))
-      ),
-    poster
-  ).find((x) => x.gjelder === p.gjelder && x.hjemmel === p.hjemmel && !x.iTide);
+  const foer = innsigelsenFoer(p, poster, { j, saken, nytt });
   const brevet = foer && j.brevet(foer.dokument);
   const jf = brevet ? `, jf. innsigelsen i ${brevet}` : '';
   const forSent =
