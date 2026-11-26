@@ -544,7 +544,7 @@ noekkel = "ingen_varsel_eller_krav"
 nivaa = "spor"
 betydning = "I et spor for vederlag eller frist har TE ikke sendt eller lagt til med virkning et varsel eller krav, eller oppgitt datoen for et varsel. Sier ikke hvem som står for tur."
 kilde = ["OV-U125", "OV-U97"]
-status = "ny"
+status = "holder"
 
 [[betegnelse]]
 noekkel = "innlegg_etter_siste_brev"

@@ -108,6 +108,7 @@ export const BETEGNELSE: Record<Betegnelse, string> = haerdet({
   enige: 'Enige',
   byggherren_har_svart: 'Byggherren har svart',
   varslet: 'Varslet',
+  ingen_varsel_eller_krav: 'Ingen varsel eller krav i saken',
 });
 
 /** Korrespondansen slik et brev omtaler den (LV-U45): parten, typen og datoen. */
