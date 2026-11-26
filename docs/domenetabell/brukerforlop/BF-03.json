@@ -233,6 +233,7 @@
     "KA-U52",
     "KA-U87",
     "VS-U87",
+    "VS-U89",
     "HF-U23",
     "HF-U3",
     "GR-U27",
@@ -308,6 +309,11 @@
       "dato": "2026-11-26",
       "forhold": "#1657, PR #2415",
       "hva": "Svarene S-4 A og S-5 A: innsigelsen etter punkt 5 tredje ledd og passiviteten er ikke egne handlinger. MM-U44 står i kildene (innlegget godtas i en sak løsningen ikke forstår). Klikkstiene følger teksten i skissen etter den kognitive forprøven."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2418",
+      "hva": "VS-U89 er S-4 (A), og står i kildene. S-5 er ikke ført, og venter på koden som fjerner passivitet."
     }
   ]
 }
