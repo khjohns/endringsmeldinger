@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `dc20d55bc65940e9c56f157a4580e3da166053e7f2a74609856b94c64236fa62`
+Kontrollsum (SHA-256 over utdraget visningen leser): `ac3329c58aab1e10ed07c0de8c34af32e628cadab8d5c55d75b9569f9c99bce3`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1492,7 +1492,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.11, oppdragsgiver (#2426, #1065)
 
-**Følge:** Presiserer [HF-U35](#hf-u35). Snevrer inn [HF-U35](#hf-u35). Presiserer [MM-U62](#mm-u62). Presiserer HF-U35 punkt 9 og E7, og snevrer inn HF-U35 punkt 10. Presiserer MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet. I tråd med KA-U88 punkt 7 og HF-U35 punkt 1.
+**Følge:** Presiserer [HF-U35](#hf-u35). Snevrer inn [HF-U35](#hf-u35). Presiserer [MM-U62](#mm-u62). Presiserer HF-U35 punkt 9 og snevrer inn HF-U35 punkt 10; presiserer HF-U35 E7 og MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet; i tråd med KA-U88 punkt 7 og HF-U35 punkt 1.
 
 **Regelrader:** —
 

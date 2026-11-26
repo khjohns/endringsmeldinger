@@ -8581,7 +8581,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u62" },
 ]
 folge = '''
-Presiserer HF-U35 punkt 9 og E7, og snevrer inn HF-U35 punkt 10. Presiserer MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet. I tråd med KA-U88 punkt 7 og HF-U35 punkt 1.'''
+Presiserer HF-U35 punkt 9 og snevrer inn HF-U35 punkt 10; presiserer HF-U35 E7 og MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet; i tråd med KA-U88 punkt 7 og HF-U35 punkt 1.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
