@@ -296,7 +296,13 @@ describe('innsigelsen fra svaret på varselet i svaret på kravposten (VS-U77 pu
         type: 'krav',
         spor: 'vederlag',
         innhold: {
-          kravposter: [{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }],
+          kravposter: [
+            {
+              beskrivelse: 'Pumping',
+              oppgjoersform: 'regningsarbeid',
+              varsel: { art: 'gitt', varsel },
+            },
+          ],
         },
       }
     );

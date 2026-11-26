@@ -163,7 +163,8 @@
 
   {#each regning as p (p.navn)}
     {@const s = p.kravpost ? formen(p.kravpost.id) : undefined}
-    {@const varsel = p.kravpost?.varsel ? brevMedUtsagn(u, p.kravpost.varsel) : null}
+    {@const varsel =
+      p.kravpost?.varsel?.art === 'gitt' ? brevMedUtsagn(u, p.kravpost.varsel.varsel) : null}
     <dl class="fakta">
       <div>
         <dt>{VEDERLAGET.regning.oppgjoersform}</dt>
