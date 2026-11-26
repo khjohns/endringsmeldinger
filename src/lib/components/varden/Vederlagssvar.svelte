@@ -122,6 +122,8 @@
   // U-9 i BF-48: TEs siste opplysning om datoen etter § 34.1.3 ved svaret på kravet med posten.
   const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
 
+  // Brevet ved siden av skjemaet tar plassen til støttekortet (`Brevskjema`).
+  let vedSiden = $state(false);
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
   // Valgene for hver kravpost i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
@@ -539,9 +541,7 @@
 
 {#snippet kunnskapsdatokortet()}
   <Stoettekort id={`${uid}-kunnskapsdato`} tittel={KUNNSKAPSDATO.stoettetittel}>
-    <p class="kunnskapsdato" id={`${uid}-kunnskapsdato-tekst`}>
-      {KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}
-    </p>
+    <p class="kunnskapsdato">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
   </Stoettekort>
 {/snippet}
 
@@ -565,7 +565,10 @@
   stopp={hinder ? SKJEMA.ikkeStoettetHinder(hinder) : null}
   {onbrevkontroll}
   {onforkast}
-  {onvedsiden}
+  onvedsiden={(v) => {
+    vedSiden = v;
+    onvedsiden?.(v);
+  }}
   stoettekort={harPost ? kunnskapsdatokortet : undefined}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
@@ -820,14 +823,15 @@
         tittel={overskrift(SAERSKILT) ?? temanavn(svartemaene, SAERSKILT)}
       >
         <p class="dempet">{SKJEMA.teKreverSaerskilt(krevdISaerskilt ?? 0)}</p>
-        <!-- U-9 i BF-48: på smal skjerm står kortet under skjemaet, så datoen står også her. -->
-        <p class="kunnskapsdato smal" aria-hidden="true">
+        <!-- U-9 i BF-48: datoen står ved valget når kortet står under skjemaet (smal skjerm) eller
+           ikke vises (brevet ved siden av). Valget viser til den også når den er skjult. -->
+        <p class="kunnskapsdato" class:smal={!vedSiden} id={`${uid}-kunnskapsdato-ved-valget`}>
           {KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}
         </p>
         <Valg
           navn={`${uid}-saerskilt-itide`}
           spoersmaal={SKJEMA.varselSpoersmaalKort}
-          beskrevetAv={`${uid}-kunnskapsdato-tekst`}
+          beskrevetAv={`${uid}-kunnskapsdato-ved-valget`}
           valg={[
             { verdi: true, tekst: SKJEMA.komITide },
             { verdi: false, tekst: SKJEMA.komForSent },

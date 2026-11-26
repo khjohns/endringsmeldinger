@@ -443,7 +443,7 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
       .getAllByRole('link')
       .map((l) => l.textContent);
 
-  it('skjemaet spør om varselet, og datoen totalentreprenøren oppgir står i kortet valget viser til (U-9 i BF-48)', async () => {
+  it('skjemaet spør om varselet, og valget viser til datoen totalentreprenøren oppgir (U-9 i BF-48)', async () => {
     await svarskjemaet(medSaerskilt);
     expect(screen.queryByText(/kan ikke besvares/)).toBeNull();
     const gruppe = iSaerskilt().getByRole('group', { name: 'Kom varselet i tide?' });
