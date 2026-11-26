@@ -29,6 +29,7 @@ Formatet og arbeidsregelen står i [README](README.md).
 | [BF-48](BF-48.json) Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen | TE oppgir datoen TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser ville påløpe, i det særskilte varselet etter punkt 34.1.3 annet ledd, i vederlagskravet når det gir varselet, eller i et særskilt varsel lagt til som korrespondanse. Senere supplerer eller endrer TE datoen i et eget brev med henvisning til varselet. Begge partene ser den siste og de tidligere datoene ved varselet, og BH ser datoen når BH tar stilling til om varselet kom i tide. | planlagt | — | #2012, #2010, #807 | — | [BF-48.md](BF-48.md) |
 | [BF-49](BF-49.json) Partene legger til korrespondanse sendt utenfor løsningen | En part legger til i saken et brev, en e-post, et møtereferat eller et annet dokument partene har sendt hverandre utenfor løsningen, med typen, avsenderen, datoen, dokumentet og beskrivelsen, og sier hva det er etter kontrakten: dokumentasjon, varsel, krav, svar eller aksept. Avsenderen får samme virkning som om det var sendt fra løsningen, med datoen det ble sendt. BH legger til et svar på vederlaget som ikke sier noe om varselet der BHs innsigelse står, uten at svaret får innsigelsen som eget utsagn. | planlagt | — | #807, #2347, #2011, #2389, #818 | — | [BF-49.md](BF-49.md) |
 | [BF-50](BF-50.json) Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen | TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. En senere dato gjelder straks. En tidligere dato er et tilbud som gjelder når BH godtar rettingen i et svar, atskilt fra standpunktet om varselet eller kravet kom i tide. Begge partene ser datoen som gjelder, de tidligere datoene og rettingene som står åpne. | planlagt | — | #1309, #818 | — | [BF-50.md](BF-50.md) |
+| [BF-51](BF-51.json) Vederlag og frist uten varsel eller krav fra totalentreprenøren | Byggherren har svart på påberopelsen av forholdet. Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse. TE ser at sporene ikke har varsel eller krav, og sender det første varselet eller kravet som hovedvalg. BH ser i saken at TE ikke har sendt eller lagt til et varsel eller krav i sporet, uten at løsningen sier hva som er sendt utenfor den. Når kravene er avgjort og fristsporet fortsatt er tomt, kan TE sende det første fristkravet. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | [BF-51.md](BF-51.md) |
 
 ## Kildene
 
@@ -104,7 +105,7 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U18](../../plans/vedtak.md#gr-u18) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
 | [GR-U22](../../plans/vedtak.md#gr-u22) | — | BF-05 start, BF-08 te-har-mottatt-svaret | BF-10 |
 | [GR-U23](../../plans/vedtak.md#gr-u23) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
-| [GR-U27](../../plans/vedtak.md#gr-u27) | BF-02D saken-er-lukket, BF-08 te-har-godtatt-avslaget | BF-02A te-har-mottatt-svaret, BF-02D saken-er-lukket, BF-08 te-har-mottatt-svaret, BF-08 te-har-godtatt-avslaget | BF-06, BF-10, BF-48, BF-50 |
+| [GR-U27](../../plans/vedtak.md#gr-u27) | BF-02D saken-er-lukket, BF-08 te-har-godtatt-avslaget | BF-02A te-har-mottatt-svaret, BF-02D saken-er-lukket, BF-08 te-har-mottatt-svaret, BF-08 te-har-godtatt-avslaget, BF-51 fristsporet-er-tomt | BF-06, BF-10, BF-48, BF-50 |
 | [GR-U28](../../plans/vedtak.md#gr-u28) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
 | [GR-U31](../../plans/vedtak.md#gr-u31) | — | BF-05 start, BF-08 bh-har-mottatt-paaberopelsen | — |
 | [GR-U32](../../plans/vedtak.md#gr-u32) | — | BF-08 bh-har-mottatt-paaberopelsen | BF-06 |
@@ -119,7 +120,7 @@ på kilden, men har ingen kontroller ennå.
 | [HF-U6](../../plans/vedtak.md#hf-u6) | — | — | BF-01V |
 | [HF-U8](../../plans/vedtak.md#hf-u8) | — | — | BF-02B, BF-03 |
 | [HF-U9](../../plans/vedtak.md#hf-u9) | — | BF-01 te-har-mottatt-svaret | BF-01V, BF-03 |
-| [HF-U11](../../plans/vedtak.md#hf-u11) | — | BF-45 bh-har-mottatt-kravet | BF-47 |
+| [HF-U11](../../plans/vedtak.md#hf-u11) | — | BF-45 bh-har-mottatt-kravet, BF-51 sporene-er-tomme | BF-47 |
 | [HF-U12](../../plans/vedtak.md#hf-u12) | — | — | BF-06 |
 | [HF-U18](../../plans/vedtak.md#hf-u18) | — | — | BF-03 |
 | [HF-U21](../../plans/vedtak.md#hf-u21) | — | — | BF-10 |
@@ -131,7 +132,7 @@ på kilden, men har ingen kontroller ennå.
 | [HF-U29](../../plans/vedtak.md#hf-u29) | — | BF-08 te-har-mottatt-svaret | — |
 | KA-01 | BF-01 start, BF-01 bh-har-mottatt-vederlagskravet, BF-04 start, BF-04 bh-har-mottatt-vederlagskravet, BF-08 start, BF-08 bh-har-mottatt-paaberopelsen, BF-44 bh-har-mottatt-kravet, BF-45 bh-har-mottatt-kravet | — | — |
 | [KA-U1](../../plans/vedtak.md#ka-u1) | BF-01 te-har-godtatt-svaret, BF-46 bh-har-mottatt-aksepten | BF-01 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret, BF-45 te-har-mottatt-svaret | BF-01V, BF-03, BF-06, BF-20 |
-| [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-08 bh-har-mottatt-paaberopelsen, BF-44 bh-har-mottatt-kravet, BF-45 bh-har-mottatt-kravet | — | — |
+| [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-08 bh-har-mottatt-paaberopelsen, BF-44 bh-har-mottatt-kravet, BF-45 bh-har-mottatt-kravet, BF-51 sporene-er-tomme | BF-51 sporene-er-tomme | — |
 | [KA-U4](../../plans/vedtak.md#ka-u4) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-20 |
 | [KA-U8](../../plans/vedtak.md#ka-u8) | — | — | BF-20 |
 | [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03, BF-07 |
@@ -247,7 +248,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U24](../../plans/vedtak.md#mm-u24) | — | BF-46 te-etter-akseptfristen, BF-46 bh-har-mottatt-aksepten | — |
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
-| [MM-U30](../../plans/vedtak.md#mm-u30) | — | BF-46 bh-har-mottatt-aksepten | — |
+| [MM-U30](../../plans/vedtak.md#mm-u30) | — | BF-46 bh-har-mottatt-aksepten, BF-51 sporene-er-tomme | — |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
 | [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03, BF-14 |
 | [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon, BF-08 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01V, BF-02B, BF-03, BF-06, BF-10 |
@@ -269,11 +270,12 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U61](../../plans/vedtak.md#mm-u61) | — | — | BF-50 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U2](../../plans/vedtak.md#ov-u2) | — | BF-45 te-har-mottatt-svaret | — |
-| [OV-U3](../../plans/vedtak.md#ov-u3) | — | BF-44 te-har-mottatt-svaret | — |
-| [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
-| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | BF-14, BF-49 |
+| [OV-U3](../../plans/vedtak.md#ov-u3) | BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | BF-44 te-har-mottatt-svaret, BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | — |
+| [OV-U4](../../plans/vedtak.md#ov-u4) | — | BF-51 sporene-er-tomme | BF-01V, BF-07 |
+| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start, BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | BF-14, BF-49 |
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | BF-08 bh-har-mottatt-paaberopelsen | BF-06, BF-49 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
+| [OV-U10](../../plans/vedtak.md#ov-u10) | — | BF-51 fristsporet-er-tomt | — |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
 | [OV-U12](../../plans/vedtak.md#ov-u12) | — | — | BF-49 |
 | [OV-U13](../../plans/vedtak.md#ov-u13) | — | — | BF-49 |
@@ -307,7 +309,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
 | [OV-U78](../../plans/vedtak.md#ov-u78) | — | BF-05 start | BF-01V |
 | [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02B, BF-03, BF-14, BF-20, BF-37, BF-49 |
-| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02B, BF-03, BF-06, BF-07, BF-14, BF-37 |
+| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start, BF-51 sporene-er-tomme | BF-02B, BF-03, BF-06, BF-07, BF-14, BF-37 |
 | [OV-U81](../../plans/vedtak.md#ov-u81) | — | BF-44 bh-har-registrert-eposten | BF-01V, BF-03 |
 | [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
 | [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
@@ -317,8 +319,9 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U90](../../plans/vedtak.md#ov-u90) | — | — | BF-37 |
 | [OV-U94](../../plans/vedtak.md#ov-u94) | — | — | BF-14 |
 | [OV-U95](../../plans/vedtak.md#ov-u95) | — | — | BF-14 |
+| [OV-U97](../../plans/vedtak.md#ov-u97) | BF-51 sporene-er-tomme | BF-51 sporene-er-tomme | — |
 | [OV-U98](../../plans/vedtak.md#ov-u98) | — | BF-08 bh-har-mottatt-paaberopelsen | BF-49 |
-| [OV-U99](../../plans/vedtak.md#ov-u99) | — | — | BF-47, BF-49 |
+| [OV-U99](../../plans/vedtak.md#ov-u99) | BF-51 sporene-er-tomme | — | BF-47, BF-49 |
 | [OV-U101](../../plans/vedtak.md#ov-u101) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
 | [OV-U102](../../plans/vedtak.md#ov-u102) | — | — | BF-49 |
 | [OV-U103](../../plans/vedtak.md#ov-u103) | — | — | BF-49 |
