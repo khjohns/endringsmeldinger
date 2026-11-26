@@ -505,3 +505,56 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
     ).toEqual({ ...svaret, erstatter: sendt.spor.vederlag.gjeldendeSvar!.id });
   });
 });
+
+describe('posten etter § 34.1.3 annet ledd (#2422)', () => {
+  const medSaerskilt = skrevet(grunnforhold, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [{ beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 150_000 }],
+      saerskilt: { produktivitet: { beloep: 40_000 } },
+    },
+  });
+  const valgene: Svarvalg = {
+    ...tomtSvar(),
+    iTide: true,
+    poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'hele' } },
+    saerskilt: {
+      varsletITide: false,
+      begrenset: '10 000',
+      beloep: 'deler',
+      delbeloep: '30 000',
+    },
+  };
+  const medSvar = skrevet(
+    medSaerskilt,
+    'BH',
+    vederlagssvaret(valgene, utledJournal(medSaerskilt, KJERNE), KJERNE.regler)
+  );
+  const u = utledJournal(medSvar, KJERNE);
+
+  it('kjernen tar imot svaret med begrensningen prinsipalt og beløpet subsidiært (VS-U5)', () => {
+    const svaret = u.spor.vederlag.gjeldendeSvar!;
+    expect(
+      svaret.standpunkter.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3')
+    ).toMatchObject({ iTide: false, begrenset: 10_000 });
+    expect(
+      svaret.standpunkter.find((s) => s.art === 'beloep' && s.saerskilt === 'produktivitet')
+    ).toMatchObject({ godkjent: 30_000 });
+  });
+
+  it('et nytt svar åpner med svaret på posten slik det ble sendt (HF-U29)', () => {
+    expect(valgFraSvaret(u.spor.vederlag.gjeldendeSvar!, u.spor.vederlag.gjeldendeKrav!)).toEqual({
+      ...valgene,
+      erstatter: u.spor.vederlag.gjeldendeSvar!.id,
+    });
+  });
+
+  it('kontrollsak: et krav uten posten får ikke svaret på den i valgene', () => {
+    const uten = utledJournal(medKrav(125_000), KJERNE);
+    const kommando = vederlagssvaret(valgene, uten, KJERNE.regler)!;
+    expect(
+      Object.keys(kommando.svar[0].vurderinger).filter((f) => f.startsWith('produktivitet_'))
+    ).toEqual([]);
+  });
+});

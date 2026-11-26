@@ -206,6 +206,8 @@ export type Utsagn =
        * annet ledd ville påløpe, i varselet etter § 34.1.3. Valgfri (punkt 13).
        */
       klar_over_utgiftene?: string;
+      /** VS-U87 punkt 27: arbeidet varselet etter § 34.3.3 eller § 34.4 gjelder. */
+      arbeid?: string;
     }
   | { id: string; art: 'trekk'; gjelder: string }
   | {

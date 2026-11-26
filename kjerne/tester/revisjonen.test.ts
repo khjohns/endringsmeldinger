@@ -134,8 +134,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
@@ -1587,7 +1586,7 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     expect(s.avvisning('TE', { type: 'trekk', spor: 'frist' })).toEqual({
       regel: 'FORHOLD_AVVIST',
       melding:
-        'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.',
+        'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet, og saken er lukket.',
     });
   });
 
@@ -1655,8 +1654,7 @@ describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 pun
     s.send('TE', {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });

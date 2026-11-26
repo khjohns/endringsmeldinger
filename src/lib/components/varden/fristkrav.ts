@@ -112,8 +112,8 @@ export function fristkravet(
 ): Record<string, unknown> {
   if (v.hva === 'varsel')
     return v.utenfor
-      ? { type: 'varsel', spor: 'frist', hjemmel: '33.4', ...registreringen(v.utenfor) }
-      : { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
+      ? { type: 'varsel', varsler: [{ hjemmel: '33.4' }], ...registreringen(v.utenfor) }
+      : { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] };
   if (foresporsel && v.bokstav === 'b')
     return { type: 'foresporselssvar', gjelder: foresporsel, utdypning: v.grunnB };
   const trekker = v.frister.filter((p) => p.trukket && p.id).map((p) => p.id!);

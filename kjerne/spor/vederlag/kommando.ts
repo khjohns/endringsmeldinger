@@ -487,9 +487,8 @@ function kunnskapsdatoenErOppgitt(u: Utledning, hva: string): Avvisning | null {
 
 /**
  * VS-U86 punkt 9 og 12, D-2 i BF-48: datoen står i vederlagskravet bare når kravet er det første
- * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd: saken har ikke noe varsel etter
- * § 34.1.3 og ingen tidligere kravversjon med posten. Ellers oppgis den i det egne utsagnet. Et krav
- * lagt til, sendt dagen `sendt` før varselet saken har, blir det første varselet (punkt 9).
+ * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd (`kravetErDetFoersteVarselet`), og
+ * datoen ikke er oppgitt før. Ellers oppgis den i det egne utsagnet.
  */
 function kunnskapsdatoISperren(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -497,16 +496,25 @@ function kunnskapsdatoISperren(
   sendt: string | null
 ) {
   if (k.spor !== 'vederlag' || kunnskapsdatoIKravet(k) === undefined) return null;
-  const varselet = varseletFoerBrevet(u, '34.1.3');
   return (
     kunnskapsdatoenErOppgitt(u, 'Vederlagskravet') ??
-    (varselet !== undefined && !foerDagen(sendt, datoenForVarselet(u, varselet))
-      ? avvis(
+    (kravetErDetFoersteVarselet(u, sendt)
+      ? null
+      : avvis(
           'KRAVET_ER_IKKE_VARSELET',
           'Vederlagskravet er ikke det første varselet om den særskilte vederlagsjusteringen etter punkt 34.1.3, så datoen totalentreprenøren ble klar over at utgiftene ville påløpe, oppgis ikke i kravet. Den oppgis i et eget brev.'
-        )
-      : null)
+        ))
   );
+}
+
+/**
+ * VS-U86 punkt 9: vederlagskravet sendt dagen `sendt` er det første varselet etter § 34.1.3, ved
+ * siden av varselet saken har (`varseletFoerBrevet`). Et krav sendt fra løsningen har `sendt` lik
+ * `null`.
+ */
+export function kravetErDetFoersteVarselet(u: Utledning, sendt: string | null): boolean {
+  const varselet = varseletFoerBrevet(u, '34.1.3');
+  return varselet === undefined || foerDagen(sendt, datoenForVarselet(u, varselet));
 }
 
 /** Dagen varselet etter § 34.1.3 med id-en `varselet` ble sendt: det registrerte eller et krav. */
@@ -522,7 +530,9 @@ export function kunnskapsdatoIVarselet(
   k: Extract<Kommando, { type: 'send_varsel' }>,
   u: Utledning
 ): Avvisning | null {
-  return k.klar_over_utgiftene === undefined ? null : kunnskapsdatoenErOppgitt(u, 'Varselet');
+  return k.varsler.some((v) => v.klar_over_utgiftene !== undefined)
+    ? kunnskapsdatoenErOppgitt(u, 'Varselet')
+    : null;
 }
 
 /**
@@ -665,8 +675,8 @@ const dokumentnoekkel = (d: Dokumentvarsel, oppslag: Vedleggsoppslag): string[] 
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
  * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53). Gjelder dokumentet
- * flere kravposter, er det ett brev med ett varsel per bestemmelse, og hver kravpost viser til
- * varselet etter sin (VS-U52).
+ * flere kravposter, er det ett brev med ett varsel per kravpost, og hver kravpost viser til sitt
+ * (VS-U87 punkt 23 og 27, G-3 i BF-37).
  */
 function medVarslene(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -699,12 +709,15 @@ function medVarslene(
           `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4.`
         ),
       };
-    if (!hjemler.includes(hjemmel)) hjemler.push(hjemmel);
+    hjemler.push(hjemmel);
   }
-  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel: hjemler[0], ...dokumentet };
+  const kommando = {
+    type: 'varsel',
+    varsler: hjemler.map((hjemmel) => ({ hjemmel })),
+    ...dokumentet,
+  };
   const varselet =
-    skriving.formen(kommando) ??
-    skriving.skriv(kommando as Kommando, kontekst, journal, [], hjemler.slice(1));
+    skriving.formen(kommando) ?? skriving.skriv(kommando as Kommando, kontekst, journal, []);
   if (!varselet.godtatt)
     return {
       ...varselet,
@@ -727,18 +740,14 @@ function medVarslene(
       avvisning: vedleggVedEtVarsel(`i varselet for kravpost nr. ${i + 1}`),
     };
   const [rad] = varselet.hendelser;
-  const utsagn = new Map(
-    (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
-  );
+  const utsagn = (rad!.data.utsagn as { id: string }[]).map((x) => x.id);
   const resten = {
     ...k,
     innhold: {
       ...k.innhold,
       kravposter: poster.map((p, j) => {
-        const medlem = gruppen.find(([g]) => g === j);
-        return medlem
-          ? { ...p, varsel: { art: 'gitt', varsel: utsagn.get(varselhjemmel(medlem[1])!) } }
-          : p;
+        const n = gruppen.findIndex(([g]) => g === j);
+        return n < 0 ? p : { ...p, varsel: { art: 'gitt', varsel: utsagn[n] } };
       }),
     },
   };

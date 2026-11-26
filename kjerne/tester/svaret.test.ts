@@ -2300,8 +2300,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
   const varseldato = () => ({
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'frist',
-    hjemmel: '33.4',
+    varsler: [{ hjemmel: '33.4' }],
     sendt: '2026-09-28',
     dokumentasjon: [randomUUID()],
   });
@@ -2322,7 +2321,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
   it('når kravene er avgjort, godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter (OV-U3, MM-U34 punkt 13)', () => {
     const s = utenFrist();
     expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
-    s.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
     const varsel = s.u().spor.frist.varsler['33.4']!.id;
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
     expect(s.u().spor.vederlag.enighet, 'forutsetning: enighet i vederlaget').not.toBeNull();
@@ -2349,7 +2348,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
     expect(s.avvist('TE', vederlagskrav)).toBeNull();
     expect(s.avvist('BH', revisjonAvVederlaget(s))).toBeNull();
-    expect(s.avvist('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' })).toBeNull();
+    expect(s.avvist('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] })).toBeNull();
     // Kontrollsak: godkjenningen av forholdet er en endringsordre, så trekket av forholdet
     // avvises av sperren i KA-U13, ikke fordi kravene er avgjort (EO-U12).
     expect(s.avvist('TE', { type: 'trekk', spor: 'forhold' })).toBe('FORHOLD_ER_ENDRINGSORDRE');
@@ -2357,8 +2356,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
       s.avvist('TE', {
         type: 'varsel',
         ...SOM_BREV,
-        spor: 'vederlag',
-        hjemmel: '34.1.3',
+        varsler: [{ hjemmel: '34.1.3' }],
         sendt: '2026-09-28',
         dokumentasjon: [randomUUID()],
       })
@@ -2380,7 +2378,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
 
   it('i et spor uten krav godtas varselet, varseldatoen og det første kravet når kravene er avgjort (OV-U3, OV-U5)', () => {
     const s = utenFrist();
-    expect(s.avvist('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' })).toBeNull();
+    expect(s.avvist('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] })).toBeNull();
     expect(s.avvist('TE', varseldato())).toBeNull();
     expect(s.avvist('TE', FRISTKRAV)).toBeNull();
   });

@@ -17,7 +17,14 @@ import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import { varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
-import type { Korrespondansetype, Krav, Part, Sendemaate, Spor } from '../typer.ts';
+import type {
+  Korrespondansetype,
+  Krav,
+  Kravvarselhjemmel,
+  Part,
+  Sendemaate,
+  Spor,
+} from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -470,21 +477,22 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return { type: 'trekk', spor };
     case 'varsel': {
       // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget. `hjemmel` velger
-      // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52).
-      const varselet =
-        spor === 'vederlag'
-          ? ({
-              spor,
-              hjemmel: (h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2',
-            } as const)
-          : ({ spor: 'frist', hjemmel: '33.4' } as const);
+      // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52), og `arbeid` er arbeidet etter
+      // VS-U87 punkt 27. Ett varsel i brevet.
+      const varselet = {
+        hjemmel: (spor === 'vederlag'
+          ? ((h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2')
+          : '33.4') as Kravvarselhjemmel,
+        ...(typeof h.arbeid === 'string' ? { arbeid: h.arbeid } : {}),
+        ...kunnskapsdatoI(h),
+      };
+      // Beslutningsdelen i VS-U87: `varsler` gir flere varsler i samme brev.
+      const varsler = Array.isArray(h.varsler) ? (h.varsler as (typeof varselet)[]) : [varselet];
       // VS-U15: uten en dato sender appen varselet. VS-U86 punkt 12: `klar_over_utgiftene`.
-      if (typeof h.sendt !== 'string')
-        return { type: 'send_varsel', ...varselet, ...kunnskapsdatoI(h) };
+      if (typeof h.sendt !== 'string') return { type: 'send_varsel', varsler };
       return {
         type: 'varsel',
-        ...varselet,
-        ...kunnskapsdatoI(h),
+        varsler,
         sendt: h.sendt as string,
         ...lagtTil(h),
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.

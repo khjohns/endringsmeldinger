@@ -135,8 +135,7 @@ const varselIFristen: Steg = (sak) =>
   sak.send('TE', {
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'frist',
-    hjemmel: '33.4',
+    varsler: [{ hjemmel: '33.4' }],
     sendt: '2026-10-01',
     dokumentasjon: [randomUUID()],
   });
@@ -380,13 +379,12 @@ const varselIVederlaget: Steg = (sak) =>
   sak.send('TE', {
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'vederlag',
-    hjemmel: '34.1.2',
+    varsler: [{ hjemmel: '34.1.2' }],
     sendt: '2026-10-01',
     dokumentasjon: [randomUUID()],
   });
 const varselSendtHerfra: Steg = (sak) =>
-  sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+  sak.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
 const dokumentasjonIVederlaget: Steg = (sak) =>
   sak.send('TE', {
     type: 'registrert_brev',
@@ -503,7 +501,10 @@ describe('vederlag og frist uten varsel eller krav fra totalentreprenøren (OV-U
 
   it('varslene i vederlaget står i rekkefølgen brevene ble lagt til, også varslene etter § 34.3.3 og § 34.4 (U-3 i BF-51, VS-U48, VS-U52)', () => {
     const kravpostvarsel: Steg = (sak) =>
-      sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.4' });
+      sak.send('TE', {
+        type: 'send_varsel',
+        varsler: [{ hjemmel: '34.4', arbeid: 'Graving ved kum 4' }],
+      });
     const { u } = utledEtter(paaberopelse, kravpostvarsel, varselSendtHerfra);
     expect(varsleneISporet(u, 'vederlag').map((v) => v.hjemmel)).toEqual(['34.4', '34.1.2']);
   });

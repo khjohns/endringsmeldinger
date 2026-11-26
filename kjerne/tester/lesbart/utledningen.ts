@@ -18,7 +18,7 @@ const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
-  ['Utledning', 'predikat', 'forstaatt spor opplysninger forholdAvvist frafalt'],
+  ['Utledning', 'predikat', 'forstaatt spor opplysninger forholdAvvist preklusjonGodtatt frafalt'],
   // § 31.3 for godkjenningen av forholdet (GR-U13, KA-U14): ja, nei eller ikke avklart,
   // utledet av opplysningene. Leses bare av sperren mot trekk (OV-U6).
   [
@@ -143,7 +143,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       'kommandoer/skriving.ts:brevtekstFor',
       'kommandoer/handlinger.ts:kandidater',
       'spor/vederlag/kommando.ts:kunnskapsdatoen',
-      'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
+      'spor/vederlag/kommando.ts:kravetErDetFoersteVarselet',
     ],
   ],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
@@ -191,6 +191,13 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
   ['utledning/utled.ts', 'predikat', 'utled utledJournal'],
   ['spor/forhold/utledning.ts', 'predikat', 'trekkAvPaaberopelsenErSperret'],
+  // GR-U7, GR-U34 punkt 12: enigheten om vederlag og frist får ingen virkning.
+  [
+    'spor/forhold/utledning.ts',
+    'predikat',
+    'forholdetErAvvistVedEnighet',
+    ['utledning/utled.ts:enighetensVirkning', 'spor/frist/utledning.ts:forlengelseneISaken'],
+  ],
   ['utledning/utled.ts', 'relasjon', 'paaberopelseFor'],
   ['utledning/utled.ts:paaberopelseFor', 'relasjon', 'paaberopelse'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).

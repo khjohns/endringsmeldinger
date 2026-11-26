@@ -107,6 +107,9 @@ export const OVERSIKTEN = 'oversikt';
 /** Punktet med forbeholdet i svaret etter GR-U34, sist i svaret. */
 export const FORBEHOLDET = 'forbehold';
 
+/** U-6 i BF-37: punktet for hvert varsel i et brev med flere varsler. */
+export const VARSELPUNKTET = 'varsel';
+
 /**
  * Punktet med forholdet i svaret på vederlaget og fristen: det første laget når forholdet er
  * avslått eller varselet etter punkt 32.2 er påberopt for sent (OV-U32, LV-U34).
