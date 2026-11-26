@@ -7661,7 +7661,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'vederlagskravet oppgir datoen når et varsel etter § 34.1.3 er gitt før (VS-U86 punkt 9 og 12, D-2 i BF-48, #2012)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['    (varselet !== undefined && !foerDagen(', '    (false && !foerDagen(']],
+    endringer: [['  return varselet === undefined || foerDagen(', '  return true || foerDagen(']],
     mal: ['vederlagskravet oppgir ikke datoen når et varsel etter § 34.1.3 er gitt før'],
   },
   {
@@ -7718,8 +7718,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '!foerDagen(sendt, datoenForVarselet(u, varselet))',
-        '!foerDagen(null, datoenForVarselet(u, varselet))',
+        'foerDagen(sendt, datoenForVarselet(u, varselet))',
+        'foerDagen(null, datoenForVarselet(u, varselet))',
       ],
     ],
     mal: ['et vederlagskrav lagt til, sendt før varselet saken har'],
@@ -8018,6 +8018,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['  const aapne = iSvaret ? [] : innsigelsene', '  const aapne = innsigelsene']],
     mal: ['tolker ikke den egne innsigelsen etter punkt 5'],
+  },
+  {
+    id: 'F2425a',
+    feilklasse:
+      'et vederlagskrav lagt til, sendt samme dag som det registrerte varselet etter punkt 34.1.3, regnes som det første varselet (VS-U86 punkt 9, #2425)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '  return varselet === undefined || foerDagen(sendt, datoenForVarselet(u, varselet));',
+        '  return varselet === undefined || !foerDagen(datoenForVarselet(u, varselet), sendt);',
+      ],
+    ],
+    mal: ['kravet sendt før det registrerte varselet er det første varselet'],
   },
 ];
 
