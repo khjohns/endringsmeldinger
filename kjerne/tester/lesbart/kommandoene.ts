@@ -10,7 +10,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Kommando',
     'kommando',
-    'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder grunn',
+    'type spor svar innhold varsel varsler erstatter regelversjon sendt hjemmel dokumentasjon gjelder grunn',
   ],
   // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
   ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
@@ -90,7 +90,6 @@ export const KOMMANDOENE: Lesbar[] = [
   ],
   ['Journalrad.data', 'rad', 'utsagn', ['spor/vederlag/kommando.ts:medVarslene']],
   ['spor/vederlag/kommando.ts:medVarslene', 'rad', 'id'],
-  ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
   ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
   [
@@ -113,7 +112,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:medVarslene',
     ],
   ],
-  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
+  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon'],
   // OV-U79: bare et brev har sendemåten, også i varselet i fristkravet.
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'varsel'],
   // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
@@ -323,9 +322,10 @@ export const KOMMANDOENE: Lesbar[] = [
   ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
-  // OV-U5: sporet og bestemmelsen i TEs varsel, også det registrerte etter § 32.2 (VS-U34),
-  // og varslene etter § 34.3.3 og § 34.4 (VS-U48, VS-U52).
-  ['Hjemmelsvarsel', 'kommando', 'spor hjemmel'],
+  // OV-U5: bestemmelsen i hvert av TEs varsler, også det registrerte etter § 32.2 (VS-U34), og
+  // varslene etter § 34.3.3 og § 34.4 (VS-U48, VS-U52), med arbeidet (VS-U87 punkt 27) og
+  // kunnskapsdatoen (VS-U86 punkt 12).
+  ['Varselposten', 'kommando', 'hjemmel arbeid klar_over_utgiftene'],
   // OV-U5: varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder.
   // #1703: også hjemmelen i den tilbudte handlingen, så visningen ikke utleder den.
   [

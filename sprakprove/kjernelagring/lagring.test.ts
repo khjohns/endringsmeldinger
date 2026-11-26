@@ -99,7 +99,7 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     const bane = await basebane(o);
     await bygg(bane, [
       { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', arbeid: 'Pumping', navn: 'V' },
       { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', sendt: '2026-09-10' },
       {
         handling: 'krav',
@@ -118,8 +118,37 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
     // VS-U87 punkt 23: kravet viser til varselet TE valgte, sendt fra løsningen.
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
-      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev'
+      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) for arbeidet «Pumping» ble gitt i brev'
     );
+  });
+
+  it('flere varsler i ett brev, hvert med arbeidet, lagres og leses igjen med ett punkt per varsel (VS-U87 punkt 27, beslutningsdelen, U-6 i BF-37)', async () => {
+    const bane = await basebane(o);
+    await bygg(bane, [
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        varsler: [
+          { hjemmel: '34.4', arbeid: 'Graving ved kum 4' },
+          { hjemmel: '34.3.3', arbeid: 'Spunt' },
+        ],
+      },
+    ]);
+    const lest = await journalen(o, bane.sakId);
+    expect(utledJournal(lest, KJERNE).forstaatt).toBe(true);
+    const brevet = lest.at(-1)!.data as {
+      utsagn: { hjemmel: string; arbeid: string }[];
+      brevtekst: { punkt?: string; overskrift?: string }[];
+    };
+    expect(brevet.utsagn.map((x) => [x.hjemmel, x.arbeid])).toEqual([
+      ['34.4', 'Graving ved kum 4'],
+      ['34.3.3', 'Spunt'],
+    ]);
+    expect(brevet.brevtekst.map((a) => a.overskrift)).toEqual([
+      '1. Varsel før regningsarbeidet settes i gang (punkt\u00a034.4)',
+      '2. Varsel om justering av enhetsprisene (punkt\u00a034.3.3)',
+    ]);
   });
 
   it('et brev motparten sendte, lagt til som dokumentasjon, lagres og leses igjen med avsenderen og parten som la det til (OV-U79, OV-U80, #2069)', async () => {

@@ -63,7 +63,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const forholdssvar = (s: ReturnType<typeof sak>, vurderinger: Data) =>
       s.send('BH', { type: 'brev', svar: [svar('forhold', s.krav('forhold'), vurderinger)] });
     const innsigelseMot334 = (s: ReturnType<typeof sak>) => {
-      s.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+      s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
       s.send('BH', { type: 'innsigelse', gjelder: s.u().spor.frist.varsler['33.4']!.id });
     };
 

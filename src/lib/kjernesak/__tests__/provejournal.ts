@@ -126,8 +126,7 @@ export const medFristvarsel = skrevet(
   'TE',
   {
     type: 'varsel',
-    spor: 'frist',
-    hjemmel: '33.4',
+    varsler: [{ hjemmel: '33.4' }],
     sendt: '2026-10-10',
     korrespondansetype: 'brev',
     // OV-U79: sendemåten for et brev og beskrivelsen kreves (arbeidsvalget 2 A i #807).
@@ -149,8 +148,7 @@ export const medVederlagsvarsel = skrevet(
   'TE',
   {
     type: 'varsel',
-    spor: 'vederlag',
-    hjemmel: '34.1.2',
+    varsler: [{ hjemmel: '34.1.2' }],
     sendt: '2026-10-10',
     korrespondansetype: 'brev',
     // OV-U79: sendemåten for et brev og beskrivelsen kreves (arbeidsvalget 2 A i #807).

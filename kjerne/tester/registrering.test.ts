@@ -1346,8 +1346,7 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
   const varselet: Handling = { handling: 'varsel', spor: 'frist', sendt: '2026-09-20' };
   const felt = {
-    spor: 'forhold',
-    hjemmel: '32.2',
+    varsler: [{ hjemmel: '32.2' }],
     ...SOM_BREV,
     dokumentasjon: [VEDLEGG],
   };

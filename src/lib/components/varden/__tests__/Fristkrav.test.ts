@@ -366,7 +366,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     ).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(1);
-    expect(sendt[0]!.kommando).toEqual({ type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    expect(sendt[0]!.kommando).toEqual({ type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
     expect(sendt[0]!.virkninger[0]).toMatch(/^Varselet etter punkt\u00a033\.4 sendes i dag/);
   });
 
@@ -415,8 +415,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(sendt.sendtTilServeren).toEqual([
       {
         type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
+        varsler: [{ hjemmel: '33.4' }],
         sendt: '2026-10-05',
         korrespondansetype: 'brev',
         sendemaate: 'post',

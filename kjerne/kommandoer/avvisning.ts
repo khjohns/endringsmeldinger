@@ -10,6 +10,7 @@
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
+import { VARSELSPOR } from '../typer.ts';
 import { varseletSvaretGjelder } from '../spor/vederlag/kommando.ts';
 import { erRegistrering, type Kommando } from './kommando.ts';
 import { kalenderdag } from '../format/leser.ts';
@@ -42,12 +43,15 @@ export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] 
       return [{ type: 'trekke', spor: k.spor }];
     case 'varsel':
     case 'send_varsel': {
+      // Beslutningsdelen i VS-U87, D-2 i BF-37: hvert varsel i brevet er en handling for seg.
       const type = k.type === 'varsel' ? 'varsle' : 'sende_varsel';
-      if (k.hjemmel === '34.1.3' || k.hjemmel === '34.3.3' || k.hjemmel === '34.4')
-        return [{ type, spor: k.spor, hjemmel: k.hjemmel }];
-      // VS-U34: varselet etter § 32.2 registreres, og sendes ikke fra appen (GR-U31).
-      if (k.hjemmel === '32.2') return [{ type: 'varsle', spor: k.spor, hjemmel: k.hjemmel }];
-      return [{ type, spor: k.spor }];
+      return k.varsler.map(({ hjemmel }): Handlingsnoekkel => {
+        if (hjemmel === '34.1.3' || hjemmel === '34.3.3' || hjemmel === '34.4')
+          return { type, spor: 'vederlag', hjemmel };
+        // VS-U34: varselet etter § 32.2 registreres, og sendes ikke fra appen (GR-U31).
+        if (hjemmel === '32.2') return { type: 'varsle', spor: 'forhold', hjemmel };
+        return { type, spor: VARSELSPOR[hjemmel] };
+      });
     }
     case 'registrert_brev':
     case 'ikke_i_saken':

@@ -107,6 +107,16 @@ export const SKJEMA = haerdet({
         : p.anslag !== undefined && `anslag ${kroner(p.anslag)}`;
     return `Totalentreprenøren krever ${regel}${opplysning ? `, ${opplysning}` : ''}${p.pns ? ` · PNS ${p.pns}` : ''}`;
   },
+  // Posten etter punkt 34.1.3 annet ledd (VS-U5, #2422).
+  saerskiltPosten: 'Særskilt vederlagsjustering',
+  teKreverSaerskilt: (beloep: number) => `Totalentreprenøren krever ${kroner(beloep)}`,
+  begrensetEtikett: 'Beløpet du godkjenner etter begrensningen',
+  begrensetHjelp: 'Kan være 0 kr. Det kan ikke være høyere enn beløpet du godkjenner under.',
+  godkjennerEtterBegrensningen: (beloep: string) => `godkjenner ${beloep} kr etter begrensningen`,
+  manglerSaerskiltITide: 'Velg om varselet om særskilt vederlagsjustering kom i tide.',
+  manglerBegrenset: 'Skriv beløpet du godkjenner etter begrensningen.',
+  begrensetOver:
+    'Beløpet etter begrensningen er høyere enn beløpet du godkjenner under. Endre ett av beløpene.',
   ikkeBesvart: 'Ikke besvart',
   endre: 'Endre',
   svarPaa: 'Svar',
@@ -147,8 +157,6 @@ export const SKJEMA = haerdet({
   iPosten: (post: string | null, tekst: string) => (post ? `${post}: ${tekst}` : tekst),
   forkast: 'Forkast utkast',
   behold: 'Behold utkastet',
-  ikkeStoettet:
-    'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,

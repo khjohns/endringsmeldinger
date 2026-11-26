@@ -710,8 +710,7 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
     const varsel = {
       type: 'varsel',
       ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     };
@@ -729,8 +728,7 @@ describe('meldingene før påberopelsen er sendt (språkfila, #1955)', () => {
       uten.avvisning('TE', {
         type: 'varsel',
         ...SOM_BREV,
-        spor: 'frist',
-        hjemmel: '33.4',
+        varsler: [{ hjemmel: '33.4' }],
         sendt: '2026-09-28',
         dokumentasjon: [randomUUID()],
       })
@@ -908,8 +906,7 @@ describe('formen på tall og datoer', () => {
       s.avvist('TE', {
         type: 'varsel',
         ...SOM_BREV,
-        spor: 'frist',
-        hjemmel: '33.4',
+        varsler: [{ hjemmel: '33.4' }],
         sendt: '2026-02-30',
         dokumentasjon: [randomUUID()],
       })
@@ -1388,8 +1385,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     const varselet = (korrespondansetype: string, sendt: string) =>
       s.send('TE', {
         type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
+        varsler: [{ hjemmel: '33.4' }],
         sendt,
         korrespondansetype,
         beskrivelse: 'Varsel om fristforlengelse',
@@ -1418,8 +1414,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
       t.send('TE', PAABEROPELSE);
       const rad = t.send('TE', {
         type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
+        varsler: [{ hjemmel: '33.4' }],
         sendt: '2026-10-02',
         korrespondansetype,
         beskrivelse: 'Varsel om fristforlengelse',
@@ -1466,8 +1461,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     expect(
       s.avvisning('TE', {
         type: 'varsel',
-        spor: 'vederlag',
-        hjemmel: '34.1.2',
+        varsler: [{ hjemmel: '34.1.2' }],
         sendt: '2026-10-02',
         dokumentasjon: [randomUUID()],
       })?.melding
@@ -1479,8 +1473,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', {
       type: 'varsel',
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-10-02',
       korrespondansetype: 'e_post',
       beskrivelse: 'Varsel om fristforlengelse for pelingen',
@@ -1493,8 +1486,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     expect(
       s.avvisning('TE', {
         type: 'varsel',
-        spor: 'vederlag',
-        hjemmel: '34.1.2',
+        varsler: [{ hjemmel: '34.1.2' }],
         sendt: '2026-10-02',
         ...SOM_BREV,
         beskrivelse: '  ',
@@ -1519,8 +1511,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', {
       type: 'varsel',
-      spor: 'frist',
-      hjemmel: '33.4',
+      varsler: [{ hjemmel: '33.4' }],
       sendt: '2026-10-02',
       ...SOM_BREV,
       sendemaate: 'prosjekthotell',

@@ -83,6 +83,7 @@ import {
   OVERSIKTEN,
   UTEN_BEGRUNNELSE_I_SVARET,
   AKSEPTFRISTEN,
+  VARSELPUNKTET,
   vilkaaretILagslinjen,
 } from './tekst.ts';
 import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
@@ -274,7 +275,18 @@ export function lagBrevtekst(
       ),
     });
   }
-  for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t, regler));
+  // U-6 i BF-37: ett nummerert punkt per varsel når brevet har flere.
+  const flereVarsler = bareVarsler(nytt) && nytt.utsagn.length > 1;
+  for (const u of nytt.utsagn)
+    if (flereVarsler && u.art === 'varsel')
+      leggPunkter(u.id, [
+        {
+          punkt: VARSELPUNKTET,
+          overskrift: VARSELNAVN[uttrykkbar(u.hjemmel)],
+          avsnitt: [utsagnstekst(u, t, regler)],
+        },
+      ]);
+    else legg(u.id, utsagnstekst(u, t, regler));
   for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
   // LV-U81, GR-U34, 4 A i #2337. Linjen med vedleggene står etter, som i hvert brev (A4).
   if (omForholdet && !forbeholdene.length) forbeholdene.push({ s: omForholdet.s });
@@ -1063,8 +1075,9 @@ function beskriv(id: string, j: Journalen): string {
       return `påberopelsen av ${hva} i svaret i ${j.brevet(e.svar.dokument)}`;
     }
     case 'utsagn':
+      // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
       if (e.utsagn.art === 'varsel')
-        return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
+        return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]}${e.utsagn.arbeid === undefined ? '' : ` for arbeidet «${e.utsagn.arbeid}»`} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
         return `${PARTENS.TE} svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
@@ -1084,6 +1097,22 @@ function uttrykkbar(hjemmel: Varselhjemmel): Kravvarselhjemmel {
     throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');
   return hjemmel;
 }
+
+/** Brevet har bare varsler, uten krav og svar (VS-U15, beslutningsdelen i VS-U87). */
+const bareVarsler = (d: Pick<Dokument, 'utsagn' | 'krav' | 'svar'>) =>
+  d.utsagn.length > 0 &&
+  d.utsagn.every((x) => x.art === 'varsel') &&
+  !d.krav.length &&
+  !d.svar.length;
+
+/** U-6 i BF-37: overskriften på varselet i et brev med flere varsler. Ordlyden er design. */
+const VARSELNAVN: Record<Kravvarselhjemmel, string> = {
+  '33.4': 'Varsel om fristforlengelse (punkt 33.4)',
+  '34.1.2': 'Varsel om vederlagsjustering (punkt 34.1.2)',
+  '34.1.3': 'Varsel om særskilt vederlagsjustering (punkt 34.1.3)',
+  '34.3.3': 'Varsel om justering av enhetsprisene (punkt 34.3.3)',
+  '34.4': 'Varsel før regningsarbeidet settes i gang (punkt 34.4)',
+};
 
 /** VS-U15 og LV-U19: det TE varsler at TE vil kreve. */
 const VIL_KREVE: Record<Kravvarselhjemmel, string> = {
@@ -1108,12 +1137,14 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
   switch (u.art) {
     case 'varsel': {
       const hjemmel = uttrykkbar(u.hjemmel);
-      // VS-U15, LV-U19: varselet står alene i brevet. Ellers VS-U34. U-3 i BF-48 og designdelen i
-      // VS-U86: datoen TE oppgir, står etter varselet.
+      // VS-U15, LV-U19: varslene står alene i brevet (beslutningsdelen i VS-U87). Ellers VS-U34.
+      // U-3 i BF-48 og designdelen i VS-U86: datoen TE oppgir, står etter varselet. VS-U87 punkt
+      // 27: arbeidet står i varselet.
       const datoen = u.klar_over_utgiftene ? [kunnskapsdatoTekst(u.klar_over_utgiftene)] : [];
-      if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
+      const arbeidet = u.arbeid === undefined ? '' : ` for arbeidet «${u.arbeid}»`;
+      if (bareVarsler(nytt))
         return [
-          `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`,
+          `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]}${arbeidet} som følge av forholdet i ${sak}.`,
           ...datoen,
         ].join(' ');
       throw new KanIkkeUttrykkes('et varsel i et brev fra løsningen står alene i brevet (VS-U15)');

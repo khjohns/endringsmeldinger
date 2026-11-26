@@ -31,7 +31,10 @@ import { kjoer } from '#kjerne/tester/kjoerer.ts';
 import type { Handling } from '#kjerne/tester/klient.ts';
 
 const medVarsel = (hjemmel: '34.3.3' | '34.4') =>
-  skrevet(medGrunnlag, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
+  skrevet(medGrunnlag, 'TE', {
+    type: 'send_varsel',
+    varsler: [{ hjemmel, arbeid: 'Graving ved kum 4' }],
+  });
 const varselI = (journal: Journalrad[]) =>
   utledJournal(journal, KJERNE).spor.vederlag.kravpostvarsler.at(-1)!.id;
 
@@ -158,7 +161,10 @@ describe('svaret på varselet etter et avslag av forholdet (OV-U32, VS-U4)', () 
       ],
     });
     await svarskjemaet(
-      skrevet(avslaatt, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.3.3' })
+      skrevet(avslaatt, 'TE', {
+        type: 'send_varsel',
+        varsler: [{ hjemmel: '34.3.3', arbeid: 'Graving ved kum 4' }],
+      })
     );
     await radio('Kom for sent');
     await radio('Bestrider justeringen');
@@ -188,7 +194,10 @@ describe('svaret på varselet etter et avslag av forholdet (OV-U32, VS-U4)', () 
       ],
     });
     await svarskjemaet(
-      skrevet(avslaatt, 'TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.3.3' })
+      skrevet(avslaatt, 'TE', {
+        type: 'send_varsel',
+        varsler: [{ hjemmel: '34.3.3', arbeid: 'Graving ved kum 4' }],
+      })
     );
     const vilkaaret = (sp: string) =>
       document.querySelector(`[id$="-${sp}-forutsetninger"]`)?.textContent ?? '';
@@ -323,8 +332,7 @@ describe('flere varsler etter samme bestemmelse (VS-U77 punkt 27 og 33)', () => 
   it('handlingene sier hvilket brev varselet står i', async () => {
     const journal = skrevet(medVarsel('34.3.3'), 'TE', {
       type: 'send_varsel',
-      spor: 'vederlag',
-      hjemmel: '34.3.3',
+      varsler: [{ hjemmel: '34.3.3', arbeid: 'Graving ved kum 4' }],
     });
     const kjernesak = kjernesakFor(journal);
     await kjernesak.last();
@@ -377,8 +385,7 @@ describe('brevet med varselet etter punkt 34.3.3 og 34.4 heter som varselet (#23
   it('varselet etter punkt 34.1.3 heter «Varsel om særskilt vederlagsjustering»', () => {
     const journal = skrevet(medGrunnlag, 'TE', {
       type: 'send_varsel',
-      spor: 'vederlag',
-      hjemmel: '34.1.3',
+      varsler: [{ hjemmel: '34.1.3' }],
     });
     expect(TRAADEN.hva(brevene(utledJournal(journal, KJERNE)).at(-1)!)).toBe(
       'Varsel om særskilt vederlagsjustering'
@@ -388,8 +395,7 @@ describe('brevet med varselet etter punkt 34.3.3 og 34.4 heter som varselet (#23
   it('varselet etter punkt 34.1.2 heter fortsatt «Varsel om vederlagsjustering»', () => {
     const journal = skrevet(medGrunnlag, 'TE', {
       type: 'send_varsel',
-      spor: 'vederlag',
-      hjemmel: '34.1.2',
+      varsler: [{ hjemmel: '34.1.2' }],
     });
     expect(TIDSLINJE.hva(brevene(utledJournal(journal, KJERNE)).at(-1)!)).toBe(
       'Varsel om vederlagsjustering'
@@ -401,8 +407,7 @@ describe('handlingen står ved hvert varsel som står alene (#2360 punkt 1, U-16
   it('svaret på varselet etter punkt 34.4 i brev 3 står ved brev 3, ikke under «Andre handlinger»', async () => {
     const journal = skrevet(medVarsel('34.3.3'), 'TE', {
       type: 'send_varsel',
-      spor: 'vederlag',
-      hjemmel: '34.4',
+      varsler: [{ hjemmel: '34.4', arbeid: 'Graving ved kum 4' }],
     });
     const kjernesak = kjernesakFor(journal);
     await kjernesak.last();
@@ -474,8 +479,7 @@ describe('punktene heter det samme før og etter at brevet kan lages (#2359 punk
 describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', () => {
   const mellom = skrevet(medVederlagssvar, 'TE', {
     type: 'send_varsel',
-    spor: 'vederlag',
-    hjemmel: '34.3.3',
+    varsler: [{ hjemmel: '34.3.3', arbeid: 'Graving ved kum 4' }],
   });
 
   it('svarene på kravpostene fra forrige brev står i et kort i høyre kolonne uten «Endre», og kommandoen gjelder bare varselet', async () => {
@@ -506,7 +510,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
         navn: 'K-g1',
         utdypning: 'Pålegget.',
       },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', arbeid: 'Spunt', navn: 'V-1' },
       {
         handling: 'krav',
         spor: 'vederlag',
@@ -550,7 +554,7 @@ describe('svaret på et varsel lagt til mellom to krav (VS-U65, F-8 i BF-14)', (
         utdypning: 'Pålegget.',
       },
       krav('K-v1'),
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', arbeid: 'Spunt', navn: 'V-1' },
       krav('K-v2', 'P1'),
       {
         handling: 'brev',
@@ -622,7 +626,7 @@ describe('svarene fra forrige brev bruker ordene brevet brukte om varselet (MM-U
         navn: 'S-v2',
         kravposter: [{ ...post, varslet_i_tide: true }],
       },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V-1' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', arbeid: 'Pumping', navn: 'V-1' },
     ];
     const k = await kjoer(
       { id: 'mellom', rader: [], start: null, steg, kontroller: [] },

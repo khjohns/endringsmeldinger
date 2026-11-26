@@ -125,8 +125,20 @@ export const TESTSAKER: Record<string, Testsak> = {
         navn: 'K-g1',
         utdypning: 'Byggherren har pålagt tetting av gjennomføringer i dekket over kjeller.',
       },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V-2' },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.3.3',
+        arbeid: 'Tetting av gjennomføringer',
+        navn: 'V-1',
+      },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.4',
+        arbeid: 'Tetting av gjennomføringer',
+        navn: 'V-2',
+      },
     ],
     // BH svarer på varselet etter § 34.3.3: for sent, og subsidiært bestrides justeringen (VS-U4).
     // Så svaret på varselet etter § 34.4, som bare kan si at varselet kom for sent (VS-U77 punkt 31).
@@ -190,7 +202,13 @@ export const TESTSAKER: Record<string, Testsak> = {
           },
         ],
       },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.3.3', navn: 'V-1' },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.3.3',
+        arbeid: 'Tetting av gjennomføringer',
+        navn: 'V-1',
+      },
     ],
     // BH svarer på varselet. Svarene på P1 og P2 i brev 3 står i høyre kolonne og kan ikke endres
     // der (VS-U65); lenken åpner et nytt svar på kravet (#2365).

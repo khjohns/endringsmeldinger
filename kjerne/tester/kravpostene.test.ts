@@ -1553,7 +1553,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
   it('et varsel etter punkt 34.1.2 sendt før kravet står i punktet for varselet, med brevet det ble gitt i', () => {
     const s = sak();
     s.send('TE', svikt);
-    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
     const [punkt] = tekst(s.send('TE', vederlagskrav(tilbud(125000))));
     // Varselet er brev 2; brevet viser til det med merkingen og datoen (LV-U53).
     expect(punkt).toMatchObject({
@@ -1817,7 +1817,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
   it('et avsnitt med punkt for et element som ikke er et krav, gjør saken ikke forstått (MM-U2)', () => {
     const s = sak();
     s.send('TE', svikt);
-    const varselet = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    const varselet = s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);
     (varselet.data.brevtekst as Avsnitt[])[0].punkt = '34.1.2';
     expect(s.u().forstaatt).toBe(false);

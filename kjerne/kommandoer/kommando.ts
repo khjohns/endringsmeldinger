@@ -28,6 +28,7 @@ import {
   KRAVSPOR,
   SPOR as SPORENE,
   VARSELSPOR,
+  erKravpostvarselhjemmel,
   type Kravspor,
   type Opplysningsslag,
   type Part,
@@ -70,21 +71,18 @@ interface Brevtekst {
 }
 
 /**
- * Varselet TE sender fra løsningen (VS-U15), også varselet etter § 34.3.3 første ledd eller
- * § 34.4 som står alene (VS-U48). Påberopelsen er varselet etter § 32.2 (GR-U31).
+ * Ett varsel i brevet, etter hjemmelen. Sporet følger hjemmelen (`VARSELSPOR`, OV-U5). Brevet kan
+ * ha flere varsler (beslutningsdelen i VS-U87, arbeidsvalg 2 26.11 i #2408, og med varselet etter
+ * § 32.2 svaret A 26.11 i #1823). Fra løsningen er
+ * påberopelsen varselet etter § 32.2 (GR-U31), så `H` er `Kravvarselhjemmel` i `send_varsel`.
  */
-type Varselet = Hjemmelsvarsel<Kravvarselhjemmel>;
-
-/** Varselet etter hver hjemmel i `H`, med sporet hjemmelen står i (`VARSELSPOR`, OV-U5). */
-type Hjemmelsvarsel<H extends Varselhjemmel> = {
-  [K in H]: { spor: (typeof VARSELSPOR)[K]; hjemmel: K };
-}[H];
-
-/**
- * Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38) og
- * etter § 34.3.3 første ledd eller § 34.4 (VS-U52).
- */
-export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
+export interface Varselposten<H extends Varselhjemmel = Varselhjemmel> {
+  hjemmel: H;
+  /** VS-U87 punkt 27: arbeidet varselet etter § 34.3.3 eller § 34.4 gjelder. */
+  arbeid?: string;
+  /** VS-U86 punkt 12: datoen varselet etter § 34.1.3 oppga. */
+  klar_over_utgiftene?: string;
+}
 
 /**
  * OV-U80, OV-U98: kravet, svaret eller aksepten er sendt utenfor løsningen og legges til med
@@ -191,20 +189,21 @@ export type Kommando = (
     } & Registrering)
   | { type: 'trekk'; spor: Spor }
   /**
-   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller § 34.4
-   * sendt utenfor appen (MM-U1, SK-12, OV-U5, VS-U34, VS-U52), med brevet som vedlegg (OV-U4). `dokumentasjon` er
-   * ID-ene i mellomlageret (LV-U14). Hjemmelen følger sporet.
+   * Registrerer ett eller flere varsler etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller
+   * § 34.4 sendt utenfor appen i samme brev (MM-U1, SK-12, OV-U5, VS-U34, VS-U52, VS-U87 punkt 28
+   * og beslutningsdelen, og med varselet etter § 32.2 svaret A 26.11 i #1823), med brevet som
+   * vedlegg (OV-U4). `dokumentasjon` er ID-ene i
+   * mellomlageret (LV-U14). Datoen gjelder alle varslene.
    */
-  | ({
+  | {
       type: 'varsel';
+      varsler: Varselposten[];
       sendt: string;
       korrespondansetype: Korrespondansetype;
       sendemaate?: Sendemaate;
       beskrivelse?: string;
       dokumentasjon: string[];
-      /** VS-U86 punkt 12: datoen varselet etter § 34.1.3 oppga. */
-      klar_over_utgiftene?: string;
-    } & RegistrertVarsel)
+    }
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
    * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
@@ -224,8 +223,11 @@ export type Kommando = (
     }
   /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
   | { type: 'ikke_i_saken'; retter: string }
-  /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
-  | ({ type: 'send_varsel'; klar_over_utgiftene?: string } & Varselet)
+  /**
+   * VS-U15, OV-U5: TE sender ett eller flere varsler fra appen i et eget brev, uten dager eller
+   * beløp. Varslene står i ett spor (beslutningsdelen i VS-U87).
+   */
+  | { type: 'send_varsel'; varsler: Varselposten<Kravvarselhjemmel>[] }
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
@@ -310,14 +312,16 @@ const SVARUTKAST = objekt(
 );
 
 const BREVTEKST = { brevtekst: liste(TEKST) };
-const REGISTRERT_VARSEL = {
-  spor: { enum: [...new Set(Object.values(VARSELSPOR))] },
-  hjemmel: { enum: Object.keys(VARSELSPOR) },
-};
-const VARSELET = {
-  spor: { enum: [...KRAVSPOR] },
-  hjemmel: { enum: Object.keys(VARSELSPOR).filter((h) => h !== '32.2') },
-};
+/** Varslene i brevet, minst ett (`Varselposten`). */
+const varslene = (hjemler: string[]) => ({
+  varsler: {
+    type: 'array',
+    minItems: 1,
+    items: objekt({ hjemmel: { enum: hjemler }, arbeid: TEKST, klar_over_utgiftene: DATO }, [
+      'hjemmel',
+    ]),
+  },
+});
 
 /** OV-U80, OV-U98: feltene i et krav, et svar eller en aksept lagt til med datoen det ble sendt. */
 const REGISTRERING = {
@@ -389,15 +393,14 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   varsel: objekt(
     {
       type: { const: 'varsel' },
-      ...REGISTRERT_VARSEL,
+      ...varslene(Object.keys(VARSELSPOR)),
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
       sendemaate: SENDEMAATE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
-      klar_over_utgiftene: DATO,
     },
-    ['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']
+    ['type', 'varsler', 'sendt', 'korrespondansetype', 'dokumentasjon']
   ),
   registrert_brev: objekt(
     {
@@ -417,11 +420,10 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   send_varsel: objekt(
     {
       type: { const: 'send_varsel' },
-      ...VARSELET,
-      klar_over_utgiftene: DATO,
+      ...varslene(Object.keys(VARSELSPOR).filter((h) => h !== '32.2')),
       ...BREVTEKST,
     },
-    ['type', 'spor', 'hjemmel']
+    ['type', 'varsler']
   ),
   bestridelse: objekt(
     {
@@ -498,8 +500,9 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 
 /** Kunnskapsdatoen etter § 34.1.3 i kommandoen, eller `undefined` (VS-U86 punkt 12 og 14). */
 export function kunnskapsdatoIKommandoen(k: Kommando): string | undefined {
-  if (k.type === 'varsel' || k.type === 'send_varsel' || k.type === 'kunnskapsdato')
-    return k.klar_over_utgiftene;
+  if (k.type === 'varsel' || k.type === 'send_varsel')
+    return k.varsler.find((v) => v.klar_over_utgiftene !== undefined)?.klar_over_utgiftene;
+  if (k.type === 'kunnskapsdato') return k.klar_over_utgiftene;
   return k.type === 'krav' && k.spor === 'vederlag' ? kunnskapsdatoIKravet(k) : undefined;
 }
 
@@ -579,6 +582,49 @@ const korrespondansefeil = (k: Record<string, unknown>): string[] => {
   ];
 };
 
+/** Sporet varselet etter `hjemmel` står i (OV-U5). */
+export const sporetFor = (v: Pick<Varselposten, 'hjemmel'>) => VARSELSPOR[v.hjemmel];
+
+/**
+ * Feilene i varslene i brevet. Bare varselet etter § 34.1.3 har kunnskapsdatoen (VS-U86 punkt 12).
+ * Arbeidet står bare i varselet etter § 34.3.3 og § 34.4, og fra løsningen er det påkrevd (VS-U87
+ * punkt 27). To varsler etter samme bestemmelse er bare mulig etter § 34.3.3 og § 34.4 (D-2 i
+ * BF-37). Brevet fra løsningen har varsler i ett spor (beslutningsdelen i VS-U87).
+ */
+function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): string[] {
+  const feil: string[] = [];
+  const sett = new Set<string>();
+  k.varsler.forEach((v, i) => {
+    const sti = `$.varsler[${i}]`;
+    if (v.hjemmel !== '34.1.3' && v.klar_over_utgiftene !== undefined)
+      feil.push(
+        `${sti}.klar_over_utgiftene: bare varselet etter punkt 34.1.3 har datoen totalentreprenøren ble klar over at utgiftene ville påløpe`
+      );
+    else if (v.klar_over_utgiftene !== undefined && !erKalenderdato(v.klar_over_utgiftene))
+      feil.push(
+        `${sti}.klar_over_utgiftene: ${JSON.stringify(v.klar_over_utgiftene)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
+      );
+    const kravpost = erKravpostvarselhjemmel(v.hjemmel);
+    if (!kravpost && v.arbeid !== undefined)
+      feil.push(
+        `${sti}.arbeid: varselet etter punkt ${v.hjemmel} har ingen beskrivelse av arbeidet`
+      );
+    if (kravpost && k.type === 'send_varsel' && !v.arbeid?.trim())
+      feil.push(
+        `${sti}.arbeid: mangler: et varsel etter punkt ${v.hjemmel} fra løsningen har arbeidet det gjelder`
+      );
+    if (!kravpost && sett.has(v.hjemmel))
+      feil.push(`${sti}.hjemmel: brevet har alt et varsel etter punkt ${v.hjemmel}`);
+    sett.add(v.hjemmel);
+  });
+  const spor = new Set(k.varsler.map(sporetFor));
+  if (k.type === 'send_varsel' && spor.size > 1)
+    feil.push(
+      '$.varsler: varslene i et brev fra løsningen står i ett spor, og varselet om fristforlengelse sendes i et eget brev'
+    );
+  return feil;
+}
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -607,17 +653,10 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor === 'forhold' && 'forbehold' in k)
       feil.push('$.forbehold: påberopelsen av forholdet har ikke noe forbehold');
   }
-  // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.
-  if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {
-    const k = kommando as { spor: Spor; hjemmel: Varselhjemmel };
-    if (VARSELSPOR[k.hjemmel] !== k.spor)
-      feil.push(`$.hjemmel: et varsel etter punkt ${k.hjemmel} står ikke i sporet ${k.spor}`);
-    // VS-U86 punkt 12: bare varselet etter § 34.1.3 har datoen utgiftene ble kjent.
-    else if (k.hjemmel !== '34.1.3' && 'klar_over_utgiftene' in k)
-      feil.push(
-        `$.klar_over_utgiftene: bare varselet etter punkt 34.1.3 har datoen totalentreprenøren ble klar over at utgiftene ville påløpe`
-      );
-  }
+  if ((type === 'varsel' || type === 'send_varsel') && !feil.length)
+    feil.push(
+      ...varselfeil(kommando as unknown as Extract<Kommando, { type: 'varsel' | 'send_varsel' }>)
+    );
   // VS-U86 punkt 12 og 14: datoen er en kalenderdag. I vederlagskravet kontrollerer sporet den.
   const kunnskapsdato = kommando.klar_over_utgiftene;
   if (!feil.length && typeof kunnskapsdato === 'string' && !erKalenderdato(kunnskapsdato))
