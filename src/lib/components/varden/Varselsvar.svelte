@@ -228,12 +228,33 @@
   const virkninger: string[] = [];
 </script>
 
+{#snippet nyttSvaret()}
+  {#if nyttSvarPaaKravet}
+    {@const aapne = nyttSvarPaaKravet}
+    <Knapp
+      variant="lenke"
+      kompakt
+      iFlukt
+      onclick={() => (aapne === 'ikke bygget' ? (ikkeBygget = true) : aapne())}
+      >{VARSELSVARET.nyttSvarPaaKravet}</Knapp
+    >
+    {#if aapne === 'ikke bygget'}
+      <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+      <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
+    {/if}
+  {/if}
+{/snippet}
+
 {#snippet svareneFoer()}
   {#if forrigeSvar}
     {@const f = forrigeSvar}
     <!-- Et lite kort i høyre kolonne, fordi svarene ikke er en del av brevet (VS-U65,
        oppdragsgiver 25.11 i #2358). -->
-    <Stoettekort id={`${uid}-svarene-foer`} tittel={VARSELSVARET.svareneFoer(f.brev)}>
+    <Stoettekort
+      id={`${uid}-svarene-foer`}
+      tittel={VARSELSVARET.svareneFoer(f.brev)}
+      bunn={nyttSvarPaaKravet ? nyttSvaret : undefined}
+    >
       <!-- Den andre setningen viser til lenken, så den står bare med lenken (MM-U25). -->
       <p class="dempet">
         {VARSELSVARET.svareneStaar}{#if nyttSvarPaaKravet}{` ${VARSELSVARET.endreDem}`}{/if}
@@ -257,22 +278,6 @@
           </li>
         {/each}
       </ul>
-      {#snippet bunn()}
-        {#if nyttSvarPaaKravet}
-          {@const aapne = nyttSvarPaaKravet}
-          <Knapp
-            variant="lenke"
-            kompakt
-            iFlukt
-            onclick={() => (aapne === 'ikke bygget' ? (ikkeBygget = true) : aapne())}
-            >{VARSELSVARET.nyttSvarPaaKravet}</Knapp
-          >
-          {#if aapne === 'ikke bygget'}
-            <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
-            <p class="dempet" role="status">{ikkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
-          {/if}
-        {/if}
-      {/snippet}
     </Stoettekort>
   {/if}
 {/snippet}
