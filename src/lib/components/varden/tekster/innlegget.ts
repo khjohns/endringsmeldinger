@@ -24,7 +24,8 @@ export const INNLEGGET = haerdet({
   /** Merket i raden i tråden. */
   merke: 'Innlegg',
   viserTil: 'Brevet innlegget viser til',
-  viserTilHjelp: 'Motpartens siste brev er valgt. Du kan velge et annet brev i saken.',
+  /** Det nye innlegget viser først til motpartens siste brev (U-2), som står i feltet. */
+  viserTilHjelp: 'Du kan velge et annet brev i saken.',
   brevvalg: (b: Brevet) =>
     `${brevrefStor(b)} · ${TRAADEN.hva(b)} · ${stor(PARTEN[b.avsender])} · ${dato(b.sendt ?? b.registrert)}`,
   tittelfelt: 'Tittel',
@@ -34,7 +35,7 @@ export const INNLEGGET = haerdet({
   skrivTittelen: 'Skriv tittelen.',
   enLinje: 'Skriv tittelen på én linje.',
   skrivTeksten: 'Skriv teksten.',
-  mangler: 'Dette mangler før du kan se brevet',
+  mangler: 'Dette mangler før brevet kan lages:',
   seBrevet: 'Se brevet før sending',
   sendTil: (mottaker: Part) => `Send til ${PARTEN[mottaker]}`,
   kanIkkeLages: 'Innlegget kan ikke lages ennå.',
@@ -65,5 +66,6 @@ export const INNLEGGET = haerdet({
   iAksepten: (svaret: Brevref) => `Innlegg som viser til ${brevref(svaret)}`,
   innleggsrad: (b: Brevet) =>
     `${brevrefStor(b)} · ${stor(PARTEN[b.avsender])} · ${dato(b.registrert)} · ${TRAADEN.hva(b)}`,
-  inngaarIkke: 'Innleggene inngår ikke i aksepten.',
+  inngaarIkke: (antall: number) =>
+    antall === 1 ? 'Innlegget inngår ikke i aksepten.' : 'Innleggene inngår ikke i aksepten.',
 });

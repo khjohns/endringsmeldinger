@@ -394,7 +394,7 @@
           ...brevet,
           virkninger: [
             ...akseptensVirkning(kommando),
-            ...(innlegg.length ? [INNLEGGET.inngaarIkke] : []),
+            ...(innlegg.length ? [INNLEGGET.inngaarIkke(innlegg.length)] : []),
           ],
           innleggene:
             svarbrevet && innlegg.length

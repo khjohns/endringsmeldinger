@@ -125,7 +125,7 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     await fireEvent.click(screen.getByRole('button', { name: /^Godta svaret/ }));
     const liste = await screen.findByRole('list', { name: 'Innlegg som viser til brev 4' });
     expect(within(liste).getByText(/^Brev 5 · Totalentreprenøren · .* · Varselet kom i tide$/));
-    expect(screen.getByText('Innleggene inngår ikke i aksepten.')).toBeVisible();
+    expect(screen.getByText('Innlegget inngår ikke i aksepten.')).toBeVisible();
   });
 });
 
