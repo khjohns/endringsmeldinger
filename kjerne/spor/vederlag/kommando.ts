@@ -800,12 +800,9 @@ function vedleggVedEtVarsel(hvor: string, varselet?: Dokument) {
 }
 
 /**
- * VS-U87 punkt 23, fjerde og sjette setning: har saken et varsel etter samme bestemmelse som ingen
- * kravpost viser til, velger TE for hver kravpost kravet ellers ville vært varselet for, hvilket
- * varsel posten gjelder eller at kravet er varselet, og kravet tas ikke imot uten valget. Kravpostene
- * som viser til et varsel, står i kravversjonene sendt fra eller lagt til i løsningen, også i et
- * eldre krav (OV-U120). Saken leses før handlingen: et dokument kravskjemaet legger til i samme
- * handling, gjelder bare kravposten som viser til det (VS-U51), og hver post velger (F-7 i BF-37).
+ * VS-U87 punkt 23, fjerde og sjette setning, og arbeidsvalg 4 26.11 i #2408: kravposten som mangler
+ * valget av varsel. Kravpostene som viser til et varsel, leses i alle kravversjonene i sporet, og
+ * saken leses før handlingen, så et dokument kravskjemaet legger til, teller ikke (VS-U51).
  */
 function varselvalgetMangler(
   k: Extract<Kommando, { type: 'krav' }>,

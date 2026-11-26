@@ -5310,7 +5310,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F541',
     feilklasse: 'en kravpost i en ny versjon kan ikke gjenta varselet den viste til (KA-U56)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['JSON.stringify(somFoer?.varsel) !== JSON.stringify(p.varsel)', 'true']],
+    endringer: [
+      [
+        '(somFoer?.varsel?.art !== p.varsel.art ||\n        varseletPostenViserTil(somFoer) !== varseletPostenViserTil(p))',
+        'true',
+      ],
+    ],
     mal: ['en kravpost i en ny versjon kan gjenta varselet'],
   },
   {

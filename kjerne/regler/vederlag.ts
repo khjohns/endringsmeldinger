@@ -631,8 +631,7 @@ export function kontrollerSvaretPaaVarselet(
         ukjent.map((f) => [`${navn}.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
       )
     );
-  // VS-U87 punkt 32: svaret på varselet etter § 34.1.2 eller § 34.1.3 sier at det kom i tide
-  // eller for sent, og har ikke noe annet standpunkt.
+  // VS-U87 punkt 32.
   if (hjemmel === '34.1.2' || hjemmel === '34.1.3') {
     if (v.godtar_justering != null)
       throw new UgyldigVurdering({

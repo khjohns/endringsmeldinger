@@ -599,7 +599,7 @@ function punkteneISvaret(
   return brevpunkter;
 }
 
-/** Temaene i svaret på varselet etter § 34.3.3 første ledd og § 34.4 (VS-U77 punkt 30 og 31). */
+/** Temaene i svaret på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
 const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
   { punkt: FORHOLDET, overskrift: 'Forholdet' },
   { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },

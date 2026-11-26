@@ -82,6 +82,7 @@ export const DOKUMENTENE: Lesbar[] = [
     [
       'spor/vederlag/format.ts:varseletPostenViserTil',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'spor/vederlag/utledning.ts:kravpostvarslene',
       'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
       'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
@@ -92,6 +93,7 @@ export const DOKUMENTENE: Lesbar[] = [
     'art varsel',
     [
       'spor/vederlag/format.ts:varseletPostenViserTil',
+      'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
       'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
     ],

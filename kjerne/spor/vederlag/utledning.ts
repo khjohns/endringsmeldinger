@@ -160,9 +160,8 @@ export function kravetVilleVaertVarselet(
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
  * - VS-U87 punkt 22: kravet er varselet når ingen tidligere versjon har posten med samme
  *   oppgjørsform, justert for enhetspriser.
- * - Punkt 23: viser kravposten til et varsel, er varselet gitt der. Har saken et varsel etter samme
- *   bestemmelse som ingen kravpost viser til, har posten valget (`varselvalgetMangler` i
- *   `spor/vederlag/kommando.ts`).
+ * - Punkt 23: viser kravposten til et varsel, er varselet gitt der, og sier den at kravet er
+ *   varselet, er kravet det (`varselvalgetMangler` i `spor/vederlag/kommando.ts`).
  * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
  *   vilkår 3 prøvd mot det og `tidligere`.
  * `tidligere` er versjonene før `krav` i rekken, og `eldre` kravene utenfor rekken sendt før `krav`
@@ -180,7 +179,7 @@ export function kravpostvarslene(
     const gitt = varseletPostenViserTil(p);
     const iEldre = eldre.find((k) => postenMed(k, p.id, hjemmel));
     if (gitt) ut[p.id] = { art: 'gitt', varsel: gitt };
-    else if (!iEldre) ut[p.id] = { art: 'kravet' };
+    else if (!iEldre || p.varsel?.art === 'kravet') ut[p.id] = { art: 'kravet' };
     else if (![...eldre, ...tidligere].some((k) => viserTilEtVarsel(k, p.id)))
       ut[p.id] = { art: 'gitt', varsel: iEldre.id };
   }
@@ -249,7 +248,8 @@ export function kravpostvarseletStrider(
       .find((q) => q !== undefined);
     if (
       hattFoer(p, hjemmel, tidligere) &&
-      JSON.stringify(somFoer?.varsel) !== JSON.stringify(p.varsel)
+      (somFoer?.varsel?.art !== p.varsel.art ||
+        varseletPostenViserTil(somFoer) !== varseletPostenViserTil(p))
     )
       return `${posten} ${valget}, men hadde oppgjørsformen i en tidligere kravversjon`;
     const gitt = varseletPostenViserTil(p);

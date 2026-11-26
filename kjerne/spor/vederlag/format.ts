@@ -526,6 +526,9 @@ function kontrollerSvaretPaaVarselet(
     );
   if (Object.keys(utregning).length)
     throw new Uforstaatt(`${sti}: svaret på et varsel har en utregning`);
+  // VS-U87 punkt 32: svaret på varselet har ikke beløpet etter begrensningen (VS-U5).
+  if (ut.some((s) => s.art === 'rettidighet' && s.begrenset !== undefined))
+    throw new Uforstaatt(`${sti}: svaret på et varsel har beløpet etter begrensningen`);
 }
 
 function kontrollerSvaretPaaKravet(
