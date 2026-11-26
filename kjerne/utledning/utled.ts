@@ -39,7 +39,7 @@ import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
-import { iSporet } from '../frosset/byggeklosser.ts';
+import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
   KRAVSPOR,
@@ -309,6 +309,11 @@ export interface Utledning {
    * med et element sendt samme dag (`med`). Rekkefølgen innen dagen er ukjent.
    */
   sendtSammeDag: { element: string; med: string }[];
+  /**
+   * OV-U89 punkt 13, OV-U15: påberopelsesversjonene der saken gjelder en endring, så § 34.1.2 ikke
+   * krever varsel (`hjemmelenGjelder`). Leses gjennom `varselEtter3412KrevesIkke`.
+   */
+  paaberopelserUtenVarsel3412: string[];
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -355,6 +360,7 @@ function tom(
     forholdAvklart: false,
     forholdAvvist: false,
     preklusjonGodtatt: false,
+    paaberopelserUtenVarsel3412: [],
     frafalt: false,
     endringsordre: 'nei',
     registrerteBrev: registreringer(journal).brev,
@@ -589,6 +595,16 @@ export function sendtFoerGjeldendeSvar(
 export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | null): Krav | null {
   if (dag === null) return u.spor[spor].gjeldendeKrav;
   return u.spor[spor].krav.filter((k) => kravversjonenGjaldt(u, k, dag, () => {})).at(-1) ?? null;
+}
+
+/**
+ * OV-U89 punkt 13: saken gjelder en endring i påberopelsen som gjaldt på dagen `dag`, eller den
+ * gjeldende uten dag, så § 34.1.2 ikke krever varsel. Svaret på varselet tilbys ikke og avvises
+ * (`hindrerSvaretPaaVarselet`), og vederlaget har etiketten `varsel_kreves_ikke` (OV-U15).
+ */
+export function varselEtter3412KrevesIkke(u: Utledning, dag: string | null): boolean {
+  const paaberopelse = kravversjonenPaaDagen(u, 'forhold', dag);
+  return paaberopelse !== null && u.paaberopelserUtenVarsel3412.includes(paaberopelse.id);
 }
 
 /**
@@ -1189,6 +1205,9 @@ function utledSporene(
     opplysninger: opplysninger.map((o) => ({ opplysning: o })),
     spor,
     ...forholdssvaretsVirkning(spor, svar, dokumenter),
+    paaberopelserUtenVarsel3412: spor.forhold.krav
+      .filter((k) => !hjemmelenGjelder('34.1.2', k, regler))
+      .map((k) => k.id),
   };
 }
 

@@ -36,7 +36,7 @@ import {
   type UbesvartIVederlaget,
   type Vederlagssvar,
 } from '../../regler/vederlag.ts';
-import { hjemmelenGjelder, type Svarvurdering } from '../../frosset/byggeklosser.ts';
+import type { Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   denAndreRegelen,
   harProduktivitetspost,
@@ -85,6 +85,7 @@ import {
   kravversjoneneKravetProevesMot,
   paaberopelseFor,
   varseletFoerBrevet,
+  varselEtter3412KrevesIkke,
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -309,6 +310,9 @@ export function hindrerSvaretPaaVarselet(
       'INGEN_VARSEL',
       `${hva} må gjelde et varsel etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4 fra totalentreprenøren.`
     );
+  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
+  if (varselet.hjemmel === '34.1.2' && varselEtter3412KrevesIkke(u, sendt))
+    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
   if (hva === 'Svaret' && forrige)
@@ -400,13 +404,8 @@ export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
   varselet: Svaretsvarsel,
   u: Utledning,
-  sendt: string | null,
-  paaberopelse: Krav,
-  regler: Regelsett
+  sendt: string | null
 ): Avvisning | null {
-  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
-  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))
-    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   const staar = standpunkteneTilVarslene(u, sendt, true).some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );

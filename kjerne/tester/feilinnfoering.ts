@@ -7368,11 +7368,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
-        "  if (false && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
+        "  if (varselet.hjemmel === '34.1.2' && varselEtter3412KrevesIkke(u, sendt))",
+        '  if (false && varselEtter3412KrevesIkke(u, sendt))',
       ],
     ],
-    mal: ['når punkt 34.1.2 ikke krever varsel (OV-U89 punkt 13)'],
+    mal: ['bare når punktet krever varsel (OV-U89 punkt 13, #2464)'],
   },
   {
     id: 'F2409c',
@@ -7805,6 +7805,22 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [['    else if (/[\\t\\n\\v\\f\\r]/.test(tittel))', '    else if (false)']],
     mal: ['tittelen står på én linje'],
+  },
+  {
+    id: 'F2464a',
+    feilklasse:
+      'svaret på varselet etter punkt 34.1.2 tilbys og tas imot, og visningen sier ikke at varselet ikke kreves, der saken gjelder en endring (OV-U89 punkt 13, OV-U15, #2464)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      .filter((k) => !hjemmelenGjelder('34.1.2', k, regler))",
+        '      .filter(() => false)',
+      ],
+    ],
+    mal: [
+      'bare når punktet krever varsel (OV-U89 punkt 13, #2464)',
+      'der TE krever endring, sier visningen at varselet ikke kreves',
+    ],
   },
 ];
 

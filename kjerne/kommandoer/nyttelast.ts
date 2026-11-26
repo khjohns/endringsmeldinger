@@ -156,15 +156,7 @@ function kontrollerSvar(
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
   if (varselet)
-    return kontrollerSvaretPaaVarselet(
-      s,
-      varselet,
-      u,
-      svarstandpunkter,
-      paaberopelse!,
-      sendt,
-      regler
-    );
+    return kontrollerSvaretPaaVarselet(s, varselet, u, svarstandpunkter, paaberopelse!, sendt);
   if (!krav) throw new Error('Svaret gjelder verken et krav eller et varsel.');
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
@@ -218,10 +210,9 @@ function kontrollerSvaretPaaVarselet(
   u: Utledning,
   svarstandpunkter: Svarstandpunkter,
   paaberopelse: Krav,
-  sendt: string | null,
-  regler: Regelsett
+  sendt: string | null
 ): Avvisning | null {
-  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt, paaberopelse, regler);
+  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});
