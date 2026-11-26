@@ -479,7 +479,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
   «Godta …» en sekundær knapp, og byggherrens «Send nytt svar» en lenkeknapp ved byggherrens
-  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
+  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» er en kompakt lenke i hodet til tråden, som «Legg til korrespondanse» (BF-03, #1377). «Legg til
   korrespondanse» er en lenke i hodet til tråden, uten hjelpetekst (R1-3 i #2180). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
   handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under. Unntaket er
