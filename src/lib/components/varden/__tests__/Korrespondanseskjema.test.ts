@@ -134,11 +134,12 @@ const valgene = () =>
 afterEach(cleanup);
 
 describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
-  it('totalentreprenøren kan legge til dokumentasjon, et krav og en aksept i vederlaget, men ikke et svar (OV-U80)', async () => {
+  it('totalentreprenøren kan legge til dokumentasjon, et varsel, et krav og en aksept i vederlaget, men ikke et svar (OV-U80, G-8 i BF-37)', async () => {
     await skjemaet(medDelvisSvar, 'TE', 'vederlag');
     const tekster = [...valgene()].map((r) => r.parentElement!.textContent!.trim());
     expect(tekster).toEqual([
       LEGG_TIL.kategorier.dokumentasjon,
+      LEGG_TIL.kategorier.varsel,
       LEGG_TIL.kategorier.krav,
       LEGG_TIL.kategorier.aksept,
     ]);
@@ -621,5 +622,95 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true))).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Forkast utkast' })).toBeTruthy();
+  });
+});
+
+describe('vederlagskravet lagt til, sendt før det registrerte varselet etter punkt 34.1.3 (#2425)', () => {
+  // VS-U86 punkt 9: kravet sendt før varselet er det første varselet og kan ha datoen (D-1, D-7
+  // og U-1 i BF-48). Kontrollsaken er sendt etter varselet.
+  const medVarselet = skrevet(
+    medGrunnlag,
+    'TE',
+    {
+      type: 'varsel',
+      varsler: [{ hjemmel: '34.1.3' }],
+      sendt: '2026-10-12',
+      korrespondansetype: 'brev',
+      sendemaate: 'post',
+      beskrivelse: 'Det særskilte varselet.',
+      dokumentasjon: ['v-1'],
+    },
+    new Map([['v-1', BREVET]])
+  );
+  const lagtTil = (dato: string): Korrespondansevalg => ({
+    type: 'brev',
+    sendemaate: 'post',
+    dato,
+    vedlegg: [{ ...BREVET, stoerrelse: 8 }],
+    beskrivelse: 'Kravet om vederlag.',
+  });
+
+  it.each([
+    ['2026-10-10', true],
+    ['2026-10-14', false],
+  ])('sendt %s: datofeltet står %s', async (dato, feltet) => {
+    const { kjernesak } = await saken(medVarselet, 'TE');
+    render(Vederlagskrav, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+      lagtTil: lagtTil(dato),
+      onlagttil: () => {},
+    });
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Legg til særskilt vederlagsjustering' })
+    );
+    const rad = screen
+      .getByRole('heading', { level: 4, name: /^Varsel om særskilt/ })
+      .closest('li')!;
+    expect(
+      within(rad).queryByLabelText(/^Når ble du klar over at utgiftene ville påløpe\?/) !== null
+    ).toBe(feltet);
+    expect(within(rad).queryByText('Gis i dette brevet.') !== null).toBe(feltet);
+  });
+
+  it('har det registrerte varselet datoen, står den fast også i kravet sendt før det (D-7 i BF-48, VS-U85, Codex-reviewet)', async () => {
+    const medDatoen = skrevet(
+      medGrunnlag,
+      'TE',
+      {
+        type: 'varsel',
+        varsler: [{ hjemmel: '34.1.3', klar_over_utgiftene: '2026-10-01' }],
+        sendt: '2026-10-12',
+        korrespondansetype: 'brev',
+        sendemaate: 'post',
+        beskrivelse: 'Det særskilte varselet.',
+        dokumentasjon: ['v-1'],
+      },
+      new Map([['v-1', BREVET]])
+    );
+    const { kjernesak } = await saken(medDatoen, 'TE');
+    render(Vederlagskrav, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+      lagtTil: lagtTil('2026-10-10'),
+      onlagttil: () => {},
+    });
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Legg til særskilt vederlagsjustering' })
+    );
+    const rad = screen
+      .getByRole('heading', { level: 4, name: /^Varsel om særskilt/ })
+      .closest('li')!;
+    expect(
+      within(rad).queryByLabelText(/^Når ble du klar over at utgiftene ville påløpe\?/)
+    ).toBeNull();
+    expect(within(rad).getByText('Gis i dette brevet.')).toBeTruthy();
+    expect(
+      within(rad).getByText(/^Klar over at utgiftene ville påløpe 1\. oktober 2026, oppgitt i/)
+    ).toBeTruthy();
   });
 });

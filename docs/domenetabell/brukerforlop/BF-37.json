@@ -2,10 +2,10 @@
   "id": "BF-37",
   "tittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
   "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider og justering av en enhetspris, hvert med varselet og arbeidet. Varselet om fristforlengelse sendes fra skjemaet for fristen. TE ser brevet med ett avsnitt per varsel, eller registrerer et varsel sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har påberopt forholdet byggherrens valg av løsninger og prosjektering (punkt 24.1) i brev 2 og varslet vederlagsjustering etter punkt 34.1.2 i brev 3 (BF-05, BF-14)."
+    "beskrivelse": "TE har påberopt forholdet byggherrens prosjektering (punkt 24.1) i brev 1 og varslet vederlagsjustering etter punkt 34.1.2 i brev 2. Fra kontrollpunktet «te-skal-varsle» velger TE «Bare varsle, uten krav» og varsler to regningsarbeid og en justering av enhetsprisene i samme brev. Stegene går videre med brev 3 med de tre varslene."
   },
   "bestilling": "BF-37.md",
   "prototype": {
@@ -93,36 +93,13 @@
       }
     ]
   },
-  "kilder": [
-    "MM-U10",
-    "LV-U3",
-    "VS-U16",
-    "OV-U89",
-    "OV-U90",
-    "VS-U87",
-    "OV-U123",
-    "KA-U16",
-    "GR-U15",
-    "EO-U39",
-    "B-17",
-    "VS-U67",
-    "VS-U68",
-    "VS-U69",
-    "VS-U71",
-    "OV-U80",
-    "VS-U57",
-    "VS-U50",
-    "VS-U77",
-    "OV-U79"
-  ],
-  "venter_paa": [
-    "#1823",
-    "#2408",
-    "#2409",
-    "#2010"
-  ],
+  "venter_paa": [],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "saksruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-11-12",
@@ -158,6 +135,168 @@
       "dato": "2026-11-25",
       "forhold": "#1837",
       "hva": "Kildene har også de gjeldende vedtakene: VS-U67–VS-U69, VS-U71 og de andre varselvedtakene er samlet i VS-U87, OV-U79, OV-U80 og VS-U34 i OV-U123, og EO-U19 i EO-U39. Endringen av VS-U67 etter S-4 A er ført som VS-U71. G-tabellen er kontrollert mot koden, og bestillingen er klar til bygging. Kjernen bygges i punkt 5 i #1823, #2408 og #2409, og visningen i #2010."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2010",
+      "hva": "Forløpet er kjørbart: stegene til kontrollpunktet før varslene og brevet med de tre varslene, for skjemaet «Bare varsle» i Varden."
+    }
+  ],
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Tegningene for grøftene viser en trasé som krysser eksisterende kum og fjernvarmerør."
+    },
+    {
+      "handling": "varsel",
+      "spor": "vederlag"
+    },
+    {
+      "handling": "varsel",
+      "spor": "vederlag",
+      "varsler": [
+        {
+          "hjemmel": "34.4",
+          "arbeid": "Ekstra graving i grøften ved kum 4"
+        },
+        {
+          "hjemmel": "34.4",
+          "arbeid": "Omlegging av fjernvarmerør langs fasade nord"
+        },
+        {
+          "hjemmel": "34.3.3",
+          "arbeid": "Økte mengder sprengstein i byggegropen, post 03.21"
+        }
+      ]
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-skal-varsle",
+      "etter": 2,
+      "beskrivelse": "TE har påberopt forholdet og varslet vederlagsjustering etter punkt 34.1.2. Kravet er ikke sendt.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U87"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag",
+                "sende_varsel:34.1.3",
+                "sende_varsel:34.3.3",
+                "sende_varsel:34.4"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U87"
+          ],
+          "prov": {
+            "handling": "varsel",
+            "spor": "vederlag",
+            "varsler": [
+              {
+                "hjemmel": "34.4"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE velger «Bare varsle, uten krav» øverst i kravskjemaet, ser ett varsel per rad og legger til et varsel med arbeidet det gjelder.",
+          "kilde": [
+            "VS-U87",
+            "VS-U67",
+            "VS-U68",
+            "VS-U71",
+            "MM-U10",
+            "MM-U50",
+            "MM-U60"
+          ]
+        },
+        {
+          "tekst": "TE ser at varselet om vederlagsjustering alt er gitt i brev 2, og at skjemaet ikke har varselet om fristforlengelse.",
+          "kilde": [
+            "VS-U87",
+            "OV-U89",
+            "OV-U90",
+            "VS-U16",
+            "MM-U34"
+          ]
+        },
+        {
+          "tekst": "TE ser at et varsel etter punkt 34.3.3 eller 34.4 uten arbeidet stoppes ved feltet, og at brevet har ett avsnitt per varsel.",
+          "kilde": [
+            "VS-U87",
+            "LV-U3"
+          ]
+        },
+        {
+          "tekst": "TE registrerer i stedet et varsel sendt utenfor løsningen, med én dato for alle varslene, og arbeidet er valgfritt.",
+          "kilde": [
+            "OV-U123",
+            "OV-U79",
+            "OV-U80",
+            "EO-U39",
+            "VS-U87",
+            "B-17",
+            "OV-U127"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-varslet",
+      "etter": 3,
+      "beskrivelse": "TE har varslet to regningsarbeid og en justering av enhetsprisene i brev 3.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U87"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at vederlaget er varslet, og i det senere kravet hvilket av de to varslene etter punkt 34.4 kravposten gjelder, med arbeidet.",
+          "kilde": [
+            "VS-U87",
+            "VS-U69",
+            "VS-U50"
+          ]
+        },
+        {
+          "tekst": "BH svarer på hvert varsel etter punkt 34.3.3 og 34.4 for seg, med arbeidet under navnet på varselet.",
+          "kilde": [
+            "VS-U87",
+            "VS-U57",
+            "VS-U77",
+            "VS-U88"
+          ]
+        }
+      ]
     }
   ]
 }

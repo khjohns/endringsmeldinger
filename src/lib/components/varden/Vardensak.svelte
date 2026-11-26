@@ -37,6 +37,17 @@
   import Forholdssvar from './Forholdssvar.svelte';
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
+  import Vederlagsvarsel from './Vederlagsvarsel.svelte';
+  import {
+    foersteVarsel,
+    fraHandlingsnoekkel,
+    hjemlerForRaden,
+    kanVarsle,
+    nyVarselrad,
+    startvarsling,
+    tilbudteHjemler,
+    type Vederlagsvarselhjemmel,
+  } from './vederlagsvarsel';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
   import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
@@ -53,7 +64,7 @@
     varsel: new Set(['sende_varsel', 'varsle']),
     krav: new Set(['krav', 'svare_paa_foresporsel']),
   };
-  import type { Kravvalg } from './vederlagskrav';
+  import { startvalg as vederlagskravstart, type Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Kunnskapsdato from './Kunnskapsdato.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -85,6 +96,7 @@
     BETEGNELSE,
     BREVKONTROLL,
     FRISTKRAV,
+    VEDERLAGSVARSEL,
     LEGG_TIL,
     KORRIGERING,
     KUNNSKAPSDATO,
@@ -337,7 +349,12 @@
       korrigering: UTSAGNSTITTEL.korrigering,
       kunnskapsdato: UTSAGNSTITTEL.kunnskapsdato,
       nyversjon: FORHOLDET.oppdater,
-      vederlagskrav: KRAVTITTEL.vederlag,
+      vederlagskrav:
+        utkastene.vederlagskrav?.hva !== 'varsel'
+          ? KRAVTITTEL.vederlag
+          : utkastene.vederlagskrav.varsling?.utenfor
+            ? VEDERLAGSVARSEL.tittelRegistrert
+            : VEDERLAGSVARSEL.tittel,
       fristkrav: KRAVTITTEL.frist,
       korrespondanse: LEGG_TIL.tittel,
       varselsvar: varselsvartittel(utkast),
@@ -465,9 +482,18 @@
   }
 
   /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
-  function tilKravkontroll(s: Kravspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
-    const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
-    const svaret = brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
+  /** `varsel`: brevet har bare varsler og er ikke en ny versjon av kravet (BF-37). */
+  function tilKravkontroll(
+    s: Kravspor,
+    k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>,
+    varsel = false
+  ) {
+    const kravet = varsel
+      ? undefined
+      : brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
+    const svaret = varsel
+      ? undefined
+      : brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
     melding = null;
     tilArbeid({
       art: 'kontroll',
@@ -511,6 +537,8 @@
   function sendt(k: Kontroll, s: Spor) {
     if (k.utkastet) tomtUtkast(k.utkastet);
     if (k.tilbake.art === 'varselsvar') tomtVarselsutkast(k.tilbake.gjelder);
+    else if (k.tilbake.art === 'vederlagskrav' && utkastene.vederlagskrav?.hva === 'varsel')
+      etterVarslene();
     else if (erUtkastnavn(k.tilbake.art)) {
       tom(k.tilbake.art);
       fjernSkjemautkast(s, k.tilbake.art);
@@ -638,12 +666,32 @@
       skjema: korrespondanse,
     },
     vederlagskrav: {
-      noekler: ['krav:vederlag'],
-      aapne: () => aapneUtkast({ art: 'vederlagskrav' }),
+      // U-1 i BF-37: varselet uten krav står i skjemaet for kravet.
+      noekler: [
+        'krav:vederlag',
+        'sende_varsel:vederlag',
+        'sende_varsel:34.1.3',
+        'sende_varsel:34.3.3',
+        'sende_varsel:34.4',
+        'varsle:vederlag',
+        'varsle:34.1.3',
+        'varsle:34.3.3',
+        'varsle:34.4',
+      ],
+      aapne: (n) => {
+        if (n !== 'krav:vederlag' && u) {
+          const [type, hjemmel] = fraHandlingsnoekkel(n);
+          vederlagsvarsel(hjemmel, type === 'varsle');
+        }
+        if (n === 'krav:vederlag' && utkastene.vederlagskrav) utkastene.vederlagskrav.hva = 'krav';
+        aapneUtkast({ art: 'vederlagskrav' });
+      },
       vises: (a) =>
         a.art === 'vederlagskrav' &&
         valgt === 'vederlag' &&
-        kjernesak.handlinger.includes('krav:vederlag'),
+        (utkastene.vederlagskrav?.hva === 'varsel'
+          ? Object.values(kanVarsle(kjernesak.handlinger)).some(Boolean)
+          : kjernesak.handlinger.includes('krav:vederlag')),
       skjema: vederlagskrav,
     },
     fristkrav: {
@@ -718,7 +766,11 @@
     if (!lagtTil || !u) return;
     if (kategori === 'varsel') {
       // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
-      fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
+      if (valgt === 'vederlag') {
+        const hjemmel = foersteVarsel(kjernesak.handlinger, true);
+        if (hjemmel) vederlagsvarsel(hjemmel, true, { ...lagtTil.valg.korrespondanse });
+        aapneUtkast({ art: 'vederlagskrav' });
+      } else fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
       lagtTil = null;
       return;
     }
@@ -730,7 +782,13 @@
       if (!eldreKrav(u, 'frist', lagtTil.valg.korrespondanse.dato))
         utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
       aapneUtkast({ art: 'fristkrav', fraKorrespondansen: true });
-    } else aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
+    } else {
+      // Varslene i utkastet står; kravet lagt til fylles ut i kravskjemaet (BF-49).
+      const v = utkastene.vederlagskrav;
+      if (v?.hva === 'varsel' && !eldreKrav(u, 'vederlag', lagtTil.valg.korrespondanse.dato))
+        v.hva = 'krav';
+      aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
+    }
   }
   /**
    * Et krav lagt til, sendt før det siste i sporet, har et eget utkast i skjemaet (OV-U118,
@@ -762,6 +820,54 @@
     }
     return tilSaken(tekst, 'sendt');
   }
+  /**
+   * «Bare varsle» i skjemaet for vederlaget (U-1 i BF-37), med en rad for `hjemmel` når skjemaet
+   * ikke har varsler ennå, og som registrering når `registrer`. Utkastet til kravet står.
+   */
+  function vederlagsvarsel(
+    hjemmel: Vederlagsvarselhjemmel,
+    registrer: boolean,
+    utenfor: Korrespondansevalg | null = null
+  ) {
+    if (!u) return;
+    const v = utkastene.vederlagskrav ?? vederlagskravstart(u);
+    if (!v.varsling?.rader.length) {
+      utkastene.vederlagskrav = {
+        ...v,
+        hva: 'varsel',
+        varsling: startvarsling(hjemmel, registrer, utenfor),
+      };
+      return;
+    }
+    const varsling = {
+      ...v.varsling,
+      utenfor: registrer ? (utenfor ?? v.varsling.utenfor ?? tomKorrespondanse()) : null,
+    };
+    // Varselet TE åpnet fra handlingene, får en rad når skjemaet ikke har det.
+    const tilbudt = tilbudteHjemler(kjernesak.handlinger, registrer);
+    if (
+      !varsling.rader.some((r) => r.hjemmel === hjemmel) &&
+      hjemlerForRaden(varsling, null, tilbudt).includes(hjemmel)
+    )
+      varsling.rader = [...varsling.rader, nyVarselrad(varsling, hjemmel)];
+    utkastene.vederlagskrav = { ...v, hva: 'varsel', varsling };
+  }
+  /**
+   * Varslene er sendt eller registrert. Har TE skrevet i kravet, står utkastet til kravet, og
+   * ellers forkastes det (U-1 i BF-37).
+   */
+  function etterVarslene() {
+    const v = utkastene.vederlagskrav;
+    const kravet = (x: Kravvalg) =>
+      JSON.stringify([x.poster, x.saerskilt, x.trekkerSaerskilt ?? false, x.forbehold]);
+    if (v && u && kravet(v) !== kravet(vederlagskravstart(u))) {
+      utkastene.vederlagskrav = { ...v, hva: 'krav', varsling: undefined };
+      return;
+    }
+    tom('vederlagskrav');
+    fjernUtkast('vederlag', 'vederlagskrav');
+  }
+
   /**
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
    * `sende_varsel:frist` registreres varselet (VS-U16).
@@ -948,22 +1054,48 @@
 {/snippet}
 
 {#snippet vederlagskrav(u: Utledning)}
-  <Vederlagskrav
-    {kjernesak}
-    {u}
-    lagtTil={lagtTilI('vederlag', 'krav')}
-    onendre={tilKorrespondansen}
-    onlagttil={() =>
-      lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('vederlag') ? null : 'vederlag')}
-    bind:valg={utkastene.vederlagskrav}
-    onforkast={() => forkastKravet('vederlag')}
-    onvedsiden={(v) => (vedSiden = v)}
-    onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
-    onkunnskapsdato={(gjelder) => {
-      melding = null;
-      aapneUtkast({ art: 'kunnskapsdato', gjelder });
-    }}
-  />
+  {#if utkastene.vederlagskrav?.hva === 'varsel' && utkastene.vederlagskrav.varsling && !lagtTilI('vederlag', 'krav')}
+    <Vederlagsvarsel
+      {kjernesak}
+      {u}
+      bind:valg={utkastene.vederlagskrav.varsling}
+      kanKreve={kjernesak.handlinger.includes('krav:vederlag')}
+      onkrav={() => {
+        if (utkastene.vederlagskrav) utkastene.vederlagskrav.hva = 'krav';
+      }}
+      onforkast={() => forkastKravet('vederlag')}
+      onvedsiden={(v) => (vedSiden = v)}
+      onbrevkontroll={(k) => tilKravkontroll('vederlag', k, true)}
+      onregistrert={() => {
+        etterVarslene();
+        return tilSaken(VEDERLAGSVARSEL.registrert, 'sendt');
+      }}
+      onkunnskapsdato={(gjelder) => {
+        melding = null;
+        aapneUtkast({ art: 'kunnskapsdato', gjelder });
+      }}
+    />
+  {:else}
+    <Vederlagskrav
+      {kjernesak}
+      {u}
+      lagtTil={lagtTilI('vederlag', 'krav')}
+      onendre={tilKorrespondansen}
+      onlagttil={() =>
+        lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('vederlag') ? null : 'vederlag')}
+      bind:valg={utkastene.vederlagskrav}
+      onforkast={() => forkastKravet('vederlag')}
+      onvedsiden={(v) => (vedSiden = v)}
+      onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
+      onkunnskapsdato={(gjelder) => {
+        melding = null;
+        aapneUtkast({ art: 'kunnskapsdato', gjelder });
+      }}
+      onvarsle={(registrer, hjemmel = foersteVarsel(kjernesak.handlinger, registrer)) => {
+        if (hjemmel) vederlagsvarsel(hjemmel, registrer);
+      }}
+    />
+  {/if}
 {/snippet}
 
 {#snippet fristkrav(u: Utledning)}

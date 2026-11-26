@@ -41,6 +41,7 @@ export * from './korrespondansen';
 export * from './nysak';
 export * from './saksliste';
 export * from './kravskjema';
+export { VEDERLAGSVARSEL } from './vederlagsvarsel';
 export { FRISTKRAV } from './fristkrav';
 export * from './vederlaget';
 export * from './fristen';

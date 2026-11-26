@@ -152,10 +152,18 @@ export const tomtLagtTil = (spor: Spor): Lagttilvalg => ({
   svar: null,
 });
 
+/** Registreringen av et varsel i vederlaget (G-8 i BF-37, `handlingsnoekkel` i `vederlagsvarsel.ts`). */
+const VEDERLAGSVARSLENE = new Set([
+  'varsle:vederlag',
+  'varsle:34.1.3',
+  'varsle:34.3.3',
+  'varsle:34.4',
+]);
+
 /**
  * Kategoriene parten kan velge i sporet (OV-U80, arbeidsvalget 16.11 i #807). Bare det parten selv
- * har sendt legges til, så valgene følger parten. Varselet åpner skjemaet for fristen når kjernen
- * tilbyr det, og kravet når kjernen tilbyr et krav i sporet. Svaret på forholdet og aksepten står
+ * har sendt legges til, så valgene følger parten. Varselet åpner skjemaet for fristen eller vederlaget
+ * når kjernen tilbyr det, og kravet når kjernen tilbyr et krav i sporet. Svaret på forholdet og aksepten står
  * når sporet har noe å svare på eller godta. Kjernen avgjør resten når kommandoen sendes. I en sak
  * kjernen ikke forstår, er bare dokumentasjonen med (MM-U2).
  */
@@ -169,7 +177,10 @@ export function kategoriene(
   const s = u.spor[spor];
   return [
     'dokumentasjon',
-    ...(part === 'TE' && spor === 'frist' && handlinger.includes('varsle:frist')
+    ...(part === 'TE' &&
+    (spor === 'frist'
+      ? handlinger.includes('varsle:frist')
+      : spor === 'vederlag' && handlinger.some((h) => VEDERLAGSVARSLENE.has(h)))
       ? (['varsel'] as const)
       : []),
     ...(part === 'TE' && spor !== 'forhold' && handlinger.includes(`krav:${spor}`)

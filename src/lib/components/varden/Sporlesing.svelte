@@ -12,7 +12,11 @@
   import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
-  import { hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    arbeidetI,
+    hjemmelenForVarselet,
+    svaretPaaVarseletErIkkeBygget,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -177,7 +181,12 @@
           h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
           h.type !== 'oppgi_kunnskapsdato' &&
-          h.type !== 'innsigelse'
+          h.type !== 'innsigelse' &&
+          !(
+            (h.type === 'svare' || h.type === 'revidere') &&
+            h.gjelder &&
+            svaretPaaVarseletErIkkeBygget(u, h.gjelder)
+          )
       )
       .map((h) => h.noekkel)
   );
@@ -332,9 +341,14 @@
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
     const v = varselhjemmel(h);
     if (v) {
-      const flere = iSporet.some((x) => x !== h && x.type === h!.type && varselhjemmel(x) === v);
-      const brev = flere ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
-      return h!.type === 'svare' ? VARSELSVARET.svar(v, brev) : VARSELSVARET.nyttSvar(v, brev);
+      const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);
+      const brev = samme.length > 1 ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
+      // VS-U87 punkt 27.
+      const iBrevet = samme.filter((x) => brev && brevMedUtsagn(u, x.gjelder!)?.id === brev.id);
+      const arbeid = iBrevet.length > 1 ? arbeidetI(u, h!.gjelder!) : undefined;
+      return h!.type === 'svare'
+        ? VARSELSVARET.svar(v, brev, arbeid)
+        : VARSELSVARET.nyttSvar(v, brev, arbeid);
     }
     return omtalen(n)?.tekst?.() ?? null;
   }
@@ -473,9 +487,11 @@
   {#if id === handlingVed}{@render vedBrevet()}{/if}
   {#if varselVed[id]?.length}
     <div class="knapper">
-      {#each varselVed[id] as n (n)}
-        <Knapp variant={utkast ? 'sekundaer' : 'primaer'} onclick={() => velg(n)}
-          >{innsigelsestekst(n)}</Knapp
+      <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
+      {#each varselVed[id] as n, i (n)}
+        <Knapp
+          variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
+          onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
         >
       {/each}
     </div>
