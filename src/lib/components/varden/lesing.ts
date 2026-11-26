@@ -649,7 +649,7 @@ export const leveringene = (
  * beskrivelse, som står som utdypningen under kravet i brevteksten (`brevtekst.ts`), og datoen
  * TE oppgir; byggherrens standpunkter med lagene brevet ga dem (OV-U32), og begrunnelsen.
  */
-export interface Innlegget {
+export interface Brevinnholdet {
   /** «Pålegget» for en irregulær endring, ellers «forholdet». */
   gjelderPaalegg: boolean;
   utdypning: string | null;
@@ -680,7 +680,7 @@ function forholdsordeneISvaret(svar: Svar, u: Utledning): Forholdsordene {
 }
 
 /** Innholdet i brevene om forholdet, etter brevets ID. Brev uten krav eller svar har ingen. */
-export function innleggene(u: Utledning): Map<string, Innlegget> {
+export function brevinnholdene(u: Utledning): Map<string, Brevinnholdet> {
   const alle = brevene(u);
   const brev = new Map(alle.map((b) => [b.id, b]));
   // Byggherrens begrunnelse står per punkt i svaret (KA-U46, LV-U70), i rekkefølgen i brevet.
@@ -697,7 +697,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
   /** TE har korrigert datoen i feltet etter opplysningen, ikke bare gjentatt den (U-5 i BF-02A). */
   const korrigertSenere = (o: Datoopplysningen) =>
     opplysningene.slice(opplysningene.indexOf(o) + 1).some((x) => x.hva === o.hva && x.korrigering);
-  const ut = new Map<string, Innlegget>();
+  const ut = new Map<string, Brevinnholdet>();
   for (const k of u.spor.forhold.krav) {
     const innhold = innholdIForholdet(k);
     const kode = innhold.underkategori;

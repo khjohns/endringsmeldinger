@@ -15,7 +15,7 @@
     brevForLinja,
     brevet,
     forholdetISaken,
-    innleggene,
+    brevinnholdene,
     tilknyttetKrav,
     type Brevet,
     type Lagraden,
@@ -60,7 +60,7 @@
   const forholdssvaret = $derived.by(() => {
     const s = u.spor.forhold.gjeldendeSvar;
     const b = s && brevet(u, s.dokument);
-    const rader = s && innleggene(u).get(s.dokument)?.standpunkter;
+    const rader = s && brevinnholdene(u).get(s.dokument)?.standpunkter;
     return rader && b ? { rader, brev: b } : null;
   });
   const rot = $derived(
