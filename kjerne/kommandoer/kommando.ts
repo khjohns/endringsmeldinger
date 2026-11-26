@@ -607,7 +607,7 @@ function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): s
       feil.push(
         `${sti}.arbeid: varselet etter punkt ${v.hjemmel} har ingen beskrivelse av arbeidet`
       );
-    if (kravpost && k.type === 'send_varsel' && v.arbeid === undefined)
+    if (kravpost && k.type === 'send_varsel' && !v.arbeid?.trim())
       feil.push(
         `${sti}.arbeid: mangler: et varsel etter punkt ${v.hjemmel} fra løsningen har arbeidet det gjelder`
       );
@@ -615,6 +615,10 @@ function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): s
       feil.push(`${sti}.hjemmel: brevet har alt et varsel etter punkt ${v.hjemmel}`);
     sett.add(v.hjemmel);
   });
+  // Beslutningsdelen i VS-U87 dekker et registrert brev med varsler i vederlaget og fristen, ikke
+  // varselet etter § 32.2 sammen med andre. Det avvises til det er avgjort.
+  if (k.varsler.length > 1 && k.varsler.some((v) => v.hjemmel === '32.2'))
+    feil.push('$.varsler: varselet etter punkt 32.2 registreres i et eget brev');
   const spor = new Set(k.varsler.map(sporetFor));
   if (k.type === 'send_varsel' && spor.size > 1)
     feil.push(

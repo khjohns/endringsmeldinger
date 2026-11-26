@@ -654,7 +654,11 @@ function lesDokument(h: Journalrad): Dokument {
         !dokument.svar.some((s) => s.id === a.gjelder) &&
         !(
           a.punkt === VARSELPUNKTET &&
-          dokument.utsagn.some((u) => u.id === a.gjelder && u.art === 'varsel')
+          !dokument.krav.length &&
+          !dokument.svar.length &&
+          dokument.utsagn.length > 1 &&
+          dokument.utsagn.every((u) => u.art === 'varsel') &&
+          dokument.utsagn.some((u) => u.id === a.gjelder)
         )
       )
         throw new Uforstaatt(

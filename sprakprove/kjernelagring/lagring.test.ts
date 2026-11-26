@@ -118,7 +118,7 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
     // VS-U87 punkt 23: kravet viser til varselet TE valgte, sendt fra løsningen.
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
-      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev'
+      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) for arbeidet «Pumping» ble gitt i brev'
     );
   });
 

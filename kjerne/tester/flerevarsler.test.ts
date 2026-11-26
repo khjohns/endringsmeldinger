@@ -7,7 +7,16 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { lesJournal } from '../format/leser.ts';
 import { KJERNE } from '../versjon.ts';
-import { I_SAKEN, KLAR_OVER, laast, PAABEROPELSE, sak, tilbud, type Data } from './brevsak.ts';
+import {
+  I_SAKEN,
+  KLAR_OVER,
+  laast,
+  PAABEROPELSE,
+  sak,
+  svar,
+  tilbud,
+  type Data,
+} from './brevsak.ts';
 import { SOM_BREV } from './brevet.ts';
 
 const GRAVING = 'Graving ved kum 4';
@@ -75,6 +84,10 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
     s.send('TE', regningsarbeid({ varsel: { art: 'gitt', varsel: graving } }));
     const [post] = s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as Data[];
     expect(post.varsel).toEqual({ art: 'gitt', varsel: graving });
+    // VS-U87 punkt 27: arbeidet skiller varslene i samme brev.
+    expect(laast(s.journal.at(-1)!).join(' ')).toContain(
+      `for arbeidet «${GRAVING}» ble gitt i brev K201-KOE-017-02`
+    );
   });
 
   it('varsler etter ulike bestemmelser i vederlaget står i samme brev, med varselet om særskilt justering og datoen (VS-U87 punkt 27, VS-U86 punkt 12)', () => {
@@ -102,6 +115,22 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
     ]);
   });
 
+  it('svaret på ett av to varsler i samme brev nevner arbeidet, så det sier hvilket varsel det gjelder (VS-U87 punkt 27, D-6, LV-U4 punkt 7)', () => {
+    const s = paaberopt();
+    const rad = s.send(
+      'TE',
+      sendVarsler({ hjemmel: '34.4', arbeid: GRAVING }, { hjemmel: '34.4', arbeid: FJERNVARME })
+    );
+    const fjernvarme = (rad.data.utsagn as Data[])[1]!.id as string;
+    const svaret = s.send('BH', {
+      type: 'brev',
+      svar: [svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, null)],
+    });
+    expect(laast(svaret)[0]).toContain(
+      `varsel om regningsarbeid etter NS 8407 punkt\u00a034.4 for arbeidet «${FJERNVARME}» i brev K201-KOE-017-02`
+    );
+  });
+
   it('ett varsel fra løsningen står uten punkt, med arbeidet (VS-U15, VS-U87 punkt 27)', () => {
     const s = paaberopt();
     expect(laast(s.send('TE', sendVarsler({ hjemmel: '34.4', arbeid: GRAVING })))).toEqual([
@@ -121,6 +150,12 @@ describe('arbeidet varselet gjelder (VS-U87 punkt 27, arbeidsvalg 1 26.11 i #240
       expect(s.avvist('TE', sendVarsler({ hjemmel, arbeid: GRAVING }))).toBeNull();
     }
   );
+
+  it('arbeidet kan ikke være blankt i et varsel fra løsningen (VS-U87 punkt 27)', () => {
+    expect(
+      paaberopt().avvisning('TE', sendVarsler({ hjemmel: '34.4', arbeid: '  ' }))?.melding
+    ).toContain('$.varsler[0].arbeid: mangler');
+  });
 
   it('F-5: ved registrering er arbeidet valgfritt, og datoen gjelder alle varslene (D-4)', () => {
     const s = paaberopt();
@@ -165,6 +200,22 @@ describe('varslene i brevet og sporene (beslutningsdelen i VS-U87, D-1–D-4 i B
       u.spor.vederlag.varsler['34.1.2']?.dokument,
       u.spor.frist.varsler['33.4']?.dokument,
     ]).toEqual([rad.event_id, rad.event_id]);
+  });
+
+  it('varselet etter punkt 32.2 registreres i et eget brev, fordi beslutningsdelen i VS-U87 bare dekker vederlaget og fristen sammen', () => {
+    const s = sak();
+    expect(
+      s.avvisning('TE', registrer({ hjemmel: '32.2' }, { hjemmel: '34.1.2' }))?.melding
+    ).toContain('$.varsler: varselet etter punkt 32.2 registreres i et eget brev');
+  });
+
+  it('et lagret brev med ett varsel og punktet for varselet er ikke forstått, for kjernen skriver det uten punkt (MM-U2, U-6)', () => {
+    const s = paaberopt();
+    const rad = s.send('TE', sendVarsler({ hjemmel: '34.4', arbeid: GRAVING }));
+    const endret = structuredClone(rad);
+    (endret.data.brevtekst as Data[])[0]!.punkt = 'varsel';
+    const lest = lesJournal([...s.journal.slice(0, -1), endret], KJERNE.leserformat).at(-1)!;
+    expect(lest.art).toBe('ukjent');
   });
 
   it('to varsler etter samme bestemmelse er bare mulig etter punkt 34.3.3 og 34.4 (D-2)', () => {

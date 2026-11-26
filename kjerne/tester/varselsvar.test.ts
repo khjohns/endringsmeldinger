@@ -345,7 +345,7 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
     const rad = s.journal.at(-1)!;
     expect(rad.data.brevtittel).toBe('Svar på varsel om justering av enhetsprisene i sak KOE-17');
     expect(laast(rad)).toEqual([
-      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd i brev K201-KOE-017-02 av 3. oktober 2026.',
+      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd for arbeidet «Graving ved kum 4» i brev K201-KOE-017-02 av 3. oktober 2026.',
       '1. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.',
       // LV-U79: lagslinjen nevner innsigelsen med navn.
       `2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nSubsidiært, hvis ${MOT.varselet('34.3.3')} ikke fører frem\n\nByggherren bestrider at enhetsprisene skal justeres (punkt\u00a034.3.2).`,
@@ -362,7 +362,7 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
       svar: svar('vederlag', varsel, { varslet_i_tide: true, godtar_justering: true }, {}, null),
     });
     expect(laast(s.journal.at(-1)!).slice(0, 3)).toEqual([
-      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd i brev K201-KOE-017-02 av 3. oktober 2026. Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-03 av 4. oktober 2026.',
+      'Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd for arbeidet «Graving ved kum 4» i brev K201-KOE-017-02 av 3. oktober 2026. Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-03 av 4. oktober 2026.',
       '1. Varselet om justering av enhetsprisene (punkt\u00a034.3.3)\n\nByggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 og gjør ikke gjeldende at varselet kom for sent.',
       '2. Justering av enhetsprisene (punkt\u00a034.3.2)\n\nByggherren godtar at enhetsprisene justeres (punkt\u00a034.3.2). Det godkjenner ikke priser, mengder eller beløp.',
     ]);
@@ -374,7 +374,7 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
     const rad = s.journal.at(-1)!;
     expect(rad.data.brevtittel).toBe('Svar på varsel om regningsarbeid i sak KOE-17');
     expect(laast(rad)).toEqual([
-      'Byggherren svarer på totalentreprenørens varsel om regningsarbeid etter NS 8407 punkt\u00a034.4 i brev K201-KOE-017-02 av 3. oktober 2026.',
+      'Byggherren svarer på totalentreprenørens varsel om regningsarbeid etter NS 8407 punkt\u00a034.4 for arbeidet «Graving ved kum 4» i brev K201-KOE-017-02 av 3. oktober 2026.',
       '1. Varselet om regningsarbeid (punkt\u00a034.4)\n\nByggherren gjør gjeldende at varselet kom for sent.',
       FORBEHOLDET_I_PUNKT(2),
     ]);

@@ -1844,7 +1844,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
     ).join(' ');
     expect(tekst).not.toContain(varselRegning);
     expect(tekst).toContain(
-      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev K201-KOE-017-02 av 3. oktober 2026.'
+      `Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) for arbeidet «${ARBEIDET}» ble gitt i brev K201-KOE-017-02 av 3. oktober 2026.`
     );
     // Kontrollsak: varselet etter punkt 34.4 krever ikke valget for justeringen av enhetsprisene.
     expect(tekst).toContain(varselEnhetspriser);
@@ -1931,7 +1931,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     ).join(' ');
     expect(tekst).not.toContain(varselRegning);
     expect(tekst).toContain(
-      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev K201-KOE-017-03 av 4. oktober 2026.'
+      `Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) for arbeidet «${ARBEIDET}» ble gitt i brev K201-KOE-017-03 av 4. oktober 2026.`
     );
     const post = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[1]!;
     expect(post.varsel, 'kravposten viser til varselet, ikke omvendt (VS-U54)').toEqual({

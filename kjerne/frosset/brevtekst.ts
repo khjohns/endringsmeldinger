@@ -1087,8 +1087,9 @@ function beskriv(id: string, j: Journalen): string {
       return `påberopelsen av ${hva} i svaret i ${j.brevet(e.svar.dokument)}`;
     }
     case 'utsagn':
+      // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
       if (e.utsagn.art === 'varsel')
-        return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
+        return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]}${e.utsagn.arbeid === undefined ? '' : ` for arbeidet «${e.utsagn.arbeid}»`} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
         return `${PARTENS.TE} svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
