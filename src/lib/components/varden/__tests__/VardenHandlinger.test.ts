@@ -59,9 +59,7 @@ describe('Varden med brukerforløpet BF-01', () => {
         !iVarden.includes('krav:vederlag')
       )
         iVarden.push('krav:vederlag');
-      // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
-      // PR 1650).
-      expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
+      expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );
 
