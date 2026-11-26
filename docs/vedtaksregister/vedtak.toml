@@ -16031,6 +16031,304 @@ tekst = '''
 Som A, men KA-U85 samles ikke. Den står med forholdet til OV-U32 og samles med lagene i brevet, og punkt 16 viser til den for rekkefølgen mellom punkt 33.4 og punkt 33.6.2.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U89"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#1657", "#1377", "BF-03 S-4"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmålet S-4 i spørsmålene til bestillingen for BF-03 og til #1657, stilt 25.11 som spørsmål 2. Det står ordrett i `docs/domenetabell/brukerforlop/BF-03-sporsmal.md` på grenen `claude/innlegget-bf03-1377` (c45bda8, PR #2415), og svaret står i [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883). Den felles bakgrunnen i fila, ordrett:
+
+Felles bakgrunn, oppdragsgiver 15.11 i #1987, ordrett (gjengitt i
+[kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657)):
+
+> «innsigelse fremmer enkelt i fritekstinnlegg. Konsekvenser fører partene i kravskjema - kan vurderes p
+> legge inn som et strukturert forbehold i kravskjema der det svares på krav eller svar»
+
+> «Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest,
+> bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema.»
+
+Protest mot en innsigelse og bestridelse av en opplysning er alt innlegg varig
+([MM-U48](../../plans/vedtak.md#mm-u48)) og spørres ikke om her.
+
+## S-4. Skal den egne innsigelsen etter punkt 5 tredje ledd bli en egen handling senere, eller fremmes den varig i et innlegg eller under «Forbehold»?
+
+**Bakgrunn.** Løsningen skiller mellom to former:
+
+- *Påberopelsen i svaret*: en part gjør i svaret gjeldende at et varsel, krav eller svar kom for
+  sent etter en bestemmelse, med ett standpunkt for hver bestemmelse, og løsningen utleder
+  virkningen. Den står og bygges ([samlevedtaket for påberopelse av sent varsel, versjon 3](../../plans/vedtak.md#samlevedtak-sent-varsel-3), VS-U87, punkt 1–13).
+- *Den egne innsigelsen*: innsigelsen etter punkt 5 tredje ledd som eget brev, før eller etter
+  svaret (VS-U87 punkt 15–18, og for totalentreprenøren punkt 19, siste setning). Den er vedtatt,
+  men bygges ikke i første versjon. Til den bygges, uttrykker partene den i et innlegg
+  (VS-U87 beslutningsdelen, MM-U47 beslutningsdelen, OV-U99 punkt 4).
+
+Oppdragsgiver svarte 07.11 «A» på oppfølgingsspørsmålet i #1657: den egne innsigelsen er ikke et eget
+utsagn i løsningen, heller ikke i vederlaget og fristen, og fremmes i et fritt innlegg. Svaret er ikke
+ført som vedtak. Etter det har [KA-U87](../../plans/vedtak.md#samlevedtak-vilkaar-forbehold-2) (25.11)
+gitt skjemaene for svar og krav feltet «Forbehold» for vilkår og forbehold som gjelder hele svaret
+eller hele kravet. Teksten står sist i brevet, tolkes ikke og sperrer ingenting (punkt 1–3 og 12).
+
+**Belegg (ordrett, utdrag).**
+
+- VS-U87 punkt 15: «En part kan også sende innsigelsen etter punkt 5 tredje ledd som eget brev, før og
+  etter svaret, også etter at TE har godtatt avslaget på grunnlaget.»
+- VS-U87 punkt 17: «Den egne innsigelsen er en påberopelse etter en bestemmelse bare når det den
+  gjelder, bare kan komme for sent etter én bestemmelse: varselet etter punkt 33.4, TEs varsel etter
+  punkt 32.2, og senere de egne varslene etter punkt 34.1.2 og 34.1.3. Da gjentar et senere svar den
+  eller gir den opp etter punkt 9–12, og punkt 13 gjelder for den.»
+- VS-U87, beslutningsdelen: «Den egne innsigelsen i punkt 15–18, også byggherrens etter svaret og TEs,
+  bygges ikke i første versjon, med brevteksten i LV-U4 punkt 5 og 7. […] Til de bygges, uttrykker
+  partene dem i et innlegg (MM-U47). Reglene står og bygges senere; avgrensningen gjelder rekkefølgen.»
+- KA-U87 punkt 1: «Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i
+  løsningen og inngår ikke i det totalentreprenøren godtar ved aksept.»
+- EO-U39 punkt 12 sier at innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd godtas i en
+  KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter.
+- VS-U36: «Et innlegg sendt før svaret står i saken og leses ikke.»
+
+**Hva valget koster.** Uten den egne innsigelsen leser løsningen bare påberopelsen i svaret. Vil
+byggherren si fra om sent varsel før svaret, gjør byggherren det i et innlegg og må gjenta det som
+standpunkt i svaret. Ellers leser løsningen svaret uten påberopelse, og etter punkt 32.2 blir en
+godkjenning av forholdet en endringsordre (GR-U12 og GR-U13). Svaret viser heller ikke til den tidlige
+innsigelsen med en egen setning, så byggherren må vise til den i begrunnelsen. Totalentreprenøren har
+i første versjon ingen påberopelse med virkning utenfor et svar uansett (VS-U3 for punkt 5 tredje ledd
+og 33.7 annet ledd, VS-U87 punkt 19, siste setning, og beslutningsdelen, første kulepunkt), så for
+totalentreprenøren avgjør valget bare om en senere handling skal bygges.
+
+- **A (anbefalt):** «Den egne innsigelsen etter punkt 5 tredje ledd er ikke en egen handling i
+  løsningen, heller ikke i vederlaget og fristen. En part fremmer en innsigelse mot det et svar
+  gjelder, som standpunkt i svaret. En innsigelse mot et annet brev fremmer parten i et innlegg, eller
+  under «Forbehold» når parten sender et krav eller et svar. Løsningen tolker den ikke og utleder ingen
+  virkning av den. Påberopelsen i et svar av at et varsel, krav eller svar kom for sent etter en
+  bestemmelse, står og bygges som før, med ett standpunkt for hver bestemmelse, og løsningen utleder
+  virkningen av den på partens premisser.»
+  Forhold: opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og
+  siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret;
+  endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for
+  innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere
+  svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.
+- **B:** «Som A, men skjemaene for krav og svar har et eget valg for innsigelsen etter punkt 5 tredje
+  ledd, der parten velger brevet innsigelsen gjelder. Løsningen registrerer den med sendetid og brevet
+  og viser den med kravet eller svaret, uten virkning på utfallet.»
+  Forhold: som A; endrer i tillegg designdelen og beslutningsdelen i KA-U87 («ingen egne felt for
+  særskilte vilkår»). Ingen regel i løsningen leser valget, og det krever et vedtak etter OV-U97 som
+  sier hva feltet koster i løsningen og for brukerne.
+- **C:** «Den egne innsigelsen etter punkt 5 tredje ledd står som vedtatt i VS-U87 punkt 15–18 og
+  punkt 19, siste setning, og bygges senere. Til den bygges, uttrykker partene den i et innlegg.»
+  Forhold: ingen; svaret 07.11 i #1657 føres ikke.
+
+**Anbefaling: A.** Den følger svaret 07.11. Påberopelsen i svaret dekker de særskilte
+varslingsreglene, og ingen regel i løsningen leser den egne innsigelsen utover punkt 17, som svaret
+dekker. «Forbehold» finnes alt og trenger ikke et nytt valg. Kostnaden dempes i skjemaet, som er
+design og ikke en del av vedtaksteksten: skjemaet for svaret viser partens innlegg og sier at et
+innlegg ikke er en påberopelse i svaret (BF-01 U-11, BF-03 U-10). B gir et
+strukturert felt uten virkning, og det er en antakelse at partene vil ha nytte av det; ingen
+brukerprøve har prøvd det.
+
+**Styrer:** om kommandoen `innsigelse`, som kjernen tilbyr i dag (avviket K4 i
+`docs/datamodell/handlinger.toml`), fjernes fra formatet; hva skjemaet for innlegget, svaret og
+«Forbehold» sier om innsigelsen; og hva som godtas etter en endringsordre (EO-U39 punkt 12).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren ([kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)): «2A, 3A». Spørsmål 2 er S-4, og svaret er A.'''
+forhold = [
+  { art = "endrer", vedtak = "vs-u87" },
+  { art = "endrer", vedtak = "vs-u3" },
+  { art = "endrer", vedtak = "ov-u99" },
+  { art = "endrer", vedtak = "mm-u47" },
+  { art = "endrer", vedtak = "eo-u39" },
+  { art = "endrer", vedtak = "lv-u4" },
+  { art = "snevrer inn", vedtak = "lv-u4" },
+  { art = "utvider", vedtak = "ka-u87" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret; endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.» «Opphever» for punktene i VS-U87 og LV-U4 er ført som `endrer`, fordi resten av postene står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Den egne innsigelsen etter punkt 5 tredje ledd er ikke en egen handling i løsningen, heller ikke i vederlaget og fristen. En part fremmer en innsigelse mot det et svar gjelder, som standpunkt i svaret. En innsigelse mot et annet brev fremmer parten i et innlegg, eller under «Forbehold» når parten sender et krav eller et svar. Løsningen tolker den ikke og utleder ingen virkning av den. Påberopelsen i et svar av at et varsel, krav eller svar kom for sent etter en bestemmelse, står og bygges som før, med ett standpunkt for hver bestemmelse, og løsningen utleder virkningen av den på partens premisser.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men skjemaene for krav og svar har et eget valg for innsigelsen etter punkt 5 tredje ledd, der parten velger brevet innsigelsen gjelder. Løsningen registrerer den med sendetid og brevet og viser den med kravet eller svaret, uten virkning på utfallet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Den egne innsigelsen etter punkt 5 tredje ledd står som vedtatt i VS-U87 punkt 15–18 og punkt 19, siste setning, og bygges senere. Til den bygges, uttrykker partene den i et innlegg.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En part kan også sende innsigelsen etter punkt 5 tredje ledd som eget brev, før og etter svaret, også etter at TE har godtatt avslaget på grunnlaget."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen og inngår ikke i det totalentreprenøren godtar ved aksept."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et innlegg sendt før svaret står i saken og leses ikke."
+
+[[gruppe.vedtak]]
+id = "VS-U91"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2407", "#2011"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmålet i #2407, stilt 25.11 som spørsmål 1. Det står ordrett i [`sporsmal.md`](../vedlegg/kravpostvarsel-eldre-krav-2026-11-25/sporsmal.md), og svaret står i [kommentaren i #2407](https://github.com/khjohns/endringsmeldinger/issues/2407#issuecomment-7183964974):
+
+## Spørsmålet: hva sier brevet om varselet for kravposten når det eldre kravet selv viser til et varsel? (juridisk, i tekst)
+
+**Bakgrunn.** Totalentreprenøren legger til et vederlagskrav sendt utenfor løsningen før
+totalentreprenørens siste krav i sporet («det eldre kravet», OV-U118). I det eldre kravet har
+kravpost P1 regningsarbeid eller justerte enhetspriser og viser til et varsel V etter samme bestemmelse
+(punkt 34.3.3 eller 34.4). Da er vilkår 3 i OV-U120 ikke oppfylt, og det eldre kravet er ikke
+varselet for P1. Varselet for P1 er V, fordi «en kravpost gjelder varselet den viser til» (VS-U87,
+versjon 3 av samlevedtaket for varslene, punkt 23).
+
+Totalentreprenøren sender så en ny kravversjon fra løsningen med P1 med samme oppgjørsform. Den nye
+kravversjonen er ikke varsel for P1, fordi P1 hadde oppgjørsformen i en tidligere versjon, det eldre
+kravet (punkt 22, OV-U118). Brevet for den nye kravversjonen sier i dag ingenting om varselet for P1:
+verken at kravet er varselet, eller at varselet ble gitt i V. Teksten sier ikke noe galt.
+
+Slik er det også i det vanlige tilfellet: har P1 i en kravversjon sendt fra løsningen vist til V, og
+brevet der sa at varselet for P1 ble gitt i V, sier brevet for den neste kravversjonen ikke det igjen.
+Det sies i kravversjonen som viser til varselet. Forskjellen er at i tilfellet her er den kravversjonen
+det eldre kravet, et brev sendt utenfor løsningen. Ingen tekst løsningen har laget, sier hvor varselet
+for P1 ble gitt, og løsningen kontrollerer ikke at det eldre kravet selv sier det (punkt 23).
+
+**Avgrensning.** Spørsmålet gjelder en post der ingen kravversjon sendt fra løsningen har sagt at
+kravet er varselet for posten eller at varselet for posten ble gitt i et brev. Har en kravversjon sendt
+fra løsningen sagt at kravet er varselet for P1, og det eldre kravet legges til etterpå med P1 som viser
+til V, er det ikke bare brevteksten som er åpen, men hvilket varsel P1 gjelder: etter punkt 23 og
+OV-U118 er det V, mens det sendte brevet sa noe annet (MM-U50 punkt 7). Det er et eget spørsmål og
+stilles ikke her. Hva «viser til» betyr for det eldre kravet, totalentreprenørens registrering eller
+brevets egen tekst, følger vilkår 3 i OV-U120 og avgjøres heller ikke her.
+
+**Belegg (ordrett).**
+
+- VS-U87, punkt 22: «En kravpost med regningsarbeid eller justerte enhetspriser regnes som varsel for
+  seg når den ikke hadde den oppgjørsformen i en tidligere versjon, enten posten er ny eller har skiftet
+  oppgjørsform, og når den ikke viser til et varsel etter punkt 23. Brevet sier at kravet er varselet
+  for den posten.»
+- VS-U87, punkt 23: «Brevet sier da ikke at kravet er varselet for posten, men at varselet for posten
+  ble gitt i det brevet, med datoen.» og «En kravpost gjelder varselet den viser til.» og «Løsningen
+  kontrollerer ikke at brevet er et varsel for posten, og byggherren kan bestride datoen.»
+- VS-U87, punkt 25: «Er et varsel gitt før kravet, viser kravet kort til det, med brevet eller
+  dokumentet det står i, og gjentar ikke varselet.»
+- VS-U55, samlet i punkt 25: «Det gjelder et varsel etter punkt 34.3.3 eller 34.4 som er sendt eller
+  registrert før det første kravet med kravposten (D-16 i BF-14), og varslene etter punkt 34.1.2 og
+  34.1.3 i en ny kravversjon når varselet ble gitt i et tidligere brev.»
+- OV-U120: «Et vederlagskrav sendt før totalentreprenørens siste krav i sporet regnes som varselet
+  etter punkt 34.3.3 eller 34.4 for en kravpost når fem vilkår er oppfylt: kravposten hadde
+  regningsarbeid eller justerte enhetspriser i det eldre kravet; den er samme kravpost som i sporet; den
+  viser ikke til et varsel i noen kravversjon i sporet; den hadde ikke den oppgjørsformen i en
+  kravversjon sendt før det eldre kravet; og det eldre kravet er sendt før kravversjonen som ellers er
+  varselet for posten.»
+- OV-U118: «Et vederlagskrav eller fristkrav sendt før totalentreprenørens siste krav i sporet prøves
+  mot kravversjonene i sporet som var sendt da det ble sendt, som om det var sendt fra løsningen den
+  dagen.»
+- Samlevedtaket for sendte brev (MM-U50, versjon 2 i MM-U60), punkt 7: «Det en part har meddelt
+  skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke står i teksten, er ikke
+  meddelt (LV-U3).»
+
+**Alternativene.**
+
+- **A:** «Viser en kravpost med regningsarbeid eller justerte enhetspriser i et vederlagskrav sendt før
+  totalentreprenørens siste krav i sporet til et varsel etter punkt 34.3.3 eller 34.4, og har ingen
+  kravversjon sendt fra løsningen sagt noe om varselet for posten, sier brevet for den første
+  kravversjonen totalentreprenøren deretter sender fra løsningen med posten med samme oppgjørsform, at
+  varselet for posten ble gitt i varselet totalentreprenøren har oppgitt at det eldre kravet viser til,
+  med datoen. Kravversjonen viser kort til varselet etter punkt 25 i versjon 3 av samlevedtaket for
+  varslene og gjentar det ikke, og den sier ikke at kravet er varselet for posten. Senere kravversjoner
+  sier det ikke igjen. Skifter posten oppgjørsform, eller viser kravversjonen selv til et varsel, gjelder
+  punkt 22 og 23.»
+  *Forhold:* utvider VS-U87 punkt 25, som etter VS-U55 gjelder det første kravet med kravposten, til en
+  senere kravversjon, og snevrer inn OV-U118 for brevteksten: det eldre kravet regnes ikke som
+  kravversjonen som sier hvor varselet ble gitt. Presiserer OV-U120 (samlet i VS-U87, punkt 22).
+- **B (anbefalt):** «Viser en kravpost med regningsarbeid eller justerte enhetspriser i et
+  vederlagskrav sendt før totalentreprenørens siste krav i sporet til et varsel etter punkt 34.3.3 eller
+  34.4, og har ingen kravversjon sendt fra løsningen sagt noe om varselet for posten, sier brevet for en
+  senere kravversjon totalentreprenøren sender fra løsningen, ikke noe om varselet for posten så lenge
+  posten har samme oppgjørsform og viser til samme varsel. Varselet for posten er varselet
+  totalentreprenøren har oppgitt at det eldre kravet viser til (punkt 23 i versjon 3 av samlevedtaket
+  for varslene). Det er som for en kravpost som viste til et varsel i en kravversjon sendt fra
+  løsningen. Skifter posten oppgjørsform, eller viser kravversjonen selv til et annet varsel, gjelder
+  punkt 22 og 23.»
+  *Forhold:* presiserer VS-U87 punkt 23 og 25 og OV-U120 (samlet i VS-U87, punkt 22), i tråd med
+  OV-U118. Endrer ikke noe vedtak.
+
+**Hva hvert alternativ koster den andre parten.**
+
+- **B koster byggherren:** brevene løsningen lager, sier ikke hvor varselet for P1 ble gitt. Byggherren
+  finner det i det eldre kravet, som ligger i saken, og i visningen. Løsningen kontrollerer ikke at det
+  eldre kravet faktisk sier at P1 viser til V (punkt 23). Hva totalentreprenøren har oppgitt, er da
+  totalentreprenørens registrering av det eldre kravet, ikke en tekst totalentreprenøren har sendt fra
+  løsningen.
+- **A koster totalentreprenøren lite:** en setning i den neste kravversjonen. Den gjentar det
+  totalentreprenøren alt har oppgitt, og står slik den ble sendt (MM-U50 punkt 7). Den skiller tilfellet
+  fra det vanlige tilfellet, der bare kravversjonen som viser til varselet, sier det.
+
+**Anbefaling: B.** Belegg: etter OV-U118 prøves det eldre kravet «som om det var sendt fra løsningen
+den dagen», og etter punkt 26 gjelder det som varsel etter de samme reglene som et krav sendt fra
+løsningen. Etter punkt 23 og 25, med VS-U55, sier det første kravet med kravposten hvor varselet ble
+gitt, ikke en senere kravversjon. Her er det første kravet med posten det eldre kravet. B behandler det
+derfor som en kravversjon på linje med en sendt fra løsningen. B krever ingen endring i kjernen; det er
+en kostnad og ikke belegg. Mot B taler at ingen tekst fra løsningen
+sier hvor varselet for P1 ble gitt, og at løsningen ikke kontrollerer det eldre kravet. Om byggherren i
+praksis leser bare brevene fra løsningen og ikke det eldre kravet, er en antakelse som taler for A.
+Hvordan visningen viser byggherren varselet for P1, er design (åpent spørsmål 2 i PR #2394) og
+avhenger ikke av svaret.
+
+**Hva valget styrer:** brevteksten for kravpostvarslene i den neste kravversjonen (`kjerne/frosset/`)
+og utledningen av kravpostvarslene fra PR #2394, med bevis-sakene for teksten. Ved B står koden og
+testen for vilkår 3 i `kjerne/tester/eldrekrav.test.ts` som den er, og #2407 lukkes med vedtaket. Ved A
+bygges setningen i et eget byggeissue.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren ([kommentaren i #2407](https://github.com/khjohns/endringsmeldinger/issues/2407#issuecomment-7183964974)): «1B». Svaret er B, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u87" },
+  { art = "presiserer", vedtak = "ov-u120" },
+]
+folge = '''
+Forholdet slik det sto i alternativet B: «presiserer VS-U87 punkt 23 og 25 og OV-U120 (samlet i VS-U87, punkt 22), i tråd med OV-U118. Endrer ikke noe vedtak.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Viser en kravpost med regningsarbeid eller justerte enhetspriser i et vederlagskrav sendt før totalentreprenørens siste krav i sporet til et varsel etter punkt 34.3.3 eller 34.4, og har ingen kravversjon sendt fra løsningen sagt noe om varselet for posten, sier brevet for den første kravversjonen totalentreprenøren deretter sender fra løsningen med posten med samme oppgjørsform, at varselet for posten ble gitt i varselet totalentreprenøren har oppgitt at det eldre kravet viser til, med datoen. Kravversjonen viser kort til varselet etter punkt 25 i versjon 3 av samlevedtaket for varslene og gjentar det ikke, og den sier ikke at kravet er varselet for posten. Senere kravversjoner sier det ikke igjen. Skifter posten oppgjørsform, eller viser kravversjonen selv til et varsel, gjelder punkt 22 og 23.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Viser en kravpost med regningsarbeid eller justerte enhetspriser i et vederlagskrav sendt før totalentreprenørens siste krav i sporet til et varsel etter punkt 34.3.3 eller 34.4, og har ingen kravversjon sendt fra løsningen sagt noe om varselet for posten, sier brevet for en senere kravversjon totalentreprenøren sender fra løsningen, ikke noe om varselet for posten så lenge posten har samme oppgjørsform og viser til samme varsel. Varselet for posten er varselet totalentreprenøren har oppgitt at det eldre kravet viser til (punkt 23 i versjon 3 av samlevedtaket for varslene). Det er som for en kravpost som viste til et varsel i en kravversjon sendt fra løsningen. Skifter posten oppgjørsform, eller viser kravversjonen selv til et annet varsel, gjelder punkt 22 og 23.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En kravpost gjelder varselet den viser til."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Er et varsel gitt før kravet, viser kravet kort til det, med brevet eller dokumentet det står i, og gjentar ikke varselet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det gjelder et varsel etter punkt 34.3.3 eller 34.4 som er sendt eller registrert før det første kravet med kravposten (D-16 i BF-14), og varslene etter punkt 34.1.2 og 34.1.3 i en ny kravversjon når varselet ble gitt i et tidligere brev."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt."
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
@@ -36755,6 +37053,205 @@ forkastet = true
 kilde = "hovedplanen"
 tekst = "ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes rettigheter og plikter"
 utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U125"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2410", "BF-51 S-1"]
+klasse = "vedtak"
+designdel = "hvor betegnelsen vises: ved sporet, på siden for sporet og på siden for forholdet, og linja under betegnelsen"
+sporsmal = '''
+Spørsmålet S-1 i bestillingen for brukerforløpet BF-51 (#2410), stilt 25.11 som spørsmål 11. Det står ordrett i `docs/domenetabell/brukerforlop/BF-51-sporsmal.md` på grenen `claude/tomt-spor-2410` (da9a557, PR #2416), og svaret står i [kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669):
+
+## S-1. Skal et spor uten varsel eller krav fra totalentreprenøren ha en egen tilstand?
+
+**Bakgrunn.** Oppdragsgiver 25.11, ordrett: «Noe veldig grunnleggende: både vederlag og frist mangler
+en god tilstand for at ingen varsel eller krav foreligger. TE kan ikke sende krav. BH får ikke beskjed
+om at varsel eller krav ikke er sendt.» I dag har et spor for vederlagsjustering eller
+fristforlengelse uten varsel eller krav ingen betegnelse. Designpunktet MM-U30 sier «Ingen betegnelse
+når ingenting er sendt». Byggherren ser en tom side for sporet uten tekst, sporet står uten tekst i
+panelet til venstre, og siden for forholdet utelater sporet. Bare når begge sporene er tomme, står
+det «Ingen krav om vederlagsjustering eller fristforlengelse ennå.» på siden for forholdet. En ny
+tilstand prøves mot portene etter OV-U97.
+
+**Belegg (ordrett, utdrag).**
+
+- OV-U3: «Et spor der TE ikke har sendt et krav, hindrer ikke; et varsel alene er ikke et krav
+  (KA-U2).» og «Den sier ikke at saken er oppgjort eller at TE ikke har flere krav, og taushet er ikke
+  et avkall.»
+- OV-U4: «Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og
+  den fryser ingen vurdering av det.»
+- OV-U97: «En tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og
+  konkluderer ikke det kontrakten overlater til partene.»
+- MM-U30 (design, i systemfila): «Ingen betegnelse når ingenting er sendt, og heller ikke for et krav
+  uten svar i en lukket sak.»
+- MM-U24 (design, i systemfila): «Betegnelsene sier hvem som har sagt hva, og ikke hvem som skal
+  handle.» og «Visningen sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke
+  har flere krav».
+
+**Portene** ([vurderingsfila](../../vurdering-handlinger-og-tilstander-2026-11-15.md#skjemaet)).
+Port 0: tilstanden sier hvem som har sagt hva: totalentreprenøren har ikke sendt eller lagt til et
+varsel eller krav i sporet. Den sier ikke hvem som står for tur (MM-U24). Port 1: kjernen leser at sporet
+ikke har krav (OV-U3), og et varsel uten krav («Varslet», MM-U30). Tilstanden er at ingen av dem
+foreligger. Port 4: tilstanden har en vei ut,
+totalentreprenørens første varsel eller krav. Kostnaden er et predikat i kjernen, en rad i
+handlingsregisteret og teksten i Varden. Ingen ny handling.
+
+**Alternativene.**
+
+- **A:** «Et spor for vederlagsjustering eller fristforlengelse der totalentreprenøren ikke har sendt
+  et varsel eller et krav i løsningen, ikke har lagt til et varsel eller et krav sendt utenfor
+  løsningen med virkning, og ikke har oppgitt datoen for et varsel sendt utenfor løsningen, har en egen
+  tilstand. Tilstanden leses av journalen. Brev lagt til som dokumentasjon og innlegg endrer den ikke.
+  Betegnelsen sier at saken ikke har et varsel eller et krav fra totalentreprenøren i sporet. Den sier
+  ikke at ingenting er sendt utenfor løsningen, at kravet er tapt, at totalentreprenøren ikke har
+  krav, eller hvem som skal handle, og taushet er ikke et avkall. Betegnelsen vises for begge
+  partene ved sporet, på siden for sporet og på siden for forholdet, også når kravene i saken er
+  avgjort etter OV-U3. Byggherrens forespørsel etter punkt 33.6.2 som ikke er besvart, går foran.
+  Betegnelsen vises ikke i en sak som er lukket etter GR-U27, og ikke når saken ikke er forstått. Et
+  innlegg eller et brev lagt til som dokumentasjon i sporet står i linja under betegnelsen, uten
+  tolkning (OV-U99 punkt 6, OV-U4).»
+  *Forhold:* endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at
+  betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn.
+  Presiserer OV-U3 og OV-U4 for tilstanden.
+- **B:** «MM-U30 står: et spor uten varsel eller krav fra totalentreprenøren har ingen betegnelse og
+  ingen tilstand i kjernen. Siden for sporet sier i brevtråden at saken ikke har varsel eller krav fra
+  totalentreprenøren om vederlagsjusteringen eller fristforlengelsen, og siden for forholdet viser begge sporene med
+  samme tekst.»
+  *Forhold:* presiserer MM-U30. Endrer ingen vedtak.
+
+**Anbefaling: A.** Oppdragsgiver ber om en tilstand. A gir kjernen et predikat som leses av journalen,
+så visningen ikke avgjør selv hva et tomt spor er, og grensen mot det som er sendt utenfor løsningen
+står i tilstanden. B gir bare en tekst, og forskjellen mellom dokumentasjon og et varsel lagt til med
+virkning må da avgjøres i visningen.
+
+**Hva valget styrer.** Om kjernen får predikatet og en rad under `[[betegnelse]]` i
+handlingsregisteret, og hva U-2, U-5 og U-6 i bestillingen viser.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren ([kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669)): «11 A , 12 A, 13 A». Spørsmål 11 er S-1, og svaret er A.'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u30" },
+  { art = "endrer", vedtak = "mm-u22" },
+  { art = "bygger på", vedtak = "ov-u97" },
+  { art = "bygger på", vedtak = "ov-u99" },
+  { art = "presiserer", vedtak = "ov-u3" },
+  { art = "presiserer", vedtak = "ov-u4" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Raden for tilstanden står i handlingsregisteret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et spor for vederlagsjustering eller fristforlengelse der totalentreprenøren ikke har sendt et varsel eller et krav i løsningen, ikke har lagt til et varsel eller et krav sendt utenfor løsningen med virkning, og ikke har oppgitt datoen for et varsel sendt utenfor løsningen, har en egen tilstand. Tilstanden leses av journalen. Brev lagt til som dokumentasjon og innlegg endrer den ikke. Betegnelsen sier at saken ikke har et varsel eller et krav fra totalentreprenøren i sporet. Den sier ikke at ingenting er sendt utenfor løsningen, at kravet er tapt, at totalentreprenøren ikke har krav, eller hvem som skal handle, og taushet er ikke et avkall. Betegnelsen vises for begge partene ved sporet, på siden for sporet og på siden for forholdet, også når kravene i saken er avgjort etter OV-U3. Byggherrens forespørsel etter punkt 33.6.2 som ikke er besvart, går foran. Betegnelsen vises ikke i en sak som er lukket etter GR-U27, og ikke når saken ikke er forstått. Et innlegg eller et brev lagt til som dokumentasjon i sporet står i linja under betegnelsen, uten tolkning (OV-U99 punkt 6, OV-U4).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+MM-U30 står: et spor uten varsel eller krav fra totalentreprenøren har ingen betegnelse og ingen tilstand i kjernen. Siden for sporet sier i brevtråden at saken ikke har varsel eller krav fra totalentreprenøren om vederlagsjusteringen eller fristforlengelsen, og siden for forholdet viser begge sporene med samme tekst.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et spor der TE ikke har sendt et krav, hindrer ikke; et varsel alene er ikke et krav (KA-U2)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den sier ikke at saken er oppgjort eller at TE ikke har flere krav, og taushet er ikke et avkall."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og den fryser ingen vurdering av det."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og konkluderer ikke det kontrakten overlater til partene."
+
+[[gruppe.vedtak]]
+id = "OV-U126"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#2410", "BF-51 S-2"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmålet S-2 i bestillingen for brukerforløpet BF-51 (#2410), stilt 25.11 som spørsmål 12. Det står ordrett i `docs/domenetabell/brukerforlop/BF-51-sporsmal.md` på grenen `claude/tomt-spor-2410` (da9a557, PR #2416), og svaret står i [kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669):
+
+## S-2. Hva skal byggherren se når totalentreprenøren ikke har sendt et varsel eller et krav i sporet?
+
+**Bakgrunn.** Oppdragsgiver skrev at byggherren ikke får beskjed om at varsel eller krav ikke er
+sendt. Byggherren kan ha en interesse i å vite det, for eksempel for å vurdere om et senere varsel
+kom i tide. Varslingsfristene etter punkt 33.4 og 34.1.2 løper fra totalentreprenøren ble eller
+burde ha blitt klar over forholdet, ikke fra en dato løsningen kjenner. Løsningen vet ikke hva som er
+sendt utenfor den (OV-U4).
+
+**Belegg (ordrett, utdrag).**
+
+- HF-U11: «Appen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i
+  tide, eller at taushet har gitt virkning (MM-U12).»
+- VS-U10 (design): «for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold»
+  etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en fast frist.
+  Forkastet: en veiledende frist per prosjekt, og en fast frist på 10 dager»
+- MM-U40 (design, i systemfila): «Varden har ingen arbeidsliste. Siden for saken viser hvilke brev
+  som er sendt, av hvem og når, og sier ikke hvem som skal handle.»
+
+**Alternativene.**
+
+- **A:** «Byggherren ser tilstanden etter S-1 ved sporet, på siden for sporet og på siden for
+  forholdet. Løsningen sender ingen egen melding om sporet, setter ingen frist og viser ingen
+  fristveiledning for totalentreprenørens varsel eller krav i et spor uten varsel eller krav. Den sier
+  ikke at en frist er oversittet. Fristveiledningen for svaret på byggherrens forespørsel etter
+  punkt 33.6.2 står som før (VS-U10).»
+  *Forhold:* presiserer HF-U11 og MM-U40 for et spor uten varsel eller krav.
+- **B:** «Som A. I tillegg viser siden for sporet datoen forholdet ble påberopt i saken, antall dager
+  siden og bestemmelsen for varselet, punkt 33.4 for fristforlengelsen og punkt 34.1.2 for
+  vederlagsjusteringen, uten en fast frist og uten å si at fristen er oversittet.»
+  *Forhold:* utvider VS-U10 til en frist som ikke løper fra mottaket av en melding fra motparten.
+  Endrer MM-U24 (fristveiledningen står bare ved kravet). Presiserer HF-U11.
+- **C:** «Som A. I tillegg får byggherren en melding når totalentreprenøren ikke har sendt et varsel
+  eller et krav i sporet innen et fast antall dager etter at forholdet ble påberopt.»
+  *Forhold:* endrer VS-U10, som forkastet en fast frist, og MM-U40 og MM-U24, som sier at saken
+  ikke sier hvem som skal handle, og at visningen ikke sier at en part har plikt. Strider mot HF-U11 hvis meldingen leses som at fristen er oversittet.
+
+**Anbefaling: A.** Tilstanden sier det løsningen vet. B regner fra påberopelsen, som kan ligge før
+totalentreprenøren ble klar over virkningen for vederlaget eller fristen, så dagene kan leses som en
+frist løsningen ikke kjenner. C setter en fast frist, som VS-U10 forkastet.
+
+**Hva valget styrer.** Hva U-5 og U-6 i bestillingen viser byggherren, og om siden for sporet får en
+fristveiledning.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren ([kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669)): «11 A , 12 A, 13 A». Spørsmål 12 er S-2, og svaret er A.'''
+forhold = [
+  { art = "presiserer", vedtak = "hf-u11" },
+  { art = "presiserer", vedtak = "mm-u40" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer HF-U11 og MM-U40 for et spor uten varsel eller krav.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren ser tilstanden etter S-1 ved sporet, på siden for sporet og på siden for forholdet. Løsningen sender ingen egen melding om sporet, setter ingen frist og viser ingen fristveiledning for totalentreprenørens varsel eller krav i et spor uten varsel eller krav. Den sier ikke at en frist er oversittet. Fristveiledningen for svaret på byggherrens forespørsel etter punkt 33.6.2 står som før (VS-U10).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A. I tillegg viser siden for sporet datoen forholdet ble påberopt i saken, antall dager siden og bestemmelsen for varselet, punkt 33.4 for fristforlengelsen og punkt 34.1.2 for vederlagsjusteringen, uten en fast frist og uten å si at fristen er oversittet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som A. I tillegg får byggherren en melding når totalentreprenøren ikke har sendt et varsel eller et krav i sporet innen et fast antall dager etter at forholdet ble påberopt.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i tide, eller at taushet har gitt virkning (MM-U12)."
 
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"

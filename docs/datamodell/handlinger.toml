@@ -345,9 +345,9 @@ id = "I1"
 navn = "Den egne innsigelsen etter punkt 5"
 part = "TE og BH"
 spor = ["forhold", "vederlag", "frist"]
-kilde = ["punkt 5", "VS-U77", "OV-U99"]
+kilde = ["punkt 5", "VS-U77", "OV-U99", "VS-U89"]
 finnes = "Nei. Utsagn uten virkning på utfallet."
-form = "Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657."
+form = "Standpunkt i svaret, innlegg eller «Forbehold» i et krav eller svar, varig (VS-U89)."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
@@ -538,6 +538,13 @@ nivaa = "spor"
 betydning = "TE har varslet. TE står for tur med kravet."
 kilde = ["OV-U97"]
 status = "holder"
+
+[[betegnelse]]
+noekkel = "ingen_varsel_eller_krav"
+nivaa = "spor"
+betydning = "TE har ikke sendt, lagt til med virkning eller oppgitt datoen for et varsel eller krav i sporet. Sier ikke hvem som står for tur."
+kilde = ["OV-U125", "OV-U97"]
+status = "ny"
 
 [[betegnelse]]
 noekkel = "innlegg_etter_siste_brev"
