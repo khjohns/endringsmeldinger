@@ -331,8 +331,7 @@ export type OppgittDato = {
 /**
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
  * fra i påberopelsen (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
- * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
- * byggherrens registrerte begrunnelse ble sendt (KA-U35 (opphevet av KA-U46)).
+ * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5).
  */
 function oppgittDatoI(k: Kommando): OppgittDato[] {
   if (k.type === 'varsel')
