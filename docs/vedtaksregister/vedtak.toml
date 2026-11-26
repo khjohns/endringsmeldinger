@@ -8633,7 +8633,9 @@ GR-U16 står (klasse design) og samles ikke. GR-U20 og GR-U23 hører til frafall
 
 Teksten under er samlevedtaket [GR-U41](#gr-u41), vedtatt 26.11 av oppdragsgiver (#1534, #2428),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-d-avgjorte-krav-frafall-og-eo-2026-11-26.md)
-som D2, med svarene 3 A, 4 A og 5 A. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
+som D2, med svarene 3 A, 4 A og 5 A. Etter kontrollen av klassen 26.11 (svar 8 i #1534) er «løsningen viser
+frafallet sammen med det nye svaret» i punkt 4 en henvisning til HF-U29 punkt 4, som sier det. Innholdet er ikke
+endret. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
 
 ###### A. Når byggherren kan frafalle
 
@@ -8652,8 +8654,7 @@ som D2, med svarene 3 A, 4 A og 5 A. Kildene står i parentes etter hver setning
    nytt svar avslår forholdet eller påberoper at det er varslet for sent (KA-U88 punkt 12 og 13;
    GR-U34 punkt 12; punkt 4). (GR-U9 s1 og første del av s2; GR-U17 s1; GR-U23 s1; E8)
 4. Frafallet står i saken når totalentreprenøren sender en ny versjon av forholdet. Et nytt svar
-   etter frafallet følger HF-U29 punkt 4: løsningen viser frafallet sammen med det nye svaret, og
-   avgjør ikke om byggherren er bundet av frafallet (MM-U60 punkt 8), om frafallet har andre
+   etter frafallet følger HF-U29 punkt 4. Løsningen avgjør ikke om byggherren er bundet av frafallet (MM-U60 punkt 8), om frafallet har andre
    rettsvirkninger, eller om partenes krav er berettiget. (GR-U17 s1; GR-U20 s1; GR-U28 s7;
    spørsmål 4)
 5. At byggherren har frafalt pålegget, hindrer ikke at saken inngår i en endringsordre. Krav om
@@ -10277,7 +10278,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+beslutningsdel = "punkt 5 i samlevedtaket, etter avsnittet «Beslutningsdel»"
 id = "GR-U41"
 dato = 2026-11-26
 hvem = "oppdragsgiver"
@@ -22847,7 +22848,10 @@ versjon 4 og 3 av de to andre samlevedtakene. OV-U118–OV-U121 og VS-U77 står 
 
 Teksten under er samlevedtaket [MM-U62](#mm-u62), vedtatt 26.11 av oppdragsgiver (#1534, #2428),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-d-avgjorte-krav-frafall-og-eo-2026-11-26.md)
-som D1, med svarene 1 A og 2 A. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
+som D1, med svarene 1 A og 2 A. Etter kontrollen av klassen 26.11 (svar 8 i #1534) står punkt 5 i utkastet,
+«Predikatet leses av utsagnene og relasjonene, ikke av status», i beslutningsdelen, og punkt 6 og 7 er
+nummerert 5 og 6. Beslutningsdelen og designdelen står hver for seg. Innholdet er ikke endret. Kildene står i
+parentes etter hver setning, og «s3» er tredje setning i posten.
 
 Hver setning har kilden i parentes. Språket følger E6.
 
@@ -22868,22 +22872,25 @@ Hver setning har kilden i parentes. Språket følger E6.
    KA-U88 punkt 10, 12 og 13; E1) Et spor der totalentreprenøren ikke har sendt et krav, følger
    punkt 8 i HF-U35. Et varsel alene er ikke et krav (KA-U2). (OV-U3 s2–s3) Henvisningene til OV-U3
    i KA-U88 punkt 13 og HF-U35 punkt 8 leses som dette punktet.
-5. Predikatet leses av utsagnene og relasjonene, ikke av status. (KA-U11 s5; MM-U34 punkt 12)
-6. At kravene er avgjort, sperrer ingen handling. Sperrene står i EO-U39 punkt 8 og 12, HF-U35
+5. At kravene er avgjort, sperrer ingen handling. Sperrene står i EO-U39 punkt 8 og 12, HF-U35
    punkt 3 og 9 og KA-U51 punkt 11. Løsningen viser predikatet som en opplysning og framstiller det
    ikke som en rettslig avgjørelse. (MM-U34 punkt 12; KA-U52 punkt 6; E2)
-7. Sender totalentreprenøren det første kravet i et spor etter at kravene er avgjort, går det i
+6. Sender totalentreprenøren det første kravet i et spor etter at kravene er avgjort, går det i
    samme sak, unntatt der KA-U52 punkt 6 sperrer, og kravene er ikke lenger avgjort før det nye
    kravet er det. Et varsel alene endrer ikke dette. Kravet får datoen det sendes, ikke datoen for
    tidligere aktivitet i saken. (OV-U3 s9–s11 og s13; KA-U52 punkt 7)
 
-###### Beslutningsdel og designdel
+###### Beslutningsdel
 
+- Predikatet leses av utsagnene og relasjonene, ikke av status. (KA-U11 s5; MM-U34 punkt 12)
 - Løsningen hjelper partene å sende krav og svar med de opplysningene kontrakten krever, og støtter
   kontraktens meldingskrav og frister. Totalentreprenøren sender et strukturert krav, og byggherren
   svarer strukturert. (MM-U33 s2, s7 og s8)
 - Løsningen har ingen egne prosesser for ulike typer innsigelser og protester. Hvordan de sendes,
   følger MM-U47 og VS-U87. (MM-U33 s14; MM-U47, beslutningsdelen)
+
+###### Designdel
+
 - Teksten visningen bruker når kravene er avgjort, hører til F (OV-U3 s4–s5, OV-U10, OV-U99 punkt
   6 og MM-U34 punkt 12). Påminnelsen ved det første kravet står i BF-51 U-3 (OV-U3 s14–s16).
 
@@ -30447,8 +30454,8 @@ tekst = "Datoen og metoden for et varsel fra totalentreprenøren settes én gang
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Beslutningsdel og designdel» i samlevedtaket"
-beslutningsdel = "avsnittet «Beslutningsdel og designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "MM-U62"
 dato = 2026-11-26
 hvem = "oppdragsgiver"
@@ -32887,7 +32894,7 @@ Opplysningen om kravets dato gjelder § 33.6.1. Skal datoen også gjelde § 33.4
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["ov-u4", "hf-u13"]
+bindende_i = ["ov-u4", "hf-u13", "mm-u62"]
 id = "OV-U10"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
