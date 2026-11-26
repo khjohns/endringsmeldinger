@@ -73,18 +73,21 @@ export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
   besvart: boolean;
 }
 
+/** En linje i et punkt i panelet, med laget og vilkåret når svaret har flere lag. */
+export interface Skjemalinje {
+  tekst: string;
+  lag: string | null;
+  vilkaar?: Innsigelsen[];
+  heller?: boolean;
+}
+
 /** Et punkt i panelet med svaret eller statusen slik den står i skjemaet. */
 export interface Skjemapunkt {
   punkt: string;
   navn: string;
   /** Det som står etter overskriften i brevet, som kravposten «P1» (KA-U53). */
   tillegg?: string;
-  linjer?: readonly {
-    tekst: string;
-    lag: string | null;
-    vilkaar?: Innsigelsen[];
-    heller?: boolean;
-  }[];
+  linjer?: readonly Skjemalinje[];
   aktiv?: boolean;
 }
 
