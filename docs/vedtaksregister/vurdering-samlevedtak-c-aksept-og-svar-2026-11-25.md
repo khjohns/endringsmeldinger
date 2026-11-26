@@ -402,9 +402,13 @@ og «§ 6 første ledd»), setningen i A og E3, og i B motstriden med HF-U7 s5, 
 Svaret på spørsmål 8, oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534:
 «A».
 
-## Kodefunn
+## Kodefunn og berørte forløp
 
-Ingen. Kartleggingen har ikke lest koden. Følge i GR-U17, GR-U20 og HF-U5 sier at kjernen ikke har
+Kartleggingen har ikke lest koden. Etter svarene 26.11: BF-08 T-5 og avsnittet om lukkingen i BF-08
+viser til SK-01 og lukker saken når totalentreprenøren godtar at forholdet er varslet for sent. Etter
+punkt 10 i HF-U35 (svar 6 B) lukkes saken ikke. Om kjernen lukker saken i dette tilfellet, er ikke
+lest. Punkt 14 i KA-U88 og punkt 2 i HF-U35 har tillegget «ikke i grensesnitt» (svar 3 og 5), som
+forløpene må følge. Forløpene som viser til de samlede postene, står i PR #2417. Følge i GR-U17, GR-U20 og HF-U5 sier at kjernen ikke har
 sperrene (merknaden 04.11). De sperrene er opphevet av HF-U29.
 
 ## Verifikasjon og grenser

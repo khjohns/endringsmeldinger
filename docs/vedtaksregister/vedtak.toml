@@ -7453,8 +7453,8 @@ etter = '''
 
 Teksten under er samlevedtaket [KA-U88](#ka-u88), vedtatt 26.11 av oppdragsgiver (#1534, #2417),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-c-aksept-og-svar-2026-11-25.md)
-som C1, med svarene 1 A, 2 ja, 3 B og 8 A. Ved 3 B og 8 A er punkt 14 nytt, og E3 følger det.
-Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
+som C1, med svarene 1 A, 2 ja, 3 B og 8 A. Ved 3 B og 8 A er punkt 14 nytt, under den nye
+overskriften D, og E3 følger det. «s3» er tredje setning i posten.
 
 Hver setning har kilden i parentes. Språket følger E8.
 
@@ -7534,7 +7534,8 @@ Hver setning har kilden i parentes. Språket følger E8.
 
 ###### Beslutningsdel og designdel
 
-- Svar 3, ordrett: «B kan stå i vedtak men ikke grensesnitt». Punkt 14 vises ikke i grensesnittet.
+- Svar 3, ordrett: «B kan stå i vedtak men ikke grensesnitt». Det gjelder setningen fra 3 B i punkt
+  14.
 - KT-U1 står som beslutning. Den er bindende i punkt 7 og 8 i stedet for i KA-U1. MM-U13 s1–s2 står.
 - Har byggherren påberopt at et varsel kom for sent, sier skjemaet før sending at påberopelsen inngår
   i aksepten, og at beløpet etter svaret da er 0 kr. (MM-U34 punkt 16, D-1 i BF-03)
@@ -7580,8 +7581,8 @@ OV-U59, OV-U88, OV-U110, siste setning i KA-U15 og MM-U13 s3. **Står:** KT-U1, 
 
 Teksten under er samlevedtaket [HF-U35](#hf-u35), vedtatt 26.11 av oppdragsgiver (#1534, #2417),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-c-aksept-og-svar-2026-11-25.md)
-som C2, med svarene 4 ja, 5 A og 6 B. Ved 6 B har punkt 10 teksten i alternativ B, og punkt 3 og E7
-følger det. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
+som C2, med svarene 4 ja, 5 A og 6 B. Ved 6 B utgår punkt 10 med teksten i alternativ B, og punkt 3,
+E2, E4, E7 og «Samler» følger det. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
 
 ###### A. Avkall
 
@@ -7627,10 +7628,11 @@ følger det. Kildene står i parentes etter hver setning, og «s3» er tredje se
    E4) Innlegg, dokumentasjon og de andre utsagnene som ikke kan endre utfallet, godtas fortsatt og
    registreres uten virkning på utfallet. Det som kan endre utfallet, avvises. (GR-U27 s3; KA-U29;
    MM-U56; EO-U39 punkt 68; MM-U59 punkt 24)
-10. Godtar totalentreprenøren byggherrens svar om at forholdet er varslet for sent etter punkt 32.2,
-    gir aksepten enighet om preklusjonen, og enigheten om vederlag og frist får ingen virkning
-    (GR-U34 punkt 12), men saken lukkes ikke. Saken lukkes av en endringsordre eller et trekk, og den
-    kan tas med i en endringsordre (EO-U39 punkt 8 sperrer da ikke). (svar 6 B; E7)
+10. Utgått etter svar 6 B: «Punkt 10 utgår. Aksepten gir enighet om preklusjonen, og enigheten om
+    vederlag og frist får ingen virkning (GR-U34 punkt 12), men saken lukkes ikke. Saken lukkes av en
+    endringsordre eller et trekk, og den kan tas med i en endringsordre (EO-U39 punkt 8 sperrer da
+    ikke).» Aksepten er totalentreprenørens aksept av byggherrens svar om at forholdet er varslet for
+    sent etter punkt 32.2. (svar 6 B; E7)
 11. Legges aksepten av avslaget til etter at byggherren har sendt et nytt svar på forholdet, lukker
     den ikke saken. Aksepten gir enighet om avslaget, og enigheten vises ved avslaget. Byggherrens
     nye svar står med virkningen det hadde. Løsningen avgjør ikke om enigheten om avslaget står.
@@ -7638,8 +7640,7 @@ følger det. Kildene står i parentes etter hver setning, og «s3» er tredje se
 
 ###### Beslutningsdel og designdel
 
-- Svar 5, ordrett: «A men ikke i grensesnitt». Setningen i punkt 2 om at avkallet binder, vises ikke
-  i grensesnittet.
+- Svar 5, ordrett: «A men ikke i grensesnitt».
 - «Ingen krav» bygges ikke i første versjon. (OV-U7; OV-U99 punkt 2) Setningen om forsering i
   punkt 7 må stå i brevet før «ingen krav» tas i bruk. (KA-U25 s3) Trekk og «ingen krav» har ingen
   fritekst i første versjon, og et avgrenset eller betinget avkall sendes utenfor løsningen.
@@ -7654,21 +7655,23 @@ følger det. Kildene står i parentes etter hver setning, og «s3» er tredje se
   varselet kom for sent. Forhold: endrer HF-U10.
 - **E2 Forhold som alt er løst.** KA-U15 s3–s4 er oppfylt av KA-U17 og KA-U22. KA-U22 s3 står i
   designdelen i KA-U51, og s7 er opphevet av KA-U51 E5. GR-U27 s4 sier hvilke poster som står ved
-  lukkingen, og at punkt 12 i MM-U34 ikke gjelder disse sakene. Det står i punkt 9 og 10, og
+  lukkingen, og at punkt 12 i MM-U34 ikke gjelder disse sakene. Det står i punkt 9, og
   postene den nevner, samles her eller står (KA-U13, KA-U29).
 - **E3 «Ingen krav» og sperren.** KA-U12 s2 «det teller som trukket i KA-U11 og som oppgjort i EO-U5»
   faller. EO-U5 er opphevet (MM-U34 punkt 20), og Følge i OV-U3 sier at KA-U12 må endres.
 - **E4 Statusnavnene.** `AVSLATT_AKSEPTERT` og `LUKKET_AVSLATT` i radene TFR-01, #213 og SK-01
   faller, som `LUKKET_TRUKKET` i KA-U51 E3. Ingen regel leser etiketten (MM-U34 punkt 12). Hva den
   lukkede saken sperrer (#213 s2), hører til D. MM-U22 og MM-U31 viser til SK-01, og MM-U30
-  gjennom MM-U31. MM-U22 snevres inn etter E7.
+  gjennom MM-U31. MM-U22 snevres inn etter E7, og MM-U30 og MM-U31 er berørt, men endres ikke.
 - **E5 Henvisningene.** MM-U12 leses som punkt 8 i MM-U60, og MM-U9 i KA-U25 som MM-U60.
   Henvisningene til GR-U27 i HF-U29 punkt 3 og EO-U39 punkt 11 og 50 leses som punkt 9.
 - **E6 Språket.** Som E8 i C1.
 - **E7 Aksept av påberopt preklusjon (svar 6 B).** SK-01 s1 sa at aksepten av byggherrens svar om at
   forholdet er varslet for sent, er et godtatt avslag. Punkt 10 sier at saken ikke lukkes. Den
-  samlede betegnelsen for et godtatt avslag i MM-U22 gjelder da ikke denne aksepten. Forhold:
-  opphever SK-01 s1 og snevrer inn MM-U22.
+  samlede betegnelsen for et godtatt avslag i MM-U22 gjelder da ikke denne aksepten. SK-01 s2 sier
+  virkningen av s1: statusene og at endringsordre ikke kan utstedes. Statusnavnene faller etter E4,
+  og at saken kan tas med i en endringsordre, står i punkt 10. Forhold: opphever SK-01 s1 og snevrer
+  inn MM-U22.
 
 **Samler:** HF-U10, HF-U15 s3, KA-U8, KA-U12 (s4–s6 i D), KA-U15 s1–s4, KA-U17, KA-U22 (ordlyden i
 E), KA-U25, GR-U27, OV-U112 og radene TFR-01 og #213 (s2 i D). **Står:** KA-U13, KA-U29 og
@@ -8221,7 +8224,7 @@ forhold = [
   { art = "presiserer", vedtak = "kt-u1" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for byggherrens standpunkt, aksepten og registrert enighet](#samlevedtak-aksept). Samler postene under «Samler» der: av GR-U7 står s5 i [HF-U35](#hf-u35), av GR-U10 hører s3 til gruppe D, og av KA-U15 samles siste setning her og s1–s4 i HF-U35. Endrer GR-U7, GR-U8 og GR-U10 (E1 og E2), HF-U5 s1 (E3, svar 3 B og 8 A) og MM-U13 s3 (E7); MM-U13 s1–s2 står. Presiserer KT-U1 (E5), som står som beslutning. Svar 1 A: to samlevedtak, ført i én vedtaks-PR. Svar 7 A: tema 14 får en versjon 3 av samlevedtaket for revisjon, kartlagt for seg.'''
+Teksten står under tabellen, i [Samlevedtaket for byggherrens standpunkt, aksepten og registrert enighet](#samlevedtak-aksept). Samler postene under «Samler» der: av GR-U7 står s5 i [HF-U35](#hf-u35), av GR-U10 hører s3 til gruppe D, og av KA-U15 samles siste setning her og s1–s4 i HF-U35. Endrer GR-U7, GR-U8 og GR-U10 (E1 og E2), HF-U5 s1 (E3, svar 3 B og 8 A) og MM-U13 s3 (E7); MM-U13 s1–s2 står. Presiserer KT-U1 (E5), som står som beslutning; KA-U1 er samlet, så presiseringen i E5 føres bare for KT-U1. Svar 1 A: to samlevedtak, ført i én vedtaks-PR. Svar 7 A: tema 14 får en versjon 3 av samlevedtaket for revisjon, kartlagt for seg.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 A, 2 ja, 3 B, 8 A"
@@ -8315,7 +8318,7 @@ forhold = [
   { art = "snevrer inn", vedtak = "mm-u60" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for «ingen krav», avkall og godtatt avslag](#samlevedtak-avkall). Samler postene under «Samler» der: av KA-U12 hører s4–s6 og av raden for #213 s2 til gruppe D, KA-U22 s1, s2 og s4 er ordlyd for gruppe E, og av HF-U15 samles s3 (E7 i HF-U23). Endrer HF-U10 (E1) og KA-U12 (E3). Svar 6 B: opphever SK-01 s1 og snevrer inn MM-U22 (E7). «Opphever» er ført som `endrer`, fordi en post med forholdet `opphever` regnes som opphevet i sin helhet (README for vedtaksregisteret, «Klassen»). Svar 5 A: snevrer inn MM-U60 punkt 8 for avkallet.'''
+Teksten står under tabellen, i [Samlevedtaket for «ingen krav», avkall og godtatt avslag](#samlevedtak-avkall). Samler postene under «Samler» der: av KA-U12 hører s4–s6 og av raden for #213 s2 til gruppe D, KA-U22 s1, s2 og s4 er ordlyd for gruppe E, og av HF-U15 samles s3 (E7 i HF-U23). Endrer HF-U10 (E1) og KA-U12 (E3). Svar 6 B: opphever SK-01 s1 og snevrer inn MM-U22 (E7). «Opphever» er ført som `endrer`, fordi en post med forholdet `opphever` regnes som opphevet i sin helhet (README for vedtaksregisteret, «Klassen»). Svar 5 A: snevrer inn MM-U60 punkt 8 for avkallet. OV-U3 får ikke noe forhold: setningen om taushet står også i punkt 4, og resten av OV-U3 hører til gruppe D.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "4 ja, 5 A, 6 B"
