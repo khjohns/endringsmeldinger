@@ -20,6 +20,7 @@
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
+    kravetGirSaerskiltVarsel,
     varseletFoerKravet,
     varslenePerKravpost,
     varsleneISaken,
@@ -178,8 +179,11 @@
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   // VS-U86 punkt 12: datoen etter § 34.1.3 står i kravet når kravet gir det særskilte varselet.
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
+  // #2425: et krav lagt til, sendt før det registrerte varselet, gir varselet og kan ha datoen.
+  const girSaerskilt = $derived(kravetGirSaerskiltVarsel(u, lagtTil?.dato ?? null));
+  const saerskiltI = $derived(girSaerskilt ? null : saerskiltvarselet);
   const iDag = dagensDato();
-  const kommando = $derived(vederlagskravet(v, varslene, saerskiltvarselet === null));
+  const kommando = $derived(vederlagskravet(v, varslene, girSaerskilt));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
   const varselkolonner = $derived(
     lagtTil ? KRAVSKJEMA.varselkolonnerLagtTil : KRAVSKJEMA.varselkolonner
@@ -310,13 +314,7 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(
-    manglerIKravet(
-      v,
-      varslene,
-      uid,
-      navnet,
-      saerskiltvarselet === null ? (lagtTil?.dato ?? iDag) : null
-    )
+    manglerIKravet(v, varslene, uid, navnet, girSaerskilt ? (lagtTil?.dato ?? iDag) : null)
   );
   const iVarselseksjonen = (m: Mangel) =>
     /-(varsel|type|dato|dokument)-/.test(m.felt) || m.felt === id('klar-over');
@@ -458,7 +456,7 @@
   const antallVarsler = $derived(1 + (v.saerskilt ? 1 : 0) + postvarsler.length);
   const iBrevet = $derived(
     (vederlagsvarselet === null ? 1 : 0) +
-      (v.saerskilt && saerskiltvarselet === null ? 1 : 0) +
+      (v.saerskilt && girSaerskilt ? 1 : 0) +
       postvarsler.filter(
         ({ p, vs }) => vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet'
       ).length
@@ -488,7 +486,7 @@
             {
               id: id(`varsel-${hjemmel}`),
               tittel,
-              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltvarselet),
+              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltI),
             },
           ]
         : [];
@@ -613,7 +611,7 @@
         : [];
     }),
     // U-2 i BF-48: datoen i posten etter § 34.1.3, når kravet gir varselet.
-    ...(saerskiltvarselet === null && v.saerskilt?.klarOver
+    ...(girSaerskilt && v.saerskilt?.klarOver
       ? [
           {
             naar: v.saerskilt.klarOver,
@@ -1130,8 +1128,8 @@
           </div>
           <div class="brevet">
             <span class="visually-hidden">{varselkolonner[2]}:</span>
-            <p>{varselI(saerskiltvarselet)}</p>
-            {#if saerskiltvarselet !== null}
+            <p>{varselI(saerskiltI)}</p>
+            {#if !girSaerskilt}
               <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
               {#if kunnskapsdatoVarselet && onkunnskapsdato}
                 <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
@@ -1140,7 +1138,7 @@
               {/if}
             {/if}
           </div>
-          {#if saerskiltvarselet === null && v.saerskilt}
+          {#if girSaerskilt && v.saerskilt}
             <div class="varselvalgene">
               <Datofelt
                 id={id('klar-over')}

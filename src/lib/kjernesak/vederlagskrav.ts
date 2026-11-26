@@ -22,7 +22,10 @@ import {
   type Utledning,
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
-import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
+import {
+  kravetErDetFoersteVarselet,
+  varseletSvaretGjelder,
+} from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
@@ -143,6 +146,14 @@ export function varseletFoerKravet(u: Utledning, hjemmel: '34.1.2' | '34.1.3'): 
     throw feil;
   }
 }
+
+/**
+ * Om vederlagskravet gir det særskilte varselet etter § 34.1.3, som kjernen leser det (VS-U86
+ * punkt 9, #2425): saken har ikke et varsel før brevet, eller kravet er lagt til med en dato `sendt`
+ * før det. Et krav fra løsningen har `sendt` lik `null`.
+ */
+export const kravetGirSaerskiltVarsel = (u: Utledning, sendt: string | null) =>
+  kravetErDetFoersteVarselet(u, sendt);
 
 /** Varselet kravposten trenger, etter oppgjørsformen (`varselhjemmel` i kjernen), eller `null`. */
 export const varselhjemmelFor = (post: Kravpost): Kravpostvarselhjemmel | null =>

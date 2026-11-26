@@ -624,3 +624,54 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     expect(screen.getByRole('button', { name: 'Forkast utkast' })).toBeTruthy();
   });
 });
+
+describe('vederlagskravet lagt til, sendt før det registrerte varselet etter punkt 34.1.3 (#2425)', () => {
+  // VS-U86 punkt 9: kravet sendt før varselet er det første varselet og kan ha datoen (D-1, D-7
+  // og U-1 i BF-48). Kontrollsaken er sendt etter varselet.
+  const medVarselet = skrevet(
+    medGrunnlag,
+    'TE',
+    {
+      type: 'varsel',
+      varsler: [{ hjemmel: '34.1.3' }],
+      sendt: '2026-10-12',
+      korrespondansetype: 'brev',
+      sendemaate: 'post',
+      beskrivelse: 'Det særskilte varselet.',
+      dokumentasjon: ['v-1'],
+    },
+    new Map([['v-1', BREVET]])
+  );
+  const lagtTil = (dato: string): Korrespondansevalg => ({
+    type: 'brev',
+    sendemaate: 'post',
+    dato,
+    vedlegg: [{ ...BREVET, stoerrelse: 8 }],
+    beskrivelse: 'Kravet om vederlag.',
+  });
+
+  it.each([
+    ['2026-10-10', true],
+    ['2026-10-14', false],
+  ])('sendt %s: datofeltet står %s', async (dato, feltet) => {
+    const { kjernesak } = await saken(medVarselet, 'TE');
+    render(Vederlagskrav, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+      lagtTil: lagtTil(dato),
+      onlagttil: () => {},
+    });
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Legg til særskilt vederlagsjustering' })
+    );
+    const rad = screen
+      .getByRole('heading', { level: 4, name: /^Varsel om særskilt/ })
+      .closest('li')!;
+    expect(
+      within(rad).queryByLabelText(/^Når ble du klar over at utgiftene ville påløpe\?/) !== null
+    ).toBe(feltet);
+    expect(within(rad).queryByText('Gis i dette brevet.') !== null).toBe(feltet);
+  });
+});

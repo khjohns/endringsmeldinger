@@ -11,7 +11,7 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { varsleneISporet } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { arbeidetI, varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
+  import { arbeidetI } from '#lib/kjernesak/vederlagskrav.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Datofelt from './Datofelt.svelte';
@@ -94,8 +94,8 @@
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
   // U-3, D-2: varslene som alt er gitt i saken, med brevet.
   const gitte = $derived(varsleneISporet(u, 'vederlag'));
-  // U-10 i BF-48: et særskilt varsel gitt i et krav har datoen derfra, med veien til det egne brevet.
-  const saerskiltGitt = $derived(varseletFoerKravet(u, '34.1.3') !== null);
+  // U-10 og D-7 i BF-48: etter at datoen er oppgitt, står den fast, med veien til det egne brevet
+  // (`kunnskapsdatoIVarselet` i kjernen).
   const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
 
@@ -257,7 +257,7 @@
           feil={feil(`arbeid-${n}`)}
         />
       {:else if r.hjemmel === '34.1.3'}
-        {#if saerskiltGitt}
+        {#if sisteKunnskapsdato}
           <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
           {#if kunnskapsdatoVarselet && onkunnskapsdato}
             <div>
