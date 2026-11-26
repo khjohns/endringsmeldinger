@@ -343,6 +343,13 @@ og stilles som nummerert liste.
 >
 > Styrer: om «sendt» har én betydning i samlevedtakene.
 
+## Svarene
+
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534: «Samlevedtak E: godkjenner
+som anbefalt». Det er A på spørsmål 1–6. E5 punkt 2 og E6 punkt 5 sier «levert» etter svar 6 A. Ført som
+VS-U93, LV-U86, LV-U87 og LV-U88. Raden «B-03 hovedvalg» har fått ankeret `b-03-hovedvalg`, og
+klassen til LV-U16 og LV-U25 er rettet til beslutning med designdel (K6).
+
 ## Kontrollene
 
 Kildekontrollen (13 funn), prøvingen av alternativene mot vedtakene (19 funn) og den uavhengige
