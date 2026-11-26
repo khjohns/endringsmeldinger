@@ -954,32 +954,31 @@ function rettidighetstekst(
   const iSvaret = erVederlagsvarselhjemmel(p.hjemmel)
     ? innsigelsenFoer(p, [], { j, saken, nytt })
     : undefined;
-  const plass = (x: { dokument: string }) => j.dokumenter.findIndex((d) => d.id === x.dokument);
-  const brevene = (x: { dokument: string }[]) =>
-    liste([
-      ...new Set([...x].sort((a, b) => plass(a) - plass(b)).map((i) => j.brevet(i.dokument))),
-    ]);
+  const plass = (d: string) => j.dokumenter.findIndex((x) => x.id === d);
+  const brevene = (ider: string[]) =>
+    liste([...new Set([...ider].sort((x, y) => plass(x) - plass(y)).map((d) => j.brevet(d)))]);
   const henvisning = (n: number) => (n > 1 ? 'innsigelsene' : 'innsigelsen');
-  const alle = [...(iSvaret ? [iSvaret] : []), ...aapne];
-  const antall = alle.length;
-  const jf = antall ? `, jf. ${henvisning(antall)} i ${brevene(alle)}` : '';
+  const iSvaretI = iSvaret ? [iSvaret.dokument] : [];
+  const aapneI = aapne.map((i) => i.dokument);
+  const antall = iSvaretI.length + aapneI.length;
+  const jf = antall ? `, jf. ${henvisning(antall)} i ${brevene([...iSvaretI, ...aapneI])}` : '';
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide) return forSentMedFoelgen(sporet, omVarselet, p.hjemmel, jf);
   if (!antall) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
   // Påberopelsen i svaret og de egne innsigelsene etter punkt 5 nevnes hver for seg (VS-U87 punkt 1 og 15).
-  const deler = [
-    ...(iSvaret ? [{ plass: plass(iSvaret), tekst: `innsigelsen i ${brevene([iSvaret])}` }] : []),
-    ...(aapne.length
+  const deler: [number, string][] = [
+    ...iSvaretI.map((d): [number, string] => [plass(d), `innsigelsen i ${brevene([d])}`]),
+    ...(aapneI.length
       ? [
-          {
-            plass: plass(aapne[0]),
-            tekst: `${henvisning(aapne.length)} etter NS 8407 punkt 5 i ${brevene(aapne)}`,
-          },
+          [
+            plass(aapneI[0]),
+            `${henvisning(aapneI.length)} etter NS 8407 punkt 5 i ${brevene(aapneI)}`,
+          ] as [number, string],
         ]
       : []),
-  ].sort((a, b) => a.plass - b.plass);
-  return `byggherren gir opp ${liste(deler.map((d) => d.tekst))} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+  ].sort((x, y) => x[0] - y[0]);
+  return `byggherren gir opp ${liste(deler.map(([, tekst]) => tekst))} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
 }
 
 /**
