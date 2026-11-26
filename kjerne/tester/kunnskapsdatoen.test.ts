@@ -18,7 +18,7 @@ import { minnebane } from './bane.ts';
 import { SOM_BREV } from './brevet.ts';
 import { kjoer, type Forloep } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import { type Data, laast, PAABEROPELSE, sak, svar, tekst } from './brevsak.ts';
+import { type Data, laast, PAABEROPELSE, sak, svar, tekst, utenFelt } from './brevsak.ts';
 
 const PRODUKTIVITET = 'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser';
 const VARSELET = `varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt\u00a034.1.3 tredje ledd`;
@@ -129,6 +129,28 @@ describe('datoen i brevet med varselet (VS-U86 punkt 12 og 13, VS-U82)', () => {
     expect(s.avvist('TE', kravet())).toBeNull();
   });
 
+  it('et vederlagskrav lagt til, sendt før varselet saken har, er det første varselet og kan ha datoen, og samme dag kan det ikke (VS-U86 punkt 9 og 12)', () => {
+    const lagtTil = (sendt: string, dato?: string) => ({
+      ...kravet(dato),
+      ...SOM_BREV,
+      sendt,
+      dokumentasjon: [randomUUID()],
+    });
+    const varselFoerst = medPaaberopelsen();
+    varselFoerst.send('TE', registrer('2026-09-30'));
+    expect(varselFoerst.avvist('TE', lagtTil('2026-09-30', '2026-09-26')), 'samme dag').toBe(
+      'KRAVET_ER_IKKE_VARSELET'
+    );
+    varselFoerst.send('TE', lagtTil('2026-09-27', '2026-09-26'));
+    expect(siste(varselFoerst)).toBe('2026-09-26');
+
+    const kravFoerst = medPaaberopelsen();
+    kravFoerst.send('TE', kravet());
+    kravFoerst.send('TE', lagtTil('2026-09-27', '2026-09-26'));
+    expect(siste(kravFoerst)).toBe('2026-09-26');
+    expect(kravFoerst.u().forstaatt).toBe(true);
+  });
+
   it('en ny versjon av vederlagskravet kan ikke endre datoen, og en versjon uten datoen godtas og endrer ikke opplysningen (VS-U85, D-2 og D-7 i BF-48)', () => {
     const s = medPaaberopelsen();
     s.send('TE', kravet('2026-09-28'));
@@ -179,6 +201,27 @@ describe('datoen i brevet med varselet (VS-U86 punkt 12 og 13, VS-U82)', () => {
 });
 
 describe('det egne brevet som supplerer eller endrer datoen (VS-U86 punkt 14, MM-U59 punkt 12, VS-U82)', () => {
+  it('et svar lagt til står med opplysningen som gjaldt dagen det ble sendt, ikke en dato oppgitt senere (U-8 i BF-48, VS-U86 punkt 15)', () => {
+    const s = medPaaberopelsen();
+    const krav = s.send('TE', kravet('2026-09-20'));
+    s.send('TE', kunnskapsdato(s, '2026-09-28'));
+    const {
+      svar: [svaret],
+    } = forSent(s);
+    // Byggherren sendte svaret 3. oktober, før brevet med den nye datoen 4. oktober.
+    s.send('BH', {
+      type: 'brev',
+      svar: [utenFelt(utenFelt(svaret, 'utdypning'), 'utdypninger')],
+      sendt: '2026-10-03',
+      ...SOM_BREV,
+      dokumentasjon: [randomUUID()],
+    });
+    const u = s.u();
+    const id = u.spor.vederlag.gjeldendeSvar!.id;
+    expect(u.svar[id].kunnskapsdato).toBe((krav.data.krav as Data[])[0].id);
+    expect(siste(s)).toBe('2026-09-28');
+  });
+
   it('variant D: totalentreprenøren oppgir datoen etter byggherrens svar, og svaret står med opplysningen det hadde (MM-U59 punkt 12, U-5 og U-8 i BF-48)', () => {
     const s = medPaaberopelsen();
     const krav = s.send('TE', kravet());

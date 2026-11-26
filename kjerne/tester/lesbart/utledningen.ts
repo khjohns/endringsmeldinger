@@ -173,6 +173,8 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+      // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
+      'spor/vederlag/kommando.ts:datoenForVarselet',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],

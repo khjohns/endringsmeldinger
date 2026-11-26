@@ -7682,7 +7682,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'vederlagskravet oppgir datoen når et varsel etter § 34.1.3 er gitt før (VS-U86 punkt 9 og 12, D-2 i BF-48, #2012)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [["    (varseletFoerBrevet(u, '34.1.3') !== undefined", '    (false']],
+    endringer: [['    (varselet !== undefined && !foerDagen(', '    (false && !foerDagen(']],
     mal: ['vederlagskravet oppgir ikke datoen når et varsel etter § 34.1.3 er gitt før'],
   },
   {
@@ -7734,6 +7734,27 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en lagret senere kravversjon med datoen'],
+  },
+  {
+    id: 'F2012l',
+    feilklasse:
+      'et vederlagskrav lagt til, sendt før varselet saken har, kan ikke ha kunnskapsdatoen (VS-U86 punkt 9 og 12, #2012)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '!foerDagen(sendt, datoenForVarselet(u, varselet))',
+        '!foerDagen(null, datoenForVarselet(u, varselet))',
+      ],
+    ],
+    mal: ['et vederlagskrav lagt til, sendt før varselet saken har'],
+  },
+  {
+    id: 'F2012m',
+    feilklasse:
+      'et svar lagt til står med en kunnskapsdato oppgitt etter dagen svaret ble sendt (U-8 i BF-48, #2012)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!foerDagen(sendt, dagen(o))', '!foerDagen(null, dagen(o))']],
+    mal: ['et svar lagt til står med opplysningen som gjaldt dagen det ble sendt'],
   },
 ];
 /** En kopi av arbeidstreet. */

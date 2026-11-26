@@ -1297,7 +1297,12 @@ function utledSporene(
     varsler,
     kunnskapsdatoer
   );
-  settKunnskapsdatoene(svar, kunnskapsopplysninger, (id) => plass.get(id)!.versjon);
+  settKunnskapsdatoene(
+    svar,
+    kunnskapsopplysninger,
+    (id) => plass.get(id)!.versjon,
+    dagene(journal).dagen
+  );
   settForholdssvarene(
     svar,
     spor.forhold.svar,
@@ -1697,19 +1702,23 @@ function settDatoopplysningene(
 
 /**
  * U-8 i BF-48 (VS-U86 punkt 15): TEs siste opplysning om kunnskapsdatoen da svaret i vederlaget
- * ble gitt.
+ * ble sendt. For et svar lagt til teller ikke en opplysning sendt etter dagen svaret ble sendt.
  */
 function settKunnskapsdatoene(
   svar: Record<string, Svarberegning>,
   kunnskapsdatoer: readonly Kunnskapsopplysning[],
-  versjonen: (id: string) => number
+  versjonen: (id: string) => number,
+  dagen: (x: Pick<Svar, 'id' | 'dokument'>) => string | null
 ): void {
   for (const b of Object.values(svar)) {
     if (b.svar.spor !== 'vederlag') continue;
     const svaret = versjonen(b.svar.id);
+    const sendt = dagen(b.svar);
     b.kunnskapsdato =
       sisteKunnskapsdato({
-        kunnskapsdatoer: kunnskapsdatoer.filter((o) => versjonen(o.id) < svaret),
+        kunnskapsdatoer: kunnskapsdatoer.filter(
+          (o) => versjonen(o.id) < svaret && !foerDagen(sendt, dagen(o))
+        ),
       })?.id ?? null;
   }
 }
@@ -1717,13 +1726,14 @@ function settKunnskapsdatoene(
 /** Dagen et svar ble sendt (OV-U98), og om det står i et brev lagt til. */
 function dagene(journal: Domenehendelse[]) {
   const dokumentene = new Map([...dokumenterI(journal)].map((d) => [d.id, d]));
-  const dokumentet = (x: Svar) => {
+  const dokumentet = (x: Pick<Svar, 'id' | 'dokument'>) => {
     const d = dokumentene.get(x.dokument);
     if (!d) throw new Error(`${x.id} står ikke i et dokument i journalen.`);
     return d;
   };
   return {
-    dagen: (x: Svar) => dagenSendt({ id: x.id, dokument: x.dokument }, dokumentet(x)),
+    dagen: (x: Pick<Svar, 'id' | 'dokument'>) =>
+      dagenSendt({ id: x.id, dokument: x.dokument }, dokumentet(x)),
     lagtTil: (x: Svar) => erRegistrert(dokumentet(x).opplysninger),
   };
 }

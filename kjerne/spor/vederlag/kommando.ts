@@ -79,6 +79,7 @@ import {
   type Standpunkt,
 } from '../../typer.ts';
 import {
+  datoenDetBleSendt,
   kravversjoneneKravetProevesMot,
   paaberopelseFor,
   varseletFoerBrevet,
@@ -461,19 +462,33 @@ function kunnskapsdatoenErOppgitt(u: Utledning, hva: string): Avvisning | null {
 /**
  * VS-U86 punkt 9 og 12, D-2 i BF-48: datoen står i vederlagskravet bare når kravet er det første
  * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd: saken har ikke noe varsel etter
- * § 34.1.3 og ingen tidligere kravversjon med posten. Ellers oppgis den i det egne utsagnet.
+ * § 34.1.3 og ingen tidligere kravversjon med posten. Ellers oppgis den i det egne utsagnet. Et krav
+ * lagt til, sendt dagen `sendt` før varselet saken har, blir det første varselet (punkt 9).
  */
-function kunnskapsdatoISperren(k: Extract<Kommando, { type: 'krav' }>, u: Utledning) {
+function kunnskapsdatoISperren(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+) {
   if (k.spor !== 'vederlag' || kunnskapsdatoIKravet(k) === undefined) return null;
+  const varselet = varseletFoerBrevet(u, '34.1.3');
   return (
     kunnskapsdatoenErOppgitt(u, 'Vederlagskravet') ??
-    (varseletFoerBrevet(u, '34.1.3') !== undefined
+    (varselet !== undefined && !foerDagen(sendt, datoenForVarselet(u, varselet))
       ? avvis(
           'KRAVET_ER_IKKE_VARSELET',
           'Vederlagskravet er ikke det første varselet om den særskilte vederlagsjusteringen etter punkt 34.1.3, så datoen totalentreprenøren ble klar over at utgiftene ville påløpe, oppgis ikke i kravet. Den oppgis i et eget brev.'
         )
       : null)
   );
+}
+
+/** Dagen varselet etter § 34.1.3 med id-en `varselet` ble sendt: det registrerte eller et krav. */
+function datoenForVarselet(u: Utledning, varselet: string): string | null {
+  const v = u.spor.vederlag;
+  const kandidater = [v.varsler['34.1.3'], ...v.krav, ...v.kravUtenforRekken];
+  const funnet = kandidater.find((x) => x?.id === varselet);
+  return funnet ? datoenDetBleSendt(u, funnet) : null;
 }
 
 /** VS-U85: et særskilt varsel sendt fra løsningen etter at datoen er oppgitt, oppgir ikke en ny dato. */
@@ -521,7 +536,7 @@ export function kontrollerKunnskapsdatoen(
 export const NYTTELAST_I_VEDERLAGET = {
   begrunnelse: () => null,
   svarsperre: oppgivelseUtenInnsigelse,
-  kravsperre: (k, u, sendt) => kravpostsperre(k, u, sendt) ?? kunnskapsdatoISperren(k, u),
+  kravsperre: (k, u, sendt) => kravpostsperre(k, u, sendt) ?? kunnskapsdatoISperren(k, u, sendt),
   innsigelse: innsigelseMotVarselet,
   utdypning: () => null,
   oppgittDatoIKravet: () => null,

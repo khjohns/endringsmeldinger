@@ -251,6 +251,8 @@ export const JOURNALRADEN: Lesbar[] = [
     'dagen lagtTil',
     ['utledning/utled.ts:settForholdssvarene'],
   ],
+  // U-8 i BF-48: dagen et svar lagt til ble sendt, for kunnskapsdatoen som gjaldt da.
+  ['utledning/utled.ts:dagene', 'relasjon', 'dagen', ['utledning/utled.ts:utledSporene']],
   // #474: datoene i KA-U36 (opphevet av KA-U46) og VS-U26 sammenliknes som kalenderdager.
   [
     'format/leser.ts',
