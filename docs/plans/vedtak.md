@@ -1832,7 +1832,9 @@ forholdene til KA-U49 gjelder versjon 2 (OV-U92 (a)).
 Teksten under er samlevedtaket [KA-U88](#ka-u88), vedtatt 26.11 av oppdragsgiver (#1534, #2417),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-c-aksept-og-svar-2026-11-25.md)
 som C1, med svarene 1 A, 2 ja, 3 B og 8 A. Ved 3 B og 8 A er punkt 14 nytt, under den nye
-overskriften D, og E3 følger det. «s3» er tredje setning i posten.
+overskriften D, og E3 følger det. Etter kontrollen av klassen 26.11 (svar 8 i #1534) står siste
+setning i punkt 12, «sporets betegnelse» og «vises ved» i punkt 13 i beslutningsdelen og designdelen,
+uten endret innhold. «s3» er tredje setning i posten.
 
 Hver setning har kilden i parentes. Språket følger E8.
 
@@ -1895,12 +1897,10 @@ Hver setning har kilden i parentes. Språket følger E8.
     GR-U10 s1; E1)
 12. En enighet om vederlag eller frist er betinget til forholdet er avklart: godkjent uten påberopt
     preklusjon etter punkt 32.2, eller frafalt etter punkt 32.3 første ledd c. Virkningen følger
-    punkt 12 i GR-U34. (GR-U7 s4; GR-U34 punkt 12; E2) «Avklart» er en navngitt betingelse som
-    defineres rett av standpunktene og brukes bare der vedtakene sier det. (MM-U13 s3; E7)
+    punkt 12 i GR-U34. (GR-U7 s4; GR-U34 punkt 12; E2)
 13. Etter byggherrens nye svar bygger løsningens utledning av sporet på det nye svaret: om forholdet
-    er avklart, om kravene er avgjort etter OV-U3, sporets betegnelse og om totalentreprenøren kan
-    godta svaret. Enigheten om det eldre svaret bevares og vises ved det svaret,
-    med det det sa. Godtar totalentreprenøren det nye svaret, eller godkjenner det hele kravet,
+    er avklart, om kravene er avgjort etter OV-U3, og om totalentreprenøren kan godta svaret.
+    Enigheten om det eldre svaret bevares, med det det sa. Godtar totalentreprenøren det nye svaret, eller godkjenner det hele kravet,
     registrerer løsningen enighet om det nye svaret. Løsningen avgjør ikke om enigheten om det eldre
     svaret står (MM-U60 punkt 8). (OV-U110 s1–s3 og s6; HF-U29 punkt 3 og 8)
 
@@ -1915,10 +1915,13 @@ Hver setning har kilden i parentes. Språket følger E8.
 - Svar 3, ordrett: «B kan stå i vedtak men ikke grensesnitt». Det gjelder setningen fra 3 B i punkt
   14.
 - KT-U1 står som beslutning. Den er bindende i punkt 7 og 8 i stedet for i KA-U1. MM-U13 s1–s2 står.
+- Beslutning: «Avklart» er en navngitt betingelse som defineres rett av standpunktene og brukes bare
+  der vedtakene sier det. (MM-U13 s3; E7)
 - Har byggherren påberopt at et varsel kom for sent, sier skjemaet før sending at påberopelsen inngår
   i aksepten, og at beløpet etter svaret da er 0 kr. (MM-U34 punkt 16, D-1 i BF-03)
-- Designdelen i OV-U110 (s4–s5, det visningen viser ved handlingen) står ordrett, med posten som
-  kilde, til et forløp tar den.
+- Etter byggherrens nye svar bygger også sporets betegnelse på det nye svaret, og enigheten om det
+  eldre svaret vises ved det svaret. (OV-U110 s1 og s3) Designdelen i OV-U110 (s4–s5, det visningen
+  viser ved handlingen) står ordrett, med posten som kilde, til et forløp tar den.
 
 ###### Endret innhold
 
@@ -1960,7 +1963,8 @@ OV-U59, OV-U88, OV-U110, siste setning i KA-U15 og MM-U13 s3. **Står:** KT-U1, 
 Teksten under er samlevedtaket [HF-U35](#hf-u35), vedtatt 26.11 av oppdragsgiver (#1534, #2417),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-c-aksept-og-svar-2026-11-25.md)
 som C2, med svarene 4 ja, 5 A og 6 B. Ved 6 B utgår punkt 10 med teksten i alternativ B, og punkt 3,
-E2, E4, E7 og «Samler» følger det. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
+E2, E4, E7 og «Samler» følger det. Etter kontrollen av klassen 26.11 (svar 8 i #1534) står «vises
+ved avslaget» i punkt 11 i designdelen, uten endret innhold. Kildene står i parentes etter hver setning, og «s3» er tredje setning i posten.
 
 ###### A. Avkall
 
@@ -2012,13 +2016,14 @@ E2, E4, E7 og «Samler» følger det. Kildene står i parentes etter hver setnin
     ikke).» Aksepten er totalentreprenørens aksept av byggherrens svar om at forholdet er varslet for
     sent etter punkt 32.2. (svar 6 B; E7)
 11. Legges aksepten av avslaget til etter at byggherren har sendt et nytt svar på forholdet, lukker
-    den ikke saken. Aksepten gir enighet om avslaget, og enigheten vises ved avslaget. Byggherrens
+    den ikke saken. Aksepten gir enighet om avslaget. Byggherrens
     nye svar står med virkningen det hadde. Løsningen avgjør ikke om enigheten om avslaget står.
     (OV-U112 s1–s3 og s5)
 
 ###### Beslutningsdel og designdel
 
-- Svar 5, ordrett: «A men ikke i grensesnitt».
+- Svar 5, ordrett: «A men ikke i grensesnitt». Det gjelder punkt 2.
+- Enigheten om avslaget vises ved avslaget. (OV-U112 s2)
 - «Ingen krav» bygges ikke i første versjon. (OV-U7; OV-U99 punkt 2) Setningen om forsering i
   punkt 7 må stå i brevet før «ingen krav» tas i bruk. (KA-U25 s3) Trekk og «ingen krav» har ingen
   fritekst i første versjon, og et avgrenset eller betinget avkall sendes utenfor løsningen.
@@ -8508,7 +8513,7 @@ versjon 4 og 3 av de to andre samlevedtakene. OV-U118–OV-U121 og VS-U77 står 
 
 | Beslutning | Klasse | Vedtatt | Følge |
 | --- | --- | --- | --- |
-| <a id="kt-u1"></a>KT-U1: hvert spor i den offentlige tilstanden har `gjeldende_respons_event_id`: ID-en til svaret på gjeldende kravversjon, ellers `null`, også når sporet venter på svar på en ny versjon. TEs aksept viser til dette svaret i `refererer_til_event_id`, og serveren avviser en aksept av et annet svar med samme definisjon. Forkastet: at klienten avgjør det av `respons_event_id`, `bh_respondert_versjon` og `antall_versjoner` | beslutning. Bindende i [KA-U1](#ka-u1) | 08.10, oppdragsgiver | Presisert 26.11 av [KA-U88](#ka-u88). Bygget (#272). Utfører KA-U1 i kontrakten. `respons_event_id` er uendret og står igjen etter en ny kravversjon |
+| <a id="kt-u1"></a>KT-U1: hvert spor i den offentlige tilstanden har `gjeldende_respons_event_id`: ID-en til svaret på gjeldende kravversjon, ellers `null`, også når sporet venter på svar på en ny versjon. TEs aksept viser til dette svaret i `refererer_til_event_id`, og serveren avviser en aksept av et annet svar med samme definisjon. Forkastet: at klienten avgjør det av `respons_event_id`, `bh_respondert_versjon` og `antall_versjoner` | beslutning. Bindende i [KA-U88](#ka-u88) | 08.10, oppdragsgiver | Presisert 26.11 av [KA-U88](#ka-u88). Bygget (#272). Utfører KA-U1 i kontrakten. `respons_event_id` er uendret og står igjen etter en ny kravversjon |
 | <a id="kt-u2"></a>KT-U2: den smale kontrakten under B-14 (#272) gjelder den representative flyten i språkprøven: vederlag med grunnlagsavhengighet, et fristscenario med spesifisert krav og TEs aksept. Den står i ett JSON-skjema med kommando, lagret hendelse og offentlig tilstand. En ny kommando er streng, de eksisterende kommandoene i flyten er tolerante, og historikken leses tolerant. Typegenerering og grensen for godkjenningspakker følger #274. En hviteliste for hele den offentlige tilstanden er #292 | beslutning | 08.10, oppdragsgiver | Bygget (#272): [kontrakten](../domenetabell/README.md#kontrakten-for-flyten). Aksepten er den eneste nye kommandoen |
 | API-et: tilstanden sender alltid alle felt, og `null` betyr at feltet finnes uten verdi. Hendelsesdata i tidslinjen utelater felt som ikke er satt. Frontendtypene følger: `X \| null` i tilstanden, valgfrie felt i hendelsene | beslutning | 05.10, oppdragsgiver | Serialiseringen er slik i dag; typene er det ikke (SK-08, SK-09, M5) |
 | Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | beslutning | 05.10, oppdragsgiver | Merknaden 07.10 lot utsettelsen gjelde til nytt vedtak, og en eventuell tidligere utredning skulle behandles separat under B-15. B-15 er avgjort 09.10 ([B-15](#b-15)): serverbasert forhåndsvurdering utredes ikke som erstatning |
