@@ -43,7 +43,7 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U77, OV-U99 | Nei. Utsagn uten virkning på utfallet. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `innsigelse:*` | `innsigelse` | – | Kjernen slutter å tilby den (K4). |
+| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U77, OV-U99, VS-U89 | Nei. Utsagn uten virkning på utfallet. | Standpunkt i svaret, innlegg eller «Forbehold» i et krav eller svar, varig (VS-U89). | Som G5. | Som G5. | `innsigelse:*` | `innsigelse` | – | Kjernen slutter å tilby den (K4). |
 | I2 | Protest mot en innsigelse | TE og BH | forhold, vederlag, frist | VS-U1, VS-U9, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `protest:*` | `protest` | – | Ingen. Kommandoen avvises. |
 | I3 | Bestridelse | TE og BH | forhold, vederlag, frist | MM-U7, MM-U14, MM-U48, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `bestride:*` | `bestridelse` | – | Ingen. Kommandoen avvises. |
 | I4 | Påberopt passivitet | TE | forhold, vederlag, frist | VS-U12, OV-U99 | Nei. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `passivitet:*` | `passivitet` | – | Ingen. Kommandoen avvises. |
@@ -72,6 +72,7 @@ Sporets betegnelse (`BETEGNELSER`) og sakens (`Saksbetegnelse`) i [`visning.ts`]
 | `krav_sendt` | spor | TE har godtatt et svar på påberopelsen som ikke avklarer forholdet, og kravet står uten enighet. Saken har alt sin betegnelse. | OV-U99 | utgaar |
 | `ingen_krav` | spor | TE har sagt «ingen krav». Gikk ut med U4 (#2016). | OV-U7, OV-U99 | utgaar |
 | `varslet` | spor | TE har varslet. TE står for tur med kravet. | OV-U97 | holder |
+| `ingen_varsel_eller_krav` | spor | I et spor for vederlag eller frist har TE ikke sendt eller lagt til med virkning et varsel eller krav, eller oppgitt datoen for et varsel. Sier ikke hvem som står for tur. | OV-U125, OV-U97 | ny |
 | `innlegg_etter_siste_brev` | spor | En part har sendt innlegg etter siste strukturerte handling. Merknad uten tolkning. | OV-U97, OV-U99 | ny |
 | `ikke_forstaatt` | sak | Løsningen forstår ikke saken. | MM-U2, MM-U43 | holder |
 | `avslaget_paa_forholdet_godtatt` | sak | TE har godtatt avslaget på forholdet. | MM-U22, OV-U97 | holder |
