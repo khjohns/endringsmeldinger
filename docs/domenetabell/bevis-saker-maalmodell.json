@@ -3043,7 +3043,7 @@
         },
         {
           "etter": 3,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": ["MM-U2"],
           "prov": { "handling": "trekk", "spor": "frist" },
           "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
@@ -11759,7 +11759,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": [
             "MM-U47"
           ],
@@ -11849,7 +11849,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U27"
           ],
@@ -11891,7 +11891,7 @@
         },
         {
           "etter": 2,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": [
             "GR-U27"
           ],
@@ -11950,7 +11950,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11"
           ],
