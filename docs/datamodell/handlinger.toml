@@ -202,7 +202,7 @@ status = "naa"
 noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
 kommandoer = ["varsel", "krav", "brev", "revisjon", "aksept"]
 skjema = ["varsle:frist", "varsle:vederlag", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
-mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3). Varslene etter punkt 34.3.3 og 34.4 har ikke egne skjemaer i Varden: totalentreprenøren oppgir varselet for en kravpost i kravskjemaet for vederlaget (VS-U96 punkt 23), og handlingene `varsle:34.3.3` og `varsle:34.4` står ikke i sporet."
+mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3). Varslene etter punkt 34.3.3 og 34.4 står ikke blant handlingene i sporet. De sendes og legges til i skjemaet for vederlagskravet (`varsle:34.3.3`, `varsle:34.4`, U-1 i BF-37), og totalentreprenøren kan oppgi varselet for en kravpost i kravskjemaet (VS-U96 punkt 23)."
 
 [[handling]]
 id = "U7"

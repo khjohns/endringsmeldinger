@@ -104,7 +104,9 @@ def test_hvert_skjema_i_varden_har_en_rad(register):
     assert utenfor - {_typen(s) for s in i_registeret} == set(), (
         "Varden viser til handlingen, men ingen rad i handlinger.toml har skjemaet"
     )
-    assert {s for s in i_registeret - i_varden if _typen(s) not in utenfor} == set(), (
+    # En type med et skjema i `skjemaene` åpnes derfra, så raden kan bare vise til de skjemaene.
+    aapnesUtenfor = utenfor - {_typen(n) for n in i_varden}
+    assert {s for s in i_registeret - i_varden if _typen(s) not in aapnesUtenfor} == set(), (
         "Raden viser til et skjema Varden ikke har"
     )
 
@@ -117,16 +119,21 @@ def test_handlingstypene_i_varden_leses_av_noeklene_og_typene_i_filene(tmp_path)
         "const vises = (a) => handlinger.includes(`korrigere:${a.gjelder}`);\n"
         "const svar = tilbudte.filter((h) => h.type === 'svare_paa_foresporsel');\n"
         "const godta = 'godta:' + spor;\n"
-        "const art = 'korrespondanse:';\n",
+        'const brev = "registrere_brev:x";\n'
+        "const art = 'korrespondanse:';\n"
+        "// 'trekke:frist' i en kommentar\n"
+        "/* type === 'trekke' */\n"
+        "<!-- 'ingen_krav:frist' -->\n",
         encoding="utf-8",
     )
     (varden / "tekster" / "handlingene.ts").write_text("{ type: 'trekke' }, 'trekke:x'", encoding="utf-8")
     (varden / "__tests__" / "a.test.ts").write_text("'ingen_krav:frist'", encoding="utf-8")
-    typene = {"korrigere", "svare_paa_foresporsel", "godta", "trekke", "ingen_krav"}
+    typene = {"korrigere", "svare_paa_foresporsel", "godta", "trekke", "ingen_krav", "registrere_brev"}
     assert hr.handlingstypene_i_varden(typene, (varden,)) == {
         "korrigere",
         "svare_paa_foresporsel",
         "godta",
+        "registrere_brev",
     }
     with pytest.raises(ValueError, match="Ingen filer"):
         hr.handlingstypene_i_varden(typene, (tmp_path / "tom",))

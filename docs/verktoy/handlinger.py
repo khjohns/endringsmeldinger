@@ -200,9 +200,11 @@ def skjemaene_i_varden(sti: pathlib.Path = VARDENSAK) -> set[str]:
     return noekler
 
 
-# En nøkkel i en streng eller malstreng (`'godta:` og `` `korrigere:${``), eller en sammenlikning
-# med typen i en tilbudt handling (`type === 'svare_paa_foresporsel'`).
-_TYPEN = re.compile(r"""['`]([a-z_]+):|\btype\s*===\s*['"]([a-z_]+)['"]""")
+# En nøkkel i en streng eller malstreng (`'godta:` og `` `korrigere:${``), eller typen i en tilbudt
+# handling (`type === 'svare_paa_foresporsel'`). Kommentarene hoppes over.
+_NOEKKELEN = re.compile(r"([a-z_]+):")
+_TYPEN_FOER = re.compile(r"\btype\s*===\s*$")
+_KOMMENTAR = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 def handlingstypene_i_varden(typene: set[str], mapper: tuple[pathlib.Path, ...] = VARDEN) -> set[str]:
@@ -222,8 +224,15 @@ def handlingstypene_i_varden(typene: set[str], mapper: tuple[pathlib.Path, ...] 
         raise ValueError(f"Ingen filer i {', '.join(map(str, mapper))}")
     funnet = set()
     for f in filer:
-        for m in _TYPEN.finditer(f.read_text(encoding="utf-8")):
-            funnet.add(m.group(1) or m.group(2))
+        tekst = _KOMMENTAR.sub("", f.read_text(encoding="utf-8"))
+        for m in _HOPP.finditer(tekst):
+            if m.group().startswith(("//", "/*")):
+                continue
+            innhold = m.group()[1:-1]
+            if noekkel := _NOEKKELEN.match(innhold):
+                funnet.add(noekkel.group(1))
+            elif _TYPEN_FOER.search(tekst, max(0, m.start() - 40), m.start()):
+                funnet.add(innhold)
     return funnet & typene
 
 
