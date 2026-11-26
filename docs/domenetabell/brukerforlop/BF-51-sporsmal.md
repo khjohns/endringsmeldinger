@@ -74,7 +74,7 @@ virkning må da avgjøres i visningen.
 **Hva valget styrer.** Om kjernen får predikatet og en rad under `[[betegnelse]]` i
 handlingsregisteret, og hva U-2, U-5 og U-6 i bestillingen viser.
 
-**Svar:** A, besvart 26.11. Oppdragsgiver svarte samlet på spørsmål 11–13, ordrett: «11 A , 12 A, 13 A» ([kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669)). Spørsmål 11 er S-1.
+**Svar:** A, besvart 26.11. Oppdragsgiver svarte samlet på spørsmål 11–13, ordrett: «11 A , 12 A, 13 A» ([kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669)). Spørsmål 11 er S-1. Ført som [OV-U125](../../plans/vedtak.md#ov-u125) i #2418.
 
 ## S-2. Hva skal byggherren se når totalentreprenøren ikke har sendt et varsel eller et krav i sporet?
 
@@ -119,7 +119,7 @@ frist løsningen ikke kjenner. C setter en fast frist, som VS-U10 forkastet.
 **Hva valget styrer.** Hva U-5 og U-6 i bestillingen viser byggherren, og om siden for sporet får en
 fristveiledning.
 
-**Svar:** A, besvart 26.11 i samme svar (spørsmål 12).
+**Svar:** A, besvart 26.11 i samme svar (spørsmål 12). Ført som [OV-U126](../../plans/vedtak.md#ov-u126) i #2418.
 
 ## S-3. Hva sier påminnelsen når totalentreprenøren sender det første kravet i et spor? (ikke juridisk)
 
@@ -144,4 +144,4 @@ appen. Oppdragsgiver 13.11 og 14.11: et vedtak angir budskapet, ikke ordlyden (v
 **Anbefaling: A.** Den følger regelen i systemfila og vedtaksskillen om ordlyd, og budskapet i OV-U3
 står.
 
-**Svar:** A, besvart 26.11 i samme svar (spørsmål 13).
+**Svar:** A, besvart 26.11 i samme svar (spørsmål 13). Ingen egen post: ordlyden står i U-3 i bestillingen, som [OV-U3](../../plans/vedtak.md#ov-u3) viser til.

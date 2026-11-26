@@ -339,6 +339,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U122](../../plans/vedtak.md#ov-u122) | — | BF-48 datoen-er-endret | BF-49 |
 | [OV-U123](../../plans/vedtak.md#ov-u123) | — | BF-46 bh-har-mottatt-aksepten, BF-48 datoen-er-endret | BF-03, BF-37, BF-49, BF-50 |
 | [OV-U124](../../plans/vedtak.md#ov-u124) | — | — | BF-49 |
+| [OV-U125](../../plans/vedtak.md#ov-u125) | — | BF-51 sporene-er-tomme | — |
+| [OV-U126](../../plans/vedtak.md#ov-u126) | — | BF-51 sporene-er-tomme | — |
 | [OV-U127](../../plans/vedtak.md#ov-u127) | — | — | BF-06 |
 | [VS-U1](../../plans/vedtak.md#vs-u1) | — | — | BF-14 |
 | [VS-U2](../../plans/vedtak.md#vs-u2) | — | — | BF-14, BF-20 |
@@ -391,3 +393,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U86](../../plans/vedtak.md#vs-u86) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt, BF-48 te-skal-kreve-vederlaget, BF-48 bh-har-mottatt-kravet, BF-48 te-har-mottatt-svaret, BF-48 datoen-er-oppgitt, BF-48 datoen-er-endret | BF-02A te-har-mottatt-svaret, BF-48 te-skal-kreve-vederlaget, BF-48 bh-har-mottatt-kravet, BF-48 te-har-mottatt-svaret, BF-48 datoen-er-oppgitt, BF-48 datoen-er-endret | BF-50 |
 | [VS-U87](../../plans/vedtak.md#vs-u87) | — | — | BF-03, BF-37 |
 | [VS-U88](../../plans/vedtak.md#vs-u88) | — | BF-45 bh-har-mottatt-kravet | BF-14, BF-47 |
+| [VS-U89](../../plans/vedtak.md#vs-u89) | — | — | BF-03 |
