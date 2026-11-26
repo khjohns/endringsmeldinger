@@ -62,8 +62,11 @@
     color: var(--ink-2);
   }
   ul {
+    display: grid;
+    gap: var(--spacing-1);
     margin: 0;
-    padding-left: var(--spacing-5);
+    padding: 0;
+    list-style: none;
   }
   .dempet {
     color: var(--ink-3);
