@@ -134,11 +134,12 @@ const valgene = () =>
 afterEach(cleanup);
 
 describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
-  it('totalentreprenøren kan legge til dokumentasjon, et krav og en aksept i vederlaget, men ikke et svar (OV-U80)', async () => {
+  it('totalentreprenøren kan legge til dokumentasjon, et varsel, et krav og en aksept i vederlaget, men ikke et svar (OV-U80, G-8 i BF-37)', async () => {
     await skjemaet(medDelvisSvar, 'TE', 'vederlag');
     const tekster = [...valgene()].map((r) => r.parentElement!.textContent!.trim());
     expect(tekster).toEqual([
       LEGG_TIL.kategorier.dokumentasjon,
+      LEGG_TIL.kategorier.varsel,
       LEGG_TIL.kategorier.krav,
       LEGG_TIL.kategorier.aksept,
     ]);

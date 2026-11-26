@@ -80,7 +80,9 @@ describe('det som mangler (BF-37)', () => {
       },
     ]);
     v.utenfor = { ...tomKorrespondanse(), type: 'notat', dato: '2026-11-03', beskrivelse: 'x' };
-    v.utenfor.vedlegg = [{ vedlegg_id: 'v1', filnavn: 'a.pdf', innhold_sha256: 'a' }];
+    v.utenfor.vedlegg = [
+      { vedlegg_id: 'v1', filnavn: 'a.pdf', innhold_sha256: 'a', stoerrelse: 1 },
+    ];
     expect(manglerIVarslingen(v, 'x', navnet, '2026-11-03')).toEqual([]);
   });
 

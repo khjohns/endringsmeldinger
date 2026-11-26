@@ -12,7 +12,11 @@
   import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
-  import { hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    arbeidetI,
+    hjemmelenForVarselet,
+    svaretPaaVarseletErIkkeBygget,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -177,7 +181,12 @@
           h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
           h.type !== 'oppgi_kunnskapsdato' &&
-          h.type !== 'innsigelse'
+          h.type !== 'innsigelse' &&
+          !(
+            (h.type === 'svare' || h.type === 'revidere') &&
+            h.gjelder &&
+            svaretPaaVarseletErIkkeBygget(u, h.gjelder)
+          )
       )
       .map((h) => h.noekkel)
   );
@@ -334,7 +343,19 @@
     if (v) {
       const flere = iSporet.some((x) => x !== h && x.type === h!.type && varselhjemmel(x) === v);
       const brev = flere ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
-      return h!.type === 'svare' ? VARSELSVARET.svar(v, brev) : VARSELSVARET.nyttSvar(v, brev);
+      // VS-U87 punkt 27: to varsler etter samme bestemmelse i samme brev skilles på arbeidet.
+      const iBrevet =
+        brev &&
+        iSporet.filter(
+          (x) =>
+            x.type === h!.type &&
+            varselhjemmel(x) === v &&
+            brevMedUtsagn(u, x.gjelder!)?.id === brev.id
+        ).length > 1;
+      const arbeid = iBrevet ? arbeidetI(u, h!.gjelder!) : undefined;
+      return h!.type === 'svare'
+        ? VARSELSVARET.svar(v, brev, arbeid)
+        : VARSELSVARET.nyttSvar(v, brev, arbeid);
     }
     return omtalen(n)?.tekst?.() ?? null;
   }

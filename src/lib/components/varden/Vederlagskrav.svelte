@@ -30,7 +30,7 @@
   import Brevskjema from './Brevskjema.svelte';
   import Foerstekrav from './Foerstekrav.svelte';
   import Sendevalg from './Sendevalg.svelte';
-  import { tilbudteHjemler } from './vederlagsvarsel';
+  import { tilbudteHjemler, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
   import Knapp from './Knapp.svelte';
   import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -120,8 +120,11 @@
     onlagttil?: () => void;
     /** TE oppgir eller endrer datoen etter § 34.1.3 i et eget brev, og utkastet står (U-10 i BF-48). */
     onkunnskapsdato?: (varselet: string) => void;
-    /** «Bare varsle, uten krav» (U-1 i BF-37), som registrering når `registrer` (U-3 i BF-51). */
-    onvarsle?: (registrer: boolean) => void;
+    /**
+     * «Bare varsle, uten krav» (U-1 i BF-37), som registrering når `registrer`, og med varselet etter
+     * `hjemmel` fra påminnelsen ved det første kravet (U-3 i BF-51).
+     */
+    onvarsle?: (registrer: boolean, hjemmel?: Vederlagsvarselhjemmel) => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -865,7 +868,7 @@
           lett
           valg={varsler.map((x) => {
             const b = brevMed(x.dokument);
-            return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletI(b) : x.id };
+            return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletMedArbeid(b, x.arbeid) : x.id };
           })}
           bind:verdi={p.varsel.varsel}
           feil={feil(`varsel-${n}`)}
@@ -949,7 +952,7 @@
       {u}
       spor="vederlag"
       hjemmel="34.1.2"
-      onregistrer={kanRegistrereVarsel && onvarsle ? () => onvarsle(true) : undefined}
+      onregistrer={kanRegistrereVarsel && onvarsle ? () => onvarsle(true, '34.1.2') : undefined}
     />
   {/if}
 

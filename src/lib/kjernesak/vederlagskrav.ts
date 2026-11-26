@@ -191,6 +191,8 @@ export interface VarseletAlene {
   foer: StandpunktTilVarselet | null;
   /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U77 punkt 33). */
   forrigeSvar: string | null;
+  /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
+  arbeid: string | undefined;
 }
 
 /**
@@ -210,6 +212,15 @@ function kravpostvarseletSvaretGjelder(u: Utledning, gjelder: string) {
   return v && erKravpostvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
 }
 
+/**
+ * Svaret på varselet `gjelder` etter § 34.1.2 eller § 34.1.3 (VS-U87 punkt 32), som Varden ikke har
+ * skjema for ennå. Handlingen vises ikke, så den ikke åpner et tomt skjema (#2447).
+ */
+export function svaretPaaVarseletErIkkeBygget(u: Utledning, gjelder: string): boolean {
+  const v = varseletSvaretGjelder(u, gjelder);
+  return !!v && !erKravpostvarselhjemmel(v.hjemmel);
+}
+
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
   kravpostvarseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
@@ -225,5 +236,6 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
         (x) => x.gjelder === v.id && x.hjemmel === v.hjemmel
       ) ?? null,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast((s) => s.gjelder === v.id)?.id ?? null,
+    arbeid: arbeidetI(u, v.id),
   };
 }

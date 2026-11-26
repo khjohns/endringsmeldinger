@@ -1043,8 +1043,7 @@
         melding = null;
         aapneUtkast({ art: 'kunnskapsdato', gjelder });
       }}
-      onvarsle={(registrer) => {
-        const [hjemmel] = tilbudteHjemler(kjernesak.handlinger, registrer);
+      onvarsle={(registrer, hjemmel = tilbudteHjemler(kjernesak.handlinger, registrer)[0]) => {
         if (hjemmel) vederlagsvarsel(hjemmel, registrer);
       }}
     />
