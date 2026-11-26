@@ -316,10 +316,15 @@ punktet. Det juridiske står i vedtakene, ikke her.
 - <a id="mm-u30"></a>**MM-U30** Hvert spor har høyst én betegnelse, i denne rekkefølgen:
   «Trukket»; «Byggherren har bedt om spesifisert krav (punkt 33.6.2)» (bare frist, til
   forespørselen er besvart); «Svar ikke registrert»; «Byggherren har frafalt
-  pålegget» (bare grunnlaget); «Enige»; «Byggherren har svart»; «Varslet». «Byggherren har
-  svart» står når byggherren har et gjeldende svar, også i en lukket sak, og «Varslet» bare når
-  totalentreprenøren har varslet og ikke krevd (oppdragsgiver 16.11 i #2017). Ingen betegnelse
-  når ingenting er sendt, og heller ikke for et krav uten svar i en lukket sak. Byggherrens resultat, enighetens virkning,
+  pålegget» (bare grunnlaget); «Enige»; «Byggherren har svart»; «Varslet»; «Ingen varsel eller
+  krav i saken» (bare vederlaget og fristen). «Byggherren har svart» står når byggherren har et
+  gjeldende svar, også i en lukket sak, og «Varslet» bare når totalentreprenøren har varslet og
+  ikke krevd (oppdragsgiver 16.11 i #2017). «Ingen varsel eller krav i saken» står når
+  totalentreprenøren ikke har sendt eller lagt til et varsel eller krav i sporet, også når kravene
+  er avgjort, men ikke i en lukket sak ([OV-U125](../docs/plans/vedtak.md#ov-u125)). Siden for
+  sporet har den i hodet med linja om hva saken har, og siden for forholdet viser begge sporene
+  med den (U-2 og U-6 i [BF-51](../docs/domenetabell/brukerforlop/BF-51.md)). Ingen betegnelse for
+  et krav uten svar i en lukket sak. Byggherrens resultat, enighetens virkning,
   innsigelser, protester og passivitet står i linja under. Ligger det et innlegg etter siste
   brev i sporet, står det i linja under, uten tolkning ([OV-U99](../docs/plans/vedtak.md#ov-u99)
   punkt 6). Presiserer [MM-U22](#mm-u22) og
@@ -474,7 +479,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
   «Godta …» en sekundær knapp, og byggherrens «Send nytt svar» en lenkeknapp ved byggherrens
-  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
+  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» er en kompakt lenke i hodet til tråden, som «Legg til korrespondanse» (BF-03, #1377). «Legg til
   korrespondanse» er en lenke i hodet til tråden, uten hjelpetekst (R1-3 i #2180). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
   handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under. Unntaket er

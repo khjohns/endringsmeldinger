@@ -979,9 +979,13 @@
     onforkast={() => forkastKravet('frist')}
     onbrevkontroll={(k) => tilKravkontroll('frist', k)}
     onvedsiden={(v) => (vedSiden = v)}
-    onregistrert={() => {
-      tom('fristkrav');
-      fjernUtkast('frist', 'fristkrav');
+    onregistrert={(kravetStaar) => {
+      if (kravetStaar && utkastene.fristkrav)
+        utkastene.fristkrav = { ...utkastene.fristkrav, hva: 'krav', utenfor: null };
+      else {
+        tom('fristkrav');
+        fjernUtkast('frist', 'fristkrav');
+      }
       return tilSaken(FRISTKRAV.registrert, 'sendt');
     }}
   />

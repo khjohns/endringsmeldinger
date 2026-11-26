@@ -383,12 +383,9 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     ).toHaveLength(0);
   });
 
-  it('i fristsporet åpner kravet i «Andre handlinger» kravskjemaet for fristen (G-3 i BF-20, #1636)', async () => {
-    const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'frist');
-    const raden = kortet.getByText(
-      (_, e) => e?.getAttribute('data-handling') === 'krav:frist'
-    ) as HTMLElement;
-    await fireEvent.click(within(raden).getByRole('button'));
+  it('i fristsporet uten varsel eller krav åpner hovedvalget «Send krav om fristforlengelse» kravskjemaet for fristen (G-3 i BF-20, #1636, U-1 i BF-51)', async () => {
+    await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om fristforlengelse' }));
     expect(
       within(screen.getByRole('form')).getByRole('heading', { name: /^Krav om fristforlengelse/ })
     ).toBeTruthy();

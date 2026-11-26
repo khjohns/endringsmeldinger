@@ -47,6 +47,13 @@ export { akseptfristen } from '#kjerne/utledning/visning.ts';
 /** Om TE kan anse byggherrens avslag som pålegg om forsering, for Varden (FO-U1, #2120). */
 export { forseringKanVelges } from '#kjerne/utledning/visning.ts';
 
+/** Varslene i sporet og om TEs neste krav er det første, for skjemaet for kravet (U-3 i BF-51). */
+export {
+  nesteKravErDetFoerste,
+  varsleneISporet,
+  type VarselISporet,
+} from '#kjerne/utledning/visning.ts';
+
 /** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
 export { hindrerSvarPaaKravet } from '#kjerne/spor/vederlag/kommando.ts';
 

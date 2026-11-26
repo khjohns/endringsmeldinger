@@ -39,6 +39,7 @@
     handling,
     brevet,
     leggTilKorrespondanse,
+    merknad,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
@@ -78,7 +79,7 @@
   <Datolinjer {b} {klar} varselbrev={varsel?.dokument ?? null} {akseptfrist} />
 {/snippet}
 
-<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel} siste={traad.at(-1)}>
+<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel} siste={traad.at(-1)} {merknad}>
   <Brevtraad
     brev={traad}
     {leggTilKorrespondanse}
