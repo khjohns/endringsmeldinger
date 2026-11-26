@@ -550,14 +550,12 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'et registrert brev har en opplysning om datoen utgiftene etter § 34.1.3 ble kjent'
     );
+  const innlegg = erInnlegg(dokument);
   // D-6 i BF-03: et innlegg sendt utenfor løsningen legges til som korrespondanse (OV-U4).
-  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'innlegg'))
+  if (innlegg && erRegistrert(dokument.opplysninger))
     throw new Uforstaatt('et registrert brev har et innlegg');
   // MM-U47 punkt 1–2: innlegget er et eget brev med én henvisning.
-  if (
-    dokument.utsagn.some((u) => u.art === 'innlegg') &&
-    (dokument.utsagn.length > 1 || dokument.krav.length || dokument.svar.length)
-  )
+  if (innlegg && (dokument.utsagn.length > 1 || dokument.krav.length || dokument.svar.length))
     throw new Uforstaatt('innlegget står ikke alene i brevet');
   // OV-U4, OV-U16: et dokument uten krav, svar eller utsagn er et brev registrert som
   // dokumentasjon. OV-U79: annen registrert korrespondanse kan ha beskrivelsen, men ikke sporene.
@@ -599,7 +597,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U50)');
   // MM-U47, designdelen: innlegget fra løsningen har tittelen parten skrev.
-  if (data.brevtekst && data.brevtittel === undefined && erInnlegg(dokument))
+  if (innlegg && data.brevtekst && data.brevtittel === undefined)
     throw new Uforstaatt('innlegget har ingen tittel');
   if (data.brevtittel !== undefined) {
     const avvik = avvikITittelen(data.brevtittel, dokument);

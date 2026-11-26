@@ -185,7 +185,7 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
   })
 ) as Record<Spor, Skjema>;
 
-/** Slagene opplysning om et dokument, som også er det en bestridelse gjelder (MM-U7). */
+/** Slagene opplysning om et dokument (HF-U1, GR-U13). */
 export const OPPLYSNINGSSLAG = [
   'sendt',
   'mottatt',

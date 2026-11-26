@@ -7776,7 +7776,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [
       [
-        "  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'innlegg'))\n    throw new Uforstaatt('et registrert brev har et innlegg');\n",
+        "  if (innlegg && erRegistrert(dokument.opplysninger))\n    throw new Uforstaatt('et registrert brev har et innlegg');\n",
         '',
       ],
     ],
