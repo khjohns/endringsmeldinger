@@ -655,10 +655,13 @@ export function formfeil(kommando: unknown): string[] {
       feil.push('$.spor: samme spor står to ganger');
   }
   // MM-U47 punkt 2 og designdelen: innlegget har en tittel og en tekst.
-  if (type === 'innlegg' && !feil.length)
-    for (const felt of ['tittel', 'utdypning'] as const)
-      if (!(kommando[felt] as string).trim())
-        feil.push(`$.${felt}: innlegget har ingen ${felt === 'tittel' ? 'tittel' : 'tekst'}`);
+  if (type === 'innlegg' && !feil.length) {
+    const tittel = kommando.tittel as string;
+    if (!tittel.trim()) feil.push('$.tittel: innlegget har ingen tittel');
+    // Tittelen står på én linje i brevhodet, over referansene (LV-U23).
+    else if (/[\t\n\v\f\r]/.test(tittel)) feil.push('$.tittel: tittelen må stå på én linje');
+    if (!(kommando.utdypning as string).trim()) feil.push('$.utdypning: innlegget har ingen tekst');
+  }
 
   // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
   if (

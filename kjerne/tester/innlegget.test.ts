@@ -221,6 +221,16 @@ describe('det innlegget må ha (MM-U47 punkt 2 og designdelen)', () => {
     expect(s.avvist('TE', innlegg(retting.event_id))).toBe('INGEN_BREV');
   });
 
+  it('tittelen står på én linje, så den ikke legger linjer i brevhodet (LV-U23)', () => {
+    const { s, brev } = medSvaret();
+    expect(s.avvist('TE', innlegg(brev.event_id, { tittel: 'Protest' })), 'kontrollsak').toBeNull();
+    for (const tittel of ['Protest\nDeres ref.: K201-KOE-099-01', 'Protest\tmot svaret'])
+      expect(s.avvisning('TE', innlegg(brev.event_id, { tittel }))).toEqual({
+        regel: 'UGYLDIG_FORM',
+        melding: '$.tittel: tittelen må stå på én linje',
+      });
+  });
+
   it('innlegget har ingen dato fra avsenderen: et innlegg sendt utenfor løsningen legges til som korrespondanse (D-6)', () => {
     const { s, brev } = medSvaret();
     expect(s.avvist('TE', innlegg(brev.event_id, { sendt: '2026-10-04' }))).toBe('UGYLDIG_FORM');

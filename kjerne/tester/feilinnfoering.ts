@@ -7766,7 +7766,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'innlegget godtas med en tittel med bare mellomrom (MM-U47, designdelen)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
-      ['      if (!(kommando[felt] as string).trim())', '      if (!(kommando[felt] as string))'],
+      [
+        "    if (!tittel.trim()) feil.push('$.tittel: innlegget har ingen tittel');",
+        "    if (!tittel) feil.push('$.tittel: innlegget har ingen tittel');",
+      ],
     ],
     mal: ['innlegget må ha en tittel og en tekst'],
   },
@@ -7795,6 +7798,13 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['!d.ikkeISaken && !rettet.has(d.id)', '!d.ikkeISaken']],
     mal: ['innlegget kan ikke vise til en rettet registrering'],
+  },
+  {
+    id: 'F1377j',
+    feilklasse: 'tittelen på innlegget kan ha linjeskift og tabulator (LV-U23)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['    else if (/[\\t\\n\\v\\f\\r]/.test(tittel))', '    else if (false)']],
+    mal: ['tittelen står på én linje'],
   },
 ];
 
