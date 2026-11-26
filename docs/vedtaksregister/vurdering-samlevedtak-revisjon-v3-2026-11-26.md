@@ -110,11 +110,12 @@ Forhold: samler HF-U26 og HF-U30–HF-U34.
 
 **E17 Beslutningsdelen.** LV-U73 er beslutningsdelen for brevet i punkt 2, med teksten i posten,
 og gjelder også brevet i designdelen i MM-U59. Endringen LV-U73 gjør i LV-U34 (setningen om en
-revisjon), står. Forholdet «LV-U73 endrer MM-U52» overtas ikke: MM-U52 er opphevet, og brevteksten
+revisjon), står i LV-U73 og overtas ikke av versjon 3: samlevedtak E1 samler LV-U34 med setningen slik
+LV-U73 endret den, og viser til versjon 3 for brevet (orkestratoren 26.11). Forholdet «LV-U73 endrer MM-U52» overtas ikke: MM-U52 er opphevet, og brevteksten
 står i designdelen i MM-U59. Forhold: samler LV-U73.
 
-**Forholdene samlet:** samler HF-U29, HF-U26, HF-U27, HF-U30–HF-U34 og LV-U73; endrer MM-U60 (E15);
-endrer LV-U34 og MM-U27 og presiserer MM-U34 (overtatt fra LV-U73 og HF-U29). «GR-U40 presiserer
+**Forholdene samlet:** samler HF-U29, HF-U26, HF-U27, HF-U30–HF-U34 og LV-U73; endrer MM-U60 punkt 24 og designdelen (E15);
+endrer MM-U27 og presiserer MM-U34 (overtatt fra HF-U29). «GR-U40 presiserer
 HF-U29 punkt 12» står og gjelder punkt 12 i versjon 3 slik E13 retter det. De andre forholdene i
 HF-U29 gjelder poster som er samlet, og overtas ikke.
 
@@ -122,15 +123,16 @@ HF-U29 gjelder poster som er samlet, og overtas ikke.
 
 ## Spørsmålene
 
-Lagret ordrett før de sendes til orkestratoren. Begge gjelder hvor reglene om byggherrens nye svar
+Lagret ordrett før de sendes til orkestratoren. Spørsmål 1 er rettet 26.11 etter delingen med
+samlevedtak E1 (orkestratoren): «endrer LV-U34» er tatt ut av forholdene, og spørsmålet er sendt på nytt. Begge gjelder hvor reglene om byggherrens nye svar
 står, og stilles som nummerert liste.
 
 > **1. Tilslutning til versjon 3 av samlevedtaket for revisjon av byggherrens svar.** Versjon 3 er
-> versjon 2 med punkt 13 og «Endret innhold» E10–E17, med E11 etter svaret på spørsmål 2. Den endrer
+> versjon 2 med punkt 13 og «Endret innhold» E10–E17 og E16b, med E11 etter svaret på spørsmål 2. Den endrer
 > ikke innholdet, bare hvor reglene står: brevet sier budskapet i stedet for ordlyden med
 > «erstatter» (LV-U73), og henvisningene til regler som er samlet andre steder, rettes. Forhold:
 > samler HF-U29, HF-U26, HF-U27, HF-U30–HF-U34 og LV-U73; endrer MM-U60 punkt 24 og designdelen;
-> endrer LV-U34 og MM-U27 og presiserer MM-U34, overtatt fra LV-U73 og HF-U29.
+> endrer MM-U27 og presiserer MM-U34, overtatt fra HF-U29.
 > - **A (anbefalt):** Ja, som utkastet.
 > - **B:** Som A, med rettelsene oppdragsgiver gir per punkt.
 >
