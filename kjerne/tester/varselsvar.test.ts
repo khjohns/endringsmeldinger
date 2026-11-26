@@ -775,7 +775,7 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     expect(brevet(s)).toContain(`jf. innsigelsen i ${brev3}`);
   });
 
-  it('svaret på kravet nevner innsigelsen i svaret på varselet og den egne innsigelsen etter punkt 5 hver for seg, i rekkefølgen de kom (punkt 1, 10 og 15)', () => {
+  it('svaret på kravet gir opp innsigelsen i svaret på varselet og tolker ikke den egne innsigelsen etter punkt 5 (punkt 10, VS-U89)', () => {
     const s = sak();
     s.send('TE', {
       ...PAABEROPELSE,
@@ -788,8 +788,9 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
     expect(brevet(s)).toContain(
-      `Byggherren gir opp innsigelsen i ${brev3} og innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at`
+      `Byggherren gir opp innsigelsen i ${brev3} og gjør ikke gjeldende at ${omVarselet['34.1.2']} i ${brev2} kom for sent.`
     );
+    expect(brevet(s)).not.toContain('punkt\u00a05');
   });
 
   it('en innsigelse som først står i svaret på kravet, leses ikke som innsigelsen i svaret på varselet (E11 i VS-U87)', () => {
