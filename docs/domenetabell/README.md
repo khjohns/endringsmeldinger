@@ -528,6 +528,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/avvisningen.test.ts`. |
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `INGEN_VARSEL` | — | Kontrollen av kommandoen: et svar på et varsel som står alene, må gjelde et varsel etter punkt 34.3.3 første ledd eller 34.4 fra totalentreprenøren (VS-U79). Ingen rad sier avvisningen; den er en forutsetning i `hindrerSvaretPaaVarselet`. |
+| `KRAVET_ER_IKKE_VARSELET` | — | Kontrollen av kommandoen: kunnskapsdatoen etter § 34.1.3 annet ledd står i vederlagskravet bare når kravet er det første varselet løsningen kjenner (VS-U86 punkt 9 og 12, D-2 i BF-48). Ingen rad sier avvisningen; den prøves i `kjerne/tester/kunnskapsdatoen.test.ts` (#2012). |
 | `KRAVET_ER_VARSELET` | — | Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `KRAVPOSTENE` | KA-55, KA-58, KA-60 | — |
 | `KRAVPOSTVARSELET` | VS-08, VS-09 | — |
@@ -542,6 +543,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `SVAR_PER_KRAVPOST` | — | Kontrollen av kommandoen: svaret på rigg og drift er ikke bygget, så svaret på et krav med posten tilbys ikke (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663). Det er en avgrensning i byggingen, og ingen rad sier avvisningen. |
 | `TEKST_KAN_IKKE_LAGRES` | — | Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet. |
 | `UGYLDIG_FORM` | KA-28 | — |
+| `UGYLDIG_HENVISNING` | — | Kontrollen av kommandoen: brevet som supplerer eller endrer kunnskapsdatoen etter § 34.1.3, viser til det første varselet etter § 34.1.3 (VS-U86 punkt 14, D-6 i BF-48). Ingen rad sier avvisningen; den prøves i `kjerne/tester/kunnskapsdatoen.test.ts` (#2012). |
 | `UGYLDIG_INNSIGELSE` | VS-01 | — |
 | `UGYLDIG_KORRIGERING` | GR-36 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03, KA-56 | — |

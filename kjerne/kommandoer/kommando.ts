@@ -41,6 +41,7 @@ import {
 } from '../typer.ts';
 import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 import { KRAVFORM_I_FRISTEN } from '../spor/frist/kommando.ts';
+import { kunnskapsdatoIKravet } from '../spor/vederlag/format.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -201,6 +202,8 @@ export type Kommando = (
       sendemaate?: Sendemaate;
       beskrivelse?: string;
       dokumentasjon: string[];
+      /** VS-U86 punkt 12: datoen varselet etter § 34.1.3 oppga. */
+      klar_over_utgiftene?: string;
     } & RegistrertVarsel)
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
@@ -222,7 +225,7 @@ export type Kommando = (
   /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
   | { type: 'ikke_i_saken'; retter: string }
   /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
-  | ({ type: 'send_varsel' } & Varselet)
+  | ({ type: 'send_varsel'; klar_over_utgiftene?: string } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
@@ -269,6 +272,17 @@ export type Kommando = (
       paalegg_mottatt?: string;
       klar_over_forholdet?: string;
       /** MM-U53: TEs valgfrie forklaring under den vedtatte teksten. Løsningen tolker den ikke. */
+      utdypning?: string;
+    }
+  /**
+   * VS-U86 punkt 14 (VS-U82): TE supplerer eller endrer datoen TE ble klar over at økte utgifter
+   * etter § 34.1.3 annet ledd ville påløpe, i et eget brev. `gjelder` er varselet etter § 34.1.3.
+   */
+  | {
+      type: 'kunnskapsdato';
+      gjelder: string;
+      klar_over_utgiftene: string;
+      /** Arbeidsvalget D-5 i BF-48, etter MM-U53: TEs valgfrie forklaring. Løsningen tolker den ikke. */
       utdypning?: string;
     }
 ) &
@@ -381,6 +395,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendemaate: SENDEMAATE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
+      klar_over_utgiftene: DATO,
     },
     ['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']
   ),
@@ -403,6 +418,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     {
       type: { const: 'send_varsel' },
       ...VARSELET,
+      klar_over_utgiftene: DATO,
       ...BREVTEKST,
     },
     ['type', 'spor', 'hjemmel']
@@ -468,7 +484,24 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       { required: ['klar_over_forholdet'], properties: { paalegg_mottatt: { enum: [] } } },
     ]
   ),
+  kunnskapsdato: objekt(
+    {
+      type: { const: 'kunnskapsdato' },
+      gjelder: ID,
+      klar_over_utgiftene: DATO,
+      utdypning: TEKST,
+      ...BREVTEKST,
+    },
+    ['type', 'gjelder', 'klar_over_utgiftene']
+  ),
 };
+
+/** Kunnskapsdatoen etter § 34.1.3 i kommandoen, eller `undefined` (VS-U86 punkt 12 og 14). */
+export function kunnskapsdatoIKommandoen(k: Kommando): string | undefined {
+  if (k.type === 'varsel' || k.type === 'send_varsel' || k.type === 'kunnskapsdato')
+    return k.klar_over_utgiftene;
+  return k.type === 'krav' && k.spor === 'vederlag' ? kunnskapsdatoIKravet(k) : undefined;
+}
 
 /** Kommandotypene kjernen tar imot, med et skjema for hver. */
 export const KOMMANDOTYPER = Object.keys(SKJEMA) as Kommando['type'][];
@@ -579,7 +612,18 @@ export function formfeil(kommando: unknown): string[] {
     const k = kommando as { spor: Spor; hjemmel: Varselhjemmel };
     if (VARSELSPOR[k.hjemmel] !== k.spor)
       feil.push(`$.hjemmel: et varsel etter punkt ${k.hjemmel} står ikke i sporet ${k.spor}`);
+    // VS-U86 punkt 12: bare varselet etter § 34.1.3 har datoen utgiftene ble kjent.
+    else if (k.hjemmel !== '34.1.3' && 'klar_over_utgiftene' in k)
+      feil.push(
+        `$.klar_over_utgiftene: bare varselet etter punkt 34.1.3 har datoen totalentreprenøren ble klar over at utgiftene ville påløpe`
+      );
   }
+  // VS-U86 punkt 12 og 14: datoen er en kalenderdag. I vederlagskravet kontrollerer sporet den.
+  const kunnskapsdato = kommando.klar_over_utgiftene;
+  if (!feil.length && typeof kunnskapsdato === 'string' && !erKalenderdato(kunnskapsdato))
+    feil.push(
+      `$.klar_over_utgiftene: ${JSON.stringify(kunnskapsdato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
+    );
   const {
     sti,
     sendt,

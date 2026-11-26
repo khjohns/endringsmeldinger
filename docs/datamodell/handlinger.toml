@@ -210,15 +210,15 @@ navn = "Retting av datoene i et sendt brev"
 part = "TE"
 spor = ["forhold", "vederlag", "frist"]
 kilde = ["MM-U59", "OV-U98", "OV-U99"]
-finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) finnes."
+finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) finnes, og i kjernen kunnskapsdatoen etter punkt 34.1.3 (punkt 12)."
 form = "Strukturert. Den manuelle korrigeringsprosessen tar andre rettinger."
 naar = "Nå for datoene i beslutningsdelen i MM-U59."
 tilstander = "En retting til en tidligere varseldato eller kravdato står som tilbud til byggherren har godtatt den i et svar (MM-U59 punkt 8, 18 og 20–23, designdelen)."
 status = "naa"
-noekler = ["korrigere:*"]
-kommandoer = ["korrigering"]
+noekler = ["korrigere:*", "oppgi_kunnskapsdato:*"]
+kommandoer = ["korrigering", "kunnskapsdato"]
 skjema = []
-mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18), med aksepten i svaret: kjernen og skjemaene i Varden (BF-50, #1309). Kunnskapsdatoen etter punkt 34.1.3 (punkt 12, VS-U82): opplysningen, utsagnet og skjemaene (BF-48, #2012). Korrigeringen av datoen i påberopelsen (punkt 10) er bygget."
+mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18), med aksepten i svaret: kjernen og skjemaene i Varden (BF-50, #1309). Kunnskapsdatoen etter punkt 34.1.3 (punkt 12, VS-U82): skjemaene i Varden (BF-48, #2012); kjernen er bygget. Korrigeringen av datoen i påberopelsen (punkt 10) er bygget."
 
 [[handling]]
 id = "U8"
