@@ -796,7 +796,7 @@
     {
       "id": "BF-02D",
       "tittel": "TE korrigerer datoen pålegget ble mottatt i en lukket sak",
-      "brukerhistorie": "BH har påberopt at varselet kom for sent og godtatt forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
+      "brukerhistorie": "BH har påberopt at varselet kom for sent og avslått forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
       "aktoerer": {
         "TE": {
           "aktor_id": "te",
@@ -909,12 +909,12 @@
                   {
                     "id": "cd5f0ed2-0000-4000-8000-00000000000c",
                     "art": "forhold",
-                    "resultat": "godkjent"
+                    "resultat": "avslaatt"
                   }
                 ],
                 "beslutningsgrunnlag": {
                   "regelversjon": 0,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært avslått.",
                   "sammenfall": false,
                   "varslingsplikt": true,
                   "virkninger": [
@@ -946,8 +946,8 @@
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
-                "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 32.2 ikke fører frem\n\nByggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).",
+                "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært avslås kravet på endringsordre."
               }
             ],
             "brevtittel": "Svar på forholdet i sak KOE-17",
@@ -1470,7 +1470,7 @@
     {
       "id": "BF-08",
       "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
-      "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
+      "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar svaret. Avslår BH forholdet, også subsidiært, avsluttes saken. Gjør BH gjeldende at varselet kom for sent og er subsidiært enig i forholdet, avsluttes saken ikke.",
       "aktoerer": {
         "TE": {
           "aktor_id": "te",
@@ -1519,7 +1519,7 @@
           "versjon": 4,
           "forstaaelse": [
             "TE ser at svaret ikke er en endringsordre, fordi byggherren gjør gjeldende at varselet kom for sent, og at svarene på vederlag og frist gjelder subsidiært (D-4, D-5).",
-            "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, og at saken avsluttes med kravene om vederlag og frist (T-5).",
+            "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, at enigheten om vederlag og frist da ikke får virkning, og at saken ikke avsluttes, fordi byggherren er subsidiært enig i forholdet (T-5).",
             "TE ser at en ny versjon av påberopelsen har samme hjemmel, og at trekket av påberopelsen også trekker kravene om vederlag og frist (T-6).",
             "BH ser at BH kan sende et nytt svar, og at det forrige svaret står som det ble sendt, også en endringsordre i det (D-12, T-2, T-4). Nytt svar bygges i et eget issue."
           ],
@@ -1529,11 +1529,11 @@
           }
         },
         {
-          "id": "te-har-godtatt-avslaget",
-          "beskrivelse": "TE har godtatt avslaget, også at varselet kom for sent.",
+          "id": "te-har-godtatt-svaret",
+          "beskrivelse": "TE har godtatt svaret, også at varselet kom for sent. Byggherren er subsidiært enig i forholdet, så saken avsluttes ikke.",
           "versjon": 5,
           "forstaaelse": [
-            "TE ser at saken avsluttes, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13)."
+            "TE ser at saken ikke avsluttes, at enigheten om vederlag og frist ikke får virkning, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13)."
           ],
           "neste": null
         }

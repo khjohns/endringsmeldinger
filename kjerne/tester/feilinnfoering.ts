@@ -96,9 +96,9 @@ const MUTASJONER: Mutasjon[] = [
         "} from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
-        '  // kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist)',
+        '  // punkt 12: at kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist)',
         // Statusen leses uten å endre utfallet, så bare arkitekturtestene skal feile (#1122).
-        '  // kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)',
+        '  // punkt 12: at kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)',
       ],
     ],
     mal: [
@@ -5669,7 +5669,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F592',
     feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (u.forholdAvvist) return { tattMed, ikkeTattMed };', '']],
+    endringer: [['  if (forholdetErAvvistVedEnighet(u)) return { tattMed, ikkeTattMed };', '']],
     mal: ['en enighet uten virkning gir ingen forlengelse'],
   },
   {
@@ -6284,7 +6284,10 @@ const MUTASJONER: Mutasjon[] = [
       'forseringen kan velges etter at totalentreprenøren har godtatt avslaget (FO-U1, #2120)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ["svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u)", 'prinsipaltAvslaatteDager(u)'],
+      [
+        "  svarIkkeGodtatt(u, 'frist') && !forholdetErAvvistVedEnighet(u) &&",
+        '  !forholdetErAvvistVedEnighet(u) &&',
+      ],
     ],
     mal: ['ikke etter at totalentreprenøren har godtatt svaret'],
   },
@@ -8031,6 +8034,53 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['kravet sendt før det registrerte varselet er det første varselet'],
+  },
+  {
+    id: 'F2426a',
+    feilklasse:
+      'aksepten av et svar som påberoper preklusjon og godkjenner forholdet subsidiært, lukker saken (HF-U35 punkt 10, #2426)',
+    fil: `${K}/spor/forhold/utledning.ts`,
+    endringer: [
+      [
+        "    forholdAvvist: godtatt && standpunktet(gBrev.svar, 'forhold')?.resultat === 'avslaatt',",
+        '    forholdAvvist: godtatt && !forholdetErAvklart(gBrev.svar, gBrev.virkninger),',
+      ],
+    ],
+    mal: ['HF-U35 punkt 10: med forholdet godkjent subsidiært lukkes saken ikke'],
+  },
+  {
+    id: 'F2426b',
+    feilklasse:
+      'aksepten av et svar som påberoper preklusjon og avslår forholdet subsidiært, lukker ikke saken (HF-U37, #2426)',
+    fil: `${K}/spor/forhold/utledning.ts`,
+    endringer: [
+      [
+        "?.resultat === 'avslaatt',",
+        "?.resultat === 'avslaatt' && !preklusjonPaaberopt(gBrev.svar, gBrev.virkninger),",
+      ],
+    ],
+    mal: ['HF-U37: med forholdet avslått subsidiært er aksepten også en aksept av avslaget'],
+  },
+  {
+    id: 'F2426c',
+    feilklasse:
+      'enigheten om vederlag og frist får virkning etter at TE har godtatt en påberopt preklusjon (GR-U34 punkt 12, #2426)',
+    fil: `${K}/spor/forhold/utledning.ts`,
+    endringer: [['  u.forholdAvvist || u.preklusjonGodtatt;', '  u.forholdAvvist;']],
+    mal: ['GR-U34 punkt 12: med forholdet godkjent subsidiært får enigheten'],
+  },
+  {
+    id: 'F2426d',
+    feilklasse:
+      'TE kan velge forsering etter å ha godtatt preklusjonen av forholdet (FO-U1, #2426)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  svarIkkeGodtatt(u, 'frist') && !forholdetErAvvistVedEnighet(u) &&",
+        "  svarIkkeGodtatt(u, 'frist') &&",
+      ],
+    ],
+    mal: ['FO-U1: etter at TE har godtatt preklusjonen av forholdet'],
   },
 ];
 

@@ -712,18 +712,24 @@
           "kilde": ["V-32-2-AVSLAG"],
           "forventet": { "virkning.S-g1.rettidighet": 1, "virkning.S-g1.forhold": 2 }
         },
-        { "etter": 2, "rolle": "mal", "kilde": ["V-SK01", "KA-U1"], "forventet": { "forhold_avvist": true } },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["HF-U35", "HF-U37", "KA-U1", "MM-U62"],
+          "forventet": { "forhold_avvist": false, "preklusjon_godtatt": true, "kan_inngaa_i_eo": true }
+        },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U3", "MM-U50", "KA-U1", "KA-U10"],
+          "kilde": ["MM-U3", "MM-U50", "KA-U1", "KA-U10", "HF-U35"],
           "forventet": {
             "forhold_avklart": false,
-            "forhold_avvist": true,
+            "forhold_avvist": false,
+            "preklusjon_godtatt": true,
             "enighet.forhold.regelversjon": "n",
             "enighet.forhold.virkning.rettidighet": 1,
             "enighet.forhold.virkning.forhold": 2,
-            "visning.status": "avsluttet_avslaatt",
+            "visning.status": null,
             "subsidiaer_aarsaker.vederlag": ["prekludert"]
           }
         },
@@ -12107,7 +12113,7 @@
     },
     {
       "id": "F-MM-KORR1",
-      "forslag": "#1308: TE korrigerer datoen etter at byggherren har påberopt at varselet kom for sent, og saken er lukket etter GR-U27",
+      "forslag": "#1308: TE korrigerer datoen etter at byggherren har påberopt at varselet kom for sent og subsidiært avslått forholdet, og saken er lukket etter HF-U35 punkt 9 og HF-U37",
       "rader": ["GR-36"],
       "start": null,
       "steg": [
@@ -12116,7 +12122,7 @@
           "handling": "brev",
           "navn": "D2",
           "svar": [
-            { "spor": "forhold", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": false }
+            { "spor": "forhold", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }
           ]
         },
         { "handling": "aksept", "spor": "forhold", "navn": "D3" },
@@ -12126,7 +12132,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["GR-U27", "VS-U9"],
+          "kilde": ["HF-U35", "HF-U37", "VS-U9"],
           "forventet": {
             "avvist": false,
             "forhold_avvist": true,
