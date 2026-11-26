@@ -4,6 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { standpunktet } from '../frosset/byggeklosser.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { frafaller } from '../spor/forhold/utledning.ts';
 import { KJERNE } from '../versjon.ts';
@@ -56,6 +57,26 @@ function frafalletStaar(s: Sak, frafallet: ReturnType<typeof medFrafall>['frafal
   expect(svarene.find((x) => x.id === frafallet.id)).toEqual(frafallet);
 }
 
+/**
+ * Gjeldende svar er det byggherren nettopp sendte: et annet svar enn frafallet, med resultatet og
+ * rettidigheten i svaret. En påberopelse av at forholdet er varslet for sent har virkning
+ * prinsipalt (HF-U29 punkt 4, HF-U27).
+ */
+function gjeldendeEr(
+  s: Sak,
+  frafallet: { id: string },
+  v: typeof AVSLAG | typeof VARSLET_FOR_SENT
+) {
+  const g = s.u().spor.forhold.gjeldendeSvar;
+  expect(g, 'svaret er gjeldende').not.toBeNull();
+  expect(g!.id).not.toBe(frafallet.id);
+  expect(standpunktet(g!, 'forhold')?.resultat).toBe(v.resultat);
+  const rettidighet = standpunktet(g!, 'rettidighet');
+  expect(rettidighet?.iTide).toBe(v.grunnlag_varslet_i_tide);
+  const virkning = g!.beslutningsgrunnlag.virkninger.find((p) => p.standpunkt === rettidighet?.id);
+  if (!v.grunnlag_varslet_i_tide) expect(virkning?.virkning, 'prinsipalt').toBe(1);
+}
+
 describe('byggherrens nye svar på en ny versjon av forholdet etter frafallet (GR-U41 punkt 4, HF-U29 punkt 4)', () => {
   it('et avslag tas imot, frafallet står i saken, og forholdet er ikke lenger avklart ved frafallet (GR-U41 punkt 3)', () => {
     const { s, frafallet } = medFrafall();
@@ -64,9 +85,9 @@ describe('byggherrens nye svar på en ny versjon av forholdet etter frafallet (G
     const avslaget = nyttSvar(s, AVSLAG);
     expect(s.avvist('BH', avslaget)).toBeNull();
     s.send('BH', avslaget);
+    gjeldendeEr(s, frafallet, AVSLAG);
     const u = s.u();
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.forhold.gjeldendeSvar?.id).not.toBe(frafallet.id);
     expect(u.frafalt).toBe(false);
     expect(u.forholdAvklart, 'GR-U41 punkt 3').toBe(false);
     frafalletStaar(s, frafallet);
@@ -78,6 +99,7 @@ describe('byggherrens nye svar på en ny versjon av forholdet etter frafallet (G
     const paaberopelsen = nyttSvar(s, VARSLET_FOR_SENT);
     expect(s.avvist('BH', paaberopelsen)).toBeNull();
     s.send('BH', paaberopelsen);
+    gjeldendeEr(s, frafallet, VARSLET_FOR_SENT);
     expect(s.u().forstaatt).toBe(true);
     expect(s.u().frafalt).toBe(false);
     expect(s.u().forholdAvklart, 'GR-U41 punkt 3').toBe(false);
@@ -103,6 +125,7 @@ describe('byggherrens nye svar på samme versjon av forholdet etter frafallet (G
     const avslaget = revisjon(s, AVSLAG);
     expect(s.avvist('BH', avslaget)).toBeNull();
     s.send('BH', avslaget);
+    gjeldendeEr(s, frafallet, AVSLAG);
     const u = s.u();
     expect(u.forstaatt).toBe(true);
     expect(u.frafalt).toBe(false);
@@ -115,6 +138,7 @@ describe('byggherrens nye svar på samme versjon av forholdet etter frafallet (G
     const paaberopelsen = revisjon(s, VARSLET_FOR_SENT);
     expect(s.avvist('BH', paaberopelsen)).toBeNull();
     s.send('BH', paaberopelsen);
+    gjeldendeEr(s, frafallet, VARSLET_FOR_SENT);
     expect(s.u().forstaatt).toBe(true);
     expect(s.u().frafalt).toBe(false);
     expect(s.u().forholdAvklart, 'GR-U41 punkt 3').toBe(false);
