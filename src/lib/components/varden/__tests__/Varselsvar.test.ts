@@ -1,6 +1,6 @@
 /**
- * Byggherrens svar på et varsel etter punkt 34.3.3 eller 34.4 som står alene (G-9 i BF-14,
- * #2177), med kjernen i minnet. Svaret er et vanlig svar i vederlaget med varselet som `gjelder`
+ * Byggherrens svar på et varsel i vederlaget som står alene (G-9 i BF-14, #2177, G-7 i BF-37,
+ * #2447), med kjernen i minnet. Svaret er et vanlig svar i vederlaget med varselet som `gjelder`
  * (VS-U79), med standpunktene etter VS-U77 punkt 30, 31 og 33.
  */
 
@@ -16,6 +16,7 @@ import {
   MERKING,
   SAK,
   linje,
+  opprettet,
   medGrunnlag,
   medVederlagssvar,
   skrevet,
@@ -35,8 +36,24 @@ const medVarsel = (hjemmel: '34.3.3' | '34.4') =>
     type: 'send_varsel',
     varsler: [{ hjemmel, arbeid: 'Graving ved kum 4' }],
   });
-const varselI = (journal: Journalrad[]) =>
-  utledJournal(journal, KJERNE).spor.vederlag.kravpostvarsler.at(-1)!.id;
+const varselI = (journal: Journalrad[]) => {
+  const { kravpostvarsler, varsler } = utledJournal(journal, KJERNE).spor.vederlag;
+  return (kravpostvarsler.at(-1) ?? varsler['34.1.2'] ?? varsler['34.1.3'])!.id;
+};
+
+/** Forholdet er svikt, så punkt 34.1.2 krever varsel (OV-U89 punkt 13). */
+const medSvikt = skrevet([opprettet], 'TE', {
+  type: 'krav',
+  spor: 'forhold',
+  innhold: {
+    hovedkategori: 'svikt',
+    underkategori: 'grunnforhold',
+    klar_over_forholdet: '2026-09-25',
+  },
+  utdypning: 'Fjell der grunnundersøkelsen viste løsmasser.',
+});
+const medVarselOmVederlaget = (hjemmel: '34.1.2' | '34.1.3', grunnlag = medSvikt) =>
+  skrevet(grunnlag, 'TE', { type: 'send_varsel', varsler: [{ hjemmel }] });
 
 const kjernesakFor = (journal: Journalrad[]) =>
   lagKjernesak({
@@ -637,5 +654,101 @@ describe('svarene fra forrige brev bruker ordene brevet brukte om varselet (MM-U
     expect(
       within(svarene).getByText(/^Gir opp innsigelsen om at varselet etter punkt.34\.3\.3/)
     ).toBeInTheDocument();
+  });
+});
+
+describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (VS-U87 punkt 32, #2447)', () => {
+  it.each([
+    ['34.1.2', 'Svar på varsel om vederlagsjustering'],
+    ['34.1.3', 'Svar på varsel om særskilt vederlagsjustering'],
+  ] as const)(
+    'svaret på varselet etter punkt %s må si om varselet kom i tide, og har ikke justeringen',
+    async (hjemmel, tittel) => {
+      const journal = medVarselOmVederlaget(hjemmel);
+      const sendt = await svarskjemaet(journal);
+      expect(screen.getByRole('heading', { name: new RegExp(tittel) })).toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: 'Godtar justeringen' })).toBeNull();
+      await seBrevet();
+      expect(sendt).toHaveLength(0);
+      expect(
+        screen.getByRole('link', { name: 'Velg om varselet kom i tide.' })
+      ).toBeInTheDocument();
+      await radio('Kom for sent');
+      await seBrevet();
+      expect(sendt).toHaveLength(1);
+      expect(svaret(sendt[0]!)).toMatchObject({
+        type: 'brev',
+        svar: [
+          {
+            spor: 'vederlag',
+            gjelder: varselI(journal),
+            vurderinger: { varslet_i_tide: false },
+            resultat: {},
+          },
+        ],
+      });
+      expect(
+        (svaret(sendt[0]!).svar as Record<string, unknown>[])[0]!.vurderinger
+      ).not.toHaveProperty('godtar_justering');
+    }
+  );
+
+  it('«Kom i tide» sendes uttrykkelig for varselet etter punkt 34.1.2 (VS-U87 punkt 32)', async () => {
+    const sendt = await svarskjemaet(medVarselOmVederlaget('34.1.2'));
+    await radio('Kom i tide');
+    await seBrevet();
+    expect(svaret(sendt[0]!).svar).toMatchObject([{ vurderinger: { varslet_i_tide: true } }]);
+  });
+
+  it('gjelder saken en endring, tilbys ikke standpunktet til varselet etter punkt 34.1.2, og svaret sendes ikke (OV-U89 punkt 13)', async () => {
+    const journal = medVarselOmVederlaget('34.1.2', medGrunnlag);
+    const sendt = await svarskjemaet(journal);
+    expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Kom for sent' })).toBeNull();
+    // Punktet og panelet sier det samme, og panelet sier ikke «Ikke besvart» (system.md).
+    expect(screen.getAllByText(/krever ikke punkt 34\.1\.2 varsel\. Du tar ikke/)).toHaveLength(2);
+    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panelet.queryByText('Ikke besvart')).toBeNull();
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    // Mangelen er bare at det ikke er noe å sende, ikke et valg som ikke tilbys.
+    expect(
+      screen.getByRole('link', { name: /^Ingenting å sende\. Punkt.34\.1\.2 krever ikke varsel/ })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeNull();
+  });
+
+  it('kontrollsak: gjelder saken en endring, tilbys standpunktet til varselet etter punkt 34.1.3 (OV-U89 punkt 13 gjelder bare punkt 34.1.2)', async () => {
+    const sendt = await svarskjemaet(medVarselOmVederlaget('34.1.3', medGrunnlag));
+    await radio('Kom i tide');
+    await seBrevet();
+    expect(svaret(sendt[0]!).svar).toMatchObject([{ vurderinger: { varslet_i_tide: true } }]);
+  });
+
+  it('et nytt svar på varselet etter punkt 34.1.2 gjentar innsigelsen til byggherren gir den opp (VS-U87 punkt 33)', async () => {
+    const journal = medVarselOmVederlaget('34.1.2');
+    const varselet = varselI(journal);
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'vederlag',
+          gjelder: varselet,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const sendt = await svarskjemaet(besvart);
+    expect(
+      screen.getByText(/at varselet kom for sent\. Svaret gjentar innsigelsen\.$/)
+    ).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    await seBrevet();
+    expect(svaret(sendt[0]!)).toMatchObject({
+      type: 'revisjon',
+      svar: { gjelder: varselet, vurderinger: { varslet_i_tide: true } },
+    });
   });
 });

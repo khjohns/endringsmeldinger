@@ -1,14 +1,15 @@
 <!--
   Byggherrens standpunkt til et varsel etter punkt 34.3.3 eller 34.4, og til justeringen etter
   punkt 34.3.3, i svaret på kravposten og i svaret på et varsel som står alene (designdelen i
-  VS-U77: samme svarskjema). Punkt 34.4 er en setning med en lenke (`system.md`, «Normalsvaret er
+  VS-U77: samme svarskjema). Svaret på varselet etter punkt 34.1.2 og 34.1.3 som står alene har
+  samme spørsmål som for punkt 34.3.3 (VS-U87 punkt 32). Punkt 34.4 er en setning med en lenke (`system.md`, «Normalsvaret er
   en setning, unntaket en lenke»), og en innsigelse fra et tidligere svar gjentas til byggherren
   gir den opp (VS-U77 punkt 9, 10 og 12). I svaret på varselet står varselet og justeringen i
   hvert sitt punkt i brevet (`vis`), med punktet som overskrift og spørsmålet kort.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Kravpostvarselhjemmel } from '#kjerne/typer.ts';
+  import type { Vederlagsvarselhjemmel } from '#kjerne/typer.ts';
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import type { Brevref } from './lesing';
@@ -22,6 +23,8 @@
     varsletITide = $bindable(null),
     godtarJustering = $bindable(null),
     ikkeGitt,
+    varselValgfri = true,
+    varselFeil = null,
     justeringValgfri,
     justeringFeil = null,
     foranVarselet,
@@ -35,7 +38,7 @@
     /** Navnet på valget om varselet; standpunktet står i `${varselId}-standpunkt`. */
     varselId: string;
     justeringId: string;
-    hjemmel: Kravpostvarselhjemmel;
+    hjemmel: Vederlagsvarselhjemmel;
     /**
      * Byggherrens siste standpunkt til varselet før svaret, med brevet det står i, og om
      * innsigelsen etter § 34.4 der var at varselet ikke ble gitt (`ikkeGitt`).
@@ -45,6 +48,9 @@
     godtarJustering: boolean | null;
     /** Innsigelsen etter § 34.4 i dette svaret er at varselet ikke ble gitt (VS-U77 punkt 31). */
     ikkeGitt: boolean;
+    /** Svaret på varselet etter § 34.1.2 og § 34.1.3 som står alene, har bare standpunktet til det. */
+    varselValgfri?: boolean;
+    varselFeil?: string | null;
     justeringValgfri: boolean;
     justeringFeil?: string | null;
     /** «Gjelder hvis» over spørsmålet om varselet og om justeringen (U-8). */
@@ -117,7 +123,8 @@
         <Valg
           navn={varselId}
           spoersmaal={egetPunkt ? SKJEMA.varselSpoersmaalKort : SKJEMA.varselJusteringSpoersmaal}
-          valgfri
+          valgfri={varselValgfri}
+          feil={varselFeil}
           hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}
           beskrevetAv={beskrevetAvVarselet}
           valg={[
