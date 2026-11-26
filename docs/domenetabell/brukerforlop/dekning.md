@@ -271,6 +271,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U59](../../plans/vedtak.md#mm-u59) | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D korrigeringen-er-sendt | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D saken-er-lukket, BF-02D korrigeringen-er-sendt, BF-05 start, BF-48 te-har-mottatt-svaret | BF-03, BF-06, BF-10, BF-49, BF-50 |
 | [MM-U60](../../plans/vedtak.md#mm-u60) | — | — | BF-03 |
 | [MM-U61](../../plans/vedtak.md#mm-u61) | — | — | BF-50 |
+| [MM-U62](../../plans/vedtak.md#mm-u62) | — | BF-51 fristsporet-er-tomt | — |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U2](../../plans/vedtak.md#ov-u2) | — | BF-45 te-har-mottatt-svaret | — |
 | [OV-U3](../../plans/vedtak.md#ov-u3) | BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | BF-44 te-har-mottatt-svaret, BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | — |
