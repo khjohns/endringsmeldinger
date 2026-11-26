@@ -24,7 +24,7 @@ import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { erRegistrert } from '../format/leser.ts';
-import { erKravpostvarselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,
@@ -38,6 +38,7 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utfall,
+  Vederlagsvarselhjemmel,
 } from '../typer.ts';
 
 /**
@@ -125,10 +126,13 @@ export function paaberopelserIDokumentet(
   );
 }
 
-/** Byggherrens siste standpunkt til varselet for en kravpost i svarene på vederlaget. */
+/**
+ * Byggherrens siste standpunkt til et varsel i svarene på vederlaget: varselet for en kravpost, eller
+ * varselet etter § 34.1.2 eller § 34.1.3 (`gjelder` er varselet).
+ */
 export interface StandpunktTilVarselet {
   gjelder: string;
-  hjemmel: Kravpostvarselhjemmel;
+  hjemmel: Vederlagsvarselhjemmel;
   iTide: boolean;
   /** Brevet standpunktet står i. */
   dokument: string;
@@ -164,27 +168,38 @@ export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' |
 }
 
 /**
- * Byggherrens siste standpunkt til varselet etter § 34.3.3 eller § 34.4 for hver kravpost i
- * `svarene`: svarene på vederlaget med virkning, med dagen hvert ble sendt og om brevet er lagt
- * til. Svarene leses i rekkefølgen de ble sendt (VS-U77 punkt 8–12, 30 og 31, OV-U103–OV-U105).
- * `dokument` er brevet innsigelsen først ble gjort gjeldende i (punkt 6). Et standpunkt i svaret
- * på et varsel som står alene, gjelder varselet og hver kravpost i `poster` som viser til det
- * (punkt 34, VS-U79). Kommandoen og brevteksten leser dem herfra.
+ * Byggherrens siste standpunkt til varselet etter § 34.3.3 eller § 34.4 for hver kravpost, og til
+ * varselet etter § 34.1.2 og § 34.1.3, i `svarene`: svarene på vederlaget med virkning, med dagen
+ * hvert ble sendt, om brevet er lagt til og om svaret gjelder et varsel som står alene. Svarene
+ * leses i rekkefølgen de ble sendt (VS-U87 punkt 8–12, 30–34, OV-U103–OV-U105). `dokument` er
+ * brevet innsigelsen først ble gjort gjeldende i (punkt 6). Et standpunkt i svaret på et varsel som
+ * står alene, gjelder varselet og hver kravpost i `poster` som viser til det (punkt 34, VS-U79).
+ * Etter § 34.1.2 og § 34.1.3 står bare innsigelsen i svaret på varselet mot senere kravversjoner
+ * (punkt 34). Svaret på kravet gjentar den eller gir den opp, men en innsigelse som først står i
+ * svaret på kravet, leses ikke herfra (E11). Kommandoen og brevteksten leser dem herfra.
  */
 export function sisteStandpunktTilVarslene(
-  svarene: { s: Pick<Svar, 'dokument' | 'standpunkter'>; dag: string; lagtTil: boolean }[],
+  svarene: {
+    s: Pick<Svar, 'dokument' | 'standpunkter'>;
+    dag: string;
+    lagtTil: boolean;
+    paaVarselet: boolean;
+  }[],
   poster: readonly Pick<Kravpost, 'id' | 'varsel'>[]
 ): StandpunktTilVarselet[] {
   const siste = new Map<string, StandpunktTilVarselet & { dag: string; lagtTil: boolean }>();
   const sendt = [...svarene].sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0));
-  for (const { s, dag, lagtTil } of sendt)
+  for (const { s, dag, lagtTil, paaVarselet } of sendt)
     for (const p of s.standpunkter) {
-      if (p.art !== 'rettidighet' || !erKravpostvarselhjemmel(p.hjemmel)) continue;
+      if (p.art !== 'rettidighet' || !erVederlagsvarselhjemmel(p.hjemmel)) continue;
+      const kravpost = erKravpostvarselhjemmel(p.hjemmel);
       const gjelder = [
         p.gjelder,
-        ...poster.flatMap((x) =>
-          x.varsel?.art === 'gitt' && x.varsel.varsel === p.gjelder ? [x.id] : []
-        ),
+        ...(kravpost
+          ? poster.flatMap((x) =>
+              x.varsel?.art === 'gitt' && x.varsel.varsel === p.gjelder ? [x.id] : []
+            )
+          : []),
       ];
       for (const g of gjelder) {
         const noekkel = `${p.hjemmel} ${g}`;
@@ -192,6 +207,7 @@ export function sisteStandpunktTilVarslene(
         if (foer && !foer.iTide && foer.dag === dag && (foer.lagtTil || lagtTil)) continue;
         // VS-U77 punkt 6.
         const gjentatt = foer && !foer.iTide && !p.iTide;
+        if (!kravpost && !paaVarselet && !p.iTide && !gjentatt) continue;
         siste.set(noekkel, {
           gjelder: g,
           hjemmel: p.hjemmel,
