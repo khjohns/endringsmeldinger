@@ -638,6 +638,8 @@ EN_VEI = frozenset(
         ("gr-u10", "presiserer", "gr-u7", "passiv"),
         ("gr-u13", "endrer", "gr-u10", "passiv"),
         ("gr-u13", "endrer", "gr-u12", "passiv"),
+        # Ført 26.11 for GR-U41 i #1534: raden 05.10 fikk ankeret, og Følge der sier forholdet.
+        ("gr-u3", "presiserer", "frafalt-status", "passiv"),
         ("gr-u7", "presiserer", "ka-u5", "passiv"),
         ("ka-u10", "presiserer", "mm-u3", "passiv"),
         ("ka-u11", "presiserer", "gr-u9", "passiv"),
