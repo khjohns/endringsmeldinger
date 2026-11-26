@@ -457,6 +457,78 @@ export const TESTSAKER: Record<string, Testsak> = {
       await te.screenshot({ path: `${ut}/varselvalg-sendt.png` });
     },
   },
+  'varselsvar-34-1': {
+    tittel: 'Fjell i grøften langs fasade øst',
+    formaal:
+      '#2447: byggherrens svar på varselet etter punkt 34.1.2 og 34.1.3 som står alene (VS-U87 punkt 32, G-7 i BF-37), sendt gjennom serveren.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        navn: 'K-g1',
+        utdypning: 'Grøften langs fasade øst gikk i fjell der grunnundersøkelsen viste løsmasser.',
+      },
+      { handling: 'varsel', spor: 'vederlag', varsler: [{ hjemmel: '34.1.2' }, { hjemmel: '34.1.3' }] },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på varselet om vederlagsjustering' }).click({ timeout: 30_000 });
+      await bh.getByRole('heading', { name: /^Svar på varsel om vederlagsjustering/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-tomt.png`, fullPage: true });
+      await bh.getByRole('radio', { name: 'Kom for sent' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-3412.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-brev.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        bh.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        bh.getByRole('button', { name: 'Send til totalentreprenøren', exact: true }).click(),
+      ]);
+      console.log(`BH  POST kommandoer (svaret på varselet etter punkt 34.1.2): ${svar.status()}`);
+      if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
+      await bh.waitForLoadState('networkidle');
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-sendt.png`, fullPage: true });
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på varselet om særskilt vederlagsjustering' }).click({ timeout: 30_000 });
+      await bh.getByRole('radio', { name: 'Kom i tide' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-3413.png`, fullPage: true });
+    },
+  },
+  'varselsvar-34-1-2-endring': {
+    tittel: 'Omlegging av overvann ved port 2',
+    formaal:
+      '#2447: gjelder saken en endring, tilbys ikke standpunktet til varselet etter punkt 34.1.2 (OV-U89 punkt 13).',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt omlegging av overvannsledningen ved port 2.',
+      },
+      { handling: 'varsel', spor: 'vederlag', varsler: [{ hjemmel: '34.1.2' }] },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på varselet om vederlagsjustering' }).click({ timeout: 30_000 });
+      await bh.getByRole('heading', { name: /^Svar på varsel om vederlagsjustering/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-endring.png`, fullPage: true });
+      await bh.getByText(/krever punkt.34\.1\.2 ikke varsel/).first().waitFor({ timeout: 5_000 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.screenshot({ path: `${ut}/varselsvar-3412-endring-mangler.png`, fullPage: true });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */

@@ -207,7 +207,7 @@
       {
         felt: 'varsel',
         post: null,
-        tekst: varselPaakrevd && iTide === null ? SKJEMA.manglerITide : null,
+        tekst: varselPaakrevd && !varselKrevesIkke && iTide === null ? SKJEMA.manglerITide : null,
       },
       {
         felt: 'justering',

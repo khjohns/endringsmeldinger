@@ -708,6 +708,8 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     expect(screen.getAllByText(/krever punkt 34\.1\.2 ikke varsel/).length).toBeGreaterThan(0);
     await seBrevet();
     expect(sendt).toHaveLength(0);
+    // Mangelen er bare at det ikke er noe å sende, ikke et valg som ikke tilbys.
+    expect(screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeNull();
   });
 
   it('kontrollsak: gjelder saken en endring, tilbys standpunktet til varselet etter punkt 34.1.3 (OV-U89 punkt 13 gjelder bare punkt 34.1.2)', async () => {
