@@ -323,7 +323,10 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
         og issuet har en vedtaksrad i vedtaksfila. `funn` kan også være en vedtaks-ID
         blant kildene til radene avviket gjelder, med issuet som sporer avviket i `issue`."""
         if avvik["funn"].startswith("#"):
-            return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
+            # Raden kan ha fått et anker (README for vedtaksregisteret, «En rad uten anker»).
+            return avvik["funn"] == f"#{avvik.get('issue')}" and bool(
+                re.search(rf"^\| (<a id=\"[^\"]+\"></a>)?{re.escape(avvik['funn'])}:", vedtak, re.MULTILINE)
+            )
         if re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE):
             return True
         # Et kjent avvik kan også ha en vedtaks-ID som funn, med issuet i `issue` (#611).
