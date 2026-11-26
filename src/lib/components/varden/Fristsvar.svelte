@@ -16,6 +16,7 @@
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { BREVTEKSTEN_I_FRISTEN } from '#kjerne/spor/frist/tekst.ts';
   import {
+    begrunnelsenKanAvvisesSomSvar,
     foresporselenISvaret,
     fristpunktForSpoersmaal,
     fristspoersmaalForPunkt,
@@ -102,6 +103,18 @@
   const flere = $derived(frister.length > 1);
   // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
   const foresporselen = $derived(foresporselenISvaret(u) !== null);
+  // VS-U95: bare i svaret på det første kravet etter begrunnelsen etter § 33.6.2 annet ledd b.
+  const ikkeSvarKanVelges = $derived(begrunnelsenKanAvvisesSomSvar(u));
+  $effect.pre(() => {
+    if (!ikkeSvarKanVelges) valg.begrunnelseIkkeSvar = false;
+  });
+  type Foresporselsvalg = boolean | 'ikke_svar';
+  const foresporselsvalget = (): Foresporselsvalg | null =>
+    valg.begrunnelseIkkeSvar ? 'ikke_svar' : valg.foresporselITide;
+  function velgForesporselen(v: Foresporselsvalg | null) {
+    valg.begrunnelseIkkeSvar = v === 'ikke_svar';
+    valg.foresporselITide = v === 'ikke_svar' ? null : v;
+  }
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
 
   let valgtFrist = $state<string | null>(null);
@@ -126,6 +139,7 @@
       {
         varselITide: valg.varselITide,
         foresporselITide: valg.foresporselITide,
+        begrunnelseIkkeSvar: valg.begrunnelseIkkeSvar,
         hindret: valg.hindret,
         spesifisertITide: valg.spesifisertITide,
         frister: valg.frister,
@@ -260,9 +274,11 @@
       case '33.4':
         return valg.varselITide === null ? [] : [valg.varselITide ? SKJEMA.iTide : SKJEMA.forSent];
       case '33.6.2':
-        return valg.foresporselITide === null
-          ? []
-          : [valg.foresporselITide ? FRISTSVAR.foresporselITide : FRISTSVAR.foresporselForSent];
+        return valg.begrunnelseIkkeSvar
+          ? [FRISTSVAR.begrunnelseIkkeSvar]
+          : valg.foresporselITide === null
+            ? []
+            : [valg.foresporselITide ? FRISTSVAR.foresporselITide : FRISTSVAR.foresporselForSent];
       case 'hindring':
         return valg.hindret === null
           ? []
@@ -321,7 +337,7 @@
         ['33.4', valg.varselITide, FRISTSVAR.heleKravetTapt('33.4')],
         [
           '33.6.2',
-          foresporselen ? valg.foresporselITide : null,
+          foresporselen && !valg.begrunnelseIkkeSvar ? valg.foresporselITide : null,
           FRISTSVAR.heleKravetTapt('33.6.2'),
         ],
         ['hindring', valg.hindret, FRISTSVAR.heleKravetIkkeHindret],
@@ -611,8 +627,17 @@
           valg={[
             { verdi: true, tekst: FRISTSVAR.foresporselITide },
             { verdi: false, tekst: FRISTSVAR.foresporselForSent },
+            ...(ikkeSvarKanVelges
+              ? [
+                  {
+                    verdi: 'ikke_svar' as const,
+                    tekst: FRISTSVAR.begrunnelseIkkeSvar,
+                    forklaring: FRISTSVAR.begrunnelseIkkeSvarForklaring,
+                  },
+                ]
+              : []),
           ]}
-          bind:verdi={valg.foresporselITide}
+          bind:verdi={foresporselsvalget, velgForesporselen}
           feil={feil(`${uid}-foresporsel`)}
         />
         {@render begrunnelse('33.6.2')}
