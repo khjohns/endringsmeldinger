@@ -399,6 +399,9 @@ og «§ 6 første ledd»), setningen i A og E3, og i B motstriden med HF-U7 s5, 
 >
 > Styrer: om C1 punkt 2 og KA-U87 punkt 6 står uendret.
 
+Svaret på spørsmål 8, oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534:
+«A».
+
 ## Kodefunn
 
 Ingen. Kartleggingen har ikke lest koden. Følge i GR-U17, GR-U20 og HF-U5 sier at kjernen ikke har
