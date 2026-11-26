@@ -31532,8 +31532,8 @@ etter = '''
 
 Teksten under er [OV-U127](#ov-u127), vedtatt 25.11 av oppdragsgiver (#1534), slik den ble lagt
 fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md) som foreløpig
-OV-U125, med svarene 4 A og 6 A. Den opphever [OV-U1](#ov-u1), og henvisningene til OV-U1 gjelder
-OV-U127.
+OV-U125, med svarene 4 A og 6 A. Den samler og opphever [OV-U1](#ov-u1), og henvisningene til OV-U1
+gjelder OV-U127.
 
 Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten.
 
@@ -31557,8 +31557,8 @@ Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten
 ###### Endret innhold
 
 - **E1** OV-U1 s2: «justering av enhetspriser (§ 34.3.3) avvises» gjelder nå bare et krav fra
-  byggherren. Totalentreprenørens krav og varsel tas imot (KA-U68, OV-U115). Uten forhold før
-  OV-U127.
+  byggherren. Totalentreprenørens krav og varsel tas imot (KA-U68, OV-U115). Uten forhold i dag
+  (vurderingen, K2).
 - **E2** OV-U1 s1: «svar, aksept, trekk, «ingen krav», innsigelse etter § 5, forespørsel …» er
   erstattet av grunnsettet (OV-U97) og vedtakene om hva som bygges før første ekte sak. «Ingen krav»
   er utsatt (OV-U7), og innsigelsen etter punkt 5 som eget brev er utsatt (VS-U35). Forkastet-teksten
@@ -31568,7 +31568,7 @@ Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten
 
 ###### Forholdene
 
-Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127, som for OV-U95 i OV-U115. OV-U97
+Samler og opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127, som for OV-U95 i OV-U115. OV-U97
 presiserer OV-U1, og OV-U2 står; forholdene står på OV-U1. KT-U7 presiserte OV-U1 og er samlet i
 [KT-U12](#kt-u12).
 
@@ -31634,8 +31634,7 @@ Samlebeslutningen er en *beslutning*. Kildene står i parentes; «s» er setning
 - **E8** B-14 s3 (rekkefølgen domenetabell → kontrakt → språkprøve → M2/M1 → M4) og B-17 s9
   (trinnvis bygging og samlet aktivering av skrivestien) gjaldt byttet og tas ikke med.
 - **E9** Overgangsreglene for Python i B-17 (s4–s5 og s7), B-18 (Python ved siden av), B-19 (s2–s3:
-  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med. Python-backenden finnes
-  ikke i treet (vurderingen, K4). Punkt 3 beholder kravet til en tjeneste ved siden av og B-17 s6
+  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med (vurderingen, K4). Punkt 3 beholder kravet til en tjeneste ved siden av og B-17 s6
   uten å nevne Python, og OV-U127 punkt 6 viser til punkt 3. DL-U1 s1 står i punkt 11 uten «Python-
   og PostgreSQL-stakk».
 - **E10** Setning 2 i raden om plattformen («Foreløpig mål er Azure Database for PostgreSQL»),
@@ -37515,7 +37514,7 @@ forhold = [
   { art = "samler", vedtak = "ov-u1" },
 ]
 folge = '''
-Teksten står under tabellen, i [Avgrensningen av første versjon, versjon 2](#forste-versjon-2). Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127 (svar 6 A). Forholdene til OV-U1 står på OV-U1.'''
+Teksten står under tabellen, i [Avgrensningen av første versjon, versjon 2](#forste-versjon-2). Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127 (svar 6 A). Samler også OV-U1, så forholdene fra andre poster til OV-U1 leses som forhold til OV-U127 (README for vedtaksregisteret, «Forholdene»; arbeidsvalg S1 A i PR #2412). Forholdene til OV-U1 står på OV-U1.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "4 A, 6 A"

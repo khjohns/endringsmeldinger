@@ -8472,7 +8472,7 @@ med forholdet.
 | <a id="ov-u116"></a>OV-U116: ny versjon av OV-U81. Om Varden sier at løsningen ikke vurderer innholdet i dokumentene. Kravet om utsagnet om rettigheter og plikter faller bort, i tråd med 17.11. Forkastet: «OV-U81 står. Om Varden får tilbake setningen om at løsningen ikke avgjør hvilken betydning dokumentet har for partenes rettigheter og plikter.» | design | 18.11, oppdragsgiver (#2194, #2163) | Endrer [OV-U81](#ov-u81). |
 | <a id="ov-u125"></a>OV-U125: Et spor for vederlagsjustering eller fristforlengelse der totalentreprenøren ikke har sendt et varsel eller et krav i løsningen, ikke har lagt til et varsel eller et krav sendt utenfor løsningen med virkning, og ikke har oppgitt datoen for et varsel sendt utenfor løsningen, har en egen tilstand. Tilstanden leses av journalen. Brev lagt til som dokumentasjon og innlegg endrer den ikke. Betegnelsen sier at saken ikke har et varsel eller et krav fra totalentreprenøren i sporet. Den sier ikke at ingenting er sendt utenfor løsningen, at kravet er tapt, at totalentreprenøren ikke har krav, eller hvem som skal handle, og taushet er ikke et avkall. Betegnelsen vises for begge partene ved sporet, på siden for sporet og på siden for forholdet, også når kravene i saken er avgjort etter OV-U3. Byggherrens forespørsel etter punkt 33.6.2 som ikke er besvart, går foran. Betegnelsen vises ikke i en sak som er lukket etter GR-U27, og ikke når saken ikke er forstått. Et innlegg eller et brev lagt til som dokumentasjon i sporet står i linja under betegnelsen, uten tolkning (OV-U99 punkt 6, OV-U4). Forkastet: «MM-U30 står: et spor uten varsel eller krav fra totalentreprenøren har ingen betegnelse og ingen tilstand i kjernen. Siden for sporet sier i brevtråden at saken ikke har varsel eller krav fra totalentreprenøren om vederlagsjusteringen eller fristforlengelsen, og siden for forholdet viser begge sporene med samme tekst.» | beslutning med designdel. Bindende i [OV-U3](#ov-u3) og [HF-U11](#hf-u11) | 25.11, oppdragsgiver (#2410, BF-51 S-1) | Endrer [MM-U30](#mm-u30). Endrer [MM-U22](#mm-u22). Bygger på [OV-U97](#ov-u97). Bygger på [OV-U99](#ov-u99). Presiserer [OV-U3](#ov-u3). Presiserer [OV-U4](#ov-u4). Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Bygges i #2410. |
 | <a id="ov-u126"></a>OV-U126: Byggherren ser tilstanden etter S-1 ved sporet, på siden for sporet og på siden for forholdet. Løsningen sender ingen egen melding om sporet, setter ingen frist og viser ingen fristveiledning for totalentreprenørens varsel eller krav i et spor uten varsel eller krav. Den sier ikke at en frist er oversittet. Fristveiledningen for svaret på byggherrens forespørsel etter punkt 33.6.2 står som før (VS-U10). Forkastet: «Som A. I tillegg viser siden for sporet datoen forholdet ble påberopt i saken, antall dager siden og bestemmelsen for varselet, punkt 33.4 for fristforlengelsen og punkt 34.1.2 for vederlagsjusteringen, uten en fast frist og uten å si at fristen er oversittet.»; «Som A. I tillegg får byggherren en melding når totalentreprenøren ikke har sendt et varsel eller et krav i sporet innen et fast antall dager etter at forholdet ble påberopt.» | design. Bindende i [HF-U11](#hf-u11) | 25.11, oppdragsgiver (#2410, BF-51 S-2) | Presiserer [HF-U11](#hf-u11). Presiserer [MM-U40](#mm-u40). Forholdet slik det sto i alternativet A: «presiserer HF-U11 og MM-U40 for et spor uten varsel eller krav.» |
-| <a id="ov-u127"></a>OV-U127: Spørsmål 4: OV-U1 får en ny versjon som beslutning, som utkastet «Avgrensningen av første versjon, versjon 2» i vurderingsfila, med E1 og E2. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E. Forkastet: «Temaet står. OV-U1 får forholdet ‹endret av KA-U68› for setningen om punkt 34.3.3, og resten leses med Følge.»; «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.» | beslutning | 25.11, oppdragsgiver (#1534) | Opphever [OV-U1](#ov-u1). Samler [OV-U1](#ov-u1). Teksten står under tabellen, i [Avgrensningen av første versjon, versjon 2](#forste-versjon-2). Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127 (svar 6 A). Forholdene til OV-U1 står på OV-U1. |
+| <a id="ov-u127"></a>OV-U127: Spørsmål 4: OV-U1 får en ny versjon som beslutning, som utkastet «Avgrensningen av første versjon, versjon 2» i vurderingsfila, med E1 og E2. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E. Forkastet: «Temaet står. OV-U1 får forholdet ‹endret av KA-U68› for setningen om punkt 34.3.3, og resten leses med Følge.»; «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.» | beslutning | 25.11, oppdragsgiver (#1534) | Opphever [OV-U1](#ov-u1). Samler [OV-U1](#ov-u1). Teksten står under tabellen, i [Avgrensningen av første versjon, versjon 2](#forste-versjon-2). Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127 (svar 6 A). Samler også OV-U1, så forholdene fra andre poster til OV-U1 leses som forhold til OV-U127 (README for vedtaksregisteret, «Forholdene»; arbeidsvalg S1 A i PR #2412). Forholdene til OV-U1 står på OV-U1. |
 | <a id="b-20"></a>B-20: Spørsmål 5: Én samlebeslutning for serverlaget, databasen og målarkitekturen, som utkastet i vurderingsfila, med E8–E10. Spørsmål 6: Forholdene er som «Forholdene» i vurderingsfila: den nye versjonen av OV-U1 opphever OV-U1, de tre andre samler, radene uten anker får anker og samles, KA-U1 går til gruppe C og LV-U9 til gruppe E. Forkastet: «Temaet står. Postene er beslutninger og leses med Følge.»; «Som A, men B-20 opphever B-17, B-18 og B-19, fordi E9 tar ut overgangsreglene for Python.» | beslutning | 25.11, oppdragsgiver (#1534) | Samler [B-12, databasen](#b-12-databasen). Samler [B-15](#b-15). Samler [B-17](#b-17). Samler [B-18](#b-18). Samler [B-19](#b-19). Samler [DL-U1](#dl-u1). Samler [DL-U3](#dl-u3). Samler [HF-U3](#hf-u3). Samler [B-14](#b-14-maalformene). Samler [B-14, språket](#b-14-spraaket). Samler [PostgreSQL over direkte tilkobling er utgangspunkt for transaksjoner (B-02 alternativ C, transport T2)](#b-02-transport). Samler [B-02 hovedvalg](#b-02-hovedvalg). Samler [Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL (Flexible Server, versjon 17)](#b-02-plattform). Samler [TS2-02](#ts2-02). Teksten står under tabellen, i [Samlebeslutningen for serverlaget, databasen og målarkitekturen](#samlebeslutning-serverlaget). Samler B-12 (databasen), B-15, B-17, B-18, B-19, DL-U1, DL-U3 og HF-U3, og seks rader for B-14, B-02 og TS2-02, som har fått anker, og opphever dem ikke (svar 6 A). Raden om RPC over PostgREST er opphevet 23.09 og samles ikke. KA-U1 samles ikke. |
 
 > **Merknad 2026-10-07 til B-14, flyttet fra 3.4 ved sluttredigeringen 09.10:** Oppdragsgiver tilsluttet seg reviewets
@@ -8503,8 +8503,8 @@ med forholdet.
 
 Teksten under er [OV-U127](#ov-u127), vedtatt 25.11 av oppdragsgiver (#1534), slik den ble lagt
 fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-h-2026-11-25.md) som foreløpig
-OV-U125, med svarene 4 A og 6 A. Den opphever [OV-U1](#ov-u1), og henvisningene til OV-U1 gjelder
-OV-U127.
+OV-U125, med svarene 4 A og 6 A. Den samler og opphever [OV-U1](#ov-u1), og henvisningene til OV-U1
+gjelder OV-U127.
 
 Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten.
 
@@ -8528,8 +8528,8 @@ Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten
 ###### Endret innhold
 
 - **E1** OV-U1 s2: «justering av enhetspriser (§ 34.3.3) avvises» gjelder nå bare et krav fra
-  byggherren. Totalentreprenørens krav og varsel tas imot (KA-U68, OV-U115). Uten forhold før
-  OV-U127.
+  byggherren. Totalentreprenørens krav og varsel tas imot (KA-U68, OV-U115). Uten forhold i dag
+  (vurderingen, K2).
 - **E2** OV-U1 s1: «svar, aksept, trekk, «ingen krav», innsigelse etter § 5, forespørsel …» er
   erstattet av grunnsettet (OV-U97) og vedtakene om hva som bygges før første ekte sak. «Ingen krav»
   er utsatt (OV-U7), og innsigelsen etter punkt 5 som eget brev er utsatt (VS-U35). Forkastet-teksten
@@ -8539,7 +8539,7 @@ Posten er en *beslutning*. Kildene står i parentes; «s» er setningen i posten
 
 ###### Forholdene
 
-Opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127, som for OV-U95 i OV-U115. OV-U97
+Samler og opphever OV-U1, og henvisningene til OV-U1 gjelder OV-U127, som for OV-U95 i OV-U115. OV-U97
 presiserer OV-U1, og OV-U2 står; forholdene står på OV-U1. KT-U7 presiserte OV-U1 og er samlet i
 [KT-U12](#kt-u12).
 
@@ -8605,8 +8605,7 @@ Samlebeslutningen er en *beslutning*. Kildene står i parentes; «s» er setning
 - **E8** B-14 s3 (rekkefølgen domenetabell → kontrakt → språkprøve → M2/M1 → M4) og B-17 s9
   (trinnvis bygging og samlet aktivering av skrivestien) gjaldt byttet og tas ikke med.
 - **E9** Overgangsreglene for Python i B-17 (s4–s5 og s7), B-18 (Python ved siden av), B-19 (s2–s3:
-  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med. Python-backenden finnes
-  ikke i treet (vurderingen, K4). Punkt 3 beholder kravet til en tjeneste ved siden av og B-17 s6
+  rekkefølgen og at Python-lagrene ikke skrives om) og OV-U1 s4 tas ikke med (vurderingen, K4). Punkt 3 beholder kravet til en tjeneste ved siden av og B-17 s6
   uten å nevne Python, og OV-U127 punkt 6 viser til punkt 3. DL-U1 s1 står i punkt 11 uten «Python-
   og PostgreSQL-stakk».
 - **E10** Setning 2 i raden om plattformen («Foreløpig mål er Azure Database for PostgreSQL»),
