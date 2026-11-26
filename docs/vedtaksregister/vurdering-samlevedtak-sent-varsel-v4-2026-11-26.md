@@ -142,6 +142,16 @@ Oppfølgingen av svar 2 i #2456, med tillegget 26.11. Spørsmål 1–4 er juridi
 
    Anbefaling: A. Svar 10 i #1534 sier at neste endring skrives som et samlevedtak. Styrer: vedtaks-PR-en.
 
+## Svaret
+
+Oppdragsgiver 26.11, ordrett: «A på alle» (orkestratoren for runde 7 i #1065, ført i
+[#1534, 7202683201](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7202683201)
+og #2456). Spørsmålene over står slik de ble stilt.
+
+- **1–4: A.** B er forkastet på alle fire. Utkastet til versjon 4 gjelder slik det står, og svar 2 i
+  #2456 føres med det.
+- **5: A.** B er forkastet.
+
 ## Kodefunn
 
 Lest ut av koden og kontrollert av subagenten, ikke kjørt.
