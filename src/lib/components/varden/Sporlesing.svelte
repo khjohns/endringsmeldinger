@@ -487,9 +487,11 @@
   {#if id === handlingVed}{@render vedBrevet()}{/if}
   {#if varselVed[id]?.length}
     <div class="knapper">
-      {#each varselVed[id] as n (n)}
-        <Knapp variant={utkast ? 'sekundaer' : 'primaer'} onclick={() => velg(n)}
-          >{innsigelsestekst(n)}</Knapp
+      <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
+      {#each varselVed[id] as n, i (n)}
+        <Knapp
+          variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
+          onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
         >
       {/each}
     </div>

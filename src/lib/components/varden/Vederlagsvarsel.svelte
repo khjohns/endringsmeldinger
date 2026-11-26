@@ -104,7 +104,6 @@
 
   const navnet = (r: Varselrad) => KRAVSKJEMA.varselnavn[r.hjemmel]!;
   const nummeret = (r: Varselrad) => valg.rader.indexOf(r) + 1;
-  const manglerArbeid = (r: Varselrad) => !registreres && harArbeid(r.hjemmel) && !r.arbeid.trim();
   /** U-9: det som står under navnet, i raden og i oppsummeringen. */
   function under(r: Varselrad): string {
     if (harArbeid(r.hjemmel))
@@ -219,7 +218,7 @@
         onclick={() => fjern(r)}>{VEDERLAGSVARSEL.fjern}</Knapp
       >
     </span>
-    {#if aapen !== n}<p class="under" class:mangler={manglerArbeid(r)}>{under(r)}</p>{/if}
+    {#if aapen !== n}<p class="under" class:mangler={!!feil(`arbeid-${n}`)}>{under(r)}</p>{/if}
   </div>
   {#if aapen === n}
     <div class="aapen">
@@ -306,11 +305,16 @@
   kompakt={{ etikett: VEDERLAGSVARSEL.panel }}
 >
   {#snippet panel(sendeknapp)}
+    <!-- U-5: ved registrering sier panelet at løsningen ikke lager brevtekst, over knappen. -->
+    {#snippet handling()}
+      {#if registreres}<p class="panelmerknad">{VEDERLAGSVARSEL.ingenBrevtekst}</p>{/if}
+      {@render sendeknapp?.()}
+    {/snippet}
     <Hovedlinjer
       linjer={[]}
       {punkter}
       alternativer={false}
-      handling={sendeknapp}
+      {handling}
       tittel={VEDERLAGSVARSEL.panel}
       tom={VEDERLAGSVARSEL.tomt}
     />
@@ -394,9 +398,7 @@
         />
       </div>
     {/if}
-    <p class="dempet">
-      {registreres ? VEDERLAGSVARSEL.ingenBrevtekst : VEDERLAGSVARSEL.avsnittPerVarsel}
-    </p>
+    {#if !registreres}<p class="dempet">{VEDERLAGSVARSEL.avsnittPerVarsel}</p>{/if}
   </section>
 </Brevskjema>
 
@@ -504,6 +506,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
+  }
+  .panelmerknad {
+    margin-bottom: var(--spacing-3);
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .feilmelding {
     font-size: 14px;

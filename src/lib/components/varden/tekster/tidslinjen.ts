@@ -23,13 +23,13 @@ export const TIDSLINJE = haerdet({
     if (b.art === 'innsigelse') return 'Innsigelse';
     // Brevet med varselet har ingen frossen tittel (BF-45 U-8). Et brev med ett varsel fra
     // kravskjemaet heter som varselet der (prototype v4, #2360).
-    // Et brev med flere varsler heter i flertall, så det ikke får navnet på varselet etter
-    // punkt 34.1.2 (BF-37).
+    // Et brev med flere varsler heter etter antallet, så det ikke forveksles med navnet på
+    // varselet etter punkt 34.1.2 (BF-37).
     const [h, ...flere] = b.varselhjemler;
     if (b.art === 'varsel' && h && !flere.length && KRAVSKJEMA.varselnavn[h])
       return KRAVSKJEMA.varselnavn[h];
-    if (b.art === 'varsel' && spor.length)
-      return `${flere.length ? 'Varsler' : 'Varsel'} om ${om(KRAVET)}`;
+    if (b.art === 'varsel' && flere.length) return `${b.varselhjemler.length} varsler`;
+    if (b.art === 'varsel' && spor.length) return `Varsel om ${om(KRAVET)}`;
     return brevtittel(b);
   },
   sendt: (part: Part, b: Brevref) => `${brevrefStor(b)} sendt av ${part}`,

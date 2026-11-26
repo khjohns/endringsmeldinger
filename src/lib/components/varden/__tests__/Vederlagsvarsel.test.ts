@@ -179,12 +179,12 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     ).toBeTruthy();
   });
 
-  it('tidslinja kaller brevet med flere varsler «Varsler om vederlagsjustering», ikke navnet på varselet etter punkt 34.1.2 (U-2 i BF-37)', async () => {
+  it('tidslinja kaller brevet med flere varsler «3 varsler», ikke navnet på varselet etter punkt 34.1.2 (U-2 i BF-37)', async () => {
     await aapneSom('te-har-varslet');
     await fireEvent.click(
       await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
     );
-    expect(screen.getAllByText('Varsler om vederlagsjustering').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('3 varsler').length).toBeGreaterThan(0);
   });
 
   it('byggherren får ikke svaret på varselet etter punkt 34.1.2 som står alene, før skjemaet er bygget, og svarene på de to varslene om regningsarbeid i samme brev har arbeidet (#2447, U-8)', async () => {
@@ -194,9 +194,12 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     expect(handlinger(u, 'BH'), 'forutsetning: kjernen tilbyr svaret').toContain(
       `svare:${varselet}`
     );
-    const svarene = (await screen.findAllByRole('button'))
-      .map((k) => k.textContent?.trim() ?? '')
-      .filter((t) => t.startsWith('Svar på'));
+    const knappene = (await screen.findAllByRole('button')).filter((k) =>
+      k.textContent?.trim().startsWith('Svar på')
+    );
+    const svarene = knappene.map((k) => k.textContent?.trim() ?? '');
+    // Én primærknapp per brev (system.md, «Handlingene i Varden»).
+    expect(knappene.filter((k) => k.classList.contains('knapp-primaer'))).toHaveLength(1);
     expect(svarene).toEqual([
       'Svar på varselet om regningsarbeid i brev 3: Ekstra graving i grøften ved kum 4',
       'Svar på varselet om regningsarbeid i brev 3: Omlegging av fjernvarmerør langs fasade nord',
