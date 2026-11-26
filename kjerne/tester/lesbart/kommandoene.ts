@@ -259,7 +259,7 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
-  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:varseltekst']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelsenFoer']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
