@@ -1389,6 +1389,11 @@
   .brevet .dempet {
     font-size: 12px;
   }
+  /* Lenken til det egne brevet står ved teksten, ikke strukket over kolonnen (U-10 i BF-48). */
+  .brevet :global(.knapp) {
+    align-self: flex-start;
+    margin-left: calc(-1 * var(--spacing-2));
+  }
   .varselvalgene {
     grid-column: 2 / -1;
   }
