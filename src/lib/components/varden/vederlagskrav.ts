@@ -190,12 +190,15 @@ export function vederlagskravet(
 ) {
   const kravposter = postene(v).map((p, i) => {
     const valg = gjeldendeVarselvalg(v, p);
-    const varsel =
+    // VS-U87 punkt 23: valget sendes som varselet posten viser til. «Kravet er varselet» er
+    // standardvalget i skjemaet og sendes ikke før skjemaet spør om det (#2010).
+    const gitt =
       varslene[i]?.art !== 'kravet' || valg.art === 'kravet'
         ? undefined
         : valg.art === 'saken'
           ? (valg.varsel ?? undefined)
           : registreringen(valg);
+    const varsel = gitt === undefined ? undefined : { art: 'gitt' as const, varsel: gitt };
     return definert({
       id: p.id ?? undefined,
       beskrivelse: p.beskrivelse.trim(),
