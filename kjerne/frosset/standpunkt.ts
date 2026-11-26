@@ -174,9 +174,8 @@ export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' |
  * leses i rekkefølgen de ble sendt (VS-U87 punkt 8–12, 30–34, OV-U103–OV-U105). `dokument` er
  * brevet innsigelsen først ble gjort gjeldende i (punkt 6). Et standpunkt i svaret på et varsel som
  * står alene, gjelder varselet og hver kravpost i `poster` som viser til det (punkt 34, VS-U79).
- * Etter § 34.1.2 og § 34.1.3 står bare innsigelsen i svaret på varselet mot senere kravversjoner
- * (punkt 34). Svaret på kravet gjentar den eller gir den opp, men en innsigelse som først står i
- * svaret på kravet, leses ikke herfra (E11). Kommandoen og brevteksten leser dem herfra.
+ * Etter § 34.1.2 og § 34.1.3 leses bare en innsigelse som først står i svaret på varselet (punkt
+ * 34 og E11). Kommandoen og brevteksten leser dem herfra.
  */
 export function sisteStandpunktTilVarslene(
   svarene: {

@@ -954,18 +954,32 @@ function rettidighetstekst(
   const iSvaret = erVederlagsvarselhjemmel(p.hjemmel)
     ? innsigelsenFoer(p, [], { j, saken, nytt })
     : undefined;
-  const brevene = liste([
-    ...new Set([...(iSvaret ? [iSvaret] : []), ...aapne].map((i) => j.brevet(i.dokument))),
-  ]);
-  const antall = aapne.length + (iSvaret ? 1 : 0);
-  const henvisning = antall > 1 ? 'innsigelsene' : 'innsigelsen';
-  const jf = antall ? `, jf. ${henvisning} i ${brevene}` : '';
+  const plass = (x: { dokument: string }) => j.dokumenter.findIndex((d) => d.id === x.dokument);
+  const brevene = (x: { dokument: string }[]) =>
+    liste([
+      ...new Set([...x].sort((a, b) => plass(a) - plass(b)).map((i) => j.brevet(i.dokument))),
+    ]);
+  const henvisning = (n: number) => (n > 1 ? 'innsigelsene' : 'innsigelsen');
+  const alle = [...(iSvaret ? [iSvaret] : []), ...aapne];
+  const antall = alle.length;
+  const jf = antall ? `, jf. ${henvisning(antall)} i ${brevene(alle)}` : '';
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide) return forSentMedFoelgen(sporet, omVarselet, p.hjemmel, jf);
   if (!antall) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
-  const punkt5 = aapne.length ? ' etter NS 8407 punkt 5' : '';
-  return `byggherren gir opp ${henvisning}${punkt5} i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
+  // Påberopelsen i svaret og de egne innsigelsene etter punkt 5 nevnes hver for seg (VS-U87 punkt 1 og 15).
+  const deler = [
+    ...(iSvaret ? [{ plass: plass(iSvaret), tekst: `innsigelsen i ${brevene([iSvaret])}` }] : []),
+    ...(aapne.length
+      ? [
+          {
+            plass: plass(aapne[0]),
+            tekst: `${henvisning(aapne.length)} etter NS 8407 punkt 5 i ${brevene(aapne)}`,
+          },
+        ]
+      : []),
+  ].sort((a, b) => a.plass - b.plass);
+  return `byggherren gir opp ${liste(deler.map((d) => d.tekst))} og gjør ikke gjeldende at ${omVarselet} kom for sent.`;
 }
 
 /**

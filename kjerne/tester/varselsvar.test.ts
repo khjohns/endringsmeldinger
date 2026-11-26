@@ -776,6 +776,23 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     expect(brevet(s)).toContain(`jf. innsigelsen i ${brev3}`);
   });
 
+  it('svaret på kravet nevner innsigelsen i svaret på varselet og den egne innsigelsen etter punkt 5 hver for seg, i rekkefølgen de kom (punkt 1, 10 og 15)', () => {
+    const s = sak();
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+    });
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    const varsel = s.u().spor.vederlag.varsler['34.1.2']!.id;
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    s.send('BH', { type: 'innsigelse', gjelder: varsel });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
+    expect(brevet(s)).toContain(
+      `Byggherren gir opp innsigelsen i ${brev3} og innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at`
+    );
+  });
+
   it('en innsigelse som først står i svaret på kravet, leses ikke som innsigelsen i svaret på varselet (E11 i VS-U87)', () => {
     const s = medInnsigelsen('34.1.2', false);
     s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
