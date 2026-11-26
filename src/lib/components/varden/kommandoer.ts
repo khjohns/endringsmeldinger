@@ -23,7 +23,7 @@ import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { lesKroner, visKroner } from '#lib/utils/belop.ts';
 import { kroner } from '#kjerne/frosset/tekst.ts';
 import { KRAVSKJEMA } from './tekster';
-import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import {
   varseletFoer,
   varselhjemmelFor,
@@ -60,12 +60,26 @@ export interface Postvalg {
 }
 
 /**
+ * Det BH har valgt for posten etter § 34.1.3 annet ledd (VS-U5). `null` er ikke besvart. Beløpet
+ * etter begrensningen gjelder bare når BH gjør gjeldende at varselet kom for sent.
+ */
+export interface Saerskiltvalg {
+  varsletITide: boolean | null;
+  /** Teksten BH skrev i feltet for beløpet etter begrensningen, lest med `lesKroner`. */
+  begrenset: string;
+  beloep: Beloepsvalg | null;
+  delbeloep: string;
+}
+
+/**
  * Det BH har valgt i skjemaet. `null` er ikke besvart. Bare en innsigelse mot varselet for en kravpost som står, gjentas uten et valg (`varseletIValgene`). Svaret på
  * hver kravpost står under betegnelsen, som er unik i kravet (KA-U53).
  */
 export interface Svarvalg {
   iTide: boolean | null;
   poster: Record<string, Postvalg>;
+  /** Svaret på posten etter § 34.1.3 annet ledd. Sendes bare når kravet har posten. */
+  saerskilt?: Saerskiltvalg;
   /** Begrunnelsen per punkt i brevet, med punktet som nøkkel (KA-U46, LV-U71). */
   begrunnelser: Record<string, string>;
   /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U87 punkt 1). */
@@ -84,6 +98,13 @@ export const tomPost = (): Postvalg => ({
   kreverTilbud: false,
   varsletITide: null,
   godtarJustering: null,
+});
+
+export const tomtSaerskilt = (): Saerskiltvalg => ({
+  varsletITide: null,
+  begrenset: '',
+  beloep: null,
+  delbeloep: '',
 });
 
 export const tomtSvar = (): Svarvalg => ({
@@ -165,6 +186,14 @@ export const beloepet = (tekst: string) => {
   return 'verdi' in lest ? lest.verdi : undefined;
 };
 
+/** Beløpet BH godkjenner med valget, av det krevde og teksten i beløpsfeltet. */
+const godkjentIValget = (valg: Beloepsvalg, krevd: number | undefined, delbeloep: string) =>
+  valg === 'hele' ? krevd : valg === 'ingenting' ? 0 : beloepet(delbeloep);
+
+/** Valget for beløpet BH godkjente i et svar, med det krevde beløpet. */
+const valgetFor = (godkjent: number, krevd: number | null | undefined): Beloepsvalg =>
+  godkjent === 0 ? 'ingenting' : godkjent === krevd ? 'hele' : 'deler';
+
 export const definert = <T extends object>(felt: T): T =>
   Object.fromEntries(Object.entries(felt).filter(([, x]) => x !== undefined)) as T;
 
@@ -180,14 +209,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
-    godkjent_beloep:
-      beloep === 'hele'
-        ? post.beloep
-        : beloep === 'ingenting'
-          ? 0
-          : beloep === 'deler'
-            ? beloepet(p.delbeloep)
-            : undefined,
+    godkjent_beloep: beloep ? godkjentIValget(beloep, post.beloep, p.delbeloep) : undefined,
     aksepterer: akseptIValget(p) ?? (kreverTilbud ? false : undefined),
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
@@ -196,6 +218,25 @@ function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
       ? (p.godtarJustering ?? undefined)
       : undefined,
   });
+}
+
+/** Det krevde beløpet for posten etter § 34.1.3 annet ledd, eller `null` når kravet ikke har den. */
+export const krevdSaerskilt = (krav: Krav): number | null =>
+  innholdIVederlaget(krav).saerskilt.produktivitet?.beloep ?? null;
+
+/**
+ * Svaret på posten etter § 34.1.3 annet ledd (VS-U5, valg 2 i #1047), med feltene kjernen leser
+ * (`PRODUKTIVITETSFELT`). Beløpet etter begrensningen sendes bare med innsigelsen mot varselet.
+ */
+function saerskiltsvaret(s: Saerskiltvalg, krevd: number) {
+  return {
+    produktivitet_varslet_i_tide: s.varsletITide ?? undefined,
+    produktivitet_begrenset_beloep: s.varsletITide === false ? beloepet(s.begrenset) : undefined,
+    produktivitet_vurdering: s.beloep ? VURDERING[s.beloep] : undefined,
+    produktivitet_godkjent_beloep: s.beloep
+      ? godkjentIValget(s.beloep, krevd, s.delbeloep)
+      : undefined,
+  };
 }
 
 /** Om BH tar stilling til varselet etter § 34.1.2 (OV-U15), med kjernens predikat. */
@@ -210,8 +251,10 @@ function vurderingene(
   u: Utledning
 ): Svarvurdering {
   const poster = kravposterI(krav);
+  const krevd = krevdSaerskilt(krav);
   return definert({
     hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
+    ...(krevd === null ? {} : saerskiltsvaret(v.saerskilt ?? tomtSaerskilt(), krevd)),
     kravposter: poster.length
       ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse), u))
       : undefined,
@@ -309,14 +352,7 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
     const form = finn('oppgjoersform', (s) => s.gjelder === post.id);
     const godkjent = finn('beloep', (s) => !s.saerskilt && s.gjelder === post.id)?.godkjent;
     const hjemmel = varselhjemmelFor(post);
-    const beloep: Beloepsvalg | null =
-      godkjent === undefined
-        ? null
-        : godkjent === 0
-          ? 'ingenting'
-          : godkjent === post.beloep
-            ? 'hele'
-            : 'deler';
+    const beloep = godkjent === undefined ? null : valgetFor(godkjent, post.beloep);
     return {
       form: form ? (form.aksepterer ? 'godtar' : (form.oensket ?? null)) : null,
       beloep,
@@ -326,10 +362,23 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
       godtarJustering: finn('justering', (s) => s.gjelder === post.id)?.godtar ?? null,
     };
   };
+  const krevd = krevdSaerskilt(krav);
+  const saerskilt = (): Saerskiltvalg => {
+    const godkjent = finn('beloep', (s) => s.saerskilt === 'produktivitet')?.godkjent;
+    const begrenset = finn('rettidighet', (s) => s.hjemmel === '34.1.3')?.begrenset;
+    const beloep = godkjent === undefined ? null : valgetFor(godkjent, krevd);
+    return {
+      varsletITide: varselet('34.1.3'),
+      begrenset: begrenset === undefined ? '' : visKroner(begrenset),
+      beloep,
+      delbeloep: beloep === 'deler' ? visKroner(godkjent) : '',
+    };
+  };
   return {
     ...tomtSvar(),
     erstatter: svar.id,
     iTide: varselet('34.1.2'),
+    ...(krevd === null ? {} : { saerskilt: saerskilt() }),
     poster: Object.fromEntries(kravposterI(krav).map((p) => [p.betegnelse, postvalg(p)])),
   };
 }

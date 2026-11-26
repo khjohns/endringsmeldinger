@@ -1,6 +1,7 @@
 <!--
   BH skriver svar på krav om vederlag (Varden, skjerm B), i skallet for svarskjemaene
-  (`Svarskjema.svelte`): oppgjørsformen, beløpet, varselet og justeringen for hver kravpost.
+  (`Svarskjema.svelte`): oppgjørsformen, beløpet, varselet og justeringen for hver kravpost, og
+  varselet, begrensningen og beløpet for posten etter punkt 34.1.3 annet ledd (VS-U5).
   Ingenting er forhåndsvalgt. Kommandoen bygges i `kommandoer.ts`, og kjernen regner resultatet,
   lager brevet og avviser det den ikke godtar.
 -->
@@ -36,11 +37,13 @@
   import {
     beloepsvalget,
     etterRegel,
+    krevdSaerskilt,
     kravetIKortform,
     postvalget,
     regelen,
     somNyttSvar,
     tomPost,
+    tomtSaerskilt,
     tomtSvar,
     vederlagssvaret,
     type Postvalg,
@@ -105,8 +108,9 @@
     poster.reduce((sum, p) => sum + Math.round(krevdI(p) * 100), 0) / 100
   );
   const harPost = $derived(harProduktivitetspost(krav));
+  const krevdISaerskilt = $derived(krevdSaerskilt(krav) ?? 0);
   // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift.
-  const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
+  const hinder = $derived(hindrerSvarPaaKravet(krav));
   const harRegel = $derived(poster.some(etterRegel));
   const godkjennAlleFormerTekst = $derived(
     !harRegel
@@ -115,7 +119,7 @@
         ? SKJEMA.godkjennAlleFormerRegel
         : SKJEMA.godkjennAlleFormerBlandet
   );
-  const stoppet = $derived(harPost || hinder !== null);
+  const stoppet = $derived(hinder !== null);
   // U-9 i BF-48: TEs siste opplysning om datoen etter § 34.1.3 ved svaret på kravet med posten.
   const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
 
@@ -124,6 +128,7 @@
   // Valgene for hver kravpost i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
   $effect.pre(() => {
     for (const p of poster) valg.poster[p.betegnelse] ??= tomPost();
+    if (harPost) valg.saerskilt ??= tomtSaerskilt();
   });
   function godkjennAlleFormer() {
     for (const p of poster) (valg.poster[p.betegnelse] ??= tomPost()).form = 'godtar';
@@ -137,7 +142,13 @@
   // tekstfelt (#1925).
   const brevutkast = $derived(
     vederlagssvaret(
-      { iTide: valg.iTide, poster: valg.poster, begrunnelser: {}, forbehold: '' },
+      {
+        iTide: valg.iTide,
+        poster: valg.poster,
+        saerskilt: valg.saerskilt,
+        begrunnelser: {},
+        forbehold: '',
+      },
       u,
       kjernesak.regler
     )!
@@ -155,7 +166,12 @@
   const foerstePunkt = $derived.by(() => {
     const sporsmaalene = lagene?.ubesvart ?? [];
     if (ubesvart(lagene, 'hovedkrav_varslet_i_tide')) return '34.1.2';
-    return poster.find((p) => sporsmaalene.some((s) => s.gjelder === p.id))?.betegnelse;
+    return (
+      poster.find((p) => sporsmaalene.some((s) => s.gjelder === p.id))?.betegnelse ??
+      (sporsmaalene.some((s) => s.spoersmaal.startsWith('produktivitet_'))
+        ? 'produktivitet'
+        : undefined)
+    );
   });
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
@@ -166,6 +182,11 @@
   ): Forutsetning[] =>
     lagene?.standpunkter.find((x) => x.art === art && !x.saerskilt && x.gjelder === p.id)
       ?.forutsetninger ?? [];
+  const iSaerskilt = (): IPosten[] =>
+    iPosten(
+      lagene?.standpunkter.find((x) => x.art === 'beloep' && x.saerskilt === 'produktivitet')
+        ?.forutsetninger ?? []
+    );
   // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
   // (oppdragsgiver 30.10, 1A i #1411).
   const grunnene = $derived(
@@ -257,6 +278,23 @@
           : SKJEMA[beloep],
     ].filter((x): x is string => x !== null);
   };
+  // Valgene for posten etter § 34.1.3 annet ledd til kjernen har standpunktene.
+  const saerskiltlinje = (): string[] => {
+    const s = valg.saerskilt ?? tomtSaerskilt();
+    const varselet =
+      s.varsletITide === null
+        ? null
+        : s.varsletITide
+          ? SKJEMA.komITide
+          : `${SKJEMA.komForSent}, ${SKJEMA.begrensetTil(s.begrenset || '–')}`;
+    const beloep =
+      s.beloep === null
+        ? null
+        : s.beloep === 'deler'
+          ? `${SKJEMA.deler}: ${s.delbeloep || '–'} kr`
+          : SKJEMA[s.beloep];
+    return [varselet, beloep].filter((x): x is string => x !== null);
+  };
   // Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B).
   const alternativer = $derived(
     new Set(
@@ -276,12 +314,47 @@
     if (ugyldig(lagene, 'godkjent_beloep', p.id)) return HOVEDLINJER.beloepUtenfor(krevdI(p));
     return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
   };
+  // Beløpet i et felt for posten etter § 34.1.3 annet ledd som ikke kan leses, eller som kjernen
+  // avviser eller sier mangler.
+  const saerskiltFeil = (
+    tekst: string,
+    spoersmaal: 'produktivitet_godkjent_beloep' | 'produktivitet_begrenset_beloep',
+    utenfor: string,
+    mangler: string
+  ): string | null => {
+    const lest = lesKroner(tekst);
+    if (tekst.trim() && 'feil' in lest) return lest.feil;
+    if (ugyldig(lagene, spoersmaal)) return utenfor;
+    return ubesvart(lagene, spoersmaal) ? mangler : null;
+  };
+  const delbeloepISaerskilt = $derived(
+    valg.saerskilt?.beloep === 'deler'
+      ? saerskiltFeil(
+          valg.saerskilt.delbeloep,
+          'produktivitet_godkjent_beloep',
+          HOVEDLINJER.beloepUtenfor(krevdISaerskilt),
+          SKJEMA.manglerDelbeloep
+        )
+      : null
+  );
+  const begrensetFeil = $derived(
+    valg.saerskilt?.varsletITide === false
+      ? saerskiltFeil(
+          valg.saerskilt.begrenset,
+          'produktivitet_begrenset_beloep',
+          SKJEMA.begrensetOver,
+          SKJEMA.manglerBegrenset
+        )
+      : null
+  );
   const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
   // Punktene i brevet skjemaet har spørsmål for: varselet etter § 34.1.2 og ett per kravpost
   // (LV-U78).
   const svartemaene = $derived(
     svarpunkteneIVederlaget(krav, u.spor.forhold.gjeldendeKrav, kjernesak.regler).flatMap((t) =>
-      t.punkt === '34.1.2' || poster.some((p) => p.betegnelse === t.punkt)
+      t.punkt === '34.1.2' ||
+      (t.punkt === 'produktivitet' && harPost) ||
+      poster.some((p) => p.betegnelse === t.punkt)
         ? // Med harde mellomrom, som overskriften i brevet (sprak.md).
           [{ ...t, overskrift: t.overskrift && medHardeMellomrom(t.overskrift) }]
         : []
@@ -292,6 +365,11 @@
       if (!lagene) return false;
       if (punkt === '34.1.2') return hovedvarselet && valg.iTide !== null;
       const feil = [...lagene.ubesvart, ...lagene.ugyldig];
+      if (punkt === 'produktivitet')
+        return (
+          lagene.standpunkter.some((s) => s.saerskilt === 'produktivitet' && s.besvart) &&
+          !feil.some((s) => s.spoersmaal.startsWith('produktivitet_'))
+        );
       const post = poster.find((p) => p.betegnelse === punkt);
       return (
         !!post &&
@@ -332,9 +410,11 @@
                   ? valg.iTide === null
                     ? []
                     : [valg.iTide ? SKJEMA.iTide : SKJEMA.forSent]
-                  : post
-                    ? leselinje(post)
-                    : [];
+                  : p.punkt === 'produktivitet'
+                    ? saerskiltlinje()
+                    : post
+                      ? leselinje(post)
+                      : [];
               return {
                 ...p,
                 aktiv: foerstePunkt === p.punkt,
@@ -382,6 +462,26 @@
           { felt: `delbeloep-${p.betegnelse}`, post: p.id, tekst: i(delbeloepFeil(p)) },
         ];
       }),
+      ...(harPost
+        ? [
+            {
+              felt: 'saerskilt-itide',
+              tekst: ubesvart(lagene, 'produktivitet_varslet_i_tide')
+                ? SKJEMA.manglerSaerskiltITide
+                : null,
+            },
+            { felt: 'saerskilt-begrenset', tekst: begrensetFeil },
+            {
+              felt: 'saerskilt-beloep',
+              tekst: ubesvart(lagene, 'produktivitet_vurdering') ? SKJEMA.manglerBeloep : null,
+            },
+            { felt: 'saerskilt-delbeloep', tekst: delbeloepISaerskilt },
+          ].map((m) => ({
+            ...m,
+            post: null,
+            tekst: m.tekst && SKJEMA.iPosten(SKJEMA.saerskiltPosten, m.tekst),
+          }))
+        : []),
     ])
   );
 
@@ -413,7 +513,7 @@
       >{innsigelsenOmVarselet('34.3.3')}</a
     >
   {:else if f.innsigelse === '34.1.3'}
-    {innsigelsenOmVarselet('34.1.3')}
+    <a href={`#${uid}-saerskilt-itide`}>{innsigelsenOmVarselet('34.1.3')}</a>
   {:else}
     <a href={`#${uid}-itide`}>{innsigelsenOmVarselet('34.1.2')}</a>
   {/if}
@@ -421,7 +521,9 @@
 
 {#snippet kunnskapsdatokortet()}
   <Stoettekort id={`${uid}-kunnskapsdato`} tittel={KUNNSKAPSDATO.stoettetittel}>
-    <p class="kunnskapsdato">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
+    <p class="kunnskapsdato" id={`${uid}-kunnskapsdato-tekst`}>
+      {KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}
+    </p>
   </Stoettekort>
 {/snippet}
 
@@ -442,7 +544,7 @@
   {postliste}
   {begrunnelserISkjemaet}
   {skjemapunkter}
-  stopp={stoppet ? (hinder ? SKJEMA.ikkeStoettetHinder(hinder) : SKJEMA.ikkeStoettet) : null}
+  stopp={hinder ? SKJEMA.ikkeStoettetHinder(hinder) : null}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
@@ -670,6 +772,77 @@
           {etterRegel(p) ? SKJEMA.teKreverRegel(p) : SKJEMA.teKrever(krevdTotalt, p.pns)}
         </p>
         {@render postvalgene(p)}
+      </Spoersmaal>
+    {/if}
+
+    <!-- Punktet for posten etter § 34.1.3 annet ledd i brevet (VS-U5). Datoen totalentreprenøren
+       oppgir, står i kortet ved siden av (U-9 i BF-48). -->
+    {#if harPost && valg.saerskilt}
+      {@const s = valg.saerskilt}
+      {@const forutsetningene = iSaerskilt()}
+      <Spoersmaal
+        id={`${uid}-sp-saerskilt`}
+        aktiv={foerstePunkt === 'produktivitet'}
+        tittel={overskrift('produktivitet') ?? temanavn(svartemaene, 'produktivitet')}
+      >
+        <p class="dempet">{SKJEMA.teKreverSaerskilt(krevdISaerskilt)}</p>
+        <Valg
+          navn={`${uid}-saerskilt-itide`}
+          spoersmaal={SKJEMA.saerskiltVarselSpoersmaal}
+          beskrevetAv={`${uid}-kunnskapsdato-tekst`}
+          valg={[
+            { verdi: true, tekst: SKJEMA.komITide },
+            { verdi: false, tekst: SKJEMA.komForSent },
+          ]}
+          bind:verdi={s.varsletITide}
+          feil={feil(`${uid}-saerskilt-itide`)}
+          lett
+          stablet
+        />
+        {#if s.varsletITide === false}
+          <Linjefelt
+            id={`${uid}-saerskilt-begrenset`}
+            etikett={SKJEMA.begrensetEtikett}
+            hjelp={SKJEMA.begrensetHjelp}
+            enhet="kr"
+            bredde="tall"
+            inputmode="decimal"
+            bind:verdi={s.begrenset}
+            feil={feil(`${uid}-saerskilt-begrenset`)}
+          />
+        {/if}
+        <Gjelderhvis
+          id={`${uid}-saerskilt-forutsetninger`}
+          liste={forutsetningene}
+          punkt={forutsetning}
+        />
+        <Valg
+          navn={`${uid}-saerskilt-beloep`}
+          spoersmaal={SKJEMA.beloepSpoersmaal}
+          beskrevetAv={forutsetningene.length ? `${uid}-saerskilt-forutsetninger` : undefined}
+          valg={[
+            { verdi: 'hele', tekst: SKJEMA.hele },
+            { verdi: 'deler', tekst: SKJEMA.deler },
+            { verdi: 'ingenting', tekst: SKJEMA.ingenting },
+          ]}
+          bind:verdi={s.beloep}
+          feil={feil(`${uid}-saerskilt-beloep`)}
+          lett
+          stablet
+        />
+        {#if s.beloep === 'deler'}
+          <Linjefelt
+            id={`${uid}-saerskilt-delbeloep`}
+            etikett={SKJEMA.belopEtikett}
+            hjelp={SKJEMA.belopHjelp(krevdISaerskilt)}
+            enhet="kr"
+            bredde="tall"
+            inputmode="decimal"
+            bind:verdi={s.delbeloep}
+            feil={feil(`${uid}-saerskilt-delbeloep`)}
+          />
+        {/if}
+        {@render begrunnelse('produktivitet')}
       </Spoersmaal>
     {/if}
   {/snippet}
