@@ -488,6 +488,27 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
     expect(vurderingen(sendt)).not.toHaveProperty('produktivitet_begrenset_beloep');
   });
 
+  it('med innsigelsen mot varselet etter punkt 34.1.2 står varselet etter punkt 34.1.3 under «Gjelder hvis» (OV-U89 punkt 12, Codex-reviewet av #2439)', async () => {
+    const journal = skrevet(svikt.slice(0, -1), 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [{ beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 150000 }],
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+      utdypning: 'Kravet gjelder pelingen og den nedsatte produktiviteten.',
+    });
+    await svarskjemaet(journal);
+    const gjelderHvis = () =>
+      document.querySelector('[id$="-saerskilt-itide-forutsetninger"]')?.textContent ?? '';
+    await radio('Varslet for sent');
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
+    expect(gjelderHvis()).toMatch(/innsigelsen om at varselet etter punkt\s34\.1\.2 kom for sent/);
+    // Kontrollsak: uten innsigelsen etter § 34.1.2 er varselet ikke betinget.
+    await radio('Varslet i tide');
+    expect(gjelderHvis()).toBe('');
+  });
+
   it('uten svar på posten sier oppsummeringen hva som mangler i den, i skjemaets rekkefølge, og brevet lages ikke', async () => {
     const sendt = await svarskjemaet(medSaerskilt);
     await svarPaaKravposten();

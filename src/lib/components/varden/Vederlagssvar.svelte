@@ -192,6 +192,14 @@
         ?.forutsetninger ?? []
     )
   );
+  // OV-U89 punkt 12: med innsigelsen etter § 34.1.2 står varselet og begrensningen etter § 34.1.3
+  // i laget etter den.
+  const forutsetningeneForVarselet = $derived(
+    iPosten(
+      lagene?.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '34.1.3')
+        ?.forutsetninger ?? []
+    )
+  );
   // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
   // (oppdragsgiver 30.10, 1A i #1411).
   const grunnene = $derived(
@@ -828,10 +836,18 @@
         <p class="kunnskapsdato" class:smal={!vedSiden} id={`${uid}-kunnskapsdato-ved-valget`}>
           {KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}
         </p>
+        <Gjelderhvis
+          id={`${uid}-saerskilt-itide-forutsetninger`}
+          liste={forutsetningeneForVarselet}
+          punkt={forutsetning}
+        />
         <Valg
           navn={`${uid}-saerskilt-itide`}
           spoersmaal={SKJEMA.varselSpoersmaalKort}
-          beskrevetAv={`${uid}-kunnskapsdato-ved-valget`}
+          beskrevetAv={[
+            ...(forutsetningeneForVarselet.length ? [`${uid}-saerskilt-itide-forutsetninger`] : []),
+            `${uid}-kunnskapsdato-ved-valget`,
+          ].join(' ')}
           valg={[
             { verdi: true, tekst: SKJEMA.komITide },
             { verdi: false, tekst: SKJEMA.komForSent },
