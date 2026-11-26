@@ -16,7 +16,7 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
-import { liste, omtalen } from '../../frosset/brevdeler.ts';
+import { klarOverUtgiftene, liste, omtalen } from '../../frosset/brevdeler.ts';
 import {
   innholdetIDokumentet,
   innholdetIVedleggene,
@@ -44,11 +44,12 @@ import {
   justerteEnhetspriser,
   kravposterI,
   krevdRigg,
+  kunnskapsdatoIKravet,
   OPPGJOERSHJEMMEL,
   varselhjemmel,
   vederlagsinnhold,
 } from './format.ts';
-import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
+import { erKalenderdato, erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
@@ -56,6 +57,7 @@ import {
   eldreKravFoer,
   kravpostvarseletStrider,
   kravpostvarslene,
+  sisteKunnskapsdato,
   standpunkteneTilVarslene,
   varsleneForanKravet,
 } from './utledning.ts';
@@ -77,8 +79,10 @@ import {
   type Standpunkt,
 } from '../../typer.ts';
 import {
+  datoenDetBleSendt,
   kravversjoneneKravetProevesMot,
   paaberopelseFor,
+  varseletFoerBrevet,
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -232,6 +236,12 @@ function kravfeil(innhold: unknown): string[] {
       ]
     : feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   if (!feil.length) feil.push(...oerefeil(innhold as Innhold));
+  // VS-U86 punkt 12: datoen i posten er en kalenderdag.
+  const dato = feil.length ? undefined : kunnskapsdatoIKravet({ innhold: innhold as Innhold });
+  if (dato !== undefined && !erKalenderdato(dato))
+    feil.push(
+      `$.innhold.saerskilt.produktivitet.klar_over_utgiftene: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`
+    );
   return feil;
 }
 
@@ -435,11 +445,98 @@ function oppgivelseUtenInnsigelse(
     : null;
 }
 
+/**
+ * VS-U85: har TE oppgitt kunnskapsdatoen etter § 34.1.3 i løsningen, endres den bare i det egne
+ * utsagnet etter VS-U86 punkt 14. Et varsel lagt til kan ha datoen det oppga (`varsel`).
+ */
+function kunnskapsdatoenErOppgitt(u: Utledning, hva: string): Avvisning | null {
+  const siste = sisteKunnskapsdato(u);
+  return siste
+    ? avvis(
+        'DATOEN_KAN_IKKE_ENDRES',
+        `${hva} kan ikke oppgi datoen totalentreprenøren ble klar over at utgiftene ville påløpe, fordi totalentreprenøren alt har oppgitt ${klarOverUtgiftene(siste.dato)}. Datoen endres i et eget brev.`
+      )
+    : null;
+}
+
+/**
+ * VS-U86 punkt 9 og 12, D-2 i BF-48: datoen står i vederlagskravet bare når kravet er det første
+ * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd: saken har ikke noe varsel etter
+ * § 34.1.3 og ingen tidligere kravversjon med posten. Ellers oppgis den i det egne utsagnet. Et krav
+ * lagt til, sendt dagen `sendt` før varselet saken har, blir det første varselet (punkt 9).
+ */
+function kunnskapsdatoISperren(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  sendt: string | null
+) {
+  if (k.spor !== 'vederlag' || kunnskapsdatoIKravet(k) === undefined) return null;
+  const varselet = varseletFoerBrevet(u, '34.1.3');
+  return (
+    kunnskapsdatoenErOppgitt(u, 'Vederlagskravet') ??
+    (varselet !== undefined && !foerDagen(sendt, datoenForVarselet(u, varselet))
+      ? avvis(
+          'KRAVET_ER_IKKE_VARSELET',
+          'Vederlagskravet er ikke det første varselet om den særskilte vederlagsjusteringen etter punkt 34.1.3, så datoen totalentreprenøren ble klar over at utgiftene ville påløpe, oppgis ikke i kravet. Den oppgis i et eget brev.'
+        )
+      : null)
+  );
+}
+
+/** Dagen varselet etter § 34.1.3 med id-en `varselet` ble sendt: det registrerte eller et krav. */
+function datoenForVarselet(u: Utledning, varselet: string): string | null {
+  const v = u.spor.vederlag;
+  const kandidater = [v.varsler['34.1.3'], ...v.krav, ...v.kravUtenforRekken];
+  const funnet = kandidater.find((x) => x?.id === varselet);
+  return funnet ? datoenDetBleSendt(u, funnet) : null;
+}
+
+/** VS-U85: et særskilt varsel sendt fra løsningen etter at datoen er oppgitt, oppgir ikke en ny dato. */
+export function kunnskapsdatoIVarselet(
+  k: Extract<Kommando, { type: 'send_varsel' }>,
+  u: Utledning
+): Avvisning | null {
+  return k.klar_over_utgiftene === undefined ? null : kunnskapsdatoenErOppgitt(u, 'Varselet');
+}
+
+/**
+ * VS-U86 punkt 14 (VS-U82, VS-U84): det egne utsagnet viser til varselet etter § 34.1.3 saken har,
+ * det registrerte eller kravet som er det første varselet løsningen kjenner (VS-U85). Sperrene for
+ * saken gjelder ikke (VS-U84).
+ */
+export function kunnskapsdatoen(gjelder: string, u: Utledning): Avvisning | null {
+  const varselet = varseletFoerBrevet(u, '34.1.3');
+  if (varselet === undefined)
+    return avvis(
+      'INGEN_VARSEL',
+      'Totalentreprenøren har ikke varslet særskilt justering etter punkt 34.1.3, så det er ikke noe varsel å oppgi datoen for.'
+    );
+  return varselet === gjelder
+    ? null
+    : avvis(
+        'UGYLDIG_HENVISNING',
+        'Brevet må vise til det første varselet om særskilt justering etter punkt 34.1.3.'
+      );
+}
+
+/** D-6 i BF-48: utsagnet oppgir en annen dato enn TEs siste opplysning. */
+export function kontrollerKunnskapsdatoen(
+  k: Extract<Kommando, { type: 'kunnskapsdato' }>,
+  u: Utledning
+): Avvisning | null {
+  return sisteKunnskapsdato(u)?.dato === k.klar_over_utgiftene
+    ? avvis(
+        'DATOEN_ER_UENDRET',
+        `Totalentreprenøren har alt oppgitt ${klarOverUtgiftene(k.klar_over_utgiftene)}. Brevet må oppgi en annen dato.`
+      )
+    : null;
+}
+
 /** Nyttelastkontrollen i vederlaget (`nyttelastkontroll`). */
 export const NYTTELAST_I_VEDERLAGET = {
   begrunnelse: () => null,
   svarsperre: oppgivelseUtenInnsigelse,
-  kravsperre: kravpostsperre,
+  kravsperre: (k, u, sendt) => kravpostsperre(k, u, sendt) ?? kunnskapsdatoISperren(k, u, sendt),
   innsigelse: innsigelseMotVarselet,
   utdypning: () => null,
   oppgittDatoIKravet: () => null,

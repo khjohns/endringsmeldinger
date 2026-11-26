@@ -156,7 +156,8 @@
           "tekst": "TE ser ved hvert spor at saken ikke har et varsel eller krav fra TE, og finner det første kravet som hovedvalg på siden for sporet (U-1, U-2).",
           "kilde": [
             "OV-U97",
-            "OV-U3"
+            "OV-U3",
+            "OV-U125"
           ]
         },
         {
@@ -164,7 +165,9 @@
           "kilde": [
             "OV-U4",
             "OV-U3",
-            "HF-U11"
+            "HF-U11",
+            "OV-U125",
+            "OV-U126"
           ]
         },
         {
@@ -235,6 +238,11 @@
       "dato": "2026-11-25",
       "forhold": "#2410",
       "hva": "Forløpet er opprettet med bestillingen, kartleggingen G-1–G-9 og spørsmålene S-1–S-3, som ikke er besvart. Kontrollpunktene viser dagens kjerne; tilstanden for et tomt spor venter på S-1."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2418, #2410",
+      "hva": "S-1 og S-2 er ført som OV-U125 og OV-U126, og står i forståelsen for sporene og for forholdet. Prototypen er godkjent for tekstene og handlingene. S-3 er design og har ingen post."
     }
   ]
 }

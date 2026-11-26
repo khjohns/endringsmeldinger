@@ -105,7 +105,7 @@ brukerprøve har prøvd det.
 `docs/datamodell/handlinger.toml`), fjernes fra formatet; hva skjemaet for innlegget, svaret og
 «Forbehold» sier om innsigelsen; og hva som godtas etter en endringsordre (EO-U39 punkt 12).
 
-Svar: A. Oppdragsgiver 25.11, ordrett: «2A, 3A» (spørsmål 2 var S-4 og spørsmål 3 var S-5 da orkestratoren la dem fram; [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)). Vedtaket føres av vedtaksøkta i en egen PR.
+Svar: A. Oppdragsgiver 25.11, ordrett: «2A, 3A» (spørsmål 2 var S-4 og spørsmål 3 var S-5 da orkestratoren la dem fram; [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)). Ført som [VS-U89](../../plans/vedtak.md#vs-u89) i #2418.
 
 ## S-5. Skal totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd bli en egen handling senere, eller fremmes den varig i et innlegg?
 
@@ -159,4 +159,4 @@ med kostnaden over.
 `docs/datamodell/handlinger.toml`), fjernes fra formatet, og hva linja under betegnelsen i oversikten
 viser (MM-U30 i `.interface-design/system.md`).
 
-Svar: A. Oppdragsgiver 25.11, ordrett: «2A, 3A» (spørsmål 2 var S-4 og spørsmål 3 var S-5 da orkestratoren la dem fram; [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)). Vedtaket føres av vedtaksøkta i en egen PR.
+Svar: A. Oppdragsgiver 25.11, ordrett: «2A, 3A» (spørsmål 2 var S-4 og spørsmål 3 var S-5 da orkestratoren la dem fram; [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)). Ikke ført. Det føres senere, med koden som fjerner `passivitet` ([kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7184112065)).

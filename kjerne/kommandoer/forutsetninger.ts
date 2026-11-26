@@ -18,6 +18,7 @@ import { PARTEN } from '../frosset/brevdeler.ts';
 import {
   FORUTSETNINGER_I_VEDERLAGET,
   hindrerSvaretPaaVarselet,
+  kunnskapsdatoen,
 } from '../spor/vederlag/kommando.ts';
 import type {
   Avvisning,
@@ -56,6 +57,7 @@ export type Handlingsnoekkel =
         | 'passivitet'
         | 'begrunne'
         | 'korrigere'
+        | 'oppgi_kunnskapsdato'
         | 'svare_paa_foresporsel';
       gjelder: string;
     };
@@ -93,6 +95,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   protest: null,
   begrunne: 'BH',
   korrigere: 'TE',
+  oppgi_kunnskapsdato: 'TE',
 };
 
 /** Typene i handlingsnøklene, med parten som eier hver av dem i `PART`. */
@@ -157,6 +160,8 @@ function henvisning(
     }
     case 'korrigere':
       return korrigering(h.gjelder, u);
+    case 'oppgi_kunnskapsdato':
+      return kunnskapsdatoen(h.gjelder, u);
     case 'bestride':
     case 'protest':
     case 'passivitet':

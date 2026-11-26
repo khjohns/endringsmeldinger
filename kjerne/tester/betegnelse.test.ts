@@ -17,8 +17,12 @@ import {
   BETEGNELSER,
   betegnelse,
   harVarsel,
+  ingenVarselEllerKrav,
   kravetStaar,
+  nesteKravErDetFoerste,
+  saksbetegnelse,
   varseletStaar,
+  varsleneISporet,
   visning,
 } from '../utledning/visning.ts';
 import { fasteBeloepIKravet, fasteBeloepISvaret } from '../spor/vederlag/format.ts';
@@ -182,7 +186,7 @@ function betegnelser(...steg: Steg[]) {
 }
 
 describe('betegnelsen per spor (MM-U30, #1043)', () => {
-  it('lista har betegnelsene i rekkefølgen i MM-U30', () => {
+  it('lista har betegnelsene i rekkefølgen i MM-U30, med sporet uten varsel eller krav sist (OV-U125)', () => {
     expect(BETEGNELSER).toEqual([
       'trukket',
       'spesifisert_krav_etterspurt',
@@ -191,15 +195,20 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
       'enige',
       'byggherren_har_svart',
       'varslet',
+      'ingen_varsel_eller_krav',
     ]);
   });
 
-  it('ingen betegnelse når ingenting er sendt i sporet', () => {
-    expect(betegnelser()).toEqual({ forhold: null, vederlag: null, frist: null });
+  it('vederlaget og fristen uten varsel eller krav har betegnelsen, og forholdet uten påberopelse har ingen (OV-U125)', () => {
+    expect(betegnelser()).toEqual({
+      forhold: null,
+      vederlag: 'ingen_varsel_eller_krav',
+      frist: 'ingen_varsel_eller_krav',
+    });
     expect(betegnelser(paaberopelse)).toEqual({
       forhold: 'venter_paa_svar',
-      vederlag: null,
-      frist: null,
+      vederlag: 'ingen_varsel_eller_krav',
+      frist: 'ingen_varsel_eller_krav',
     });
   });
 
@@ -366,6 +375,139 @@ function vistEtter(...steg: Steg[]) {
   const u = utledJournal(sak.journal, KJERNE);
   return { u, v: visning(u, KJERNE.regler) };
 }
+
+const varselIVederlaget: Steg = (sak) =>
+  sak.send('TE', {
+    type: 'varsel',
+    ...SOM_BREV,
+    spor: 'vederlag',
+    hjemmel: '34.1.2',
+    sendt: '2026-10-01',
+    dokumentasjon: [randomUUID()],
+  });
+const varselSendtHerfra: Steg = (sak) =>
+  sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+const dokumentasjonIVederlaget: Steg = (sak) =>
+  sak.send('TE', {
+    type: 'registrert_brev',
+    ...SOM_BREV,
+    spor: ['vederlag'],
+    sendt: '2026-10-01',
+    beskrivelse: 'Referat fra byggemøte',
+    dokumentasjon: [randomUUID()],
+  });
+const vederlagetGodtatt: Steg = (sak) => {
+  sak.send('BH', {
+    type: 'brev',
+    svar: [
+      sak.svar('vederlag', {
+        ...P1({ vurdering: 'delvis', godkjent_beloep: 60000, aksepterer: true }),
+      }),
+    ],
+  });
+  aksept('vederlag')(sak);
+};
+
+function utledEtter(...steg: Steg[]) {
+  const sak = new Sak();
+  for (const s of steg) s(sak);
+  return { sak, u: utledJournal(sak.journal, KJERNE) };
+}
+
+describe('vederlag og frist uten varsel eller krav fra totalentreprenøren (OV-U125, BF-51)', () => {
+  it('et brev lagt til som dokumentasjon i sporet endrer ikke betegnelsen (OV-U125, OV-U4)', () => {
+    const { u } = utledEtter(paaberopelse, dokumentasjonIVederlaget);
+    expect(
+      u.registrerteBrev.map((b) => b.spor),
+      'kontroll'
+    ).toEqual([['vederlag']]);
+    expect(ingenVarselEllerKrav(u, 'vederlag')).toBe(true);
+    expect(betegnelse(u, 'vederlag')).toBe('ingen_varsel_eller_krav');
+  });
+
+  it('et varsel sendt herfra, et varsel lagt til med datoen og et krav gir sporet et utsagn, så betegnelsen faller bort (OV-U125, OV-U5, OV-U80)', () => {
+    expect(ingenVarselEllerKrav(utledEtter(paaberopelse).u, 'vederlag'), 'kontroll').toBe(true);
+    expect(ingenVarselEllerKrav(utledEtter(paaberopelse, varselIVederlaget).u, 'vederlag')).toBe(
+      false
+    );
+    expect(betegnelser(paaberopelse, varselSendtHerfra).vederlag).toBe('varslet');
+    expect(betegnelser(paaberopelse, varselIVederlaget).vederlag).toBe('varslet');
+    expect(betegnelser(paaberopelse, varselIFristen).frist).toBe('varslet');
+    expect(betegnelser(paaberopelse, vederlagskrav).vederlag).toBe('venter_paa_svar');
+    expect(betegnelser(paaberopelse, fristkrav).frist).toBe('venter_paa_svar');
+  });
+
+  it('en ubesvart forespørsel etter § 33.6.2 i et tomt fristspor går foran (OV-U125)', () => {
+    expect(betegnelser(paaberopelse, foresporsel)).toMatchObject({
+      vederlag: 'ingen_varsel_eller_krav',
+      frist: 'spesifisert_krav_etterspurt',
+    });
+  });
+
+  it('betegnelsen står når kravene er avgjort, og det første fristkravet godtas og venter på svar (OV-U125, OV-U3, D-1 og U-4 i BF-51)', () => {
+    const { sak, u } = utledEtter(paaberopelse, vederlagskrav, frafall, vederlagetGodtatt);
+    expect(saksbetegnelse(u), 'kontroll').toBe('kravene_avgjort');
+    expect(betegnelse(u, 'vederlag')).toBe('enige');
+    expect(betegnelse(u, 'frist')).toBe('ingen_varsel_eller_krav');
+    fristkrav(sak);
+    const etter = utledJournal(sak.journal, KJERNE);
+    expect(saksbetegnelse(etter)).toBeNull();
+    expect(betegnelse(etter, 'frist')).toBe('venter_paa_svar');
+  });
+
+  it('en sak lukket ved et godtatt avslag eller et trukket forhold gir ingen betegnelse i et tomt spor (OV-U125, GR-U27, GR-U25)', () => {
+    const avslag: Steg = (sak) =>
+      sak.send('BH', {
+        type: 'brev',
+        svar: [sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+      });
+    expect(betegnelser(paaberopelse, avslag).vederlag, 'kontroll').toBe('ingen_varsel_eller_krav');
+    expect(betegnelser(paaberopelse, avslag, aksept('forhold'))).toEqual({
+      forhold: 'enige',
+      vederlag: null,
+      frist: null,
+    });
+    expect(betegnelser(paaberopelse, trekk('forhold'))).toMatchObject({
+      vederlag: null,
+      frist: null,
+    });
+  });
+
+  it('skjemaet for det første kravet leser at kravet er det første, og varslene i sporet med brevet og dagen det ble sendt (U-3 i BF-51, OV-U3, OV-U5)', () => {
+    const { u: tomt } = utledEtter(paaberopelse);
+    expect(nesteKravErDetFoerste(tomt, 'vederlag')).toBe(true);
+    expect(varsleneISporet(tomt, 'vederlag')).toEqual([]);
+
+    const { u } = utledEtter(paaberopelse, varselIVederlaget, varselIFristen);
+    const [lagtTil] = varsleneISporet(u, 'vederlag');
+    expect(lagtTil).toEqual({
+      id: u.spor.vederlag.varsler['34.1.2']!.id,
+      hjemmel: '34.1.2',
+      dokument: u.spor.vederlag.varsler['34.1.2']!.dokument,
+      sendt: '2026-10-01',
+      oppgitt: true,
+    });
+    expect(varsleneISporet(u, 'frist').map((v) => [v.hjemmel, v.oppgitt])).toEqual([
+      ['33.4', true],
+    ]);
+    expect(nesteKravErDetFoerste(u, 'vederlag')).toBe(true);
+
+    const { u: herfra } = utledEtter(paaberopelse, varselSendtHerfra);
+    const [sendt] = varsleneISporet(herfra, 'vederlag');
+    expect(sendt).toMatchObject({ hjemmel: '34.1.2', sendt: '2026-10-03', oppgitt: false });
+
+    const { u: medKrav } = utledEtter(paaberopelse, varselSendtHerfra, vederlagskrav);
+    expect(nesteKravErDetFoerste(medKrav, 'vederlag')).toBe(false);
+    expect(nesteKravErDetFoerste(medKrav, 'frist')).toBe(true);
+  });
+
+  it('varslene i vederlaget står i rekkefølgen brevene ble lagt til, også varslene etter § 34.3.3 og § 34.4 (U-3 i BF-51, VS-U48, VS-U52)', () => {
+    const kravpostvarsel: Steg = (sak) =>
+      sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.4' });
+    const { u } = utledEtter(paaberopelse, kravpostvarsel, varselSendtHerfra);
+    expect(varsleneISporet(u, 'vederlag').map((v) => v.hjemmel)).toEqual(['34.4', '34.1.2']);
+  });
+});
 
 describe('sakens status og etikettene (MM-U22, MM-U23, #1136)', () => {
   it('saken har ingen samlet status mens kravene venter på svar eller svaret ikke er godtatt (MM-U22)', () => {

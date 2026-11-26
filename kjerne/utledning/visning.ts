@@ -13,6 +13,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import {
   dagenSendt,
+  datoFor,
   datoForDokumentet,
   dokumenterI,
   kalenderdag,
@@ -64,6 +65,7 @@ import {
   type Sakskode,
   type Spor,
   type Svar,
+  type Varselhjemmel,
 } from '../typer.ts';
 
 export type Statuskode =
@@ -188,6 +190,7 @@ export const BETEGNELSER = [
   'enige',
   'byggherren_har_svart',
   'varslet',
+  'ingen_varsel_eller_krav',
 ] as const;
 
 export type Betegnelse = (typeof BETEGNELSER)[number];
@@ -198,6 +201,10 @@ export const harVarsel = (u: Utledning, spor: Spor): boolean =>
 
 const sendt = (u: Utledning, spor: Spor): boolean =>
   u.spor[spor].krav.length > 0 || harVarsel(u, spor);
+
+/** OV-U125: vederlaget eller fristen har verken krav med virkning eller varsel (`harVarsel`). */
+export const ingenVarselEllerKrav = (u: Utledning, spor: Spor): boolean =>
+  spor !== 'forhold' && !sendt(u, spor);
 
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // Et trukket forhold gir «Trukket» bare der krav eller varsel er sendt (GR-U25).
@@ -213,6 +220,8 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null,
   // MM-U30: totalentreprenøren har varslet og ikke krevd (svar S4 16.11 i #2017).
   varslet: (u, spor) => harVarsel(u, spor) && u.spor[spor].krav.length === 0,
+  // OV-U125, GR-U27, D-6 i BF-51.
+  ingen_varsel_eller_krav: (u, spor) => ingenVarselEllerKrav(u, spor) && !avsluttetAvTe(u),
 };
 
 /**
@@ -237,6 +246,41 @@ export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
  */
 export const varseletStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.forstaatt && u.spor[spor].gjeldendeKrav === null && harVarsel(u, spor) && !avsluttetAvTe(u);
+
+/** U-3 i BF-51 (OV-U3): TEs neste krav i sporet er det første, fordi sporet ikke har noe krav. */
+export const nesteKravErDetFoerste = (u: Utledning, spor: Kravspor): boolean =>
+  u.spor[spor].krav.length === 0;
+
+/** Et varsel i sporet med brevet og dagen det ble sendt (`varsleneISporet`). */
+export interface VarselISporet {
+  id: string;
+  hjemmel: Varselhjemmel;
+  dokument: string;
+  /** Dagen varselet ble sendt (`datoenDetBleSendt`), eller `null` når den oppgitte ikke kan leses. */
+  sendt: string | null;
+  /** TE har oppgitt datoen for et varsel sendt utenfor løsningen (OV-U5, OV-U80). */
+  oppgitt: boolean;
+}
+
+/**
+ * U-3 i BF-51 (OV-U3, OV-U5): varslene i sporet, sendt herfra eller lagt til med datoen, i
+ * rekkefølgen brevene står i journalen. Varslene etter § 34.3.3 og § 34.4 er med i vederlaget.
+ */
+export function varsleneISporet(u: Utledning, spor: Kravspor): VarselISporet[] {
+  const s = u.spor[spor];
+  const varsler = [...Object.values(s.varsler), ...s.kravpostvarsler];
+  return [...dokumenterI(u.journal)].flatMap((d) =>
+    varsler
+      .filter((v) => v.dokument === d.id)
+      .map((v) => ({
+        id: v.id,
+        hjemmel: v.hjemmel,
+        dokument: v.dokument,
+        sendt: dagenSendt(v, d),
+        oppgitt: datoFor(v, 'sendt', d.opplysninger) !== undefined,
+      }))
+  );
+}
 
 /**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge TE kan godta svaret

@@ -54,6 +54,8 @@ import {
   type PostenISvaret,
   type Vilkaar,
   helt,
+  klarOverUtgiftene,
+  kunnskapsdatoTekst,
   PARTENS,
   UtdypningUtenPunkt,
 } from './brevdeler.ts';
@@ -463,6 +465,17 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
         tekst: `Byggherren godkjenner etter dette ${kroner(p.begrenset!)} av de krevde ${kroner(tilTall(krevdProduktivitet(krav)!))}.`,
       });
       beloepene.push({ post: 'produktivitet', plass, beloep: p.begrenset! });
+      // Designdelen i VS-U86, U-9 i BF-48: TEs siste opplysning om kunnskapsdatoen før svaret,
+      // etter beløpet, så «etter dette» viser til innsigelsen (LV-U78).
+      const kunnskapsdato = t.saken.sisteKunnskapsdato;
+      if (kunnskapsdato)
+        ledd.push({
+          punkt: 'produktivitet',
+          plass,
+          post,
+          vilkaar: null,
+          tekst: kunnskapsdatoTekst(kunnskapsdato.dato),
+        });
     }
   }
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));
@@ -1023,9 +1036,14 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
   switch (u.art) {
     case 'varsel': {
       const hjemmel = uttrykkbar(u.hjemmel);
-      // VS-U15, LV-U19: varselet står alene i brevet. Ellers VS-U34.
+      // VS-U15, LV-U19: varselet står alene i brevet. Ellers VS-U34. U-3 i BF-48 og designdelen i
+      // VS-U86: datoen TE oppgir, står etter varselet.
+      const datoen = u.klar_over_utgiftene ? [kunnskapsdatoTekst(u.klar_over_utgiftene)] : [];
       if (nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
-        return `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
+        return [
+          `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`,
+          ...datoen,
+        ].join(' ');
       throw new KanIkkeUttrykkes('et varsel i et brev fra løsningen står alene i brevet (VS-U15)');
     }
     case 'aksept': {
@@ -1089,6 +1107,19 @@ function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
       if (dokument === null || typeof tidligere !== 'string')
         throw new KanIkkeUttrykkes(`${u.gjelder} har ingen opplysning om datoen`);
       return `Totalentreprenøren oppgir nå at ${DATOEN_GJELDER[u.felt]} ${norskDato(u.dato)}. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;
+    }
+    case 'kunnskapsdato': {
+      // VS-U86 punkt 14, U-5 i BF-48, som brevet etter punkt 10 i MM-U59.
+      const tidligere = saken.sisteKunnskapsdato;
+      return [
+        `Totalentreprenøren oppgir nå ${klarOverUtgiftene(u.klar_over_utgiftene)}.`,
+        `Opplysningen gjelder ${VARSELET_I_SVARET['34.1.3']} i ${j.brevet(j.dokumentetTil(u.gjelder))}.`,
+        ...(tidligere
+          ? [
+              `I ${j.brevet(tidligere.dokument)} oppga totalentreprenøren ${norskDato(tidligere.dato)}.`,
+            ]
+          : []),
+      ].join(' ');
     }
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.

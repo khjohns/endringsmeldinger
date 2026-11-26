@@ -820,6 +820,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
       datoopplysninger: [],
+      sisteKunnskapsdato: null,
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       varslerIEldreKrav: [],

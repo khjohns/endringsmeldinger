@@ -98,7 +98,10 @@ kostnadsoverslag). `saerskilt` er postene utenfor: kravet etter punkt 34.1.3 ann
 (`produktivitet`) og rigg og drift (`rigg_og_drift`). Minst én kravpost eller én post utenfor
 står. `trekker` er kravpostene fra forrige versjon TE trekker; hver kravpost i forrige versjon
 er med eller trekkes. `trekker_saerskilt` er postene utenfor fra forrige versjon TE trekker
-(`produktivitet`); posten etter punkt 34.1.3 annet ledd i forrige versjon er med eller trekkes."""
+(`produktivitet`); posten etter punkt 34.1.3 annet ledd i forrige versjon er med eller trekkes.
+Posten etter punkt 34.1.3 annet ledd kan ha datoen TE oppgir å ha blitt klar over at utgiftene
+ville påløpe (`klar_over_utgiftene`), bare i den første versjonen med posten, når kravet er det
+første varselet løsningen kjenner."""
 felt = ["id", "spor", "erstatter", "kravposter", "saerskilt", "trekker", "trekker_saerskilt"]
 grunnlag = "KA-U2, KA-U8, KA-U53, KA-U56, KA-U66, KA-U83, OV-U89 punkt 6 og 17, OV-U115 punkt 19–22, KA-U70 og arbeidsvalget 07.11 i domenetabellen (#1663)"
 
@@ -231,9 +234,9 @@ grunnlag = "B-13, KA-U74, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2, § 34.1.3 tredje ledd, § 34.3.3 første ledd eller § 34.4 i vederlaget, eller § 32.2 i grunnlaget. Saken har høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4, som gjelder kravpostene. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet."
-felt = ["id", "art", "hjemmel"]
-grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38, VS-U48, VS-U52"
+beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2, § 34.1.3 tredje ledd, § 34.3.3 første ledd eller § 34.4 i vederlaget, eller § 32.2 i grunnlaget. Saken har høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4, som gjelder kravpostene. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet. Varselet etter § 34.1.3 kan ha datoen TE oppgir å ha blitt klar over at utgiftene ville påløpe (`klar_over_utgiftene`); andre varsler har ikke feltet."
+felt = ["id", "art", "hjemmel", "klar_over_utgiftene"]
+grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38, VS-U48, VS-U52, VS-U82, VS-U86"
 
 [[utsagn]]
 art = "trekk"
@@ -337,6 +340,21 @@ datoen i sak <kode>», og TEs valgfrie forklaring står som utdypningen under de
 teksten."""
 felt = ["id", "art", "gjelder", "paalegg_mottatt", "klar_over_forholdet"]
 grunnlag = "MM-U41, MM-U51, VS-U26, VS-U9, OV-U4, MM-U53, LV-U55"
+
+[[utsagn]]
+art = "kunnskapsdato"
+avsender = "TE"
+beskrivelse = """
+TE supplerer eller endrer datoen TE ble klar over at økte utgifter etter punkt 34.1.3
+annet ledd ville påløpe (`klar_over_utgiftene`), i et eget brev fra løsningen. `gjelder`
+er varselet etter punkt 34.1.3: det registrerte varselet eller kravet som er det første
+varselet løsningen kjenner. Ikke et nytt varsel og ikke en kravversjon. Den nye
+opplysningen gjelder straks som TEs siste opplysning, og et svar byggherren alt har gitt,
+står med virkningen det hadde. Godtas også i et spor med enighet, når kravene er avgjort og
+i en lukket sak. Et slikt brev sendt utenfor løsningen står som korrespondanse. TEs
+valgfrie forklaring står som utdypningen under den faste teksten."""
+felt = ["id", "art", "gjelder", "klar_over_utgiftene"]
+grunnlag = "VS-U82, VS-U83, VS-U84, VS-U85, VS-U86, MM-U59, MM-U53"
 
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.

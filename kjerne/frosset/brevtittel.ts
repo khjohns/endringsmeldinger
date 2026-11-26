@@ -135,6 +135,8 @@ export const UTSAGNSTITTEL = {
   innsigelse: 'Innsigelse etter punkt 5',
   // LV-U55: brevet med korrigeringen etter punkt 10 i samlevedtaket for retting av sendt brev (MM-U59).
   korrigering: 'Korrigering av datoen',
+  // U-5 og G-6 i BF-48 (VS-U86 punkt 14). Ordlyden er et designvalg.
+  kunnskapsdato: 'Når utgiftene etter punkt 34.1.3 ble kjent',
 } as const;
 
 /**
@@ -157,6 +159,7 @@ function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null 
     if (
       x.art === 'aksept' ||
       x.art === 'trekk' ||
+      x.art === 'kunnskapsdato' ||
       x.art === 'innsigelse' ||
       x.art === 'korrigering'
     )

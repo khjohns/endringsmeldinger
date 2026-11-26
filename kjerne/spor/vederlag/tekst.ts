@@ -14,6 +14,7 @@ import {
   kravpostenI,
   opplistet,
   PRODUKTIVITET,
+  kunnskapsdatoTekst,
   punktum,
   tidligere,
   verdi,
@@ -52,6 +53,7 @@ import {
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
+  kunnskapsdatoIKravet,
   krevdRigg,
   kravposterI,
   rammerPosten,
@@ -136,7 +138,7 @@ function kravposttekst(
  * i, som for varselet for en kravpost (`gitt`), eller at kravet varsler nå (U-7 og prototype v4
  * i BF-14, VS-U51). Ordlyden er design.
  */
-function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
+function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst, kunnskapsdato?: string): Brevpunkt {
   const ordene = {
     '34.1.2': {
       overskrift: 'Varselet om vederlagsjustering',
@@ -153,7 +155,13 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
   return {
     punkt: hjemmel,
     overskrift: ordene.overskrift,
-    avsnitt: [foer === undefined ? ordene.naa : gitt(foer, ordene.gitt, t)],
+    avsnitt: [
+      [
+        foer === undefined ? ordene.naa : gitt(foer, ordene.gitt, t),
+        // U-3 i BF-48 og designdelen i VS-U86: datoen etter varselet, når kravet er varselet.
+        ...(kunnskapsdato === undefined ? [] : [kunnskapsdatoTekst(kunnskapsdato)]),
+      ].join(' '),
+    ],
   };
 }
 
@@ -180,7 +188,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   // VS-U3, OV-U15: varselet etter § 34.1.2 nevnes der varslingsplikten gjelder forholdet.
   if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))
     punkter.push(varselpunkt('34.1.2', t));
-  if (post !== null) punkter.push(varselpunkt('34.1.3', t));
+  if (post !== null) punkter.push(varselpunkt('34.1.3', t, kunnskapsdatoIKravet(k)));
 
   // LV-U70: hver kravpost og hvert trekk er et punkt, så utdypningen står under posten
   // (#1823 punkt 1). Punktet er betegnelsen, som avsenderen ser før serveren gir en ny post
