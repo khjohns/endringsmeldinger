@@ -423,10 +423,6 @@ const medSaerskilt = skrevet(medGrunnlag, 'TE', {
 });
 
 describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () => {
-  const varselet = () =>
-    screen.queryByRole('group', {
-      name: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)',
-    });
   const punktet = (slutt: string) =>
     within(document.querySelector(`[id$="${slutt}"]`)!.closest<HTMLElement>('section')!);
   const iSaerskilt = () => punktet('-sp-saerskilt');
@@ -450,8 +446,7 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
   it('skjemaet spør om varselet, og datoen totalentreprenøren oppgir står i kortet valget viser til (U-9 i BF-48)', async () => {
     await svarskjemaet(medSaerskilt);
     expect(screen.queryByText(/kan ikke besvares/)).toBeNull();
-    const gruppe = varselet()!;
-    expect(gruppe).toBeInTheDocument();
+    const gruppe = iSaerskilt().getByRole('group', { name: 'Kom varselet i tide?' });
     const kortet = document.getElementById(gruppe.getAttribute('aria-describedby')!.split(' ')[0]!);
     expect(kortet?.textContent).toMatch(
       /klar over at utgiftene ville påløpe 10\. oktober 2026, i brev 2\./
@@ -462,9 +457,9 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
     const sendt = await svarskjemaet(medSaerskilt);
     await svarPaaKravposten();
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
-    await skriv('Beløpet du godtar etter begrensningen', '10 000');
+    await skriv('Beløpet du godkjenner etter begrensningen', '10 000');
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Deler av beløpet' }));
-    await skriv('Beløpet du godkjenner', '30 000');
+    await skriv('Beløpet du godkjenner(?! etter)', '30 000');
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(vurderingen(sendt)).toMatchObject({
@@ -480,7 +475,7 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
     await svarPaaKravposten();
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom i tide' }));
     expect(
-      iSaerskilt().queryByRole('textbox', { name: /^Beløpet du godtar etter begrensningen/ })
+      iSaerskilt().queryByRole('textbox', { name: /^Beløpet du godkjenner etter begrensningen/ })
     ).toBeNull();
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Hele beløpet' }));
     await seBrevet();
@@ -508,13 +503,13 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
     const sendt = await svarskjemaet(medSaerskilt);
     await svarPaaKravposten();
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
-    await skriv('Beløpet du godtar etter begrensningen', '35 000');
+    await skriv('Beløpet du godkjenner etter begrensningen', '35 000');
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Deler av beløpet' }));
-    await skriv('Beløpet du godkjenner', '30 000');
+    await skriv('Beløpet du godkjenner(?! etter)', '30 000');
     await seBrevet();
     expect(sendt).toHaveLength(0);
     expect(manglene()).toEqual([
-      'Særskilt vederlagsjustering: Beløpet etter begrensningen kan ikke være høyere enn beløpet du godkjenner.',
+      'Særskilt vederlagsjustering: Beløpet etter begrensningen er høyere enn beløpet du godkjenner under. Endre ett av beløpene.',
     ]);
   });
 });
