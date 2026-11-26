@@ -117,7 +117,7 @@ function henvisning(
   switch (h.type) {
     case 'svare':
     case 'revidere':
-      // GR-U27, som for svaret på kravet.
+      // HF-U35 punkt 9, som for svaret på kravet.
       return u.forholdAvvist
         ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)
         : hindrerSvaretPaaVarselet(
@@ -177,7 +177,7 @@ function henvisning(
 }
 
 const AVSLAGET_GODTATT =
-  'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.';
+  'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet, og saken er lukket.';
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
@@ -255,8 +255,8 @@ export function forutsetninger(
       'IKKE_I_FOERSTE_VERSJON',
       '«Ingen krav» er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
     );
-  // GR-U27: TEs aksept av et svar som avslår forholdet eller påberoper preklusjon, lukker saken. MM-U34 punkt 12: at
-  // kravene er avgjort, sperrer ikke.
+  // HF-U35 punkt 9, HF-U37: TEs aksept av et svar som avslår forholdet, lukker saken. MM-U34
+  // punkt 12: at kravene er avgjort, sperrer ikke.
   if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
 
   const s = u.spor[h.spor];

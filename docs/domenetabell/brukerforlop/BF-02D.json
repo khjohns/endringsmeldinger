@@ -1,11 +1,11 @@
 {
   "id": "BF-02D",
   "tittel": "TE korrigerer datoen pålegget ble mottatt i en lukket sak",
-  "brukerhistorie": "BH har påberopt at varselet kom for sent og godtatt forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
+  "brukerhistorie": "BH har påberopt at varselet kom for sent og avslått forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
   "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Som BF-02A, og TE har godtatt svaret, så saken er lukket etter GR-U27."
+    "beskrivelse": "Som BF-02A, og TE har godtatt svaret, så saken er lukket etter HF-U35 punkt 9 og HF-U37."
   },
   "steg": [
     {
@@ -22,9 +22,9 @@
         {
           "spor": "forhold",
           "navn": "S-g1",
-          "resultat": "godkjent",
+          "resultat": "avslaatt",
           "varslet_i_tide": false,
-          "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+          "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært avslås kravet på endringsordre."
         }
       ]
     },
@@ -48,7 +48,8 @@
         {
           "rolle": "forutsetning",
           "kilde": [
-            "GR-U27"
+            "HF-U35",
+            "HF-U37"
           ],
           "forventet": {
             "forhold_avvist": true,
@@ -70,7 +71,7 @@
             "MM-U52",
             "MM-U59",
             "MM-U51",
-            "GR-U27"
+            "HF-U35"
           ]
         }
       ]
@@ -131,6 +132,11 @@
       "dato": "2026-11-24",
       "forhold": "#2299",
       "hva": "Forløpet kjøres i saksruta. Ingenting hindret det: `saksruta` var ikke ført i `visninger`."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2426, HF-U35, HF-U37",
+      "hva": "Byggherren avslår forholdet subsidiært i stedet for å godkjenne det. En aksept av et svar som påberoper preklusjon og godkjenner forholdet subsidiært, lukker ikke saken lenger (HF-U35 punkt 10), og forløpet gjelder en lukket sak."
     }
   ]
 }

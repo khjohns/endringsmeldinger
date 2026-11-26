@@ -83,7 +83,9 @@ export function regelendringen(lagBaner: () => Baner): void {
       }
       const godtatt = utledJournal(saker['godtatt'].journal, N1);
       expect(godtatt.spor.forhold.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
-      expect(godtatt.forholdAvvist).toBe(true);
+      // HF-U35 punkt 10: svaret godkjenner forholdet subsidiært, så saken lukkes ikke.
+      expect(godtatt.preklusjonGodtatt).toBe(true);
+      expect(godtatt.forholdAvvist).toBe(false);
     });
 
     it('lar brevet beholde virkningen og viser regelendringen bare som merknad', () => {

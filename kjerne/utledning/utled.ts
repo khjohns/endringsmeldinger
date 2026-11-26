@@ -79,6 +79,7 @@ import {
 import type { Kjerne } from '../versjon.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
+  forholdetErAvvistVedEnighet,
   forholdssvaretsVirkning,
   frafaller,
   KONTROLLER_I_FORHOLDET,
@@ -338,8 +339,16 @@ export interface Utledning {
    * forholdet avklart ved frafallet (GR-U23).
    */
   forholdAvklart: boolean;
-  /** SK-01, #213, MM-U13: TE har godtatt et svar på påberopelsen som ikke avklarer forholdet etter GR-U7. */
+  /**
+   * HF-U35 punkt 9, HF-U37: TE har godtatt et svar på påberopelsen som avslår forholdet, også
+   * subsidiært til en påberopt preklusjon. Saken er lukket.
+   */
   forholdAvvist: boolean;
+  /**
+   * HF-U35 punkt 10, MM-U13: TE har godtatt et svar på påberopelsen som prinsipalt påberoper
+   * preklusjon etter § 32.2. Saken er ikke lukket når svaret godkjenner forholdet subsidiært.
+   */
+  preklusjonGodtatt: boolean;
   /**
    * GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. Gjelder
    * også mens en ny påberopelsesversjon venter på svar etter et frafall (GR-U23).
@@ -414,6 +423,7 @@ function tom(
     spor: tommeSpor(),
     forholdAvklart: false,
     forholdAvvist: false,
+    preklusjonGodtatt: false,
     frafalt: false,
     endringsordre: 'nei',
     registrerteBrev: registreringer(journal).brev,
@@ -553,7 +563,7 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * svar eller en aksept i et trukket spor,
  * en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
  * (GR-U8), noe som endrer utfallet etter at TE har godtatt et svar som avslår forholdet
- * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning.
+ * (HF-U35 punkt 9, HF-U37), og det som viser til et element uten virkning.
  * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
  * forutsetning senere gjør ikke et eldre brev uforstått.
  */
@@ -572,10 +582,10 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
   ];
 }
 
-/** Hvorfor det som kan endre utfallet, avvises: saken er lukket etter GR-U27. */
+/** Hvorfor det som kan endre utfallet, avvises: saken er lukket etter HF-U35 punkt 9. */
 const lukket = (u: Utledning): string | null =>
   u.forholdAvvist
-    ? 'totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon (GR-U27)'
+    ? 'totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet (HF-U35 punkt 9)'
     : null;
 
 /** OV-U104: elementet ble sammenliknet med `med`, sendt samme dag. */
@@ -1869,7 +1879,8 @@ export function enighetensVirkning(
 ): 'betinget' | 'virksom' | 'uten_virkning' | null {
   const e = u.spor[spor].enighet;
   if (!e) return null;
-  if (spor !== 'forhold' && (u.forholdAvvist || u.spor[spor].trukket)) return 'uten_virkning';
+  if (spor !== 'forhold' && (forholdetErAvvistVedEnighet(u) || u.spor[spor].trukket))
+    return 'uten_virkning';
   return e.grunnlag.vilkaar === null || u.forholdAvklart ? 'virksom' : 'betinget';
 }
 
@@ -1920,9 +1931,9 @@ export function paaberopelseFor(
 }
 
 /**
- * GR-U27: TE har godtatt et svar som avslår forholdet eller påberoper preklusjon, så saken
- * er lukket, og et svar eller en aksept i sporet avvises (`strid`). Et trukket forhold
- * lukker hvert spor gjennom `trukket` (GR-U5).
+ * HF-U35 punkt 9, HF-U37: TE har godtatt et svar som avslår forholdet, så saken er lukket,
+ * og et svar eller en aksept i sporet avvises (`strid`). Et trukket forhold lukker hvert spor
+ * gjennom `trukket` (GR-U5).
  */
 export const sporetErLukket = (u: Utledning): boolean => u.forholdAvvist;
 
@@ -1939,7 +1950,7 @@ export function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean 
 
 /**
  * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og saken er
- * ikke lukket, så et svar ville blitt godtatt (GR-U27). En ny påberopelsesversjon etter et
+ * ikke lukket, så et svar ville blitt godtatt (HF-U35 punkt 9). En ny påberopelsesversjon etter et
  * frafall venter på svar (GR-U23).
  */
 export function venterPaaSvar(u: Utledning, spor: Spor): boolean {

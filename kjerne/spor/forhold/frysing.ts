@@ -78,7 +78,7 @@ export function forholdetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]):
  * forholdet.
  * Rettidigheten i forholdet er alltid etter § 32.2 (`HJEMMEL`).
  */
-function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+export function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   return svar.spor === 'forhold' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
 }
 

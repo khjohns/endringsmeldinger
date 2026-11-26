@@ -40,6 +40,7 @@ import {
   type FristenISakslisten,
 } from '../spor/frist/visning.ts';
 import { prinsipaltAvslaatteDager } from '../spor/frist/utledning.ts';
+import { forholdetErAvvistVedEnighet } from '../spor/forhold/utledning.ts';
 import {
   datoenDetBleSendt,
   enighetensVirkning,
@@ -285,7 +286,7 @@ export function varsleneISporet(u: Utledning, spor: Kravspor): VarselISporet[] {
 /**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge TE kan godta svaret
  * (`svarIkkeGodtatt`, MM-U24): det er ikke godtatt, kravet er ikke trukket, og saken er ikke
- * lukket (HF-U23 punkt 4, 6 og 9, GR-U8, GR-U27). Ellers `null`.
+ * lukket (HF-U23 punkt 4, 6 og 9, GR-U8, HF-U35 punkt 9). Ellers `null`.
  */
 export function akseptfristen(u: Utledning, spor: Kravspor): { brev: string; dato: string } | null {
   const s = u.spor[spor].gjeldendeSvar;
@@ -296,10 +297,11 @@ export function akseptfristen(u: Utledning, spor: Kravspor): { brev: string; dat
 
 /**
  * FO-U1: TE kan anse byggherrens avslag som pålegg om forsering når byggherren prinsipalt har
- * avslått dager (`prinsipaltAvslaatteDager`), og TE ikke har godtatt svaret (`svarIkkeGodtatt`).
+ * avslått dager (`prinsipaltAvslaatteDager`), og TE ikke har godtatt svaret (`svarIkkeGodtatt`)
+ * eller avslaget eller preklusjonen av forholdet (`forholdetErAvvistVedEnighet`).
  */
 export const forseringKanVelges = (u: Utledning): boolean =>
-  svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u);
+  svarIkkeGodtatt(u, 'frist') && !forholdetErAvvistVedEnighet(u) && prinsipaltAvslaatteDager(u);
 
 /** MM-U30: sporets betegnelse, eller `null` når ingen av dem foreligger. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {

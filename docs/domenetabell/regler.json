@@ -1207,6 +1207,27 @@
       "radetikett": "GR-U27: TEs uttrykkelige aksept av avslaget på grunnlaget eller trekk av grunnlaget lukker KOE-saken"
     },
     {
+      "id": "HF-U35",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#hf-u35",
+      "radetikett": "HF-U35: Utkastet til C2 gjelder som samlevedtaket for «ingen krav», avkall og godtatt avslag"
+    },
+    {
+      "id": "HF-U37",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#hf-u37",
+      "radetikett": "HF-U37: Godtar totalentreprenøren et svar der byggherren prinsipalt påberoper at forholdet er varslet for sent etter punkt 32.2, og subsidiært avslår forholdet"
+    },
+    {
+      "id": "MM-U62",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#mm-u62",
+      "radetikett": "MM-U62: Utkastet til D1 gjelder som samlevedtaket for løsningens rolle og kravene er avgjort"
+    },
+    {
       "id": "GR-U28",
       "type": "vedtak",
       "dato": "2026-10-28",
@@ -1693,13 +1714,14 @@
     {
       "id": "KA-10",
       "tilfelle": "TE godtar et grunnlagssvar som påberoper at grunnlaget er varslet for sent (§ 32.2).",
-      "forventet": "Godtatt avslag: grunnlaget `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, EO kan ikke utstedes.",
-      "bh_standpunkt": "Prinsipalt prekludert, subsidiært godkjent grunnlag.",
-      "rettslig_virkning": "Godtatt avslag.",
+      "forventet": "Avslår byggherren grunnlaget subsidiært, er aksepten også en aksept av avslaget: saken lukkes, og EO kan ikke utstedes (HF-U35 punkt 9, HF-U37). Godkjenner byggherren grunnlaget subsidiært, gir aksepten enighet om preklusjonen, og enigheten om vederlag og frist får ingen virkning, men saken lukkes ikke og kan tas med i en EO (HF-U35 punkt 10).",
+      "bh_standpunkt": "Prinsipalt prekludert, subsidiært avslått eller godkjent grunnlag.",
+      "rettslig_virkning": "Godtatt avslag, eller enighet om preklusjonen.",
       "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent.",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SK01",
+        "HF-U35",
+        "HF-U37",
         "KA-U1",
         "NS-32.2-1"
       ],
@@ -1907,7 +1929,7 @@
     {
       "id": "KA-22",
       "tilfelle": "TE har godtatt et grunnlagssvar som påberoper at grunnlaget er varslet for sent (§ 32.2), og en senere regelendring gjør at § 32.2 ikke gjelder kategorien.",
-      "forventet": "Saken forblir avslått. Enigheten gjelder svaret med virkningen standpunktene hadde etter reglene da TE godtok det. Dagens utledning viser at regelen er endret.",
+      "forventet": "Enigheten gjelder svaret med virkningen standpunktene hadde etter reglene da TE godtok det, også preklusjonen. Saken er ikke lukket, fordi byggherren godkjente grunnlaget subsidiært (HF-U35 punkt 10). Dagens utledning viser at regelen er endret.",
       "bh_standpunkt": "Prinsipalt prekludert, med ansvaret som subsidiært standpunkt, slik svaret ble godtatt.",
       "rettslig_virkning": "Virkningen av enigheten ble fastsatt da den ble inngått.",
       "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent.",
@@ -1916,7 +1938,7 @@
         "MM-U3",
         "MM-U50",
         "KA-U1",
-        "V-SK01"
+        "HF-U35"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
