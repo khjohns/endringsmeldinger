@@ -133,11 +133,16 @@ export function bufferen(lagBaner: () => Baner): void {
         status: kjent.status,
         oppdateres: true,
       });
-      // En ny hendelse: siste kjente status til saken er regnet ut. Innsigelsen mot
-      // vederlagssvaret godtas (MM-U34 punkt 13).
-      expect((await k.send({ handling: 'innsigelse', part: 'TE', gjelder: 'S-v1' }))?.godtatt).toBe(
-        true
-      );
+      // En ny hendelse: siste kjente status til saken er regnet ut. Et brev lagt til som
+      // dokumentasjon godtas (OV-U4).
+      expect(
+        await k.send({
+          handling: 'registrert_brev',
+          part: 'TE',
+          sendt: '2026-09-20',
+          beskrivelse: 'Brev om fremdriften',
+        })
+      ).toMatchObject({ godtatt: true });
       expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });
       const lest = await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
       expect(await oversikt(KJERNE)).toEqual({ status: lest.visning.status, oppdateres: false });

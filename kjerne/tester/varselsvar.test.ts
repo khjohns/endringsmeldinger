@@ -6,7 +6,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { handlinger, tilbudte } from '../kommandoer/handlinger.ts';
+import { elementenesSpor, handlinger } from '../kommandoer/handlinger.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
@@ -143,18 +143,9 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     const [svaret] = s.u().spor.vederlag.svarPaaVarsler;
     // KA-U64: standpunktet til varselet etter § 34.4 har ingen virkning.
     expect(svaret.beslutningsgrunnlag.virkninger.map((v) => v.virkning)).toEqual(['uten_virkning']);
-  });
-
-  it('totalentreprenørens innsigelse mot svaret på varselet hører til vederlaget (#1713, VS-U79)', () => {
-    const { s, varsel } = medVarsel('34.4');
-    s.send(
-      'BH',
-      lagtTil(dagen(s), [svar('vederlag', varsel, { varslet_i_tide: false }, {}, null)])
-    );
-    const svaret = s.u().spor.vederlag.svarPaaVarsler[0].id;
-    expect(tilbudte(s.u(), 'TE').find((h) => h.noekkel === `innsigelse:${svaret}`)?.spor).toBe(
-      'vederlag'
-    );
+    // VS-U79: svaret på varselet som står alene, hører til vederlaget, så et brev som viser til
+    // det, står i tråden for vederlaget.
+    expect(elementenesSpor(s.u()).get(svaret.id)).toBe('vederlag');
   });
 
   it('et nytt svar på varselet erstatter det forrige og kan gi opp innsigelsen (punkt 31 og 33)', () => {
@@ -775,7 +766,7 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     expect(brevet(s)).toContain(`jf. innsigelsen i ${brev3}`);
   });
 
-  it('svaret på kravet gir opp innsigelsen i svaret på varselet og tolker ikke den egne innsigelsen etter punkt 5 (punkt 10, VS-U89)', () => {
+  it('svaret på kravet gir opp innsigelsen i svaret på varselet (punkt 10, VS-U89)', () => {
     const s = sak();
     s.send('TE', {
       ...PAABEROPELSE,
@@ -784,7 +775,6 @@ describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 stå
     s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.2' }] });
     const varsel = s.u().spor.vederlag.varsler['34.1.2']!.id;
     s.send('BH', brev(varsel, { varslet_i_tide: false }));
-    s.send('BH', { type: 'innsigelse', gjelder: varsel });
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
     expect(brevet(s)).toContain(

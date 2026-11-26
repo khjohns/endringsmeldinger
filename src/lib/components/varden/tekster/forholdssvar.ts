@@ -47,8 +47,11 @@ export const FORHOLDSSVAR = haerdet({
     'Enigheten om forholdet registreres ut fra valgene. Kravene om vederlag og frist står for seg.',
   virkningFrafall:
     'Pålegget er frafalt, og forholdet er avklart. Kravene om vederlag og frist for det utførte arbeidet behandles i saken.',
-  virkningSubsidiaert:
+  virkningSubsidiaertAvslag:
     'Svarene på vederlag og frist gjelder subsidiært. Totalentreprenøren kan godta svaret, og da avsluttes saken.',
+  // HF-U35 punkt 10, HF-U37: aksepten gir enighet om at varselet kom for sent, og saken lukkes ikke.
+  virkningSubsidiaertEnig:
+    'Svarene på vederlag og frist gjelder subsidiært. Godtar totalentreprenøren svaret, er dere enige om at varselet etter punkt 32.2 kom for sent. Enigheten om vederlag og frist får da ingen virkning, og saken avsluttes ikke.',
   /** U-14 og OV-U101: et svar gitt utenfor løsningen legges til som korrespondanse. */
   leggTilSvar: 'Legg til et svar du har gitt før',
 } as const);

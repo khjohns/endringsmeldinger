@@ -156,7 +156,17 @@ describe('TE varsler uten krav i vederlaget (BF-37)', () => {
 });
 
 describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 og #2427)', () => {
-  it('påminnelsen ved det første kravet og velgeren for kravpostens varsel viser arbeidet (U-7, VS-U87 punkt 23 og 27)', async () => {
+  async function kravpost(form: RegExp, valg?: RegExp) {
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
+    );
+    await skriv('Beskrivelse av posten', 'Graving ved kum 4');
+    await fireEvent.click(screen.getByRole('radio', { name: form }));
+    if (valg) await fireEvent.click(screen.getByRole('radio', { name: valg }));
+    await fireEvent.click(knapp('Ferdig'));
+  }
+
+  it('påminnelsen ved det første kravet viser arbeidet (VS-U87 punkt 27)', async () => {
     await aapneSom('te-har-varslet');
     await fireEvent.click(
       await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
@@ -164,17 +174,78 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     expect(
       screen.getByText(/punkt 34\.4 i brev 3, sendt .*: Ekstra graving i grøften ved kum 4\./)
     ).toBeTruthy();
-    await skriv('Beskrivelse av posten', 'Graving ved kum 4');
-    await fireEvent.click(screen.getByRole('radio', { name: /^Regningsarbeid/ }));
-    await fireEvent.click(knapp('Ferdig'));
-    await fireEvent.click(knapp(/^Endre varselet for P1/));
-    await fireEvent.click(screen.getByRole('radio', { name: 'I et varsel som står i saken' }));
+  });
+
+  it('med to varsler før regningsarbeidet uten kravpost spør «Varslene» hvilket varsel posten gjelder, med arbeidet, uten forhåndsvalg (U-7, D-5, VS-U87 punkt 23)', async () => {
+    await aapneSom('te-har-varslet');
+    await kravpost(/^Regningsarbeid/);
+    const valget = within(
+      screen.getByRole('group', { name: 'Hvilket varsel før regningsarbeidet gjelder P1?' })
+    );
+    const radio = (name: RegExp | string) =>
+      valget.getByRole('radio', { name }) as HTMLInputElement;
+    const graving = radio(/^Brev 3, .*: Ekstra graving i grøften ved kum 4$/);
+    const omlegging = radio(/^Brev 3, .*: Omlegging av fjernvarmerør langs fasade nord$/);
+    const ingen = radio(/^Ingen av dem\. Varselet før regningsarbeidet i P1 gis i dette brevet\.$/);
+    expect([graving, omlegging, ingen].map((r) => r.checked)).toEqual([false, false, false]);
+    expect(valget.queryByRole('radio', { name: /Økte mengder sprengstein/ })).toBeNull();
+    expect(screen.queryByText(/^Brevet sier/)).toBeNull();
+    // Raden sier ikke at varselet gis i dette brevet før TE har valgt (/design-review, F1).
+    expect(screen.getByText('Ikke valgt ennå.')).toBeTruthy();
+
+    await fireEvent.click(knapp('Se brevet før sending'));
+    const oppsummering = within(
+      await screen.findByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+    );
     expect(
-      screen.getByRole('radio', { name: /^Brev 3, .*: Ekstra graving i grøften ved kum 4$/ })
+      oppsummering.getByText(/Velg varselet posten gjelder, eller at varselet gis i dette brevet\./)
     ).toBeTruthy();
+
+    // Lenken fra «Dette mangler» åpner ikke det tredelte spørsmålet ved siden av (Gemini, funn 1).
+    await fireEvent.click(oppsummering.getByRole('link', { name: /Velg varselet posten gjelder/ }));
+    expect(screen.queryByRole('group', { name: 'Hvor ble varselet for P1 gitt?' })).toBeNull();
     expect(
-      screen.getByRole('radio', {
-        name: /^Brev 3, .*: Omlegging av fjernvarmerør langs fasade nord$/,
+      screen.getAllByRole('group', { name: 'Hvilket varsel før regningsarbeidet gjelder P1?' })
+    ).toHaveLength(1);
+
+    await fireEvent.click(graving);
+    expect(
+      screen.getByText(
+        'Brevet sier at varselet for P1 ble gitt i brev 3. Gjør byggherren gjeldende i svaret på det varselet at det kom for sent, står det bare mot kravpostene som gjelder varselet.'
+      )
+    ).toBeTruthy();
+    await fireEvent.click(ingen);
+    // Påminnelsen ved posten står ikke etter valget (Gemini, funn 2).
+    expect(
+      screen.queryByText(/^Saken har et varsel etter punkt.34\.4 som ingen kravpost/)
+    ).toBeNull();
+    expect(
+      screen.getByText(
+        'Brevet sier at varselet for P1 gis i dette brevet. Varslene i saken gjelder ikke P1.'
+      )
+    ).toBeTruthy();
+  });
+
+  it('med ett varsel om justering av enhetsprisene uten kravpost er det forhåndsvalgt (U-7, D-5)', async () => {
+    await aapneSom('te-har-varslet');
+    await kravpost(/^Enhetspriser/, /^Justerte enhetspriser/);
+    const valget = within(
+      screen.getByRole('group', {
+        name: 'Hvilket varsel om justering av enhetsprisene gjelder P1?',
+      })
+    );
+    expect(
+      (
+        valget.getByRole('radio', {
+          name: /^Brev 3, .*: Økte mengder sprengstein i byggegropen, post 03\.21$/,
+        }) as HTMLInputElement
+      ).checked
+    ).toBe(true);
+    expect(screen.getByText(/^Brevet sier at varselet for P1 ble gitt i brev 3\./)).toBeTruthy();
+    // Ordlyden med ett varsel (oppdragsgiver 26.11 i PR #2461).
+    expect(
+      valget.getByRole('radio', {
+        name: 'Nei, varselet om justering av enhetsprisene i P1 gis i dette brevet.',
       })
     ).toBeTruthy();
   });

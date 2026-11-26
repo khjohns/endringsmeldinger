@@ -112,7 +112,6 @@ export const NYTTELAST_I_FRISTEN = {
   begrunnelse: () => null,
   svarsperre: () => null,
   kravsperre: fristsperre,
-  innsigelse: () => null,
   utdypning: utdypningIFristen,
   // VS-U34: varselet i kravet skrives som et eget brev, og datoen kontrolleres der (`oppgittDatoI`).
   // Står varselet alt i saken, kreves samme dato som det har.
@@ -128,7 +127,6 @@ function fristenErLukket(u: Utledning, avslaget: Avvisning | null): Avvisning | 
 
 /** Forutsetningene i fristen (`FORUTSETNINGER`). */
 export const FORUTSETNINGER_I_FRISTEN = {
-  innsigelsenErIkkeBygget: () => null,
   svaret: () => null,
   kravet: 'kravet om fristforlengelse',
   trekket: () => null,
@@ -222,7 +220,8 @@ export const fristpunktForSpoersmaal = (spoersmaal: string | undefined): string 
 /** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
 function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
   if (s.art === 'dager') return null;
-  const noekkel = s.art === 'rettidighet' ? s.hjemmel : s.art;
+  // VS-U95: standpunktet om at begrunnelsen ikke er et svar, svarer på spørsmålet etter § 33.6.2.
+  const noekkel = s.art === 'rettidighet' || s.art === 'ikke_svar' ? s.hjemmel : s.art;
   const felt = fristspoersmaalForPunkt(noekkel);
   if (!felt) throw new Error(`standpunktet ${noekkel} svarer ikke på noe spørsmål i fristen`);
   return felt;
@@ -236,8 +235,19 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   const paakrevde = paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u))).map(
     ([felt]) => felt
   );
-  const ubesvart = new Set(paakrevde.filter((felt) => mangler(v[felt])));
+  const manglende = paakrevde.filter((felt) => mangler(v[felt]));
+  // VS-U95: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2.
+  // Står begge, gjelder svaret på spørsmålet i lagene, og kontrollen avviser standpunktet
+  // (`ugyldigIFristen`).
+  const ikkeSvar =
+    v.begrunnelse_ikke_svar === true &&
+    foresporselForFristsvar(u)?.art === 'begrunnelse' &&
+    u.spor.frist.gjeldendeKrav?.erstatter === null;
+  const ubesvart = new Set(
+    ikkeSvar ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok') : manglende
+  );
   const utfylt: Record<string, unknown> = { ...v };
+  if (!ikkeSvar || !mangler(v.foresporsel_svar_ok)) delete utfylt.begrunnelse_ikke_svar;
   for (const felt of ubesvart) utfylt[felt] = true;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
     utfylt.frister = v.frister.map((r: unknown) =>
@@ -345,7 +355,10 @@ function ugyldigIFristen(
   const hele = new Set<string | undefined>(Object.values(SPOERSMAALET));
   return fristene.flatMap((f, i): LagIFristen['ugyldig'] => {
     const feil = avvisteFelt(() =>
-      kontrollerFristen(vurderingenAvFristen(v, f), fristkravet(krevd[i]!.dager, foresporsel))
+      kontrollerFristen(
+        vurderingenAvFristen(v, f),
+        fristkravet(krevd[i]!.dager, foresporsel, krav.erstatter === null)
+      )
     );
     // Kontrollen leser dagene og spesifiseringen og kjører når de er godtatt, også når et
     // annet spørsmål er ubesvart. Sendingen kjører den først når hele fristen er godtatt.
@@ -359,7 +372,10 @@ function ugyldigIFristen(
           ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }]
           : hele.has(felt)
             ? [{ spoersmaal: felt as Fristspoersmaal }]
-            : []
+            : // VS-U95: samme spørsmål etter § 33.6.2, én gang.
+              felt === 'begrunnelse_ikke_svar' && !Object.hasOwn(feil, 'foresporsel_svar_ok')
+              ? [{ spoersmaal: 'foresporsel_svar_ok' as const }]
+              : []
       ),
       ...Object.keys(maatteForstaa).map(() => ({
         spoersmaal: 'dager_maatte_forstaa' as const,

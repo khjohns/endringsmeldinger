@@ -9,7 +9,7 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { kanFaaInnsigelse, sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
+import { sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
 import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
@@ -52,9 +52,7 @@ export type Handlingsnoekkel =
   | {
       type:
         | 'bestride'
-        | 'innsigelse'
         | 'protest'
-        | 'passivitet'
         | 'begrunne'
         | 'korrigere'
         | 'oppgi_kunnskapsdato'
@@ -87,11 +85,9 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   svare_paa_foresporsel: 'TE',
   ingen_krav: 'TE',
   registrere_brev: null,
-  passivitet: 'TE',
   svare: 'BH',
   revidere: 'BH',
   bestride: null,
-  innsigelse: null,
   protest: null,
   begrunne: 'BH',
   korrigere: 'TE',
@@ -102,18 +98,15 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 export const HANDLINGSTYPER = Object.keys(PART) as Handlingsnoekkel['type'][];
 
 /**
- * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
- * etter § 5 godtas også når saken er lukket etter GR-U27 (KA-U29), og mot det en
- * registrert enighet omfatter (MM-U34 punkt 13).
- * De andre er utsatt etter OV-U7 og avvises for begge parter.
+ * Handlingene som viser til et annet element: svaret på et varsel som står alene, begrunnelsen
+ * på forespørselen, korrigeringen og kunnskapsdatoen. De andre er utsatt etter OV-U7 og avvises
+ * for begge parter.
  */
 function henvisning(
   h: Extract<Handlingsnoekkel, { gjelder: string }>,
-  part: Part,
   u: Utledning,
   sendt: string | null
 ) {
-  const maal = u.elementer[h.gjelder];
   switch (h.type) {
     case 'svare':
     case 'revidere':
@@ -125,19 +118,6 @@ function henvisning(
             h.gjelder,
             h.type === 'svare' ? 'Svaret' : 'Revisjonen',
             sendt
-          );
-    case 'innsigelse':
-      if (kanFaaInnsigelse(maal, part))
-        for (const spor of SPOR) {
-          const ikkeBygget = forutsetningerI(spor).innsigelsenErIkkeBygget(u, h.gjelder);
-          if (ikkeBygget) return ikkeBygget;
-        }
-      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
-      return kanFaaInnsigelse(maal, part)
-        ? null
-        : avvis(
-            'UGYLDIG_INNSIGELSE',
-            'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
           );
     case 'svare_paa_foresporsel': {
       // VS-U27: en forespørsel fra appen, i sporet som har den.
@@ -164,14 +144,12 @@ function henvisning(
       return kunnskapsdatoen(h.gjelder, u);
     case 'bestride':
     case 'protest':
-    case 'passivitet':
     case 'begrunne':
-      // OV-U7, OV-U99 punkt 3–4: bestridelsen (MM-U7, MM-U14), protesten mot en innsigelse
-      // (VS-U1, VS-U9), påberopt passivitet (VS-U12) og den senere begrunnelsen (KA-U46)
-      // sendes som innlegg.
+      // OV-U7, OV-U99 punkt 3–4: bestridelsen (MM-U7, MM-U14), protesten mot en påberopelse
+      // (VS-U1, VS-U9) og den senere begrunnelsen (KA-U46) sendes som innlegg.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        'Bestridelse, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+        'Bestridelse, protest og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
   }
 }
@@ -185,8 +163,6 @@ export const ELDRE_SVAR =
 
 /** Det som er sporets eget i forutsetningene (#1783). */
 export interface Sporsforutsetninger {
-  /** Innsigelsen mot `gjelder` i sporet kan ikke sendes ennå, eller `null`. */
-  innsigelsenErIkkeBygget(u: Utledning, gjelder: string): Avvisning | null;
   /** Det som hindrer svaret på gjeldende krav i sporet, eller revisjonen av det. */
   svaret(u: Utledning, hva: 'Svaret' | 'Revisjonen'): Avvisning | null;
   /** Kravet i sporet, med navnet i visningen (konseptet for Varden, versjon 14). */
@@ -248,7 +224,7 @@ export function forutsetninger(
   const eier = PART[h.type];
   if (eier !== null && eier !== part)
     return avvis('FEIL_PART', `Bare ${PARTEN[eier]} kan gjøre dette.`);
-  if ('gjelder' in h) return henvisning(h, part, u, sendt);
+  if ('gjelder' in h) return henvisning(h, u, sendt);
   // OV-U7, OV-U99 punkt 2: «ingen krav» venter.
   if (h.type === 'ingen_krav')
     return avvis(

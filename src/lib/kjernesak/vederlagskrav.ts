@@ -16,7 +16,9 @@ import {
   type Kravpost,
   type Kravpostvarselhjemmel,
 } from '#kjerne/typer.ts';
+import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
 import {
+  datoenDetBleSendt,
   varseletFoerBrevet as foersteVarselFoerBrevet,
   varseletForNyttSvar,
   type Utledning,
@@ -33,12 +35,14 @@ export type Kravpostutkast = Pick<Kravpost, 'oppgjoersform' | 'justert'> & { id?
 
 /**
  * Varselet en kravpost i skjemaet trenger, slik kravet ville uttrykt det:
- * - `kravet`: kravet er varselet for posten, og TE kan oppgi at det er gitt før (VS-U49, VS-U50);
+ * - `kravet`: kravet er varselet for posten, og TE kan oppgi at det er gitt før (VS-U49, VS-U50).
+ *   `velges` er varslene etter samme bestemmelse som ingen kravpost viser til, og som TE velger
+ *   mellom for posten (VS-U87 punkt 23, U-7 i BF-37);
  * - `gitt`: et eldre krav er varselet for posten (OV-U120);
  * - `foer`: posten hadde oppgjørsformen i en tidligere versjon, i kravet `krav` (VS-U49).
  */
 export type Varselet =
-  | { art: 'kravet'; hjemmel: Kravpostvarselhjemmel }
+  | { art: 'kravet'; hjemmel: Kravpostvarselhjemmel; velges?: Kravpostvarsel[] }
   | { art: 'gitt'; hjemmel: Kravpostvarselhjemmel; varsel: string; dokument: string }
   | { art: 'foer'; hjemmel: Kravpostvarselhjemmel; krav: string; varsel: string | null };
 
@@ -60,11 +64,15 @@ export function varslenePerKravpost(
   const etter = kravpostvarslene({ innhold: { kravposter: lest } }, krav, eldreKrav);
   const sendtFoer = new Set(eldreKrav.map((k) => k.dokument));
   const iEldre = varslerIEldreKrav(u).filter((v) => sendtFoer.has(v.dokument));
+  const ubrukte = varslerUtenKravpost(u, sendt);
   return lest.map((p) => {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null) return null;
     const v = etter[p.id];
-    if (v?.art === 'kravet') return { art: 'kravet', hjemmel };
+    if (v?.art === 'kravet') {
+      const velges = ubrukte.filter((x) => x.hjemmel === hjemmel);
+      return { art: 'kravet', hjemmel, ...(velges.length ? { velges } : {}) };
+    }
     if (v?.art === 'gitt')
       return { art: 'gitt', hjemmel, varsel: v.varsel, dokument: dokumentet(u, v.varsel) };
     // OV-U120: et eldre krav er varselet for posten.
@@ -115,14 +123,18 @@ export const arbeidetI = (u: Utledning, id: string): string | undefined =>
 /**
  * Varslene i saken som ingen kravpost i et krav viser til, så skjemaet kan si at saken har dem
  * (U-12 i BF-14, oppdragsgiver 09.11) og spørre hvilket varsel en kravpost gjelder (VS-U87
- * punkt 23).
+ * punkt 23). For et krav lagt til, sendt dagen `sendt`, bare varslene sendt samme dag eller før,
+ * som kjernen leser dem (`varselvalgetMangler`, OV-U98).
  */
-export function varslerUtenKravpost(u: Utledning): Kravpostvarsel[] {
+export function varslerUtenKravpost(u: Utledning, sendt: string | null = null): Kravpostvarsel[] {
   const { krav, kravUtenforRekken } = u.spor.vederlag;
   const brukt = new Set(
     [...krav, ...kravUtenforRekken].flatMap(kravposterI).map(varseletPostenViserTil)
   );
-  return varsleneISaken(u).filter((v) => !brukt.has(v.id));
+  const dag = sendt === null ? null : kalenderdag(sendt);
+  return varsleneISaken(u).filter(
+    (v) => !brukt.has(v.id) && (dag === null || !foerDagen(dag, datoenDetBleSendt(u, v) ?? ''))
+  );
 }
 
 /**

@@ -64,6 +64,7 @@ DOKUMENTER = (
 )
 HISTORISKE_DOKUMENTER = frozenset(
     {
+        "docs/domenetabell/brukerforlop/BF-03-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-05-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-06-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-10-sporsmal.md",

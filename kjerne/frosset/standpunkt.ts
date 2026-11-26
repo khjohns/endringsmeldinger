@@ -22,14 +22,9 @@ import {
 import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
-import { HJEMMEL } from '../format/format.ts';
-import { erRegistrert } from '../format/leser.ts';
 import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
 import type {
-  Dokument,
   Enighetsgrunnlag,
-  Hjemmel,
-  Utsagn,
   Kravpostvarselhjemmel,
   Krav,
   Kravpost,
@@ -57,73 +52,6 @@ export function virkninger(
   staar: readonly VarselIKravet[]
 ): Standpunktsvirkning[] {
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning, staar);
-}
-
-/** VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent. */
-export const erPaaberopelse = (x: Utsagn): x is Extract<Utsagn, { art: 'innsigelse' }> =>
-  x.art === 'innsigelse' && x.grunn === undefined;
-
-/**
- * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
- * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, varselet
- * etter § 34.1.2 i vederlaget (VS-U24, OV-U5), og TEs
- * varsel etter § 32.2 i forholdet, som er påberopelsen når § 32.2 gjelder kategorien
- * i det (GR-U11). Varselet etter § 32.2 er det samme i hver påberopelsesversjon
- * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
- * annet krav eller et svar er den uten virkning. Et krav lagt til med kravskjemaet har samme
- * virkning som et krav sendt fra løsningen (OV-U80). Kommandoene, utledningen og
- * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536). `varslingsplikt`
- * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
- * utledningen leser det som er frosset (MM-U43 punkt 8, #776).
- */
-export function innsigelsenPaaberoper(
-  gjelder: string,
-  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
-  varslingsplikt: (krav: Krav) => boolean
-): Hjemmel | Kravpostvarselhjemmel | null {
-  for (const d of dokumenter) {
-    const utsagn = d.utsagn.find((x) => x.id === gjelder);
-    // VS-U29: begrunnelsen etter § 33.6.2 annet ledd b kan bare komme for sent etter § 33.6.2.
-    if (utsagn)
-      return utsagn.art === 'varsel'
-        ? utsagn.hjemmel
-        : utsagn.art === 'foresporselssvar'
-          ? '33.6.2'
-          : null;
-    const krav = d.krav.find((k) => k.id === gjelder);
-    if (krav) return krav.spor === 'forhold' && varslingsplikt(krav) ? '32.2' : null;
-  }
-  return null;
-}
-
-/**
- * VS-U24, VS-U29: et svar i sporet gjentar eller gir opp en påberopelse etter `hjemmel`: hjemmelen
- * for sporet, og påberopelsene sporet også nevner (`ogsaaInnsigelserEtter`). Brevteksten og
- * utledningen leser det herfra (#2050).
- */
-export const svaretGjelderPaaberopelsen = (
-  spor: Spor,
-  hjemmel: Hjemmel | Kravpostvarselhjemmel | null
-): hjemmel is Hjemmel =>
-  hjemmel !== null &&
-  (hjemmel === HJEMMEL[spor] ||
-    frysingI(spor).ogsaaInnsigelserEtter.some((h: Hjemmel) => h === hjemmel));
-
-/**
- * Partens påberopelser i dokumentet som et senere svar fra parten gjentar eller gir opp. En
- * påberopelse i et brev lagt til er dokumentasjon (OV-U98). En påberopelse uten virkning, eller
- * mot et element uten virkning, gjentas ikke (MM-U43 punkt 9). Brevteksten og utledningen leser
- * dem herfra (#2050).
- */
-export function paaberopelserIDokumentet(
-  d: Pick<Dokument, 'utsagn' | 'opplysninger'>,
-  utenVirkning: (id: string) => boolean
-): Extract<Utsagn, { art: 'innsigelse' }>[] {
-  if (erRegistrert(d.opplysninger)) return [];
-  return d.utsagn.filter(
-    (x): x is Extract<Utsagn, { art: 'innsigelse' }> =>
-      erPaaberopelse(x) && !utenVirkning(x.id) && !utenVirkning(x.gjelder)
-  );
 }
 
 /**
@@ -223,32 +151,6 @@ export function sisteStandpunktTilVarslene(
     iTide,
     dokument,
   }));
-}
-
-/**
- * VS-U9, VS-U11, HF-U4: parten har gitt opp sin påberopelse i en egen innsigelse når et
- * senere svar fra parten i sporet sier at varselet kom i tide. I fristen gir hvert «i tide»
- * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
- * I forholdet teller partens siste standpunkt etter § 32.2, også om en annen
- * påberopelsesversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
- * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 har
- * saken én forespørsel (VS-U31), så standpunktet gjelder begrunnelsen innsigelsen gjelder
- * (VS-U29, HF-U4).
- */
-export function innsigelsenErOppgitt(
-  spor: Spor,
-  etter: Pick<Svar, 'spor' | 'standpunkter'>[],
-  hjemmel: Hjemmel = HJEMMEL[spor]
-): boolean {
-  const standpunkter = etter
-    .filter((x) => x.spor === spor)
-    .flatMap((x) => x.standpunkter)
-    .filter(
-      (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
-        p.art === 'rettidighet' && p.hjemmel === hjemmel
-    );
-  if (frysingI(spor).hvertITideGirOppInnsigelsen) return standpunkter.some((p) => p.iTide);
-  return standpunkter.at(-1)?.iTide === true;
 }
 
 /**

@@ -144,6 +144,12 @@ function standpunkttekstMedVanligeMellomrom(
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
+    // VS-U95: uten virkning, så teksten sier ingen følge.
+    case 'ikke_svar':
+      return sier(
+        'gjør',
+        `gjeldende at begrunnelsen ikke er et svar etter punkt 33.6.2 annet ledd`
+      );
     case 'oppgjoersform': {
       const f = oppgjoersformEtter(s.hjemmel);
       const verb = f === 'enhetspriser' || f === 'regningsarbeid' ? 'godtar' : 'godkjenner';

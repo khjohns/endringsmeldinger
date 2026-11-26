@@ -426,18 +426,6 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   // OV-U5: svaret står, og visningen sier at det gjaldt et annet varsel enn det registrerte.
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].gjaldtEtAnnetVarsel.length)
     ut.push('svaret_gjaldt_et_annet_varsel');
-  // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
-  const iSporet = [
-    s.gjeldendeKrav?.id,
-    s.gjeldendeSvar?.id,
-    ...Object.values(s.varsler).map((v) => v.id),
-    ...s.kravpostvarsler.map((v) => v.id),
-  ];
-  for (const i of u.innsigelser)
-    if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
-      ut.push(`innsigelse_fra_${i.part}`);
-  const passivitet = visningI(spor).passivitetsetikett(u);
-  if (passivitet) ut.push(passivitet);
   const varsel = visningI(spor).varseletikett(u, regler);
   if (varsel) ut.push(varsel);
   return ut;
@@ -454,8 +442,6 @@ export interface Sporsvisning {
    * (`enighetensVirkning`). Uten dem får sporet etikettene for et spor med krav.
    */
   svaretsEtiketter?(u: Utledning, virkning: ReturnType<typeof enighetensVirkning>): string[];
-  /** Etiketten for en påberopt passivitet i sporet, eller `null`. */
-  passivitetsetikett(u: Utledning): string | null;
   /** Byggherren har etterspurt et spesifisert krav i sporet som ikke er besvart. */
   kravetErEtterspurt(u: Utledning): boolean;
   /** Det sporet gir senkningen etter HF-U29 punkt 8. Forholdet har ingen. */

@@ -160,7 +160,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.getAllByText('Oppgi datoen.').length).toBe(2);
   });
 
-  it('F-5/VS-U26: ved svikt følger ledetekstene forholdet, og spørsmålet om punkt 32.2 vises ikke', async () => {
+  it('F-5/VS-U26: ved svikt følger ledetekstene forholdet', async () => {
     aapne();
     await velgForhold(SVIKT, /^Manglende medvirkning/);
     expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
@@ -170,19 +170,15 @@ describe('skjemaet for ny sak (BF-05)', () => {
     ).toBeNull();
   });
 
-  it('F-5: ved et pålegg der punkt 32.2 gjelder, spør skjemaet om varselet alt er sendt', async () => {
+  it('U6: ved et pålegg der punkt 32.2 gjelder, tilbyr skjemaet ikke varselet som alt er sendt (#1488)', async () => {
     aapne();
     await velgForhold(ENDRINGER, /^Irregulær endring/);
     expect(
-      screen.getByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
-    ).toBeTruthy();
-  });
-
-  it('F-5: spørsmålet om punkt 32.2 sier «forholdet» når forholdet ikke er et pålegg', async () => {
-    aapne();
-    await velgForhold(ENDRINGER, /^Samordning/);
-    expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
-    expect(screen.getByText(/etter punkt 32.2 om at forholdet er en endring\?/)).toBeTruthy();
+      screen.queryByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
+    ).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Ja' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Nei' })).toBeNull();
+    expect(screen.queryByText(/Hvordan ble varselet gitt/)).toBeNull();
   });
 
   it('U-3/arbeidsvalg 02.11: det valgte forholdet viser kontraktens regel, og «Endre» åpner velgeren', async () => {
@@ -233,7 +229,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(new Set(utenPunkt).size).toBe(utenPunkt.length);
   });
 
-  it('skissen versjon 3 og F-5: beskrivelsen, datoen og vedlegget står før forholdet er valgt, spørsmålet om punkt 32.2 først når det gjelder', async () => {
+  it('skissen versjon 3 og F-5: beskrivelsen, datoen og vedlegget står før forholdet er valgt, uten spørsmål om punkt 32.2', async () => {
     aapne();
     expect(screen.getByLabelText('Beskrivelse av pålegget')).toBeTruthy();
     expect(screen.getByLabelText('Dato du mottok pålegget')).toBeTruthy();
@@ -241,15 +237,6 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(
       screen.queryByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
     ).toBeNull();
-  });
-
-  it('F-8/VS-U39: opplysningen fra kapittel B står ved spørsmålet, både ved nei og ved ja', async () => {
-    aapne();
-    await velgForhold(ENDRINGER, /^Irregulær endring/);
-    const opplysning = /Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/;
-    expect(screen.getByText(opplysning)).toBeTruthy();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    expect(screen.getByText(opplysning)).toBeTruthy();
   });
 
   it('oppdragsgiver 02.11 (PR #1492): de fire forholdene har navnene fra NS 8407 punkt 14.4, 15.2, 10.2 og 19.1', async () => {
@@ -282,9 +269,6 @@ describe('skjemaet for ny sak (BF-05)', () => {
     // GR-U31: der punkt 32.2 gjelder, sier brevet at TE varsler etter bestemmelsen.
     expect(within(panel).getByText('Brevet varsler etter punkt 32.2')).toBeTruthy();
     expect(within(panel).getByText('Ingen vedlegg')).toBeTruthy();
-    // VS-U38: dokumentet med varselet som alt er sendt, legges ved brevet.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    expect(within(panel).getByText('Dokumentet med varselet som alt er sendt')).toBeTruthy();
   });
 
   it('#1533: velgeren viser punktet slik brevet skriver det, «33.1 c», og kontraktens regel står', async () => {
@@ -311,39 +295,6 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(within(panel).queryByText('Brevet varsler etter punkt 32.2')).toBeNull();
   });
 
-  it('D-8/VS-U38/OV-U79: ved ja ber skjemaet om typen, datoen og en kort beskrivelse, og sendemåten bare for et brev', async () => {
-    const { send } = aapne();
-    await fyllIrregulaerEndring();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    expect(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' })).toBeTruthy();
-    expect(screen.queryByRole('group', { name: 'Hvordan ble brevet sendt?' })).toBeNull();
-    await seBrevet();
-    for (const tekst of [
-      'Velg hvordan varselet ble gitt.',
-      'Oppgi datoen varselet ble sendt.',
-      'Beskriv varselet.',
-    ])
-      expect(screen.getAllByText(tekst).length).toBe(2);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
-    for (const navn of ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'])
-      expect(screen.getByRole('radio', { name: navn })).toBeTruthy();
-    await seBrevet();
-    expect(screen.getAllByText('Velg hvordan brevet ble sendt.').length).toBe(2);
-    expect(send).not.toHaveBeenCalled();
-  });
-
-  it('F-4: ved nei står feilene for varselet som alt er sendt, ikke lenger i oppsummeringen', async () => {
-    aapne();
-    await fyllIrregulaerEndring();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    await seBrevet();
-    expect(screen.getAllByText('Beskriv varselet.').length).toBe(2);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
-    expect(screen.queryByText('Beskriv varselet.')).toBeNull();
-    expect(screen.queryByText('Velg hvordan varselet ble gitt.')).toBeNull();
-    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
-  });
-
   it('tidslinja viser datoene TE fyller ut og dagen påberopelsen sendes (oppdragsgiver 02.11, #1492)', async () => {
     aapne();
     const tidslinja = () => within(screen.getByRole('region', { name: 'Tidslinje' }));
@@ -352,32 +303,6 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await fyllIrregulaerEndring();
     expect(tidslinja().getByText('15. september 2026')).toBeTruthy();
     expect(tidslinja().getByText('Mottok pålegget')).toBeTruthy();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
-      target: { value: '2026-09-16' },
-    });
-    expect(tidslinja().getByText('Varselet som alt er sendt')).toBeTruthy();
-    expect(tidslinja().getByText('16. september 2026')).toBeTruthy();
-  });
-
-  it('D-8: utfylt varsel som alt er sendt, stanser før brevkontrollen til lagringen finnes (#807, #1487)', async () => {
-    const { send } = aapne();
-    await fyllIrregulaerEndring();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    await fireEvent.click(screen.getByRole('radio', { name: 'E-post' }));
-    await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
-      target: { value: '2026-09-16' },
-    });
-    await fireEvent.input(screen.getByLabelText('Kort beskrivelse av varselet'), {
-      target: { value: 'Varsel om endring sendt etter byggemøtet.' },
-    });
-    await seBrevet();
-    expect(screen.getAllByText(/Varselet kan ikke legges til i saken ennå/).length).toBe(2);
-    expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
-    expect(send).not.toHaveBeenCalled();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
-    await seBrevet();
-    expect(screen.getByRole('region', { name: 'Sending' })).toBeTruthy();
   });
 
   it('U-6: brevkontrollen viser brevet fra kjernen, og «Tilbake» beholder det som er skrevet', async () => {

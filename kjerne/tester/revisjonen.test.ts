@@ -25,7 +25,6 @@ import { KJERNE } from '../versjon.ts';
 import { SOM_BREV } from './brevet.ts';
 import {
   type Data,
-  FRISTKRAV,
   FRIST_FULLT,
   KLAR_OVER,
   MOT,
@@ -42,7 +41,6 @@ import {
   sakMedKrav,
   svar,
   tilbud,
-  utenFelt,
 } from './brevsak.ts';
 
 /**
@@ -907,12 +905,11 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(grunner(s)).toContain('svaret viser til et element uten virkning');
     });
 
-    it('en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U43 punkt 6)', () => {
+    it('en protest mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U43 punkt 6)', () => {
       const { s, id } = endringsordreUtenVirkning();
-      const innsigelse = randomUUID();
-      s.rad('BH', { utsagn: [{ id: innsigelse, art: 'innsigelse', gjelder: id }] });
+      s.rad('BH', { utsagn: [{ id: randomUUID(), art: 'protest', gjelder: id }] });
       expect(s.u().forstaatt).toBe(false);
-      expect(grunner(s)).toContain('innsigelse viser ikke til noe den kan gjelde før den');
+      expect(grunner(s)).toContain('protest viser ikke til noe den kan gjelde før den');
     });
   });
 });
@@ -1626,66 +1623,6 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     expect(venterPaaSvar(s.u(), 'forhold')).toBe(true);
     expect(svarIkkeGodtatt(s.u(), 'forhold')).toBe(false);
     expect(etiketter(s, 'forhold')).toContain('venter_paa_svar');
-  });
-});
-
-describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 punkt 13)', () => {
-  const fristsvar = (s: ReturnType<typeof sak>) =>
-    s.send('BH', {
-      type: 'brev',
-      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-    });
-
-  it('innsigelsen mot fristkravet og svaret partene er enige om ved sammenfall, godtas (MM-U34 punkt 13)', () => {
-    const s = sakMedKrav();
-    fristsvar(s);
-    expect(s.u().spor.frist.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('frist') })).toBeNull();
-    expect(
-      s.avvist('TE', { type: 'innsigelse', gjelder: s.u().spor.frist.gjeldendeSvar!.id })
-    ).toBeNull();
-  });
-
-  it('etter et «i tide» i svaret med enighet godtas både innsigelsen mot varselet og innsigelsen mot kravet (MM-U34 punkt 6 og 13)', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    fristsvar(s);
-    s.send('TE', {
-      type: 'varsel',
-      ...SOM_BREV,
-      varsler: [{ hjemmel: '33.4' }],
-      sendt: '2026-09-28',
-      dokumentasjon: [randomUUID()],
-    });
-    const varsel = s.u().spor.frist.varsler['33.4']!.id;
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('frist') })).toBeNull();
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
-  });
-
-  it('innsigelsen mot en påberopelse med registrert enighet ved en endringsordre godtas (MM-U34 punkt 13, EO-U12)', () => {
-    const s = sakMedKrav();
-    const krav = s.krav('forhold');
-    s.rad('BH', {
-      svar: [
-        {
-          id: randomUUID(),
-          spor: 'forhold',
-          gjelder: krav,
-          standpunkter: [
-            { id: randomUUID(), art: 'rettidighet', gjelder: krav, hjemmel: '32.2', i_tide: true },
-            { id: randomUUID(), art: 'forhold', resultat: 'godkjent' },
-          ],
-        },
-      ],
-      opplysninger: [
-        { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
-        { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
-      ],
-      ...SOM_BREV,
-    });
-    expect(s.u().spor.forhold.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav })).toBeNull();
   });
 });
 

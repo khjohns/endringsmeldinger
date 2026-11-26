@@ -16,7 +16,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'virkningerIForholdetOgFristen',
     ['spor/frist/frysing.ts', 'spor/forhold/frysing.ts'],
   ],
-  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
+  // GR-U11: varslingsplikten etter § 32.2 gjelder kategorien. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
   [
     'frosset/byggeklosser.ts',
@@ -82,40 +82,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'predikat',
     'preklusjonPaaberopt',
     ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
-  ],
-  // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'innsigelsenPaaberoper',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensPaaberopelser'],
-  ],
-  // OV-U104, OV-U105: et svar lagt til sammenliknes ikke med en påberopelse parten alt har gitt
-  // opp, som brevteksten heller ikke gjentar (VS-U9, VS-U11, #2090).
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'innsigelsenErOppgitt',
-    ['utledning/utled.ts:registreringenStrider'],
-  ],
-  // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'erPaaberopelse',
-    ['spor/frist/utledning.ts:foresporselForFristsvar'],
-  ],
-  // VS-U24, VS-U29, OV-U104, OV-U105: påberopelsene et svar gjentar eller gir opp, og dagen det
-  // sammenliknes med dem, likt i brevteksten og utledningen (#2050).
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'paaberopelserIDokumentet svaretGjelderPaaberopelsen',
-    [
-      'frosset/brevtekst.ts',
-      'utledning/utled.ts:registreringenStrider',
-      'utledning/utled.ts:partensPaaberopelser',
-    ],
   ],
   // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost, likt i
   // kommandoen, skjemaet og brevteksten.
@@ -302,7 +268,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'Svarvurdering',
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide kravposter
-     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt
+     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok begrunnelse_ikke_svar vilkar_oppfylt
      frister produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
      rigg_varslet_i_tide hold_tilbake`,

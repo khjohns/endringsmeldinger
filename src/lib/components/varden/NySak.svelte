@@ -3,8 +3,8 @@
   oppgir datoen og kontrollerer brevet før det sendes. Saken finnes først når påberopelsen
   er sendt (KT-U11), så skjemaet sender gjennom grensen `send` og ikke gjennom en sak.
   Feilene står ved feltet før brevkontrollen (F-4, MM-U32). «Se brevet før sending» står i
-  panelet til høyre, som i de andre skjemaene i Varden (F-1). Varselet som alt er sendt, fylles
-  ut etter OV-U79 (D-8), men kan ikke legges til før lagringen finnes (#807, #1487).
+  panelet til høyre, som i de andre skjemaene i Varden (F-1). Skjemaet tilbyr ikke varselet
+  som alt er sendt (U6 i handlingsregisteret, #1488).
   Vedleggene lastes opp før saken finnes og bindes av påberopelsen (#1037).
 -->
 <script lang="ts">
@@ -26,9 +26,7 @@
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Knapp from './Knapp.svelte';
-  import Valg from './Valg.svelte';
   import Filvalg from './Filvalg.svelte';
-  import Korrespondansen from './Korrespondansen.svelte';
   import Datofelt from './Datofelt.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Linjefelt from './Linjefelt.svelte';
@@ -55,13 +53,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, dagensDato, haerdet, punkt } from './tekster';
-  import {
-    korrespondansefeilene,
-    korrespondansenoekkel,
-    KORRESPONDANSEFELTENE,
-    tomKorrespondanse,
-  } from './korrespondansen';
+  import { NYSAK, dagensDato, haerdet, punkt } from './tekster';
 
   let {
     sakId,
@@ -101,10 +93,6 @@
   let endringsordre = $state(start?.endringsordre ?? '');
   let vedlegg = $state<Kjernevedlegg[]>(start?.vedlegg ?? []);
   let lasterOpp = $state(false);
-  let alleredeVarslet = $state<boolean | null>(false);
-  let varsel = $state(tomKorrespondanse());
-  // Dokumentet med varselet kan ikke legges ved før påberopelsen sier det (#1488).
-  const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<Omit<TilBrevkontrollen, 'virkninger'> | null>(
@@ -120,7 +108,6 @@
     utkastetsHode(null, merking, valgt ? paaberopelsenAv(valgt.navn) : NYSAK.tittel, true)
   );
   const iDag = dagensDato();
-  const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
   // Ellers står bare panelet fast, og tidslinja ruller under det (oppdragsgiver 02.11).
   let panel = $state<HTMLElement | null>(null);
@@ -137,12 +124,6 @@
           hva: NYSAK.tidslinjeDato(felt.beskrivelse.endsWith('pålegget')),
           kilde: NYSAK.oppgisIBrevet,
         },
-      varselet &&
-        varsel.dato && {
-          naar: varsel.dato,
-          hva: NYSAK.tidslinjeVarselet,
-          kilde: NYSAK.sendtFoerSaken,
-        },
       { naar: iDag, hva: NYSAK.tidslinjeSendes, kilde: NYSAK.naarDuSender },
     ].filter((d): d is { naar: string; hva: string; kilde: string } => !!d)
   );
@@ -156,19 +137,9 @@
       },
       felt.punkt322 && { lag: NYSAK.linjeVarsel, tekst: NYSAK.varslerEtter322 },
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
-      varselet && {
-        lag: NYSAK.linjeVarselet,
-        tekst:
-          KORRESPONDANSEN.typer.find((t) => t.verdi === varsel.type)?.tekst ?? NYSAK.linjeVarselet,
-      },
-      // Dokumentet med varselet legges ved brevet (VS-U38).
       valgt && {
         lag: NYSAK.linjeVedlegg,
-        tekst:
-          [
-            ...(varselet ? [NYSAK.varseldokumentetVedlegges] : []),
-            ...vedlegg.map((v) => v.filnavn),
-          ].join(', ') || NYSAK.ingenVedlegg,
+        tekst: vedlegg.map((v) => v.filnavn).join(', ') || NYSAK.ingenVedlegg,
       },
     ].filter((l): l is { lag: string; tekst: string } => !!l)
   );
@@ -216,13 +187,6 @@
     if (felt.datotekst && !dato) ny.dato = NYSAK.oppgiDatoen;
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
     if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
-    if (varselet) {
-      const mangler = korrespondansefeilene(varsel, 'varsel', {
-        dokument: varseldokumentet !== null,
-      });
-      for (const [f, tekst] of mangler) ny[f] = tekst;
-      if (!mangler.length) ny.varselLagres = NYSAK.varseletKanIkkeLagres;
-    }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = await brevetMedNummer();
@@ -344,9 +308,6 @@
   function vises(f: string) {
     if (f === 'dato') return !!felt.datotekst;
     if (f === 'endringsordre') return felt.endringsordre;
-    if (f === korrespondansenoekkel('varsel', 'sendemaate'))
-      return varselet && varsel.type === 'brev';
-    if (f.startsWith('varsel')) return varselet;
     return true;
   }
 
@@ -357,8 +318,6 @@
     'dato',
     'endringsordre',
     'vedlegg',
-    ...KORRESPONDANSEFELTENE.map((f) => korrespondansenoekkel('varsel', f)),
-    'varselLagres',
     'kjernen',
   ];
   const synligeFeil = $derived(FELTENE.filter((f) => feil[f] && vises(f)));
@@ -536,40 +495,6 @@
             }
             feil={feil.vedlegg ?? null}
           />
-
-          {#if felt.punkt322}
-            <div class="felt">
-              <Valg
-                navn={id('varslet')}
-                spoersmaal={NYSAK.alleredeVarslet(felt.beskrivelse.endsWith('pålegget'))}
-                valg={[
-                  { verdi: true, tekst: NYSAK.ja },
-                  { verdi: false, tekst: NYSAK.nei },
-                ]}
-                bind:verdi={alleredeVarslet}
-                beskrevetAv={id('kapittel-b')}
-              />
-              <p class="kapittel-b" id={id('kapittel-b')}>{KORRESPONDANSEN.kapittelB}</p>
-            </div>
-            {#if varselet}
-              <div class="varselet">
-                <Korrespondansen
-                  id={(f) => id(korrespondansenoekkel('varsel', f))}
-                  bind:valg={varsel}
-                  feil={(f) => feil[korrespondansenoekkel('varsel', f)] ?? null}
-                  grense={varseldokumentet}
-                  endret={(f) => {
-                    delete feil[korrespondansenoekkel('varsel', f)];
-                    delete feil.varselLagres;
-                  }}
-                />
-                <p class="merknad">{NYSAK.varselMerknad}</p>
-                {#if feil.varselLagres}<p class="feil" id={id('varselLagres')} tabindex="-1">
-                    {feil.varselLagres}
-                  </p>{/if}
-              </div>
-            {/if}
-          {/if}
 
           {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
 
@@ -766,21 +691,6 @@
     margin: 0;
     color: var(--ink-3);
     font-size: 14px;
-  }
-  /* Varselet som alt er sendt, hører til svaret «Ja», så det står innrykket under spørsmålet. */
-  .varselet {
-    display: grid;
-    gap: var(--spacing-5);
-    padding-left: var(--spacing-5);
-    border-left: 2px solid var(--rule-strong-color);
-  }
-  .merknad {
-    margin: 0;
-    color: var(--ink-2);
-  }
-  .kapittel-b {
-    margin: 0;
-    color: var(--ink-2);
   }
   /* Søket hjelper velgeren og er ikke et felt i saken, så etiketten er lettere enn ledetekstene. */
   .sok .etikett {

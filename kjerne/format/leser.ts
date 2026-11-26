@@ -367,18 +367,15 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
 }
 
 /**
- * Hvem som kan si hva: TE krever, varsler, godtar, trekker, påberoper
- * passivitet og svarer på forespørselen etter § 33.6.2; BH svarer, begrunner svaret
- * senere (KA-U34) og sender forespørselen. Innsigelse,
- * protest og bestridelse kan komme fra begge; utledningen kontrollerer hvem de gjelder.
+ * Hvem som kan si hva: TE krever, varsler, godtar, trekker og svarer på forespørselen etter
+ * § 33.6.2; BH svarer, begrunner svaret senere (KA-U34) og sender forespørselen. Protest og
+ * bestridelse kan komme fra begge; utledningen kontrollerer hvem de gjelder.
  */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   varsel: 'TE',
   trekk: 'TE',
   aksept: 'TE',
-  passivitet: 'TE',
   bestridelse: null,
-  innsigelse: null,
   foresporsel: 'BH',
   foresporselssvar: 'TE',
   protest: null,

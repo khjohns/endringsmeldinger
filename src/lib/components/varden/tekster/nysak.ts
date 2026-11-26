@@ -34,38 +34,23 @@ export const NYSAK = haerdet({
     `${filnavn} er større enn ${GRENSEN_FOR_VEDLEGG}. Velg en mindre fil.`,
   vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
   ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
-  // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
-  ja: 'Ja',
-  nei: 'Nei',
-  alleredeVarslet: (paalegg: boolean) =>
-    `Har du allerede varslet byggherren på annen måte etter punkt 32.2 om at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
-  // Varselet som alt er sendt (VS-U38), med feltene i `KORRESPONDANSEN`.
-  varselMerknad:
-    'Varselet legges til i saken sammen med påberopelsen. Dokumentet legges ved brevet.',
   /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
   ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
-  // Varselet lagres når påberopelsen har setningen etter VS-U38 (#1488).
-  varseletKanIkkeLagres:
-    'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
   // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
   panel: 'Hovedlinjene i påberopelsen',
   panelTom: 'Velg forholdet, så står påberopelsen her.',
   // Tidslinja under panelet, med datoene TE fyller ut (oppdragsgiver 02.11, #1492).
   tidslinjeDato: (paalegg: boolean) => (paalegg ? 'Mottok pålegget' : 'Klar over forholdet'),
   oppgisIBrevet: 'Oppgis i påberopelsen',
-  tidslinjeVarselet: 'Varselet som alt er sendt',
-  sendtFoerSaken: 'Sendt før saken ble opprettet',
   tidslinjeSendes: 'Påberopelsen sendes',
   naarDuSender: 'I dag, når du sender',
   linjeForholdet: 'Forholdet',
   linjeTittel: 'Tittel på saken',
-  linjeVarselet: 'Varsel som alt er sendt',
   // Der punkt 32.2 gjelder, sier brevet at TE varsler etter bestemmelsen (GR-U31, D-6).
   linjeVarsel: 'Varsel',
   varslerEtter322: 'Brevet varsler etter punkt 32.2',
   linjeVedlegg: 'Vedlegg',
   ingenVedlegg: 'Ingen vedlegg',
-  varseldokumentetVedlegges: 'Dokumentet med varselet som alt er sendt',
   sendesTil: 'Saken opprettes og brevet sendes til byggherren når du sender.',
   seBrevet: 'Se brevet før sending',
   avbryt: 'Avbryt',

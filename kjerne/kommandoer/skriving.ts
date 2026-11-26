@@ -492,14 +492,7 @@ function dokument(
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: varselutsagn(k.varsler, nyId) };
-    case 'innsigelse':
-      return {
-        utsagn: [
-          { id: nyId(), art: k.type, gjelder: k.gjelder, ...(k.grunn ? { grunn: k.grunn } : {}) },
-        ],
-      };
     case 'protest':
-    case 'passivitet':
       return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
     case 'foresporsel':
       // VS-U19: brevet er forespørselen, og datoen er serverens.
@@ -960,11 +953,7 @@ function brevtekstFor(
     return {
       tekst,
       tittel: tittel && medSakskode(tittel, sakskode),
-      deresRef: lagDeresRef(
-        ny.dokument,
-        lest,
-        forbeholdetBestrider(ny.dokument, lest, saken, kjerne.regler)
-      ),
+      deresRef: lagDeresRef(ny.dokument, lest, forbeholdetBestrider(ny.dokument, lest, saken)),
     };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)

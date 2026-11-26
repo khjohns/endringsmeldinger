@@ -17,7 +17,6 @@ import { erUbesvart } from './frysing.ts';
 
 export const VISNING_I_FRISTEN = {
   paaleggFrafalt: () => false,
-  passivitetsetikett: () => null,
   // § 33.6.2: til forespørselen er besvart, eller kravet sendt før den er lagt til (OV-U109).
   kravetErEtterspurt: (u) => u.spor.frist.foresporsler.some(erUbesvart),
   // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.

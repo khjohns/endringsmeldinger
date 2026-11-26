@@ -196,6 +196,9 @@ export const BREVTEKSTEN_I_FRISTEN = {
         return p.art;
       case 'dager':
         return p.gjelder;
+      // VS-U95: under punktet for svaret på forespørselen, i stedet for rettidigheten.
+      case 'ikke_svar':
+        return p.hjemmel;
       default:
         return undefined;
     }
@@ -212,6 +215,9 @@ export const BREVTEKSTEN_I_FRISTEN = {
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */
 export const STANDPUNKTENE_I_FRISTEN = {
+  // VS-U95: uten utledet virkning, så teksten sier ingen følge. Ordlyden er design.
+  ikke_svar: (p, _krav, _s, j) =>
+    `byggherren gjør gjeldende at totalentreprenørens begrunnelse i ${j.brevet(j.dokumentetTil(p.gjelder))} ikke er et svar på forespørselen etter NS 8407 punkt 33.6.2 annet ledd.`,
   // KA-U81: ett standpunkt, og teksten nevner begge vilkårene. Ordlyden er design.
   hindring: (p, _krav, s, j) => {
     const hjemmel = hindringenEtter(s.paaberopelse ? j.krav(s.paaberopelse) : null);
@@ -226,7 +232,7 @@ export const STANDPUNKTENE_I_FRISTEN = {
           p.maatteForstaa!.map((m) => maatteForstaaForFristen(krav, m.frist, m.dager))
         )} (NS 8407 punkt 33.6.1).`,
   dager: (p, krav) => dagerForFristen(p.resultat, fristenI(krav, p.gjelder), p.vurdert),
-} satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
+} satisfies Standpunktstekster<'ikke_svar' | 'hindring' | 'spesifisering' | 'dager'>;
 
 /**
  * Kravet svaret gjelder, med fristene `frister`. Et fristsvar uten kjent krav, eller med en frist

@@ -6,6 +6,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   fordelingenPaaPns,
+  gjeldendeVarselvalg,
+  manglerIKravet,
   nyKravpost,
   summene,
   tomtVarselvalg,
@@ -65,6 +67,48 @@ describe('vederlagskravet', () => {
     expect(
       (vederlagskravet(v, [null, foer]).innhold.kravposter as { varsel?: string }[])[1].varsel
     ).toBeUndefined();
+  });
+
+  describe('varslene uten kravpost etter samme bestemmelse (U-7 i BF-37, VS-U87 punkt 23)', () => {
+    const varsel = (id: string) => ({ id, hjemmel: '34.4' as const, dokument: `d-${id}` });
+    const kravet = (...ider: string[]) => ({
+      art: 'kravet' as const,
+      hjemmel: '34.4' as const,
+      velges: ider.map(varsel),
+    });
+    const sendt = (v: Kravvalg, vs: ReturnType<typeof kravet>) =>
+      (vederlagskravet(v, [null, vs]).innhold.kravposter as { varsel?: unknown }[])[1].varsel;
+
+    it('ett varsel er forhåndsvalgt og sendes som varselet posten viser til (D-5)', () => {
+      expect(sendt(valg(), kravet('v1'))).toEqual({ art: 'gitt', varsel: 'v1' });
+    });
+
+    it('med to varsler er ingen forhåndsvalgt, og valget mangler (VS-U87 punkt 23, sjette setning)', () => {
+      const v = valg();
+      expect(sendt(v, kravet('v1', 'v2'))).toBeUndefined();
+      const mangler = manglerIKravet(v, [null, kravet('v1', 'v2')], 'k', () => 'P2');
+      expect(mangler.map((m) => m.felt)).toEqual([`k-varsel-${v.poster[1].noekkel}`]);
+      v.poster[1].varsel = { ...tomtVarselvalg(), art: 'saken', varsel: 'v2' };
+      expect(sendt(v, kravet('v1', 'v2'))).toEqual({ art: 'gitt', varsel: 'v2' });
+      expect(manglerIKravet(v, [null, kravet('v1', 'v2')], 'k', () => 'P2')).toEqual([]);
+    });
+
+    it('«Ingen av dem» sender at kravet er varselet for posten', () => {
+      const v = valg();
+      v.poster[1].varsel = { ...tomtVarselvalg(), art: 'ingen' };
+      expect(sendt(v, kravet('v1'))).toEqual({ art: 'kravet' });
+      expect(gjeldendeVarselvalg(v, v.poster[1], kravet('v1')).art).toBe('ingen');
+    });
+
+    it('et varsel valgt før som ikke lenger er blant varslene uten kravpost, gjelder ikke', () => {
+      const v = valg();
+      v.poster[1].varsel = { ...tomtVarselvalg(), art: 'saken', varsel: 'brukt' };
+      expect(sendt(v, kravet('v1'))).toEqual({ art: 'gitt', varsel: 'v1' });
+    });
+
+    it('uten varsler uten kravpost sendes standardvalget ikke, som før (#2010, kontrollsak)', () => {
+      expect(sendt(valg(), kravet())).toBeUndefined();
+    });
   });
 
   it('«samme dokument» sender det samme dokumentet som den andre posten (VS-U52, oppdragsgiver 11.11)', () => {
