@@ -6,10 +6,11 @@
 <title>Innlegget i Varden</title>
 <!--
   Prototype av innlegget i fritekst for begge parter, bestillingen BF-03
-  (docs/domenetabell/brukerforlop/BF-03.md, #1377), versjon 5. Versjon 1–4 var bf-03-uenig.html,
+  (docs/domenetabell/brukerforlop/BF-03.md, #1377), versjon 6. Versjon 1–4 var bf-03-uenig.html,
   et helt forløp på det gamle konseptstilarket. Versjon 5 viser bare det nye mønsteret: «Send innlegg»
   øverst i brevtråden, skjemaet, brevkontrollen, innlegget i tråden med merknaden i kortets hode,
-  og innleggene i brevkontrollen for aksepten. Brevtråden er fra brevtraaden.html, og skjemaet og
+  og innleggene i brevkontrollen for aksepten. Versjon 6 har unntaket fra godkjenningen 26.11:
+  «Send innlegg» er en lenke, som «Legg til korrespondanse» i Varden. Brevtråden er fra brevtraaden.html, og skjemaet og
   brevkontrollen er fra utkastet-som-brev.html. Tilstandene er ankrene #<part>-<steg>: part te eller
   bh, steg traad, skjema, brevet, sendt og (bare te) godta. Teksten er prototypetekst; budskapet i
   brevet står i D-3 i bestillingen. «Vis sporbarhet» viser punktene i bestillingen på elementene.
@@ -90,8 +91,10 @@ a{color:inherit;text-underline-offset:3px}
 .linja{flex-basis:100%;color:var(--ink-3);display:grid;gap:2px}
 .traadhode{display:flex;gap:12px;align-items:center;padding:12px 20px;border-bottom:var(--rule-subtle)}
 .traadhode h3{font-size:16px;font-weight:600}
-.traadhode .knapp{margin-left:auto}
-.traadhode .lenke{min-height:44px}
+.traadhode .lenke{margin-left:auto}
+.lenke.kompakt{position:relative;min-height:24px;font-size:14px}
+.lenke.kompakt::after{content:"";position:absolute;inset:-10px -4px}
+.lenke:hover{text-decoration-thickness:2px}
 .traad{list-style:none;padding:0 0 8px}
 .brev{position:relative;padding:14px 20px 14px 68px}
 .brev + .brev{border-top:var(--rule-subtle)}
@@ -199,7 +202,7 @@ textarea.felt{min-height:160px;resize:vertical}
 <div id="skall" data-part="te" data-vis-spor="nei">
 
 <div class="mockup" role="region" aria-label="Prototypevalg">
-  <b>Prototype · Innlegget · v5</b>
+  <b>Prototype · Innlegget · v6</b>
   <div class="gruppe" role="group" aria-label="Vis som"><span>Vis som</span>
     <a href="#te-traad" data-vis-som="te">Totalentreprenøren</a>
     <a href="#bh-traad" data-vis-som="bh">Byggherren</a>
@@ -229,7 +232,7 @@ textarea.felt{min-height:160px;resize:vertical}
       </div>
       <div class="traadhode">
         <h3>Brevene, nyeste først</h3>
-        <a class="knapp sek send-innlegg" href="#" data-spor="U-2 · D-2 · D-6">Send innlegg</a>
+        <a class="lenke kompakt send-innlegg" href="#" data-spor="U-2 · D-2 · D-6">Send innlegg</a>
       </div>
       <ol class="traad"></ol>
     </section>
@@ -388,7 +391,7 @@ textarea.felt{min-height:160px;resize:vertical}
     { nr: 5, part: 'bh', dato: '1. oktober 2026', type: 'Svar', tittel: 'Svar på kravet om vederlagsjustering' },
   ];
   const forvalgt = { nr: 6, part: 'te', dato: '1. november 2026', type: 'Innlegg', tittel: 'Varselet om vederlagsjustering kom i tide',
-    tekst: 'Varselet ble sendt samme dag som tegningene kom.', viserTil: 5, filer: [] };
+    tekst: 'Varselet ble sendt samme dag som tegningene kom.', viserTil: 5, filer: ['Epost med varselet 12.09.2026.pdf'] };
   const sendt = [];
   const utkast = { te: { tittel: '', tekst: '', viserTil: 5, filer: [] }, bh: { tittel: '', tekst: '', viserTil: 6, filer: [] } };
 
