@@ -2019,8 +2019,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       'kontrollsak'
     ).toBeNull();
     s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]));
-    // P1 hadde regningsarbeid i forrige versjon, så varselet er gitt før (VS-U49), og posten kan
-    // bare gjenta det den viste til.
+    // P1 hadde regningsarbeid i forrige versjon og viste til et varsel, så et feil valg rettes
+    // (VS-U87 punkt 23).
     s.send('TE', registrertVarsel('34.4'));
     const annet = varslene(s).at(-1)!.id;
     expect(
@@ -2028,7 +2028,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         'TE',
         vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: annet } }])
       )
-    ).toBe('KRAVPOSTVARSELET');
+    ).toBeNull();
     expect(
       s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1' }])),
       'kontrollsak'
@@ -2146,7 +2146,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     ).toBe('KRAVPOSTVARSELET');
   });
 
-  it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
+  it('en kravpost i en ny versjon kan gjenta varselet, og et feil valg rettes til et annet varsel uten å åpne tidsrommet for svaret igjen (KA-U56, VS-U87 punkt 23 og 33)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     s.send('TE', registrertVarsel('34.4'));
@@ -2162,6 +2162,27 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       s.avvist(
         'TE',
         vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: andre } }])
+      )
+    ).toBeNull();
+    const tekst = laast(
+      s.send(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: andre } }])
+      )
+    ).join(' ');
+    expect(tekst).toContain('ble gitt i totalentreprenørens e-post av 28. september 2026');
+    expect(handlinger(s.u(), 'BH'), 'punkt 33').not.toContain(`svare:${foerste}`);
+  });
+
+  it('en kravpost uten valg i forrige versjon kan ikke vise til et varsel i en ny versjon, fordi kravet var varselet (VS-U87 punkt 22 og 23)', () => {
+    const s = paaberopt();
+    s.send('TE', vederlagskrav([regning]));
+    s.send('TE', registrertVarsel('34.4'));
+    const varsel = varslene(s)[0]!.id;
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel } }])
       )
     ).toBe('KRAVPOSTVARSELET');
   });

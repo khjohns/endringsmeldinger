@@ -4645,8 +4645,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '    const somFoer = [...tidligere]\n      .reverse()',
-        '    const somFoer = tidligere\n      .slice(-1)',
+        '  [...tidligere]\n    .reverse()\n    .map((k) => kravposterI(k).find((q) => q.id === id))',
+        '  tidligere\n    .slice(-1)\n    .map((k) => kravposterI(k).find((q) => q.id === id))',
       ],
     ],
     mal: ['kan vise til varselet den viste til før trekket'],
@@ -4772,8 +4772,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;',
-        '    if (hjemmel === null) continue;',
+        '(hattFoer(p, hjemmel, tidligere) && !valgetRettes(p, tidligere)))\n      continue;',
+        'false)\n      continue;',
       ],
     ],
     mal: ['er varselet i den første versjonen den står i'],
@@ -5312,11 +5312,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '(somFoer?.varsel?.art !== p.varsel.art ||\n        varseletPostenViserTil(somFoer) !== varseletPostenViserTil(p))',
-        'true',
+        'hattFoer(p, hjemmel, tidligere) && sistI(tidligere, p.id)?.varsel === undefined',
+        'hattFoer(p, hjemmel, tidligere) && !sammeValg(sistI(tidligere, p.id), p)',
       ],
     ],
-    mal: ['en kravpost i en ny versjon kan gjenta varselet'],
+    mal: [
+      'en kravpost i en ny versjon kan gjenta varselet',
+      'et feil valg rettes til et annet varsel',
+    ],
   },
   {
     id: 'F542',
@@ -7872,6 +7875,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'er brevet varselet for P1, kan den neste versjonen ikke vise til et annet varsel for P1',
     ],
+  },
+  {
+    id: 'F2408d',
+    feilklasse:
+      'et rettet valg av varsel gjelder ikke i brevet for den nye kravversjonen (VS-U87 punkt 23, #2408)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '(hattFoer(p, hjemmel, tidligere) && !valgetRettes(p, tidligere))',
+        'hattFoer(p, hjemmel, tidligere)',
+      ],
+    ],
+    mal: ['et feil valg rettes til et annet varsel'],
   },
 ];
 /** En kopi av arbeidstreet. */
