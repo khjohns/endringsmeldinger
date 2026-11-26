@@ -91,6 +91,13 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['utledning/utled.ts:erSvarPaaVarselet(elementer)', 'relasjon', '*'],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['spor/frist/kommando.ts']],
+  // VS-U95: om svaret kan gjøre gjeldende at begrunnelsen etter § 33.6.2 annet ledd b ikke er et svar.
+  [
+    'spor/frist/utledning.ts',
+    'predikat',
+    'begrunnelsenKanAvvisesSomSvar',
+    ['spor/frist/kommando.ts'],
+  ],
   // KA-U76, KA-U79: versjonsregelen for fristene i kravet, og hvilken frist i kontrakten som har
   // stått med hvilken `id`.
   ['spor/frist/utledning.ts', 'predikat', 'fristeneStrider', ['spor/frist/kommando.ts']],
