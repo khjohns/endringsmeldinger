@@ -45,6 +45,7 @@
   import {
     harArbeid,
     hjemlerForRaden,
+    kanVarsle,
     manglerIVarslingen,
     nyVarselrad,
     tilbudteHjemler,
@@ -86,8 +87,7 @@
   const id = (felt: string) => `${uid}-${felt}`;
   const iDag = dagensDato();
 
-  const kanSende = $derived(tilbudteHjemler(kjernesak.handlinger, false).length > 0);
-  const kanRegistrere = $derived(tilbudteHjemler(kjernesak.handlinger, true).length > 0);
+  const { kanSende, kanRegistrere } = $derived(kanVarsle(kjernesak.handlinger));
   const registreres = $derived(valg.utenfor !== null);
   const tilbudt = $derived(tilbudteHjemler(kjernesak.handlinger, registreres));
   const alleBrev = $derived(brevene(u));
@@ -133,10 +133,7 @@
   async function leggTil() {
     const r = nyVarselrad(valg, ledige[0]!);
     valg.rader.push(r);
-    aapen = r.noekkel;
-    await fokuser(() =>
-      document.querySelector<HTMLElement>(`#${CSS.escape(id(`rad-${r.noekkel}`))} input`)
-    );
+    await endre(r);
   }
   async function fjern(r: Varselrad) {
     valg.rader = valg.rader.filter((x) => x !== r);

@@ -1,6 +1,7 @@
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
 import { haerdet } from './format';
+import { FRISTKRAV, liten } from './fristkrav';
 import { KRAVSKJEMA } from './kravskjema';
 
 /**
@@ -27,11 +28,11 @@ export const VEDERLAGSVARSEL = haerdet({
   arbeidHjelpRegistrert:
     'Velg ett varsel per arbeid, så du senere kan si hvilket varsel en kravpost gjelder.',
   leggTil: 'Legg til et varsel',
-  endre: 'Endre',
-  ferdig: 'Ferdig',
+  endre: KRAVSKJEMA.endre,
+  ferdig: KRAVSKJEMA.ferdig,
   fjern: 'Fjern',
-  endreRaden: (navn: string) => `Endre ${navn.charAt(0).toLowerCase()}${navn.slice(1)}`,
-  fjernRaden: (navn: string) => `Fjern ${navn.charAt(0).toLowerCase()}${navn.slice(1)}`,
+  endreRaden: (navn: string) => `Endre ${liten(navn)}`,
+  fjernRaden: (navn: string) => `Fjern ${liten(navn)}`,
   /** U-9: det som står under navnet, i raden og i oppsummeringen. */
   manglerArbeid: 'Mangler arbeidet varselet gjelder',
   arbeidIkkeOppgitt: 'Arbeidet er ikke oppgitt',
@@ -42,7 +43,7 @@ export const VEDERLAGSVARSEL = haerdet({
     `${navn} er gitt${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}.`,
   ingenFlere: 'Saken kan ikke ha flere varsler etter bestemmelsene her nå.',
   // U-5: hvordan varselet gis.
-  hvordan: 'Hvordan varsler du?',
+  hvordan: FRISTKRAV.hvordanVarsler,
   maate: {
     send: 'Send brevet fra løsningen nå',
     registrer: 'Registrer et varsel sendt utenfor løsningen',
@@ -52,8 +53,6 @@ export const VEDERLAGSVARSEL = haerdet({
   avsnittPerVarsel: 'Hvert varsel står som et eget avsnitt i brevet, med arbeidet det gjelder.',
   // Panelet (U-9).
   panel: 'Varslene',
-  antall: (n: number, registrert: boolean) =>
-    `${n === 1 ? 'Ett varsel' : `${n} varsler`} i ${registrert ? 'det registrerte dokumentet' : 'brevet'}.`,
   tomt: 'Ingen varsler ennå.',
   ingenVarsler: 'Legg til minst ett varsel.',
   registrer: 'Registrer varslene',

@@ -17,7 +17,7 @@
   } = $props();
 </script>
 
-<section class="seksjon kompakt">
+<section class="seksjon">
   <Valg
     {navn}
     spoersmaal={VEDERLAGSVARSEL.hvaSender}

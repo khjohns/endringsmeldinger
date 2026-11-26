@@ -20,7 +20,7 @@
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
-    kravetGirSaerskiltVarsel,
+    kravetErDetFoersteVarselet,
     varseletFoerKravet,
     varslenePerKravpost,
     varsleneISaken,
@@ -31,7 +31,7 @@
   import Brevskjema from './Brevskjema.svelte';
   import Foerstekrav from './Foerstekrav.svelte';
   import Sendevalg from './Sendevalg.svelte';
-  import { tilbudteHjemler, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
+  import { kanVarsle, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
   import Knapp from './Knapp.svelte';
   import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -141,9 +141,10 @@
 
   // U-1 i BF-37: «Bare varsle, uten krav», når kjernen tilbyr et varsel i vederlaget. Varselet
   // registreres når det ikke kan sendes fra løsningen (VS-U16), og fra påminnelsen (U-3 i BF-51).
-  const kanSendeVarsel = $derived(tilbudteHjemler(kjernesak.handlinger, false).length > 0);
-  const kanRegistrereVarsel = $derived(tilbudteHjemler(kjernesak.handlinger, true).length > 0);
-  const kanVarsle = $derived(
+  const { kanSende: kanSendeVarsel, kanRegistrere: kanRegistrereVarsel } = $derived(
+    kanVarsle(kjernesak.handlinger)
+  );
+  const visSendevalget = $derived(
     !!onvarsle && !lagtTil && !eldre && (kanSendeVarsel || kanRegistrereVarsel)
   );
 
@@ -180,7 +181,7 @@
   // VS-U86 punkt 12: datoen etter § 34.1.3 står i kravet når kravet gir det særskilte varselet.
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
   // #2425: et krav lagt til, sendt før det registrerte varselet, gir varselet og kan ha datoen.
-  const girSaerskilt = $derived(kravetGirSaerskiltVarsel(u, lagtTil?.dato ?? null));
+  const girSaerskilt = $derived(kravetErDetFoersteVarselet(u, lagtTil?.dato ?? null));
   const saerskiltI = $derived(girSaerskilt ? null : saerskiltvarselet);
   const iDag = dagensDato();
   const kommando = $derived(vederlagskravet(v, varslene, girSaerskilt));
@@ -941,7 +942,7 @@
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
   {/snippet}
 
-  {#if kanVarsle}
+  {#if visSendevalget}
     <Sendevalg navn={id('hva')} hva="krav" onvelg={() => onvarsle?.(!kanSendeVarsel)} />
   {/if}
 

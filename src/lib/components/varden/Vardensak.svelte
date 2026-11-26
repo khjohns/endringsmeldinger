@@ -38,7 +38,13 @@
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Vederlagsvarsel from './Vederlagsvarsel.svelte';
-  import { startvarsling, tilbudteHjemler, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
+  import {
+    fraHandlingsnoekkel,
+    kanVarsle,
+    startvarsling,
+    tilbudteHjemler,
+    type Vederlagsvarselhjemmel,
+  } from './vederlagsvarsel';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
   import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
@@ -656,7 +662,7 @@
       ],
       aapne: (n) => {
         if (n !== 'krav:vederlag' && u) {
-          const [type, hjemmel] = varselhandling(n);
+          const [type, hjemmel] = fraHandlingsnoekkel(n);
           vederlagsvarsel(hjemmel, type === 'varsle');
         }
         if (n === 'krav:vederlag' && utkastene.vederlagskrav) utkastene.vederlagskrav.hva = 'krav';
@@ -666,9 +672,7 @@
         a.art === 'vederlagskrav' &&
         valgt === 'vederlag' &&
         (utkastene.vederlagskrav?.hva === 'varsel'
-          ? kjernesak.tilbudte.some(
-              (h) => h.spor === 'vederlag' && (h.type === 'sende_varsel' || h.type === 'varsle')
-            )
+          ? Object.values(kanVarsle(kjernesak.handlinger)).some(Boolean)
           : kjernesak.handlinger.includes('krav:vederlag')),
       skjema: vederlagskrav,
     },
@@ -791,11 +795,6 @@
       fjernUtkast(krav, kravetI[krav]);
     }
     return tilSaken(tekst, 'sendt');
-  }
-  /** Bestemmelsen og typen i nøkkelen for et varsel i vederlaget (`handlingsnoekkel`). */
-  function varselhandling(n: string): ['sende_varsel' | 'varsle', Vederlagsvarselhjemmel] {
-    const [type, etter] = n.split(':') as ['sende_varsel' | 'varsle', string];
-    return [type, (etter === 'vederlag' ? '34.1.2' : etter) as Vederlagsvarselhjemmel];
   }
   /**
    * «Bare varsle» i skjemaet for vederlaget (U-1 i BF-37), med en rad for `hjemmel` når skjemaet

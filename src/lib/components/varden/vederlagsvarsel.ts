@@ -22,7 +22,7 @@ import { KUNNSKAPSDATO, VEDERLAGSVARSEL } from './tekster';
  * Bestemmelsene et varsel i vederlaget kan gjelde, i rekkefølgen skjemaet tilbyr dem, som i
  * prototypen: de som kan gis flere ganger, først.
  */
-export const VARSELHJEMLENE = ['34.4', '34.3.3', '34.1.2', '34.1.3'] as const;
+const VARSELHJEMLENE = ['34.4', '34.3.3', '34.1.2', '34.1.3'] as const;
 export type Vederlagsvarselhjemmel = (typeof VARSELHJEMLENE)[number] & Kravvarselhjemmel;
 
 /** VS-U87 punkt 27: varselet etter § 34.3.3 og § 34.4 har arbeidet det gjelder. */
@@ -50,6 +50,20 @@ export interface Varslingsvalg {
 /** Nøkkelen i handlingene for varselet: varselet etter § 34.1.2 er varselet i sporet (OV-U5). */
 export const handlingsnoekkel = (type: 'sende_varsel' | 'varsle', h: Vederlagsvarselhjemmel) =>
   `${type}:${h === '34.1.2' ? 'vederlag' : h}`;
+
+/** Typen og bestemmelsen i nøkkelen for et varsel i vederlaget, det motsatte av `handlingsnoekkel`. */
+export function fraHandlingsnoekkel(
+  n: string
+): ['sende_varsel' | 'varsle', Vederlagsvarselhjemmel] {
+  const [type, etter] = n.split(':') as ['sende_varsel' | 'varsle', string];
+  return [type, (etter === 'vederlag' ? '34.1.2' : etter) as Vederlagsvarselhjemmel];
+}
+
+/** Om kjernen tilbyr et varsel i vederlaget fra løsningen, og som registrering. */
+export const kanVarsle = (handlinger: readonly string[]) => ({
+  kanSende: tilbudteHjemler(handlinger, false).length > 0,
+  kanRegistrere: tilbudteHjemler(handlinger, true).length > 0,
+});
 
 /** Bestemmelsene kjernen tilbyr nå, fra løsningen eller som registrering. */
 export const tilbudteHjemler = (handlinger: readonly string[], registrer: boolean) =>

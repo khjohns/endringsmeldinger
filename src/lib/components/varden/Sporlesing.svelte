@@ -341,18 +341,11 @@
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
     const v = varselhjemmel(h);
     if (v) {
-      const flere = iSporet.some((x) => x !== h && x.type === h!.type && varselhjemmel(x) === v);
-      const brev = flere ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
+      const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);
+      const brev = samme.length > 1 ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
       // VS-U87 punkt 27: to varsler etter samme bestemmelse i samme brev skilles på arbeidet.
-      const iBrevet =
-        brev &&
-        iSporet.filter(
-          (x) =>
-            x.type === h!.type &&
-            varselhjemmel(x) === v &&
-            brevMedUtsagn(u, x.gjelder!)?.id === brev.id
-        ).length > 1;
-      const arbeid = iBrevet ? arbeidetI(u, h!.gjelder!) : undefined;
+      const iBrevet = samme.filter((x) => brev && brevMedUtsagn(u, x.gjelder!)?.id === brev.id);
+      const arbeid = iBrevet.length > 1 ? arbeidetI(u, h!.gjelder!) : undefined;
       return h!.type === 'svare'
         ? VARSELSVARET.svar(v, brev, arbeid)
         : VARSELSVARET.nyttSvar(v, brev, arbeid);
