@@ -359,6 +359,38 @@ rettsregler og stilles som nummerert liste.
 >
 > Styrer: om tema 14 får en ny tilslutning.
 
+## Svarene
+
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534: «2, ja. 3. B kan stå i
+vedtak men ikke grensesnitt. 4 ja. 5. A men ikke i grensesnitt 6. B 7A». Spørsmål 1, i en
+oppfølging: «A (Recommended)».
+
+Orkestratoren 26.11: tilleggene «ikke i grensesnitt» på 3 og 5 er designføringer og ikke en del av
+vedtaksteksten, og føres ordrett i `folge` eller designdelen. 3 B står i spenning med KA-U87 punkt 6
+og MM-U34 punkt 4 og 16, som spørsmålet sa. Krever svaret at de endres, eller er forholdet uklart,
+stilles et oppfølgingsspørsmål. Ved 6 B utgår punkt 10 i C2, og forholdene er de B sa.
+
+Svaret 3 B avgjør ikke om KA-U87 punkt 6 og C1 punkt 2 endres. Oppfølgingsspørsmålet er 8.
+
+> **8. Forholdet mellom svar 3 B og reglene som tok karakteristikkene ut (juridisk).** Svar 3 B gir
+> C1 setningen «Krav og svar leses som tilbud og svar etter avtaleloven kapittel 1. Løsningen avgjør
+> ikke hvilken virkning de har (MM-U60 punkt 8).», i vedtaket, men ikke i grensesnittet. KA-U87
+> punkt 6 sier at løsningen ikke avgjør om et svar med et vilkår rettslig er en godkjenning eller et
+> avslag med nytt tilbud. MM-U34 punkt 4 og 16 tok «avslag i forening med nytt tilbud (avtaleloven
+> § 6)» ut av HF-U5 og HF-U7 og satte inn «i løsningen ikke en godkjenning av kravet», som står i
+> C1 punkt 2.
+> - **A (anbefalt):** Setningen står ved siden av dem og endrer dem ikke. Den sier hvilke regler
+>   krav og svar leses etter. Løsningen karakteriserer ikke et enkelt svar etter avtaleloven, og
+>   C1 punkt 2 og KA-U87 punkt 6 står. Forhold: endrer HF-U5 s1; i tråd med KA-U87 punkt 6, MM-U34
+>   punkt 4 og 16 og MM-U60 punkt 8.
+> - **B:** Setningen gjør karakteristikken gjeldende igjen: et svar som ikke stemmer med kravet, er
+>   avslag i forening med nytt tilbud etter avtaleloven § 6 første ledd, og et subsidiært
+>   standpunkt er et betinget tilbud. Løsningen avgjør fortsatt ikke hvilken virkning svaret har.
+>   Forhold: endrer HF-U5 s1, C1 punkt 2 og KA-U87 punkt 6, og opphever endringene i MM-U34 punkt 4
+>   og 16 for karakteristikken.
+>
+> Styrer: om C1 punkt 2 og KA-U87 punkt 6 står uendret.
+
 ## Kodefunn
 
 Ingen. Kartleggingen har ikke lest koden. Følge i GR-U17, GR-U20 og HF-U5 sier at kjernen ikke har
