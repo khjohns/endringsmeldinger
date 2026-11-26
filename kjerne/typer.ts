@@ -66,6 +66,10 @@ export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
 export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
 export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostvarselhjemmel =>
   hjemmel === '34.3.3' || hjemmel === '34.4';
+/** Varslene i vederlaget byggherren kan svare på når de står alene (VS-U87 punkt 30–32). */
+export type Vederlagsvarselhjemmel = '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
+export const erVederlagsvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Vederlagsvarselhjemmel =>
+  hjemmel === '34.1.2' || hjemmel === '34.1.3' || erKravpostvarselhjemmel(hjemmel);
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
 export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
 export const VARSELSPOR = {

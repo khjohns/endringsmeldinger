@@ -47,7 +47,7 @@ export type Handlingsnoekkel =
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | { type: 'registrere_brev' }
-  /** VS-U79: byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 som står alene. */
+  /** VS-U79: byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
   | { type: 'svare' | 'revidere'; gjelder: string }
   | {
       type:

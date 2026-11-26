@@ -7829,6 +7829,40 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['varslene i vederlaget står i rekkefølgen brevene ble lagt til'],
   },
+  {
+    id: 'F2409a',
+    feilklasse:
+      'svaret på varselet etter punkt 34.1.2 tas imot etter at vederlagskravet er sendt (VS-U87 punkt 33, #2409)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [["        (varselet.hjemmel === '34.1.2' ||", '        (false ||']],
+    mal: ['etter et vederlagskrav (punkt 33)'],
+  },
+  {
+    id: 'F2409b',
+    feilklasse:
+      'svaret på varselet etter punkt 34.1.2 tas imot der saken gjelder en endring (VS-U87 punkt 32, OV-U89 punkt 13, #2409)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
+        "  if (false && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
+      ],
+    ],
+    mal: ['når punkt 34.1.2 ikke krever varsel (OV-U89 punkt 13)'],
+  },
+  {
+    id: 'F2409c',
+    feilklasse:
+      'det nye svaret på varselet etter punkt 34.1.2 eller 34.1.3 sier ikke at det gir opp innsigelsen i det forrige (VS-U87 punkt 33, #2409)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;",
+        '    break;',
+      ],
+    ],
+    mal: ['et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)'],
+  },
 ];
 /** En kopi av arbeidstreet. */
 interface Arbeidskopi {

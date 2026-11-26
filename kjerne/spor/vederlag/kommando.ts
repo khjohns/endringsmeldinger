@@ -39,6 +39,7 @@ import {
 import { hjemmelenGjelder, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   denAndreRegelen,
+  harProduktivitetspost,
   innsigelsenIVederlaget,
   rammerKravposten,
   justerteEnhetspriser,
@@ -68,6 +69,7 @@ import { standpunkterISvaret } from '../../format/leser.ts';
 import {
   avvis,
   erKravpostvarselhjemmel,
+  erVederlagsvarselhjemmel,
   type Avvisning,
   type Dokument,
   type Domenehendelse,
@@ -293,18 +295,20 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
     gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
     !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
   )
-    return avvis(
-      'VARSLINGSPLIKT_GJELDER_IKKE',
-      'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.'
-    );
+    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   return null;
 }
 
+const VARSLINGSPLIKTEN_GJELDER_IKKE = avvis(
+  'VARSLINGSPLIKT_GJELDER_IKKE',
+  'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.'
+);
+
 /**
- * VS-U77 punkt 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 34.3.3 eller
- * § 34.4 som står alene, eller et nytt svar som erstatter det forrige (`hva`). Byggherren kan
- * svare så lenge ingen sendt kravversjon har en kravpost som gjelder varselet. Et svar lagt til,
- * sendt på dagen `sendt`, prøves mot kravene sendt før den dagen (OV-U98).
+ * VS-U87 punkt 33: det som hindrer byggherrens svar på varselet `gjelder` som står alene, eller et
+ * nytt svar som erstatter det forrige (`hva`). Byggherren kan svare så lenge ingen sendt
+ * kravversjon har det varselet gjelder. Et svar lagt til, sendt på dagen
+ * `sendt`, prøves mot kravene sendt før den dagen (OV-U98).
  */
 export function hindrerSvaretPaaVarselet(
   u: Utledning,
@@ -313,10 +317,11 @@ export function hindrerSvaretPaaVarselet(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor.vederlag;
-  if (!varseletSvaretGjelder(u, gjelder))
+  const varselet = varseletSvaretGjelder(u, gjelder);
+  if (!varselet)
     return avvis(
       'INGEN_VARSEL',
-      `${hva} må gjelde et varsel etter punkt 34.3.3 eller 34.4 fra totalentreprenøren.`
+      `${hva} må gjelde et varsel etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4 fra totalentreprenøren.`
     );
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
@@ -324,29 +329,47 @@ export function hindrerSvaretPaaVarselet(
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  // Kravversjonen som har det varselet gjelder: kravposten som viser til varselet etter § 34.3.3
+  // eller § 34.4, vederlagskravet for § 34.1.2 og den særskilte vederlagsjusteringen for § 34.1.3.
   const besvaresIKravet = [...dokumenterI(u.journal)].some((d) =>
     d.krav.some(
       (k) =>
         k.spor === 'vederlag' &&
-        kravposterI(k).some((p) => p.varsel === gjelder) &&
+        (varselet.hjemmel === '34.1.2' ||
+          (varselet.hjemmel === '34.1.3'
+            ? harProduktivitetspost(k)
+            : kravposterI(k).some((p) => p.varsel === gjelder))) &&
         (sendt === null || !foerDagen(sendt, dagenSendt({ id: k.id, dokument: d.id }, d) ?? ''))
     )
   );
-  return besvaresIKravet
-    ? avvis(
-        'VARSELET_GJELDER_EN_KRAVPOST',
-        `${hva} kan ikke gjelde varselet, fordi en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
-      )
-    : null;
+  if (!besvaresIKravet) return null;
+  const ikke = `${hva} kan ikke gjelde varselet, fordi`;
+  if (varselet.hjemmel === '34.1.2')
+    return avvis(
+      'VEDERLAGSKRAV_SENDT',
+      `${ikke} vederlagskravet er sendt. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
+    );
+  if (varselet.hjemmel === '34.1.3')
+    return avvis(
+      'VARSELET_GJELDER_ET_SENDT_KRAV',
+      `${ikke} en sendt kravversjon har den særskilte vederlagsjusteringen. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
+    );
+  return avvis(
+    'VARSELET_GJELDER_EN_KRAVPOST',
+    `${ikke} en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
+  );
 }
 
 /**
- * VS-U79: varselet etter § 34.3.3 eller § 34.4 i vederlaget et svar med `gjelder` gjelder, eller
- * `null` når svaret gjelder et krav. Kommandoene slår det opp her.
+ * VS-U79, VS-U87 punkt 30–32: varselet i vederlaget som står alene, et svar med `gjelder` gjelder,
+ * eller `null` når svaret gjelder et krav. Kommandoene slår det opp her.
  */
 export function varseletSvaretGjelder(u: Utledning, gjelder: string): Svaretsvarsel | null {
-  const v = u.spor.vederlag.kravpostvarsler.find((x) => x.id === gjelder);
-  return v && erKravpostvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
+  const { kravpostvarsler, varsler } = u.spor.vederlag;
+  const v = [...kravpostvarsler, varsler['34.1.2'], varsler['34.1.3']].find(
+    (x) => x?.id === gjelder
+  );
+  return v && erVederlagsvarselhjemmel(v.hjemmel) ? { id: v.id, hjemmel: v.hjemmel } : null;
 }
 
 /**
@@ -391,8 +414,13 @@ export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
   varselet: Svaretsvarsel,
   u: Utledning,
-  sendt: string | null
+  sendt: string | null,
+  paaberopelse: Krav,
+  regler: Regelsett
 ): Avvisning | null {
+  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
+  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))
+    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   const staar = standpunkteneTilVarslene(u, sendt, true).some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );

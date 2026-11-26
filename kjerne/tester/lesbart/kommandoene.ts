@@ -359,7 +359,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'typer.ts',
     'relasjon',
-    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel utenGren',
+    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel erVederlagsvarselhjemmel utenGren',
   ],
   // Avvisningen med regelkoden og meldingen, felles for forutsetningene, nyttelasten og skrivingen.
   ['typer.ts', 'predikat', 'avvis'],

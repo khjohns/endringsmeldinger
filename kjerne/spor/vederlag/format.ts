@@ -19,7 +19,7 @@ import {
   type Svarlesing,
 } from '../../format/skjema.ts';
 import {
-  erKravpostvarselhjemmel,
+  erVederlagsvarselhjemmel,
   KORRESPONDANSETYPER,
   SENDEMAATER,
   type Krav,
@@ -48,14 +48,14 @@ export const TILLATTE_STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd
 ];
 
 /**
- * Svaret gjelder et varsel etter § 34.3.3 eller § 34.4 som står alene, ikke en kravversjon: det
- * har ikke standpunktet til beløpet (VS-U79). Formatet kontrollerer formen, og utledningen at
- * svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
+ * Svaret gjelder et varsel i vederlaget som står alene, ikke en kravversjon: det har ikke
+ * standpunktet til beløpet (VS-U79, VS-U87 punkt 30–32). Formatet kontrollerer formen, og
+ * utledningen at svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
  */
 export const svaretGjelderEtVarsel = (svar: Pick<Svar, 'standpunkter'>): boolean =>
   svar.standpunkter.length > 0 &&
   svar.standpunkter.every(
-    (s) => s.art === 'justering' || (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
+    (s) => s.art === 'justering' || (s.art === 'rettidighet' && erVederlagsvarselhjemmel(s.hjemmel))
   );
 
 /** Hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform (KA-U57 (d), KA-U54). */
@@ -241,7 +241,7 @@ export const UTREGNINGSSKJEMA_I_VEDERLAGET: Skjema = objekt(
     ),
   },
   [],
-  // VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 har ingen utregning
+  // VS-U79: svaret på et varsel som står alene har ingen utregning
   // (`svaretGjelderEtVarsel`).
   [{ required: ['resultat', 'godkjent_beloep', 'poster'] }, objekt({}, [])]
 );
@@ -487,7 +487,7 @@ function kontrollerVederlagsstandpunktene(
 }
 
 /**
- * VS-U79, VS-U77 punkt 30 og 31: i svaret på et varsel etter § 34.3.3 eller § 34.4 står
+ * VS-U79, VS-U87 punkt 30–32: i svaret på et varsel som står alene står
  * rettidigheten og justeringen, i den rekkefølgen og hver høyst én gang, og begge gjelder samme
  * varsel. Svaret har ingen utregning.
  */
@@ -583,8 +583,13 @@ function kontrollerSvaretPaaKravet(
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
     throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
-  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godkjenner for posten.
   const begrenset = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3');
+  // VS-U5: svaret på kravet har beløpet etter begrensningen når varselet kom for sent.
+  if (begrenset?.art === 'rettidighet' && !begrenset.iTide && begrenset.begrenset === undefined)
+    throw new Uforstaatt(
+      `${sti}: beløpet etter begrensningen mangler, men varselet etter § 34.1.3 kom for sent`
+    );
+  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godkjenner for posten.
   const post = ut.find((s) => s.art === 'beloep' && s.saerskilt);
   if (
     begrenset?.art === 'rettidighet' &&

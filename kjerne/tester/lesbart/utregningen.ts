@@ -280,6 +280,8 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/tekst.ts',
       // LV-U78: beløpet etter begrensningen står i punktet for den særskilte justeringen.
       'frosset/brevtekst.ts',
+      // VS-U87 punkt 33: svaret på varselet etter § 34.1.3 sperres av en sendt kravversjon med posten.
+      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
@@ -438,7 +440,11 @@ export const UTREGNINGEN: Lesbar[] = [
     'kontrollerSvaretPaaVarselet',
     ['spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet'],
   ],
-  ['regler/vederlag.ts:kontrollerSvaretPaaVarselet(v)', 'utsagn', 'varslet_i_tide'],
+  [
+    'regler/vederlag.ts:kontrollerSvaretPaaVarselet(v)',
+    'utsagn',
+    'varslet_i_tide godtar_justering',
+  ],
   [
     'spor/vederlag/format.ts',
     'predikat',

@@ -84,7 +84,7 @@ import {
   AKSEPTFRISTEN,
   vilkaaretILagslinjen,
 } from './tekst.ts';
-import { erKravpostvarselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -602,22 +602,26 @@ function punkteneISvaret(
 /** Temaene i svaret på varselet etter § 34.3.3 første ledd og § 34.4 (VS-U77 punkt 30 og 31). */
 const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
   { punkt: FORHOLDET, overskrift: 'Forholdet' },
+  { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
+  { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
   { punkt: '34.3.3', overskrift: 'Varselet om justering av enhetsprisene (punkt 34.3.3)' },
   { punkt: '34.4', overskrift: 'Varselet om regningsarbeid (punkt 34.4)' },
   { punkt: 'justering', overskrift: 'Justering av enhetsprisene (punkt 34.3.2)' },
 ];
 
 /**
- * Byggherrens svar på et varsel etter § 34.3.3 første ledd eller § 34.4 som står alene (VS-U77
- * punkt 30 og 31, VS-U79), i punkter som svaret på kravet (LV-U34). Innsigelsen står
- * prinsipalt og justeringen subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene
- * svaret på forholdet opptar (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
+ * Byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32, VS-U79), i
+ * punkter som svaret på kravet (LV-U34). Innsigelsen etter § 34.3.3 står prinsipalt og justeringen
+ * subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene svaret på forholdet opptar
+ * (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
  */
 function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
   const { j } = t;
   const hjemmel = varselhjemmel(s.gjelder, j);
-  if (hjemmel !== '34.3.3' && hjemmel !== '34.4')
-    throw new KanIkkeUttrykkes(`svaret gjelder et varsel etter § ${hjemmel}, som står i kravet`);
+  if (!erVederlagsvarselhjemmel(hjemmel))
+    throw new KanIkkeUttrykkes(
+      `svaret gjelder et varsel etter § ${hjemmel}, som ikke besvares alene`
+    );
   const fra = forholdetsLag(s, t, nr.forholdetStaar);
   const plassen = plassenI(s, fra.forskyvning);
   const ledd: Svarledd[] = [
@@ -628,7 +632,11 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
           punkt: hjemmel,
           plass: plassen(p.id),
           vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),
-          tekst: stor(varseltekst(p, 'varselet', [], t)),
+          tekst: stor(
+            erKravpostvarselhjemmel(hjemmel)
+              ? varseltekst(p, 'varselet', [], t)
+              : rettidighetIVarselet(p, s, j)
+          ),
         };
       if (p.art === 'justering')
         return {
@@ -647,6 +655,34 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
     innledning: `Byggherren svarer på ${beskriv(s.gjelder, j)}.${forrigeSvar(s, j)}`,
     oversikten: null,
   });
+}
+
+/**
+ * VS-U87 punkt 32 og 33: standpunktet i svaret på varselet etter § 34.1.2 eller § 34.1.3 som står
+ * alene. Svaret erstatter det forrige svaret på varselet. Innsigelsen fra et tidligere svar på det
+ * bevares med brevet den først ble gjort gjeldende i, og svaret gjentar den eller gir den opp
+ * uttrykkelig (punkt 6 og 10). Ordlyden følger `rettidighetstekst` for svaret på kravet.
+ */
+function rettidighetIVarselet(
+  p: Extract<Standpunkt, { art: 'rettidighet' }>,
+  s: Svar,
+  j: Journalen
+): string {
+  let foerst: string | undefined;
+  for (let id = s.erstatter; id; ) {
+    const forrige = j.svar(id);
+    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;
+    foerst = j.brevet(forrige.dokument);
+    id = forrige.erstatter;
+  }
+  if (p.iTide)
+    return foerst
+      ? `byggherren gir opp innsigelsen i ${foerst} og gjør ikke gjeldende at varselet kom for sent.`
+      : 'byggherren gjør ikke gjeldende at varselet kom for sent.';
+  const jf = foerst ? `, jf. innsigelsen i ${foerst}` : '';
+  return p.hjemmel === '34.1.3'
+    ? `byggherren gjør gjeldende at varselet kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`
+    : `byggherren gjør gjeldende at varselet kom for sent${jf}.`;
 }
 
 /**

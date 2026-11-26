@@ -233,8 +233,10 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
       case 'rettidighet':
         if (e.hjemmel !== HJEMMEL[spor] && !lesing.rettidighet.includes(e.hjemmel as string))
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
-        // VS-U5: beløpet etter begrensningen står når varselet etter § 34.1.3 kom for sent.
-        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'begrenset_beloep' in e)
+        // VS-U5: beløpet etter begrensningen står bare når varselet etter § 34.1.3 kom for sent. Svaret
+        // på kravet har det da (`kontrollerSvaretPaaKravet` i vederlaget), og svaret på varselet som
+        // står alene ikke (VS-U87 punkt 32).
+        if ('begrenset_beloep' in e && !(e.hjemmel === '34.1.3' && e.i_tide === false))
           throw new Uforstaatt(
             `${sti}: beløpet etter begrensningen står bare når varselet etter § 34.1.3 kom for sent`
           );
