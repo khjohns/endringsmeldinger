@@ -87,7 +87,7 @@ sendt utenfor den (OV-U4).
 **Belegg (ordrett, utdrag).**
 
 - HF-U11: «Appen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i
-  tide, eller at taushet har gitt virkning (MM-U12).»
+  tide, eller at taushet har gitt virkning (MM-U12).» MM-U12 er opphevet av MM-U50.
 - VS-U10 (design): «for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold»
   etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en fast frist.
   Forkastet: en veiledende frist per prosjekt, og en fast frist på 10 dager»
