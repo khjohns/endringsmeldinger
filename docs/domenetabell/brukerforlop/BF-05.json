@@ -395,6 +395,11 @@
       "dato": "2026-11-16",
       "forhold": "#807, #2056",
       "hva": "Feltene og feilmeldingene for et varsel sendt på annen måte har ordene i Varden (OV-U79, A1 i #2056): «Hvordan ble varselet gitt?», «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet». Sendemåten for et brev er med i D-8."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2454, #1488, U6",
+      "hva": "Skjemaet for ny sak i Varden tilbyr ikke varselet som alt er sendt (steg 4 og 4a, G-9). Skissen står uendret."
     }
   ],
   "steg": [
