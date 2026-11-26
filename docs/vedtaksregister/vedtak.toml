@@ -16143,7 +16143,7 @@ forhold = [
   { art = "utvider", vedtak = "ka-u87" },
 ]
 folge = '''
-Forholdet slik det sto i alternativet A: «opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret; endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.» «Opphever» for punktene i VS-U87 og LV-U4 er ført som `endrer`, fordi resten av postene står.'''
+Forholdet slik det sto i alternativet A: «opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret; endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.» «Opphever» for punktene i VS-U87 og LV-U4 er ført som `endrer`, fordi en post med forholdet `opphever` regnes som opphevet i sin helhet (README for vedtaksregisteret, «Klassen»), og resten av postene står.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -37059,7 +37059,8 @@ id = "OV-U125"
 dato = 2026-11-25
 hvem = "oppdragsgiver"
 kilde = ["#2410", "BF-51 S-1"]
-klasse = "vedtak"
+klasse = "beslutning"
+bindende_i = ["ov-u3", "hf-u11"]
 designdel = "hvor betegnelsen vises: ved sporet, på siden for sporet og på siden for forholdet, og linja under betegnelsen"
 sporsmal = '''
 Spørsmålet S-1 i bestillingen for brukerforløpet BF-51 (#2410), stilt 25.11 som spørsmål 11. Det står ordrett i `docs/domenetabell/brukerforlop/BF-51-sporsmal.md` på grenen `claude/tomt-spor-2410` (da9a557, PR #2416), og svaret står i [kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669):
@@ -37140,7 +37141,7 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u4" },
 ]
 folge = '''
-Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Raden for tilstanden står i handlingsregisteret.'''
+Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Bygges i #2410.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -37175,7 +37176,8 @@ id = "OV-U126"
 dato = 2026-11-25
 hvem = "oppdragsgiver"
 kilde = ["#2410", "BF-51 S-2"]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["hf-u11"]
 sporsmal = '''
 Spørsmålet S-2 i bestillingen for brukerforløpet BF-51 (#2410), stilt 25.11 som spørsmål 12. Det står ordrett i `docs/domenetabell/brukerforlop/BF-51-sporsmal.md` på grenen `claude/tomt-spor-2410` (da9a557, PR #2416), og svaret står i [kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669):
 

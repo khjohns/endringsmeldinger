@@ -72,7 +72,7 @@ Sporets betegnelse (`BETEGNELSER`) og sakens (`Saksbetegnelse`) i [`visning.ts`]
 | `krav_sendt` | spor | TE har godtatt et svar på påberopelsen som ikke avklarer forholdet, og kravet står uten enighet. Saken har alt sin betegnelse. | OV-U99 | utgaar |
 | `ingen_krav` | spor | TE har sagt «ingen krav». Gikk ut med U4 (#2016). | OV-U7, OV-U99 | utgaar |
 | `varslet` | spor | TE har varslet. TE står for tur med kravet. | OV-U97 | holder |
-| `ingen_varsel_eller_krav` | spor | TE har ikke sendt, lagt til med virkning eller oppgitt datoen for et varsel eller krav i sporet. Sier ikke hvem som står for tur. | OV-U125, OV-U97 | ny |
+| `ingen_varsel_eller_krav` | spor | I et spor for vederlag eller frist har TE ikke sendt eller lagt til med virkning et varsel eller krav, eller oppgitt datoen for et varsel. Sier ikke hvem som står for tur. | OV-U125, OV-U97 | ny |
 | `innlegg_etter_siste_brev` | spor | En part har sendt innlegg etter siste strukturerte handling. Merknad uten tolkning. | OV-U97, OV-U99 | ny |
 | `ikke_forstaatt` | sak | Løsningen forstår ikke saken. | MM-U2, MM-U43 | holder |
 | `avslaget_paa_forholdet_godtatt` | sak | TE har godtatt avslaget på forholdet. | MM-U22, OV-U97 | holder |

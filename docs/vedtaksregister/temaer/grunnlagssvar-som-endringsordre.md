@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a20593dc640986cb77858efa176bdcdf81311af6eed6bf14ef683a1b4783b93a`
+Kontrollsum (SHA-256 over utdraget visningen leser): `41e05407b710b1596026b752e3a4d092b4c21b4f4b30707bc07a0db52f548040`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -2349,7 +2349,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 25.11, oppdragsgiver (#1657, #1377, BF-03 S-4)
 
-**Følge:** Endrer [VS-U87](#vs-u87). Endrer [VS-U3](../../plans/vedtak.md#vs-u3). Endrer [OV-U99](#ov-u99). Endrer [MM-U47](#mm-u47). Endrer [EO-U39](#eo-u39). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Snevrer inn [LV-U4](../../plans/vedtak.md#lv-u4). Utvider [KA-U87](#ka-u87). Forholdet slik det sto i alternativet A: «opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret; endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.» «Opphever» for punktene i VS-U87 og LV-U4 er ført som `endrer`, fordi resten av postene står.
+**Følge:** Endrer [VS-U87](#vs-u87). Endrer [VS-U3](../../plans/vedtak.md#vs-u3). Endrer [OV-U99](#ov-u99). Endrer [MM-U47](#mm-u47). Endrer [EO-U39](#eo-u39). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Snevrer inn [LV-U4](../../plans/vedtak.md#lv-u4). Utvider [KA-U87](#ka-u87). Forholdet slik det sto i alternativet A: «opphever VS-U87 punkt 15–18, siste setning i punkt 19, og beslutningsdelen, første og siste kulepunkt, for den egne innsigelsen; endrer VS-U3 for punkt 5 tredje ledd utenfor svaret; endrer OV-U99 punkt 4, MM-U47 beslutningsdelen, andre kulepunkt, og EO-U39 punkt 12 for innsigelsen; opphever LV-U4 punkt 7 og snevrer inn LV-U4 punkt 5 til påberopelsen i et tidligere svar; utvider KA-U87 punkt 1 og 12 til innsigelsen; i tråd med svaret 07.11 i #1657.» «Opphever» for punktene i VS-U87 og LV-U4 er ført som `endrer`, fordi en post med forholdet `opphever` regnes som opphevet i sin helhet (README for vedtaksregisteret, «Klassen»), og resten av postene står.
 
 **Regelrader:** —
 
@@ -4953,7 +4953,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 25.11, oppdragsgiver (#2410, BF-51 S-1)
 
-**Følge:** Endrer [MM-U30](#mm-u30). Endrer [MM-U22](../../plans/vedtak.md#mm-u22). Bygger på [OV-U97](#ov-u97). Bygger på [OV-U99](#ov-u99). Presiserer [OV-U3](../../plans/vedtak.md#ov-u3). Presiserer [OV-U4](#ov-u4). Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Raden for tilstanden står i handlingsregisteret.
+**Følge:** Endrer [MM-U30](#mm-u30). Endrer [MM-U22](../../plans/vedtak.md#mm-u22). Bygger på [OV-U97](#ov-u97). Bygger på [OV-U99](#ov-u99). Presiserer [OV-U3](../../plans/vedtak.md#ov-u3). Presiserer [OV-U4](#ov-u4). Forholdet slik det sto i alternativet A: «endrer MM-U30 og MM-U22 (designpunktene «Ingen betegnelse når ingenting er sendt» og at betegnelsen bare sier hvilket utsagn som foreligger). Legger OV-U97 og OV-U99 punkt 6 til grunn. Presiserer OV-U3 og OV-U4 for tilstanden.» Bygges i #2410.
 
 **Regelrader:** —
 
