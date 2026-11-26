@@ -1950,7 +1950,7 @@ export function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean 
 
 /**
  * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og saken er
- * ikke lukket, så et svar ville blitt godtatt (GR-U27). En ny påberopelsesversjon etter et
+ * ikke lukket, så et svar ville blitt godtatt (HF-U35 punkt 9). En ny påberopelsesversjon etter et
  * frafall venter på svar (GR-U23).
  */
 export function venterPaaSvar(u: Utledning, spor: Spor): boolean {

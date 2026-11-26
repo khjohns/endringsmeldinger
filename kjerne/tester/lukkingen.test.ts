@@ -14,7 +14,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { forlengelseneISaken } from '../spor/frist/utledning.ts';
 import { enighetensVirkning, sporetErLukket } from '../utledning/utled.ts';
-import { saksbetegnelse } from '../utledning/visning.ts';
+import { forseringKanVelges, saksbetegnelse } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { medKravpostIder } from './klient.ts';
 import {
@@ -105,6 +105,21 @@ describe('TE godtar et svar som påberoper at forholdet er varslet for sent (HF-
     expect(kanInngaaIEo(u)).toBe(false);
     expect(enighetensVirkning(u, 'vederlag')).toBe('uten_virkning');
     expect(s.avvisning('TE', { type: 'trekk', spor: 'frist' })?.regel).toBe('FORHOLD_AVVIST');
+  });
+
+  it('FO-U1: etter at TE har godtatt preklusjonen av forholdet, kan TE ikke velge forsering for dagene preklusjonen avslår', () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        utregnet(s, 'forhold', PREKLUSJON_OG_GODKJENT),
+        utregnet(s, 'frist', { ...FRIST_FULLT[0], dager: 10 }),
+      ],
+    });
+    expect(forseringKanVelges(s.u()), 'kontroll: før aksepten').toBe(true);
+    godtar(s, 'forhold');
+    expect(s.u().preklusjonGodtatt, 'forutsetning').toBe(true);
+    expect(forseringKanVelges(s.u())).toBe(false);
   });
 
   it('kontrollsak: uten aksept av svaret på forholdet er saken åpen og enighetene virksomme etter forholdet', () => {

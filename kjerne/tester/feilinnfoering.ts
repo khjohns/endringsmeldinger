@@ -6284,7 +6284,10 @@ const MUTASJONER: Mutasjon[] = [
       'forseringen kan velges etter at totalentreprenøren har godtatt avslaget (FO-U1, #2120)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ["svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u)", 'prinsipaltAvslaatteDager(u)'],
+      [
+        "  svarIkkeGodtatt(u, 'frist') && !forholdetErAvvistVedEnighet(u) &&",
+        '  !forholdetErAvvistVedEnighet(u) &&',
+      ],
     ],
     mal: ['ikke etter at totalentreprenøren har godtatt svaret'],
   },
@@ -8052,6 +8055,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['  u.forholdAvvist || u.preklusjonGodtatt;', '  u.forholdAvvist;']],
     mal: ['GR-U34 punkt 12: med forholdet godkjent subsidiært får enigheten'],
+  },
+  {
+    id: 'F2426d',
+    feilklasse:
+      'TE kan velge forsering etter å ha godtatt preklusjonen av forholdet (FO-U1, #2426)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  svarIkkeGodtatt(u, 'frist') && !forholdetErAvvistVedEnighet(u) &&",
+        "  svarIkkeGodtatt(u, 'frist') &&",
+      ],
+    ],
+    mal: ['FO-U1: etter at TE har godtatt preklusjonen av forholdet'],
   },
 ];
 
