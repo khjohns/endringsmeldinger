@@ -4,7 +4,7 @@ Spørsmålene til bestillingen for [BF-51](BF-51.md), skrevet 25.11 for orkestra
 under ordrett. S-1 og S-2 er juridiske og stilles som nummerert liste i tekst. S-3 gjelder ordlyden i
 designdelen av et vedtak og er ikke juridisk. Påstandene om koden er kontrollert av en subagent mot
 `main` 32e2961. Alternativene er prøvd mot vedtakene og arbeidsflyten av en subagent før spørsmålene
-ble stilt, og funnene er rettet. Svarene føres under hvert spørsmål.
+ble stilt, og funnene er rettet. Orkestratoren la dem fram som spørsmål 11 (S-1), 12 (S-2) og 13 (S-3). Svarene står under hvert spørsmål.
 
 S-1 stilles først. S-2 bygger på S-1: ved S-1 B har sporet ingen tilstand, og S-2 gjelder da teksten
 på siden for sporet.
@@ -74,7 +74,7 @@ virkning må da avgjøres i visningen.
 **Hva valget styrer.** Om kjernen får predikatet og en rad under `[[betegnelse]]` i
 handlingsregisteret, og hva U-2, U-5 og U-6 i bestillingen viser.
 
-**Svar:** ikke besvart.
+**Svar:** A, besvart 26.11. Oppdragsgiver svarte samlet på spørsmål 11–13, ordrett: «11 A , 12 A, 13 A» ([kommentaren i #2410](https://github.com/khjohns/endringsmeldinger/issues/2410#issuecomment-7183966669)). Spørsmål 11 er S-1.
 
 ## S-2. Hva skal byggherren se når totalentreprenøren ikke har sendt et varsel eller et krav i sporet?
 
@@ -119,7 +119,7 @@ frist løsningen ikke kjenner. C setter en fast frist, som VS-U10 forkastet.
 **Hva valget styrer.** Hva U-5 og U-6 i bestillingen viser byggherren, og om siden for sporet får en
 fristveiledning.
 
-**Svar:** ikke besvart.
+**Svar:** A, besvart 26.11 i samme svar (spørsmål 12).
 
 ## S-3. Hva sier påminnelsen når totalentreprenøren sender det første kravet i et spor? (ikke juridisk)
 
@@ -144,4 +144,4 @@ appen. Oppdragsgiver 13.11 og 14.11: et vedtak angir budskapet, ikke ordlyden (v
 **Anbefaling: A.** Den følger regelen i systemfila og vedtaksskillen om ordlyd, og budskapet i OV-U3
 står.
 
-**Svar:** ikke besvart.
+**Svar:** A, besvart 26.11 i samme svar (spørsmål 13).
