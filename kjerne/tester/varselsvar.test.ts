@@ -7,7 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger, tilbudte } from '../kommandoer/handlinger.ts';
-import { laast, MOT, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
+import { KLAR_OVER, laast, MOT, PAABEROPELSE, sak, svar, tilbud, type Data } from './brevsak.ts';
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
   type: 'send_varsel',
@@ -98,7 +98,12 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
     s.send(
       'TE',
       vederlagskrav([
-        { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true, varsel },
+        {
+          beskrivelse: 'Spunt',
+          oppgjoersform: 'enhetspriser',
+          justert: true,
+          varsel: { art: 'gitt', varsel },
+        },
       ])
     );
     expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
@@ -244,7 +249,13 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
       );
     s.send(
       'TE',
-      vederlagskrav([{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }])
+      vederlagskrav([
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+      ])
     );
     const krav = s.krav('vederlag');
     const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0].id;
@@ -285,8 +296,12 @@ describe('innsigelsen i svaret på varselet og et svar på en eldre kravversjon 
     s.send(
       'TE',
       vederlagskrav([
-        { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel },
-        { beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid' },
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+        { beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid', varsel: { art: 'kravet' } },
       ])
     );
     const v1 = s.krav('vederlag');
@@ -381,7 +396,12 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
       s.send(
         'TE',
         vederlagskrav([
-          { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true, varsel },
+          {
+            beskrivelse: 'Spunt',
+            oppgjoersform: 'enhetspriser',
+            justert: true,
+            varsel: { art: 'gitt', varsel },
+          },
         ])
       );
       const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0]
@@ -414,7 +434,13 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
     s.send('BH', brev(varsel, { varslet_i_tide: false }));
     s.send(
       'TE',
-      vederlagskrav([{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }])
+      vederlagskrav([
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+      ])
     );
     const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0].id;
     s.send(
@@ -486,4 +512,121 @@ describe('leseren kontrollerer svaret på varselet (MM-U2, VS-U79)', () => {
     if (endret) svarIRaden(s.journal.at(-1)!).erstatter = foerste;
     expect(s.u().forstaatt).toBe(!endret);
   });
+});
+
+describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (VS-U87 punkt 32 og 33, #2409)', () => {
+  /** Forholdet i brev 1, svikt eller endring (OV-U89 punkt 13), og varselet i brev 2. */
+  function medVarselEtter(hjemmel: '34.1.2' | '34.1.3', hovedkategori: 'svikt' | 'endring') {
+    const s = sak();
+    s.send(
+      'TE',
+      hovedkategori === 'svikt'
+        ? {
+            ...PAABEROPELSE,
+            innhold: { hovedkategori, underkategori: 'medvirkning', ...KLAR_OVER },
+          }
+        : PAABEROPELSE
+    );
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
+    const varsel = s.u().spor.vederlag.varsler[hjemmel]!.id;
+    return { s, varsel };
+  }
+
+  it.each([
+    [
+      '34.1.2',
+      'Svar på varsel om vederlagsjustering i sak KOE-17',
+      'om vederlagsjustering etter NS 8407 punkt 34.1.2',
+      'Varselet om vederlagsjustering (punkt 34.1.2)',
+      '',
+    ],
+    [
+      '34.1.3',
+      'Svar på varsel om særskilt vederlagsjustering i sak KOE-17',
+      'om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd',
+      'Varselet om særskilt vederlagsjustering (punkt 34.1.3)',
+      ', og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet',
+    ],
+  ] as const)(
+    'byggherren kan si at varselet etter punkt %s kom for sent, og et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)',
+    (hjemmel, tittel, om, overskrift, tap) => {
+      const { s, varsel } = medVarselEtter(hjemmel, 'svikt');
+      expect(handlinger(s.u(), 'BH')).toContain(`svare:${varsel}`);
+      s.send('BH', brev(varsel, { varslet_i_tide: false }));
+      const [svaret] = s.u().spor.vederlag.svarPaaVarsler;
+      expect(svaret.gjelder).toBe(varsel);
+      expect(svaret.standpunkter).toEqual([
+        expect.objectContaining({ art: 'rettidighet', gjelder: varsel, hjemmel, iTide: false }),
+      ]);
+      expect(s.u().spor.vederlag.svar, 'svaret på varselet er ikke et svar på et krav').toEqual([]);
+      expect(svaret.beslutningsgrunnlag.sammenfall).toBe(false);
+      const rad = s.journal.at(-1)!;
+      expect(rad.data.brevtittel).toBe(tittel);
+      expect(laast(rad).slice(0, 2)).toEqual([
+        `Byggherren svarer på totalentreprenørens varsel ${om} i brev K201-KOE-017-02 av 3. oktober 2026.`,
+        `1. ${overskrift}\n\nByggherren gjør gjeldende at varselet kom for sent${tap}.`,
+      ]);
+      expect(handlinger(s.u(), 'BH')).toContain(`revidere:${varsel}`);
+      s.send('BH', {
+        type: 'revisjon',
+        erstatter: svaret.id,
+        svar: svar('vederlag', varsel, { varslet_i_tide: true }, {}, null),
+      });
+      expect(laast(s.journal.at(-1)!)[1]).toBe(
+        `1. ${overskrift}\n\nByggherren gir opp innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026 og gjør ikke gjeldende at varselet kom for sent.`
+      );
+    }
+  );
+
+  it('svaret sier uttrykkelig at varselet kom i tide, uten en innsigelse å gi opp (punkt 32)', () => {
+    const { s, varsel } = medVarselEtter('34.1.2', 'svikt');
+    s.send('BH', brev(varsel, { varslet_i_tide: true }));
+    expect(laast(s.journal.at(-1)!)[1]).toBe(
+      '1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nByggherren gjør ikke gjeldende at varselet kom for sent.'
+    );
+    expect(s.u().spor.vederlag.svarPaaVarsler[0].beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: varselet etter punkt 34.1.2 kom i tide.'
+    );
+  });
+
+  it.each([
+    ['uten standpunktet til varselet', {}, 'varselet.varslet_i_tide'],
+    [
+      'med standpunktet til justeringen',
+      { varslet_i_tide: false, godtar_justering: true },
+      'varselet.godtar_justering',
+    ],
+  ])('svaret %s avvises (punkt 32)', (_, vurderinger, felt) => {
+    const { s, varsel } = medVarselEtter('34.1.3', 'svikt');
+    expect(s.avvisning('BH', brev(varsel, vurderinger))?.melding ?? '').toContain(felt);
+  });
+
+  it.each([
+    ['34.1.2', 'VARSLINGSPLIKT_GJELDER_IKKE'],
+    ['34.1.3', null],
+  ] as const)(
+    'der saken gjelder en endring, avvises svaret på varselet etter punkt %s når punkt 34.1.2 ikke krever varsel (OV-U89 punkt 13)',
+    (hjemmel, kode) => {
+      const { s, varsel } = medVarselEtter(hjemmel, 'endring');
+      expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBe(kode);
+    }
+  );
+
+  it.each([
+    ['34.1.2', tilbud(125000), 'VEDERLAGSKRAV_SENDT'],
+    ['34.1.3', tilbud(125000), null],
+    [
+      '34.1.3',
+      tilbud(125000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
+      'VARSELET_GJELDER_ET_SENDT_KRAV',
+    ],
+  ] as const)(
+    'svaret på varselet etter punkt %s etter et vederlagskrav (punkt 33)',
+    (hjemmel, innhold, kode) => {
+      const { s, varsel } = medVarselEtter(hjemmel, 'svikt');
+      s.send('TE', { type: 'krav', spor: 'vederlag', innhold });
+      expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBe(kode);
+      expect(handlinger(s.u(), 'BH').includes(`svare:${varsel}`)).toBe(kode === null);
+    }
+  );
 });

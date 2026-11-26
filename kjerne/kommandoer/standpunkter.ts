@@ -9,7 +9,7 @@ import { STANDPUNKTER_I_VEDERLAGET, standpunkterPaaVarselet } from '../spor/vede
 import type { Svarutkast } from './kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import { STANDPUNKTER_I_FRISTEN } from '../spor/frist/kommando.ts';
-import type { Krav, Kravpostvarselhjemmel, Spor } from '../typer.ts';
+import type { Krav, Spor, Vederlagsvarselhjemmel } from '../typer.ts';
 import { STANDPUNKTER_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 
 type Data = Record<string, unknown>;
@@ -22,10 +22,10 @@ export type Sporsstandpunkter = (
   nyId: () => string
 ) => Data[];
 
-/** Varselet etter § 34.3.3 eller § 34.4 et svar gjelder (VS-U79). */
+/** Varselet som står alene, et svar gjelder (VS-U79, VS-U87 punkt 30–32). */
 export interface Svaretsvarsel {
   id: string;
-  hjemmel: Kravpostvarselhjemmel;
+  hjemmel: Vederlagsvarselhjemmel;
 }
 
 /**

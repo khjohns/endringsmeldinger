@@ -19,7 +19,7 @@ import {
   type Svarlesing,
 } from '../../format/skjema.ts';
 import {
-  erKravpostvarselhjemmel,
+  erVederlagsvarselhjemmel,
   KORRESPONDANSETYPER,
   SENDEMAATER,
   type Krav,
@@ -48,14 +48,14 @@ export const TILLATTE_STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd
 ];
 
 /**
- * Svaret gjelder et varsel etter § 34.3.3 eller § 34.4 som står alene, ikke en kravversjon: det
- * har ikke standpunktet til beløpet (VS-U79). Formatet kontrollerer formen, og utledningen at
- * svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
+ * Svaret gjelder et varsel i vederlaget som står alene, ikke en kravversjon: det har ikke
+ * standpunktet til beløpet (VS-U79, VS-U87 punkt 30–32). Formatet kontrollerer formen, og
+ * utledningen at svaret gjelder et varsel (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
  */
 export const svaretGjelderEtVarsel = (svar: Pick<Svar, 'standpunkter'>): boolean =>
   svar.standpunkter.length > 0 &&
   svar.standpunkter.every(
-    (s) => s.art === 'justering' || (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
+    (s) => s.art === 'justering' || (s.art === 'rettidighet' && erVederlagsvarselhjemmel(s.hjemmel))
   );
 
 /** Hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform (KA-U57 (d), KA-U54). */
@@ -108,9 +108,21 @@ function kravpost(lagret: boolean): Skjema {
     ...(lagret ? { betegnelse: { type: 'string', pattern: BETEGNELSE } } : {}),
     beskrivelse: TEKST,
     pns: TEKST,
-    // VS-U54: varselet etter § 34.3.3 eller § 34.4 for kravposten, når det er gitt før kravet.
-    // I kommandoen kan det også være dokumentet TE legger til i kravskjemaet (VS-U51, VS-U53).
-    varsel: lagret ? ID : { anyOf: [ID, KRAVPOSTVARSEL_I_KOMMANDOEN] },
+    // VS-U87 punkt 23 og beslutningsdelen: varselet for kravposten etter § 34.3.3 eller § 34.4,
+    // gitt før kravet, eller at kravet er varselet. I kommandoen kan det gitte varselet også være
+    // dokumentet TE legger til i kravskjemaet (VS-U51, VS-U53).
+    varsel: {
+      anyOf: [
+        objekt({ art: { const: 'kravet' } }, ['art']),
+        objekt(
+          {
+            art: { const: 'gitt' },
+            varsel: lagret ? ID : { anyOf: [ID, KRAVPOSTVARSEL_I_KOMMANDOEN] },
+          },
+          ['art', 'varsel']
+        ),
+      ],
+    },
   };
   const paakrevd = lagret
     ? ['id', 'betegnelse', 'beskrivelse', 'oppgjoersform']
@@ -241,7 +253,7 @@ export const UTREGNINGSSKJEMA_I_VEDERLAGET: Skjema = objekt(
     ),
   },
   [],
-  // VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 har ingen utregning
+  // VS-U79: svaret på et varsel som står alene har ingen utregning
   // (`svaretGjelderEtVarsel`).
   [{ required: ['resultat', 'godkjent_beloep', 'poster'] }, objekt({}, [])]
 );
@@ -285,6 +297,13 @@ function lesKrevd(krav: Krav, verdi: number | undefined): Oere | null {
 /** OV-U23: kravet krever posten etter § 34.1.3 annet ledd (`saerskilt.produktivitet`). */
 export const harProduktivitetspost = (krav: Krav): boolean =>
   innholdIVederlaget(krav).saerskilt.produktivitet !== undefined;
+
+/**
+ * Varselet kravposten viser til (`{ art: 'gitt' }`), eller `undefined` når posten sier at kravet er
+ * varselet eller ikke sier noe (VS-U87 punkt 23 og beslutningsdelen).
+ */
+export const varseletPostenViserTil = (p: Pick<Kravpost, 'varsel'>): string | undefined =>
+  p.varsel?.art === 'gitt' ? p.varsel.varsel : undefined;
 
 /** Kravpostene i en lagret kravversjon (OV-U115 punkt 19). */
 export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
@@ -487,7 +506,7 @@ function kontrollerVederlagsstandpunktene(
 }
 
 /**
- * VS-U79, VS-U77 punkt 30 og 31: i svaret på et varsel etter § 34.3.3 eller § 34.4 står
+ * VS-U79, VS-U87 punkt 30–32: i svaret på et varsel som står alene står
  * rettidigheten og justeringen, i den rekkefølgen og hver høyst én gang, og begge gjelder samme
  * varsel. Svaret har ingen utregning.
  */
@@ -507,6 +526,9 @@ function kontrollerSvaretPaaVarselet(
     );
   if (Object.keys(utregning).length)
     throw new Uforstaatt(`${sti}: svaret på et varsel har en utregning`);
+  // VS-U87 punkt 32: svaret på varselet har ikke beløpet etter begrensningen (VS-U5).
+  if (ut.some((s) => s.art === 'rettidighet' && s.begrenset !== undefined))
+    throw new Uforstaatt(`${sti}: svaret på et varsel har beløpet etter begrensningen`);
 }
 
 function kontrollerSvaretPaaKravet(
@@ -583,8 +605,13 @@ function kontrollerSvaretPaaKravet(
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
     throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
-  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godkjenner for posten.
   const begrenset = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3');
+  // VS-U5: svaret på kravet har beløpet etter begrensningen når varselet kom for sent.
+  if (begrenset?.art === 'rettidighet' && !begrenset.iTide && begrenset.begrenset === undefined)
+    throw new Uforstaatt(
+      `${sti}: beløpet etter begrensningen mangler, men varselet etter § 34.1.3 kom for sent`
+    );
+  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godkjenner for posten.
   const post = ut.find((s) => s.art === 'beloep' && s.saerskilt);
   if (
     begrenset?.art === 'rettidighet' &&

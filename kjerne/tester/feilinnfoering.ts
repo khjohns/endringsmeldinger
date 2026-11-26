@@ -4645,8 +4645,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '    const somFoer = [...tidligere]\n      .reverse()',
-        '    const somFoer = tidligere\n      .slice(-1)',
+        '  [...tidligere]\n    .reverse()\n    .map((k) => kravposterI(k).find((q) => q.id === id))',
+        '  tidligere\n    .slice(-1)\n    .map((k) => kravposterI(k).find((q) => q.id === id))',
       ],
     ],
     mal: ['kan vise til varselet den viste til før trekket'],
@@ -4772,8 +4772,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;',
-        '    if (hjemmel === null) continue;',
+        '(hattFoer(p, hjemmel, tidligere) && !valgetRettes(p, tidligere)))\n      continue;',
+        'false)\n      continue;',
       ],
     ],
     mal: ['er varselet i den første versjonen den står i'],
@@ -4789,28 +4789,12 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['byggherren som godtar beregningsregelen, tar ikke stilling til et beløp'],
   },
   {
-    id: 'F482',
-    feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
-    mal: [
-      'et varsel sendt før det første kravet gjelder',
-      'et varsel registrert før det første kravet',
-    ],
-  },
-  {
     id: 'F483',
-    feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
+    feilklasse:
+      'et varsel etter punkt 34.4 krever valget for kravpostene med justerte enhetspriser (VS-U87 punkt 23)',
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [["=== 'regningsarbeid' ? '34.4' :", "=== 'regningsarbeid' ? '34.3.3' :"]],
-    mal: ['et varsel registrert før det første kravet'],
-  },
-  {
-    id: 'F484',
-    feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
-    mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
+    mal: ['valget «kravet er varselet» gir brevet som sier det'],
   },
   {
     id: 'F485',
@@ -4829,7 +4813,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F487',
     feilklasse:
-      'kravet viser ikke til varselet etter punkt 34.4 gitt før det første kravet (VS-U55)',
+      'kravet viser ikke til varselet etter punkt 34.4 kravposten har valgt (VS-U87 punkt 23)',
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
@@ -4837,7 +4821,7 @@ const MUTASJONER: Mutasjon[] = [
         "              'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)',\n              t\n            ) && ''",
       ],
     ],
-    mal: ['et varsel sendt før det første kravet gjelder'],
+    mal: ['avvises kravet der posten mangler valget, og med valget viser kravet til varselet'],
   },
   {
     id: 'F490',
@@ -5269,7 +5253,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F533',
     feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
+    endringer: [
+      [
+        '    const gitt = varseletPostenViserTil(p);\n    const iEldre',
+        '    const gitt = undefined;\n    const iEldre',
+      ],
+    ],
     mal: [
       'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
       'har saken flere varsler før det første kravet, viser kravet til det TE velger',
@@ -5279,7 +5268,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F534',
     feilklasse: 'kravposten kan vise til et varsel etter en annen bestemmelse (VS-U50)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['v.id === p.varsel && v.hjemmel === hjemmel', 'v.id === p.varsel']],
+    endringer: [['v.id === gitt && v.hjemmel === hjemmel', 'v.id === gitt']],
     mal: ['kravposten kan bare vise til et varsel etter samme bestemmelse i saken'],
   },
   {
@@ -5312,35 +5301,25 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F539',
     feilklasse:
-      'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [
-      [
-        '(v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
-        '(v) => !!v',
-      ],
-    ],
+      'dokumentet fra kravskjemaet for én kravpost krever valget for en annen post i samme krav (VS-U51, VS-U87 punkt 23)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  { foer: { u } }: Sakssperre', '  { u }: Sakssperre']],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
-  },
-  {
-    id: 'F540',
-    feilklasse:
-      'et varsel i saken som én kravpost viser til, gjelder ikke en annen post med samme beregningsregel (D-16)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [
-      [
-        'varsler.find((v) => v.hjemmel === hjemmel)?.id)',
-        'varsler.find((v) => v.hjemmel === hjemmel && !kravposterI(krav).some((q) => q.varsel === v.id))?.id)',
-      ],
-    ],
-    mal: ['et varsel i saken som én kravpost viser til, gjelder også en annen post'],
   },
   {
     id: 'F541',
     feilklasse: 'en kravpost i en ny versjon kan ikke gjenta varselet den viste til (KA-U56)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['somFoer?.varsel !== p.varsel', 'true']],
-    mal: ['en kravpost i en ny versjon kan gjenta varselet'],
+    endringer: [
+      [
+        'hattFoer(p, hjemmel, tidligere) && sistI(tidligere, p.id)?.varsel === undefined',
+        'hattFoer(p, hjemmel, tidligere) && !sammeValg(sistI(tidligere, p.id), p)',
+      ],
+    ],
+    mal: [
+      'en kravpost i en ny versjon kan gjenta varselet',
+      'et feil valg rettes til et annet varsel',
+    ],
   },
   {
     id: 'F542',
@@ -7028,7 +7007,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherren kan svare på varselet alene også når en sendt kravversjon har en kravpost som gjelder det (VS-U77 punkt 33, #2177)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['kravposterI(k).some((p) => p.varsel === gjelder)', 'false']],
+    endringer: [['kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder)', 'false']],
     mal: ['svaret kan ikke gis når en sendt kravversjon har en kravpost som gjelder varselet'],
   },
   {
@@ -7223,7 +7202,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '    const ider = p.varsel.dokumentasjon.map(vedleggsnoekkel);',
+        '    const ider = varselet.dokumentasjon.map(vedleggsnoekkel);',
         '    const ider = JSON.parse(noekkel) as string[];',
       ],
     ],
@@ -7385,8 +7364,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "kravversjoneneKravetProevesMot(u, 'vederlag', sendt);",
-        "kravversjoneneKravetProevesMot(u, 'vederlag', null);",
+        "{ tidligere, andre } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);",
+        "{ tidligere, andre } = kravversjoneneKravetProevesMot(u, 'vederlag', null);",
       ],
     ],
     mal: ['et brev uten Montering, sendt før kravet som tok den med, tas imot'],
@@ -7529,7 +7508,10 @@ const MUTASJONER: Mutasjon[] = [
       'brevet for en kravversjon fra løsningen leser bare rekken, så kravet sier at det er varselet for en kravpost et eldre krav er varselet for (OV-U120, VS-U49)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      ['foranKravet(nytt, lest, u), eldreKravFoer(u, null));', 'foranKravet(nytt, lest, u), []);'],
+      [
+        'kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));',
+        'kravpostvarslene(k, u.spor.vederlag.krav, []);',
+      ],
     ],
     mal: [
       'har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet',
@@ -7828,6 +7810,84 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['varslene i vederlaget står i rekkefølgen brevene ble lagt til'],
+  },
+  {
+    id: 'F2409a',
+    feilklasse:
+      'svaret på varselet etter punkt 34.1.2 tas imot etter at vederlagskravet er sendt (VS-U87 punkt 33, #2409)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [["        (varselet.hjemmel === '34.1.2' ||", '        (false ||']],
+    mal: ['etter et vederlagskrav (punkt 33)'],
+  },
+  {
+    id: 'F2409b',
+    feilklasse:
+      'svaret på varselet etter punkt 34.1.2 tas imot der saken gjelder en endring (VS-U87 punkt 32, OV-U89 punkt 13, #2409)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
+        "  if (false && !hjemmelenGjelder('34.1.2', paaberopelse, regler))",
+      ],
+    ],
+    mal: ['når punkt 34.1.2 ikke krever varsel (OV-U89 punkt 13)'],
+  },
+  {
+    id: 'F2409c',
+    feilklasse:
+      'det nye svaret på varselet etter punkt 34.1.2 eller 34.1.3 sier ikke at det gir opp innsigelsen i det forrige (VS-U87 punkt 33, #2409)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;",
+        '    break;',
+      ],
+    ],
+    mal: ['et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)'],
+  },
+  {
+    id: 'F2408a',
+    feilklasse:
+      'et krav tas imot uten valget av varsel når saken har et varsel ingen kravpost viser til (VS-U87 punkt 23, #2408)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (!ubrukte.length) return null;', '  return null;']],
+    mal: ['avvises kravet der posten mangler valget'],
+  },
+  {
+    id: 'F2408b',
+    feilklasse:
+      'en annen kravpost i samme kravversjon som viser til varselet, fritar posten fra valget (F-7 i BF-37, #2408)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '    [...sporet.krav, ...sporet.kravUtenforRekken]',
+        '    [...sporet.krav, ...sporet.kravUtenforRekken, { innhold: k.innhold } as Krav]',
+      ],
+    ],
+    mal: ['hver post velger (VS-U87 punkt 23, F-7 i BF-37'],
+  },
+  {
+    id: 'F2408c',
+    feilklasse:
+      'et krav lagt til må velge et varsel sendt etter kravet (VS-U87 punkt 23, OV-U98, #2408)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['!brukt.has(v.id) && (sendt === null ||', '!brukt.has(v.id) && (true ||']],
+    mal: [
+      'er brevet varselet for P1, kan den neste versjonen ikke vise til et annet varsel for P1',
+    ],
+  },
+  {
+    id: 'F2408d',
+    feilklasse:
+      'et rettet valg av varsel gjelder ikke i brevet for den nye kravversjonen (VS-U87 punkt 23, #2408)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '(hattFoer(p, hjemmel, tidligere) && !valgetRettes(p, tidligere))',
+        'hattFoer(p, hjemmel, tidligere)',
+      ],
+    ],
+    mal: ['et feil valg rettes til et annet varsel'],
   },
 ];
 /** En kopi av arbeidstreet. */

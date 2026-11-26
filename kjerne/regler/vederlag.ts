@@ -12,7 +12,7 @@ import {
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
-import type { Kravpostvarselhjemmel, Oppgjoersform } from '../typer.ts';
+import type { Oppgjoersform, Vederlagsvarselhjemmel } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
@@ -612,15 +612,14 @@ export function kontrollerOppgjoersformen(
 }
 
 /**
- * VS-U79, VS-U77 punkt 30 og 31: vurderingene i byggherrens svar på et varsel etter § 34.3.3 eller
- * § 34.4 som står alene. Svaret på varselet etter § 34.3.3 har standpunktet til justeringen, som
+ * VS-U79, VS-U87 punkt 30–32: vurderingene i byggherrens svar på et varsel som står alene. Svaret på varselet etter § 34.3.3 har standpunktet til justeringen, som
  * en kravpost med justerte enhetspriser der beregningsregelen er godtatt, og kan si at varselet kom
  * for sent eller uttrykkelig i tide (svar 3 A). Svaret på varselet etter § 34.4 har bare
  * standpunktet til varselet, og «i tide» er oppgivelsen av en innsigelse som står
  * (`kontrollerOppgivelsenEtter344`). Feilene står på `varselet.<felt>`.
  */
 export function kontrollerSvaretPaaVarselet(
-  hjemmel: Kravpostvarselhjemmel,
+  hjemmel: Vederlagsvarselhjemmel,
   v: Record<string, unknown>,
   innsigelsenStaar: boolean
 ): void {
@@ -632,6 +631,21 @@ export function kontrollerSvaretPaaVarselet(
         ukjent.map((f) => [`${navn}.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
       )
     );
+  // VS-U87 punkt 32.
+  if (hjemmel === '34.1.2' || hjemmel === '34.1.3') {
+    if (v.godtar_justering != null)
+      throw new UgyldigVurdering({
+        [`${navn}.godtar_justering`]: `gjelder ikke varselet etter punkt ${hjemmel}`,
+      });
+    if (typeof v.varslet_i_tide !== 'boolean')
+      throw new UgyldigVurdering({
+        [`${navn}.varslet_i_tide`]:
+          v.varslet_i_tide == null
+            ? `mangler: svaret på varselet etter punkt ${hjemmel} har bare standpunktet til varselet`
+            : 'er verken true eller false',
+      });
+    return;
+  }
   const post =
     hjemmel === '34.4'
       ? ({ oppgjoersform: 'regningsarbeid' } as const)
