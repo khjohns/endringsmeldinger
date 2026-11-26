@@ -9,7 +9,7 @@ import { lagBrevtekst } from '../frosset/brevtekst.ts';
 import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import type { Dokument, Journalrad } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
+import { begrunnelsenKanAvvisesSomSvar, foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -626,6 +626,25 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
           .begrensninger.map((x) => x.grunn)
           .join()
       ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
+    });
+
+    it('VS-U95: predikatet sier at standpunktet kan stå i svaret på det første kravet etter begrunnelsen, og ikke uten begrunnelsen eller på en senere kravversjon', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      expect(begrunnelsenKanAvvisesSomSvar(s.u())).toBe(true);
+      const forrige = s.krav('frist');
+      s.send('TE', {
+        ...utenFelt(FRISTKRAV, 'varsel'),
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+      });
+      expect(s.u().spor.frist.gjeldendeKrav!.erstatter, 'forutsetning: en ny kravversjon').toBe(
+        forrige
+      );
+      expect(begrunnelsenKanAvvisesSomSvar(s.u()), 'en senere kravversjon').toBe(false);
+      const { s: svarer } = medForesporsel();
+      svarer.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      expect(begrunnelsenKanAvvisesSomSvar(svarer.u()), 'kravet svarer på forespørselen').toBe(
+        false
+      );
     });
 
     it('VS-U95, VS-U88 punkt 9: standpunktet står bare i svaret på det første kravet etter begrunnelsen, ikke i svaret på en senere kravversjon', () => {

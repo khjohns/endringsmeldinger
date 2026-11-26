@@ -35,6 +35,7 @@ import type {
   Sakssperre,
 } from '../../kommandoer/skriving.ts';
 import {
+  begrunnelsenKanAvvisesSomSvar,
   foresporselForFristsvar,
   fristeneISporet,
   fristeneStrider,
@@ -239,10 +240,7 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   // VS-U95: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2.
   // Står begge, gjelder svaret på spørsmålet i lagene, og kontrollen avviser standpunktet
   // (`ugyldigIFristen`).
-  const ikkeSvar =
-    v.begrunnelse_ikke_svar === true &&
-    foresporselForFristsvar(u)?.art === 'begrunnelse' &&
-    u.spor.frist.gjeldendeKrav?.erstatter === null;
+  const ikkeSvar = v.begrunnelse_ikke_svar === true && begrunnelsenKanAvvisesSomSvar(u);
   const ubesvart = new Set(
     ikkeSvar ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok') : manglende
   );

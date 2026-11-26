@@ -72,7 +72,11 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['ForesporselOgSvar', 'utsagn', 'sendt'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
-  ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
+  [
+    'spor/frist/utledning.ts',
+    'relasjon',
+    'foresporselForFristsvar foresporselenKravetSvarerPaa begrunnelsenKanAvvisesSomSvar',
+  ],
   [
     'Utledning',
     'utsagn',
