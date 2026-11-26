@@ -61,10 +61,10 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
       ['34.4', FJERNVARME],
     ]);
     const tekst = (arbeid: string) =>
-      `Totalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${arbeid}» som følge av forholdet ${I_SAKEN}.`;
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${arbeid}» som følge av forholdet ${I_SAKEN}.`;
     expect(laast(rad)).toEqual([
-      `1. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\n${tekst(GRAVING)}`,
-      `2. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\n${tekst(FJERNVARME)}`,
+      `1. Varsel før regningsarbeidet settes i gang (punkt\u00a034.4)\n\n${tekst(GRAVING)}`,
+      `2. Varsel før regningsarbeidet settes i gang (punkt\u00a034.4)\n\n${tekst(FJERNVARME)}`,
     ]);
     expect(s.u().spor.vederlag.kravpostvarsler.map((v) => v.dokument)).toEqual([
       rad.event_id,
@@ -134,7 +134,7 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
   it('ett varsel fra løsningen står uten punkt, med arbeidet (VS-U15, VS-U87 punkt 27)', () => {
     const s = paaberopt();
     expect(laast(s.send('TE', sendVarsler({ hjemmel: '34.4', arbeid: GRAVING })))).toEqual([
-      `Totalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${GRAVING}» som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${GRAVING}» som følge av forholdet ${I_SAKEN}.`,
     ]);
   });
 });
@@ -202,11 +202,20 @@ describe('varslene i brevet og sporene (beslutningsdelen i VS-U87, D-1–D-4 i B
     ]).toEqual([rad.event_id, rad.event_id]);
   });
 
-  it('varselet etter punkt 32.2 registreres i et eget brev, fordi beslutningsdelen i VS-U87 bare dekker vederlaget og fristen sammen', () => {
+  it('et brev sendt utenfor løsningen med varselet etter punkt 32.2 og varsler i vederlaget og fristforlengelsen legges til én gang med alle varslene (svaret A 26.11 i #1823)', () => {
     const s = sak();
-    expect(
-      s.avvisning('TE', registrer({ hjemmel: '32.2' }, { hjemmel: '34.1.2' }))?.melding
-    ).toContain('$.varsler: varselet etter punkt 32.2 registreres i et eget brev');
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send(
+      'TE',
+      registrer({ hjemmel: '32.2' }, { hjemmel: '34.1.2' }, { hjemmel: '33.4' })
+    );
+    const u = s.u();
+    expect([
+      u.spor.forhold.varsler['32.2']?.dokument,
+      u.spor.vederlag.varsler['34.1.2']?.dokument,
+      u.spor.frist.varsler['33.4']?.dokument,
+    ]).toEqual([rad.event_id, rad.event_id, rad.event_id]);
+    expect(u.forstaatt).toBe(true);
   });
 
   it('et lagret brev med ett varsel og punktet for varselet er ikke forstått, for kjernen skriver det uten punkt (MM-U2, U-6)', () => {

@@ -7999,6 +7999,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en kravpost viser til ett av varslene i brevet'],
   },
   {
+    id: 'F1823g',
+    feilklasse:
+      'et brev sendt utenfor løsningen med varselet etter punkt 32.2 og andre varsler avvises, i stedet for å legges til én gang med alle varslene (svaret A 26.11 i #1823)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        '  const spor = new Set(k.varsler.map(sporetFor));',
+        "  if (k.varsler.length > 1 && k.varsler.some((v) => v.hjemmel === '32.2')) feil.push('$.varsler');\n  const spor = new Set(k.varsler.map(sporetFor));",
+      ],
+    ],
+    mal: ['legges til én gang med alle varslene (svaret A 26.11 i #1823)'],
+  },
+  {
     id: 'F2429d',
     feilklasse:
       'svaret på kravet tolker den egne innsigelsen etter punkt 5 som en påberopelse det gir opp, ved siden av innsigelsen i svaret på varselet (VS-U89, #2429)',
