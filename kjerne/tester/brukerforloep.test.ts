@@ -236,15 +236,16 @@ describe('vakttestene for brukerforløpene', () => {
     ]);
   });
 
-  // Kilde: #1346. OV-U7 står i BF-03.md og i kildene; uten den i kildene viser ikke
-  // dekningsoversikten at vedtaket berører BF-03.
+  // Kilde: #1346. MM-U59 står i BF-10.md og i kildene; uten den i kildene viser ikke
+  // dekningsoversikten at vedtaket berører BF-10. BF-03 var eksemplet til det ble kjørbart (#1377).
   it('et vedtak bestillingen viser til, men som mangler i kildene, gir avvik', () => {
-    const b = structuredClone(BRUKERFORLOEP.find((x) => x.id === 'BF-03')!);
-    expect(vedtakIBestilling(b)).toContain('OV-U7');
-    expect(avvik(b, 'BF-03.json')).toEqual([]);
-    b.kilder = b.kilder!.filter((k) => k !== 'OV-U7');
-    expect(avvik(b, 'BF-03.json')).toEqual([
-      'BF-03: BF-03.md viser til OV-U7, som mangler i kildene',
+    const b = structuredClone(BRUKERFORLOEP.find((x) => x.id === 'BF-10')!);
+    expect(b.status, 'forutsetning: BF-10 er planlagt').toBe('planlagt');
+    expect(vedtakIBestilling(b)).toContain('MM-U59');
+    expect(avvik(b, 'BF-10.json')).toEqual([]);
+    b.kilder = b.kilder!.filter((k) => k !== 'MM-U59');
+    expect(avvik(b, 'BF-10.json')).toEqual([
+      'BF-10: BF-10.md viser til MM-U59, som mangler i kildene',
     ]);
   });
 
@@ -272,8 +273,9 @@ describe('vakttestene for brukerforløpene', () => {
 
   // Listen er fast, så testen ikke blir tom når et forløp blir kjørbart og mister `kilder`
   // (#1363).
-  it('et kjørbart forløp etter OV-U54 (BF-02B, BF-02C og BF-03) har en kontroll med OV-U54 som kilde', () => {
-    for (const b of ['BF-02B', 'BF-02C', 'BF-03'].map(finn)) {
+  // BF-03 sender ingen ny kravversjon og er tatt ut av lista (#1377).
+  it('et kjørbart forløp etter OV-U54 (BF-02B og BF-02C) har en kontroll med OV-U54 som kilde', () => {
+    for (const b of ['BF-02B', 'BF-02C'].map(finn)) {
       if (b.status === 'planlagt') continue;
       const kilder = (b.kontrollpunkter ?? []).flatMap(kontrollerI).flatMap((k) => k.kilde);
       expect(kilder, b.id).toContain('OV-U54');
