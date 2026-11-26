@@ -236,6 +236,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U75](../../plans/vedtak.md#lv-u75) | — | — | BF-02B, BF-03, BF-07 |
 | [LV-U76](../../plans/vedtak.md#lv-u76) | — | — | BF-47 |
 | [LV-U77](../../plans/vedtak.md#lv-u77) | — | — | BF-47 |
+| [LV-U83](../../plans/vedtak.md#lv-u83) | — | — | BF-50 |
 | [MM-U1](../../plans/vedtak.md#mm-u1) | — | — | BF-20 |
 | [MM-U2](../../plans/vedtak.md#mm-u2) | — | — | BF-49 |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-08 bh-har-mottatt-paaberopelsen | BF-01V, BF-07 |
@@ -265,6 +266,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U54](../../plans/vedtak.md#mm-u54) | — | — | BF-10 |
 | [MM-U56](../../plans/vedtak.md#mm-u56) | — | — | BF-10 |
 | [MM-U59](../../plans/vedtak.md#mm-u59) | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D korrigeringen-er-sendt | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D saken-er-lukket, BF-02D korrigeringen-er-sendt, BF-05 start | BF-06, BF-10, BF-48, BF-49, BF-50 |
+| [MM-U61](../../plans/vedtak.md#mm-u61) | — | — | BF-50 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U2](../../plans/vedtak.md#ov-u2) | — | BF-45 te-har-mottatt-svaret | — |
 | [OV-U3](../../plans/vedtak.md#ov-u3) | — | BF-44 te-har-mottatt-svaret | — |
