@@ -388,6 +388,7 @@ export function standpunkteneTilVarslene(
 ): StandpunktTilVarselet[] {
   const { svar, svarUtenforRekken, svarPaaVarsler, krav, kravUtenforRekken } = u.spor.vederlag;
   const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));
+  const paaVarsler = new Set(svarPaaVarsler.map((s) => s.id));
   // Journalens rekkefølge, som brevteksten leser, så svar fra samme dag leses likt (OV-U104).
   const dokumenter = [...dokumenterI(u.journal)];
   const slutt =
@@ -405,6 +406,7 @@ export function standpunkteneTilVarslene(
             s: utenStandpunkterForanEldreKrav(s, eldre, plass),
             dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
+            paaVarselet: paaVarsler.has(s.id),
           }))
       )
       .filter(

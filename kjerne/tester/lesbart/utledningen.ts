@@ -246,7 +246,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     'frosset/standpunkt.ts',
     'relasjon',
     'utenStandpunkterForanEldreKrav',
-    ['frosset/brevtekst.ts:varseltekst', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+    ['frosset/brevtekst.ts:innsigelsenFoer', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
-  ['Saken', 'relasjon', 'varslerIEldreKrav', ['frosset/brevtekst.ts:varseltekst']],
+  ['Saken', 'relasjon', 'varslerIEldreKrav', ['frosset/brevtekst.ts:innsigelsenFoer']],
 ];

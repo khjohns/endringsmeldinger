@@ -7,6 +7,10 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger, tilbudte } from '../kommandoer/handlinger.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
+import { KJERNE } from '../versjon.ts';
 import { KLAR_OVER, laast, MOT, PAABEROPELSE, sak, svar, tilbud, type Data } from './brevsak.ts';
 
 const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
@@ -629,4 +633,172 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
       expect(handlinger(s.u(), 'BH').includes(`svare:${varsel}`)).toBe(kode === null);
     }
   );
+});
+
+describe('innsigelsen i svaret på varselet etter punkt 34.1.2 eller 34.1.3 står mot svaret på kravet (VS-U87 punkt 9, 10, 12 og 34, #2429)', () => {
+  /** Forholdet (svikt) i brev 1 og varselet i brev 2, med svaret på varselet i brev 3 når `forSent`. */
+  function medInnsigelsen(hjemmel: '34.1.2' | '34.1.3', forSent: boolean) {
+    const s = sak();
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+    });
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel });
+    const varsel = s.u().spor.vederlag.varsler[hjemmel]!.id;
+    if (forSent) s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: tilbud(
+        125000,
+        hjemmel === '34.1.3' ? { saerskilt: { produktivitet: { beloep: 40000 } } } : {}
+      ),
+    });
+    return s;
+  }
+
+  /** Svaret på gjeldende vederlagskrav, med resultatet kjernen regner ut. */
+  function svarPaaKravet(s: ReturnType<typeof sak>, vurderinger: Data) {
+    const u = s.u();
+    const k = u.spor.vederlag.gjeldendeKrav!;
+    const v = {
+      ...vurderinger,
+      kravposter: kravposterI(k).map((p) => ({
+        gjelder: p.id,
+        aksepterer: true,
+        vurdering: 'godkjent',
+        godkjent_beloep: p.beloep,
+      })),
+    };
+    let resultat: Data = {};
+    try {
+      const r = regnUtSvar(
+        'vederlag',
+        v,
+        { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
+        KJERNE.regler
+      );
+      resultat = { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep };
+      if ('subsidiaert_godkjent_beloep' in r)
+        resultat.subsidiaert_godkjent_beloep = r.subsidiaert_godkjent_beloep;
+      if ('poster' in r) resultat.poster = r.poster;
+    } catch (e) {
+      if (!(e instanceof UgyldigVurdering)) throw e;
+    }
+    return { type: 'brev', svar: [svar('vederlag', k.id, v, resultat, null)] };
+  }
+
+  const feltet = {
+    '34.1.2': 'hovedkrav_varslet_i_tide',
+    '34.1.3': 'produktivitet_varslet_i_tide',
+  } as const;
+  /** Svaret på kravet med standpunktet `iTide` til varselet, eller uten det. */
+  const vurderingene = (hjemmel: '34.1.2' | '34.1.3', iTide?: boolean): Data => ({
+    ...(hjemmel === '34.1.3'
+      ? {
+          hovedkrav_varslet_i_tide: true,
+          produktivitet_vurdering: 'godkjent',
+          ...(iTide === false ? { produktivitet_begrenset_beloep: 10000 } : {}),
+        }
+      : {}),
+    ...(iTide === undefined ? {} : { [feltet[hjemmel]]: iTide }),
+  });
+  const omVarselet = {
+    '34.1.2': 'varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2',
+    '34.1.3':
+      // LV-U34: «NS 8407» står bare første gang, i punktet om varselet etter punkt 34.1.2.
+      'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt\u00a034.1.3 tredje ledd',
+  } as const;
+  const brev2 = 'brev K201-KOE-017-02 av 3. oktober 2026';
+  const brev3 = 'brev K201-KOE-017-03 av 4. oktober 2026';
+  const brevet = (s: ReturnType<typeof sak>) => laast(s.journal.at(-1)!).join('\n\n');
+
+  it.each(['34.1.2', '34.1.3'] as const)(
+    'etter punkt %s avvises et svar fra løsningen på kravet som ikke sier noe om varselet, mens innsigelsen i svaret på varselet står (punkt 9; utregningen krever standpunktet)',
+    (hjemmel) => {
+      const s = medInnsigelsen(hjemmel, true);
+      const avvisning = s.avvisning('BH', svarPaaKravet(s, vurderingene(hjemmel)));
+      expect(avvisning?.regel).toBe('UGYLDIG_VURDERING');
+      expect(avvisning?.melding).toContain(`${feltet[hjemmel]}: mangler (punkt ${hjemmel})`);
+      expect(
+        s.avvisning('BH', svarPaaKravet(s, vurderingene(hjemmel, false))),
+        'kontrollsak'
+      ).toBeNull();
+    }
+  );
+
+  it.each(['34.1.2', '34.1.3'] as const)(
+    'etter punkt %s viser svaret på kravet til innsigelsen i svaret på varselet og gjentar den (punkt 9 og 34)',
+    (hjemmel) => {
+      const s = medInnsigelsen(hjemmel, true);
+      s.send('BH', svarPaaKravet(s, vurderingene(hjemmel, false)));
+      expect(brevet(s)).toContain(
+        `Byggherren gjør gjeldende at ${omVarselet[hjemmel]} i ${brev2} kom for sent, jf. innsigelsen i ${brev3}`
+      );
+    }
+  );
+
+  it.each([
+    ['34.1.2', true],
+    ['34.1.2', false],
+    ['34.1.3', true],
+    ['34.1.3', false],
+  ] as const)(
+    'etter punkt %s gir svaret på kravet opp innsigelsen i svaret på varselet uttrykkelig (punkt 10 og 12; %s; kontrollsak uten innsigelse)',
+    (hjemmel, forSent) => {
+      const s = medInnsigelsen(hjemmel, forSent);
+      s.send('BH', svarPaaKravet(s, vurderingene(hjemmel, true)));
+      const ikke = `og gjør ikke gjeldende at ${omVarselet[hjemmel]} i ${brev2} kom for sent.`;
+      if (forSent) expect(brevet(s)).toContain(`Byggherren gir opp innsigelsen i ${brev3} ${ikke}`);
+      else {
+        expect(brevet(s)).toContain(`Byggherren gjør ikke gjeldende at ${omVarselet[hjemmel]}`);
+        expect(brevet(s)).not.toContain('gir opp innsigelsen');
+      }
+    }
+  );
+
+  it('etter at svaret på kravet har gitt opp innsigelsen, viser svaret på neste kravversjon ikke til den (punkt 10 og 12)', () => {
+    const s = medInnsigelsen('34.1.2', true);
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(130000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
+    expect(brevet(s)).toContain(
+      `Byggherren gjør gjeldende at ${omVarselet['34.1.2']} i ${brev2} kom for sent`
+    );
+    expect(brevet(s)).not.toContain('jf. innsigelsen');
+  });
+
+  it('en gjentakelse i svaret på kravet står mot neste kravversjon med brevet innsigelsen først ble gjort gjeldende i (punkt 6 og 34)', () => {
+    const s = medInnsigelsen('34.1.2', true);
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(130000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
+    expect(brevet(s)).toContain(`jf. innsigelsen i ${brev3}`);
+  });
+
+  it('svaret på kravet gir opp innsigelsen i svaret på varselet og tolker ikke den egne innsigelsen etter punkt 5 (punkt 10, VS-U89)', () => {
+    const s = sak();
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+    });
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    const varsel = s.u().spor.vederlag.varsler['34.1.2']!.id;
+    s.send('BH', brev(varsel, { varslet_i_tide: false }));
+    s.send('BH', { type: 'innsigelse', gjelder: varsel });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
+    expect(brevet(s)).toContain(
+      `Byggherren gir opp innsigelsen i ${brev3} og gjør ikke gjeldende at ${omVarselet['34.1.2']} i ${brev2} kom for sent.`
+    );
+    expect(brevet(s)).not.toContain('punkt\u00a05');
+  });
+
+  it('en innsigelse som først står i svaret på kravet, leses ikke som innsigelsen i svaret på varselet (E11 i VS-U87)', () => {
+    const s = medInnsigelsen('34.1.2', false);
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', false)));
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(130000) });
+    s.send('BH', svarPaaKravet(s, vurderingene('34.1.2', true)));
+    expect(brevet(s)).not.toContain('gir opp innsigelsen');
+  });
 });
