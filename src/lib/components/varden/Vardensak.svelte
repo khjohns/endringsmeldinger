@@ -39,8 +39,11 @@
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Vederlagsvarsel from './Vederlagsvarsel.svelte';
   import {
+    foersteVarsel,
     fraHandlingsnoekkel,
+    hjemlerForRaden,
     kanVarsle,
+    nyVarselrad,
     startvarsling,
     tilbudteHjemler,
     type Vederlagsvarselhjemmel,
@@ -347,7 +350,11 @@
       kunnskapsdato: UTSAGNSTITTEL.kunnskapsdato,
       nyversjon: FORHOLDET.oppdater,
       vederlagskrav:
-        utkastene.vederlagskrav?.hva === 'varsel' ? VEDERLAGSVARSEL.tittel : KRAVTITTEL.vederlag,
+        utkastene.vederlagskrav?.hva !== 'varsel'
+          ? KRAVTITTEL.vederlag
+          : utkastene.vederlagskrav.varsling?.utenfor
+            ? VEDERLAGSVARSEL.tittelRegistrert
+            : VEDERLAGSVARSEL.tittel,
       fristkrav: KRAVTITTEL.frist,
       korrespondanse: LEGG_TIL.tittel,
       varselsvar: varselsvartittel(utkast),
@@ -475,9 +482,18 @@
   }
 
   /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
-  function tilKravkontroll(s: Kravspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
-    const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
-    const svaret = brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
+  /** `varsel`: brevet har bare varsler og er ikke en ny versjon av kravet (BF-37). */
+  function tilKravkontroll(
+    s: Kravspor,
+    k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>,
+    varsel = false
+  ) {
+    const kravet = varsel
+      ? undefined
+      : brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
+    const svaret = varsel
+      ? undefined
+      : brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
     melding = null;
     tilArbeid({
       art: 'kontroll',
@@ -521,6 +537,8 @@
   function sendt(k: Kontroll, s: Spor) {
     if (k.utkastet) tomtUtkast(k.utkastet);
     if (k.tilbake.art === 'varselsvar') tomtVarselsutkast(k.tilbake.gjelder);
+    else if (k.tilbake.art === 'vederlagskrav' && utkastene.vederlagskrav?.hva === 'varsel')
+      etterVarslene();
     else if (erUtkastnavn(k.tilbake.art)) {
       tom(k.tilbake.art);
       fjernSkjemautkast(s, k.tilbake.art);
@@ -749,7 +767,7 @@
     if (kategori === 'varsel') {
       // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
       if (valgt === 'vederlag') {
-        const [hjemmel] = tilbudteHjemler(kjernesak.handlinger, true);
+        const hjemmel = foersteVarsel(kjernesak.handlinger, true);
         if (hjemmel) vederlagsvarsel(hjemmel, true, { ...lagtTil.valg.korrespondanse });
         aapneUtkast({ art: 'vederlagskrav' });
       } else fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
@@ -807,13 +825,41 @@
   ) {
     if (!u) return;
     const v = utkastene.vederlagskrav ?? vederlagskravstart(u);
-    const varsling = v.varsling?.rader.length
-      ? {
-          ...v.varsling,
-          utenfor: registrer ? (utenfor ?? v.varsling.utenfor ?? tomKorrespondanse()) : null,
-        }
-      : startvarsling(hjemmel, registrer, utenfor);
+    if (!v.varsling?.rader.length) {
+      utkastene.vederlagskrav = {
+        ...v,
+        hva: 'varsel',
+        varsling: startvarsling(hjemmel, registrer, utenfor),
+      };
+      return;
+    }
+    const varsling = {
+      ...v.varsling,
+      utenfor: registrer ? (utenfor ?? v.varsling.utenfor ?? tomKorrespondanse()) : null,
+    };
+    // Varselet TE åpnet fra handlingene, får en rad når skjemaet ikke har det.
+    const tilbudt = tilbudteHjemler(kjernesak.handlinger, registrer);
+    if (
+      !varsling.rader.some((r) => r.hjemmel === hjemmel) &&
+      hjemlerForRaden(varsling, null, tilbudt).includes(hjemmel)
+    )
+      varsling.rader = [...varsling.rader, nyVarselrad(varsling, hjemmel)];
     utkastene.vederlagskrav = { ...v, hva: 'varsel', varsling };
+  }
+  /**
+   * Varslene er sendt eller registrert. Har TE skrevet i kravet, står utkastet til kravet, og
+   * ellers forkastes det (U-1 i BF-37).
+   */
+  function etterVarslene() {
+    const v = utkastene.vederlagskrav;
+    const kravet = (x: Kravvalg) =>
+      JSON.stringify([x.poster, x.saerskilt, x.trekkerSaerskilt ?? false, x.forbehold]);
+    if (v && u && kravet(v) !== kravet(vederlagskravstart(u))) {
+      utkastene.vederlagskrav = { ...v, hva: 'krav', varsling: undefined };
+      return;
+    }
+    tom('vederlagskrav');
+    fjernUtkast('vederlag', 'vederlagskrav');
   }
 
   /**
@@ -1013,10 +1059,9 @@
       }}
       onforkast={() => forkastKravet('vederlag')}
       onvedsiden={(v) => (vedSiden = v)}
-      onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
+      onbrevkontroll={(k) => tilKravkontroll('vederlag', k, true)}
       onregistrert={() => {
-        tom('vederlagskrav');
-        fjernUtkast('vederlag', 'vederlagskrav');
+        etterVarslene();
         return tilSaken(VEDERLAGSVARSEL.registrert, 'sendt');
       }}
       onkunnskapsdato={(gjelder) => {
@@ -1040,7 +1085,7 @@
         melding = null;
         aapneUtkast({ art: 'kunnskapsdato', gjelder });
       }}
-      onvarsle={(registrer, hjemmel = tilbudteHjemler(kjernesak.handlinger, registrer)[0]) => {
+      onvarsle={(registrer, hjemmel = foersteVarsel(kjernesak.handlinger, registrer)) => {
         if (hjemmel) vederlagsvarsel(hjemmel, registrer);
       }}
     />

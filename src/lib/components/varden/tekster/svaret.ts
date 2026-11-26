@@ -184,7 +184,7 @@ export const VARSELSVARET = haerdet({
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
-  /** Med arbeidet når brevet har flere varsler etter samme bestemmelse (VS-U87 punkt 27). */
+  /** Med arbeidet etter VS-U87 punkt 27. */
   svar: (h: Kravpostvarselhjemmel, b?: Brevref, arbeid?: string) =>
     `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
   nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref, arbeid?: string) =>

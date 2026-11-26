@@ -343,7 +343,7 @@
     if (v) {
       const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);
       const brev = samme.length > 1 ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
-      // VS-U87 punkt 27: to varsler etter samme bestemmelse i samme brev skilles på arbeidet.
+      // VS-U87 punkt 27.
       const iBrevet = samme.filter((x) => brev && brevMedUtsagn(u, x.gjelder!)?.id === brev.id);
       const arbeid = iBrevet.length > 1 ? arbeidetI(u, h!.gjelder!) : undefined;
       return h!.type === 'svare'

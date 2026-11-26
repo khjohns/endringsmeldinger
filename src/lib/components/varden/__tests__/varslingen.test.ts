@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { tomKorrespondanse } from '../korrespondansen';
 import {
+  foersteVarsel,
   handlingsnoekkel,
   hjemlerForRaden,
   manglerIVarslingen,
@@ -18,6 +19,7 @@ import {
 } from '../vederlagsvarsel';
 
 const navnet = () => 'Varselet';
+const ALLE = ['34.4', '34.3.3', '34.1.2', '34.1.3'] as const;
 const brev = (): Varslingsvalg => {
   const v = startvarsling('34.4', false);
   v.rader[0]!.arbeid = 'Ekstra graving i grøften ved kum 4';
@@ -71,7 +73,7 @@ describe('kommandoen for varslene (BF-37)', () => {
 describe('det som mangler (BF-37)', () => {
   it('et varsel etter punkt 34.3.3 eller 34.4 fra løsningen må ha arbeidet, og ved registrering ikke (U-3, VS-U87 punkt 27)', () => {
     const v = startvarsling('34.3.3', false);
-    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26')).toEqual([
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26', ALLE)).toEqual([
       {
         felt: 'x-arbeid-varsel-1',
         post: 'varsel-1',
@@ -83,13 +85,13 @@ describe('det som mangler (BF-37)', () => {
     v.utenfor.vedlegg = [
       { vedlegg_id: 'v1', filnavn: 'a.pdf', innhold_sha256: 'a', stoerrelse: 1 },
     ];
-    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-03')).toEqual([]);
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-03', ALLE)).toEqual([]);
   });
 
   it('et brev uten varsler sendes ikke («Ugyldig valg og avbrudd» i BF-37)', () => {
     const v = startvarsling('34.4', false);
     v.rader = [];
-    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26').map((m) => m.felt)).toEqual([
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26', ALLE).map((m) => m.felt)).toEqual([
       'x-legg-til',
     ]);
   });
@@ -97,11 +99,11 @@ describe('det som mangler (BF-37)', () => {
   it('en dato etter punkt 34.1.3 etter datoen brevet sendes, stoppes ved feltet, og samme dag går (U-6 i BF-48, VS-U83)', () => {
     const v = startvarsling('34.1.3', false);
     v.rader[0]!.klarOver = '2026-11-27';
-    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26').map((m) => m.felt)).toEqual([
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26', ALLE).map((m) => m.felt)).toEqual([
       'x-klar-over-varsel-1',
     ]);
     v.rader[0]!.klarOver = '2026-11-26';
-    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26')).toEqual([]);
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26', ALLE)).toEqual([]);
   });
 });
 
@@ -121,5 +123,20 @@ describe('bestemmelsene skjemaet tilbyr (D-2 i BF-37)', () => {
     expect(hjemlerForRaden(v, andre, ['34.4', '34.1.2'])).toEqual(['34.4']);
     expect(hjemlerForRaden(v, v.rader[0]!, ['34.4', '34.1.2'])).toEqual(['34.4', '34.1.2']);
     expect(hjemlerForRaden(v, null, ['34.4', '34.1.2'])).toEqual(['34.4']);
+  });
+});
+
+describe('et varsel kjernen ikke tilbyr slik det gis nå (D-2 i BF-37)', () => {
+  it('står i raden med bestemmelsen og stoppes ved feltet', () => {
+    const v = startvarsling('34.1.2', false);
+    expect(hjemlerForRaden(v, v.rader[0]!, ['34.4'])).toEqual(['34.4', '34.1.2']);
+    expect(manglerIVarslingen(v, 'x', navnet, '2026-11-26', ['34.4'])).toEqual([
+      expect.objectContaining({ felt: 'x-hjemmel-varsel-1', post: 'varsel-1' }),
+    ]);
+  });
+
+  it('«Bare varsle» og registreringen begynner med varselet etter punkt 34.1.2 når kjernen tilbyr det (OV-U5)', () => {
+    expect(foersteVarsel(['varsle:34.4', 'varsle:vederlag'], true)).toBe('34.1.2');
+    expect(foersteVarsel(['sende_varsel:34.4', 'varsle:vederlag'], false)).toBe('34.4');
   });
 });

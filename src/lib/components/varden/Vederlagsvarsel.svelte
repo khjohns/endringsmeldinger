@@ -119,7 +119,7 @@
   }
 
   const sendes = $derived(registreres ? valg.utenfor!.dato || null : iDag);
-  const mangler: Mangel[] = $derived(manglerIVarslingen(valg, uid, navnet, sendes));
+  const mangler: Mangel[] = $derived(manglerIVarslingen(valg, uid, navnet, sendes, tilbudt));
   const kommando = $derived(varslingen(valg));
   const vedlegg = $derived(vedleggIVarslingen(valg));
   const flyt = sendeflyt(() => kjernesak, id('hindring'));
@@ -218,7 +218,12 @@
         onclick={() => fjern(r)}>{VEDERLAGSVARSEL.fjern}</Knapp
       >
     </span>
-    {#if aapen !== n}<p class="under" class:mangler={!!feil(`arbeid-${n}`)}>{under(r)}</p>{/if}
+    {#if aapen !== n}<p
+        class="under"
+        class:mangler={!!(feil(`arbeid-${n}`) || feil(`hjemmel-${n}`) || feil(`klar-over-${n}`))}
+      >
+        {under(r)}
+      </p>{/if}
   </div>
   {#if aapen === n}
     <div class="aapen">
@@ -240,6 +245,7 @@
             if (x !== '34.1.3') r.klarOver = '';
           }
         }
+        feil={feil(`hjemmel-${n}`)}
       />
       {#if harArbeid(r.hjemmel)}
         <Linjefelt

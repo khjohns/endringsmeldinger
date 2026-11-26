@@ -55,6 +55,9 @@ export const VEDERLAGSVARSEL = haerdet({
   panel: 'Varslene',
   tomt: 'Ingen varsler ennå.',
   ingenVarsler: 'Legg til minst ett varsel.',
+  kanIkkeSendes:
+    'Varselet kan ikke sendes fra løsningen nå. Velg et annet varsel, eller registrer det.',
+  kanIkkeRegistreres: 'Varselet kan ikke registreres nå. Velg et annet varsel.',
   registrer: 'Registrer varslene',
   registrert: 'Varslene er registrert.',
   forkastTekst: 'Forkast utkastet til varselet',

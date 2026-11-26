@@ -20,10 +20,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-async function aapneSom(punkt: string, part: 'TE' | 'BH' = 'TE') {
+async function aapneSom(punkt: string, part: 'TE' | 'BH' = 'TE', forloep = 'BF-37') {
   let demosak: Demosak | null = null;
   render(Demoforloep, {
-    forloep: finnForloep('BF-37')!,
+    forloep: finnForloep(forloep)!,
     punkt,
     onpunkt: () => {},
     onstart: (d: Demosak) => (demosak = d),
@@ -239,5 +239,42 @@ describe('varselet sendt utenfor løsningen lagt til som korrespondanse (G-8 i B
     await fireEvent.click(knapp('Registrer varslene'));
     await screen.findByText('Varslene er registrert.');
     expect(sisteVarsler(demosak().journal())).toEqual([{ hjemmel: '34.4', arbeid: undefined }]);
+  });
+});
+
+describe('utkastet til kravet og brevkontrollen etter varslene (/code-review)', () => {
+  it('kravet TE har skrevet i, står etter at varselet er sendt (U-1)', async () => {
+    await aapneSom('te-skal-varsle');
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
+    );
+    await skriv('Beskrivelse av posten', 'Graving ved kum 4');
+    await fireEvent.click(screen.getByRole('radio', { name: 'Bare varsle, uten krav' }));
+    await fireEvent.click(knapp(/^Endre varsel før regningsarbeidet/));
+    await skriv('Arbeidet varselet gjelder', 'Ekstra graving i grøften ved kum 4');
+    await fireEvent.click(knapp('Se brevet før sending'));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' })
+    );
+    await fireEvent.click(knapp('Send til byggherren'));
+    await screen.findByText('Brevet er sendt til byggherren.');
+    await fireEvent.click(knapp('Tilbake til saken'));
+    await fireEvent.click(knapp('Fortsett utkastet'));
+    expect(
+      await screen.findByRole('heading', { name: 'Krav om vederlagsjustering i sak KOE-17' })
+    ).toBeTruthy();
+    expect(screen.getAllByText(/Graving ved kum 4/).length).toBeGreaterThan(0);
+  });
+
+  it('brevkontrollen for et varsel etter kravet viser ikke kravet som forrige brev (BF-37)', async () => {
+    await aapneSom('te-har-mottatt-svaret', 'TE', 'BF-01');
+    await fireEvent.click(
+      await screen.findByRole('button', { name: /^Send varsel etter punkt.34\.4$/ })
+    );
+    await fireEvent.click(knapp(/^Endre varsel før regningsarbeidet/));
+    await skriv('Arbeidet varselet gjelder', 'Ekstra graving');
+    await fireEvent.click(knapp('Se brevet før sending'));
+    await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    expect(screen.queryByText(/^Kravet i brev/)).toBeNull();
   });
 });

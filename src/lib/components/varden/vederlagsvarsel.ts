@@ -71,6 +71,15 @@ export const tilbudteHjemler = (handlinger: readonly string[], registrer: boolea
     handlinger.includes(handlingsnoekkel(registrer ? 'varsle' : 'sende_varsel', h))
   );
 
+/** Varselet en ny registrering eller «Bare varsle» begynner med: varselet i sporet når det tilbys (OV-U5). */
+export function foersteVarsel(
+  handlinger: readonly string[],
+  registrer: boolean
+): Vederlagsvarselhjemmel | undefined {
+  const tilbudt = tilbudteHjemler(handlinger, registrer);
+  return tilbudt.includes('34.1.2') ? '34.1.2' : tilbudt[0];
+}
+
 /** En ny rad med bestemmelsen. */
 export function nyVarselrad(v: Varslingsvalg, hjemmel: Vederlagsvarselhjemmel): Varselrad {
   v.nye += 1;
@@ -98,9 +107,12 @@ export function hjemlerForRaden(
   rad: Varselrad | null,
   tilbudt: readonly Vederlagsvarselhjemmel[]
 ): Vederlagsvarselhjemmel[] {
-  return tilbudt.filter(
+  const valgbare = tilbudt.filter(
     (h) => h === rad?.hjemmel || harArbeid(h) || !v.rader.some((r) => r !== rad && r.hjemmel === h)
   );
+  return rad && !valgbare.includes(rad.hjemmel)
+    ? VARSELHJEMLENE.filter((h) => h === rad.hjemmel || valgbare.includes(h))
+    : valgbare;
 }
 
 /**
@@ -135,7 +147,8 @@ export function manglerIVarslingen(
   v: Varslingsvalg,
   prefiks: string,
   navnet: (r: Varselrad) => string,
-  sendes: string | null
+  sendes: string | null,
+  tilbudt: readonly Vederlagsvarselhjemmel[]
 ): Mangel[] {
   const ut: Mangel[] = [];
   if (!v.rader.length)
@@ -153,6 +166,12 @@ export function manglerIVarslingen(
         tekst: `${navnet(r)}: ${t}`,
         ved: t,
       });
+    // Kjernen tilbyr ikke varselet slik det gis nå, for eksempel fra løsningen etter kravet (D-2).
+    if (!tilbudt.includes(r.hjemmel))
+      legg(
+        'hjemmel',
+        v.utenfor ? VEDERLAGSVARSEL.kanIkkeRegistreres : VEDERLAGSVARSEL.kanIkkeSendes
+      );
     if (!v.utenfor && harArbeid(r.hjemmel) && !r.arbeid.trim())
       legg('arbeid', VEDERLAGSVARSEL.manglerArbeid);
     if (r.hjemmel === '34.1.3' && r.klarOver && sendes && r.klarOver > sendes)
