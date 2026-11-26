@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spor uten varsel eller krav</title>
+<!--
+  Prototype for BF-51 (#2410): siden for et spor uten varsel eller krav fra totalentreprenøren,
+  påminnelsen ved det første kravet og siden for forholdet, etter svarene A på S-1–S-3.
+  Tilstandene er ankrene i stegtabellen i BF-51.md. Teksten er prototypetekst, og fargene er
+  Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css), som i grunnlagsoversikt.html.
+  Ingenting sendes, og ingen data lagres.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --brand-bg:#e6e9ee;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672; --ink-ghost:#8a909a;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9; --sidebar-border:#2e333b;
+  --on-brand:#ffffff;
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.prove{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:8px 16px;background:var(--surface-inset);border-bottom:1px solid var(--rule-color);font-size:12px;color:var(--ink-3)}
+.prove ul{display:flex;flex-wrap:wrap;gap:4px 14px;list-style:none;margin:0;padding:0}
+.prove a{color:var(--ink-2)}
+.prove label{display:flex;gap:6px;align-items:center;margin-left:auto}
+.tilstand{display:none}
+.tilstand:target,body:not(:has(.tilstand:target)) #te-vederlag{display:block}
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px 20px 24px;display:flex;flex-direction:column;gap:28px}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a,.spor .ikke-lenke{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:14px 24px}
+.topplinje-inner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;color:var(--ink-2)}
+.bruker{display:flex;gap:8px;align-items:center}
+.ring{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:11px;font-weight:600}
+.utkastrad{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 24px;background:var(--draft-bg);border-bottom:1.5px dashed var(--draft-border);color:var(--ink)}
+.utkastrad a{padding-right:16px;border-right:1px solid var(--draft-border)}
+.utkastmerke{font-size:12px;font-weight:500;color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:1px 8px}
+.mottaker{color:var(--draft);font-size:12px}
+.arbeid{flex:1;padding:28px 24px 64px}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+.hoved,.stoette{display:flex;flex-direction:column;gap:20px;min-width:0}
+.sporhode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.hjemmel{font-size:14px;font-weight:400;color:var(--ink-3);margin-left:6px}
+.tilstand-linje{color:var(--ink-2);margin-top:4px}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:20px}
+.tomt{display:flex;flex-direction:column;gap:12px;border-style:dashed;border-color:var(--rule-strong-color)}
+.tomt h2{font-size:18px;font-weight:600}
+.tomt>p{color:var(--ink-2);max-width:60ch}
+.handlinger{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.andre summary{cursor:pointer;font-weight:500;padding:8px 0}
+.andre ul{list-style:none;margin:0;padding:0}
+.liten{font-size:12px;color:var(--ink-3)}
+.knapp{display:inline-flex;align-items:center;justify-content:center;font:inherit;font-size:16px;font-weight:600;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);cursor:pointer;text-decoration:none}
+.knapp.primaer{background:var(--brand);color:var(--on-brand)}
+.knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+.knapp.sekundaer:hover{background:var(--surface-inset)}
+.lenke{font:inherit;font-weight:500;color:var(--ink);background:none;border:0;padding:8px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px}
+.melding .lenke{align-self:flex-start}
+.melding{border-left:3px solid var(--ink);background:var(--surface-inset);padding:16px 20px;display:flex;flex-direction:column;gap:8px;border-radius:0 var(--r-kort) var(--r-kort) 0}
+.smaa{font-size:14px;font-weight:600;margin-top:4px}
+.skjema{display:flex;flex-direction:column;gap:16px}
+.felt{display:flex;flex-direction:column;gap:6px}
+.felt label{font-weight:600}
+.felt input,.felt textarea{font:inherit;color:var(--ink);background:var(--surface-inset);border:1px solid var(--rule-strong-color);border-radius:6px;padding:10px 12px}
+.hovedlinjer{display:flex;flex-direction:column;gap:12px}
+.hovedlinjer h2{font-size:16px;font-weight:600}
+.krav{list-style:none;margin:12px 0 0;padding:0}
+.krav li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:12px 0;border-top:1px solid var(--rule-subtle-color)}
+.krav a{font-weight:600;text-decoration-thickness:1px;text-underline-offset:3px}
+.krav .bet{color:var(--ink-2)}
+.kort>h2{font-size:16px;font-weight:600}
+.saksmerke{border-left:3px solid var(--ink);background:var(--surface-inset);padding:12px 16px;color:var(--ink)}
+.tidslinje-tittel{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tidslinje{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;color:var(--ink-2)}
+.tidslinje .num{display:block;font-size:12px;color:var(--ink-3)}
+body.vis-spor [data-spor]{outline:1px dashed var(--control-focus);outline-offset:2px;position:relative}
+body.vis-spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:4px;font:500 11px/1.4 var(--font-mono);background:var(--control-focus);color:#fff;padding:0 5px;border-radius:4px}
+@media (max-width:1180px){.kolonner{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){.skall{grid-template-columns:minmax(0,1fr)}.panel{gap:16px}.arbeid,.topplinje,.utkastrad{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="prove" role="region" aria-label="Prøven">
+  <span>Prototype BF-51 · tilstandene:</span><ul><li><a href="#te-vederlag">1–2 TE: vederlaget</a></li><li><a href="#te-forste-krav">3 TE: første krav</a></li><li><a href="#bh-forholdet">4 BH: forholdet</a></li><li><a href="#bh-vederlag">5 BH: vederlaget</a></li><li><a href="#bh-frist">5 BH: fristen</a></li><li><a href="#te-frist-avgjort">6 TE: fristen etter enighet</a></li></ul>
+  <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
+</div>
+<section class="tilstand" id="te-vederlag" aria-label="Totalentreprenøren: vederlagsjustering uten varsel eller krav">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><span class="ikke-lenke"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></span></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#te-vederlag" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+        <li><span class="ikke-lenke"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></span></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Vederlagsjustering</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">TE</span>Tone Entreprenør</p>
+      </div></header>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <div class="sporhode"><h1>Vederlagsjustering <span class="hjemmel">pkt. 34</span></h1></div>
+        <section class="kort tomt" aria-labelledby="te-v-tom" data-spor="U-2 · D-4 · D-5">
+            <h2 id="te-v-tom">Ingen varsel eller krav i saken</h2>
+            <p>Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering i saken.</p>
+            <div class="handlinger" data-spor="U-1 · D-1 · D-3">
+              <a class="knapp primaer" href="#te-forste-krav">Send krav om vederlagsjustering</a>
+              <button class="knapp sekundaer" type="button">Send varsel etter punkt 34.1.2</button>
+            </div>
+            <details class="andre"><summary>Andre handlinger</summary><ul>
+              <li><button class="lenke" type="button">Send varsel etter punkt 34.1.3</button></li>
+              <li><button class="lenke" type="button">Registrer et varsel som er sendt på annen måte</button></li>
+              <li><button class="lenke" type="button">Legg til korrespondanse</button></li></ul></details>
+          </section>
+      </div><aside class="stoette" aria-label="Brevene"><p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li></ol></aside></div></main>
+    </div></div></section>
+<section class="tilstand" id="te-forste-krav" aria-label="Totalentreprenøren: det første kravet om vederlagsjustering">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><span class="ikke-lenke"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></span></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#te-vederlag" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+        <li><span class="ikke-lenke"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></span></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Nytt krav</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">TE</span>Tone Entreprenør</p>
+      </div></header>
+      <div class="utkastrad"><a href="#te-vederlag">Tilbake til vederlagsjusteringen</a><span class="utkastmerke">Utkast</span><b>Brev 3 · Krav om vederlagsjustering</b><span class="mottaker">Til byggherren</span></div>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <div class="melding" role="note" data-spor="U-3 · D-1 · D-8">
+          <p><b>Dette er det første kravet om vederlagsjustering i saken.</b></p>
+          <h2 class="smaa">Varsler om vederlagsjustering i saken</h2>
+          <p>Saken har ikke et varsel om vederlagsjustering. Er varselet sendt på annen måte, kan du legge det til med datoen det ble sendt.</p>
+          <button class="lenke" type="button">Registrer et varsel som er sendt på annen måte</button>
+        </div>
+        <form class="kort skjema" onsubmit="return false" aria-label="Kravet">
+          <div class="felt"><label for="belop">Beløpet du krever</label><input id="belop" inputmode="numeric" autocomplete="off"></div>
+          <div class="felt"><label for="begr">Begrunnelse</label><textarea id="begr" rows="4"></textarea></div>
+        </form>
+      </div><aside class="stoette" aria-label="Hovedlinjene">
+        <div class="kort hovedlinjer"><h2>Brevet sier</h2><p>Totalentreprenøren krever vederlagsjustering for forholdet i brev 1.</p><button class="knapp primaer" type="button">Se brevet før sending</button></div>
+        <p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li></ol>
+      </aside></div></main>
+    </div></div></section>
+<section class="tilstand" id="bh-forholdet" aria-label="Byggherren: forholdet">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><a href="#bh-forholdet" aria-current="page"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></a></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#bh-vederlag"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+        <li><a href="#bh-frist"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Forholdet</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">BB</span>Berit Byggherre</p>
+      </div></header>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <div class="sporhode"><h1>Manglende medvirkning eller leveranser fra byggherren</h1><p class="tilstand-linje">Byggherren har svart i brev 2.</p></div>
+        <section class="kort" aria-labelledby="tilknyttet" data-spor="U-6 · D-5">
+          <h2 id="tilknyttet">Tilknyttede krav</h2>
+          <ul class="krav">
+            <li><a href="#bh-vederlag"><span class="navn">Vederlagsjustering</span> <span class="hjemmel">pkt. 34</span></a><span class="bet">Ingen varsel eller krav i saken</span></li>
+            <li><a href="#bh-frist"><span class="navn">Fristforlengelse</span> <span class="hjemmel">pkt. 33</span></a><span class="bet">Ingen varsel eller krav i saken</span></li>
+          </ul>
+        </section>
+      </div><aside class="stoette" aria-label="Brevene"><p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li></ol></aside></div></main>
+    </div></div></section>
+<section class="tilstand" id="bh-vederlag" aria-label="Byggherren: vederlagsjustering uten varsel eller krav">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><a href="#bh-forholdet"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></a></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#bh-vederlag" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+        <li><a href="#bh-frist"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Vederlagsjustering</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">BB</span>Berit Byggherre</p>
+      </div></header>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <div class="sporhode"><h1>Vederlagsjustering <span class="hjemmel">pkt. 34</span></h1></div>
+        <section class="kort tomt" aria-labelledby="bh-vederlag-tom" data-spor="U-2 · D-2 · D-5 · D-7">
+            <h2 id="bh-vederlag-tom">Ingen varsel eller krav i saken</h2>
+            <p>Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering i saken.</p>
+            
+          </section>
+      </div><aside class="stoette" aria-label="Brevene"><p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li></ol></aside></div></main>
+    </div></div></section>
+<section class="tilstand" id="bh-frist" aria-label="Byggherren: fristforlengelse uten varsel eller krav">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><a href="#bh-forholdet"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></a></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#bh-vederlag"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+        <li><a href="#bh-frist" aria-current="page"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Fristforlengelse</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">BB</span>Berit Byggherre</p>
+      </div></header>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <div class="sporhode"><h1>Fristforlengelse <span class="hjemmel">pkt. 33</span></h1></div>
+        <section class="kort tomt" aria-labelledby="bh-frist-tom" data-spor="U-2 · D-4 · D-5">
+            <h2 id="bh-frist-tom">Ingen varsel eller krav i saken</h2>
+            <p>Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om fristforlengelse i saken.</p>
+            
+          </section>
+      </div><aside class="stoette" aria-label="Brevene"><p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li></ol></aside></div></main>
+    </div></div></section>
+<section class="tilstand" id="te-frist-avgjort" aria-label="Totalentreprenøren: fristforlengelse uten varsel eller krav, vederlaget avgjort">
+  <div class="skall"><nav class="panel" aria-label="Saken">
+      <div class="sak"><p class="id">KOE-17</p><h2>Tegningene for fundamentene kom for sent</h2></div>
+      <div><p class="etikett">Kontraktsforhold</p><ul class="spor">
+        <li><span class="ikke-lenke"><span class="navn">Manglende medvirkning</span><span class="sist" data-spor="U-6">Byggherren har svart · brev 2</span></span></li>
+      </ul></div>
+      <div><p class="etikett">Krav</p><ul class="spor">
+        <li><a href="#te-vederlag"><span class="navn">Vederlagsjustering</span><span class="sist" data-spor="U-5 · U-7">Enige</span></a></li>
+        <li><a href="#te-frist-avgjort" aria-current="page"><span class="navn">Fristforlengelse</span><span class="sist" data-spor="U-5 · U-7">Ingen varsel eller krav i saken</span></a></li>
+      </ul></div>
+    </nav>
+    <div class="flate"><header class="topplinje"><div class="topplinje-inner">
+        <p class="sti">Varden › Eksempelprosjektet › KOE-17 › Fristforlengelse</p>
+        <p class="bruker"><span class="ring" aria-hidden="true">TE</span>Tone Entreprenør</p>
+      </div></header>
+      <main class="arbeid"><div class="kolonner"><div class="hoved">
+        <p class="saksmerke" data-spor="U-4 · D-6">Byggherren har godkjent kravet om vederlagsjustering i brev 4, og partene er enige.</p>
+        <div class="sporhode"><h1>Fristforlengelse <span class="hjemmel">pkt. 33</span></h1></div>
+        <section class="kort tomt" aria-labelledby="te-f-tom" data-spor="U-2 · D-4 · D-5">
+            <h2 id="te-f-tom">Ingen varsel eller krav i saken</h2>
+            <p>Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om fristforlengelse i saken.</p>
+            <div class="handlinger" data-spor="U-1 · D-1">
+              <button class="knapp primaer" type="button">Send krav om fristforlengelse</button>
+              <button class="knapp sekundaer" type="button">Send varsel etter punkt 33.4</button>
+            </div>
+            <details class="andre"><summary>Andre handlinger</summary><ul>
+              <li><button class="lenke" type="button">Registrer et varsel som er sendt på annen måte</button></li>
+              <li><button class="lenke" type="button">Legg til korrespondanse</button></li></ul></details>
+          </section>
+      </div><aside class="stoette" aria-label="Brevene"><p class="tidslinje-tittel">Brevene i saken</p><ol class="tidslinje"><li><span class="num">01.10.2026</span> Brev 1 · Påberopelse fra totalentreprenøren</li><li><span class="num">01.10.2026</span> Brev 2 · Svar på forholdet fra byggherren</li><li><span class="num">01.10.2026</span> Brev 3 · Krav om vederlagsjustering</li><li><span class="num">01.10.2026</span> Brev 4 · Svar på krav om vederlagsjustering</li></ol></aside></div></main>
+    </div></div></section>
+<script>
+  const boks = document.getElementById('vis-spor');
+  boks.addEventListener('change', () => document.body.classList.toggle('vis-spor', boks.checked));
+</script>
+</body>
+</html>
