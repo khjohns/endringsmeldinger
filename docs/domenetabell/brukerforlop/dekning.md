@@ -202,7 +202,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U23](../../plans/vedtak.md#lv-u23) | — | — | BF-07 |
 | [LV-U24](../../plans/vedtak.md#lv-u24) | — | — | BF-06 |
 | [LV-U25](../../plans/vedtak.md#lv-u25) | — | BF-48 te-skal-kreve-vederlaget, BF-48 te-har-mottatt-svaret | BF-01V, BF-47 |
-| [LV-U27](../../plans/vedtak.md#lv-u27) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — | BF-07, BF-47, BF-50 |
+| [LV-U27](../../plans/vedtak.md#lv-u27) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — | BF-03, BF-07, BF-47, BF-50 |
 | [LV-U28](../../plans/vedtak.md#lv-u28) | — | — | BF-07 |
 | [LV-U29](../../plans/vedtak.md#lv-u29) | — | — | BF-50 |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
@@ -398,4 +398,5 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U87](../../plans/vedtak.md#vs-u87) | BF-37 te-skal-varsle, BF-37 te-har-varslet | BF-37 te-skal-varsle, BF-37 te-har-varslet | BF-03 |
 | [VS-U88](../../plans/vedtak.md#vs-u88) | — | BF-37 te-har-varslet, BF-45 bh-har-mottatt-kravet | BF-14, BF-47 |
 | [VS-U89](../../plans/vedtak.md#vs-u89) | — | — | BF-03 |
+| [VS-U90](../../plans/vedtak.md#vs-u90) | — | — | BF-03 |
 | [VS-U91](../../plans/vedtak.md#vs-u91) | — | — | BF-49 |

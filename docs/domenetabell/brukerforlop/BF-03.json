@@ -254,7 +254,9 @@
     "MM-U36",
     "OV-U79",
     "OV-U81",
-    "MM-U44"
+    "MM-U44",
+    "LV-U27",
+    "VS-U90"
   ],
   "venter_paa": [
     "#1377",
@@ -314,6 +316,11 @@
       "dato": "2026-11-26",
       "forhold": "#2418",
       "hva": "VS-U89 er S-4 (A), og står i kildene. S-5 er ikke ført, og venter på koden som fjerner passivitet."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#1377",
+      "hva": "LV-U27 og VS-U90 står i kildene, etter G-1 og S-5 i bestillingen. S-5 er ført som VS-U90 i #2457."
     }
   ]
 }
