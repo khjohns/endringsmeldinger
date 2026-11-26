@@ -21,6 +21,7 @@ import {
 import { utgangspunktet, type Eldrekrav } from '#lib/kjernesak/eldrekrav.ts';
 import { KRAVSKJEMA, KUNNSKAPSDATO } from './tekster';
 import type { Mangel } from './mangler';
+import type { Varslingsvalg } from './vederlagsvarsel';
 
 /**
  * Det TE oppgir om varselet for en kravpost som kravet ellers er varselet for (VS-U50, D-19):
@@ -67,6 +68,9 @@ export interface Kravvalg {
   forbehold: string;
   /** Teller for nøklene til nye poster. */
   nye: number;
+  /** «Bare varsle, uten krav» (U-1 i BF-37). Varslene står når TE bytter til kravet og tilbake. */
+  hva?: 'krav' | 'varsel';
+  varsling?: Varslingsvalg;
 }
 
 export const tomtVarselvalg = (): Varselvalg => ({

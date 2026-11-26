@@ -83,13 +83,22 @@ describe('et spor uten varsel eller krav (BF-51)', () => {
         'Saken har ikke et varsel om vederlagsjustering. Er varselet sendt på annen måte, kan du legge det til med datoen det ble sendt.'
       )
     ).toBeTruthy();
-    // Registreringen av varselet i vederlaget er ikke bygget ennå (#2010), og knappen sier det.
+    // Knappen åpner registreringen av varselet etter punkt 34.1.2 i «Bare varsle» (#2010, #2430).
     await fireEvent.click(
       skjema.getByRole('button', {
         name: /^Registrer et varsel som er sendt på annen måte etter punkt.(34\.1\.2|33\.4)$/,
       })
     );
-    expect(skjema.getByText('Denne handlingen er ikke bygget i prøven ennå.')).toBeTruthy();
+    const varselet = within(await screen.findByRole('form'));
+    expect(
+      varselet.getByRole('heading', {
+        level: 2,
+        name: /^Registrer et varsel sendt utenfor løsningen/,
+      })
+    ).toBeTruthy();
+    expect(
+      varselet.getByRole('heading', { name: /^1\.\s*Varsel om vederlagsjustering/ })
+    ).toBeTruthy();
   });
 
   it('i fristen åpner «Registrer et varsel som er sendt på annen måte» i påminnelsen registreringen av varselet (U-3)', async () => {

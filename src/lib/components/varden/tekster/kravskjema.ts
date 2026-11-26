@@ -153,7 +153,9 @@ export const KRAVSKJEMA = haerdet({
     samme: (post: string) => `Samme dokument som for ${post}`,
   },
   hvilketVarsel: 'Varselet i saken',
-  varseletI: (b: Brevref) => (b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)),
+  /** U-7 i BF-37: varselet i saken med brevet, datoen og arbeidet (VS-U87 punkt 27). */
+  varseletMedArbeid: (b: Brevref & { sendt: string | null }, arbeid: string | undefined) =>
+    `${b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)}, ${dato(b.sendt ?? b.registrert)}${arbeid ? `: ${arbeid}` : ''}`,
   ingenVarslerISaken: (hjemmel: string) =>
     `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
   // 4. Forbeholdet, i kravets eget felt (LV-U74).

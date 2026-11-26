@@ -15,11 +15,14 @@ export const TOMT_SPOR = haerdet({
   /** U-3: påminnelsen øverst i skjemaet for det første kravet (OV-U3, S-3). */
   foersteKrav: (spor: Kravspor) => `Dette er det første kravet om ${KRAVET[spor]} i saken.`,
   varslene: (spor: Kravspor) => `Varsler om ${KRAVET[spor]} i saken`,
-  /** Et varsel i sporet med brevet og dagen det ble sendt, herfra eller oppgitt (OV-U5). */
-  varselet: (v: VarselISporet, b: Brevref | null) =>
+  /**
+   * Et varsel i sporet med brevet og dagen det ble sendt, herfra eller oppgitt (OV-U5), og arbeidet
+   * etter VS-U87 punkt 27.
+   */
+  varselet: (v: VarselISporet, b: Brevref | null, arbeid?: string) =>
     `Varsel etter ${punkt(v.hjemmel)}${b ? ` i ${brevref(b)}` : ''}${
       v.sendt ? `, sendt ${dato(v.sendt)}${v.oppgitt ? ' (datoen er oppgitt)' : ''}` : ''
-    }.`,
+    }${arbeid ? `: ${arbeid}` : ''}.`,
   ingenVarsel: (spor: Kravspor) =>
     `Saken har ikke et varsel om ${KRAVET[spor]}. Er varselet sendt på annen måte, kan du legge det til med datoen det ble sendt.`,
 });

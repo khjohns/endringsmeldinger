@@ -184,10 +184,13 @@ export const VARSELSVARET = haerdet({
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
-  svar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
-    `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
-  nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref) =>
-    `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}`,
+  /** Med arbeidet etter VS-U87 punkt 27. */
+  svar: (h: Kravpostvarselhjemmel, b?: Brevref, arbeid?: string) =>
+    `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
+  nyttSvar: (h: Kravpostvarselhjemmel, b?: Brevref, arbeid?: string) =>
+    `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
+  /** U-8 i BF-37: arbeidet under navnet på varselet. */
+  arbeidet: (arbeid: string) => `Arbeidet varselet gjelder: ${arbeid}`,
   // Kortet med svarene fra forrige brev i høyre kolonne i svaret på varselet (VS-U65).
   svareneFoer: (b: Brevref) => `Svarene på kravet i ${brevref(b)}`,
   svareneStaar: 'Svaret på varselet endrer ikke disse svarene.',

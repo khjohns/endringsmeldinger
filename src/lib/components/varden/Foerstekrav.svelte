@@ -6,6 +6,7 @@
 <script lang="ts">
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { varsleneISporet } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { arbeidetI } from '#lib/kjernesak/vederlagskrav.ts';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
@@ -37,7 +38,7 @@
   {#if varslene.length}
     <ul>
       {#each varslene as v (v.id)}
-        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument))}</li>
+        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument), arbeidetI(u, v.id))}</li>
       {/each}
     </ul>
   {:else}

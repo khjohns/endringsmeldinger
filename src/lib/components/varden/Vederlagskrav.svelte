@@ -20,6 +20,7 @@
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
+    kravetErDetFoersteVarselet,
     varseletFoerKravet,
     varslenePerKravpost,
     varsleneISaken,
@@ -29,6 +30,8 @@
   import Tekstomraade from './Tekstomraade.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Foerstekrav from './Foerstekrav.svelte';
+  import Sendevalg from './Sendevalg.svelte';
+  import { kanVarsle, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
   import Knapp from './Knapp.svelte';
   import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -98,6 +101,7 @@
     onendre = () => {},
     onlagttil = () => {},
     onkunnskapsdato,
+    onvarsle,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -117,6 +121,11 @@
     onlagttil?: () => void;
     /** TE oppgir eller endrer datoen etter § 34.1.3 i et eget brev, og utkastet står (U-10 i BF-48). */
     onkunnskapsdato?: (varselet: string) => void;
+    /**
+     * «Bare varsle, uten krav» (U-1 i BF-37), som registrering når `registrer`, og med varselet etter
+     * `hjemmel` fra påminnelsen ved det første kravet (U-3 i BF-51).
+     */
+    onvarsle?: (registrer: boolean, hjemmel?: Vederlagsvarselhjemmel) => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -129,6 +138,15 @@
   // svelte-ignore state_referenced_locally
   if (!eldreValg && valg === null) valg = startvalg(u);
   const v = $derived(eldreValg ?? valg!);
+
+  // U-1 i BF-37: «Bare varsle, uten krav», når kjernen tilbyr et varsel i vederlaget. Varselet
+  // registreres når det ikke kan sendes fra løsningen (VS-U16), og fra påminnelsen (U-3 i BF-51).
+  const { kanSende: kanSendeVarsel, kanRegistrere: kanRegistrereVarsel } = $derived(
+    kanVarsle(kjernesak.handlinger)
+  );
+  const visSendevalget = $derived(
+    !!onvarsle && !lagtTil && !eldre && (kanSendeVarsel || kanRegistrereVarsel)
+  );
 
   const forrige = $derived(utgangspunktet(u, 'vederlag', eldre));
   const forrigePoster = $derived(
@@ -162,8 +180,15 @@
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   // VS-U86 punkt 12: datoen etter § 34.1.3 står i kravet når kravet gir det særskilte varselet.
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
+  // #2425: et krav lagt til, sendt før det registrerte varselet, gir varselet og kan ha datoen.
+  const girSaerskilt = $derived(kravetErDetFoersteVarselet(u, lagtTil?.dato ?? null));
+  // U-10 og D-7 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet. Kjernen
+  // avviser datoen i kravet når den er oppgitt (`kunnskapsdatoISperren`).
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  const kanOppgiDatoen = $derived(girSaerskilt && !sisteKunnskapsdato);
+  const saerskiltI = $derived(girSaerskilt ? null : saerskiltvarselet);
   const iDag = dagensDato();
-  const kommando = $derived(vederlagskravet(v, varslene, saerskiltvarselet === null));
+  const kommando = $derived(vederlagskravet(v, varslene, kanOppgiDatoen));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
   const varselkolonner = $derived(
     lagtTil ? KRAVSKJEMA.varselkolonnerLagtTil : KRAVSKJEMA.varselkolonner
@@ -294,13 +319,7 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(
-    manglerIKravet(
-      v,
-      varslene,
-      uid,
-      navnet,
-      saerskiltvarselet === null ? (lagtTil?.dato ?? iDag) : null
-    )
+    manglerIKravet(v, varslene, uid, navnet, kanOppgiDatoen ? (lagtTil?.dato ?? iDag) : null)
   );
   const iVarselseksjonen = (m: Mangel) =>
     /-(varsel|type|dato|dokument)-/.test(m.felt) || m.felt === id('klar-over');
@@ -384,8 +403,6 @@
   };
   const klarOver = $derived(klarOverForholdet(u));
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
-  // U-10 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet.
-  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
@@ -442,7 +459,7 @@
   const antallVarsler = $derived(1 + (v.saerskilt ? 1 : 0) + postvarsler.length);
   const iBrevet = $derived(
     (vederlagsvarselet === null ? 1 : 0) +
-      (v.saerskilt && saerskiltvarselet === null ? 1 : 0) +
+      (v.saerskilt && girSaerskilt ? 1 : 0) +
       postvarsler.filter(
         ({ p, vs }) => vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet'
       ).length
@@ -472,7 +489,7 @@
             {
               id: id(`varsel-${hjemmel}`),
               tittel,
-              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltvarselet),
+              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltI),
             },
           ]
         : [];
@@ -597,7 +614,7 @@
         : [];
     }),
     // U-2 i BF-48: datoen i posten etter § 34.1.3, når kravet gir varselet.
-    ...(saerskiltvarselet === null && v.saerskilt?.klarOver
+    ...(kanOppgiDatoen && v.saerskilt?.klarOver
       ? [
           {
             naar: v.saerskilt.klarOver,
@@ -852,7 +869,7 @@
           lett
           valg={varsler.map((x) => {
             const b = brevMed(x.dokument);
-            return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletI(b) : x.id };
+            return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletMedArbeid(b, x.arbeid) : x.id };
           })}
           bind:verdi={p.varsel.varsel}
           feil={feil(`varsel-${n}`)}
@@ -927,8 +944,21 @@
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
   {/snippet}
 
+  {#if visSendevalget}
+    <Sendevalg
+      navn={id('hva')}
+      hva="krav"
+      onvelg={() => onvarsle?.(!kanSendeVarsel || !!valg?.varsling?.utenfor)}
+    />
+  {/if}
+
   {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
-    <Foerstekrav {u} spor="vederlag" hjemmel="34.1.2" />
+    <Foerstekrav
+      {u}
+      spor="vederlag"
+      hjemmel="34.1.2"
+      onregistrer={kanRegistrereVarsel && onvarsle ? () => onvarsle(true, '34.1.2') : undefined}
+    />
   {/if}
 
   <section
@@ -1105,8 +1135,8 @@
           </div>
           <div class="brevet">
             <span class="visually-hidden">{varselkolonner[2]}:</span>
-            <p>{varselI(saerskiltvarselet)}</p>
-            {#if saerskiltvarselet !== null}
+            <p>{varselI(saerskiltI)}</p>
+            {#if !kanOppgiDatoen}
               <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
               {#if kunnskapsdatoVarselet && onkunnskapsdato}
                 <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
@@ -1115,7 +1145,7 @@
               {/if}
             {/if}
           </div>
-          {#if saerskiltvarselet === null && v.saerskilt}
+          {#if kanOppgiDatoen && v.saerskilt}
             <div class="varselvalgene">
               <Datofelt
                 id={id('klar-over')}

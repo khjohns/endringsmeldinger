@@ -69,8 +69,8 @@ tilstander = "Åpner «varslet»."
 status = "grunnsett"
 noekler = ["sende_varsel:frist", "sende_varsel:vederlag", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4"]
 kommandoer = ["send_varsel"]
-skjema = ["sende_varsel:frist"]
-mangler = "Skjemaet i Varden for varselet i vederlaget."
+skjema = ["sende_varsel:frist", "sende_varsel:vederlag", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4"]
+mangler = "Ingen."
 
 [[handling]]
 id = "G3"
@@ -201,7 +201,7 @@ tilstander = "Som handlingen registreringen er en form av."
 status = "naa"
 noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
 kommandoer = ["varsel", "krav", "brev", "revisjon", "aksept"]
-skjema = ["varsle:frist"]
+skjema = ["varsle:frist", "varsle:vederlag", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
 mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3)."
 
 [[handling]]

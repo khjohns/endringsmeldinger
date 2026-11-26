@@ -359,6 +359,7 @@
       aktiv={hjemmel === '34.4' && iTide === null}
       tittel={overskrift(hjemmel) ?? varselpunktet}
     >
+      {#if varselet.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(varselet.arbeid)}</p>{/if}
       {@render standpunktet('varselet')}
     </Spoersmaal>
     {#if hjemmel === '34.3.3'}
