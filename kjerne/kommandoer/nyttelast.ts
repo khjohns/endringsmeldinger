@@ -246,16 +246,6 @@ function kravetsUtdypning(
   return nyttelastI(k.spor).utdypning(k, regler);
 }
 
-/**
- * KA-U34 (opphevet av KA-U46): en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
- * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35 (opphevet av KA-U46)).
- */
-function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvisning | null {
-  return k.sendt === undefined && !k.utdypning?.trim()
-    ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
-    : null;
-}
-
 /** VS-U58. */
 const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;
 type VarselOmForholdet = (typeof VARSLER_OM_FORHOLDET)[number];
@@ -361,10 +351,6 @@ function oppgittDatoI(k: Kommando): OppgittDato[] {
         },
       ]
     : [];
-  if (k.type === 'begrunnelse')
-    return k.sendt === undefined
-      ? []
-      : [{ dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' }];
   if (k.type === 'korrigering') {
     const { felt, dato } = korrigertDato(k);
     return [{ dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' }];
@@ -637,13 +623,7 @@ export function nyttelastkontroll(
     case 'foresporsel':
     case 'foresporselssvar':
     case 'ingen_krav':
-    case 'protest':
-    case 'bestridelse':
       return null;
-    case 'begrunnelse': {
-      // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39, opphevet av KA-U46) bygges ikke.
-      return utdypningKreves ? begrunnelsensTekst(k) : null;
-    }
     case 'innlegg':
       return henvisningenIInnlegget(k.gjelder, u);
     case 'korrigering':

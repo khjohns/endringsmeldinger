@@ -222,7 +222,7 @@ export const JOURNALRADEN: Lesbar[] = [
   ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
-  ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  ['format/leser.ts', 'relasjon', 'erRegistrert datoFor'],
   // #2088 punkt 1: datoen parten oppga for dokumentet, lest ett sted.
   [
     'format/leser.ts',

@@ -222,7 +222,6 @@ export const DOKUMENTENE: Lesbar[] = [
     ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
   ],
   ['Utsagn', 'relasjon', 'id art gjelder'],
-  ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
   ['Utsagn', 'utsagn', 'hjemmel'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
@@ -237,7 +236,7 @@ export const DOKUMENTENE: Lesbar[] = [
   ['Standpunkt.maatteForstaa', 'utsagn', 'dager'],
   // OV-U26, OV-U31, VS-U5: posten beløpet gjelder, og beløpet etter begrensningen etter § 34.1.3.
   ['Standpunkt', 'utsagn', 'saerskilt begrenset'],
-  ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
+  ['Opplysning', 'relasjon', 'id hva gjelder dokument brev'],
   ['Opplysning', 'utsagn', 'dato oppfylt'],
   ['Beslutningsgrunnlag', 'frosset', 'regelversjon virkninger sammenfall varslingsplikt'],
   // GR-U32, LV-U41: ordene for standpunktet til forholdet, lest av det frosne svaret og påberopelsen.

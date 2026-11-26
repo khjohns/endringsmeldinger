@@ -7,7 +7,6 @@
  * skrives.
  */
 
-import { OPPLYSNINGSSLAG } from '../format/format.ts';
 import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { vedleggsnoekkel } from './vedlegg.ts';
@@ -30,7 +29,6 @@ import {
   VARSELSPOR,
   erKravpostvarselhjemmel,
   type Kravspor,
-  type Opplysningsslag,
   type Part,
   type Spor,
   type Kravvarselhjemmel,
@@ -228,7 +226,6 @@ export type Kommando = (
    * beløp. Varslene står i ett spor (beslutningsdelen i VS-U87).
    */
   | { type: 'send_varsel'; varsler: Varselposten<Kravvarselhjemmel>[] }
-  | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
   /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
@@ -238,23 +235,6 @@ export type Kommando = (
    * kravet ikke foreligger. `gjelder` er forespørselen, og begrunnelsen er utdypningen.
    */
   | { type: 'foresporselssvar'; gjelder: string; utdypning: string }
-  /** VS-U1, MP-U6: mot byggherrens påberopelse i et svar, eller alle påberopelsene i et svar. */
-  | { type: 'protest'; gjelder: string }
-  /**
-   * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
-   * (KA-U34). Registrert har den datoen brevet ble sendt og brevet som vedlegg, uten
-   * tekst (KA-U35).
-   */
-  | {
-      type: 'begrunnelse';
-      gjelder: string;
-      utdypning?: string;
-      sendt?: string;
-      korrespondansetype?: Korrespondansetype;
-      sendemaate?: Sendemaate;
-      beskrivelse?: string;
-      dokumentasjon?: string[];
-    }
   /**
    * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TE korrigerer sin opplysning
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, og datoen står
@@ -335,9 +315,6 @@ const REGISTRERING = {
   beskrivelse: TEKST,
   dokumentasjon: liste(ID),
 };
-
-const henvisning = (type: string) =>
-  objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(
@@ -429,15 +406,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     },
     ['type', 'varsler']
   ),
-  bestridelse: objekt(
-    {
-      type: { const: 'bestridelse' },
-      gjelder: ID,
-      hva: { enum: [...OPPLYSNINGSSLAG] },
-      ...BREVTEKST,
-    },
-    ['type', 'gjelder', 'hva']
-  ),
   ingen_krav: objekt(
     { type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] }, ...BREVTEKST },
     ['type', 'spor']
@@ -454,21 +422,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   foresporselssvar: objekt(
     { type: { const: 'foresporselssvar' }, gjelder: ID, utdypning: TEKST, ...BREVTEKST },
     ['type', 'gjelder', 'utdypning']
-  ),
-  protest: henvisning('protest'),
-  begrunnelse: objekt(
-    {
-      type: { const: 'begrunnelse' },
-      gjelder: ID,
-      utdypning: TEKST,
-      sendt: DATO,
-      korrespondansetype: KORRESPONDANSETYPE,
-      sendemaate: SENDEMAATE,
-      beskrivelse: TEKST,
-      dokumentasjon: liste(ID),
-      ...BREVTEKST,
-    },
-    ['type', 'gjelder']
   ),
   korrigering: objekt(
     {
@@ -706,14 +659,6 @@ export function formfeil(kommando: unknown): string[] {
     for (const felt of ['tittel', 'utdypning'] as const)
       if (!(kommando[felt] as string).trim())
         feil.push(`$.${felt}: innlegget har ingen ${felt === 'tittel' ? 'tittel' : 'tekst'}`);
-  if (type === 'begrunnelse' && !feil.length)
-    // KA-U35: den registrerte begrunnelsen har ingen tekst i appen. KA-U34: brevet fra appen har
-    // bare setningen og teksten.
-    feil.push(
-      ...registreringensForm(kommando, () =>
-        'utdypning' in kommando ? ['$.utdypning: en registrert begrunnelse har ingen tekst'] : []
-      )
-    );
   // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
   if (
     type === 'krav' &&

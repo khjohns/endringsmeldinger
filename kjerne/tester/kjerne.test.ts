@@ -181,7 +181,15 @@ describe('formen på kravet', () => {
     expect(formfeil(iKravet('moetereferat'))).toEqual([
       '$.varsel.sendemaate: bare et brev har sendemåten',
     ]);
-    expect(formfeil({ type: 'begrunnelse', gjelder: 'svar-1', sendemaate: 'post' })).toEqual([
+    expect(
+      formfeil({
+        type: 'aksept',
+        spor: 'vederlag',
+        svar: 'svar-1',
+        regelversjon: 1,
+        sendemaate: 'post',
+      })
+    ).toEqual([
       '$.sendemaate: bare et brev lagt til med datoen det ble sendt (`sendt`), har sendemåten',
     ]);
   });
@@ -369,55 +377,64 @@ describe('lesereglene for referansene (4.2)', () => {
   const element = (r: Journalrad[], k: Kjoering, navn: string, felt: 'krav' | 'utsagn') =>
     (radMed(r, k, navn).data[felt] as Data[])[0];
   const id = (k: Kjoering, navn: string) => k.navn.id(navn);
-  /** OV-U7: kommandoen for bestridelse avvises, så byggherrens bestridelse lages for hånd. */
-  const medBestridelse = (r: Journalrad[], k: Kjoering): Journalrad => {
+  /** Byggherrens innlegg som viser til brevet med varselet, skrevet for hånd (MM-U47 punkt 2). */
+  const medInnlegg = (r: Journalrad[], k: Kjoering): Journalrad => {
     const siste = r.at(-1)!;
     const rad: Journalrad = {
       ...siste,
       event_id: randomUUID(),
       versjon: siste.versjon + 1,
       aktor_rolle: 'BH',
-      data: {
-        utsagn: [
-          { id: randomUUID(), art: 'bestridelse', gjelder: id(k, 'D4#sendt'), hva: 'mottatt' },
-        ],
-      },
+      data: { utsagn: [{ id: randomUUID(), art: 'innlegg', gjelder: id(k, 'D4') }] },
     };
     r.push(rad);
     return rad;
   };
 
-  it('en bestridelse med en tittel skrivingen ikke gir den, er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
+  it('et varsel fra løsningen med en tittel skrivingen ikke gir det, er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
+    const bane = minnebane();
+    await bygg(bane, varselet as Parameters<typeof bygg>[1]);
+    const rader = structuredClone(await bane.journal());
+    // Med tekst fra løsningen, så det er tittelen og ikke den manglende teksten som avvises.
+    const varsel = (r: Journalrad[]) => {
+      const siste = r.at(-1)!;
+      const u = { id: randomUUID(), art: 'varsel', hjemmel: '34.1.3' };
+      const rad: Journalrad = {
+        ...siste,
+        event_id: randomUUID(),
+        versjon: siste.versjon + 1,
+        aktor_rolle: 'TE',
+        data: { utsagn: [u], brevtekst: [{ gjelder: u.id, laast: 'Totalentreprenøren varsler.' }] },
+      };
+      r.push(rad);
+      return rad;
+    };
+    const kontroll = structuredClone(rader);
+    varsel(kontroll);
+    expect(utled(lesJournal(kontroll, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(true);
+    // En tittel løsningen gir andre brev, som ikke påberoper et forhold (GR-U31).
+    varsel(rader).data.brevtittel = 'Aksept av svaret';
+    expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
+  });
+
+  it('et innlegg fra løsningen uten tittel er ikke forstått (MM-U47, designdelen, MM-U2)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, varselet as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
-    // En tittel løsningen gir andre brev, som ikke påberoper et forhold (GR-U31).
-    const tittel = 'Aksept av svaret';
     // Med tekst fra løsningen, så det er tittelen og ikke den manglende teksten som avvises.
     const medTekst = (r: Journalrad[]) => {
-      const rad = medBestridelse(r, k);
+      const rad = medInnlegg(r, k);
       const u = (rad.data.utsagn as Data[])[0];
       rad.data.brevtekst = [
-        { gjelder: u.id, laast: 'Byggherren bestrider at brevet ble mottatt.' },
+        { gjelder: u.id, laast: 'Byggherren viser til brevet:', utdypning: 'Teksten.' },
       ];
       return rad;
     };
     const kontroll = structuredClone(rader);
-    medTekst(kontroll);
+    medTekst(kontroll).data.brevtittel = 'Om varselet';
     expect(utled(lesJournal(kontroll, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(true);
-    medTekst(rader).data.brevtittel = tittel;
+    medTekst(rader);
     expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
-  });
-
-  it('en bestridelse fra motparten som står i journalen, leses (MM-U7)', async () => {
-    const bane = minnebane();
-    const k = await bygg(bane, varselet as Parameters<typeof bygg>[1]);
-    const rader = structuredClone(await bane.journal());
-    medBestridelse(rader, k);
-    const u = utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(u.forstaatt).toBe(true);
-    const o = u.opplysninger.find((x) => x.opplysning.id === id(k, 'D4#sendt'));
-    expect(o?.bestridelser.map((b) => [b.part, b.hva])).toEqual([['BH', 'mottatt']]);
   });
 
   it.each<[string, (string | Data)[], (r: Journalrad[], k: Kjoering) => void]>([
@@ -469,13 +486,7 @@ describe('lesereglene for referansene (4.2)', () => {
       ['krav_eo', vederlagIgjen, { handling: 'trekk', spor: 'vederlag', navn: 'D5' }],
       (r, k) => (element(r, k, 'D5', 'utsagn').gjelder = id(k, 'K-v1')),
     ],
-    [
-      'en bestridelse av egen opplysning (MM-U7)',
-      varselet,
-      (r, k) => {
-        medBestridelse(r, k).aktor_rolle = 'TE';
-      },
-    ],
+
     [
       'beløpet viser til en kravpost som ikke står i kravet (OV-U23, KA-U57 (c))',
       ['forlop_a'],
@@ -639,22 +650,6 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     ...opplysninger,
   });
 
-  it('en bestridelse av opplysningen avvises i første versjon, både av § 31.3 og av en dato (OV-U7)', async () => {
-    const k = await bygg(minnebane(), [
-      'krav_irreg',
-      registrert({ sendt: '2026-09-30', endringsordre: true }),
-    ]);
-    for (const hva of ['endringsordre', 'sendt']) {
-      const svar = await k.prov({
-        handling: 'bestridelse',
-        part: 'TE',
-        gjelder: 'D4#endringsordre',
-        hva,
-      });
-      expect(svar.godtatt ? 'godtatt' : svar.avvisning.regel).toBe('IKKE_I_FOERSTE_VERSJON');
-    }
-  });
-
   it('en senere avklaring av § 31.3 er ikke forstått, også når den sier at brevet var en endringsordre (OV-U13)', async () => {
     const bane = minnebane();
     await bygg(bane, [
@@ -742,13 +737,13 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     }
   );
 
-  it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35 (opphevet av KA-U46)) er dokumentasjon og teller som brev utenfor appen', async () => {
+  it('OV-U19, OV-U4: et registrert trekk er dokumentasjon og teller som brev utenfor appen (OV-U98)', async () => {
     const eo = registrert({ sendt: '2026-09-30', endringsordre: true });
     const begrunnelse = {
       handling: 'rad',
-      art: 'begrunnelse',
-      gjelder: 'S-g1',
-      part: 'BH',
+      art: 'trekk',
+      gjelder: 'K-v1',
+      part: 'TE',
       navn: 'D5',
       sendt: '2026-09-30',
     };

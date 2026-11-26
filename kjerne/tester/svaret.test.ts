@@ -17,7 +17,7 @@ import { handlinger } from '../kommandoer/handlinger.ts';
 import { lesJournal } from '../format/leser.ts';
 import { utledJournal } from '../kommandoer/skriving.ts';
 import { P1, medP1, medP1IkkeAkseptert } from './klient.ts';
-import type { Journalrad, Part, Standpunktsvirkning } from '../typer.ts';
+import type { Part, Standpunktsvirkning } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
   enighetensVirkning,
@@ -55,7 +55,6 @@ import {
   laast,
   sak,
   sakMedKrav,
-  sendtForVarseletIFristkravet,
   svar,
   tekst,
   tilbud,
@@ -1250,7 +1249,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
   });
 });
 
-describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
+describe('protest og senere begrunnelse sendes som innlegg (MM-U48, KA-U46)', () => {
   const medSvaret = () => {
     const s = sakMedKrav();
     const svaret = s.send('BH', {
@@ -1348,31 +1347,29 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
     expect(foer.u.sendtSammeDag, 'kontrollsak: sendt dagen før varselet').toEqual([]);
   });
 
-  it('protest og senere begrunnelse avvises fra begge parter, med FEIL_PART for parten handlingen ikke tilhører (#997), og ingen hendelse skrives (OV-U7, arbeidsvalget 16.10 på #587)', () => {
+  it('protest, bestridelse og senere begrunnelse er ukjente kommandoer for begge parter, og ingen hendelse skrives: de sendes som innlegg (MM-U48, KA-U46)', () => {
     const { s, brevet, svarId, rettidighet } = medSvaret();
-    // Den senere begrunnelsen er byggherrens (#997).
-    const kommandoer: [Data, Part | null][] = [
-      [{ type: 'protest', gjelder: brevet }, null],
-      [{ type: 'protest', gjelder: rettidighet }, null],
-      [{ type: 'begrunnelse', gjelder: svarId, utdypning: BEGRUNNELSE }, 'BH'],
-      [
-        {
-          type: 'begrunnelse',
-          gjelder: svarId,
-          sendt: '2026-10-07',
-          ...SOM_BREV,
-          dokumentasjon: [randomUUID()],
-        },
-        'BH',
-      ],
-    ];
     const foer = s.journal.length;
     for (const part of ['TE', 'BH'] as const)
-      for (const [k, eier] of kommandoer)
-        expect(s.avvist(part, k), `${part}: ${JSON.stringify(k)}`).toBe(
-          eier === null || eier === part ? 'IKKE_I_FOERSTE_VERSJON' : 'FEIL_PART'
-        );
+      for (const k of [
+        { type: 'protest', gjelder: rettidighet },
+        { type: 'bestridelse', gjelder: brevet, hva: 'sendt' },
+        { type: 'begrunnelse', gjelder: svarId, utdypning: BEGRUNNELSE },
+      ])
+        expect(s.avvisning(part, k), `${part}: ${k.type}`).toEqual({
+          regel: 'UGYLDIG_FORM',
+          melding: `Ukjent kommando: ${k.type}`,
+        });
     expect(s.journal).toHaveLength(foer);
+    expect(
+      s.avvist('TE', {
+        type: 'innlegg',
+        gjelder: brevet,
+        tittel: 'Protest',
+        utdypning: BEGRUNNELSE,
+      }),
+      'kontrollsak'
+    ).toBeNull();
   });
 
   it('den egne innsigelsen etter punkt 5 og påberopt passivitet er ukjente kommandoer for begge parter, og ingen hendelse skrives (VS-U89, VS-U94)', () => {
@@ -1410,7 +1407,7 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
     }
   });
 
-  it('protest og senere begrunnelse tilbys ingen av partene, også med et svar med en påberopelse (OV-U7)', () => {
+  it('protest og senere begrunnelse tilbys ingen av partene, også med et svar med en påberopelse (MM-U48, KA-U46)', () => {
     const { s, brevet, svarId } = medSvaret();
     const u = s.u();
     expect(u.elementer[brevet]?.art, 'forutsetning: brevet med svaret').toBe('dokument');
@@ -1424,38 +1421,29 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
     }
   });
 
-  it('en lest protest og senere begrunnelse gjør saken fortsatt forstått og vises ved siden av, uten virkning på sporene (OV-U7, VS-U1, KA-U34 (opphevet av KA-U46))', () => {
-    const { s, rettidighet, svarId } = medSvaret();
-    const foer = s.u();
-    const utsagn = (art: string, gjelder: string) => ({
-      utsagn: [{ id: randomUUID(), art, gjelder }],
-    });
-    const protest = s.rad('TE', utsagn('protest', rettidighet));
-    const begrunnelse = s.rad('BH', utsagn('begrunnelse', svarId));
-    const u = s.u();
-    expect(u.forstaatt).toBe(true);
-    expect(u.protester.map((p) => [p.part, p.gjelder, p.hendelse])).toEqual([
-      ['TE', rettidighet, protest.event_id],
-    ]);
-    const b = (begrunnelse.data.utsagn as Data[])[0].id as string;
-    expect(u.elementer[b]).toEqual({
-      hendelse: begrunnelse.event_id,
-      part: 'BH',
-      art: 'begrunnelse',
-    });
-    const v = visning(u, GJELDENDE_REGLER);
-    expect(
-      v.journal
-        .filter((j) => [protest, begrunnelse].some((r) => r.event_id === j.hendelse))
-        .map((j) => j.tolket)
-    ).toEqual([true, true]);
-    expect(u.utenVirkning).toEqual([]);
-    expect(u.spor).toEqual(foer.spor);
-    expect(u.svar).toEqual(foer.svar);
+  it('en lagret protest, bestridelse eller senere begrunnelse gjør saken ikke forstått: utsagnene er tatt ut av formatet (MM-U48, KA-U46, MM-U2)', () => {
+    const { s, brevet, rettidighet, svarId } = medSvaret();
+    const lest = (art: string, gjelder: string, ekstra: Data = {}) =>
+      utledJournal(
+        [
+          ...s.journal,
+          {
+            ...s.journal.at(-1)!,
+            event_id: randomUUID(),
+            versjon: s.journal.at(-1)!.versjon + 1,
+            data: { utsagn: [{ id: randomUUID(), art, gjelder, ...ekstra }] },
+          },
+        ],
+        KJERNE
+      ).forstaatt;
+    expect(lest('innlegg', brevet), 'kontrollsak').toBe(true);
+    expect(lest('protest', rettidighet)).toBe(false);
+    expect(lest('begrunnelse', svarId)).toBe(false);
+    expect(lest('bestridelse', brevet, { hva: 'sendt' })).toBe(false);
   });
 
   it('en lagret egen innsigelse etter punkt 5 eller påberopt passivitet gjør saken ikke forstått, også med grunnen at noe ikke er et svar etter punkt 33.6.2 (VS-U89, MM-U2, VS-U94)', () => {
-    const { s, svarId, rettidighet } = medSvaret();
+    const { s, svarId, brevet } = medSvaret();
     const lest = (part: Part, data: Data) =>
       utledJournal(
         [
@@ -1470,7 +1458,7 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
         ],
         KJERNE
       ).forstaatt;
-    expect(lest('TE', { art: 'protest', gjelder: rettidighet }), 'kontrollsak').toBe(true);
+    expect(lest('TE', { art: 'innlegg', gjelder: brevet }), 'kontrollsak').toBe(true);
     expect(lest('TE', { art: 'innsigelse', gjelder: svarId })).toBe(false);
     expect(lest('BH', { art: 'innsigelse', gjelder: s.krav('forhold') })).toBe(false);
     expect(lest('BH', { art: 'innsigelse', gjelder: s.krav('forhold'), grunn: 'ikke_svar' })).toBe(
@@ -1480,7 +1468,7 @@ describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
   });
 });
 
-describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', () => {
+describe('merking og avklaring (KA-U45)', () => {
   /** Et registrert svar fra byggherren på forholdet, sendt 3.10 (brev 3). */
   const medRegistrertSvar = (opplysninger: Data[] = []) => {
     const s = sak();
@@ -1511,30 +1499,6 @@ describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', 
     return { s, rad, opplysning };
   };
 
-  it('bestridelsen av datoen og av opplysningen om § 31.3 avvises i første versjon (OV-U7)', () => {
-    const { s, opplysning } = medRegistrertSvar([
-      { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
-    ]);
-    expect(
-      s.avvist('TE', { type: 'bestridelse', gjelder: opplysning('sendt'), hva: 'sendt' })
-    ).toBe('IKKE_I_FOERSTE_VERSJON');
-    expect(
-      s.avvist('TE', {
-        type: 'bestridelse',
-        gjelder: opplysning('endringsordre'),
-        hva: 'endringsordre',
-      })
-    ).toBe('IKKE_I_FOERSTE_VERSJON');
-  });
-
-  it('bestridelsen av datoen for et varsel etter § 33.4 avvises i første versjon (OV-U7)', () => {
-    const s = sakMedKrav();
-    const varsel = sendtForVarseletIFristkravet(s);
-    expect(s.avvist('BH', { type: 'bestridelse', gjelder: varsel, hva: 'sendt' })).toBe(
-      'IKKE_I_FOERSTE_VERSJON'
-    );
-  });
-
   it('merkingen av et registrert brev og avklaringen er ukjente kommandoer, og ingen hendelse skrives (KA-U45)', () => {
     const { s, rad } = medRegistrertSvar();
     const foer = s.journal.length;
@@ -1547,46 +1511,6 @@ describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', 
         melding: `Ukjent kommando: ${k.type}`,
       });
     expect(s.journal).toHaveLength(foer);
-  });
-});
-
-describe('den senere begrunnelsen (KA-U34)', () => {
-  const forholdAvslaatt = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
-  const svarId = (rad: Journalrad, i = 0) => (rad.data.svar as Data[])[i].id as string;
-
-  /** Saken med kravene og byggherrens svar på alle tre i brev 5. */
-  const medSvar = () => {
-    const s = sakMedKrav();
-    const brev = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), forholdAvslaatt),
-        svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]),
-        svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
-      ],
-    });
-    return { s, brev };
-  };
-
-  it('en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått (MM-U2)', () => {
-    const { s, brev } = medSvar();
-    const lest = (part: Part, gjelder: string) =>
-      utledJournal(
-        [
-          ...s.journal,
-          {
-            ...s.journal.at(-1)!,
-            event_id: randomUUID(),
-            versjon: s.journal.at(-1)!.versjon + 1,
-            aktor_rolle: part,
-            data: { utsagn: [{ id: randomUUID(), art: 'begrunnelse', gjelder }] },
-          },
-        ],
-        KJERNE
-      ).forstaatt;
-    expect(lest('BH', svarId(brev)), 'kontrollsak').toBe(true);
-    expect(lest('TE', svarId(brev))).toBe(false);
-    expect(lest('BH', s.krav('forhold'))).toBe(false);
   });
 });
 
@@ -1783,6 +1707,10 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     });
   });
 
+  const utsagn = (id: string, art: string, gjelder: string) => ({
+    utsagn: [{ id, art, gjelder }],
+  });
+
   /** Kravene avgjort: forholdet og vederlaget godkjent, fristkravet trukket (KA-U11). */
   const avgjort = () => {
     const s = utenFrist();
@@ -1792,19 +1720,17 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(kraveneErAvgjort(foer), 'forutsetning: kravene er avgjort').toBe(true);
     return { s, foer };
   };
-  const utsagn = (id: string, art: string, gjelder: string) => ({
-    utsagn: [{ id, art, gjelder }],
-  });
-
-  it('en lest senere begrunnelse etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34 (opphevet av KA-U46))', () => {
+  it('et innlegg etter at kravene er avgjort, endrer ikke sporene (MM-U47 punkt 4–5, KA-U11)', () => {
     const { s, foer } = avgjort();
-    const svarId = foer.spor.vederlag.gjeldendeSvar?.id;
-    expect(svarId, 'forutsetning: svaret på vederlaget').toBeDefined();
-    const id = randomUUID();
-    s.rad('BH', utsagn(id, 'begrunnelse', svarId as string));
+    const brevet = foer.spor.vederlag.gjeldendeSvar!.dokument;
+    s.send('BH', {
+      type: 'innlegg',
+      gjelder: brevet,
+      tittel: 'Begrunnelse',
+      utdypning: BEGRUNNELSE,
+    });
     const u = s.u();
     expect(u.forstaatt).toBe(true);
-    expect(u.elementer[id]?.art).toBe('begrunnelse');
     expect(u.utenVirkning).toEqual([]);
     expect(u.spor).toEqual(foer.spor);
   });
@@ -1832,14 +1758,17 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     return { s, foer };
   };
 
-  it('en lest senere begrunnelse etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34 (opphevet av KA-U46))', () => {
+  it('et innlegg etter at saken er lukket etter GR-U27, endrer ikke sporene (MM-U47 punkt 10, GR-U27)', () => {
     const { s, foer } = lukket();
-    const svarId = foer.spor.forhold.gjeldendeSvar!.id;
-    const id = randomUUID();
-    s.rad('BH', utsagn(id, 'begrunnelse', svarId));
+    const brevet = foer.spor.forhold.gjeldendeSvar!.dokument;
+    s.send('BH', {
+      type: 'innlegg',
+      gjelder: brevet,
+      tittel: 'Begrunnelse',
+      utdypning: BEGRUNNELSE,
+    });
     const u = s.u();
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-    expect(u.elementer[id]?.art).toBe('begrunnelse');
     expect(u.utenVirkning).toEqual([]);
     expect(u.spor).toEqual(foer.spor);
   });

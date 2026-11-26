@@ -52,13 +52,7 @@ export type Handlingsnoekkel =
   /** VS-U79: byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
   | { type: 'svare' | 'revidere'; gjelder: string }
   | {
-      type:
-        | 'bestride'
-        | 'protest'
-        | 'begrunne'
-        | 'korrigere'
-        | 'oppgi_kunnskapsdato'
-        | 'svare_paa_foresporsel';
+      type: 'korrigere' | 'oppgi_kunnskapsdato' | 'svare_paa_foresporsel';
       gjelder: string;
     };
 
@@ -90,9 +84,6 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   sende_innlegg: null,
   svare: 'BH',
   revidere: 'BH',
-  bestride: null,
-  protest: null,
-  begrunne: 'BH',
   korrigere: 'TE',
   oppgi_kunnskapsdato: 'TE',
 };
@@ -102,8 +93,7 @@ export const HANDLINGSTYPER = Object.keys(PART) as Handlingsnoekkel['type'][];
 
 /**
  * Handlingene som viser til et annet element: svaret på et varsel som står alene, begrunnelsen
- * på forespørselen, korrigeringen og kunnskapsdatoen. De andre er utsatt etter OV-U7 og avvises
- * for begge parter.
+ * på forespørselen, korrigeringen og kunnskapsdatoen.
  */
 function henvisning(
   h: Extract<Handlingsnoekkel, { gjelder: string }>,
@@ -145,15 +135,6 @@ function henvisning(
       return korrigering(h.gjelder, u);
     case 'oppgi_kunnskapsdato':
       return kunnskapsdatoen(h.gjelder, u);
-    case 'bestride':
-    case 'protest':
-    case 'begrunne':
-      // OV-U7, OV-U99 punkt 3–4: bestridelsen (MM-U7, MM-U14), protesten mot en påberopelse
-      // (VS-U1, VS-U9) og den senere begrunnelsen (KA-U46) sendes som innlegg.
-      return avvis(
-        'IKKE_I_FOERSTE_VERSJON',
-        'Bestridelse, protest og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
-      );
   }
 }
 

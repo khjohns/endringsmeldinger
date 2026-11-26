@@ -33,12 +33,7 @@ export const FORMATET: Lesbar[] = [
     'METODER',
     ['regler/vederlag.ts:kontrollerOppgjoersformen'],
   ],
-  [
-    'format/format.ts',
-    'skjema',
-    'KRAVINNHOLD OPPLYSNINGSSLAG',
-    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts'],
-  ],
+  ['format/format.ts', 'skjema', 'KRAVINNHOLD', ['spor/forhold/kommando.ts']],
   [
     'format/skjema.ts',
     'skjema',

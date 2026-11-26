@@ -536,14 +536,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-G21'],
   },
   {
-    id: 'F47',
-    feilklasse:
-      'en sak som ikke er forstått, avviser ikke bestridelsen med SAK_IKKE_FORSTAATT (MM-U2, MM-U14)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['  if (!u.forstaatt)\n', "  if (!u.forstaatt && h.type !== 'bestride')\n"]],
-    mal: ['F-MM-E9'],
-  },
-  {
     id: 'F40',
     feilklasse:
       'en aksept av et svar med sammenfall leses, så godkjenningen slutter å være en endringsordre (GR-U8, GR-U12)',
@@ -1229,39 +1221,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F160',
-    feilklasse:
-      'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34 (opphevet av KA-U46), MM-U2)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["return maal.art === 'svar';", "return maal.art !== 'opplysning';"]],
-    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
-  },
-  {
-    id: 'F165',
-    feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34 (opphevet av KA-U46), MM-U2)',
-    fil: `${K}/format/leser.ts`,
-    endringer: [["  begrunnelse: 'BH',", '  begrunnelse: null,']],
-    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
-  },
-  {
-    id: 'F168',
-    feilklasse: 'protest og senere begrunnelse tilbys uten forutsetningene (OV-U7, INV-MM-1)',
-    fil: `${K}/kommandoer/handlinger.ts`,
-    endringer: [
-      [
-        "    if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });\n",
-        "    if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });\n    else if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });\n    else if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n",
-      ],
-      [
-        '.filter((h) => forutsetninger(h, part, u, null) === null)',
-        ".filter((h) => ['protest', 'begrunne'].includes(h.type) || forutsetninger(h, part, u, null) === null)",
-      ],
-    ],
-    mal: [
-      'protest og senere begrunnelse tilbys ingen av partene, også med et svar med en påberopelse',
-    ],
-  },
-  {
     id: 'F488',
     feilklasse:
       'den tilbudte handlingen får sporet fra nøkkelen, ikke fra elementet den gjelder (#1703)',
@@ -1275,14 +1234,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [['        ? VARSEL_I_SPORET[h.spor]\n', '        ? null\n']],
     mal: ['et varsel får hjemmelen og sporet etter OV-U5'],
-  },
-  {
-    id: 'F170',
-    feilklasse:
-      'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["['aksept', 'trekk', 'varsel']", "['aksept', 'trekk', 'varsel', 'begrunnelse']"]],
-    mal: ['en lest senere begrunnelse etter at saken er lukket etter GR-U27'],
   },
   {
     id: 'F173',
@@ -1841,7 +1792,7 @@ const MUTASJONER: Mutasjon[] = [
       'et trekk eller et annet utsagn i et registrert brev enn et varsel eller en aksept får virkning (OV-U98, #574)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (!erRegistrert(d.opplysninger)) return new Set();', '  return new Set();']],
-    mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
+    mal: ['OV-U19, OV-U4: et registrert trekk', 'punkt 4 i #1167: alt i et registrert brev'],
   },
   {
     id: 'F248',
@@ -2073,7 +2024,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F279',
     feilklasse:
-      'et utsagn kan vise til et element uten virkning uten krav til art og part (VS-U1, MM-U43 punkt 6, #669)',
+      'et utsagn kan vise til et element uten virkning uten krav til art (MM-U47 punkt 2, MM-U43 punkt 6, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2085,11 +2036,11 @@ const MUTASJONER: Mutasjon[] = [
         '  ugyldig: Ugyldig,\n  uten: Map<string, unknown>\n): void {\n  for (const x of henvisninger) {',
       ],
       [
-        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer)',
-        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer))',
+        '!bakover(x.id, x.gjelder) || !kanGjelde(x.art, maal))',
+        '!bakover(x.id, x.gjelder) || !(uten.has(x.gjelder) || kanGjelde(x.art, maal)))',
       ],
     ],
-    mal: ['en protest mot egen endringsordre uten virkning viser ikke til noe den kan gjelde'],
+    mal: ['et innlegg som viser til svaret uten virkning i stedet for brevet'],
   },
   {
     id: 'F280',
@@ -2234,20 +2185,6 @@ const MUTASJONER: Mutasjon[] = [
       'fristkravet har datoen for varselet og brevet med det',
       'samme vedlegg to ganger i varselet',
     ],
-  },
-  {
-    id: 'F301',
-    feilklasse: 'protesten godtas i første versjon (OV-U7)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'bestride':\n    case 'protest':\n", "    case 'bestride':\n"]],
-    mal: ['protest og senere begrunnelse avvises fra begge parter'],
-  },
-  {
-    id: 'F303',
-    feilklasse: 'den senere begrunnelsen godtas i første versjon (OV-U7)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'protest':\n    case 'begrunne':\n", "    case 'protest':\n"]],
-    mal: ['protest og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F306',
@@ -2579,7 +2516,7 @@ const MUTASJONER: Mutasjon[] = [
         '...d.utsagn.filter(() => false)',
       ],
     ],
-    mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
+    mal: ['OV-U19, OV-U4: et registrert trekk', 'punkt 4 i #1167: alt i et registrert brev'],
   },
   {
     id: 'F642',
@@ -2779,14 +2716,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['VS-U30: etter TEs begrunnelse avvises en ny forespørsel'],
-  },
-  {
-    id: 'F329',
-    feilklasse:
-      'protesten mot påberopelsen etter § 33.6.2 omtaler den som for sen varsling (LV-U20)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['`at ${VARSELET_I_SVARET[p.hjemmel]} kom for sent`', "'for sen varsling'"]],
-    mal: ['LV-U20: protesten mot påberopelsen etter § 33.6.2'],
   },
   {
     id: 'F330',
@@ -3511,7 +3440,7 @@ const MUTASJONER: Mutasjon[] = [
       'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, MM-U50, #1533)',
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
-    mal: ['en bestridelse med en tittel skrivingen ikke gir den, er ikke forstått'],
+    mal: ['et varsel fra løsningen med en tittel skrivingen ikke gir det, er ikke forstått'],
   },
   {
     id: 'F440',
@@ -7852,6 +7781,13 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en lagret rad med et registrert innlegg gjør saken ikke forstått'],
+  },
+  {
+    id: 'F1377h',
+    feilklasse: 'et innlegg fra løsningen uten tittel leses (MM-U47, designdelen, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["    throw new Uforstaatt('innlegget har ingen tittel');", '    void 0;']],
+    mal: ['et innlegg fra løsningen uten tittel er ikke forstått'],
   },
 ];
 

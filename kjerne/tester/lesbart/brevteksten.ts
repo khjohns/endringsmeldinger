@@ -68,11 +68,7 @@ export const BREVTEKSTEN: Lesbar[] = [
     'Kommando',
     'kommando',
     'utdypning',
-    [
-      'kommandoer/skriving.ts:dokument',
-      'kommandoer/nyttelast.ts:kravetsUtdypning',
-      'kommandoer/nyttelast.ts:begrunnelsensTekst',
-    ],
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:kravetsUtdypning'],
   ],
   // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
   ['Brevtekst', 'kommando', 'brevtekst', ['kommandoer/skriving.ts:skriv']],
@@ -510,7 +506,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/brevdeler.ts:Element',
     'brevtekst',
-    'art dokument krav opplysning standpunkt svar utsagn',
+    'art dokument krav svar utsagn',
     ['frosset/brevtekst.ts', 'frosset/brevdeler.ts'],
   ],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).

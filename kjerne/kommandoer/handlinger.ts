@@ -31,8 +31,7 @@ export interface TilbudtHandling {
 
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor og et svar per varsel i vederlaget
- * (VS-U79, VS-U87 punkt 30–32). «Ingen krav», bestridelse, protest og senere begrunnelse tilbys
- * ikke (OV-U7).
+ * (VS-U79, VS-U87 punkt 30–32), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];

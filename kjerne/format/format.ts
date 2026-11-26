@@ -218,14 +218,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'gjelder',
     'regelversjon',
   ]),
-  bestridelse: objekt(
-    {
-      ...artfelt('bestridelse'),
-      gjelder: ID,
-      hva: { enum: [...OPPLYSNINGSSLAG] },
-    },
-    ['id', 'art', 'gjelder', 'hva']
-  ),
   foresporsel: objekt({ ...artfelt('foresporsel'), hjemmel: { const: '33.6.2' } }, [
     'id',
     'art',
@@ -236,8 +228,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'art',
     'gjelder',
   ]),
-  protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
-  begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): datoen står i samme felt som
   // i kravet, og korrigeringen har nøyaktig én av dem.
   korrigering: objekt(

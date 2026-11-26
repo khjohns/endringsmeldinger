@@ -492,8 +492,6 @@ function dokument(
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: varselutsagn(k.varsler, nyId) };
-    case 'protest':
-      return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
     case 'foresporsel':
       // VS-U19: brevet er forespørselen, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'foresporsel', hjemmel: k.hjemmel }] };
@@ -502,22 +500,6 @@ function dokument(
       const id = nyId();
       utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'foresporselssvar', gjelder: k.gjelder }] };
-    }
-    case 'begrunnelse': {
-      const id = nyId();
-      const utsagn = [{ id, art: 'begrunnelse', gjelder: k.gjelder }];
-      // KA-U35: et registrert brev, som varselet over.
-      if (k.sendt !== undefined)
-        return {
-          utsagn,
-          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-          korrespondansetype: k.korrespondansetype,
-          ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
-          ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
-          ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
-        };
-      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
-      return { utsagn };
     }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): datoen i feltet kravet har.
@@ -552,7 +534,6 @@ function dokument(
         ...(bundne.length ? { dokumentasjon: bundne } : {}),
       };
     }
-    case 'bestridelse':
     case 'ingen_krav':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
       throw new Error(`kommandoen ${k.type} skrives ikke i første versjon (OV-U7)`);

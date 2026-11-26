@@ -172,12 +172,6 @@ export function foerDagen(a: string | null, b: string | null, samme?: () => void
   return a !== null && b !== null && a < b;
 }
 
-/** MM-U7: en dato bestrides som sendt eller mottatt, opplysningen om § 31.3 som det den er. */
-export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
-  opplysning === 'sendt' || opplysning === 'mottatt'
-    ? bestridelse === 'sendt' || bestridelse === 'mottatt'
-    : opplysning === bestridelse;
-
 /** En opplysning om brevet som helhet: § 31.3 (MM-U12, MM-U50). */
 export const omBrevet = (hva: string): hva is 'endringsordre' => hva === 'endringsordre';
 
@@ -369,18 +363,14 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
 
 /**
  * Hvem som kan si hva: TE krever, varsler, godtar, trekker og svarer på forespørselen etter
- * § 33.6.2; BH svarer, begrunner svaret senere (KA-U34) og sender forespørselen. Protest og
- * bestridelse kan komme fra begge; utledningen kontrollerer hvem de gjelder.
+ * § 33.6.2; BH svarer og sender forespørselen. Innlegget kan komme fra begge.
  */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   varsel: 'TE',
   trekk: 'TE',
   aksept: 'TE',
-  bestridelse: null,
   foresporsel: 'BH',
   foresporselssvar: 'TE',
-  protest: null,
-  begrunnelse: 'BH',
   korrigering: 'TE',
   kunnskapsdato: 'TE',
   // MM-U47 punkt 1, MM-U56: begge parter sender innlegg.

@@ -412,8 +412,6 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
     case 'uten_virkning':
       return u.utenVirkning.map((x) => x.element);
-    case 'protester':
-      return u.protester.map((x) => `${x.part}:${x.gjelder}`);
     case 'paaberopelse':
       return svar().svar.paaberopelse;
     case 'forhold_avklart':
@@ -461,7 +459,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale[1] === 'oppfylt') return 'oppfylt' in o.opplysning ? o.opplysning.oppfylt : null;
       if (hale[1] === 'gjelder') return 'gjelder' in o.opplysning ? o.opplysning.gjelder : null;
       if (hale[1] === 'oppgitt_av') return o.opplysning.oppgittAv;
-      return o.bestridelser;
+      throw new Error(`Ukjent felt i opplysningen: ${hale[1]}`);
     }
     case 'handlinger':
       return handlinger(u, hale[0] as 'TE');

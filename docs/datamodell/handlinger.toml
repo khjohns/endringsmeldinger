@@ -367,10 +367,10 @@ form = "Innlegg."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
-noekler = ["protest:*"]
-kommandoer = ["protest"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret protest gjør saken ikke forstått (MM-U48, B-17)."
 
 [[handling]]
 id = "I3"
@@ -383,10 +383,10 @@ form = "Innlegg."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
-noekler = ["bestride:*"]
-kommandoer = ["bestridelse"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret bestridelse gjør saken ikke forstått (MM-U48, B-17)."
 
 [[handling]]
 id = "I4"
@@ -415,10 +415,10 @@ form = "Innlegg."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
-noekler = ["begrunne:*"]
-kommandoer = ["begrunnelse"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret senere begrunnelse gjør saken ikke forstått (MM-U48, B-17)."
 
 # ---------------------------------------------------------------------------
 # Opphevet

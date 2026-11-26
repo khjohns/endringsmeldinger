@@ -501,34 +501,6 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
           : [navn.nyId()],
       };
     }
-    case 'bestridelse': {
-      const varsel = u.spor.frist.varsler['33.4'];
-      const gjelder = h.gjelder as string;
-      const sendt = u.opplysninger.find(
-        (o) => o.opplysning.dokument === varsel?.dokument && o.opplysning.hva === 'sendt'
-      );
-      return {
-        type: 'bestridelse',
-        // `varsel#sendt` i de genererte forløpene er sendingen av det registrerte varselet.
-        gjelder: gjelder.startsWith('varsel#')
-          ? (sendt?.opplysning.id ?? 'ingen')
-          : navn.id(gjelder),
-        hva: h.hva as 'sendt' | 'mottatt',
-      };
-    }
-    case 'protest':
-      return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
-    case 'begrunnelse':
-      // KA-U35: med `sendt` er begrunnelsen registrert. Feltene går videre, så kjernen avviser formen.
-      return {
-        type: 'begrunnelse',
-        gjelder: navn.id(h.gjelder as string),
-        ...(typeof h.sendt === 'string' ? { sendt: h.sendt, ...lagtTil(h) } : utdypning(h)),
-        ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
-          ? { utdypning: h.utdypning }
-          : {}),
-        ...(Array.isArray(h.dokumentasjon) ? { dokumentasjon: h.dokumentasjon as string[] } : {}),
-      };
     case 'registrert_brev':
       // OV-U4, OV-U16, OV-U17: brevet ligger ved, også når forløpet ikke nevner det.
       return {

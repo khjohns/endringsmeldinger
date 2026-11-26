@@ -1569,6 +1569,41 @@
       "issue": 1791,
       "dato": "2026-11-11",
       "merknad": "Oppdragsgivers svar 11.11 i #1791 (svar A på spørsmål 10): de 20 radene i domenetabellen med bevis bare i det frosne arkivet (`bevis-saker.json`) markeres `utsatt` til de får en bevis-sak eller et brukerforløp."
+    },
+    {
+      "id": "MM-U44",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#mm-u44",
+      "radetikett": "MM-U44: I en sak løsningen ikke forstår, godtas også et innlegg"
+    },
+    {
+      "id": "MM-U47",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#mm-u47",
+      "radetikett": "MM-U47: Forslaget i punkt 1–12 med designdelen og beslutningsdelen"
+    },
+    {
+      "id": "MM-U48",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#mm-u48",
+      "radetikett": "MM-U48: Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i fritekst"
+    },
+    {
+      "id": "MM-U56",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#mm-u56",
+      "radetikett": "MM-U56: I forholdet kan begge parter sende innlegg"
+    },
+    {
+      "id": "OV-U97",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u97",
+      "radetikett": "OV-U97: Løsningen har et grunnsett av handlinger"
     }
   ],
   "rader": [
@@ -1927,18 +1962,17 @@
     {
       "id": "KA-21",
       "tilfelle": "Byggherren bestrider at et varsel TE har registrert, ble mottatt, også etter at saken er avsluttet.",
-      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt. Bygger et standpunkt om varslingen som inngår i en enighet, på opplysningen, avvises bestridelsen (OV-U66 punkt 3).",
+      "forventet": "Byggherren bestrider det i et innlegg som viser til brevet med varselet (MM-U48). Løsningen tolker ikke innlegget: opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Innlegget godtas også i en avsluttet sak og etter en enighet, og andre kommandoer avvises fortsatt (MM-U47 punkt 4, 10 og 12).",
       "bh_standpunkt": "Bestrider mottaket. Rettidigheten er ikke vurdert.",
       "rettslig_virkning": "Systemet avgjør ikke hvem som har rett.",
       "rettidighet": "Ikke vurdert.",
       "tidsakse": "sendt_mottatt",
       "kilder": [
-        "MM-U1",
-        "MM-U7",
-        "OV-U7"
+        "MM-U47",
+        "MM-U48",
+        "GR-U27"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-22",
@@ -3468,7 +3502,7 @@
     {
       "id": "VS-01",
       "tilfelle": "En part vil gjøre gjeldende at motpartens varsel, krav eller svar kom for sent, i et eget brev, eller totalentreprenøren vil påberope byggherrens passivitet etter § 32.3 annet ledd.",
-      "forventet": "Løsningen har ingen kommando for den egne innsigelsen etter § 5 tredje ledd eller påberopt passivitet. Parten sender det som innlegg eller under «Forbehold» i et krav eller svar, og løsningen tolker det ikke (VS-U89, VS-U90). En lagret hendelse med den egne innsigelsen eller påberopt passivitet gjør saken ikke forstått (VS-U94). Byggherrens påberopelse av at et varsel kom for sent, står i svaret. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: den gjelder byggherrens påberopelse i et svar, eller et svar med påberopelser, og da alle påberopelsene i det. En protest mot egen påberopelse er ikke forstått.",
+      "forventet": "Løsningen har ingen kommando for den egne innsigelsen etter § 5 tredje ledd eller påberopt passivitet. Parten sender det som innlegg eller under «Forbehold» i et krav eller svar, og løsningen tolker det ikke (VS-U89, VS-U90). En lagret hendelse med den egne innsigelsen eller påberopt passivitet gjør saken ikke forstått (VS-U94). Byggherrens påberopelse av at et varsel kom for sent, står i svaret. Protest mot påberopelsen sendes som innlegg (MM-U48). Løsningen har ingen kommando for den, og en lagret protest gjør saken ikke forstått (MM-U2).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om påberopelsen kom i tide.",
       "rettidighet": "—",
@@ -3478,13 +3512,12 @@
         "VS-U90",
         "VS-U94",
         "VS-U9",
-        "MP-U6",
-        "OV-U7"
+        "MM-U48"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#kanFaaProtest",
-        "kjerne/kommandoer/forutsetninger.ts#henvisning"
+        "kjerne/kommandoer/kommando.ts#formfeil",
+        "kjerne/format/leser.ts#lesDokument"
       ]
     },
     {
@@ -3615,73 +3648,61 @@
     {
       "id": "KA-42",
       "tilfelle": "Byggherren sender fra appen en senere begrunnelse av sitt svar.",
-      "forventet": "Begrunnelsen godtas når den gjelder et svar fra byggherren og har tekst. Den endrer ingen standpunkter: svaret gjelder fortsatt, og TE kan godta det.",
+      "forventet": "Begrunnelsen sendes som et innlegg som viser til brevet med svaret, eller til et innlegg som viser til det (KA-U46 punkt 9–11). Den endrer ingen standpunkter: svaret gjelder fortsatt, og TE kan godta det.",
       "bh_standpunkt": "Svaret slik det ble sendt.",
-      "rettslig_virkning": "Begrunnelsen er et eget utsagn som viser til svaret. Appen vurderer ikke om den er tilstrekkelig eller kom i tide.",
+      "rettslig_virkning": "Innlegget er et eget brev. Løsningen vurderer ikke om begrunnelsen er tilstrekkelig eller kom i tide.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U34",
         "KA-U46",
-        "OV-U7"
+        "MM-U47",
+        "MM-U48"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-43",
       "tilfelle": "Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar.",
-      "forventet": "Begrunnelsen godtas med brevet som vedlegg og uten tekst i appen. Uten vedlegg avvises den. Den endrer ingen standpunkter.",
+      "forventet": "Brevet legges til som korrespondanse med brevet som vedlegg (OV-U4). Løsningen utleder ingenting av det, og det endrer ingen standpunkter. Et registrert brev med et innlegg gjør saken ikke forstått (MM-U2).",
       "bh_standpunkt": "Svaret slik det ble sendt.",
-      "rettslig_virkning": "Begrunnelsen er et eget utsagn som viser til svaret. Appen vurderer ikke om den er tilstrekkelig eller kom i tide.",
+      "rettslig_virkning": "Korrespondansen står som dokumentasjon. Løsningen vurderer ikke om begrunnelsen er tilstrekkelig eller kom i tide.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U35",
         "KA-U46",
-        "MM-U17",
-        "MM-U50",
-        "OV-U7",
-        "AV-587"
+        "OV-U4",
+        "MM-U2"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-44",
       "tilfelle": "Byggherren sender en senere begrunnelse av et svar etter at kravene i saken er avgjort.",
-      "forventet": "Begrunnelsen godtas, og kravene er fortsatt avgjort. En revisjon av svaret avvises.",
+      "forventet": "Innlegget godtas, og kravene er fortsatt avgjort (MM-U47 punkt 5).",
       "bh_standpunkt": "Svaret slik det ble sendt.",
-      "rettslig_virkning": "Begrunnelsen kan ikke endre utfallet, så den godtas når kravene er avgjort.",
+      "rettslig_virkning": "Innlegget kan ikke endre utfallet, så det godtas når kravene er avgjort.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U34",
         "KA-U46",
         "KA-U11",
-        "OV-U7"
+        "MM-U47"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-45",
       "tilfelle": "Byggherren registrerer et brev der byggherren senere begrunner sitt svar, med en sendt-dato før svaret.",
-      "forventet": "Begrunnelsen avvises når sendt-datoen ligger før datoen svaret ble sendt. Samme dato godtas. Et svar fra appen har datoen appen registrerte det, i norsk tid. Et registrert svar har datoen det ble sendt, også når den er bestridt. Har det bare datoen det ble mottatt, kontrolleres ikke begrunnelsen.",
+      "forventet": "Brevet legges til som korrespondanse (OV-U4), og løsningen kontrollerer ikke datoen mot svaret.",
       "bh_standpunkt": "Svaret slik det ble sendt.",
-      "rettslig_virkning": "Begrunnelsen kan ikke komme før svaret. Appen vurderer ikke om den kom i tide.",
+      "rettslig_virkning": "Løsningen vurderer ikke om begrunnelsen kom i tide.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U36",
         "KA-U46",
-        "KA-U37",
-        "KA-U38",
-        "KA-U39",
-        "OV-U7"
+        "OV-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-46",
@@ -4005,6 +4026,30 @@
         "ANNEN_HJEMMEL",
         "OPPLYSNINGEN_ETTER_BREVET"
       ]
+    },
+    {
+      "id": "KA-61",
+      "tilfelle": "En part sender et innlegg i fritekst som viser til et brev i saken, med tittel, tekst og eventuelt vedlegg.",
+      "forventet": "Innlegget godtas fra begge parter, også etter en enighet, etter at totalentreprenøren har godtatt avslaget av grunnlaget og i en sak løsningen ikke forstår. Brevet sier «<Part> viser til <brevet>:», og teksten følger. Viser innlegget ikke til et brev i saken, avvises det. Svaret, standpunktene og utfallet står uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen tolker ikke innlegget og avgjør ikke om det kom i tide eller hvilken virkning det har.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "OV-U97",
+        "MM-U47",
+        "MM-U44",
+        "MM-U56",
+        "GR-U27"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/kommandoer/nyttelast.ts#henvisningenIInnlegget"
+      ],
+      "regelkoder": [
+        "INGEN_BREV"
+      ]
     }
   ],
   "koder_uten_rad": {
@@ -4026,7 +4071,7 @@
     "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
-    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente, som den egne innsigelsen og påberopt passivitet (VS-U94). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. Den prøves i `kjerne/tester/svaret.test.ts`.",
+    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av «ingen krav», som OV-U7 og OV-U99 punkt 2 utsetter. Protest, bestridelse og byggherrens senere begrunnelse sendes som innlegg (MM-U48, KA-U46), og kommandoene for dem er fjernet og avvises som ukjente, som merking og avklaring (KA-U45), den egne innsigelsen og påberopt passivitet (VS-U94). Den prøves i `kjerne/tester/svaret.test.ts`.",
     "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/avvisningen.test.ts`.",
     "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",

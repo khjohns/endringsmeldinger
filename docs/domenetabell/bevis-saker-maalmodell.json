@@ -3019,7 +3019,7 @@
       "id": "F-MM-E9",
       "rader": ["KA-24"],
       "start": "godkjent_forhold",
-      "forslag": "MM-U2: en sak som ikke er forstått, avviser bestridelsen med SAK_IKKE_FORSTAATT før avvisningen i første versjon (OV-U7, som utsetter MM-U7 og MM-U14)",
+      "forslag": "MM-U44: en bestridelse sendes som innlegg (MM-U48), og innlegget godtas også i en sak som ikke er forstått, der en bindende kommando avvises med SAK_IKKE_FORSTAATT (MM-U2)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
@@ -3030,15 +3030,22 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["OV-U7"],
-          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
-          "forventet": { "avvist": true, "regel": "IKKE_I_FOERSTE_VERSJON" }
+          "kilde": ["MM-U48", "MM-U47"],
+          "prov": { "handling": "innlegg", "part": "BH", "gjelder": "D4" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
           "rolle": "mal",
+          "kilde": ["MM-U44"],
+          "prov": { "handling": "innlegg", "part": "BH", "gjelder": "D4" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 3,
+          "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
+          "prov": { "handling": "trekk", "spor": "frist" },
           "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ]
@@ -11669,7 +11676,7 @@
     },
     {
       "id": "F-VS-U89a",
-      "forslag": "VS-U89 og VS-U94: den egne innsigelsen etter punkt 5 og påberopt passivitet er ikke hendelsestyper. Byggherrens påberopelse står i svaret, protesten mot den avvises etter OV-U7, og en lagret egen innsigelse gjør saken ikke forstått",
+      "forslag": "VS-U89 og VS-U94: den egne innsigelsen etter punkt 5 og påberopt passivitet er ikke hendelsestyper. Byggherrens påberopelse står i svaret, protesten mot den sendes som innlegg (MM-U48), og en lagret egen innsigelse gjør saken ikke forstått",
       "rader": ["VS-01"],
       "start": "krav_irreg",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -11691,22 +11698,340 @@
           "forventet": {
             "avvist": false,
             "forstaatt": true,
-            "handlinger.TE": { "inneholder": ["godta:forhold"], "mangler": ["innsigelse:S-g1", "protest:D4"] },
+            "handlinger.TE": { "inneholder": ["godta:forhold"], "mangler": ["innsigelse:S-g1"] },
             "handlinger.BH": { "mangler": ["innsigelse:K-g1"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MP-U6", "OV-U7"],
-          "prov": { "handling": "protest", "part": "TE", "gjelder": "D4" },
-          "forventet": { "avvist": true, "regel": "IKKE_I_FOERSTE_VERSJON" }
+          "kilde": ["VS-U89", "MM-U48"],
+          "prov": { "handling": "innlegg", "part": "TE", "gjelder": "D4" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["VS-U89", "MM-U2"],
           "forventet": { "forstaatt": false }
+        }
+      ]
+    },
+    {
+      "id": "F-1377a",
+      "rader": [
+        "KA-61",
+        "KA-42"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U47 punkt 1–4 og KA-U46 punkt 9: totalentreprenøren sender et innlegg som viser til byggherrens svar, og byggherren svarer med et innlegg som viser til det. Svaret står uendret",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "innlegg",
+          "part": "TE",
+          "gjelder": "D4",
+          "navn": "D5",
+          "tittel": "Om svaret",
+          "utdypning": "Varselet kom i tide."
+        },
+        {
+          "handling": "innlegg",
+          "part": "BH",
+          "gjelder": "D5",
+          "navn": "D6",
+          "tittel": "Begrunnelse for svaret",
+          "utdypning": "Byggherren står ved svaret."
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "MM-U47"
+          ],
+          "prov": {
+            "handling": "innlegg",
+            "part": "TE",
+            "gjelder": "D9"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "INGEN_BREV"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47",
+            "OV-U97"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:vederlag",
+                "sende_innlegg"
+              ]
+            },
+            "handlinger.BH": {
+              "inneholder": [
+                "sende_innlegg"
+              ]
+            },
+            "deres_ref.D5": [
+              "04"
+            ]
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U46",
+            "MM-U47"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:vederlag"
+              ]
+            },
+            "deres_ref.D6": [
+              "05"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-1377b",
+      "rader": [
+        "KA-21"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U27 og MM-U47 punkt 10: etter at totalentreprenøren har godtatt avslaget av grunnlaget, godtas innlegg fra begge parter, også en bestridelse, og andre kommandoer avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "forhold",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "forhold",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U27"
+          ],
+          "forventet": {
+            "forhold_avvist": true
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47",
+            "MM-U48"
+          ],
+          "prov": {
+            "handling": "innlegg",
+            "part": "BH",
+            "gjelder": "D4"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47",
+            "MM-U56"
+          ],
+          "prov": {
+            "handling": "innlegg",
+            "part": "TE",
+            "gjelder": "K-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U27"
+          ],
+          "prov": {
+            "handling": "trekk",
+            "spor": "vederlag"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FORHOLD_AVVIST"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-1377c",
+      "rader": [
+        "KA-44"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U47 punkt 5 og KA-U11: et innlegg etter at kravene er avgjort, godtas, og kravene er fortsatt avgjort",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "forhold",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent"
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 20
+            }
+          ]
+        },
+        {
+          "handling": "innlegg",
+          "part": "BH",
+          "gjelder": "D4",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "KA-U11"
+          ],
+          "forventet": {
+            "kravene_avgjort": true
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47",
+            "KA-U11"
+          ],
+          "forventet": {
+            "kravene_avgjort": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-1377d",
+      "rader": [
+        "KA-43",
+        "KA-45"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U46 og OV-U4: byggherrens senere begrunnelse sendt utenfor løsningen legges til som korrespondanse, uten kontroll av datoen. Et registrert brev med et innlegg gjør saken ikke forstått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "registrert_brev",
+          "part": "BH",
+          "sendt": "2026-09-01",
+          "beskrivelse": "Begrunnelse for svaret",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "part": "BH",
+          "art": "innlegg",
+          "gjelder": "D4",
+          "sendt": "2026-10-01",
+          "navn": "D6"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U4",
+            "KA-U46"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_svar.vederlag": "S-v1"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U2",
+            "KA-U46"
+          ],
+          "forventet": {
+            "forstaatt": false
+          }
         }
       ]
     }
@@ -11755,7 +12080,7 @@
       { "handling": "trekk", "spor": "vederlag" },
       { "handling": "trekk", "spor": "forhold" },
       { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02" },
-      { "handling": "bestridelse", "part": "BH", "gjelder": "varsel#sendt", "hva": "mottatt" },
+      { "handling": "innlegg", "part": "BH", "gjelder": "K-g1" },
       { "handling": "regelendring", "regelsett": "n+1" }
     ]
   },
