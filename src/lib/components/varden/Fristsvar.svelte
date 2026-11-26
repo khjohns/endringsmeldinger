@@ -46,7 +46,7 @@
     type Fristsvarvalg,
     velgDagene,
   } from './fristsvar';
-  import { brevet, brevMedElement, standpunktene } from './lesing';
+  import { brevet, brevMedElement, brevMedUtsagn, standpunktene } from './lesing';
   import { somNyttSvar } from './kommandoer';
   import {
     begrunnelserForTemaene,
@@ -105,6 +105,10 @@
   const foresporselen = $derived(foresporselenISvaret(u) !== null);
   // VS-U95: bare i svaret på det første kravet etter begrunnelsen etter § 33.6.2 annet ledd b.
   const ikkeSvarKanVelges = $derived(begrunnelsenKanAvvisesSomSvar(u));
+  const begrunnelsesbrevet = $derived.by(() => {
+    const f = foresporselenISvaret(u);
+    return ikkeSvarKanVelges && f ? brevMedUtsagn(u, f.gjelder) : null;
+  });
   $effect.pre(() => {
     if (!ikkeSvarKanVelges) valg.begrunnelseIkkeSvar = false;
   });
@@ -622,7 +626,9 @@
         />
         <Valg
           navn={`${uid}-foresporsel`}
-          spoersmaal={FRISTSVAR.foresporselSpoersmaal}
+          spoersmaal={ikkeSvarKanVelges
+            ? FRISTSVAR.begrunnelseSpoersmaal
+            : FRISTSVAR.foresporselSpoersmaal}
           beskrevetAv={foresporselslagene.length ? `${uid}-foresporsel-forutsetninger` : undefined}
           valg={[
             { verdi: true, tekst: FRISTSVAR.foresporselITide },
@@ -632,7 +638,7 @@
                   {
                     verdi: 'ikke_svar' as const,
                     tekst: FRISTSVAR.begrunnelseIkkeSvar,
-                    forklaring: FRISTSVAR.begrunnelseIkkeSvarForklaring,
+                    forklaring: FRISTSVAR.begrunnelseIkkeSvarForklaring(begrunnelsesbrevet),
                   },
                 ]
               : []),

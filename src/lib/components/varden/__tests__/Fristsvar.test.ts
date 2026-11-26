@@ -488,6 +488,15 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
   it('i svaret på det første kravet etter begrunnelsen sender valget `begrunnelse_ikke_svar` og ikke `foresporsel_svar_ok`', async () => {
     const sendt = await svarskjemaet(medKravEtterBegrunnelsen);
     expect(ikkeSvar()).toBeInTheDocument();
+    // Valget nevner totalentreprenørens begrunnelse og brevet, som brevteksten (VS-U95).
+    expect(ikkeSvar()!.closest('label')?.textContent).toMatch(
+      /Totalentreprenørens begrunnelse i brev.3 er ikke et svar på forespørselen/
+    );
+    expect(
+      screen.getByRole('group', {
+        name: /Hva gjør du gjeldende om totalentreprenørens begrunnelse/,
+      })
+    ).toBeInTheDocument();
     await svarPaaResten();
     await fireEvent.click(ikkeSvar()!);
     const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
@@ -516,6 +525,9 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
     await svarskjemaet(medSvarPaaForesporsel);
     expect(screen.getByRole('radio', { name: 'Svarte i tide' })).toBeInTheDocument();
     expect(ikkeSvar()).toBeNull();
+    expect(
+      screen.getByRole('group', { name: /Kom svaret på forespørselen om dagene i tide/ })
+    ).toBeInTheDocument();
   });
 
   it('står ikke i svaret på en senere kravversjon etter begrunnelsen (VS-U88 punkt 9)', async () => {
