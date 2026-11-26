@@ -869,7 +869,7 @@
       }
       feil={feil(`varsel-${n}`)}
     />
-    {#if sier}<p class="hjelp" aria-live="polite">{sier}</p>{/if}
+    <p class="brevet-sier" aria-live="polite">{sier ?? ''}</p>
   </div>
 {/snippet}
 
@@ -1418,6 +1418,17 @@
   }
   .aapen h4 {
     font-size: 16px;
+  }
+  /* U-7 i BF-37: det brevet vil si, innfelt som i skissen `#kravpost`. */
+  .brevet-sier {
+    margin: 0;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-innfelt);
+    color: var(--ink-2);
+  }
+  .brevet-sier:empty {
+    display: none;
   }
   .hjelp,
   .dempet {
