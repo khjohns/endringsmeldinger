@@ -98,7 +98,12 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
     s.send(
       'TE',
       vederlagskrav([
-        { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true, varsel },
+        {
+          beskrivelse: 'Spunt',
+          oppgjoersform: 'enhetspriser',
+          justert: true,
+          varsel: { art: 'gitt', varsel },
+        },
       ])
     );
     expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
@@ -244,7 +249,13 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
       );
     s.send(
       'TE',
-      vederlagskrav([{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }])
+      vederlagskrav([
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+      ])
     );
     const krav = s.krav('vederlag');
     const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0].id;
@@ -285,8 +296,12 @@ describe('innsigelsen i svaret på varselet og et svar på en eldre kravversjon 
     s.send(
       'TE',
       vederlagskrav([
-        { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel },
-        { beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid' },
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+        { beskrivelse: 'Graving', oppgjoersform: 'regningsarbeid', varsel: { art: 'kravet' } },
       ])
     );
     const v1 = s.krav('vederlag');
@@ -381,7 +396,12 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
       s.send(
         'TE',
         vederlagskrav([
-          { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true, varsel },
+          {
+            beskrivelse: 'Spunt',
+            oppgjoersform: 'enhetspriser',
+            justert: true,
+            varsel: { art: 'gitt', varsel },
+          },
         ])
       );
       const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0]
@@ -414,7 +434,13 @@ describe('brevet med svaret på varselet (VS-U77 punkt 30–34, VS-U79)', () => 
     s.send('BH', brev(varsel, { varslet_i_tide: false }));
     s.send(
       'TE',
-      vederlagskrav([{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid', varsel }])
+      vederlagskrav([
+        {
+          beskrivelse: 'Pumping',
+          oppgjoersform: 'regningsarbeid',
+          varsel: { art: 'gitt', varsel },
+        },
+      ])
     );
     const post = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as { id: string }[])[0].id;
     s.send(

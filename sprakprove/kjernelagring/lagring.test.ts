@@ -95,16 +95,16 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     }
   );
 
-  it('varslene etter punkt 34.3.3 og 34.4, sendt og registrert, lagres og leses igjen, og et varsel før det første kravet gjelder kravpostene (VS-U48, VS-U52, VS-U55, D-16 i BF-14)', async () => {
+  it('varslene etter punkt 34.3.3 og 34.4, sendt og registrert, lagres og leses igjen, og kravposten viser til varselet den velger (VS-U48, VS-U52, VS-U55, VS-U87 punkt 23)', async () => {
     const bane = await basebane(o);
     await bygg(bane, [
       { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
-      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', navn: 'V' },
       { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', sendt: '2026-09-10' },
       {
         handling: 'krav',
         spor: 'vederlag',
-        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+        kravposter: [{ oppgjoersform: 'regningsarbeid', varsel: 'V' }],
       },
     ]);
     const lest = await journalen(o, bane.sakId);
@@ -116,7 +116,7 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
       'gjøres opp som regningsarbeid etter NS 8407 punkt\u00a034.4 og punkt\u00a030.'
     );
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
-    // VS-U55: kravet viser til det første varselet, sendt fra løsningen.
+    // VS-U87 punkt 23: kravet viser til varselet TE valgte, sendt fra løsningen.
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
       'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev'
     );

@@ -48,6 +48,7 @@ import {
   kunnskapsdatoIKravet,
   OPPGJOERSHJEMMEL,
   varselhjemmel,
+  varseletPostenViserTil,
   vederlagsinnhold,
 } from './format.ts';
 import { erKalenderdato, erObjekt, feilI, objekt } from '../../format/skjema.ts';
@@ -58,21 +59,20 @@ import {
   eldreKravFoer,
   kravpostvarseletStrider,
   kravpostvarslene,
+  kravetVilleVaertVarselet,
   sisteKunnskapsdato,
   standpunkteneTilVarslene,
-  varsleneForanKravet,
 } from './utledning.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
-import { standpunkterISvaret } from '../../format/leser.ts';
+import { kalenderdag, standpunkterISvaret } from '../../format/leser.ts';
 import {
   avvis,
   erKravpostvarselhjemmel,
   erVederlagsvarselhjemmel,
   type Avvisning,
   type Dokument,
-  type Domenehendelse,
   type Journalrad,
   type Krav,
   type Kravpost,
@@ -249,10 +249,8 @@ function kravfeil(innhold: unknown): string[] {
 
 /** Dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U51, VS-U53, `vedleggI`). */
 const vedleggIKravpostene = (innhold: Innhold): string[] =>
-  ((innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap((p) =>
-    typeof p.varsel === 'object' && p.varsel !== null
-      ? ((p.varsel as { dokumentasjon?: string[] }).dokumentasjon ?? [])
-      : []
+  ((innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap(
+    (p) => dokumentvarselet(p)?.dokumentasjon ?? []
   );
 
 /** Formen på vederlagskravet (`formfeil`, `vedleggI`). */
@@ -338,7 +336,7 @@ export function hindrerSvaretPaaVarselet(
         (varselet.hjemmel === '34.1.2' ||
           (varselet.hjemmel === '34.1.3'
             ? harProduktivitetspost(k)
-            : kravposterI(k).some((p) => p.varsel === gjelder))) &&
+            : kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder))) &&
         (sendt === null || !foerDagen(sendt, dagenSendt({ id: k.id, dokument: d.id }, d) ?? ''))
     )
   );
@@ -604,7 +602,13 @@ type Dokumentvarsel = {
   beskrivelse?: string;
   dokumentasjon: string[];
 };
-const erDokumentvarsel = (v: unknown): v is Dokumentvarsel => typeof v === 'object' && v !== null;
+/** Dokumentet TE legger til i kravskjemaet som varselet for kravposten `p`, eller `undefined`. */
+function dokumentvarselet(p: { varsel?: unknown }): Dokumentvarsel | undefined {
+  const v = p.varsel as { art?: unknown; varsel?: unknown } | undefined;
+  return v?.art === 'gitt' && typeof v.varsel === 'object' && v.varsel !== null
+    ? (v.varsel as Dokumentvarsel)
+    : undefined;
+}
 
 /**
  * Vederlagskravet som flere rader, eller `null`. Et dokument TE legger til i kravskjemaet som
@@ -617,18 +621,19 @@ function medDokumentvarslene(
   skriving: Skrivesteg
 ): Utfall | null {
   const poster = (k.innhold.kravposter ?? []) as Record<string, unknown>[];
-  if (!poster.some((p) => erDokumentvarsel(p.varsel))) return null;
+  if (!poster.some((p) => dokumentvarselet(p))) return null;
   // VS-U51, VS-U53: et dokument står i saken som ett brev. Kravpostene det gjelder, oppgir det
   // likt, og en opplasting hører til ett dokument. Samme fil lastet opp på nytt kan ligge ved et
   // annet brev (`sammeDokument`, #2100).
   const dokumentene = new Map<string, string>();
   const opplastingene = new Map<string, string>();
   for (const p of poster) {
-    if (!erDokumentvarsel(p.varsel)) continue;
-    const { sendt, korrespondansetype, sendemaate, beskrivelse } = p.varsel;
-    const noekkel = JSON.stringify(dokumentnoekkel(p.varsel, skriving.oppslag));
+    const varselet = dokumentvarselet(p);
+    if (!varselet) continue;
+    const { sendt, korrespondansetype, sendemaate, beskrivelse } = varselet;
+    const noekkel = JSON.stringify(dokumentnoekkel(varselet, skriving.oppslag));
     const like = JSON.stringify([noekkel, sendt, korrespondansetype, sendemaate, beskrivelse]);
-    const ider = p.varsel.dokumentasjon.map(vedleggsnoekkel);
+    const ider = varselet.dokumentasjon.map(vedleggsnoekkel);
     for (const [kart, noekler] of [
       [dokumentene, [noekkel]],
       [opplastingene, ider],
@@ -671,18 +676,17 @@ function medVarslene(
   skriving: Skrivesteg
 ): Utfall {
   const poster = k.innhold.kravposter as Record<string, unknown>[];
-  const i = poster.findIndex((p) => erDokumentvarsel(p.varsel));
+  const i = poster.findIndex((p) => dokumentvarselet(p));
   if (i < 0) return skriving.skriv(k, kontekst, journal, vedKravet);
-  type Dokumentpost = Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
-  const dokumentet = (poster[i] as unknown as Dokumentpost).varsel;
+  const dokumentet = dokumentvarselet(poster[i]!)!;
   const innholdet = dokumentnoekkel(dokumentet, skriving.oppslag);
   const noekkel = JSON.stringify(innholdet);
-  const gruppen = poster.flatMap((p, j) =>
-    erDokumentvarsel(p.varsel) &&
-    JSON.stringify(dokumentnoekkel(p.varsel, skriving.oppslag)) === noekkel
-      ? [[j, p as unknown as Dokumentpost] as const]
-      : []
-  );
+  const gruppen = poster.flatMap((p, j) => {
+    const varselet = dokumentvarselet(p);
+    return varselet && JSON.stringify(dokumentnoekkel(varselet, skriving.oppslag)) === noekkel
+      ? [[j, p as unknown as Omit<Kravpost, 'varsel'>] as const]
+      : [];
+  });
   const hjemler: Kravpostvarselhjemmel[] = [];
   for (const [j, p] of gruppen) {
     const hjemmel = varselhjemmel(p);
@@ -709,8 +713,7 @@ function medVarslene(
         melding: `Varselet for kravpost nr. ${i + 1}: ${varselet.avvisning.melding}`,
       },
     };
-  // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
-  // `journal` har ikke dokumentet (VS-U51, VS-U53). Det samme brevet, med filene lastet opp på
+  // VS-U55 (#1993): `journal` har ikke dokumentet (VS-U51, VS-U53). Det samme brevet, med filene lastet opp på
   // nytt, står alt i saken (#2144, OV-U80, `sammeDokument`).
   const saken = skriving.saken(journal);
   const iVarslene = vedleggIVarslene(saken);
@@ -733,7 +736,9 @@ function medVarslene(
       ...k.innhold,
       kravposter: poster.map((p, j) => {
         const medlem = gruppen.find(([g]) => g === j);
-        return medlem ? { ...p, varsel: utsagn.get(varselhjemmel(medlem[1])!) } : p;
+        return medlem
+          ? { ...p, varsel: { art: 'gitt', varsel: utsagn.get(varselhjemmel(medlem[1])!) } }
+          : p;
       }),
     },
   };
@@ -746,32 +751,16 @@ function medVarslene(
 }
 
 /**
- * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
- * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
- */
-function foranKravet(nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
-  const dokumenter = new Map(
-    lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
-  );
-  return varsleneForanKravet(u.spor.vederlag.kravpostvarsler, nytt, (id) => dokumenter.get(id));
-}
-
-/**
  * Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). Et krav
  * utenfor rekken kan være varselet (OV-U120).
  */
-const kravpostvarslerIBrevet = (
-  k: Krav,
-  nytt: Dokument,
-  lest: readonly Domenehendelse[],
-  u: Utledning
-): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u), eldreKravFoer(u, null));
+const kravpostvarslerIBrevet = (k: Krav, u: Utledning): Record<string, Kravpostvarselet> =>
+  kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken
  * (VS-U73, VS-U75). Et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la til som
- * varsel i samme handling (`foranKravet`, VS-U51).
+ * varsel i samme handling (VS-U51).
  */
 function vedleggetErEtVarsel(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -793,7 +782,7 @@ function vedleggetErEtVarsel(
     sak.u.spor.vederlag.kravpostvarsler.flatMap((v) => (v.dokument === varselet.id ? [v.id] : []))
   );
   const poster = ((k.innhold.kravposter ?? []) as Record<string, unknown>[]).flatMap((p, j) =>
-    utsagn.has(p.varsel as string) ? [String(j + 1)] : []
+    utsagn.has(varseletPostenViserTil(p as unknown as Kravpost) ?? '') ? [String(j + 1)] : []
   );
   return avvis(
     'KRAVPOSTVARSELET',
@@ -808,6 +797,50 @@ function vedleggVedEtVarsel(hvor: string, varselet?: Dokument) {
     'KRAVPOSTVARSELET',
     `Et vedlegg ${hvor} ligger alt ved varselet for en kravpost ${omtale ? `i ${omtale}` : 'i saken'}. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.`
   );
+}
+
+/**
+ * VS-U87 punkt 23, fjerde og sjette setning: har saken et varsel etter samme bestemmelse som ingen
+ * kravpost viser til, velger TE for hver kravpost kravet ellers ville vært varselet for, hvilket
+ * varsel posten gjelder eller at kravet er varselet, og kravet tas ikke imot uten valget. Kravpostene
+ * som viser til et varsel, står i kravversjonene sendt fra eller lagt til i løsningen, også i et
+ * eldre krav (OV-U120). Saken leses før handlingen: et dokument kravskjemaet legger til i samme
+ * handling, gjelder bare kravposten som viser til det (VS-U51), og hver post velger (F-7 i BF-37).
+ */
+function varselvalgetMangler(
+  k: Extract<Kommando, { type: 'krav' }>,
+  { foer: { u } }: Sakssperre
+): Avvisning | null {
+  const sporet = u.spor.vederlag;
+  const brukt = new Set(
+    [...sporet.krav, ...sporet.kravUtenforRekken]
+      .flatMap(kravposterI)
+      .map(varseletPostenViserTil)
+      .filter((v) => v !== undefined)
+  );
+  // Et krav lagt til kan bare vise til et varsel sendt samme dag eller før (OV-U98).
+  const sendt = k.sendt === undefined ? null : kalenderdag(k.sendt);
+  const ubrukte = sporet.kravpostvarsler.filter(
+    (v) => !brukt.has(v.id) && (sendt === null || !foerDagen(sendt, datoenDetBleSendt(u, v) ?? ''))
+  );
+  if (!ubrukte.length) return null;
+  const { tidligere } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);
+  const eldre = eldreKravFoer(u, sendt);
+  for (const [i, p] of kravposterI({ innhold: k.innhold }).entries()) {
+    const hjemmel = varselhjemmel(p);
+    if (
+      p.varsel !== undefined ||
+      !kravetVilleVaertVarselet(p, tidligere, eldre) ||
+      !ubrukte.some((v) => v.hjemmel === hjemmel)
+    )
+      continue;
+    const posten = p.betegnelse ? `Kravposten ${p.betegnelse}` : `Kravpost nr. ${i + 1}`;
+    return avvis(
+      'VARSELVALGET_MANGLER',
+      `${posten} sier ikke hvilket varsel den gjelder. Saken har et varsel etter punkt ${hjemmel} som ingen kravpost viser til. Velg varselet posten gjelder, eller at kravet er varselet for posten.`
+    );
+  }
+  return null;
 }
 
 /** Dokumentene med et varsel for en kravpost i saken (VS-U55). */
@@ -828,7 +861,7 @@ const vedleggIVarslene = (sak: LestSak): Set<string> =>
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
-  saksperre: vedleggetErEtVarsel,
+  saksperre: (k, sak) => vedleggetErEtVarsel(k, sak) ?? varselvalgetMangler(k, sak),
   handlingen: medDokumentvarslene,
   postvarsler: kravpostvarslerIBrevet,
 } satisfies Sporsskriving;

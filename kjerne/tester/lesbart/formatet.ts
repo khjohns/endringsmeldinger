@@ -325,18 +325,12 @@ export const FORMATET: Lesbar[] = [
     'nesteBetegnelse',
     ['spor/vederlag/kommando.ts:medKravposter'],
   ],
-  // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
+  // VS-U87 punkt 22 og 23: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
     'kravpostvarslene',
     ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
-  ],
-  [
-    'spor/vederlag/utledning.ts:kravpostvarslene',
-    'utsagn',
-    'hjemmel id',
-    ['spor/vederlag/utledning.ts:kravpostvarslene'],
   ],
   // VS-U50: om kravposten viser til et varsel etter samme bestemmelse før kravet.
   [

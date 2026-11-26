@@ -108,9 +108,21 @@ function kravpost(lagret: boolean): Skjema {
     ...(lagret ? { betegnelse: { type: 'string', pattern: BETEGNELSE } } : {}),
     beskrivelse: TEKST,
     pns: TEKST,
-    // VS-U54: varselet etter § 34.3.3 eller § 34.4 for kravposten, når det er gitt før kravet.
-    // I kommandoen kan det også være dokumentet TE legger til i kravskjemaet (VS-U51, VS-U53).
-    varsel: lagret ? ID : { anyOf: [ID, KRAVPOSTVARSEL_I_KOMMANDOEN] },
+    // VS-U87 punkt 23 og beslutningsdelen: varselet for kravposten etter § 34.3.3 eller § 34.4,
+    // gitt før kravet, eller at kravet er varselet. I kommandoen kan det gitte varselet også være
+    // dokumentet TE legger til i kravskjemaet (VS-U51, VS-U53).
+    varsel: {
+      anyOf: [
+        objekt({ art: { const: 'kravet' } }, ['art']),
+        objekt(
+          {
+            art: { const: 'gitt' },
+            varsel: lagret ? ID : { anyOf: [ID, KRAVPOSTVARSEL_I_KOMMANDOEN] },
+          },
+          ['art', 'varsel']
+        ),
+      ],
+    },
   };
   const paakrevd = lagret
     ? ['id', 'betegnelse', 'beskrivelse', 'oppgjoersform']
@@ -285,6 +297,13 @@ function lesKrevd(krav: Krav, verdi: number | undefined): Oere | null {
 /** OV-U23: kravet krever posten etter § 34.1.3 annet ledd (`saerskilt.produktivitet`). */
 export const harProduktivitetspost = (krav: Krav): boolean =>
   innholdIVederlaget(krav).saerskilt.produktivitet !== undefined;
+
+/**
+ * Varselet kravposten viser til (`{ art: 'gitt' }`), eller `undefined` når posten sier at kravet er
+ * varselet eller ikke sier noe (VS-U87 punkt 23 og beslutningsdelen).
+ */
+export const varseletPostenViserTil = (p: Pick<Kravpost, 'varsel'>): string | undefined =>
+  p.varsel?.art === 'gitt' ? p.varsel.varsel : undefined;
 
 /** Kravpostene i en lagret kravversjon (OV-U115 punkt 19). */
 export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>

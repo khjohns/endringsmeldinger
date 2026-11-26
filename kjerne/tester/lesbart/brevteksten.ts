@@ -463,11 +463,7 @@ export const BREVTEKSTEN: Lesbar[] = [
     'Vedlegg',
     'relasjon',
     'vedlegg_id',
-    [
-      'spor/vederlag/utledning.ts:varsleneForanKravet',
-      'spor/vederlag/kommando.ts:vedleggIVarslene',
-      'frosset/brevdeler.ts',
-    ],
+    ['spor/vederlag/kommando.ts:vedleggIVarslene', 'frosset/brevdeler.ts'],
   ],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
   ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv']],

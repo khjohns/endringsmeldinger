@@ -78,11 +78,8 @@ export const KOMMANDOENE: Lesbar[] = [
     'kravposter',
     ['spor/vederlag/kommando.ts:vedleggIKravpostene'],
   ],
-  ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
-  ['spor/vederlag/kommando.ts:medDokumentvarslene(p)', 'kommando', 'varsel'],
-  ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
-  // VS-U51, VS-U75 (#2144): kravposten med varselet kravskjemaet skrev i samme handling.
-  ['spor/vederlag/kommando.ts:vedleggetErEtVarsel(p)', 'kommando', 'varsel'],
+  // VS-U87 punkt 23: dokumentet kravskjemaet legger til, står i valget av varsel på kravposten.
+  ['spor/vederlag/kommando.ts:dokumentvarselet', 'kommando', 'art varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype sendemaate beskrivelse'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
   [
@@ -94,23 +91,13 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Journalrad.data', 'rad', 'utsagn', ['spor/vederlag/kommando.ts:medVarslene']],
   ['spor/vederlag/kommando.ts:medVarslene', 'rad', 'id'],
   ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
-  ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  [
-    'Dokument',
-    'utsagn',
-    'dokumentasjon',
-    [
-      'spor/vederlag/utledning.ts:varsleneForanKravet',
-      'spor/vederlag/kommando.ts:vedleggIVarslene',
-    ],
-  ],
+  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
   [
     'Utsagn',
     'relasjon',
     'dokument',
     [
-      'spor/vederlag/utledning.ts:varsleneForanKravet',
       'spor/vederlag/kommando.ts:varseldokumentene',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
       'spor/frist/kommando.ts:varseldokumentetISaken',
@@ -185,7 +172,11 @@ export const KOMMANDOENE: Lesbar[] = [
     'utledning/utled.ts',
     'relasjon',
     'kravversjoneneKravetProevesMot',
-    ['spor/frist/kommando.ts:fristsperre', 'spor/vederlag/kommando.ts:kravpostsperre'],
+    [
+      'spor/frist/kommando.ts:fristsperre',
+      'spor/vederlag/kommando.ts:kravpostsperre',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
+    ],
   ],
   [
     'utledning/utled.ts:kravversjoneneKravetProevesMot',
@@ -200,10 +191,17 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/frist/kommando.ts:fristsperre',
       'spor/vederlag/kommando.ts:kravpostsperre',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
       'utledning/utled.ts:kravetStrider',
     ],
   ],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
+  // VS-U87 punkt 23, OV-U98: et krav lagt til viser bare til et varsel sendt samme dag eller før.
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
+  ['Registrering', 'kommando', 'sendt', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
+  // VS-U87 punkt 23: valget av varsel prøves mot saken før handlingen.
+  ['Sakssperre', 'kommando', 'foer', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
+  ['LestSak', 'kommando', 'u', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
   // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.
   [

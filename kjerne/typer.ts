@@ -54,14 +54,15 @@ export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3' | Kravpos
 export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
 /**
  * VS-U48, VS-U52: varselet om justering av enhetsprisene etter § 34.3.3 første ledd og varselet
- * før regningsarbeid etter § 34.4. Saken kan ha flere av dem, og løsningen ser ikke hvilket
- * arbeid de gjelder (arbeidsvalget i D-16 i BF-14).
+ * før regningsarbeid etter § 34.4. Saken kan ha flere av dem, og løsningen leser ikke av
+ * beskrivelsen hvilket arbeid de gjelder (VS-U87 punkt 27).
  */
 export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
 /**
  * Varselet etter § 34.3.3 eller § 34.4 for en kravpost i en ny kravversjon: kravet er varselet
- * (`kravet`), eller varselet ble gitt før kravet (`varsel` er utsagnet). Utledes i
- * `spor/vederlag/utledning.ts` (VS-U49, VS-U50, VS-U55).
+ * (`kravet`), eller varselet ble gitt før kravet (`varsel` er utsagnet). Det er TEs valg på
+ * kravposten (`Kravpost.varsel`, VS-U87 punkt 23), og det kjernen utleder for posten
+ * (`kravpostvarslene` i `spor/vederlag/utledning.ts`).
  */
 export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
 export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostvarselhjemmel =>
@@ -302,8 +303,12 @@ export interface Kravpost {
   justert?: boolean;
   anslag?: number;
   kostnadsoverslag?: number;
-  /** Varselet etter § 34.3.3 eller § 34.4 for kravposten, gitt før kravet (VS-U50, VS-U54). */
-  varsel?: string;
+  /**
+   * Varselet etter § 34.3.3 eller § 34.4 for kravposten: gitt før kravet, eller at kravet er
+   * varselet for posten. Påkrevd i tilfellet i VS-U87 punkt 23, fjerde setning, og ellers valgfritt
+   * (beslutningsdelen i VS-U87).
+   */
+  varsel?: Kravpostvarselet;
 }
 
 export interface Krav {

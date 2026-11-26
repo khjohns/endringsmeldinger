@@ -71,19 +71,42 @@ export const DOKUMENTENE: Lesbar[] = [
     'oppgjoersform beloep',
     ['spor/vederlag/format.ts', 'spor/vederlag/tekst.ts'],
   ],
-  // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
+  // VS-U87 punkt 22 og 23: om kravet er varselet for posten.
   ['Kravpost', 'utsagn', 'oppgjoersform', ['spor/vederlag/format.ts:varselhjemmel']],
-  // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
+  // VS-U87 punkt 23 og beslutningsdelen: valget av varsel på kravposten, en relasjon til et varsel
+  // i saken eller til kravet selv.
   [
     'Kravpost',
     'relasjon',
     'varsel',
     [
+      'spor/vederlag/format.ts:varseletPostenViserTil',
+      'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
+    ],
+  ],
+  [
+    'Kravpostvarselet',
+    'relasjon',
+    'art varsel',
+    [
+      'spor/vederlag/format.ts:varseletPostenViserTil',
+      'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
+    ],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'relasjon',
+    'varseletPostenViserTil',
+    [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
       'spor/vederlag/utledning.ts:viserTilEtVarsel',
-      'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U115 punkt 5: svaret på en kravpost etter en beregningsregel.
