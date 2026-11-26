@@ -44,3 +44,4 @@ export * from './kravskjema';
 export { FRISTKRAV } from './fristkrav';
 export * from './vederlaget';
 export * from './fristen';
+export * from './tomtspor';

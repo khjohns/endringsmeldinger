@@ -9,7 +9,7 @@
   import { ArrowRight } from 'lucide-svelte';
   import type { Component, Snippet } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { forseringKanVelges } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
   import { hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
@@ -47,6 +47,7 @@
     FORHOLDET,
     LEGG_TIL,
     STILLING,
+    TOMT_SPOR,
     VARSELSVARET,
     varselet,
   } from './tekster';
@@ -108,6 +109,9 @@
   const kanGodta = $derived(svaret !== null && noekler.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
   const Side = $derived(SIDENE[spor]);
+  const betegnelser = $derived(betegnelsene(kjernesak.saksbilde));
+  // Vederlaget eller fristen uten varsel eller krav fra TE (OV-U125, U-1 i BF-51).
+  const tomt = $derived(spor !== 'forhold' && betegnelser[spor] === 'ingen_varsel_eller_krav');
   const fristtabell = $derived(fristtabellen(kjernesak, sakslenke));
   const levering = $derived(leveringene(kjernesak.sak?.leveringsoppdrag ?? []));
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
@@ -141,9 +145,16 @@
         ? foresporsel.noekkel
         : svarPaaVarselet
           ? svarPaaVarselet.noekkel
-          : kanGodta && noekler.includes(`krav:${spor}`)
+          : (kanGodta || tomt) && noekler.includes(`krav:${spor}`)
             ? `krav:${spor}`
             : null
+  );
+  // I et spor uten varsel eller krav står det første varselet kjernen tilbyr, ved siden av det
+  // første kravet (U-1 i BF-51). De andre står under «Andre handlinger».
+  const varselVedSiden = $derived(
+    tomt && primaer === `krav:${spor}`
+      ? (iSporet.find((h) => h.type === 'sende_varsel')?.noekkel ?? null)
+      : null
   );
   // Aksepten åpnes her, og resten av skjemaene hos kalleren (#1663).
   const bygget = $derived([...(kanGodta ? [`godta:${spor}`] : []), ...skjemaene]);
@@ -162,6 +173,7 @@
       .filter(
         (h) =>
           h.noekkel !== primaer &&
+          h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
           h.type !== 'oppgi_kunnskapsdato' &&
           h.type !== 'innsigelse'
@@ -187,7 +199,8 @@
   const kravbrevet = () => u.spor[spor].gjeldendeKrav?.dokument ?? null;
   const vedSvaret = () => svarbrevet?.id ?? null;
   // Handlingene etter type (`TilbudtHandling.type`), og forseringen, som ikke er en handling i
-  // kjernen (#2000). Et varsel med hjemmel har teksten fra `varselet`.
+  // kjernen (#2000). Et varsel med hjemmel har teksten fra `varselet`. Det første kravet i sporet
+  // heter etter kravet, også i et spor med varsel (U-1 i BF-51).
   const OMTALE: Record<string, Omtale> = {
     godta: {
       tekst: () => HANDLINGENE.godta(avslag),
@@ -207,7 +220,13 @@
     },
     krav: {
       tekst: () =>
-        spor === 'forhold' ? FORHOLDET.oppdater : kanGodta ? HANDLINGENE.revidertKrav : null,
+        spor === 'forhold'
+          ? FORHOLDET.oppdater
+          : kanGodta
+            ? HANDLINGENE.revidertKrav
+            : nesteKravErDetFoerste(u, spor)
+              ? TOMT_SPOR.sendKrav(spor)
+              : null,
       ved: vedSvaret,
     },
     revidere: {
@@ -390,7 +409,7 @@
 {/snippet}
 
 {#snippet ikkeBygget()}
-  {#if (primaer && !primaerBygget) || (revidere && !bygget.includes(revidere))}
+  {#if (primaer && !primaerBygget) || [revidere, varselVedSiden].some((n) => n && !bygget.includes(n))}
     <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
     <p class="dempet" role="status">{primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
   {/if}
@@ -423,6 +442,12 @@
         kompakt
         onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
         >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
+      >
+    {/if}
+    {#if varselVedSiden}
+      {@const n = varselVedSiden}
+      <Knapp onclick={() => (bygget.includes(n) ? velg(n) : (primaerIkkeBygget = true))}
+        >{innsigelsestekst(n)}</Knapp
       >
     {/if}
     {#if godtaVedBrevet}
@@ -468,7 +493,7 @@
     {@render utkast?.()}
     <Side
       {u}
-      betegnelser={betegnelsene(kjernesak.saksbilde)}
+      {betegnelser}
       {fristtabell}
       vist={visesId}
       {smal}
@@ -483,8 +508,9 @@
       brevet={lestBrevet}
       {levering}
       {leggTilKorrespondanse}
+      tomtSpor={tomt && primaer ? vedBrevet : undefined}
     />
-    {#if handlingVed === null && (primaer || flyt.hindring)}
+    {#if handlingVed === null && !tomt && (primaer || flyt.hindring)}
       <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
       <section class="kort andre" aria-label={FORHOLDET.handlinger}>
         {@render vedBrevet()}

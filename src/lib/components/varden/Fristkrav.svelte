@@ -13,10 +13,11 @@
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { nesteKravErDetFoerste, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Brevskjema from './Brevskjema.svelte';
+  import Foerstekrav from './Foerstekrav.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
@@ -184,6 +185,11 @@
     !lagtTil && (varsel ? kanRegistrere : !varselbrev && !bokstavB) ? v.utenfor : null
   );
   const registreres = $derived(varsel && utenfor !== null);
+  /** «Registrer et varsel som er sendt på annen måte» fra påminnelsen ved det første kravet (U-3 i BF-51). */
+  async function registrerVarselet() {
+    v.utenfor ??= tomKorrespondanse();
+    await velgHva('varsel');
+  }
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
   async function velgHva(hva: Fristkravvalg['hva'] | null) {
     v.hva = hva ?? 'krav';
@@ -729,6 +735,15 @@
   {#snippet tidslinje()}
     <Tidslinje brev={sporbrev} {datoer} frister={fristeneITidslinja} />
   {/snippet}
+
+  {#if !lagtTil && !varsel && nesteKravErDetFoerste(u, 'frist')}
+    <Foerstekrav
+      {u}
+      spor="frist"
+      brev={alleBrev}
+      onregistrer={kanRegistrere ? registrerVarselet : undefined}
+    />
+  {/if}
 
   {#if kanVarsle}
     <Spoersmaal>

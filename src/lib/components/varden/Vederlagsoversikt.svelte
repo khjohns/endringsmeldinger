@@ -9,6 +9,7 @@
   import Datolinjer from './Datolinjer.svelte';
   import Kunnskapsdatolinje from './Kunnskapsdatolinje.svelte';
   import Sporside from './Sporside.svelte';
+  import Tomtspor from './Tomtspor.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
   import {
     brevITraaden,
@@ -39,6 +40,7 @@
     brevet,
     levering = new Map(),
     leggTilKorrespondanse,
+    tomtSpor,
     kunnskapsdatoVarselet = null,
     onkunnskapsdato,
   }: Sideprops = $props();
@@ -102,7 +104,15 @@
   </Datolinjer>
 {/snippet}
 
-<Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>
+<!-- Et spor uten varsel eller krav har betegnelsen og handlingene i hodet (U-2 i BF-51). -->
+{#snippet tomt()}<Tomtspor spor="vederlag" handlinger={tomtSpor} />{/snippet}
+
+<Sporside
+  tittel={VEDERLAGET.tittel}
+  hjemmel={VEDERLAGET.hjemmel}
+  siste={traad.at(-1)}
+  merknad={betegnelser.vederlag === 'ingen_varsel_eller_krav' ? tomt : undefined}
+>
   <Brevtraad
     brev={traad}
     {leggTilKorrespondanse}
