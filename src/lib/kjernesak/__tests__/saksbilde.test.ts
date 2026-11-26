@@ -93,6 +93,7 @@ describe('saksbildet for en TS-sak', () => {
     expect(bilde.tittel).toBeNull();
   });
 
+  // Kilde for fristen uten varsel eller krav: OV-U125.
   it('tar betegnelsen per spor fra visningen', () => {
     const { bilde, vist } = bildeAv(journal);
     for (const s of bilde.spor)
@@ -100,7 +101,7 @@ describe('saksbildet for en TS-sak', () => {
     expect(bilde.spor.map((s) => s.betegnelse)).toEqual([
       { kode: 'venter_paa_svar' },
       { kode: 'venter_paa_svar' },
-      null,
+      { kode: 'ingen_varsel_eller_krav' },
     ]);
   });
 });
