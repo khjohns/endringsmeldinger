@@ -2,36 +2,20 @@
   "id": "BF-48",
   "tittel": "Totalentreprenøren oppgir når utgiftene etter punkt 34.1.3 ble kjent, og endrer datoen",
   "brukerhistorie": "TE oppgir datoen TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser ville påløpe, i det særskilte varselet etter punkt 34.1.3 annet ledd, i vederlagskravet når det gir varselet, eller i et særskilt varsel lagt til som korrespondanse. Senere supplerer eller endrer TE datoen i et eget brev med henvisning til varselet. Begge partene ser den siste og de tidligere datoene ved varselet, og BH ser datoen når BH tar stilling til om varselet kom i tide.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har påberopt forholdet i brev 1, og BH har svart i brev 2. TE varsler særskilt etter punkt 34.1.3 fra løsningen (variant A), i vederlagskravet (B) eller som korrespondanse (C), eller oppgir datoen først i et eget brev etter BHs svar (D). I variant E er saken lukket."
+    "beskrivelse": "TE har påberopt forholdet i brev 1, og BH har svart i brev 2. Fra kontrollpunktet «te-skal-kreve-vederlaget» krever TE vederlaget med den særskilte vederlagsjusteringen og oppgir datoen i kravet (variant B). Stegene går videre etter variant D: kravet i brev 3 har ikke datoen, BH påberoper i brev 4 at varselet etter punkt 34.1.3 kom for sent, og TE oppgir datoen i brev 5 og en annen dato i brev 6."
   },
   "bestilling": "BF-48.md",
-  "kilder": [
-    "VS-U86",
-    "MM-U59",
-    "VS-U82",
-    "VS-U83",
-    "VS-U84",
-    "VS-U85",
-    "VS-U58",
-    "OV-U89",
-    "OV-U123",
-    "OV-U122",
-    "MM-U50",
-    "MM-U51",
-    "MM-U53",
-    "GR-U27",
-    "LV-U25"
-  ],
   "venter_paa": [
-    "#2012",
-    "#2010",
-    "#807"
+    "#2010"
   ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "saksruta"
+  ],
   "endringer": [
     {
       "dato": "2026-11-25",
@@ -47,6 +31,319 @@
       "dato": "2026-11-25",
       "forhold": "VS-U84, VS-U85",
       "hva": "Svarene på S-1 og S-2 er ført som VS-U84 og VS-U85, og bestillingen viser til dem."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2012",
+      "hva": "Forløpet er kjørbart i demoruta etter variant B og D. Variant A og C venter på skjemaet for varselet i vederlaget (#2010)."
+    }
+  ],
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "utdypning": "Byggherren er enig i at forholdet er en svikt i prosjekteringen."
+        }
+      ]
+    },
+    {
+      "handling": "tiden_gaar",
+      "til": "2026-10-14"
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "produktivitet": 40000,
+      "navn": "K-v1",
+      "belop": 150000
+    },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        {
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "kravposter": [
+            {
+              "post": "P1",
+              "vurdering": "godkjent"
+            }
+          ],
+          "produktivitet": {
+            "vurdering": "delvis",
+            "godkjent_belop": 30000,
+            "varslet_i_tide": false,
+            "begrenset_belop": 10000
+          },
+          "utdypning": "Varselet etter punkt 34.1.3 kom for sent for den særskilte vederlagsjusteringen.",
+          "varslet_i_tide": true
+        }
+      ]
+    },
+    {
+      "handling": "kunnskapsdato",
+      "navn": "D5",
+      "klar_over_utgiftene": "2026-10-10",
+      "utdypning": "Utgiftene ble kjent da peleriggen sto stille i uke 41."
+    },
+    {
+      "handling": "kunnskapsdato",
+      "navn": "D6",
+      "klar_over_utgiftene": "2026-10-08"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-skal-kreve-vederlaget",
+      "etter": 3,
+      "beskrivelse": "Forholdet er godkjent. TE har ikke krevd vederlag og ikke varslet etter punkt 34.1.3.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U86"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": "S-g1",
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U83"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "produktivitet": 40000,
+            "klar_over_utgiftene": "2026-10-20"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATO_ETTER_BREVET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner feltet for datoen ved varselet etter punkt 34.1.3 når kravet gir varselet, ser at det er valgfritt, og ser datoen i tidslinja og i brevet før sending.",
+          "kilde": [
+            "VS-U86",
+            "VS-U82",
+            "LV-U25"
+          ]
+        },
+        {
+          "tekst": "TE ser at en dato etter datoen brevet sendes, stoppes ved feltet med begge datoene.",
+          "kilde": [
+            "VS-U83",
+            "VS-U58"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-mottatt-kravet",
+      "etter": 4,
+      "beskrivelse": "TE har krevd 150 000 kr og 40 000 kr i særskilt vederlagsjustering i brev 3, uten datoen.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U86"
+          ],
+          "forventet": {
+            "gjeldende_krav.vederlag": "K-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser i svarskjemaet at TE ikke har oppgitt når TE ble klar over at utgiftene ville påløpe.",
+          "kilde": [
+            "VS-U86"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 5,
+      "beskrivelse": "BH har påberopt at varselet etter punkt 34.1.3 kom for sent.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U83"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2026-10-20"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATO_ETTER_BREVET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner «Oppgi datoen» ved varselet i tråden, ser skjemaet med varselet det gjelder og at datoen ikke er oppgitt, og ser brevet før sending.",
+          "kilde": [
+            "VS-U86",
+            "VS-U82",
+            "MM-U59",
+            "LV-U25"
+          ]
+        },
+        {
+          "tekst": "TE ser at forklaringen er valgfri og står i brevet under den faste teksten.",
+          "kilde": [
+            "MM-U53",
+            "VS-U82"
+          ]
+        },
+        {
+          "tekst": "TE ser at svaret byggherren har gitt, står som det ble sendt.",
+          "kilde": [
+            "VS-U86",
+            "MM-U50"
+          ]
+        },
+        {
+          "tekst": "TE ser at datoen også kan oppgis når saken er lukket, og at det ikke endrer utfallet.",
+          "kilde": [
+            "VS-U84",
+            "GR-U27",
+            "MM-U51"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "datoen-er-oppgitt",
+      "etter": 6,
+      "beskrivelse": "TE har oppgitt 10.10.2026 i brev 5.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U82"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2026-10-10"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge ser 10.10.2026 ved varselet som TEs siste opplysning, og ved svaret at TE ikke hadde oppgitt datoen da svaret ble sendt. Handlingen heter nå «Endre datoen».",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "datoen-er-endret",
+      "etter": 7,
+      "beskrivelse": "TE har oppgitt 08.10.2026 i brev 6.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge ser 08.10.2026 som TEs siste opplysning, med 10.10.2026 i brev 5 som den tidligere. Svaret i brev 4 står som det ble sendt.",
+          "kilde": [
+            "VS-U86",
+            "VS-U82",
+            "MM-U50"
+          ]
+        },
+        {
+          "tekst": "TE ser at datoen bare endres i et eget brev, og at en ny versjon av vederlagskravet har datoen fast ved varselet med veien til det egne brevet.",
+          "kilde": [
+            "VS-U85",
+            "OV-U122",
+            "OV-U123"
+          ]
+        }
+      ]
     }
   ]
 }
