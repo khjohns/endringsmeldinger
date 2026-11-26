@@ -365,14 +365,14 @@
     {/if}
   </section>
 
-  <section class="seksjon" aria-labelledby={id('maate-tittel')}>
-    <div class="seksjonshode">
-      <h3 id={id('maate-tittel')}>{VEDERLAGSVARSEL.hvordan}</h3>
-    </div>
+  <section
+    class="seksjon"
+    aria-labelledby={kanSende && kanRegistrere ? undefined : id('maate-tittel')}
+  >
     {#if kanSende && kanRegistrere}
       <Valg
         navn={id('maate')}
-        spoersmaal={VEDERLAGSVARSEL.velgEn}
+        spoersmaal={VEDERLAGSVARSEL.hvordan}
         valg={[
           { verdi: 'send' as const, tekst: VEDERLAGSVARSEL.maate.send },
           { verdi: 'registrer' as const, tekst: VEDERLAGSVARSEL.maate.registrer },
@@ -381,6 +381,10 @@
         lett
         stablet
       />
+    {:else}
+      <div class="seksjonshode">
+        <h3 id={id('maate-tittel')}>{VEDERLAGSVARSEL.hvordan}</h3>
+      </div>
     {/if}
     {#if valg.utenfor}
       <div class="innrykk">
@@ -460,6 +464,16 @@
     display: flex;
     gap: var(--spacing-3);
   }
+  /* På smal skjerm står «Endre» og «Fjern» under arbeidet, så navnet får bredden. */
+  @media (max-width: 480px) {
+    .linje {
+      grid-template-columns: 2ch 1fr;
+    }
+    .handlinger {
+      grid-column: 2;
+      order: 1;
+    }
+  }
   .under {
     grid-column: 2 / -1;
     font-size: 14px;
@@ -483,6 +497,7 @@
   }
   .gitte {
     display: grid;
+    margin-top: var(--spacing-2);
     gap: var(--spacing-1);
     margin: 0;
     padding: 0;

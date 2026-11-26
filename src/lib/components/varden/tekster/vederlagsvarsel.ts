@@ -43,7 +43,6 @@ export const VEDERLAGSVARSEL = haerdet({
   ingenFlere: 'Saken kan ikke ha flere varsler etter bestemmelsene her nå.',
   // U-5: hvordan varselet gis.
   hvordan: 'Hvordan varsler du?',
-  velgEn: 'Velg én',
   maate: {
     send: 'Send brevet fra løsningen nå',
     registrer: 'Registrer et varsel sendt utenfor løsningen',
