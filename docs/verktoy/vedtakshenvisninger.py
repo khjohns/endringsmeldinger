@@ -109,6 +109,16 @@ KJENTE_AVVIK = (
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
+    ("kjerne/kommandoer/opprettelse.ts", "OV-U1", 1, "#2420"),
+    ("kjerne/tester/feilinnfoering.ts", "OV-U1", 1, "#2420"),
+    ("kjerne/tester/opprettelse.test.ts", "OV-U1", 2, "#2420"),
+    ("server/hendelser.ts", "OV-U1", 1, "#2420"),
+    ("server/kommandoer.ts", "OV-U1", 1, "#2420"),
+    ("server/saker.ts", "OV-U1", 1, "#2420"),
+    ("server/tester/hendelser.test.ts", "OV-U1", 2, "#2420"),
+    ("server/tester/kommandoer.test.ts", "OV-U1", 1, "#2420"),
+    ("server/tester/ny_sak.test.ts", "OV-U1", 1, "#2420"),
+    ("server/tester/opprettelse.test.ts", "OV-U1", 2, "#2420"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
