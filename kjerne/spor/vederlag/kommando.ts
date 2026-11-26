@@ -508,9 +508,9 @@ function kunnskapsdatoISperren(
 }
 
 /**
- * VS-U86 punkt 9: et vederlagskrav sendt dagen `sendt` er det første varselet etter § 34.1.3 når
- * saken ikke har noe varsel etter § 34.1.3, det registrerte eller et krav, eller når kravet er
- * lagt til og sendt dagen før det. Et krav sendt fra løsningen har `sendt` lik `null`.
+ * VS-U86 punkt 9: vederlagskravet sendt dagen `sendt` er det første varselet etter § 34.1.3, ved
+ * siden av varselet saken har (`varseletFoerBrevet`). Et krav sendt fra løsningen har `sendt` lik
+ * `null`.
  */
 export function kravetErDetFoersteVarselet(u: Utledning, sendt: string | null): boolean {
   const varselet = varseletFoerBrevet(u, '34.1.3');
