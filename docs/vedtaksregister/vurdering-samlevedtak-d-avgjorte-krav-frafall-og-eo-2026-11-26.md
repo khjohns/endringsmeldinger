@@ -296,6 +296,15 @@ og stilles som nummerert liste.
 >
 > Styrer: hvor regelen for når godkjenningen er en endringsordre, leses.
 
+## Svarene
+
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534: «Samlevedtak D: ja til
+alle anbefalinger.» Det er A på spørsmål 1–6. D1 er ført som MM-U62, D2 som GR-U41 og D3 som GR-U42.
+Ved føringen fikk radene for #235 og `FRAFALT` ankrene `frafall-og-preklusjon` og `frafalt-status`,
+så GR-U41 kan samle dem (README for vedtaksregisteret, «En rad uten anker»). I alternativ 4 B, som
+er forkastet, står «CLAUDE.md» uten kodeformatering i registeret, fordi vakttesten avviser kodenavn i
+vedtaksteksten.
+
 ## Kodefunn og berørte forløp
 
 Kartleggingen har ikke lest koden utover dette, og ingenting er kjørt.
