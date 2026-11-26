@@ -8553,6 +8553,48 @@ tekst = '''
 Punkt 10 i C2 står: aksepten lukker saken som en aksept av avslaget. Forhold: utvider GR-U27, i tråd med SK-01 s1 og punkt 12 i GR-U34.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "HF-U37"
+dato = 2026-11-26
+hvem = "oppdragsgiver"
+kilde = ["#2426", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 26.11 i [#2426, 7190710379](https://github.com/khjohns/endringsmeldinger/issues/2426#issuecomment-7190710379).
+
+**Spørsmål til #2426: aksept av et svar som påberoper at forholdet er varslet for sent, og som subsidiært avslår det (juridisk)**
+
+Bakgrunn: Etter HF-U35 punkt 9 lukker totalentreprenørens uttrykkelige aksept av byggherrens avslag av forholdet saken. Etter HF-U35 punkt 10 (svar 6 B) gir totalentreprenørens aksept av byggherrens svar om at forholdet er varslet for sent etter punkt 32.2, enighet om preklusjonen, men saken lukkes ikke. Byggherren kan i samme svar påberope prinsipalt at forholdet er varslet for sent, og subsidiært avslå forholdet (vedtaket 05.10 om avslag sammen med preklusjon). Godtar totalentreprenøren et slikt svar, dekker ordlyden både punkt 9 og punkt 10, og de gir motsatt utfall. Etter KA-U88 punkt 7 gjelder aksepten hele svaret, med alle standpunktene i det, også de subsidiære og påberopelsen av at varselet kom for sent.
+
+- **A (anbefalt):** «Godtar totalentreprenøren et svar der byggherren prinsipalt påberoper at forholdet er varslet for sent etter punkt 32.2, og subsidiært avslår forholdet, er aksepten også en aksept av avslaget, og saken lukkes etter HF-U35 punkt 9. HF-U35 punkt 10 gjelder når byggherren subsidiært har godkjent forholdet.» Forhold: presiserer HF-U35 punkt 9 og snevrer inn HF-U35 punkt 10; presiserer HF-U35 E7 og MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet; i tråd med KA-U88 punkt 7 og HF-U35 punkt 1.
+- **B:** «Godtar totalentreprenøren et svar der byggherren prinsipalt påberoper at forholdet er varslet for sent etter punkt 32.2, gjelder HF-U35 punkt 10 for hele svaret, også når byggherren subsidiært avslår forholdet. Saken lukkes da ikke. Den lukkes av en endringsordre eller et trekk, og den kan tas med i en endringsordre.» Forhold: presiserer HF-U35 punkt 10 og snevrer inn HF-U35 punkt 9; EO-U39 punkt 8 sperrer ikke i dette tilfellet, og MM-U62 E5 står.
+
+Anbefalingen: Etter KA-U88 punkt 7 omfatter aksepten det subsidiære avslaget, og etter HF-U35 punkt 1 er aksept av et helt avslag et avkall. Totalentreprenøren har da godtatt at forholdet ikke gir grunnlag, også om det var varslet i tide. Under B står saken åpen etter et slikt avkall: den kan tas med i en endringsordre for et forhold totalentreprenøren har godtatt avslått, og det eneste totalentreprenøren selv kan gjøre for å lukke den, er et trekk som gjentar avkallet.
+
+Styrer: om saken lukkes når totalentreprenøren godtar et svar som påberoper at forholdet er varslet for sent og subsidiært avslår det, og om saken da kan tas med i en endringsordre.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #2426 ([7190796835](https://github.com/khjohns/endringsmeldinger/issues/2426#issuecomment-7190796835)): «3A». A er valgt, og B er forkastet.'''
+forhold = [
+  { art = "presiserer", vedtak = "hf-u35" },
+  { art = "snevrer inn", vedtak = "hf-u35" },
+  { art = "presiserer", vedtak = "mm-u62" },
+]
+folge = '''
+Presiserer HF-U35 punkt 9 og E7, og snevrer inn HF-U35 punkt 10. Presiserer MM-U62 E5, så sperren i EO-U39 punkt 8 gjelder i dette tilfellet. I tråd med KA-U88 punkt 7 og HF-U35 punkt 1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Godtar totalentreprenøren et svar der byggherren prinsipalt påberoper at forholdet er varslet for sent etter punkt 32.2, og subsidiært avslår forholdet, er aksepten også en aksept av avslaget, og saken lukkes etter HF-U35 punkt 9. HF-U35 punkt 10 gjelder når byggherren subsidiært har godkjent forholdet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Godtar totalentreprenøren et svar der byggherren prinsipalt påberoper at forholdet er varslet for sent etter punkt 32.2, gjelder HF-U35 punkt 10 for hele svaret, også når byggherren subsidiært avslår forholdet. Saken lukkes da ikke. Den lukkes av en endringsordre eller et trekk, og den kan tas med i en endringsordre.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Grunnlag, frafall og trekk av grunnlaget"
 etter = '''
