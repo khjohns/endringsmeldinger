@@ -1,10 +1,6 @@
 /**
- * Byggherrens nye svar etter et frafall etter punkt 32.3 første ledd c (#2431). GR-U41 punkt 4
- * og HF-U29 punkt 4: byggherren kan svare på nytt etter frafallet, også med et avslag, og
- * frafallet står i saken. GR-U41 punkt 2: i et nytt svar etter frafallet kan byggherren påberope
- * at forholdet er varslet for sent. Løsningen avgjør ikke om byggherren er bundet av frafallet
- * (GR-U41 punkt 4).
- * Saken i minnet er `sak()` i `brevsak.ts`.
+ * Byggherrens nye svar etter et frafall etter punkt 32.3 første ledd c (#2431, GR-U41 punkt 2–4,
+ * HF-U29 punkt 4). Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -36,7 +32,12 @@ const revisjon = (s: Sak, v: Data) => ({
   erstatter: s.u().spor.forhold.gjeldendeSvar!.id,
   svar: utregnet(s, v),
 });
-const nyVersjon = (s: Sak) => s.send('TE', PAABEROPELSE);
+/** En ny versjon av forholdet. Forholdet er avklart ved frafallet mens den venter (GR-U41 punkt 3). */
+const nyVersjon = (s: Sak) => {
+  s.send('TE', PAABEROPELSE);
+  expect(s.u().spor.forhold.gjeldendeSvar, 'forutsetning: ny versjon venter på svar').toBeNull();
+  expect(s.u().forholdAvklart, 'kontrollsak: avklart mens versjonen venter').toBe(true);
+};
 
 /** Saken etter frafallet, og frafallet slik det står i sporet når det er sendt. */
 function medFrafall() {
@@ -45,6 +46,7 @@ function medFrafall() {
   const frafallet = s.u().spor.forhold.gjeldendeSvar!;
   expect(frafaller(frafallet), 'forutsetning: svaret frafaller pålegget').toBe(true);
   expect(s.u().frafalt, 'forutsetning: pålegget er frafalt').toBe(true);
+  expect(s.u().forholdAvklart, 'kontrollsak: avklart ved frafallet (GR-U41 punkt 3)').toBe(true);
   return { s, frafallet: structuredClone(frafallet) };
 }
 
@@ -85,8 +87,11 @@ describe('byggherrens nye svar på en ny versjon av forholdet etter frafallet (G
   it('et nytt frafall tas imot, og det første frafallet står i saken ved siden av det', () => {
     const { s, frafallet } = medFrafall();
     nyVersjon(s);
-    s.send('BH', nyttSvar(s, FRAFALL));
+    const frafallet2 = nyttSvar(s, FRAFALL);
+    expect(s.avvist('BH', frafallet2)).toBeNull();
+    s.send('BH', frafallet2);
     expect(s.u().frafalt).toBe(true);
+    expect(s.u().forholdAvklart).toBe(true);
     expect(s.u().spor.forhold.svar.filter(frafaller)).toHaveLength(2);
     frafalletStaar(s, frafallet);
   });
