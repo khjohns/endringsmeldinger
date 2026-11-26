@@ -132,7 +132,7 @@
             "handling": "krav",
             "spor": "vederlag",
             "produktivitet": 40000,
-            "klar_over_utgiftene": "2026-10-05"
+            "klar_over_utgiftene": "2099-01-01"
           },
           "forventet": {
             "avvist": true,
@@ -214,7 +214,7 @@
           ],
           "prov": {
             "handling": "kunnskapsdato",
-            "klar_over_utgiftene": "2026-10-05"
+            "klar_over_utgiftene": "2099-01-01"
           },
           "forventet": {
             "avvist": true,
