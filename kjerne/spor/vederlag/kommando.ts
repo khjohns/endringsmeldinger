@@ -487,9 +487,8 @@ function kunnskapsdatoenErOppgitt(u: Utledning, hva: string): Avvisning | null {
 
 /**
  * VS-U86 punkt 9 og 12, D-2 i BF-48: datoen står i vederlagskravet bare når kravet er det første
- * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd: saken har ikke noe varsel etter
- * § 34.1.3 og ingen tidligere kravversjon med posten. Ellers oppgis den i det egne utsagnet. Et krav
- * lagt til, sendt dagen `sendt` før varselet saken har, blir det første varselet (punkt 9).
+ * varselet løsningen kjenner om posten etter § 34.1.3 annet ledd (`kravetErDetFoersteVarselet`), og
+ * datoen ikke er oppgitt før. Ellers oppgis den i det egne utsagnet.
  */
 function kunnskapsdatoISperren(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -497,16 +496,25 @@ function kunnskapsdatoISperren(
   sendt: string | null
 ) {
   if (k.spor !== 'vederlag' || kunnskapsdatoIKravet(k) === undefined) return null;
-  const varselet = varseletFoerBrevet(u, '34.1.3');
   return (
     kunnskapsdatoenErOppgitt(u, 'Vederlagskravet') ??
-    (varselet !== undefined && !foerDagen(sendt, datoenForVarselet(u, varselet))
-      ? avvis(
+    (kravetErDetFoersteVarselet(u, sendt)
+      ? null
+      : avvis(
           'KRAVET_ER_IKKE_VARSELET',
           'Vederlagskravet er ikke det første varselet om den særskilte vederlagsjusteringen etter punkt 34.1.3, så datoen totalentreprenøren ble klar over at utgiftene ville påløpe, oppgis ikke i kravet. Den oppgis i et eget brev.'
-        )
-      : null)
+        ))
   );
+}
+
+/**
+ * VS-U86 punkt 9: et vederlagskrav sendt dagen `sendt` er det første varselet etter § 34.1.3 når
+ * saken ikke har noe varsel etter § 34.1.3, det registrerte eller et krav, eller når kravet er
+ * lagt til og sendt dagen før det. Et krav sendt fra løsningen har `sendt` lik `null`.
+ */
+export function kravetErDetFoersteVarselet(u: Utledning, sendt: string | null): boolean {
+  const varselet = varseletFoerBrevet(u, '34.1.3');
+  return varselet === undefined || foerDagen(sendt, datoenForVarselet(u, varselet));
 }
 
 /** Dagen varselet etter § 34.1.3 med id-en `varselet` ble sendt: det registrerte eller et krav. */

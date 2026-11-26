@@ -11,6 +11,7 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lesJournal } from '../format/leser.ts';
+import { kravetErDetFoersteVarselet } from '../spor/vederlag/kommando.ts';
 import { sisteKunnskapsdato } from '../spor/vederlag/utledning.ts';
 import { utledJournal } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
@@ -145,6 +146,16 @@ describe('datoen i brevet med varselet (VS-U86 punkt 12 og 13, VS-U82)', () => {
     kravFoerst.send('TE', lagtTil('2026-09-27', '2026-09-26'));
     expect(siste(kravFoerst)).toBe('2026-09-26');
     expect(kravFoerst.u().forstaatt).toBe(true);
+  });
+
+  it('kravet sendt før det registrerte varselet er det første varselet, og sendt samme dag, senere eller fra løsningen er det ikke (VS-U86 punkt 9, D-1 og D-7 i BF-48, #2425)', () => {
+    const s = medPaaberopelsen();
+    expect(kravetErDetFoersteVarselet(s.u(), null), 'uten varsel').toBe(true);
+    s.send('TE', registrer('2026-09-30'));
+    expect(kravetErDetFoersteVarselet(s.u(), '2026-09-28')).toBe(true);
+    expect(kravetErDetFoersteVarselet(s.u(), '2026-09-30'), 'samme dag').toBe(false);
+    expect(kravetErDetFoersteVarselet(s.u(), '2026-10-02'), 'kontrollsak').toBe(false);
+    expect(kravetErDetFoersteVarselet(s.u(), null), 'fra løsningen').toBe(false);
   });
 
   it('en ny versjon av vederlagskravet kan ikke endre datoen, og en versjon uten datoen godtas og endrer ikke opplysningen (VS-U85, D-2 og D-7 i BF-48)', () => {
