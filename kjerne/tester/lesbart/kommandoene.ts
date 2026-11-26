@@ -300,7 +300,11 @@ export const KOMMANDOENE: Lesbar[] = [
     'utledning/utled.ts',
     'relasjon',
     'rettedeBrev',
-    ['kommandoer/vedlegg.ts:kravetErVarselet', 'spor/frist/kommando.ts:varseldokumentetISaken'],
+    [
+      'kommandoer/vedlegg.ts:kravetErVarselet',
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+      'kommandoer/nyttelast.ts:henvisningenIInnlegget',
+    ],
   ],
   [
     'Dokument',
@@ -316,6 +320,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'registrerteBrev',
     [
       'kommandoer/nyttelast.ts:retting',
+      'kommandoer/nyttelast.ts:henvisningenIInnlegget',
       'utledning/utled.ts:utled',
       'kommandoer/vedlegg.ts:kravetErVarselet',
       'spor/frist/kommando.ts:varseldokumentetISaken',
