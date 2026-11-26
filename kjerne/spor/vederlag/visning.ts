@@ -110,7 +110,6 @@ export const VISNING_I_VEDERLAGET = {
       ? 'varsel_kreves_ikke'
       : null,
   paaleggFrafalt: () => false,
-  passivitetsetikett: () => null,
   kravetErEtterspurt: () => false,
   senkning: SENKNING_I_VEDERLAGET,
 } satisfies Sporsvisning;

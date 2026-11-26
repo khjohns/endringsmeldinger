@@ -285,18 +285,6 @@ function kravpostsperre(
   return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
 }
 
-/** Det som hindrer innsigelsen mot varselet etter § 34.1.2 (`nyttelastkontroll`). */
-function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null {
-  // OV-U15, KA-46: der TE krever endring, tar byggherren ikke stilling
-  // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
-  if (
-    gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
-    !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
-  )
-    return VARSLINGSPLIKTEN_GJELDER_IKKE;
-  return null;
-}
-
 const VARSLINGSPLIKTEN_GJELDER_IKKE = avvis(
   'VARSLINGSPLIKT_GJELDER_IKKE',
   'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.'
@@ -573,7 +561,6 @@ export const NYTTELAST_I_VEDERLAGET = {
   begrunnelse: () => null,
   svarsperre: oppgivelseUtenInnsigelse,
   kravsperre: (k, u, sendt) => kravpostsperre(k, u, sendt) ?? kunnskapsdatoISperren(k, u, sendt),
-  innsigelse: innsigelseMotVarselet,
   utdypning: () => null,
   oppgittDatoIKravet: () => null,
 } satisfies Sporsnyttelast;
@@ -894,14 +881,6 @@ function svarPerKravpost(krav: Krav): Avvisning | null {
 
 /** Forutsetningene i vederlaget (`forutsetninger`). */
 export const FORUTSETNINGER_I_VEDERLAGET = {
-  innsigelsenErIkkeBygget: (u, gjelder) =>
-    // VS-U79: standpunktet til varselet står i svaret på varselet (arbeidsvalg 3 A i #2177).
-    u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)
-      ? avvis(
-          'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 står i byggherrens svar på varselet, ikke i et eget brev.'
-        )
-      : null,
   svaret: (u) => svarPerKravpost(u.spor.vederlag.gjeldendeKrav!),
   kravet: 'kravet om vederlagsjustering',
   trekket: () => null,

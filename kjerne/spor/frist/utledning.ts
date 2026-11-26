@@ -40,7 +40,6 @@ export const KONTROLLER_I_FRISTEN = {
     if (iSvaret.join() !== iKravet.join())
       ugyldig(s.id, 'dagene i svaret er ikke de samme fristene som i kravet');
   },
-  kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: (s, bakover, ugyldig) => {

@@ -222,17 +222,6 @@ export type Utsagn =
    * eller mottatt, eller at det var en endringsordre.
    */
   | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
-  /**
-   * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): parten gjør gjeldende at motpartens
-   * varsel, krav eller svar kom for sent. `gjelder` er det.
-   */
-  | {
-      id: string;
-      art: 'innsigelse';
-      gjelder: string;
-      /** VS-U29: byggherren mener at TEs begrunnelse etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd. Uten feltet kom det for sent. */
-      grunn?: 'ikke_svar';
-    }
   /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
   | { id: string; art: 'foresporsel'; hjemmel: '33.6.2' }
   /**
@@ -241,13 +230,10 @@ export type Utsagn =
    */
   | { id: string; art: 'foresporselssvar'; gjelder: string }
   /**
-   * VS-U1, MP-U6: protest mot en innsigelse: innsigelsen, påberopelsen i et svar
-   * (standpunktet om rettidighet), eller et dokument, som da gjelder alle
-   * innsigelsene i det.
+   * VS-U1, MP-U6: TEs protest mot byggherrens påberopelse i et svar: standpunktet om
+   * rettidighet, eller svaret, som da gjelder alle påberopelsene i det (svar 1 A i #2442).
    */
   | { id: string; art: 'protest'; gjelder: string }
-  /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. `gjelder` er TEs varsel etter § 32.2. */
-  | { id: string; art: 'passivitet'; gjelder: string }
   /**
    * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
    * teksten står i brevteksten. Endrer ingen standpunkter.

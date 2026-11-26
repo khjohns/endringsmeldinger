@@ -44,16 +44,14 @@ export const UTLEDNINGEN: Lesbar[] = [
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U43).
+  // Hvem som sa hvert element, og hva det er (KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
-  ['Utledning.elementer', 'relasjon', '*'],
   ['utledning/utled.ts:Element', 'relasjon', 'hendelse part art innsigelse'],
-  // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
-  ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
+  // VS-U1, MP-U6: hva en protest kan gjelde.
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
   ['spor/frist/utledning.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
-  ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
+  ['utledning/utled.ts:protester(elementer)', 'relasjon', '*'],
   // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn utenforRekken', ['utledning/utled.ts:utled']],
   [
@@ -75,21 +73,6 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
   ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
-  // OV-U104, OV-U105: påberopelsene et svar lagt til sammenliknes med.
-  [
-    'Partspaaberopelse',
-    'relasjon',
-    'id dag hjemmel etter',
-    ['utledning/utled.ts:registreringenStrider'],
-  ],
-  // VS-U9, VS-U11, HF-U4: partens svar etter påberopelsen, i rekkefølgen de ble sendt, som i
-  // `aapneInnsigelser` (#2090).
-  [
-    'utledning/utled.ts:partensPaaberopelser',
-    'relasjon',
-    'dag svar',
-    ['utledning/utled.ts:partensPaaberopelser'],
-  ],
   [
     'Utledning',
     'utsagn',
@@ -99,7 +82,6 @@ export const UTLEDNINGEN: Lesbar[] = [
       // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
       'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:fristkravErFremmet',
-      'utledning/utled.ts:partensPaaberopelser',
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',

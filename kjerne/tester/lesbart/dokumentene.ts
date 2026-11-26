@@ -225,8 +225,6 @@ export const DOKUMENTENE: Lesbar[] = [
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
   ['Utsagn', 'utsagn', 'hjemmel'],
-  // VS-U29: at TEs begrunnelse etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd.
-  ['Utsagn', 'utsagn', 'grunn'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
   [
     'Standpunkt',

@@ -139,8 +139,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  enighetsgrunnlag,\n  innsigelsenPaaberoper,\n',
-        '  enighetsgrunnlag,\n  virkninger as regn,\n  innsigelsenPaaberoper,\n',
+        'import { enighetsgrunnlag, sammenfallStemmer } from',
+        'import { enighetsgrunnlag, sammenfallStemmer, virkninger as regn } from',
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -822,64 +822,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F78',
-    feilklasse: 'en part kan gjøre innsigelse mot sitt eget krav (VS-U1)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '  maal !== undefined && maal.part !== part && KAN_FAA_INNSIGELSE.has(maal.art);',
-        '  maal !== undefined && KAN_FAA_INNSIGELSE.has(maal.art);',
-      ],
-    ],
-    mal: ['F-MM-V1', 'en innsigelse fra TE mot eget krav'],
-  },
-  {
-    id: 'F82',
-    feilklasse:
-      'en innsigelse mot det en registrert enighet omfatter, avvises, som før MM-U34 punkt 13',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        '      return kanFaaInnsigelse(maal, part)\n        ? null\n',
-        "      return kanFaaInnsigelse(maal, part)\n        ? (['forhold', 'vederlag', 'frist'] as const).some((n) => u.spor[n].enighet !== null)\n          ? avvis('ENIGHETEN_OMFATTER', 'Partene er enige.')\n          : null\n",
-      ],
-    ],
-    mal: [
-      'innsigelsen mot fristkravet og svaret partene er enige om ved sammenfall, godtas',
-      'innsigelsen mot en påberopelse med registrert enighet ved en endringsordre godtas',
-      'godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter',
-    ],
-  },
-  {
-    id: 'F82e',
-    feilklasse: 'en innsigelse avvises når kravene er avgjort (OV-U3, KA-U11)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
-        "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
-      ],
-      [
-        "import { kanFaaInnsigelse, sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';",
-        "import {\n  kanFaaInnsigelse,\n  kraveneErAvgjort,\n  sendtFoerGjeldendeSvar,\n  type Utledning,\n} from '../utledning/utled.ts';",
-      ],
-    ],
-    mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
-  },
-  {
-    id: 'F84',
-    feilklasse:
-      'en påberopt passivitet mot en påberopelsesversjon utenfor rekken stopper saken (MM-U43 punkt 6, VS-U12, OV-U102)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);',
-        '  kontrollerHenvisningene(henvisninger, elementer, alleKrav, besvart, bakover, ugyldig);',
-      ],
-    ],
-    mal: ['en påberopt passivitet sendt herfra mot den er forstått'],
-  },
-  {
     id: 'F90',
     feilklasse:
       'subsidiariteten går tilbake til svaret på versjonen det ble regnet mot, når forholdet er besvart igjen (GR-U1, GR-U4)',
@@ -893,24 +835,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (u.spor[k.spor].trukket)', '  if (u.spor[k.spor].trukket && !k)']],
     mal: ['F-MM-IK6b'],
-  },
-  {
-    id: 'F98',
-    feilklasse:
-      'en innsigelse mot fristkravet leses som en påberopelse etter § 33.4 (VS-U24, #500)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        '    if (krav) return',
-        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav) return",
-      ],
-    ],
-    mal: [
-      'uten eget varsel er en innsigelse mot det første fristkravet ingen påberopelse',
-      'et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet',
-      'et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon',
-      'gir et «i tide» opp bare den mot varselet',
-    ],
   },
   {
     id: 'F99',
@@ -927,28 +851,6 @@ const MUTASJONER: Mutasjon[] = [
       'uten registrert varsel gjelder den det første fristkravet',
       'brevet sier at varselet er det første fristkravet',
     ],
-  },
-  {
-    id: 'F100',
-    feilklasse: 'en innsigelse mot TEs varsel etter § 32.2 leses ikke som en påberopelse (VS-U24)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["varslingsplikt(krav) ? '32.2'", 'varslingsplikt(krav) ? null']],
-    mal: [
-      'svaret gjentar innsigelsen og viser til den',
-      'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
-    ],
-  },
-  {
-    id: 'F101',
-    feilklasse:
-      'et standpunkt i et annet spor eller etter en annen bestemmelse gir opp innsigelsen (VS-U9, VS-U11)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    // Hjemmelen skiller også sporene, så begge filtrene muteres.
-    endringer: [
-      ['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)'],
-      ["p.art === 'rettidighet' && p.hjemmel === hjemmel", "p.art === 'rettidighet' && true"],
-    ],
-    mal: ['et «i tide» i forholdet gir ikke opp innsigelsen mot fristvarselet'],
   },
   {
     id: 'F105',
@@ -973,7 +875,7 @@ const MUTASJONER: Mutasjon[] = [
         "  for (const p of s.standpunkter.filter(harTekst).filter((p) => s.beslutningsgrunnlag.virkninger.find((v) => v.standpunkt === p.id)?.virkning !== 'uten_virkning')) {",
       ],
     ],
-    mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
+    mal: ['et standpunkt appen regner som uten virkning'],
   },
   {
     id: 'F108',
@@ -1015,18 +917,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['    fra = plass + del.length;', '    fra = 0;']],
     mal: ['rekkefølgen er byttet'],
-  },
-  {
-    id: 'F112',
-    feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);',
-        'const innsigelsene: Innsigelse[] = [];',
-      ],
-    ],
-    mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
   {
     id: 'F113',
@@ -1181,8 +1071,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '  if (!dokumentene.length) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;',
-        "  if (!dokumentene.length) return 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
+        '  if (!brevet) return `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;',
+        "  if (!brevet) return 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
       ],
     ],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
@@ -1197,7 +1087,7 @@ const MUTASJONER: Mutasjon[] = [
         'og gjør ikke gjeldende at varselet kom for sent.`',
       ],
     ],
-    mal: ['nevner brevet varselet etter § 33.4 (LV-U5)'],
+    mal: ['svaret på kravet gir opp innsigelsen i svaret på varselet'],
   },
   {
     id: 'F134',
@@ -1209,11 +1099,7 @@ const MUTASJONER: Mutasjon[] = [
         "const omVarselet = `${VARSELET_I_SVARET[p.hjemmel === '32.2' ? '34.1.2' : '32.2']} i ",
       ],
     ],
-    mal: [
-      'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
-      'nevner brevet varselet etter § 33.4 (LV-U5)',
-      'gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)',
-    ],
+    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
     id: 'F135',
@@ -1359,25 +1245,20 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F168',
-    feilklasse:
-      'protest, påberopt passivitet og senere begrunnelse tilbys uten forutsetningene (OV-U7, INV-MM-1)',
+    feilklasse: 'protest og senere begrunnelse tilbys uten forutsetningene (OV-U7, INV-MM-1)',
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [
       [
-        "    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });\n",
-        "    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });\n    if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });\n    if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n",
-      ],
-      [
-        '  return ut;\n',
-        "  for (const k of u.spor.forhold.krav) ut.push({ type: 'passivitet', gjelder: k.id });\n  return ut;\n",
+        "    if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });\n",
+        "    if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });\n    else if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });\n    else if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n",
       ],
       [
         '.filter((h) => forutsetninger(h, part, u, null) === null)',
-        ".filter((h) => ['protest', 'passivitet', 'begrunne'].includes(h.type) || forutsetninger(h, part, u, null) === null)",
+        ".filter((h) => ['protest', 'begrunne'].includes(h.type) || forutsetninger(h, part, u, null) === null)",
       ],
     ],
     mal: [
-      'protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, en påberopelse og et svar',
+      'protest og senere begrunnelse tilbys ingen av partene, også med et svar med en påberopelse',
     ],
   },
   {
@@ -1673,38 +1554,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
   },
   {
-    id: 'F208',
-    feilklasse:
-      'en innsigelse mot varselet etter § 33.4 leses ikke som en påberopelse (VS-U24, VS-U11)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "      return utsagn.art === 'varsel'\n        ? utsagn.hjemmel",
-        '      return false\n        ? utsagn.hjemmel',
-      ],
-    ],
-    mal: [
-      'gir byggherren opp innsigelsen mot fristvarselet',
-      'gir et «i tide» opp bare den mot varselet',
-    ],
-  },
-  {
-    id: 'F209',
-    feilklasse:
-      'svaret på en ny påberopelsesversjon gjentar eller gir ikke opp innsigelsen mot en tidligere (arbeidsvalget 15.10 i #500)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler);',
-        "const innsigelsene = aapneInnsigelser(s.spor, s.dokument, nytt.avsender, t, regler).filter((i) => s.spor !== 'forhold' || i.gjelder === s.gjelder);",
-      ],
-    ],
-    mal: [
-      'et «i tide» på den nye versjonen gir opp innsigelsen mot den første',
-      'et «for sent» på den nye versjonen gjentar innsigelsen mot den første',
-    ],
-  },
-  {
     id: 'F211',
     feilklasse:
       'utregningen leser § 34.1.2 av modulfunksjonen, ikke av regelsettet som standpunktet (#490)',
@@ -1739,38 +1588,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/forhold.ts`,
     endringer: [["  'svar_paa_varsel',\n];", "  'svar_paa_varsel',\n  'gebyrer_og_avgifter',\n];"]],
     mal: ['frafall avvises i gebyrer_og_avgifter'],
-  },
-  {
-    id: 'F222',
-    feilklasse:
-      'et svar på vederlaget etter en innsigelse mot vederlagskravet avvises (VS-U24, #517)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
-        "  const utenfor =\n    s.spor === 'vederlag' && Object.values(u.elementer).some((e) => e.art === 'innsigelse')\n      ? 'innsigelse'\n      : utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
-      ],
-    ],
-    mal: ['F-MM-V3b'],
-  },
-  {
-    id: 'F223',
-    feilklasse: 'et «i tide» i et svar lagt til gir ikke opp innsigelsen i brevteksten (OV-U105)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'if (!utenVirkning(s.id)) svarFraParten',
-        'if (!utenVirkning(s.id) && !erRegistrert(d.opplysninger)) svarFraParten',
-      ],
-    ],
-    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
-  },
-  {
-    id: 'F649',
-    feilklasse: 'et «i tide» i et svar sendt før innsigelsen gir den opp (OV-U105, OV-U104)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['.filter((x) => !foerDagen(x.dag, i.dag))', '']],
-    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
     id: 'F650',
@@ -1808,13 +1625,6 @@ const MUTASJONER: Mutasjon[] = [
       'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
       'et krav sendt samme dag som det siste blir gjeldende',
     ],
-  },
-  {
-    id: 'F653',
-    feilklasse: 'et svar uten virkning gir opp innsigelsen i brevteksten (MM-U43 punkt 9, OV-U105)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['if (!utenVirkning(s.id)) svarFraParten', 'svarFraParten']],
-    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
     id: 'F656',
@@ -1950,25 +1760,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F668',
-    feilklasse:
-      'et svar lagt til samme dag som partens innsigelse i sporet, merkes ikke (OV-U104, OV-U105)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['foerDagen(sendt, x.dag, () => medSvaret(x.id));', 'foerDagen(sendt, x.dag);']],
-    mal: [
-      'et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den',
-    ],
-  },
-  {
-    id: 'F669',
-    feilklasse: 'en innsigelse i et brev lagt til gjentas i svaret fra løsningen (#2037, OV-U98)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['  if (erRegistrert(d.opplysninger)) return [];\n', '']],
-    mal: [
-      'en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen',
-    ],
-  },
-  {
     id: 'F670',
     feilklasse:
       'et vederlagssvar lagt til leser et senere svar på forholdet når svaret i brevet står utenfor rekken (OV-U32, OV-U103)',
@@ -1976,33 +1767,6 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['const iBrevet = [...forhold, ...utenforRekken];', 'const iBrevet = forhold;']],
     mal: [
       'OV-U32, OV-U103: et vederlagssvar lagt til leser svaret på forholdet i samme brev, også når det står utenfor rekken',
-    ],
-  },
-  {
-    id: 'F671',
-    feilklasse:
-      'et svar lagt til merkes mot en innsigelse brevteksten ikke sammenlikner det med (OV-U104)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '        svaretGjelderPaaberopelsen(s.spor, hjemmel) &&',
-        '        (true || svaretGjelderPaaberopelsen(s.spor, hjemmel)) &&',
-      ],
-    ],
-    mal: [
-      'OV-U104: et vederlagssvar lagt til samme dag som en innsigelse mot vederlagskravet merkes ikke',
-    ],
-  },
-  {
-    id: 'F224',
-    feilklasse:
-      'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      ["krav.spor === 'forhold' && varslingsplikt(krav)", "krav.spor === 'forhold' && true"],
-    ],
-    mal: [
-      'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
     ],
   },
   {
@@ -2224,19 +1988,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['opplysningen om § 31.3 ved'],
   },
   {
-    id: 'F270',
-    feilklasse:
-      'en innsigelse mot en påberopelse lagt til med kravskjemaet regnes ikke som påberopelse etter § 32.2 (OV-U80)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "krav.spor === 'forhold' && varslingsplikt(krav)",
-        "krav.spor === 'forhold' && d.opplysninger.length === 0 && varslingsplikt(krav)",
-      ],
-    ],
-    mal: ['brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen'],
-  },
-  {
     id: 'F271',
     feilklasse: 'et tidspunkt uten tidssone tolkes i vertens tidssone (T1 i #770, #766)',
     fil: `${K}/format/leser.ts`,
@@ -2326,19 +2077,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);',
-        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig, uten);',
+        '  kontrollerHenvisningene(henvisninger, elementer, besvart, bakover, ugyldig);',
+        '  kontrollerHenvisningene(henvisninger, elementer, besvart, bakover, ugyldig, uten);',
       ],
       [
         '  ugyldig: Ugyldig\n): void {\n  for (const x of henvisninger) {',
         '  ugyldig: Ugyldig,\n  uten: Map<string, unknown>\n): void {\n  for (const x of henvisninger) {',
       ],
       [
-        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer, kravMedUten)',
-        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer, kravMedUten))',
+        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer)',
+        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer))',
       ],
     ],
-    mal: ['en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde'],
+    mal: ['en protest mot egen endringsordre uten virkning viser ikke til noe den kan gjelde'],
   },
   {
     id: 'F280',
@@ -2373,14 +2124,6 @@ const MUTASJONER: Mutasjon[] = [
       ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide === true,'],
     ],
     mal: ['kontrollsak: forholdet godkjent gir ingen prinsipal grunn fra forholdet'],
-  },
-  {
-    id: 'F285',
-    feilklasse:
-      'brevteksten leser ikke regelsettet for om en innsigelse er en påberopelse etter § 32.2 (VS-U24, #798)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['(k) =>\n      gjelderVarslingsplikten(k, regler)\n    );', '() => false);']],
-    mal: ['ikke av et nyere regelsett'],
   },
   {
     id: 'F287',
@@ -2497,28 +2240,14 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'protesten godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["    case 'bestride':\n    case 'protest':\n", "    case 'bestride':\n"]],
-    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
-  },
-  {
-    id: 'F302',
-    feilklasse: 'påberopt passivitet godtas i første versjon (OV-U7)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'protest':\n    case 'passivitet':\n", "    case 'protest':\n"]],
-    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
+    mal: ['protest og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F303',
     feilklasse: 'den senere begrunnelsen godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'passivitet':\n    case 'begrunne':\n", "    case 'passivitet':\n"]],
-    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
-  },
-  {
-    id: 'F304',
-    feilklasse: 'en lest påberopt passivitet kan endre utfallet (VS-U12, OV-U7)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["['aksept', 'trekk', 'varsel']", "['aksept', 'trekk', 'varsel', 'passivitet']"]],
-    mal: ['en lest påberopt passivitet etter at saken er lukket etter GR-U27'],
+    endringer: [["    case 'protest':\n    case 'begrunne':\n", "    case 'protest':\n"]],
+    mal: ['protest og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F306',
@@ -2681,7 +2410,7 @@ const MUTASJONER: Mutasjon[] = [
       'at TE svarte for sent på forespørselen, prekluderer ikke kravet (§ 33.6.2 tredje ledd, VS-U17)',
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [["if (typeof v.foresporsel_svar_ok === 'boolean' && foresporsel)", 'if (false)']],
-    mal: ['VS-U17: «svaret kom for sent»', 'VS-U29: innsigelsen mot begrunnelsen'],
+    mal: ['VS-U17: «svaret kom for sent»'],
   },
   {
     id: 'F319',
@@ -2690,22 +2419,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['      if (f) Object.assign(f, { svar: krav.id, medKrav: true });', '']],
     mal: ['kravet som svarer på forespørselen, sier det'],
-  },
-  {
-    id: 'F320',
-    feilklasse:
-      'innsigelsen mot begrunnelsen etter § 33.6.2 annet ledd b er ingen påberopelse (VS-U29)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        ": utsagn.art === 'foresporselssvar'\n          ? '33.6.2'",
-        ": false\n          ? '33.6.2'",
-      ],
-    ],
-    mal: [
-      'VS-U29: innsigelsen mot begrunnelsen',
-      'etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon ikke opp innsigelsen',
-    ],
   },
   {
     id: 'F321',
@@ -3038,7 +2751,9 @@ const MUTASJONER: Mutasjon[] = [
         'foresporsel_svar_ok: krav.er_svar_paa_foresporsel,',
       ],
     ],
-    mal: ['VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret'],
+    mal: [
+      'VS-U88 punkt 8: svaret på det første kravet etter begrunnelsen påberoper at den kom for sent',
+    ],
   },
   {
     id: 'F327',
@@ -3144,30 +2859,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['    else if (f !== foresporsler[0])', '    else if (false)']],
     mal: ['VS-U31: en lest rad med en andre forespørsel'],
-  },
-  {
-    id: 'F347',
-    feilklasse: '«i tide» etter § 33.6.2 gir ikke opp innsigelsen mot begrunnelsen (HF-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "p.art === 'rettidighet' && p.hjemmel === hjemmel",
-        "p.art === 'rettidighet' && p.hjemmel === hjemmel && p.hjemmel !== '33.6.2'",
-      ],
-    ],
-    mal: ['HF-U4, VS-U29: etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon'],
-  },
-  {
-    id: 'F348',
-    feilklasse: 'svaret om § 33.6.2 omtaler ikke innsigelsen mot begrunnelsen (VS-U29)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'innsigelsene.filter((i) => i.hjemmel === p.hjemmel)',
-        "innsigelsene.filter((i) => i.hjemmel === p.hjemmel && i.hjemmel !== '33.6.2')",
-      ],
-    ],
-    mal: ['VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2'],
   },
   {
     id: 'F349',
@@ -3483,13 +3174,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['poster som ikke summerer til det subsidiære beløpet, er ikke forstått'],
   },
   {
-    id: 'F398',
-    feilklasse: 'svaret gjentar ikke byggherrens innsigelse mot det særskilte varselet (VS-U24)',
-    fil: `${K}/spor/vederlag/frysing.ts`,
-    endringer: [["ogsaaInnsigelserEtter: ['34.1.3'],", 'ogsaaInnsigelserEtter: [],']],
-    mal: ['svaret gjentar byggherrens egen innsigelse mot det særskilte varselet'],
-  },
-  {
     id: 'F399',
     feilklasse: 'en begrensning etter § 34.1.3 i et lag gir sammenfall (VS-U5, #479)',
     fil: `${K}/spor/vederlag/frysing.ts`,
@@ -3772,14 +3456,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['registreres bare der varslingsplikten'],
   },
   {
-    id: 'F433',
-    feilklasse:
-      'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
-    fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [["u.spor.forhold.varsler['32.2']?.id === gjelder", 'false']],
-    mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
-  },
-  {
     id: 'F434',
     feilklasse: 'vedleggene ved påberopelsen slås ikke opp (VS-U38, LV-U14)',
     fil: `${K}/kommandoer/kommando.ts`,
@@ -3834,7 +3510,7 @@ const MUTASJONER: Mutasjon[] = [
       'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, MM-U50, #1533)',
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
-    mal: ['en bestridelse med tittelen fra innsigelsen er ikke forstått'],
+    mal: ['en bestridelse med en tittel skrivingen ikke gir den, er ikke forstått'],
   },
   {
     id: 'F440',
@@ -3902,19 +3578,6 @@ const MUTASJONER: Mutasjon[] = [
       'et svar sendt før avslaget på forholdet er ikke subsidiært',
       'en rad uten kommando fryses på samme måte',
     ],
-  },
-  {
-    id: 'F696',
-    feilklasse:
-      'et svar lagt til merkes mot en innsigelse mot påberopelsen også der § 32.2 ikke gjelder kategorien, som brevteksten ikke sammenlikner det med (VS-U24, #2050)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;',
-        'const varslingsplikt = true;',
-      ],
-    ],
-    mal: ['i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen'],
   },
   {
     id: 'F699',
@@ -4343,7 +4006,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'brevet med korrigeringen av datoen får ingen tittel (LV-U55)',
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [
-      ["x.art === 'innsigelse' ||\n      x.art === 'korrigering'\n", "x.art === 'innsigelse'\n"],
+      [
+        "x.art === 'kunnskapsdato' ||\n      x.art === 'korrigering'\n",
+        "x.art === 'kunnskapsdato'\n",
+      ],
     ],
     mal: ['brevet har tittelen «Korrigering av datoen i sak <kode>»'],
   },
@@ -4793,13 +4459,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['saken kan ha flere varsler etter punkt 34.3.3 og 34.4'],
   },
   {
-    id: 'F486',
-    feilklasse: 'byggherren kan sende innsigelse mot varselet etter punkt 34.3.3 før økt 2 (G-9)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)', 'false']],
-    mal: ['byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter'],
-  },
-  {
     id: 'F487',
     feilklasse:
       'kravet viser ikke til varselet etter punkt 34.4 kravposten har valgt (VS-U87 punkt 23)',
@@ -5231,12 +4890,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F532',
     feilklasse:
-      'en innsigelse mot et krav, svar eller varsel får et annet spor enn elementet (#1713)',
+      'en handling mot et krav, svar eller varsel får et annet spor enn elementet (#1713)',
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [
       ['      if (e) sporet.set(e.id, spor);', "      if (e) sporet.set(e.id, 'vederlag');"],
     ],
-    mal: ['en innsigelse hører til sporet elementet den gjelder'],
+    mal: ['hver handling unntatt registreringen av et brev hører til et spor'],
   },
   {
     id: 'F533',
@@ -5508,14 +5167,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/format.ts`,
     endringer: [['  kontrollerHjemlene: kontrollerHjemleneIFristen,', '']],
     mal: ['VS-U24: rettidigheten etter § 33.6.2 foran rettidigheten etter § 33.4'],
-  },
-  {
-    id: 'F577',
-    feilklasse:
-      'i fristen gir bare partens siste «i tide» etter § 33.4 opp innsigelsen, ikke hvert (VS-U20, #1783)',
-    fil: `${K}/spor/frist/frysing.ts`,
-    endringer: [['  hvertITideGirOppInnsigelsen: true,', '  hvertITideGirOppInnsigelsen: false,']],
-    mal: ['VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen'],
   },
   {
     id: 'F578',
@@ -6624,26 +6275,12 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et krav er ikke et varsel uten krav'],
   },
   {
-    id: 'F770',
-    feilklasse:
-      'forespørselen tar ikke med påberopelsen etter § 33.4 i forbeholdet (LV-U76, #2246)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (etter334.length) ut.push(kom('33.4', etter334));", '']],
-    mal: [
-      'LV-U76: etter en påberopelse etter § 33.4 fastholder forespørselen',
-      'LV-U77: preklusjonen etter § 32.2, avslaget og påberopelsen etter § 33.4',
-    ],
-  },
-  {
     id: 'F771',
     feilklasse:
       'forbeholdet i forespørselen snur rekkefølgen på innsigelsene (LV-U77, OV-U32, #2246)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['...innsigelser.map((hva, i) =>', '...innsigelser.reverse().map((hva, i) =>']],
-    mal: [
-      'LV-U77: preklusjonen etter § 32.2, avslaget og påberopelsen etter § 33.4',
-      'LV-U77: byggherrens egen påberopelse etter § 32.2 står prinsipalt',
-    ],
+    mal: ['LV-U77: preklusjonen etter § 32.2 og avslaget står i rekkefølgen etter OV-U32'],
   },
   {
     id: 'F772',
@@ -6779,14 +6416,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'forhåndsvisningen av et svar lagt til leser lagene fra svaret på forholdet som gjaldt den dagen',
     ],
-  },
-  {
-    id: 'F782',
-    feilklasse:
-      'et svar lagt til sammenliknes med en innsigelse parten alt har gitt opp (OV-U104, OV-U105, #2090)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['        !innsigelsenErOppgitt(s.spor, x.etter(), hjemmel)\n', '        true\n']],
-    mal: ['et svar lagt til sammenliknes ikke med en innsigelse et senere svar alt har gitt opp'],
   },
   {
     id: 'F783',
@@ -7048,14 +6677,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['    ...fra.ledd,\n', '']],
     mal: ['lagene i svaret på varselet står etter avslaget av forholdet'],
-  },
-  {
-    id: 'F2177j',
-    feilklasse:
-      'handlingene som gjelder svaret på varselet, får ikke sporet vederlag (#1713, VS-U79, #2177)',
-    fil: `${K}/kommandoer/handlinger.ts`,
-    endringer: [['      ...s.svarPaaVarsler,\n', '']],
-    mal: ['innsigelse mot svaret på varselet hører til vederlaget'],
   },
   {
     id: 'F2177k',
@@ -8007,14 +7628,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['legges til én gang med alle varslene (svaret A 26.11 i #1823)'],
-  },
-  {
-    id: 'F2429d',
-    feilklasse:
-      'svaret på kravet tolker den egne innsigelsen etter punkt 5 som en påberopelse det gir opp, ved siden av innsigelsen i svaret på varselet (VS-U89, #2429)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  const aapne = iSvaret ? [] : innsigelsene', '  const aapne = innsigelsene']],
-    mal: ['tolker ikke den egne innsigelsen etter punkt 5'],
   },
   {
     id: 'F2425a',

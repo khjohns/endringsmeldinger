@@ -112,7 +112,6 @@ export const NYTTELAST_I_FRISTEN = {
   begrunnelse: () => null,
   svarsperre: () => null,
   kravsperre: fristsperre,
-  innsigelse: () => null,
   utdypning: utdypningIFristen,
   // VS-U34: varselet i kravet skrives som et eget brev, og datoen kontrolleres der (`oppgittDatoI`).
   // Står varselet alt i saken, kreves samme dato som det har.
@@ -128,7 +127,6 @@ function fristenErLukket(u: Utledning, avslaget: Avvisning | null): Avvisning | 
 
 /** Forutsetningene i fristen (`FORUTSETNINGER`). */
 export const FORUTSETNINGER_I_FRISTEN = {
-  innsigelsenErIkkeBygget: () => null,
   svaret: () => null,
   kravet: 'kravet om fristforlengelse',
   trekket: () => null,

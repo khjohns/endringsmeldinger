@@ -8,8 +8,6 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { minnebane } from './bane.ts';
-import { kjoer } from './kjoerer.ts';
 import type { Journalrad, Part, Spor } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
 import { lesJournal } from '../format/leser.ts';
@@ -93,53 +91,5 @@ describe('sporet og hjemmelen i de tilbudte handlingene (#1703)', () => {
       if (h.type === 'korrigere') expect(h.spor).toBe('forhold');
       if (h.gjelder !== null) expect(h.noekkel).toBe(`${h.type}:${h.gjelder}`);
     }
-  });
-
-  it('en innsigelse hører til sporet elementet den gjelder, står i i utledningen (#1713)', async () => {
-    /** Arten og sporet til elementet `id`, lest av listene i hvert spor i utledningen. */
-    const elementet = (u: Utledning, id: string): [string, Spor][] =>
-      (Object.keys(u.spor) as Spor[]).flatMap((spor) => {
-        const s = u.spor[spor];
-        const arter: [string, { id: string }[]][] = [
-          ['krav', s.krav],
-          ['svar', s.svar],
-          ['varsel', Object.values(s.varsler).filter((v) => v !== null && v !== undefined)],
-          ['kravpostvarsel', s.kravpostvarsler],
-        ];
-        return arter.flatMap(([art, e]) =>
-          e.some((x) => x.id === id) ? [[art, spor] as [string, Spor]] : []
-        );
-      });
-    // Startjournalene har ingen innsigelse mot et varsel, så saken her har varslene i hvert spor.
-    const k = await kjoer(
-      {
-        id: 'varslene',
-        rader: [],
-        start: null,
-        steg: [
-          { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring', navn: 'K-g1' },
-          { handling: 'varsel', spor: 'frist', navn: 'V-f1' },
-          { handling: 'varsel', spor: 'vederlag', navn: 'V-v1' },
-          { handling: 'varsel', spor: 'vederlag', hjemmel: '34.1.3', navn: 'V-v2' },
-        ],
-        kontroller: [],
-      },
-      minnebane({ sakstittel: 'Varslene' })
-    );
-    const u = await k.utledning();
-    const innsigelsene = [...alle, ...tilbudte(u, 'BH').map((h) => ({ u, h }))].filter(
-      ({ h }) => h.type === 'innsigelse'
-    );
-    const arter = new Set<string>();
-    for (const { u, h } of innsigelsene) {
-      const funnet = elementet(u, h.gjelder!);
-      expect(funnet, h.noekkel).toHaveLength(1);
-      expect(h.spor, h.noekkel).toBe(funnet[0][1]);
-      arter.add(funnet[0][0]);
-    }
-    expect([...arter].sort(), 'forutsetning: artene testen prøver').toEqual(
-      expect.arrayContaining(['krav', 'svar', 'varsel'])
-    );
-    expect(new Set(innsigelsene.map(({ h }) => h.spor)).size).toBeGreaterThan(1);
   });
 });

@@ -819,23 +819,6 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ).toBeNull();
   });
 
-  it('svaret gjentar byggherrens egen innsigelse mot det særskilte varselet (VS-U24)', () => {
-    const s = sakMedPost();
-    const varsel = s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] });
-    const innsigelse = s.send('BH', {
-      type: 'innsigelse',
-      gjelder: (varsel.data.utsagn as Data[])[0].id,
-    });
-    const rad = brevet(
-      s,
-      { ...postene, ...begrenset },
-      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
-    );
-    expect(laast(rad).join(' ')).toContain(
-      `kom for sent, jf. innsigelsen i brev K201-KOE-017-${String(innsigelse.data.brevnummer).padStart(2, '0')}`
-    );
-  });
-
   describe('postlisten visningen leser (svarene i #1047 24.10, MM-U23, OV-U28)', () => {
     const svaret = (s: ReturnType<typeof sak>) => {
       const u = s.u();

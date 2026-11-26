@@ -83,33 +83,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'preklusjonPaaberopt',
     ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
   ],
-  // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'innsigelsenPaaberoper',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensPaaberopelser'],
-  ],
-  // OV-U104, OV-U105: et svar lagt til sammenliknes ikke med en påberopelse parten alt har gitt
-  // opp, som brevteksten heller ikke gjentar (VS-U9, VS-U11, #2090).
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'innsigelsenErOppgitt',
-    ['utledning/utled.ts:registreringenStrider'],
-  ],
-  // VS-U24, VS-U29, OV-U104, OV-U105: påberopelsene et svar gjentar eller gir opp, og dagen det
-  // sammenliknes med dem, likt i brevteksten og utledningen (#2050).
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'paaberopelserIDokumentet svaretGjelderPaaberopelsen',
-    [
-      'frosset/brevtekst.ts',
-      'utledning/utled.ts:registreringenStrider',
-      'utledning/utled.ts:partensPaaberopelser',
-    ],
-  ],
   // VS-U77 punkt 8–12: byggherrens siste standpunkt til varselet for en kravpost, likt i
   // kommandoen, skjemaet og brevteksten.
   [

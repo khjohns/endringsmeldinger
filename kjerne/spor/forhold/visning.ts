@@ -1,6 +1,6 @@
 /**
- * Visningen i forholdssporet: frafallet av pålegget, etikettene for svaret og enigheten, og
- * passiviteten. `utledning/visning.ts` slår opp i sporet gjennom `VISNING` (#1783).
+ * Visningen i forholdssporet: frafallet av pålegget og etikettene for svaret og enigheten.
+ * `utledning/visning.ts` slår opp i sporet gjennom `VISNING` (#1783).
  */
 
 import type { Forholdsresultat } from '../../regler/typer.ts';
@@ -17,7 +17,6 @@ export const VISNING_I_FORHOLDET = {
     if (virkning && !u.spor.forhold.trukket) ut.push('enige');
     return ut;
   },
-  passivitetsetikett: (u) => (u.passivitet.length ? 'passivitet_paaberopt' : null),
   kravetErEtterspurt: () => false,
 } satisfies Sporsvisning;
 

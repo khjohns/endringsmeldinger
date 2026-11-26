@@ -706,6 +706,13 @@
       "radetikett": "VS-U12: TE kan påberope byggherrens passivitet etter § 32.3 annet ledd som eget utsagn som viser til TEs varsel etter § 32.2, både før byggherren har svart og etter et svar TE mener kom for sent"
     },
     {
+      "id": "VS-U89",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#vs-u89",
+      "radetikett": "VS-U89: Den egne innsigelsen etter punkt 5 tredje ledd er ikke en egen handling i løsningen, heller ikke i vederlaget og fristen"
+    },
+    {
       "id": "VS-U14",
       "type": "vedtak",
       "dato": "2026-10-11",
@@ -3382,30 +3389,6 @@
       ]
     },
     {
-      "id": "KA-38",
-      "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått. Svaret har virkning når fristkravet var gjeldende da det ble sendt ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)), og ellers ingen. Det leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier, og en innsigelse mot et krav er ingen påberopelse etter § 33.4 (VS-U24). Det gjelder også det første fristkravet når TE ikke har sendt et eget varsel. En innsigelse mot varselet er en påberopelse etter § 33.4, og et senere svar fra appen gjentar den eller gir den opp. Har byggherren sagt i et svar fra appen at varselet kom i tide, avvises en ny innsigelse mot varselet (HF-U4), mens en innsigelse mot fristkravet registreres uten virkning.",
-      "bh_standpunkt": "Svaret og innsigelsen, hver for seg.",
-      "rettslig_virkning": "Innsigelsen mot kravet er registrert uten virkning. Påberopelsen etter § 33.4 står i svaret.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "MM-U18",
-        "MM-U43",
-        "VS-U24",
-        "VS-U11",
-        "HF-U4",
-        "OV-U80",
-        "OV-U98"
-      ],
-      "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#innsigelsenPaaberoper",
-        "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
-        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
-      ]
-    },
-    {
       "id": "KA-39",
       "tilfelle": "En hendelse som ikke er registrert korrespondanse, har et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet. Trekket kan gjelde sporet eller grunnlaget, som rammer alle sporene.",
       "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsakene uten trekket er forstått. Kommandoene avviser svaret og aksepten (KRAV_TRUKKET). Et registrert brev i samme klasse står i KA-40.",
@@ -3477,101 +3460,28 @@
     },
     {
       "id": "VS-01",
-      "tilfelle": "En part gjør innsigelse etter § 5 mot motpartens varsel, krav eller svar.",
-      "forventet": "Innsigelsen registreres og vises uten virkning på utfallet, og innsigelsen sperrer ikke svaret. Den kan gjelde et krav eller varsel fra TE og et svar fra byggherren, også et element uten virkning. En innsigelse mot egne utsagn avvises, og en lagret rad med en slik er ikke forstått, også når målet er uten virkning. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: en protest mot egen innsigelse er ikke forstått, og en protest kan gjelde innsigelsen, påberopelsen i et svar eller et dokument, og da gjelder den alle innsigelsene i det.",
+      "tilfelle": "En part vil gjøre gjeldende at motpartens varsel, krav eller svar kom for sent, i et eget brev, eller totalentreprenøren vil påberope byggherrens passivitet etter § 32.3 annet ledd.",
+      "forventet": "Løsningen har ingen kommando for den egne innsigelsen etter § 5 tredje ledd eller påberopt passivitet. Parten sender det som innlegg eller under «Forbehold» i et krav eller svar, og løsningen tolker det ikke (VS-U89, S-5 i BF-03). En lagret hendelse med den egne innsigelsen eller påberopt passivitet gjør saken ikke forstått (svar 1 A i #2442). Byggherrens påberopelse av at et varsel kom for sent, står i svaret. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: den gjelder byggherrens påberopelse i et svar, eller et svar med påberopelser, og da alle påberopelsene i det. En protest mot egen påberopelse er ikke forstått.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Appen avgjør ikke om innsigelsen kom i tide.",
+      "rettslig_virkning": "Appen avgjør ikke om påberopelsen kom i tide.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "VS-U1",
+        "VS-U89",
         "VS-U9",
-        "VS-U14",
         "MP-U6",
         "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#kanFaaInnsigelse",
         "kjerne/utledning/utled.ts#kanFaaProtest",
         "kjerne/kommandoer/forutsetninger.ts#henvisning"
-      ],
-      "regelkoder": [
-        "UGYLDIG_INNSIGELSE"
       ]
-    },
-    {
-      "id": "VS-02",
-      "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret har samme virkning som et svar fra appen (OV-U80, OV-U98), men leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier (VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et svar lagt til med svarskjemaet gir den opp som et svar fra appen, fra dagen det ble sendt ([OV-U105](../plans/vedtak.md#ov-u105)); et svar sendt før innsigelsen gir den ikke opp.",
-      "bh_standpunkt": "Godkjenningen, slik den står.",
-      "rettslig_virkning": "Et brev som står som dokumentasjon, gir ikke noe standpunkt om innsigelsen (OV-U105).",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "VS-U24",
-        "VS-U11",
-        "HF-U4",
-        "HF-U8",
-        "GR-U12",
-        "GR-U11",
-        "AV-500",
-        "OV-U80",
-        "OV-U98",
-        "OV-U105"
-      ],
-      "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#innsigelsenPaaberoper",
-        "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
-        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll",
-        "kjerne/frosset/brevtekst.ts#aapneInnsigelser"
-      ]
-    },
-    {
-      "id": "VS-03",
-      "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen.",
-      "forventet": "Et svar fra appen har alltid standpunktet om rettidighet der det kan ha virkning (§ 32.2 der varslingsplikten gjelder, og § 33.4), så det gjentar eller oppgir en innsigelse mot varselet; et svar uten det avvises. Oppgir byggherren innsigelsen mot varselet etter § 32.2 og godkjenner grunnlaget, er godkjenningen en endringsordre. En innsigelse mot vederlagskravet er ingen påberopelse etter § 34.1.2 (VS-U24), så et svar på vederlaget etter den godtas, og et registrert svar etter den er forstått.",
-      "bh_standpunkt": "Standpunktet om rettidighet i svaret.",
-      "rettslig_virkning": "Det er partens nye utsagn som endrer standpunktet.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "VS-U11",
-        "VS-U9",
-        "VS-U24",
-        "GR-U12"
-      ],
-      "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/regler/frist.ts#kontroller",
-        "kjerne/frosset/utregning.ts#regnUtSvar",
-        "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
-      ],
-      "regelkoder": [
-        "UGYLDIG_VURDERING"
-      ]
-    },
-    {
-      "id": "VS-04",
-      "tilfelle": "TE påberoper byggherrens passivitet etter § 32.3 annet ledd.",
-      "forventet": "Påberopelsen registreres og vises før og etter byggherrens svar, uten virkning på utfallet, og sperrer ikke svaret. Den avvises når § 32.2 ikke gjelder kategorien, og når den ikke viser til TEs varsel etter § 32.2.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "Appen avgjør ikke om vilkårene var oppfylt.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "VS-U12",
-        "GR-U11",
-        "OV-U7"
-      ],
-      "tolkningsstatus": "avklart_tolkning",
-      "utsatt": "OV-U7"
     },
     {
       "id": "VS-05",
-      "tilfelle": "Partene har inngått en enighet i et spor, også en betinget enighet, ved aksept eller ved sammenfall, eller kravene er avgjort, og en part gjør innsigelse mot et varsel, et krav eller et svar.",
-      "forventet": "Innsigelsen godtas, også mot det en registrert enighet omfatter, og registreres uten virkning på utfallet. En innsigelse som alt står i saken, beholder sin virkning. At kravene er avgjort, sperrer ingen kommando (MM-U34 punkt 12). Når TE har godtatt avslaget av grunnlaget, avvises fortsatt kommandoer som kan endre utfallet (GR-U27, KA-U29).",
+      "tilfelle": "Partene har inngått en enighet i et spor, også en betinget enighet, ved aksept eller ved sammenfall, eller kravene er avgjort, og en part sender en kommando.",
+      "forventet": "At kravene er avgjort, sperrer ingen kommando (MM-U34 punkt 12). Når TE har godtatt avslaget av grunnlaget, avvises kommandoer som kan endre utfallet (GR-U27, KA-U29).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Utsagnet har ingen virkning på utfallet.",
       "rettidighet": "—",
@@ -3581,8 +3491,7 @@
         "GR-U27",
         "KA-U29",
         "KA-U11",
-        "MM-U7",
-        "VS-U1"
+        "MM-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3596,7 +3505,7 @@
     {
       "id": "VS-06",
       "tilfelle": "TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet.",
-      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (VS-U16).",
+      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (VS-U16).",
       "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
       "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
       "rettidighet": "Byggherrens vurdering av varselet etter § 33.4.",
@@ -3605,8 +3514,6 @@
         "VS-U15",
         "MM-U1",
         "V-SK12",
-        "VS-U1",
-        "VS-U9",
         "MM-U8",
         "MM-U50",
         "VS-U16"
@@ -3625,7 +3532,7 @@
     {
       "id": "VS-07",
       "tilfelle": "TE sender et eget varsel etter § 34.1.2 fra appen, uten beløp, eller registrerer et varsel sendt utenfor appen.",
-      "forventet": "Varselet etter § 34.1.2 står i vederlagssporet og er et eget brev med serverens dato og teksten i LV-U19, eller en registrering med datoen og brevet som vedlegg. Det er sporets registrerte varsel: påberopelsen etter § 34.1.2 i svaret på vederlagskravet gjelder det, og byggherren kan gjøre innsigelse mot det, som er en påberopelse etter § 34.1.2 (VS-U24). Et nytt varsel, sendt eller registrert, avvises (VARSEL_REGISTRERT). Når vederlagskravet er sendt, avvises et varsel fra appen (VEDERLAGSKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres. Der TE krever endring, godtas varselet uten virkning, og innsigelsen mot det avvises som vurderingen (VARSLINGSPLIKT_GJELDER_IKKE, OV-U15, KA-46).",
+      "forventet": "Varselet etter § 34.1.2 står i vederlagssporet og er et eget brev med serverens dato og teksten i LV-U19, eller en registrering med datoen og brevet som vedlegg. Det er sporets registrerte varsel: påberopelsen etter § 34.1.2 i svaret på vederlagskravet gjelder det. Et nytt varsel, sendt eller registrert, avvises (VARSEL_REGISTRERT). Når vederlagskravet er sendt, avvises et varsel fra appen (VEDERLAGSKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres. Der TE krever endring, godtas varselet uten virkning (OV-U15, KA-46).",
       "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
       "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
       "rettidighet": "Byggherrens vurdering av varselet etter § 34.1.2.",
@@ -3635,7 +3542,6 @@
         "VS-U15",
         "VS-U16",
         "VS-U20",
-        "VS-U24",
         "V-SK12",
         "KA-U2",
         "OV-U15",
@@ -4111,7 +4017,7 @@
     "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
-    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente. Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises.",
+    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente, som den egne innsigelsen og påberopt passivitet (svar 1 A i #2442). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. Den prøves i `kjerne/tester/svaret.test.ts`.",
     "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/avvisningen.test.ts`.",
     "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",
@@ -4119,7 +4025,7 @@
     "VEDLEGG_MANGLER": "Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`.",
     "FEIL_PART": "Kontrollen av kommandoen: en handling som bare én part kan gjøre, avvises for den andre, og bare TE kan opprette saken (#664). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/opprettelse.test.ts`.",
     "BEGRUNNELSE_MANGLER": "Kontrollen av teksten i svaret og fristkravet (KA-U24, KA-U31, KA-U33). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/brevtekst.test.ts`.",
-    "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges.",
+    "VARSLINGSPLIKT_GJELDER_IKKE": "Avvisningen der varslingsplikten ikke gjelder forholdet som er påberopt: varselet etter § 32.2 som registreres (GR-U11) og svaret på varselet etter § 34.1.2 der saken gjelder en endring (VS-U87 punkt 32, OV-U89 punkt 13). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts` og `kjerne/tester/varselsvar.test.ts`.",
     "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
     "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/varslene.test.ts`.",
     "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts`.",

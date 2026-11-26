@@ -1055,14 +1055,6 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     );
   });
 
-  it('innsigelsen viser til varselet i brevet det står i (LV-U4 punkt 7)', () => {
-    const { s, id } = medVarsel();
-    const rad = s.send('BH', { type: 'innsigelse', gjelder: id });
-    expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens varsel om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt\u00a05 tredje ledd).',
-    ]);
-  });
-
   it('svaret på et senere fristkrav vurderer rettidigheten av varselet (MM-U1)', () => {
     const { s, id } = medVarsel();
     const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
@@ -1240,45 +1232,6 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
       'Byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
     );
   });
-
-  it('en innsigelse mot varselet er en påberopelse etter § 34.1.2, og svaret gjentar den (VS-U24, VS-U11)', () => {
-    const { s, id } = medVarsel();
-    const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: id });
-    expect(laast(innsigelse)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens varsel om vederlagsjustering etter NS 8407 punkt\u00a034.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt\u00a05 tredje ledd).',
-    ]);
-    s.send('TE', vederlagskrav);
-    expect(laast(svarMedPaaberopelse(s))[3]).toContain(
-      'kom for sent, jf. innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026.'
-    );
-  });
-
-  it('der TE krever endring, avvises innsigelsen mot varselet som vurderingen (KA-46, OV-U15)', () => {
-    const { s, id } = medVarsel('endring');
-    expect(s.avvisning('BH', { type: 'innsigelse', gjelder: id })).toEqual({
-      regel: 'VARSLINGSPLIKT_GJELDER_IKKE',
-      melding:
-        'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.',
-    });
-  });
-
-  it('etter «i tide» i et svar fra appen godtas en innsigelse mot varselet (MM-U34 punkt 6, HF-U4, VS-U24)', () => {
-    const { s, id } = medVarsel();
-    s.send('TE', vederlagskrav);
-    s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), { resultat: 'godkjent' }),
-        svar(
-          'vederlag',
-          s.krav('vederlag'),
-          { ...VEDERLAG_DELVIS[0], hovedkrav_varslet_i_tide: true },
-          VEDERLAG_DELVIS[1]
-        ),
-      ],
-    });
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBeNull();
-  });
 });
 
 describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i #807)', () => {
@@ -1334,15 +1287,6 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
   it('registreres ikke før påberopelsen er sendt (VS-U38, S-2 i #807)', () => {
     const s = sak();
     expect(s.avvist('TE', registrering())).toBe('PAABEROPELSE_IKKE_SENDT');
-  });
-
-  it('byggherren tilbys ikke innsigelse mot det registrerte varselet før det har brevtekst (S-4 i #807)', () => {
-    const s = medPaaberopelse();
-    s.send('TE', registrering());
-    const varsel = s.u().spor.forhold.varsler['32.2']?.id;
-    expect(varsel).toBeDefined();
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('IKKE_I_FOERSTE_VERSJON');
-    expect(handlinger(s.u(), 'BH')).not.toContain(`innsigelse:${varsel}`);
   });
 
   it('bare TE registrerer varselet (OV-U80)', () => {
@@ -1870,18 +1814,6 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
     expect(s.avvist('TE', krav(regning))).toBe('VARSELVALGET_MANGLER');
     const tekst = laast(s.send('TE', krav({ ...regning, varsel: { art: 'kravet' } }))).join(' ');
     expect(tekst).toContain(varselRegning);
-  });
-
-  it('byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter på økt 2, mens innsigelsen mot varselet etter punkt 34.1.3 godtas (G-9 i BF-14)', () => {
-    const s = paaberopt();
-    s.send('TE', sendVarsel('34.3.3'));
-    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '34.1.3' }] });
-    const u = s.u();
-    const varsel = u.spor.vederlag.kravpostvarsler[0]!.id;
-    expect(handlinger(u, 'BH')).not.toContain(`innsigelse:${varsel}`);
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('IKKE_I_FOERSTE_VERSJON');
-    const kontroll = u.spor.vederlag.varsler['34.1.3']!.id;
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: kontroll }), 'kontrollsak').toBeNull();
   });
 });
 

@@ -43,10 +43,10 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U77, OV-U99, VS-U89 | Nei. Utsagn uten virkning på utfallet. | Standpunkt i svaret, innlegg eller «Forbehold» i et krav eller svar, varig (VS-U89). | Som G5. | Som G5. | `innsigelse:*` | `innsigelse` | – | Kjernen slutter å tilby den (K4). |
+| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U77, OV-U99, VS-U89 | Nei. Utsagn uten virkning på utfallet. | Standpunkt i svaret, innlegg eller «Forbehold» i et krav eller svar, varig (VS-U89). | Som G5. | Som G5. | – | – | – | Ingen. Kjernen har ingen kommando for den, og en lagret egen innsigelse gjør saken ikke forstått (svar 1 A i #2442). |
 | I2 | Protest mot en innsigelse | TE og BH | forhold, vederlag, frist | VS-U1, VS-U9, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `protest:*` | `protest` | – | Ingen. Kommandoen avvises. |
 | I3 | Bestridelse | TE og BH | forhold, vederlag, frist | MM-U7, MM-U14, MM-U48, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `bestride:*` | `bestridelse` | – | Ingen. Kommandoen avvises. |
-| I4 | Påberopt passivitet | TE | forhold, vederlag, frist | VS-U12, OV-U99 | Nei. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `passivitet:*` | `passivitet` | – | Ingen. Kommandoen avvises. |
+| I4 | Påberopt passivitet | TE | forhold, vederlag, frist | VS-U12, OV-U99 | Nei. | Innlegg, varig (S-5 A i BF-03, #2442). | Som G5. | Som G5. | – | – | – | Ingen. Kjernen har ingen kommando for den, og en lagret påberopelse gjør saken ikke forstått (svar 1 A i #2442). |
 | I5 | Byggherrens senere begrunnelse | BH | forhold, vederlag, frist | KA-U46, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `begrunne:*` | `begrunnelse` | – | Ingen. Kommandoen avvises. |
 
 ## Opphevet
@@ -85,4 +85,3 @@ Den lukkede listen: kjernen tilbyr handlingen mot statusen i raden. Avviket fjer
 
 | Nøkler | Handling | Funn | Issue |
 | --- | --- | --- | --- |
-| `innsigelse:*` | I1 | K4 | [#1657](https://github.com/khjohns/endringsmeldinger/issues/1657) |

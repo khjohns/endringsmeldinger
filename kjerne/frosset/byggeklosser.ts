@@ -168,13 +168,6 @@ export interface Svarsfrysing {
   tausOmVarselet?(svar: Svarinnhold, krav: Krav | null | undefined): VarselIKravet[];
   /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
   vilkaar: Enighetsgrunnlag['vilkaar'];
-  /**
-   * `innsigelsenErOppgitt` i `frosset/standpunkt.ts` leser hvert senere standpunkt om
-   * rettidigheten etter hjemmelen, ikke bare partens siste.
-   */
-  hvertITideGirOppInnsigelsen: boolean;
-  /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
-  ogsaaInnsigelserEtter: readonly Hjemmel[];
 }
 
 /** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */

@@ -11,7 +11,7 @@ import {
   VARSEL_I_SPORET,
   type Handlingsnoekkel,
 } from './forutsetninger.ts';
-import { KAN_FAA_INNSIGELSE, varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
+import { varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
 import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typer.ts';
 
 /**
@@ -30,9 +30,9 @@ export interface TilbudtHandling {
 }
 
 /**
- * Handlingene som kan gjelde saken: hver handling i hvert spor, et svar per varsel i vederlaget
- * (VS-U79, VS-U87 punkt 30–32) og en innsigelse per varsel, krav og svar. «Ingen krav», bestridelse, protest, påberopt passivitet og senere
- * begrunnelse tilbys ikke (OV-U7).
+ * Handlingene som kan gjelde saken: hver handling i hvert spor og et svar per varsel i vederlaget
+ * (VS-U79, VS-U87 punkt 30–32). «Ingen krav», bestridelse, protest og senere begrunnelse tilbys
+ * ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
@@ -48,10 +48,8 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const { kravpostvarsler, varsler } = u.spor.vederlag;
   for (const v of [varsler['34.1.2'], varsler['34.1.3'], ...kravpostvarsler])
     if (v) for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: v.id });
-  for (const [id, e] of Object.entries(u.elementer)) {
-    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
+  for (const [id, e] of Object.entries(u.elementer))
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
-  }
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): korrigeringen viser til TEs
   // siste opplysning om datoen.
   for (const o of u.datoopplysninger) ut.push({ type: 'korrigere', gjelder: o.id });
@@ -77,8 +75,6 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
       ...s.kravUtenforRekken,
       ...s.svar,
       ...s.svarUtenforRekken,
-      // VS-U79: svaret på et varsel som står alene.
-      ...s.svarPaaVarsler,
       ...Object.values(s.varsler),
       ...s.kravpostvarsler,
     ])

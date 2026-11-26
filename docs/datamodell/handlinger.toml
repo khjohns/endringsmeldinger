@@ -351,10 +351,10 @@ form = "Standpunkt i svaret, innlegg eller «Forbehold» i et krav eller svar, v
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
-noekler = ["innsigelse:*"]
-kommandoer = ["innsigelse"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Kjernen slutter å tilby den (K4)."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret egen innsigelse gjør saken ikke forstått (svar 1 A i #2442)."
 
 [[handling]]
 id = "I2"
@@ -395,14 +395,14 @@ part = "TE"
 spor = ["forhold", "vederlag", "frist"]
 kilde = ["VS-U12", "OV-U99"]
 finnes = "Nei."
-form = "Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657."
+form = "Innlegg, varig (S-5 A i BF-03, #2442)."
 naar = "Som G5."
 tilstander = "Som G5."
 status = "innlegg"
-noekler = ["passivitet:*"]
-kommandoer = ["passivitet"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Ingen. Kjernen har ingen kommando for den, og en lagret påberopelse gjør saken ikke forstått (svar 1 A i #2442)."
 
 [[handling]]
 id = "I5"
@@ -584,9 +584,3 @@ status = "holder"
 # ---------------------------------------------------------------------------
 # Den lukkede listen. Kjernen tilbyr disse, mot statusen i raden.
 # ---------------------------------------------------------------------------
-
-[[avvik]]
-noekler = ["innsigelse:*"]
-handling = "I1"
-funn = "K4"
-issue = 1657

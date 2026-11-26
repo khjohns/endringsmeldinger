@@ -1,9 +1,8 @@
 /**
  * Formen og lesereglene byggedel 1 av #309 la til: tekst basen ikke kan lagre
  * (#373), påberopelsesversjonen i svaret (#342, HF-U1), sammenfallet (MM-U43 punkt 8, #326),
- * merkingen (KA-U16, KA-U20), innsigelsen, protesten og påberopt passivitet (§ 5,
- * VS-U1, VS-U12), og at et registrert svar ikke leses med en innsigelse (VS-U24,
- * OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
+ * merkingen (KA-U16, KA-U20), protesten (VS-U1), og virkningene i et registrert svar
+ * (OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -241,13 +240,11 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
-    ['en innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', true],
-    ['en innsigelse fra TE mot eget krav', 'TE', 'innsigelse', 'K-g1', false],
-    ['en innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', true],
-    ['en innsigelse mot et dokument', 'TE', 'innsigelse', 'D4', false],
+    // VS-U89, svar 1 A i #2442: ikke hendelsestyper.
+    ['en egen innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', false],
+    ['en egen innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', false],
+    ['en påberopt passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', false],
     ['en protest fra TE mot BHs dokument med en påberopelse', 'TE', 'protest', 'D4', false],
-    ['en passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', true],
-    ['en passivitet mot vederlagskravet', 'TE', 'passivitet', 'K-v1', false],
     ['en avklaring, som ikke er et utsagn (KA-U45)', 'BH', 'avklaring', 'K-g1', false],
   ])('%s', async (_navn, part, art, gjelder, ventet) => {
     const { k, journal } = await forhold();
@@ -256,47 +253,13 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     });
     expect(forstaatt([...journal, r])).toBe(ventet);
   });
-
-  it('en protest mot en innsigelse fra motparten er forstått; mot egen innsigelse ikke (VS-U1)', async () => {
-    const { k, journal } = await forhold();
-    const innsigelse = { id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-v1') };
-    const i = rad(journal, 'BH', { utsagn: [innsigelse] });
-    const protest = (part: 'TE' | 'BH') =>
-      rad([i], part, { utsagn: [{ id: randomUUID(), art: 'protest', gjelder: innsigelse.id }] });
-    expect(forstaatt([...journal, i, protest('TE')])).toBe(true);
-    expect(forstaatt([...journal, i, protest('BH')])).toBe(false);
-  });
-
-  it('en innsigelse mot påberopelsen etter at BH har sagt at varselet kom i tide, er forstått fra BH og gir grunnen etter VS-U1 fra TE (MM-U34 punkt 6, HF-U4, MM-U27)', async () => {
-    const { k, journal } = await forhold();
-    const grunner = (part: 'TE' | 'BH') => {
-      const r = rad(journal, part, {
-        utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-g1') }],
-      });
-      return utled(lesJournal([...journal, r], KJERNE.leserformat), GJELDENDE_REGLER)
-        .begrensninger.map((b) => b.grunn)
-        .join('\n');
-    };
-    // MM-U34 punkt 6 opphever sperren i HF-U4, så BHs innsigelse etter «i tide» er lest.
-    expect(grunner('BH')).toBe('');
-    expect(grunner('TE')).toBe('innsigelse viser ikke til noe den kan gjelde før den');
-  });
-
-  it('en passivitet fra BH er ikke forstått (VS-U12)', async () => {
-    const { k, journal } = await forhold();
-    const r = rad(journal, 'BH', {
-      utsagn: [{ id: randomUUID(), art: 'passivitet', gjelder: k.navn.id('K-g1') }],
-    });
-    expect(forstaatt([...journal, r])).toBe(false);
-  });
 });
 
-describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () => {
-  async function medInnsigelse() {
+describe('en virkning i et registrert svar gjelder et standpunkt i svaret (OV-U4)', () => {
+  async function medRegistrertSvar() {
     const bane = minnebane();
     const k = await bygg(bane, [
       'krav_irreg',
-      { handling: 'innsigelse', part: 'BH', gjelder: 'K-g1', navn: 'D3' },
       {
         handling: 'rad',
         part: 'BH',
@@ -312,16 +275,15 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
   }
 
   it('kontrollsak: svaret har én virkning per standpunkt og er forstått', async () => {
-    const { journal } = await medInnsigelse();
+    const { journal } = await medRegistrertSvar();
     expect(forstaatt(journal)).toBe(true);
   });
 
   it.each<[string, (k: Kjoering) => string]>([
-    ['innsigelsen', (k) => k.navn.id('D3#innsigelse')],
     ['et krav', (k) => k.navn.id('K-v1')],
     ['en ID som ikke finnes', () => randomUUID()],
   ])('en virkning for %s er ikke forstått', async (_navn, id) => {
-    const { k, journal } = await medInnsigelse();
+    const { k, journal } = await medRegistrertSvar();
     const med = endre(journal, k, 'S-g1', (e) => {
       const b = e.beslutningsgrunnlag as { virkninger: Data[] };
       b.virkninger.unshift({ standpunkt: id(k), lag: 1 });
@@ -447,17 +409,5 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       },
     ]);
     expect(forstaatt(await lest.journal())).toBe(true);
-  });
-
-  // En registrert passivitet er dokumentasjon (OV-U98), så passiviteten er sendt herfra. Kravet er
-  // sendt før grunnlagskravet og står utenfor rekken (OV-U102).
-  it('en påberopt passivitet sendt herfra mot den er forstått', async () => {
-    const bane = minnebane();
-    await bygg(bane, [
-      ...foer.slice(0, 2),
-      { ...(foer[2] as { handling: string }), sendt: '2026-09-19' },
-      { handling: 'rad', art: 'passivitet', gjelder: 'K-g2', part: 'TE', navn: 'D5' },
-    ]);
-    expect(forstaatt(await bane.journal())).toBe(true);
   });
 });
