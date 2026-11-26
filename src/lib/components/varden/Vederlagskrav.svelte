@@ -29,6 +29,8 @@
   import Tekstomraade from './Tekstomraade.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Foerstekrav from './Foerstekrav.svelte';
+  import Sendevalg from './Sendevalg.svelte';
+  import { tilbudteHjemler } from './vederlagsvarsel';
   import Knapp from './Knapp.svelte';
   import Datofelt from './Datofelt.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -98,6 +100,7 @@
     onendre = () => {},
     onlagttil = () => {},
     onkunnskapsdato,
+    onvarsle,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -117,6 +120,8 @@
     onlagttil?: () => void;
     /** TE oppgir eller endrer datoen etter § 34.1.3 i et eget brev, og utkastet står (U-10 i BF-48). */
     onkunnskapsdato?: (varselet: string) => void;
+    /** «Bare varsle, uten krav» (U-1 i BF-37), som registrering når `registrer` (U-3 i BF-51). */
+    onvarsle?: (registrer: boolean) => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -129,6 +134,14 @@
   // svelte-ignore state_referenced_locally
   if (!eldreValg && valg === null) valg = startvalg(u);
   const v = $derived(eldreValg ?? valg!);
+
+  // U-1 i BF-37: «Bare varsle, uten krav», når kjernen tilbyr et varsel i vederlaget. Varselet
+  // registreres når det ikke kan sendes fra løsningen (VS-U16), og fra påminnelsen (U-3 i BF-51).
+  const kanSendeVarsel = $derived(tilbudteHjemler(kjernesak.handlinger, false).length > 0);
+  const kanRegistrereVarsel = $derived(tilbudteHjemler(kjernesak.handlinger, true).length > 0);
+  const kanVarsle = $derived(
+    !!onvarsle && !lagtTil && !eldre && (kanSendeVarsel || kanRegistrereVarsel)
+  );
 
   const forrige = $derived(utgangspunktet(u, 'vederlag', eldre));
   const forrigePoster = $derived(
@@ -927,8 +940,17 @@
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
   {/snippet}
 
+  {#if kanVarsle}
+    <Sendevalg navn={id('hva')} hva="krav" onvelg={() => onvarsle?.(!kanSendeVarsel)} />
+  {/if}
+
   {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
-    <Foerstekrav {u} spor="vederlag" hjemmel="34.1.2" />
+    <Foerstekrav
+      {u}
+      spor="vederlag"
+      hjemmel="34.1.2"
+      onregistrer={kanRegistrereVarsel && onvarsle ? () => onvarsle(true) : undefined}
+    />
   {/if}
 
   <section

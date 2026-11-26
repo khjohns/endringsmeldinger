@@ -1747,6 +1747,185 @@
       ]
     },
     {
+      "id": "BF-37",
+      "tittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
+      "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider og justering av en enhetspris, hvert med varselet og arbeidet. Varselet om fristforlengelse sendes fra skjemaet for fristen. TE ser brevet med ett avsnitt per varsel, eller registrerer et varsel sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "894bb5aa",
+      "kontrollpunkter": [
+        {
+          "id": "te-skal-varsle",
+          "beskrivelse": "TE har påberopt forholdet og varslet vederlagsjustering etter punkt 34.1.2. Kravet er ikke sendt.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE velger «Bare varsle, uten krav» øverst i kravskjemaet, ser ett varsel per rad og legger til et varsel med arbeidet det gjelder.",
+            "TE ser at varselet om vederlagsjustering alt er gitt i brev 2, og at skjemaet ikke har varselet om fristforlengelse.",
+            "TE ser at et varsel etter punkt 34.3.3 eller 34.4 uten arbeidet stoppes ved feltet, og at brevet har ett avsnitt per varsel.",
+            "TE registrerer i stedet et varsel sendt utenfor løsningen, med én dato for alle varslene, og arbeidet er valgfritt."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "varsel"
+          }
+        },
+        {
+          "id": "te-har-varslet",
+          "beskrivelse": "TE har varslet to regningsarbeid og en justering av enhetsprisene i brev 3.",
+          "versjon": 4,
+          "forstaaelse": [
+            "TE ser at vederlaget er varslet, og i det senere kravet hvilket av de to varslene etter punkt 34.4 kravposten gjelder, med arbeidet.",
+            "BH svarer på hvert varsel etter punkt 34.3.3 og 34.4 for seg, med arbeidet under navnet på varselet."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "a77d5b1e-0000-4000-8000-000000000002",
+          "sak_id": "a77d5b1e-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "a77d5b1e-0000-4000-8000-000000000005",
+          "sak_id": "a77d5b1e-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a77d5b1e-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "svikt",
+                "underkategori": "prosjektering",
+                "klar_over_forholdet": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a77d5b1e-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "utdypning": "Tegningene for grøftene viser en trasé som krysser eksisterende kum og fjernvarmerør."
+              }
+            ],
+            "brevtittel": "Påberopelse av svikt i byggherrens prosjektering i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "a77d5b1e-0000-4000-8000-000000000009",
+          "sak_id": "a77d5b1e-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a77d5b1e-0000-4000-8000-00000000000a",
+                "art": "varsel",
+                "hjemmel": "34.1.2"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a77d5b1e-0000-4000-8000-00000000000a",
+                "laast": "Totalentreprenøren varsler etter NS 8407 punkt 34.1.2 at totalentreprenøren vil kreve justering av vederlaget som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+              }
+            ],
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
+          }
+        },
+        {
+          "event_id": "a77d5b1e-0000-4000-8000-00000000000f",
+          "sak_id": "a77d5b1e-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a77d5b1e-0000-4000-8000-000000000010",
+                "art": "varsel",
+                "hjemmel": "34.4",
+                "arbeid": "Ekstra graving i grøften ved kum 4"
+              },
+              {
+                "id": "a77d5b1e-0000-4000-8000-000000000011",
+                "art": "varsel",
+                "hjemmel": "34.4",
+                "arbeid": "Omlegging av fjernvarmerør langs fasade nord"
+              },
+              {
+                "id": "a77d5b1e-0000-4000-8000-000000000012",
+                "art": "varsel",
+                "hjemmel": "34.3.3",
+                "arbeid": "Økte mengder sprengstein i byggegropen, post 03.21"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a77d5b1e-0000-4000-8000-000000000010",
+                "punkt": "varsel",
+                "overskrift": "1. Varsel før regningsarbeidet settes i gang (punkt 34.4)",
+                "laast": "1. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Ekstra graving i grøften ved kum 4» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+              },
+              {
+                "gjelder": "a77d5b1e-0000-4000-8000-000000000011",
+                "punkt": "varsel",
+                "overskrift": "2. Varsel før regningsarbeidet settes i gang (punkt 34.4)",
+                "laast": "2. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Omlegging av fjernvarmerør langs fasade nord» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+              },
+              {
+                "gjelder": "a77d5b1e-0000-4000-8000-000000000012",
+                "punkt": "varsel",
+                "overskrift": "3. Varsel om justering av enhetsprisene (punkt 34.3.3)",
+                "laast": "3. Varsel om justering av enhetsprisene (punkt 34.3.3)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene for arbeidet «Økte mengder sprengstein i byggegropen, post 03.21» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+              }
+            ],
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        }
+      ]
+    },
+    {
       "id": "BF-44",
       "tittel": "Partene ser stillingen i vederlaget",
       "brukerhistorie": "TE og BH åpner siden for vederlagsjusteringen og ser kravet som gjelder, byggherrens svar med lagene og summen i hvert lag, forbeholdet om at forholdet ikke er besvart, brevene med vedlegg og datoene. TE ser hva det betyr å godta svaret før TE godtar det, og begge ser hva de kan gjøre nå og et påbegynt utkast.",

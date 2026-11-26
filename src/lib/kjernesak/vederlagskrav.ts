@@ -93,15 +93,21 @@ export interface Kravpostvarsel {
   id: string;
   hjemmel: Kravpostvarselhjemmel;
   dokument: string;
+  /** VS-U87 punkt 27: arbeidet varselet gjelder, slik TE skrev det. */
+  arbeid?: string;
 }
 
 /** Varslene etter § 34.3.3 og § 34.4 i saken, i rekkefølgen i journalen (VS-U48, VS-U52). */
 export const varsleneISaken = (u: Utledning): Kravpostvarsel[] =>
   u.spor.vederlag.kravpostvarsler.flatMap((v) =>
     v.hjemmel === '34.3.3' || v.hjemmel === '34.4'
-      ? [{ id: v.id, hjemmel: v.hjemmel, dokument: v.dokument }]
+      ? [{ id: v.id, hjemmel: v.hjemmel, dokument: v.dokument, arbeid: v.arbeid }]
       : []
   );
+
+/** Arbeidet varselet `id` etter § 34.3.3 eller § 34.4 gjelder (VS-U87 punkt 27), eller `undefined`. */
+export const arbeidetI = (u: Utledning, id: string): string | undefined =>
+  u.spor.vederlag.kravpostvarsler.find((v) => v.id === id)?.arbeid;
 
 /**
  * Varslene i saken som ingen kravpost i et krav viser til, så skjemaet kan si at saken har dem

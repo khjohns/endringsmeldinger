@@ -558,8 +558,8 @@ export function forholdetISaken(u: Utledning): { navn: string; gruppe: string } 
   return f && g ? { navn: f.navn, gruppe: g.navn } : null;
 }
 
-/** Varslene Varden har tekst for. Varslene etter § 34.3.3 og § 34.4 kommer i økt 3 (G-8 i BF-14). */
-const VARSLENE_I_VARDEN: readonly Varselhjemmel[] = ['33.4', '34.1.2', '34.1.3'];
+/** Varslene Varden har skjema for: i fristen, og i vederlaget «Bare varsle» (BF-37). */
+const VARSLENE_I_VARDEN: readonly Varselhjemmel[] = ['33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'];
 
 /**
  * Handlingene kjernen tilbyr i sporet, med sporet kjernen gir hver av dem. Saken som helhet
