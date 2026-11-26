@@ -99,32 +99,27 @@
     "VS-U16",
     "OV-U89",
     "OV-U90",
-    "VS-U48",
-    "VS-U49",
-    "VS-U52",
-    "VS-U54",
-    "VS-U61",
-    "VS-U62",
-    "VS-U64",
-    "VS-U65",
-    "VS-U34",
-    "OV-U80",
+    "VS-U87",
+    "OV-U123",
     "KA-U16",
     "GR-U15",
-    "EO-U19",
+    "EO-U39",
     "B-17",
-    "VS-U53",
     "VS-U67",
     "VS-U68",
     "VS-U69",
-    "VS-U77",
-    "VS-U50",
+    "VS-U71",
+    "OV-U80",
     "VS-U57",
+    "VS-U50",
+    "VS-U77",
     "OV-U79"
   ],
   "venter_paa": [
-    "#1837",
-    "#1823"
+    "#1823",
+    "#2408",
+    "#2409",
+    "#2010"
   ],
   "bevis_saker": [],
   "visninger": [],
@@ -158,6 +153,11 @@
       "dato": "2026-11-16",
       "forhold": "#2056",
       "hva": "Registreringen heter «Registrer et varsel sendt utenfor løsningen», etter `FRISTKRAV` i `tekster.ts`, og feltene etter `Korrespondansen.svelte` (A1 i #2056): i F-5, «TE registrerer i stedet», M-3, D-4 og tabellen over steg 4. Stegnumrene, ID-ene og vedtakene er uendret."
+    },
+    {
+      "dato": "2026-11-25",
+      "forhold": "#1837",
+      "hva": "Kildene har også de gjeldende vedtakene: VS-U67–VS-U69, VS-U71 og de andre varselvedtakene er samlet i VS-U87, OV-U79, OV-U80 og VS-U34 i OV-U123, og EO-U19 i EO-U39. Endringen av VS-U67 etter S-4 A er ført som VS-U71. G-tabellen er kontrollert mot koden, og bestillingen er klar til bygging. Kjernen bygges i punkt 5 i #1823, #2408 og #2409, og visningen i #2010."
     }
   ]
 }

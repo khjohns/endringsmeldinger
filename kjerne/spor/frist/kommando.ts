@@ -141,7 +141,7 @@ export const FORUTSETNINGER_I_FRISTEN = {
           'Påberopelsen må være sendt før du kan sende forespørselen.'
         );
       if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      // VS-U19, VS-U47 spørsmål 2: fra appen så lenge TE ikke har krevd dager.
+      // VS-U19, VS-U88 punkt 3: fra appen så lenge TE ikke har krevd dager.
       if (fristkravErFremmet(u))
         return avvis(
           'FRISTKRAV_SENDT',
