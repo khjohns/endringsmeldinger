@@ -429,7 +429,7 @@ textarea.felt{min-height:160px;resize:vertical}
     }
     const siste = alle[0];
     const merknad = rot.querySelector('.merknad');
-    if (siste.type === 'Innlegg') merknad.textContent = `Innlegg fra ${PART[siste.part].rolle.toLowerCase()} etter siste brev, ${siste.dato}.`;
+    if (siste.type === 'Innlegg') merknad.textContent = `${PART[siste.part].rolle} har sendt et innlegg ${siste.dato}.`;
     rot.querySelector('.send-innlegg').setAttribute('href', `#${part}-skjema`);
   }
 
