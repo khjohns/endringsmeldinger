@@ -410,3 +410,127 @@ describe('begrunnelsen for punktet for kravposten (LV-U71, LV-U78)', () => {
     expect(feltet()).toBeNull();
   });
 });
+
+// Kravet med posten etter § 34.1.3 annet ledd, som også er varselet om den (variant B i BF-48).
+const medSaerskilt = skrevet(medGrunnlag, 'TE', {
+  type: 'krav',
+  spor: 'vederlag',
+  innhold: {
+    kravposter: [{ beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 150000 }],
+    saerskilt: { produktivitet: { beloep: 40000, klar_over_utgiftene: '2026-10-10' } },
+  },
+  utdypning: 'Kravet gjelder pelingen og den nedsatte produktiviteten.',
+});
+
+describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () => {
+  const punktet = (slutt: string) =>
+    within(document.querySelector(`[id$="${slutt}"]`)!.closest<HTMLElement>('section')!);
+  const iSaerskilt = () => punktet('-sp-saerskilt');
+  const skriv = (etikett: string, verdi: string) =>
+    fireEvent.input(iSaerskilt().getByRole('textbox', { name: new RegExp(`^${etikett}`) }), {
+      target: { value: verdi },
+    });
+  const svarPaaKravposten = async () => {
+    await radio('Godkjenner fast sum (punkt 34.2.1)');
+    await fireEvent.click(
+      punktet('-sp-post').getByRole('radio', {
+        name: 'Hele beløpet',
+      })
+    );
+  };
+  const manglene = () =>
+    within(screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }))
+      .getAllByRole('link')
+      .map((l) => l.textContent);
+
+  it('skjemaet spør om varselet, og valget viser til datoen totalentreprenøren oppgir (U-9 i BF-48)', async () => {
+    await svarskjemaet(medSaerskilt);
+    expect(screen.queryByText(/kan ikke besvares/)).toBeNull();
+    const gruppe = iSaerskilt().getByRole('group', { name: 'Kom varselet i tide?' });
+    const kortet = document.getElementById(gruppe.getAttribute('aria-describedby')!.split(' ')[0]!);
+    expect(kortet?.textContent).toMatch(
+      /klar over at utgiftene ville påløpe 10\. oktober 2026, i brev 2\./
+    );
+  });
+
+  it('varselet for sent med beløpet etter begrensningen og en delvis godkjenning står i kommandoen (VS-U5)', async () => {
+    const sendt = await svarskjemaet(medSaerskilt);
+    await svarPaaKravposten();
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
+    await skriv('Beløpet du godkjenner etter begrensningen', '10 000');
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Deler av beløpet' }));
+    await skriv('Beløpet du godkjenner(?! etter)', '30 000');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(vurderingen(sendt)).toMatchObject({
+      produktivitet_varslet_i_tide: false,
+      produktivitet_begrenset_beloep: 10000,
+      produktivitet_vurdering: 'delvis',
+      produktivitet_godkjent_beloep: 30000,
+    });
+  });
+
+  it('kontrollsak: varselet i tide har ikke feltet for begrensningen, og kommandoen har ikke beløpet (valg 2 i #1047)', async () => {
+    const sendt = await svarskjemaet(medSaerskilt);
+    await svarPaaKravposten();
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom i tide' }));
+    expect(
+      iSaerskilt().queryByRole('textbox', { name: /^Beløpet du godkjenner etter begrensningen/ })
+    ).toBeNull();
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Hele beløpet' }));
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(vurderingen(sendt)).toMatchObject({
+      produktivitet_varslet_i_tide: true,
+      produktivitet_vurdering: 'godkjent',
+      produktivitet_godkjent_beloep: 40000,
+    });
+    expect(vurderingen(sendt)).not.toHaveProperty('produktivitet_begrenset_beloep');
+  });
+
+  it('med innsigelsen mot varselet etter punkt 34.1.2 står varselet etter punkt 34.1.3 under «Gjelder hvis» (OV-U89 punkt 12, Codex-reviewet av #2439)', async () => {
+    const journal = skrevet(svikt.slice(0, -1), 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [{ beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 150000 }],
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+      utdypning: 'Kravet gjelder pelingen og den nedsatte produktiviteten.',
+    });
+    await svarskjemaet(journal);
+    const gjelderHvis = () =>
+      document.querySelector('[id$="-saerskilt-itide-forutsetninger"]')?.textContent ?? '';
+    await radio('Varslet for sent');
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
+    expect(gjelderHvis()).toMatch(/innsigelsen om at varselet etter punkt\s34\.1\.2 kom for sent/);
+    // Kontrollsak: uten innsigelsen etter § 34.1.2 er varselet ikke betinget.
+    await radio('Varslet i tide');
+    expect(gjelderHvis()).toBe('');
+  });
+
+  it('uten svar på posten sier oppsummeringen hva som mangler i den, i skjemaets rekkefølge, og brevet lages ikke', async () => {
+    const sendt = await svarskjemaet(medSaerskilt);
+    await svarPaaKravposten();
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    expect(manglene()).toEqual([
+      'Særskilt vederlagsjustering: Velg om varselet om særskilt vederlagsjustering kom i tide.',
+      'Særskilt vederlagsjustering: Velg hvor mye av beløpet du godkjenner.',
+    ]);
+  });
+
+  it('et beløp etter begrensningen over beløpet byggherren godkjenner, avvises ved feltet (valg 2 i #1047)', async () => {
+    const sendt = await svarskjemaet(medSaerskilt);
+    await svarPaaKravposten();
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
+    await skriv('Beløpet du godkjenner etter begrensningen', '35 000');
+    await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Deler av beløpet' }));
+    await skriv('Beløpet du godkjenner(?! etter)', '30 000');
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    expect(manglene()).toEqual([
+      'Særskilt vederlagsjustering: Beløpet etter begrensningen er høyere enn beløpet du godkjenner under. Endre ett av beløpene.',
+    ]);
+  });
+});
