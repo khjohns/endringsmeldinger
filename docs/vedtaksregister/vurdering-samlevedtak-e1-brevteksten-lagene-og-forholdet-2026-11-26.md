@@ -206,7 +206,9 @@ beslutningsdelen; MM-U47).
     kravposter med beløp og minst to lag. Tabellen viser det krevde og det godkjente beløpet for hver
     kravpost i hvert lag og summen. Beløpene er de samme som i punktene, og en kravpost uten fast
     beløp regnes ikke med. (OV-U73 s1–s3 og s5; svaret på spørsmålet om OV-U73 16.11)
-11. Etter svaret på spørsmål 5, ordrett etter alternativet som velges.
+11. Er forholdet avslått, eller er preklusjon etter punkt 32.2 påberopt, står byggherrens standpunkt
+    om at fremdriften er hindret, i sporets lag etter punkt 4 og 5, og brevet sier hvilken innsigelse
+    det forutsetter ikke fører fram (punkt 2). (Svar 5 A 26.11; OV-U33; OV-U100; VS-U88 punkt 16)
 12. Et nytt svar etter en revisjon følger versjon 3 av samlevedtaket for revisjon, med budskapet i
     LV-U73. (LV-U34 s3; LV-U73) EO-U39 punkt 50 står for et nytt svar etter en endringsordre som er
     registrert som svar.
@@ -217,7 +219,8 @@ Betegnelsene for lagene og lagslinjene, også at laget skrives uten etikett når
 ett lag og ingen påberopelse (OV-U32, OV-U33 s5, LV-U37 og LV-U79), oppbygningen med nummererte
 punkter, én del per krav og tittelen (LV-U34, LV-U78 og LV-U80), «ovenfor» (LV-U40), «eks. mva.» i
 innledningen (LV-U37), ordene for vederlagsjusteringen (OV-U74), tabellens plassering og rader
-(OV-U73), et beløp på 0 kroner i tabellen (LV-U33 s1–s2) og avsnittet uten lag (OV-U42).
+(OV-U73), et beløp på 0 kroner i tabellen (LV-U33 s1–s2) og avsnittet uten lag for de andre
+standpunktene (OV-U42).
 
 ###### Beslutningsdel
 
@@ -232,7 +235,8 @@ upåvirkede dager i fristen leses ikke (OV-U100 s2). Tabellen er en del av brevt
   sier hva laget og et upåvirket standpunkt betyr. De leses sammen.
 - **E3 Det som står i vederlaget.** OV-U28 s1–s3 og s5–s7 er dekket av OV-U115 punkt 23, OV-U89
   punkt 8 og 12, VS-U86 punkt 10 og KA-U46 E1, og tas ikke med.
-- **E4 Hindringen,** etter svaret på spørsmål 5.
+- **E4 Hindringen.** Punkt 11 endrer OV-U42 for hindringen (svar 5 A). OV-U42 står for de andre
+  standpunktene uten egen lagvirkning.
 
 **Samler:** LV-U33, LV-U34, LV-U38, OV-U28, OV-U30, OV-U32, OV-U33, OV-U73, OV-U100 og OV-U117.
 
@@ -334,6 +338,12 @@ og stilles som nummerert liste.
 >   snevrer inn OV-U33 for hindringen; VS-U88 punkt 16 står.
 >
 > Styrer: om brevet sier at byggherrens enighet om hindringen forutsetter at forholdet står.
+
+## Svarene
+
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534
+([7190795449](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7190795449)):
+«1A 2A 3A 4A 5A». Det er A på spørsmål 1–5. E2 punkt 11 lyder som alternativ 5 A.
 
 ## Kontrollene
 
