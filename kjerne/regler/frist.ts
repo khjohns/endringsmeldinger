@@ -13,6 +13,8 @@ export interface Fristkrav {
    * (VS-U88 punkt 8 og 9).
    */
   har_begrunnelse_etter_b?: boolean;
+  /** VS-U95: kravet er den første versjonen av fristkravet, så det første kravet etter begrunnelsen. */
+  er_foerste_krav?: boolean;
   har_innsigelse_mot_varsel: boolean;
   har_tidligere_varsel_i_tide: boolean;
 }
@@ -103,9 +105,12 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   if (!mangler(v.begrunnelse_ikke_svar)) {
     if (typeof v.begrunnelse_ikke_svar !== 'boolean')
       feil.begrunnelse_ikke_svar = 'er verken true eller false';
-    else if (!krav.har_begrunnelse_etter_b)
+    else if (ikkeSvar && !krav.har_begrunnelse_etter_b)
       feil.begrunnelse_ikke_svar =
         'totalentreprenøren har ikke begrunnet etter punkt 33.6.2 annet ledd b før kravet';
+    else if (ikkeSvar && !krav.er_foerste_krav)
+      feil.begrunnelse_ikke_svar =
+        'svaret gjelder ikke totalentreprenørens første krav etter begrunnelsen etter punkt 33.6.2 annet ledd b';
     else if (ikkeSvar && !mangler(v.foresporsel_svar_ok))
       feil.begrunnelse_ikke_svar =
         'byggherren gjør gjeldende at begrunnelsen ikke er et svar, og tar da ikke stilling til om den kom for sent';

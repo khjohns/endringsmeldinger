@@ -6,7 +6,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { handlinger } from '../kommandoer/handlinger.ts';
+import { elementenesSpor, handlinger } from '../kommandoer/handlinger.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
@@ -143,6 +143,9 @@ describe('svaret på varselet etter punkt 34.4 som står alene (VS-U77 punkt 31,
     const [svaret] = s.u().spor.vederlag.svarPaaVarsler;
     // KA-U64: standpunktet til varselet etter § 34.4 har ingen virkning.
     expect(svaret.beslutningsgrunnlag.virkninger.map((v) => v.virkning)).toEqual(['uten_virkning']);
+    // VS-U79: svaret på varselet som står alene, hører til vederlaget, så et brev som viser til
+    // det, står i tråden for vederlaget.
+    expect(elementenesSpor(s.u()).get(svaret.id)).toBe('vederlag');
   });
 
   it('et nytt svar på varselet erstatter det forrige og kan gi opp innsigelsen (punkt 31 og 33)', () => {

@@ -350,7 +350,10 @@ function ugyldigIFristen(
   const hele = new Set<string | undefined>(Object.values(SPOERSMAALET));
   return fristene.flatMap((f, i): LagIFristen['ugyldig'] => {
     const feil = avvisteFelt(() =>
-      kontrollerFristen(vurderingenAvFristen(v, f), fristkravet(krevd[i]!.dager, foresporsel))
+      kontrollerFristen(
+        vurderingenAvFristen(v, f),
+        fristkravet(krevd[i]!.dager, foresporsel, krav.erstatter === null)
+      )
     );
     // Kontrollen leser dagene og spesifiseringen og kjører når de er godtatt, også når et
     // annet spørsmål er ubesvart. Sendingen kjører den først når hele fristen er godtatt.
@@ -364,7 +367,10 @@ function ugyldigIFristen(
           ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }]
           : hele.has(felt)
             ? [{ spoersmaal: felt as Fristspoersmaal }]
-            : []
+            : // VS-U95: standpunktet om at begrunnelsen ikke er et svar, svarer på spørsmålet etter § 33.6.2.
+              felt === 'begrunnelse_ikke_svar'
+              ? [{ spoersmaal: 'foresporsel_svar_ok' as const }]
+              : []
       ),
       ...Object.keys(maatteForstaa).map(() => ({
         spoersmaal: 'dager_maatte_forstaa' as const,

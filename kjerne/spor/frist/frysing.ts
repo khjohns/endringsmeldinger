@@ -123,12 +123,14 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
  */
 export const fristkravet = (
   krevd: number,
-  foresporsel: Foresporselsrelasjon | null
+  foresporsel: Foresporselsrelasjon | null,
+  foersteKrav = false
 ): Fristkrav => ({
   krevd_dager: krevd,
   varsel_type: 'spesifisert',
   er_svar_paa_foresporsel: foresporsel?.art === 'svar',
   har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
+  er_foerste_krav: foersteKrav,
   // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
   har_innsigelse_mot_varsel: true,
   har_tidligere_varsel_i_tide: false,
@@ -264,7 +266,10 @@ function regnUtFrist(
   const krevd = innholdIFristen(krav).frister.map((f) => f.dager);
   const fristene = fristvurderinger(v, krav);
   fristene.forEach((f, i) => {
-    kontroller(vurderingenAvFristen(v, f), fristkravet(krevd[i]!, foresporsel));
+    kontroller(
+      vurderingenAvFristen(v, f),
+      fristkravet(krevd[i]!, foresporsel, krav.erstatter === null)
+    );
     dagerMaatteForstaa(v, f);
   });
   let n = 0;

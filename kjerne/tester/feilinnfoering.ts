@@ -7736,6 +7736,29 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['VS-U88 punkt 8: en lest rad med både standpunktet og rettidigheten'],
   },
+  {
+    id: 'F2442e',
+    feilklasse:
+      'standpunktet om at begrunnelsen ikke er et svar, godtas i svaret på en senere kravversjon (VS-U95)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [
+      ['    else if (ikkeSvar && !krav.er_foerste_krav)', '    else if (ikkeSvar && false)'],
+    ],
+    mal: ['VS-U95, VS-U88 punkt 9: standpunktet står bare i svaret på det første kravet'],
+  },
+  {
+    id: 'F2442f',
+    feilklasse:
+      'en lest rad med standpunktet om at begrunnelsen ikke er et svar, i svaret på en senere kravversjon, leses (VS-U95)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      !bakover(s.id, p.gjelder) ||\n      spor.frist.krav.find((k) => k.id === s.gjelder)?.erstatter !== null)',
+        '      !bakover(s.id, p.gjelder))',
+      ],
+    ],
+    mal: ['VS-U95: en lest rad med standpunktet i svaret på en senere kravversjon'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

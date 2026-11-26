@@ -47,7 +47,7 @@ export const REGELSETTET: Lesbar[] = [
     'Fristkrav',
     'regelsett',
     `krevd_dager varsel_type er_svar_paa_foresporsel har_innsigelse_mot_varsel
-     har_tidligere_varsel_i_tide har_begrunnelse_etter_b`,
+     har_tidligere_varsel_i_tide har_begrunnelse_etter_b er_foerste_krav`,
   ],
   [
     'Fristvurdering',

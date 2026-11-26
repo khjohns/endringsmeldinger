@@ -627,6 +627,62 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
     });
 
+    it('VS-U95, VS-U88 punkt 9: standpunktet står bare i svaret på det første kravet etter begrunnelsen, ikke i svaret på en senere kravversjon', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const forrige = s.krav('frist');
+      s.send('TE', {
+        ...utenFelt(FRISTKRAV, 'varsel'),
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+      });
+      expect(s.u().spor.frist.gjeldendeKrav!.erstatter, 'forutsetning: en ny kravversjon').toBe(
+        forrige
+      );
+      const brev = (
+        vurderinger: Data,
+        resultat: Data = { resultat: 'godkjent', godkjent_dager: 25 }
+      ) => ({
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), vurderinger, resultat)],
+      });
+      const dager = { ...FRIST_FULLT[0], dager: 25 };
+      expect(
+        s.avvist(
+          'BH',
+          brev(
+            { ...dager, foresporsel_svar_ok: false },
+            { resultat: 'avslaatt', godkjent_dager: 0 }
+          )
+        ),
+        'kontrollsak: svaret gjentar påberopelsen'
+      ).toBeNull();
+      expect(s.avvist('BH', brev({ ...dager, begrunnelse_ikke_svar: true }))).toBe(
+        'UGYLDIG_VURDERING'
+      );
+    });
+
+    it('VS-U95: en lest rad med standpunktet i svaret på en senere kravversjon gjør saken ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      const svaret = (rad.data.svar as Data[])[0];
+      s.send('TE', {
+        ...utenFelt(FRISTKRAV, 'varsel'),
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+      });
+      expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+      svaret.gjelder = s.krav('frist');
+      expect(
+        s
+          .u()
+          .begrensninger.map((x) => x.grunn)
+          .join()
+      ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
+    });
+
     it('VS-U88 punkt 8: en lest rad med både standpunktet og rettidigheten etter § 33.6.2 er ikke forstått', () => {
       const { s } = medKravEtterBegrunnelsen();
       const rad = fristsvar(
