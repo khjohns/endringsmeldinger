@@ -254,6 +254,26 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(svaret(sendt).utdypninger).toEqual({ '32.2': 'Pålegget kom 1. oktober.' });
   });
 
+  it('#2445: «Ja, varselet kom for sent» med «Enig i at pålegget innebærer en endring» sier at saken ikke avsluttes ved aksept (HF-U35 punkt 10, HF-U37)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
+    await radio('Enig i at pålegget innebærer en endring');
+    const virkning = document.querySelector('.virkning')!.textContent!;
+    expect(virkning).toMatch(/er dere enige om at varselet etter punkt\s32\.2 kom for sent/);
+    expect(virkning).toContain('Enigheten om vederlag og frist får da ingen virkning');
+    expect(virkning).toContain('saken avsluttes ikke');
+    expect(virkning).not.toContain('da avsluttes saken');
+  });
+
+  it('#2445: subsidiært avslag av forholdet sier at saken avsluttes ved aksept (HF-U35 punkt 9, HF-U37)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
+    await radio('Avslår kravet på endringsordre');
+    const virkning = document.querySelector('.virkning')!.textContent!;
+    expect(virkning).toContain('og da avsluttes saken');
+    expect(virkning).not.toContain('avsluttes ikke');
+  });
+
   it('avslaget på kravet om endringsordre krever en begrunnelse under punktet om forholdet (D-7)', async () => {
     const sendt = await svarskjemaet(medGrunnlag);
     await radio('Nei');

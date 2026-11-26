@@ -658,7 +658,8 @@ function virkninger(s) {
     if (s.forsent) ut.push(['hoved', 'Du gjør gjeldende at varselet kom for sent. Det registreres som et avslag etter punkt 32.3 tredje ledd' + (s.v === 'enig' ? ', også når du er enig subsidiært. Svaret er da ikke en endringsordre.' : '.')]);
     else ut.push(['hoved', f() === 'endring' ? 'Du avslår kravet på endringsordre.' : 'Byggherren har ikke risikoen for forholdet.']);
     ut.push(['', 'Svarene på vederlag og frist gjelder subsidiært.']);
-    ut.push(['', 'Totalentreprenøren kan godta svaret. Da avsluttes saken med kravene om vederlag og frist. Totalentreprenøren kan også oppdatere påberopelsen eller trekke den.']);
+    if (s.forsent && s.v === 'enig') ut.push(['', 'Godtar totalentreprenøren svaret, er dere enige om at varselet etter punkt 32.2 kom for sent. Enigheten om vederlag og frist får da ingen virkning, og saken avsluttes ikke. Totalentreprenøren kan også oppdatere påberopelsen eller trekke den.']);
+    else ut.push(['', 'Totalentreprenøren kan godta svaret. Da avsluttes saken med kravene om vederlag og frist. Totalentreprenøren kan også oppdatere påberopelsen eller trekke den.']);
   }
   ut.push(['', 'Det som registreres, bygger på valgene i skjemaet.']);
   return ut;

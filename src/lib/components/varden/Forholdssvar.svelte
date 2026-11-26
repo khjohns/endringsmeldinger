@@ -12,7 +12,8 @@
     kategori,
     oppgittDato,
   } from '#kjerne/spor/forhold/format.ts';
-  import { blirEndringsordre } from '#kjerne/spor/forhold/frysing.ts';
+  import { standpunktet } from '#kjerne/frosset/byggeklosser.ts';
+  import { blirEndringsordre, preklusjonPaaberopt } from '#kjerne/spor/forhold/frysing.ts';
   import {
     BREVTEKSTEN_I_FORHOLDET,
     forholdet as forholdIKatalogen,
@@ -264,7 +265,14 @@
     if (endringsordre) return FORHOLDSSVAR.virkningEndringsordre;
     if (etter?.frafalt) return FORHOLDSSVAR.virkningFrafall;
     if (etter?.forholdAvklart) return FORHOLDSSVAR.virkningEnighet;
-    return FORHOLDSSVAR.virkningSubsidiaert;
+    const brevet = etter?.svar[nyttSvar.id];
+    if (
+      brevet &&
+      standpunktet(brevet.svar, 'forhold')?.resultat !== 'avslaatt' &&
+      preklusjonPaaberopt(brevet.svar, brevet.virkninger)
+    )
+      return FORHOLDSSVAR.virkningSubsidiaertEnig;
+    return FORHOLDSSVAR.virkningSubsidiaertAvslag;
   });
 
   const kreves = $derived(begrunnelsenKreves(f, valg));
