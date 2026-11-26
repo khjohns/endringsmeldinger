@@ -38,13 +38,7 @@
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Vederlagsvarsel from './Vederlagsvarsel.svelte';
-  import {
-    handlingsnoekkel,
-    startvarsling,
-    tilbudteHjemler,
-    VARSELHJEMLENE,
-    type Vederlagsvarselhjemmel,
-  } from './vederlagsvarsel';
+  import { startvarsling, tilbudteHjemler, type Vederlagsvarselhjemmel } from './vederlagsvarsel';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
   import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
@@ -651,10 +645,14 @@
       // U-1 i BF-37: varselet uten krav står i skjemaet for kravet.
       noekler: [
         'krav:vederlag',
-        ...VARSELHJEMLENE.flatMap((h) => [
-          handlingsnoekkel('sende_varsel', h),
-          handlingsnoekkel('varsle', h),
-        ]),
+        'sende_varsel:vederlag',
+        'sende_varsel:34.1.3',
+        'sende_varsel:34.3.3',
+        'sende_varsel:34.4',
+        'varsle:vederlag',
+        'varsle:34.1.3',
+        'varsle:34.3.3',
+        'varsle:34.4',
       ],
       aapne: (n) => {
         if (n !== 'krav:vederlag' && u) {
