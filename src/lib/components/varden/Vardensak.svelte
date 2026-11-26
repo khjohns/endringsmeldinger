@@ -959,7 +959,10 @@
     onforkast={() => forkastKravet('vederlag')}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
-    onkunnskapsdato={(gjelder) => aapneUtkast({ art: 'kunnskapsdato', gjelder })}
+    onkunnskapsdato={(gjelder) => {
+      melding = null;
+      aapneUtkast({ art: 'kunnskapsdato', gjelder });
+    }}
   />
 {/snippet}
 
