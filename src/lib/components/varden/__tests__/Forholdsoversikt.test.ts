@@ -413,6 +413,14 @@ describe('Siden for forholdet', () => {
     ).toBeNull();
   });
 
+  it('et brev lagt til som dokumentasjon i et spor uten varsel eller krav står ved betegnelsen, uten tolkning (OV-U125, OV-U4)', async () => {
+    await vis([PAABEROPELSE, { ...REGISTRERT, sporene: ['vederlag'] } as Handling]);
+    const krav = kravet('Vederlagsjustering');
+    expect(within(krav).getByText('Ingen varsel eller krav i saken')).toBeTruthy();
+    expect(krav.querySelector('.brev')?.textContent).toBe('byggherrens brev av 20. september 2026');
+    expect(kravet('Fristforlengelse').querySelector('.brev')).toBeNull();
+  });
+
   it('trukket påberopelse: trekket står i sporhodet, og kravet står som «Trukket» (kriterium 4, GR-U30, MM-U30)', async () => {
     const { u } = await vis([PAABEROPELSE, VEDERLAG, { handling: 'trekk', spor: 'forhold' }]);
     expect(screen.getByRole('note').textContent).toMatch(/^Påberopelsen er trukket i brev /);

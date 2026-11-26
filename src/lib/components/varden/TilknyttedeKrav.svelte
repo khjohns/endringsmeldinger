@@ -169,7 +169,9 @@
               <div class="tittel">
                 <h3 class="navn">{SPORNAVN[k.spor]}</h3>
                 <span class="merke">{k.betegnelse}</span>
-                {#if k.trukket && k.siste}<span class="brev"
+                <!-- Trekket, og et brev lagt til som dokumentasjon i et spor uten varsel eller krav
+                     (OV-U125, OV-U4). -->
+                {#if (k.trukket || k.tomt) && k.siste}<span class="brev"
                     >{brevrefFra(k.siste, k.siste.avsender)}</span
                   >{/if}
               </div>
