@@ -705,7 +705,7 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     const sendt = await svarskjemaet(journal);
     expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
     expect(screen.queryByRole('radio', { name: 'Kom for sent' })).toBeNull();
-    expect(screen.getAllByText(/krever punkt 34\.1\.2 ikke varsel/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/krever ikke punkt 34\.1\.2 varsel/).length).toBeGreaterThan(0);
     await seBrevet();
     expect(sendt).toHaveLength(0);
     // Mangelen er bare at det ikke er noe å sende, ikke et valg som ikke tilbys.
