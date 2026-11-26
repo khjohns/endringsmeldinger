@@ -17114,6 +17114,176 @@ kilde = "hovedplanen"
 tekst = "Et innlegg sendt før svaret står i saken og leses ikke."
 
 [[gruppe.vedtak]]
+id = "VS-U90"
+dato = 2026-11-25
+hvem = "oppdragsgiver"
+kilde = ["#1657", "#1377", "BF-03 S-5", "#2442"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmålet S-5 i spørsmålene til bestillingen for BF-03 og til #1657, stilt 25.11 som spørsmål 3. Det står ordrett i `docs/domenetabell/brukerforlop/BF-03-sporsmal.md` under «S-5», og svaret står i [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883). Arbeidsvalget om føringen står i [kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7184112065).
+
+## S-5. Skal totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd bli en egen handling senere, eller fremmes den varig i et innlegg?
+
+**Bakgrunn.** VS-U12 gir totalentreprenøren et eget utsagn for passiviteten. Det er ikke bygget, og i
+første versjon sendes passiviteten som innlegg (VS-U87 beslutningsdelen, OV-U99 punkt 4).
+Utsagnet endrer ikke utfallet etter VS-U12, så ingen regel i løsningen regner med det. VS-U3 og
+VS-U87 punkt 3 sier at løsningen registrerer det med frist og bestemmelse. Vil totalentreprenøren endre
+eller utdype påberopelsen av forholdet, sender totalentreprenøren en ny versjon av den
+([MM-U56](../../plans/vedtak.md#mm-u56)).
+
+**Belegg (ordrett).**
+
+- VS-U12: «TE kan påberope byggherrens passivitet etter § 32.3 annet ledd som eget utsagn som viser
+  til TEs varsel etter § 32.2, både før byggherren har svart og etter et svar TE mener kom for sent.
+  Utsagnet registreres og vises uten automatisk endring av utfallet i appen, og det sperrer ikke
+  byggherrens svar. Appen avgjør ikke om vilkårene var oppfylt.»
+- VS-U87, beslutningsdelen: «Påberopelsen av passivitet etter punkt 32.3 annet ledd er fortsatt
+  utsatt.»
+
+**Hva valget koster.** Ved A og B viser oversikten passiviteten bare som et innlegg etter siste brev
+(OV-U99 punkt 6), ikke som et eget standpunkt ved påberopelsen. En ny versjon av påberopelsen er ikke
+veien til passiviteten: etter den venter forholdet på nytt svar, byggherrens svar på den tidligere
+versjonen kan ikke godtas her ([KA-U52](../../plans/vedtak.md#samlevedtak-kravversjon) punkt 3),
+byggherren får et nytt svar å gi, og etter at totalentreprenøren har godtatt avslaget (GR-U27), avvises
+en ny versjon.
+
+- **A (anbefalt):** «Totalentreprenørens påberopelse av byggherrens passivitet etter punkt 32.3 annet
+  ledd er ikke en egen handling i løsningen. Totalentreprenøren fremmer den i et innlegg som viser til
+  varselet etter punkt 32.2 eller til byggherrens svar. Løsningen tolker den ikke og utleder ingen
+  virkning av den, og den sperrer ikke byggherrens svar. Vil totalentreprenøren endre påberopelsen av
+  forholdet, sender totalentreprenøren en ny versjon av den; den er ikke en påberopelse av passivitet.»
+  Forhold: opphever VS-U12; endrer VS-U87 punkt 3 og VS-U3 for punkt 32.3 annet ledd, VS-U87
+  beslutningsdelen, første og andre kulepunkt, for passiviteten, MM-U47 beslutningsdelen, andre
+  kulepunkt, og OV-U99 punkt 4; i tråd med MM-U56.
+- **B:** «Totalentreprenøren påberoper byggherrens passivitet etter punkt 32.3 annet ledd i en ny
+  versjon av påberopelsen, med et eget valg som viser til varselet etter punkt 32.2. Valget
+  registreres og vises med påberopelsen, uten virkning på utfallet, og det sperrer ikke byggherrens
+  svar.»
+  Forhold: endrer VS-U12 (eget utsagn blir et valg i påberopelsen), VS-U87 punkt 3 og
+  beslutningsdelen for passiviteten.
+- **C:** «VS-U12 står, og påberopelsen av passivitet bygges senere som eget utsagn. Til den bygges,
+  sendes den som innlegg.»
+  Forhold: ingen.
+
+**Anbefaling: A.** Utsagnet har ingen virkning i løsningen etter VS-U12, og etter OV-U97 finnes en
+handling utover grunnsettet bare når en regel leser den. Innlegget lar totalentreprenøren si fra uten å
+endre påberopelsen og uten at forholdet venter på nytt svar. B binder passiviteten til en ny versjon,
+med kostnaden over.
+
+**Styrer:** om kommandoen `passivitet`, som kjernen avviser i dag (raden I4 i
+`docs/datamodell/handlinger.toml`), fjernes fra formatet, og hva linja under betegnelsen i oversikten
+viser (MM-U30 i `.interface-design/system.md`).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 25.11, ordrett, videresendt av orkestratoren ([kommentaren i #1657](https://github.com/khjohns/endringsmeldinger/issues/1657#issuecomment-7183965883)): «2A, 3A». Spørsmål 3 er S-5, og svaret er A.'''
+forhold = [
+  { art = "opphever", vedtak = "vs-u12" },
+  { art = "endrer", vedtak = "vs-u87" },
+  { art = "endrer", vedtak = "vs-u3" },
+  { art = "endrer", vedtak = "mm-u47" },
+  { art = "endrer", vedtak = "ov-u99" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «opphever VS-U12; endrer VS-U87 punkt 3 og VS-U3 for punkt 32.3 annet ledd, VS-U87 beslutningsdelen, første og andre kulepunkt, for passiviteten, MM-U47 beslutningsdelen, andre kulepunkt, og OV-U99 punkt 4; i tråd med MM-U56». Bygges i #2442.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Totalentreprenørens påberopelse av byggherrens passivitet etter punkt 32.3 annet ledd er ikke en egen handling i løsningen. Totalentreprenøren fremmer den i et innlegg som viser til varselet etter punkt 32.2 eller til byggherrens svar. Løsningen tolker den ikke og utleder ingen virkning av den, og den sperrer ikke byggherrens svar. Vil totalentreprenøren endre påberopelsen av forholdet, sender totalentreprenøren en ny versjon av den; den er ikke en påberopelse av passivitet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenøren påberoper byggherrens passivitet etter punkt 32.3 annet ledd i en ny versjon av påberopelsen, med et eget valg som viser til varselet etter punkt 32.2. Valget registreres og vises med påberopelsen, uten virkning på utfallet, og det sperrer ikke byggherrens svar.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+VS-U12 står, og påberopelsen av passivitet bygges senere som eget utsagn. Til den bygges, sendes den som innlegg.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U94"
+dato = 2026-11-26
+hvem = "oppdragsgiver"
+kilde = ["#2442"]
+klasse = "beslutning"
+sporsmal = '''
+Spørsmål 1 til #2442, stilt 26.11. Spørsmålene står ordrett i [kommentaren i #2442](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194093337), og svarene i [kommentaren](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194979204). Spørsmål 3 føres ikke; det er et arbeidsvalg ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7195041462)).
+
+Bakgrunn: Etter [VS-U89](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#vs-u89) er den egne innsigelsen etter punkt 5 tredje ledd ikke en egen handling, og løsningen tolker den ikke og utleder ingen virkning av den. Etter svaret S-5 A i BF-03 er totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd heller ikke en egen handling (VS-U12 oppheves i vedtaks-PR-en for S-5). Når løsningen slutter å tilby dem, faller noe bort som i dag bygger på den egne innsigelsen. Spørsmål 1 gjelder de lagrede hendelsene, og spørsmål 2 og 3 det som faller bort.
+
+**1. De lagrede hendelsene (teknisk, lagret navn)**
+
+Skal den egne innsigelsen og passiviteten fjernes også som hendelsestyper, så en eldre hendelse av den typen gjør saken ikke forstått, eller beholdes de for lesing uten virkning?
+
+- **A (anbefalt):** «Den egne innsigelsen etter punkt 5 tredje ledd og totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd fjernes også som hendelsestyper. En eldre hendelse av en av typene gjør saken ikke forstått. Protesten mot en innsigelse kan da bare gjelde byggherrens påberopelse i et svar.» Forhold: i tråd med VS-U89, MM-U43 og MM-U47 punkt 1. Belegg: B-17, ingen reelle hendelser er skrevet.
+- **B:** «Hendelsestypene beholdes og leses uten virkning på utfallet. Løsningen tilbyr dem ikke, og de har en rad i handlingsregisteret med status som innlegg.» Forhold: i tråd med VS-U89 og OV-U97.
+
+Styrer: om typene står i formatet for hendelsene.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren ([kommentaren i #2442](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194979204)): «1A, 2A. 3: varsler og krav sendes fra samme "skjema". Det gjør også BHs svar. Hvis TE bare har sendt varsel vises bare felter for BH for å svare på varselet.» Spørsmål 1: A.'''
+folge = '''
+Forholdet slik det sto i alternativet A: «i tråd med VS-U89, MM-U43 og MM-U47 punkt 1. Belegg: B-17, ingen reelle hendelser er skrevet.» Bygges i #2442.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Den egne innsigelsen etter punkt 5 tredje ledd og totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd fjernes også som hendelsestyper. En eldre hendelse av en av typene gjør saken ikke forstått. Protesten mot en innsigelse kan da bare gjelde byggherrens påberopelse i et svar.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hendelsestypene beholdes og leses uten virkning på utfallet. Løsningen tilbyr dem ikke, og de har en rad i handlingsregisteret med status som innlegg.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U95"
+dato = 2026-11-26
+hvem = "oppdragsgiver"
+kilde = ["#2442"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2 til #2442, stilt 26.11. Spørsmålene står ordrett i [kommentaren i #2442](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194093337), og svarene i [kommentaren](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194979204). Spørsmål 3 føres ikke; det er et arbeidsvalg ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7195041462)).
+
+Bakgrunn: Etter [VS-U89](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#vs-u89) er den egne innsigelsen etter punkt 5 tredje ledd ikke en egen handling, og løsningen tolker den ikke og utleder ingen virkning av den. Etter svaret S-5 A i BF-03 er totalentreprenørens påberopelse av passivitet etter punkt 32.3 annet ledd heller ikke en egen handling (VS-U12 oppheves i vedtaks-PR-en for S-5). Når løsningen slutter å tilby dem, faller noe bort som i dag bygger på den egne innsigelsen. Spørsmål 1 gjelder de lagrede hendelsene, og spørsmål 2 og 3 det som faller bort.
+
+**2. Standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 annet ledd**
+
+VS-U88 punkt 8 og 9 sier at byggherren gjør gjeldende i svaret på totalentreprenørens første krav med dager etter begrunnelsen at begrunnelsen kom for sent, eller at den ikke er et svar etter annet ledd, og at standpunktet om at den ikke er et svar, registreres og vises uten utledet virkning. VS-U89 sier at en innsigelse mot et annet brev fremmes i et innlegg eller under «Forbehold», og at løsningen ikke tolker den. Unntaket i VS-U89, siste setning, gjelder bare påberopelsen av at noe kom for sent. Begge vedtakene er fra 25.11, og ingen av dem har et forhold til det andre. Spørsmålet er hvilket som gjelder for standpunktet om at begrunnelsen ikke er et svar.
+
+- **A (anbefalt):** «Byggherren gjør gjeldende at totalentreprenørens begrunnelse ikke er et svar etter punkt 33.6.2 annet ledd, med et standpunkt i svaret på totalentreprenørens første krav med dager etter begrunnelsen. Standpunktet registreres og vises uten utledet virkning, som når totalentreprenøren ikke svarer.» Forhold: i tråd med VS-U88 punkt 8 og 9 og VS-U17; snevrer inn VS-U89 s2–s3 for standpunktet etter punkt 33.6.2 om at begrunnelsen ikke er et svar.
+- **B:** «Byggherren gjør gjeldende at totalentreprenørens begrunnelse ikke er et svar etter punkt 33.6.2 annet ledd, i et innlegg eller under «Forbehold» i svaret. Løsningen tolker det ikke og utleder ingen virkning av det.» Forhold: endrer VS-U88 punkt 8 for standpunktet om at begrunnelsen ikke er et svar, og punkt 9, andre setning; i tråd med VS-U89 s2–s3.
+
+Anbefaling: A. Punkt 8 holdes samlet, så byggherren tar stilling til begrunnelsen på ett sted i svaret, og standpunktet får ingen virkning uansett.
+
+Styrer: om standpunktet står i svaret på fristkravet.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren ([kommentaren i #2442](https://github.com/khjohns/endringsmeldinger/issues/2442#issuecomment-7194979204)): «1A, 2A. 3: varsler og krav sendes fra samme "skjema". Det gjør også BHs svar. Hvis TE bare har sendt varsel vises bare felter for BH for å svare på varselet.» Spørsmål 2: A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "vs-u89" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «i tråd med VS-U88 punkt 8 og 9 og VS-U17; snevrer inn VS-U89 s2–s3 for standpunktet etter punkt 33.6.2 om at begrunnelsen ikke er et svar». Bygges i #2442.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren gjør gjeldende at totalentreprenørens begrunnelse ikke er et svar etter punkt 33.6.2 annet ledd, med et standpunkt i svaret på totalentreprenørens første krav med dager etter begrunnelsen. Standpunktet registreres og vises uten utledet virkning, som når totalentreprenøren ikke svarer.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren gjør gjeldende at totalentreprenørens begrunnelse ikke er et svar etter punkt 33.6.2 annet ledd, i et innlegg eller under «Forbehold» i svaret. Løsningen tolker det ikke og utleder ingen virkning av det.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 id = "VS-U91"
 dato = 2026-11-25
 hvem = "oppdragsgiver"
