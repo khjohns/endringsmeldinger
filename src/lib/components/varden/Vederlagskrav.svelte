@@ -823,7 +823,7 @@
         <p>{KRAVSKJEMA.trekket(navnet(p))}</p>
       {:else}
         {#if endret}<p>{endret}</p>{/if}
-        {#if vs && vs.art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel) && gjeldendeVarselvalg(v, p).art === 'kravet'}
+        {#if vs && vs.art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel) && gjeldendeVarselvalg(v, p, vs).art === 'kravet'}
           <p>
             {KRAVSKJEMA.utenKravpost(vs.hjemmel)}
             <a href={`#${id(`varselrad-${p.noekkel}`)}`}>{KRAVSKJEMA.seVarselet(navnet(p))}</a>
@@ -1249,7 +1249,7 @@
               }}>{KRAVSKJEMA.endre}</Knapp
             >
           {/if}
-          {#if vs.art === 'kravet' && aapentVarsel === p.noekkel}
+          {#if vs.art === 'kravet' && !vs.velges?.length && aapentVarsel === p.noekkel}
             <div class="varselvalgene">{@render varselvalgene(p, vs.hjemmel)}</div>
           {/if}
         </li>

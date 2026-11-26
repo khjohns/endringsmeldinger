@@ -201,6 +201,13 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       oppsummering.getByText(/Velg varselet posten gjelder, eller at kravet er varselet\./)
     ).toBeTruthy();
 
+    // Lenken fra «Dette mangler» åpner ikke det tredelte spørsmålet ved siden av (Gemini, funn 1).
+    await fireEvent.click(oppsummering.getByRole('link', { name: /Velg varselet posten gjelder/ }));
+    expect(screen.queryByRole('group', { name: 'Hvor ble varselet for P1 gitt?' })).toBeNull();
+    expect(
+      screen.getAllByRole('group', { name: 'Hvilket varsel før regningsarbeidet gjelder P1?' })
+    ).toHaveLength(1);
+
     await fireEvent.click(graving);
     expect(
       screen.getByText(
@@ -208,6 +215,10 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
       )
     ).toBeTruthy();
     await fireEvent.click(ingen);
+    // Påminnelsen ved posten står ikke etter valget (Gemini, funn 2).
+    expect(
+      screen.queryByText(/^Saken har et varsel etter punkt.34\.4 som ingen kravpost/)
+    ).toBeNull();
     expect(
       screen.getByText(
         'Brevet sier at kravet er varselet for P1. Varslene i saken gjelder ikke P1.'
