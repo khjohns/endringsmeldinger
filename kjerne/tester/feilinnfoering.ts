@@ -7796,7 +7796,10 @@ const MUTASJONER: Mutasjon[] = [
       'et varsel sendt herfra vises som et varsel med oppgitt dato, og omvendt (U-3 i BF-51, OV-U5, #2410)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ['?.d.opplysninger ?? []) !== undefined,', '?.d.opplysninger ?? []) === undefined,'],
+      [
+        "oppgitt: datoFor(v, 'sendt', d.opplysninger) !== undefined,",
+        "oppgitt: datoFor(v, 'sendt', d.opplysninger) === undefined,",
+      ],
     ],
     mal: ['skjemaet for det første kravet leser at kravet er det første'],
   },
@@ -7818,7 +7821,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'varslene i sporet står etter bestemmelsen, ikke i rekkefølgen brevene ble lagt til (U-3 i BF-51, #2410)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['    .sort((a, b) => plass(a) - plass(b))', '    .sort(() => 0)']],
+    endringer: [
+      [
+        '  return [...dokumenterI(u.journal)].flatMap((d) =>',
+        '  return [...dokumenterI(u.journal)].reverse().flatMap((d) =>',
+      ],
+    ],
     mal: ['varslene i vederlaget står i rekkefølgen brevene ble lagt til'],
   },
 ];

@@ -202,11 +202,7 @@ export const harVarsel = (u: Utledning, spor: Spor): boolean =>
 const sendt = (u: Utledning, spor: Spor): boolean =>
   u.spor[spor].krav.length > 0 || harVarsel(u, spor);
 
-/**
- * OV-U125: vederlaget eller fristen har ikke et varsel eller krav fra TE: ingen krav sendt eller
- * lagt til med virkning, og ingen varsel sendt, lagt til eller med oppgitt dato (`harVarsel`). Et
- * brev lagt til som dokumentasjon og et innlegg er ikke utsagn i sporet og endrer det ikke.
- */
+/** OV-U125: vederlaget eller fristen har verken krav med virkning eller varsel (`harVarsel`). */
 export const ingenVarselEllerKrav = (u: Utledning, spor: Spor): boolean =>
   spor !== 'forhold' && !sendt(u, spor);
 
@@ -224,8 +220,7 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null,
   // MM-U30: totalentreprenøren har varslet og ikke krevd (svar S4 16.11 i #2017).
   varslet: (u, spor) => harVarsel(u, spor) && u.spor[spor].krav.length === 0,
-  // OV-U125: også når kravene er avgjort (OV-U3), men ikke når saken er lukket (GR-U27). Den
-  // ubesvarte forespørselen etter § 33.6.2 står før i lista og går foran.
+  // OV-U125, GR-U27, D-6 i BF-51.
   ingen_varsel_eller_krav: (u, spor) => ingenVarselEllerKrav(u, spor) && !avsluttetAvTe(u),
 };
 
@@ -274,17 +269,17 @@ export interface VarselISporet {
 export function varsleneISporet(u: Utledning, spor: Kravspor): VarselISporet[] {
   const s = u.spor[spor];
   const varsler = [...Object.values(s.varsler), ...s.kravpostvarsler];
-  const dokumenter = new Map([...dokumenterI(u.journal)].map((d, i) => [d.id, { d, i }]));
-  const plass = (v: { dokument: string }) => dokumenter.get(v.dokument)?.i ?? -1;
-  return varsler
-    .sort((a, b) => plass(a) - plass(b))
-    .map((v) => ({
-      id: v.id,
-      hjemmel: v.hjemmel,
-      dokument: v.dokument,
-      sendt: datoenDetBleSendt(u, v),
-      oppgitt: datoFor(v, 'sendt', dokumenter.get(v.dokument)?.d.opplysninger ?? []) !== undefined,
-    }));
+  return [...dokumenterI(u.journal)].flatMap((d) =>
+    varsler
+      .filter((v) => v.dokument === d.id)
+      .map((v) => ({
+        id: v.id,
+        hjemmel: v.hjemmel,
+        dokument: v.dokument,
+        sendt: dagenSendt(v, d),
+        oppgitt: datoFor(v, 'sendt', d.opplysninger) !== undefined,
+      }))
+  );
 }
 
 /**
