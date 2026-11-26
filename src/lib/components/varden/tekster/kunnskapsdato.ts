@@ -11,8 +11,7 @@ type Opplysningen = { dato: string; brev: Brevref };
 const LUKKET =
   'Saken står lukket. Brevet endrer ikke utfallet. Byggherren kan ta stilling til datoen i et innlegg. Innlegg kan ikke sendes herfra ennå.';
 
-const KUNNSKAPSDATO_IKKE_OPPGITT =
-  'Totalentreprenøren har ikke oppgitt når totalentreprenøren ble klar over at utgiftene ville påløpe.';
+const KUNNSKAPSDATO_IKKE_OPPGITT = 'Totalentreprenøren har ikke oppgitt når utgiftene ble kjent.';
 
 export const KUNNSKAPSDATO = haerdet({
   // Tråden (U-7, U-8).
@@ -26,7 +25,7 @@ export const KUNNSKAPSDATO = haerdet({
   endretI: (b: Brevref) => `Endret i ${brevref(b)}.`,
   /** Ved varselet uten datoen, når TE har oppgitt den i et eget brev senere (U-7). */
   oppgittSenere: (o: Opplysningen) =>
-    `Ikke oppgitt i brevet. Totalentreprenørens siste opplysning er ${dato(o.dato)}, i ${brevref(o.brev)}.`,
+    `Brevet oppgir ikke når utgiftene ble kjent. Totalentreprenørens siste opplysning er ${dato(o.dato)}, i ${brevref(o.brev)}.`,
   oppgi: 'Oppgi datoen',
   endre: 'Endre datoen',
   handlingNavn: (oppgitt: boolean) =>
@@ -58,7 +57,7 @@ export const KUNNSKAPSDATO = haerdet({
     `Datoen ${dato(valgt)} er etter datoen brevet sendes, ${dato(sendes)}. Skriv en dato fram til den.`,
   fast: (o: Opplysningen | null) =>
     o
-      ? `Klar over at utgiftene ville påløpe ${dato(o.dato)}, ifølge ${brevref(o.brev)}.`
+      ? `Klar over at utgiftene ville påløpe ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`
       : 'Du har ikke oppgitt når du ble klar over at utgiftene ville påløpe.',
   egetBrevLenke: (oppgitt: boolean) => `${oppgitt ? 'Endre' : 'Oppgi'} datoen i et eget brev`,
   tidslinje: 'Klar over at utgiftene ville påløpe',
@@ -66,7 +65,7 @@ export const KUNNSKAPSDATO = haerdet({
   // Skjemaet for det egne brevet (U-5, U-6).
   gjelder: 'Gjelder',
   varselet: (b: Brevref) => `Varselet etter punkt 34.1.3 i ${brevref(b)} av ${dato(b.registrert)}`,
-  sisteOpplysning: 'Din siste opplysning',
+  sisteOpplysning: 'Sist oppgitt',
   opplysningen: (o: Opplysningen | null) =>
     o ? `${dato(o.dato)}, i ${brevref(o.brev)}` : 'Ikke oppgitt',
   egetBrev: (svar: Brevref | null) =>

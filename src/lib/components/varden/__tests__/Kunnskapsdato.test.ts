@@ -87,7 +87,7 @@ describe('TE oppgir datoen etter punkt 34.1.3 i Varden (BF-48)', () => {
     // U-4: handlingen står ved varselet når datoen ikke er oppgitt.
     const varselet = await innlegget(3);
     expect(varselet.tekst).toContain(
-      'Totalentreprenøren har ikke oppgitt når totalentreprenøren ble klar over at utgiftene ville påløpe.'
+      'Totalentreprenøren har ikke oppgitt når utgiftene ble kjent.'
     );
     await fireEvent.click(
       varselet.li.getByRole('button', {
@@ -148,7 +148,7 @@ describe('TE oppgir datoen etter punkt 34.1.3 i Varden (BF-48)', () => {
     const varselNaa = await innlegget(3);
     expect(varselNaa.li.queryByRole('button', { name: /datoen/ })).toBeNull();
     expect(varselNaa.tekst).toContain(
-      'Ikke oppgitt i brevet. Totalentreprenørens siste opplysning er 28. september 2026, i brev 5.'
+      'Brevet oppgir ikke når utgiftene ble kjent. Totalentreprenørens siste opplysning er 28. september 2026, i brev 5.'
     );
     // U-8: ved svaret står at datoen ikke var oppgitt da svaret ble sendt.
     expect((await innlegget(4)).tekst).toContain(
@@ -219,9 +219,7 @@ describe('TE oppgir datoen etter punkt 34.1.3 i Varden (BF-48)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const kortet = within(screen.getByText('Varselet etter punkt 34.1.3').closest('section')!);
     expect(
-      kortet.getByText(
-        'Totalentreprenøren har ikke oppgitt når totalentreprenøren ble klar over at utgiftene ville påløpe.'
-      )
+      kortet.getByText('Totalentreprenøren har ikke oppgitt når utgiftene ble kjent.')
     ).toBeTruthy();
   });
 });
@@ -281,7 +279,7 @@ describe('datoen i vederlagskravet (BF-48 variant B)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: /^Oppdater kravet/ }));
     expect(screen.queryByLabelText(FELTET)).toBeNull();
     expect(
-      screen.getByText('Klar over at utgiftene ville påløpe 25. september 2026, ifølge brev 6.')
+      screen.getByText('Klar over at utgiftene ville påløpe 25. september 2026, oppgitt i brev 6.')
     ).toBeTruthy();
     await fireEvent.input(screen.getByRole('textbox', { name: /Forbehold/ }), {
       target: { value: 'Forbeholdet står.' },

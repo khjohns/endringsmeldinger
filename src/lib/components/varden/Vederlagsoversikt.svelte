@@ -77,7 +77,10 @@
   {/if}
 {/snippet}
 
+<!-- Datoen etter punkt 34.1.3 og handlingen står sist ved varselet, under datoen for forholdet,
+     og akseptfristen sist over handlingene ved svaret (U-4 i BF-48). -->
 {#snippet fristen(b: Brevet)}
+  <Datolinjer {b} {klar} varselbrev={varselbrevet} akseptfrist={null} />
   <Kunnskapsdatolinje
     {b}
     {traad}
@@ -90,7 +93,7 @@
       ? () => onkunnskapsdato(kunnskapsdatoVarselet)
       : undefined}
   />
-  <Datolinjer {b} {klar} varselbrev={varselbrevet} {akseptfrist} />
+  <Datolinjer {b} klar={null} varselbrev={null} {akseptfrist} />
 {/snippet}
 
 <Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>
