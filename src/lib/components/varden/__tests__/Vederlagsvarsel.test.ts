@@ -190,6 +190,8 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     expect([graving, omlegging, ingen].map((r) => r.checked)).toEqual([false, false, false]);
     expect(valget.queryByRole('radio', { name: /Økte mengder sprengstein/ })).toBeNull();
     expect(screen.queryByText(/^Brevet sier/)).toBeNull();
+    // Raden sier ikke at varselet gis i dette brevet før TE har valgt (/design-review, F1).
+    expect(screen.getByText('Ikke valgt ennå.')).toBeTruthy();
 
     await fireEvent.click(knapp('Se brevet før sending'));
     const oppsummering = within(

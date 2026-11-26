@@ -178,6 +178,9 @@ export const KRAVSKJEMA = haerdet({
     `Brevet sier at kravet er varselet for ${post}. ${antall === 1 ? 'Varselet i saken gjelder' : 'Varslene i saken gjelder'} ikke ${post}.`,
   brevetSierGitt: (post: string, b: Brevref) =>
     `Brevet sier at varselet for ${post} ble gitt i ${brevref(b)}. Gjør byggherren gjeldende i svaret på det varselet at det kom for sent, står det bare mot kravpostene som gjelder varselet.`,
+  ikkeValgt: 'Ikke valgt ennå.',
+  nrIBrevet: (tekst: string, n: number, hjemmel: string) =>
+    `${tekst}, varsel ${n} etter ${punkt(hjemmel)} i brevet`,
   manglerValget: 'Velg varselet posten gjelder, eller at kravet er varselet.',
   /** U-7 i BF-37: varselet i saken med brevet, datoen og arbeidet (VS-U87 punkt 27). */
   varseletMedArbeid: (b: Brevref & { sendt: string | null }, arbeid: string | undefined) =>

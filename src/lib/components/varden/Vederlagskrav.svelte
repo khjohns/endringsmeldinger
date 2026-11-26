@@ -427,6 +427,7 @@
     const valgt = gjeldendeVarselvalg(v, p, vs);
     if (valgt.art === 'saken' && valgt.varsel)
       return varselI(iSaken.find((x) => x.id === valgt.varsel)?.dokument ?? null);
+    if (valgt.art === 'saken') return KRAVSKJEMA.ikkeValgt;
     if (p.varsel.art !== 'kravet' && valgt.art === 'dokument' && valgt.dato)
       return KRAVSKJEMA.gittIDokumentet(valgt.type, valgt.dato);
     return KRAVSKJEMA.gisIBrevet;
@@ -853,7 +854,16 @@
       valg={[
         ...velges.map((x) => {
           const b = brevMed(x.dokument);
-          return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletMedArbeid(b, x.arbeid) : x.id };
+          const tekst = b ? KRAVSKJEMA.varseletMedArbeid(b, x.arbeid) : x.id;
+          // To varsler i samme brev uten arbeidet skilles med rekkefølgen i brevet.
+          const like = iSaken.filter((y) => y.dokument === x.dokument && y.hjemmel === hjemmel);
+          return {
+            verdi: x.id,
+            tekst:
+              x.arbeid || like.length < 2
+                ? tekst
+                : KRAVSKJEMA.nrIBrevet(tekst, like.findIndex((y) => y.id === x.id) + 1, hjemmel),
+          };
         }),
         { verdi: 'ingen', tekst: KRAVSKJEMA.ingenAvDem(navnet(p)) },
       ]}
@@ -869,7 +879,7 @@
       }
       feil={feil(`varsel-${n}`)}
     />
-    <p class="brevet-sier" aria-live="polite">{sier ?? ''}</p>
+    <p class="brevet-sier" class:fylt={sier} aria-live="polite">{sier ?? ''}</p>
   </div>
 {/snippet}
 
@@ -1293,7 +1303,7 @@
   .seksjon.venter {
     box-shadow: inset 3px 0 0 var(--ink);
   }
-  .seksjon.venter :global(legend) {
+  .seksjon.venter :global(legend:not(.varselvalgene legend)) {
     font-size: 20px;
     line-height: 1.3;
   }
@@ -1422,13 +1432,12 @@
   /* U-7 i BF-37: det brevet vil si, innfelt som i skissen `#kravpost`. */
   .brevet-sier {
     margin: 0;
+    color: var(--ink-2);
+  }
+  .brevet-sier.fylt {
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
     border-radius: var(--r-innfelt);
-    color: var(--ink-2);
-  }
-  .brevet-sier:empty {
-    display: none;
   }
   .hjelp,
   .dempet {
