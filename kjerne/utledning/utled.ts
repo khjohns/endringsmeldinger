@@ -34,6 +34,7 @@ import {
   KONTROLLER_I_VEDERLAGET,
   kontrollerKunnskapsdatoene,
   opplysningerOmKunnskapsdatoen,
+  sisteKunnskapsdato,
 } from '../spor/vederlag/utledning.ts';
 import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -1707,7 +1708,9 @@ function settKunnskapsdatoene(
     if (b.svar.spor !== 'vederlag') continue;
     const svaret = versjonen(b.svar.id);
     b.kunnskapsdato =
-      kunnskapsdatoer.filter((o) => o.blirSiste && versjonen(o.id) < svaret).at(-1)?.id ?? null;
+      sisteKunnskapsdato({
+        kunnskapsdatoer: kunnskapsdatoer.filter((o) => versjonen(o.id) < svaret),
+      })?.id ?? null;
   }
 }
 

@@ -202,7 +202,7 @@ export type Kommando = (
       sendemaate?: Sendemaate;
       beskrivelse?: string;
       dokumentasjon: string[];
-      /** VS-U86 punkt 12: datoen varselet etter § 34.1.3 oppga (`Kunnskapsdatoen`). */
+      /** VS-U86 punkt 12: datoen varselet etter § 34.1.3 oppga. */
       klar_over_utgiftene?: string;
     } & RegistrertVarsel)
   /**

@@ -218,7 +218,13 @@ describe('det egne brevet som supplerer eller endrer datoen (VS-U86 punkt 14, MM
     const svaret = s.u().spor.vederlag.gjeldendeSvar!;
     // Designdelen i VS-U86: datoen står ved siden av varselet når byggherren gjør gjeldende at
     // det kom for sent.
-    expect(laast(s.journal.at(-1)!).join('\n')).toContain(OPPGIR('15. september 2026'));
+    const brevet = laast(s.journal.at(-1)!).join('\n');
+    expect(brevet).toContain(OPPGIR('15. september 2026'));
+    // LV-U78: beløpet etter begrensningen følger innsigelsen, og datoen står etter beløpet.
+    expect(brevet.indexOf('godkjenner etter dette')).toBeGreaterThan(-1);
+    expect(brevet.indexOf('godkjenner etter dette')).toBeLessThan(
+      brevet.indexOf(OPPGIR('15. september 2026'))
+    );
     expect(s.u().svar[svaret.id].kunnskapsdato).toBe((tilbake.data.utsagn as Data[])[0].id);
     expect(s.u().kunnskapsdatoer.map((o) => [o.dato, o.blirSiste])).toEqual([
       ['2026-09-20', true],

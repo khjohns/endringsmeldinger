@@ -457,8 +457,16 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
     if (p.art === 'beloep') beloepene.push({ post: punkt, plass, beloep: p.godkjent! });
     // LV-U78, LV-U34, OV-U32: beløpet etter begrensningen etter § 34.1.3 står i samme avsnitt som innsigelsen.
     if (p.art === 'rettidighet' && p.hjemmel === '34.1.3' && !p.iTide) {
-      // Designdelen i VS-U86, U-9 i BF-48: TEs siste opplysning om kunnskapsdatoen før svaret
-      // står ved siden av varselet.
+      ledd.push({
+        punkt: 'produktivitet',
+        plass,
+        post,
+        vilkaar: null,
+        tekst: `Byggherren godkjenner etter dette ${kroner(p.begrenset!)} av de krevde ${kroner(tilTall(krevdProduktivitet(krav)!))}.`,
+      });
+      beloepene.push({ post: 'produktivitet', plass, beloep: p.begrenset! });
+      // Designdelen i VS-U86, U-9 i BF-48: TEs siste opplysning om kunnskapsdatoen før svaret,
+      // etter beløpet, så «etter dette» viser til innsigelsen (LV-U78).
       const kunnskapsdato = t.saken.sisteKunnskapsdato;
       if (kunnskapsdato)
         ledd.push({
@@ -468,14 +476,6 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
           vilkaar: null,
           tekst: kunnskapsdatoTekst(kunnskapsdato.dato),
         });
-      ledd.push({
-        punkt: 'produktivitet',
-        plass,
-        post,
-        vilkaar: null,
-        tekst: `Byggherren godkjenner etter dette ${kroner(p.begrenset!)} av de krevde ${kroner(tilTall(krevdProduktivitet(krav)!))}.`,
-      });
-      beloepene.push({ post: 'produktivitet', plass, beloep: p.begrenset! });
     }
   }
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));

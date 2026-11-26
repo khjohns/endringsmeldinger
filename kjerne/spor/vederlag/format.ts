@@ -10,6 +10,7 @@ import {
   artfelt,
   DATO,
   ID,
+  KALENDERDAG,
   liste,
   objekt,
   TEKST,
@@ -74,7 +75,7 @@ const POSITIVT_BELOEP: Skjema = { type: 'number', exclusiveMinimum: 0 };
  * Posten etter § 34.1.3 annet ledd, med datoen TE oppgir å ha blitt klar over at utgiftene ville
  * påløpe, når kravet er det første varselet løsningen kjenner (VS-U86 punkt 9 og 12).
  */
-const PRODUKTIVITETSPOST = objekt({ beloep: POSITIVT_BELOEP, klar_over_utgiftene: DATO }, [
+const PRODUKTIVITETSPOST = objekt({ beloep: POSITIVT_BELOEP, klar_over_utgiftene: KALENDERDAG }, [
   'beloep',
 ]);
 

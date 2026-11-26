@@ -486,8 +486,8 @@ export function kunnskapsdatoIVarselet(
 
 /**
  * VS-U86 punkt 14 (VS-U82, VS-U84): det egne utsagnet viser til varselet etter § 34.1.3 saken har,
- * det registrerte eller kravet som er det første varselet løsningen kjenner (VS-U85). Enighet,
- * avgjorte krav, en lukket sak og en endringsordre sperrer ikke.
+ * det registrerte eller kravet som er det første varselet løsningen kjenner (VS-U85). Sperrene for
+ * saken gjelder ikke (VS-U84).
  */
 export function kunnskapsdatoen(gjelder: string, u: Utledning): Avvisning | null {
   const varselet = varseletFoerBrevet(u, '34.1.3');

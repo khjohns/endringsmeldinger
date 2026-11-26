@@ -200,7 +200,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     {
       ...artfelt('varsel'),
       hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
-      klar_over_utgiftene: DATO,
+      klar_over_utgiftene: KALENDERDAG,
     },
     ['id', 'art', 'hjemmel'],
     [
@@ -257,12 +257,10 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     ]
   ),
   // VS-U86 punkt 14 (VS-U82): datoen står i samme felt som i varselet.
-  kunnskapsdato: objekt({ ...artfelt('kunnskapsdato'), gjelder: ID, klar_over_utgiftene: DATO }, [
-    'id',
-    'art',
-    'gjelder',
-    'klar_over_utgiftene',
-  ]),
+  kunnskapsdato: objekt(
+    { ...artfelt('kunnskapsdato'), gjelder: ID, klar_over_utgiftene: KALENDERDAG },
+    ['id', 'art', 'gjelder', 'klar_over_utgiftene']
+  ),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

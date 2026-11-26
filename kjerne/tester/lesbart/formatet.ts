@@ -149,6 +149,7 @@ export const FORMATET: Lesbar[] = [
       'spor/vederlag/kommando.ts:kunnskapsdatoenErOppgitt',
       'spor/vederlag/kommando.ts:kontrollerKunnskapsdatoen',
       'kommandoer/skriving.ts:brevtekstFor',
+      'utledning/utled.ts:settKunnskapsdatoene',
     ],
   ],
   [
@@ -417,7 +418,12 @@ export const FORMATET: Lesbar[] = [
     ['frosset/brevtekst.ts:utsagnstekst'],
   ],
   ['Svarutkast', 'kommando', 'akseptfrist', ['kommandoer/skriving.ts:svar']],
-  ['format/skjema.ts', 'skjema', 'KALENDERDAG', ['format/format.ts', 'kommandoer/kommando.ts']],
+  [
+    'format/skjema.ts',
+    'skjema',
+    'KALENDERDAG',
+    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
+  ],
   // #1588: merkingen og tittelen i samme brev nevner samme sak (LV-U27, LV-U48).
   [
     'frosset/brevtittel.ts',
