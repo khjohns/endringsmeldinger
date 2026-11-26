@@ -97,6 +97,12 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
 
 const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, nyeste først' }));
 
+/** Kravet i kortet «Tilknyttede krav» med navnet på sporet. */
+const kravet = (navn: string) =>
+  within(screen.getByRole('region', { name: 'Tilknyttede krav' }))
+    .getByRole('heading', { level: 3, name: navn })
+    .closest('li')!;
+
 describe('Siden for forholdet', () => {
   it('hodet viser forholdet og hvem som sendte siste brev (#2180)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
@@ -302,11 +308,13 @@ describe('Siden for forholdet', () => {
   it('tilknyttede krav står med betegnelsen, det TE krevde med brevet og lenken «Åpne» til kravet (kriterium 3, MM-U30, oppdragsgiver 06.11)', async () => {
     const { valgt } = await vis([PAABEROPELSE, VEDERLAG]);
     const kortet = within(screen.getByRole('region', { name: 'Tilknyttede krav' }));
-    const krav = kortet.getByRole('listitem');
-    expect(within(krav).getByRole('heading', { name: 'Vederlagsjustering' })).toBeTruthy();
+    const krav = kravet('Vederlagsjustering');
     expect(within(krav).getByText('Svar ikke registrert', { selector: '.merke' })).toBeTruthy();
     expect(krav.textContent?.replace(/\s+/g, ' ')).toMatch(/Krevd brev 2 420 000 kr/);
-    expect(kortet.queryByText('Fristforlengelse')).toBeNull();
+    // Fristen uten varsel eller krav står med betegnelsen (U-6 i BF-51, OV-U125).
+    expect(
+      within(kravet('Fristforlengelse')).getByText('Ingen varsel eller krav i saken')
+    ).toBeTruthy();
     // Synlig står bare «Åpne»; navnet sier hvor lenken fører (språkfila, WCAG 2.5.3).
     const aapne = kortet.getByRole('button', { name: 'Åpne vederlagsjusteringen' });
     expect(aapne.textContent?.trim()).toBe('Åpne');
@@ -350,9 +358,7 @@ describe('Siden for forholdet', () => {
         ],
       } as Handling,
     ]);
-    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
-      'listitem'
-    );
+    const krav = kravet('Vederlagsjustering');
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
     expect(tekst).toContain('Krevd brev 2 140 000 kr');
     expect(tekst).toContain('Byggherren brev 3 100 000 kr · 1 post uten fast beløp');
@@ -369,9 +375,7 @@ describe('Siden for forholdet', () => {
         kravposter: [{ oppgjoersform: 'regningsarbeid' }],
       } as Handling,
     ]);
-    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
-      'listitem'
-    );
+    const krav = kravet('Vederlagsjustering');
     expect(krav.textContent?.replace(/\s+/g, ' ')).toContain(
       'Krevd brev 2 Ingen poster med fast beløp'
     );
@@ -388,20 +392,33 @@ describe('Siden for forholdet', () => {
         svar: [{ spor: 'vederlag', navn: 'S-v1', vurdering: 'delvis', godkjent_belop: 310000 }],
       } as Handling,
     ]);
-    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
-      'listitem'
-    );
+    const krav = kravet('Vederlagsjustering');
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
     expect(tekst).toMatch(/Krevd brev 2 420 000 kr/);
     expect(tekst).toMatch(/Byggherren brev 4 310 000 kr/);
     expect(tekst).toContain('Gjelder hvis forholdet gir grunnlag for kravet.');
   });
 
-  it('uten krav om vederlag eller frist sier kortet det', async () => {
-    await vis([PAABEROPELSE]);
+  it('uten varsel eller krav om vederlag eller frist står begge sporene med betegnelsen, uten byggherrens svar og uten vilkår (U-6 i BF-51, OV-U125)', async () => {
+    await vis([PAABEROPELSE, AVSLAG]);
+    for (const navn of ['Vederlagsjustering', 'Fristforlengelse']) {
+      const krav = kravet(navn);
+      expect(
+        within(krav).getByText('Ingen varsel eller krav i saken', { selector: '.merke' })
+      ).toBeTruthy();
+      expect(krav.textContent).not.toMatch(/Byggherren|Krevd|Gjelder hvis|subsidiært/);
+    }
     expect(
-      screen.getByText(/Ingen krav om vederlagsjustering eller fristforlengelse/)
-    ).toBeTruthy();
+      screen.queryByText(/Ingen krav om vederlagsjustering eller fristforlengelse/)
+    ).toBeNull();
+  });
+
+  it('et brev lagt til som dokumentasjon i et spor uten varsel eller krav står ved betegnelsen, uten tolkning (OV-U125, OV-U4)', async () => {
+    await vis([PAABEROPELSE, { ...REGISTRERT, sporene: ['vederlag'] } as Handling]);
+    const krav = kravet('Vederlagsjustering');
+    expect(within(krav).getByText('Ingen varsel eller krav i saken')).toBeTruthy();
+    expect(krav.querySelector('.brev')?.textContent).toBe('byggherrens brev av 20. september 2026');
+    expect(kravet('Fristforlengelse').querySelector('.brev')).toBeNull();
   });
 
   it('trukket påberopelse: trekket står i sporhodet, og kravet står som «Trukket» (kriterium 4, GR-U30, MM-U30)', async () => {

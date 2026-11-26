@@ -340,6 +340,38 @@ export const TESTSAKER: Record<string, Testsak> = {
       },
     ],
   },
+  'foerste-krav-varslet-frist': {
+    tittel: 'Tegningene for fundamentene',
+    formaal:
+      '#2410: påminnelsen ved det første kravet (U-3 i BF-51), uten varsel i vederlaget og med varselet etter punkt 33.4 i fristen.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'medvirkning',
+        navn: 'K-g1',
+        utdypning: 'Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid.',
+      },
+      { handling: 'varsel', spor: 'frist', navn: 'V-f1' },
+    ],
+    async iNettleseren({ te, saksrute, ut }) {
+      await te.goto(saksrute);
+      await te.getByRole('button', { name: 'Send krav om vederlagsjustering' }).click({ timeout: 30_000 });
+      await te.getByText('Dette er det første kravet om vederlagsjustering i saken.').waitFor();
+      await te.screenshot({ path: `${ut}/foerste-krav-vederlag.png` });
+      await te.setViewportSize({ width: 390, height: 844 });
+      await te.screenshot({ path: `${ut}/foerste-krav-vederlag-390.png` });
+      await te.setViewportSize({ width: 1440, height: 900 });
+      await te.goto(saksrute.replace('spor=vederlag', 'spor=frist'));
+      await te.getByRole('button', { name: 'Send krav om fristforlengelse' }).click({ timeout: 30_000 });
+      const varselet = te.getByText(/^Varsel etter punkt.33\.4 i brev 2, sendt /);
+      await varselet.waitFor();
+      console.log(`TE  påminnelsen i fristen: ${await varselet.innerText()}`);
+      await te.screenshot({ path: `${ut}/foerste-krav-frist.png` });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */

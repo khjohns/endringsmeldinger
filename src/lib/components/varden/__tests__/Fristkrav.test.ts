@@ -46,7 +46,7 @@ async function kravskjemaet(
   fristtabell: typeof FRISTTABELLEN | null = FRISTTABELLEN
 ) {
   const sendtTilServeren: unknown[] = [];
-  let registrert = false;
+  let registrert: boolean | 'kravetStaar' = false;
   const kjernesak = lagKjernesak({
     sakId: SAK,
     prosjektId: 'p-1',
@@ -81,7 +81,7 @@ async function kravskjemaet(
     u: kjernesak.utledning!,
     onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
-    onregistrert: () => (registrert = true),
+    onregistrert: (kravetStaar: boolean) => (registrert = kravetStaar ? 'kravetStaar' : true),
   });
   return Object.assign(sendt, { sendtTilServeren, registrert: () => registrert });
 }
@@ -427,6 +427,25 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await vi.waitFor(() => expect(sendt.registrert()).toBe(true));
   });
 
+  it('et varsel registrert fra påminnelsen ved det første kravet lar kravet TE har begynt på, stå som utkast (U-3 i BF-51)', async () => {
+    const sendt = await kravskjemaet(medGrunnlag);
+    await fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Registrer et varsel som er sendt på annen måte etter punkt\u00a033.4',
+      })
+    );
+    await fireEvent.click(
+      within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' })).getByRole('radio', {
+        name: 'E-post',
+      })
+    );
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-05');
+    await leggVed();
+    await skriv(screen.getByLabelText('Kort beskrivelse av varselet'), 'Varsel på e-post.');
+    await fireEvent.click(screen.getByRole('button', { name: 'Registrer varselet' }));
+    await vi.waitFor(() => expect(sendt.registrert()).toBe('kravetStaar'));
+  });
+
   it('en registrering av varselet som ikke er fylt ut, blir ikke med når TE går tilbake til kravet, og kravet er varselet (U-6, U-13)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
@@ -537,12 +556,19 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       .closest('header')!;
     expect(hode).toHaveTextContent(/Svarer på brev/);
     expect(hode).toHaveTextContent(/Vår ref\. K201-KOE-017-/);
+    expect(
+      screen.getByText('Dette er det første kravet om fristforlengelse i saken.')
+    ).toBeTruthy();
     await fireEvent.click(
       screen.getByRole('radio', {
         name: 'Begrunne hvorfor du ennå ikke kan beregne dagene (bokstav b)',
       })
     );
     expect(screen.queryByLabelText('Antall dager du krever')).not.toBeInTheDocument();
+    // Svaret etter bokstav b er ikke et krav, så påminnelsen om det første kravet står ikke (U-3 i BF-51).
+    expect(
+      screen.queryByText('Dette er det første kravet om fristforlengelse i saken.')
+    ).toBeNull();
     await seBrevet();
     expect(sendt).toHaveLength(0);
     await skriv(

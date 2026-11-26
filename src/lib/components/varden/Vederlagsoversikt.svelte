@@ -39,6 +39,7 @@
     brevet,
     levering = new Map(),
     leggTilKorrespondanse,
+    merknad,
     kunnskapsdatoVarselet = null,
     onkunnskapsdato,
   }: Sideprops = $props();
@@ -102,7 +103,7 @@
   </Datolinjer>
 {/snippet}
 
-<Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)}>
+<Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)} {merknad}>
   <Brevtraad
     brev={traad}
     {leggTilKorrespondanse}
