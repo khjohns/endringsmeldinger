@@ -370,24 +370,32 @@ vedtaksteksten, og føres ordrett i `folge` eller designdelen. 3 B står i spenn
 og MM-U34 punkt 4 og 16, som spørsmålet sa. Krever svaret at de endres, eller er forholdet uklart,
 stilles et oppfølgingsspørsmål. Ved 6 B utgår punkt 10 i C2, og forholdene er de B sa.
 
-Svaret 3 B avgjør ikke om KA-U87 punkt 6 og C1 punkt 2 endres. Oppfølgingsspørsmålet er 8.
+Svaret 3 B avgjør ikke om KA-U87 punkt 6 og C1 punkt 2 endres. Oppfølgingsspørsmålet er 8. En
+subagent prøvde det mot vedtakene én gang 26.11, og funnene er rettet én gang: premisset (HF-U7 s3
+og «§ 6 første ledd»), setningen i A og E3, og i B motstriden med HF-U7 s5, OV-U88 og KA-U87 punkt
+4–5 og forholdene til E2, E3, E6 og MM-U34 punkt 1–3.
 
 > **8. Forholdet mellom svar 3 B og reglene som tok karakteristikkene ut (juridisk).** Svar 3 B gir
 > C1 setningen «Krav og svar leses som tilbud og svar etter avtaleloven kapittel 1. Løsningen avgjør
 > ikke hvilken virkning de har (MM-U60 punkt 8).», i vedtaket, men ikke i grensesnittet. KA-U87
 > punkt 6 sier at løsningen ikke avgjør om et svar med et vilkår rettslig er en godkjenning eller et
 > avslag med nytt tilbud. MM-U34 punkt 4 og 16 tok «avslag i forening med nytt tilbud (avtaleloven
-> § 6)» ut av HF-U5 og HF-U7 og satte inn «i løsningen ikke en godkjenning av kravet», som står i
-> C1 punkt 2.
-> - **A (anbefalt):** Setningen står ved siden av dem og endrer dem ikke. Den sier hvilke regler
->   krav og svar leses etter. Løsningen karakteriserer ikke et enkelt svar etter avtaleloven, og
->   C1 punkt 2 og KA-U87 punkt 6 står. Forhold: endrer HF-U5 s1; i tråd med KA-U87 punkt 6, MM-U34
->   punkt 4 og 16 og MM-U60 punkt 8.
-> - **B:** Setningen gjør karakteristikken gjeldende igjen: et svar som ikke stemmer med kravet, er
->   avslag i forening med nytt tilbud etter avtaleloven § 6 første ledd, og et subsidiært
->   standpunkt er et betinget tilbud. Løsningen avgjør fortsatt ikke hvilken virkning svaret har.
->   Forhold: endrer HF-U5 s1, C1 punkt 2 og KA-U87 punkt 6, og opphever endringene i MM-U34 punkt 4
->   og 16 for karakteristikken.
+> § 6)» ut av HF-U5 og «(avtaleloven § 6 første ledd)» ut av HF-U7, satte inn «i løsningen ikke en
+> godkjenning av kravet», som står i C1 punkt 2, og strøk «Et subsidiært standpunkt er et betinget
+> tilbud.» i HF-U7.
+> - **A (anbefalt):** Setningen blir punkt 14 i C1, med en setning til: «Løsningen karakteriserer
+>   ikke et enkelt krav eller svar etter avtaleloven.» C1 punkt 2 og KA-U87 punkt 6 står, og E3
+>   står: henvisningen «(avtaleloven § 2)» i HF-U7 s1 faller, fordi punkt 1 er en regel for
+>   løsningens sammenlikning og ikke en karakteristikk. Forhold: endrer HF-U5 s1; i tråd med KA-U87
+>   punkt 6, MM-U34 punkt 4 og 16 og MM-U60 punkt 8.
+> - **B:** Setningen blir punkt 14 i C1 og gjør karakteristikken gjeldende igjen som hovedregel: et
+>   svar som ikke stemmer med kravet, er avslag i forening med nytt tilbud etter avtaleloven § 6
+>   første ledd, og et subsidiært standpunkt er et betinget tilbud. Om avviket likevel gir avtale
+>   etter § 6 annet ledd, avgjør ikke løsningen (HF-U7 s5; OV-U88). Løsningen utleder virkningen av
+>   valgene og tolker ikke et vilkår i teksten (KA-U87 punkt 4 og 5). Henvisningen
+>   «(avtaleloven § 2)» i HF-U7 s1 står i punkt 1. Forhold: endrer HF-U5 s1, C1 punkt 2 og E2, E3
+>   og E6, og KA-U87 punkt 6, som da krever en versjon 3 av samlevedtaket for vilkår og forbehold;
+>   opphever endringene i MM-U34 punkt 4 og 16 for karakteristikken; MM-U34 punkt 1–3 står.
 >
 > Styrer: om C1 punkt 2 og KA-U87 punkt 6 står uendret.
 
