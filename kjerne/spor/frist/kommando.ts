@@ -367,8 +367,8 @@ function ugyldigIFristen(
           ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }]
           : hele.has(felt)
             ? [{ spoersmaal: felt as Fristspoersmaal }]
-            : // VS-U95: standpunktet om at begrunnelsen ikke er et svar, svarer på spørsmålet etter § 33.6.2.
-              felt === 'begrunnelse_ikke_svar'
+            : // VS-U95: samme spørsmål etter § 33.6.2, én gang.
+              felt === 'begrunnelse_ikke_svar' && !Object.hasOwn(feil, 'foresporsel_svar_ok')
               ? [{ spoersmaal: 'foresporsel_svar_ok' as const }]
               : []
       ),

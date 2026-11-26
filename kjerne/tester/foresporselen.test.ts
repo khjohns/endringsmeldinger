@@ -675,6 +675,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       });
       expect(s.u().forstaatt, 'kontrollsak').toBe(true);
       svaret.gjelder = s.krav('frist');
+      expect(s.u().forstaatt).toBe(false);
       expect(
         s
           .u()

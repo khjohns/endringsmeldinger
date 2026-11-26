@@ -1363,8 +1363,7 @@ function kontrollerStandpunktet(
   // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
   if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
     ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
-  // VS-U95: standpunktet gjelder TEs begrunnelse etter § 33.6.2 annet ledd b før svaret, og står i
-  // svaret på det første fristkravet etter den.
+  // VS-U95: begrunnelsen før svaret, og svaret på den første kravversjonen.
   if (
     p.art === 'ikke_svar' &&
     (!besvart.some((f) => f.svar === p.gjelder && !f.medKrav && f.kravFoer === null) ||
