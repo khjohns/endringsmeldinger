@@ -450,6 +450,13 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   ingenBeloep,
   enigI: 'beløpet',
   trukket: kravetsBeloep,
+  // VS-U4 og VS-U87 punkt 30 for § 34.3.3, § 34.1.3 tredje ledd.
+  foelgenAvSentVarsel: {
+    '34.1.3':
+      'at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet',
+    '34.3.3':
+      'at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til',
+  },
 } satisfies Kravsporsbrevtekst;
 
 /**

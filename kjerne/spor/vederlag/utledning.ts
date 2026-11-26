@@ -15,6 +15,7 @@ import {
   kravposterI,
   OPPGJOERSHJEMMEL,
   varselhjemmel,
+  varseletPostenViserTil,
 } from './format.ts';
 import type {
   Bakover,
@@ -42,8 +43,8 @@ import {
 import {
   erKravpostvarselhjemmel,
   type Krav,
+  type Kravpost,
   type Kravpostvarselet,
-  type Dokument,
   type Domenehendelse,
   type Kravpostvarselhjemmel,
   type Standpunkt,
@@ -103,7 +104,7 @@ const postenMed = (k: Pick<Krav, 'innhold'>, id: string, hjemmel: Kravpostvarsel
 
 /** Om kravposten `id` i kravet `k` viser til et varsel, etter hvilken som helst bestemmelse. */
 const viserTilEtVarsel = (k: Pick<Krav, 'innhold'>, id: string) =>
-  kravposterI(k).some((q) => q.id === id && q.varsel !== undefined);
+  kravposterI(k).some((q) => q.id === id && varseletPostenViserTil(q) !== undefined);
 
 /** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
 const hattFoer = (
@@ -137,33 +138,67 @@ const sendtFoer = (
     .sort((a, b) => (a.sendt ?? '').localeCompare(b.sendt ?? ''))
     .map(({ k }) => k);
 
+/** Kravposten `id` i den siste versjonen i `tidligere` den står i (KA-U75). */
+const sistI = (tidligere: readonly Pick<Krav, 'innhold'>[], id: string) =>
+  [...tidligere]
+    .reverse()
+    .map((k) => kravposterI(k).find((q) => q.id === id))
+    .find((q) => q !== undefined);
+
+/** Om kravpostene `a` og `b` har samme valg av varsel. */
+const sammeValg = (a: Pick<Kravpost, 'varsel'> | undefined, b: Pick<Kravpost, 'varsel'>) =>
+  a?.varsel?.art === b.varsel?.art && varseletPostenViserTil(a ?? {}) === varseletPostenViserTil(b);
+
+/**
+ * VS-U87 punkt 23, sjette setning: en kravpost som hadde oppgjørsformen før, er ny når valget av
+ * varsel rettes, og valget gjelder da som for en ny post. Uten valg i forrige versjon var kravet
+ * varselet, og posten har ikke noe valg å rette. Uten valg i den nye versjonen står det forrige.
+ */
+const valgetRettes = (p: Kravpost, tidligere: readonly Pick<Krav, 'innhold'>[]) => {
+  const foer = sistI(tidligere, p.id);
+  return foer?.varsel !== undefined && p.varsel !== undefined && !sammeValg(foer, p);
+};
+
+/**
+ * VS-U87 punkt 22: kravversjonen ville vært varselet for kravposten `p` uten et varsel posten viser
+ * til. Posten har en oppgjørsform som krever varsel, hadde den ikke i en versjon i `tidligere`, og
+ * har ikke et krav i `eldre` med den (OV-U120).
+ */
+export function kravetVilleVaertVarselet(
+  p: Kravpost,
+  tidligere: readonly Pick<Krav, 'innhold'>[],
+  eldre: readonly Pick<Krav, 'innhold'>[]
+): boolean {
+  const hjemmel = varselhjemmel(p);
+  return (
+    hjemmel !== null &&
+    !hattFoer(p, hjemmel, tidligere) &&
+    !eldre.some((k) => postenMed(k, p.id, hjemmel))
+  );
+}
+
 /**
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
- * - VS-U48, VS-U49: kravet er varselet når ingen tidligere versjon har posten med samme
+ * - VS-U87 punkt 22: kravet er varselet når ingen tidligere versjon har posten med samme
  *   oppgjørsform, justert for enhetspriser.
- * - VS-U50, VS-U54: viser kravposten til et varsel, er varselet gitt der.
- * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
- *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
- *   det første av dem og er ikke varselet selv.
+ * - Punkt 23: viser kravposten til et varsel, er varselet gitt der (`varselvalgetMangler` i
+ *   `spor/vederlag/kommando.ts`). Et valg som rettes i en ny versjon, gjelder som for en ny post.
  * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
  *   vilkår 3 prøvd mot det og `tidligere`.
- * `tidligere` er versjonene før `krav` i rekken, `eldre` kravene utenfor rekken sendt før `krav`
- * i rekkefølgen de ble sendt (`eldreKravFoer`), og `varsler` varslene etter § 34.3.3 og § 34.4
- * før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en kravpost i
- * samme handling, som gjelder bare den posten (VS-U51, VS-U53).
+ * `tidligere` er versjonene før `krav` i rekken, og `eldre` kravene utenfor rekken sendt før `krav`
+ * i rekkefølgen de ble sendt (`eldreKravFoer`).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
   tidligere: readonly Pick<Krav, 'innhold'>[],
-  varsler: readonly { id: string; hjemmel: string }[],
   eldre: readonly Pick<Krav, 'id' | 'innhold'>[]
 ): Record<string, Kravpostvarselet> {
   const ut: Record<string, Kravpostvarselet> = {};
   for (const p of kravposterI(krav)) {
     const hjemmel = varselhjemmel(p);
-    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;
-    const gitt =
-      p.varsel ?? (tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel)?.id);
+    if (hjemmel === null || (hattFoer(p, hjemmel, tidligere) && !valgetRettes(p, tidligere)))
+      continue;
+    const gitt = varseletPostenViserTil(p);
     const iEldre = eldre.find((k) => postenMed(k, p.id, hjemmel));
     if (gitt) ut[p.id] = { art: 'gitt', varsel: gitt };
     else if (!iEldre) ut[p.id] = { art: 'kravet' };
@@ -171,22 +206,6 @@ export function kravpostvarslene(
       ut[p.id] = { art: 'gitt', varsel: iEldre.id };
   }
   return ut;
-}
-
-/**
- * Varslene etter § 34.3.3 og § 34.4 i `varsler` uten dokumentene med et vedlegg som ligger ved
- * kravet i dokumentet `nytt`: kravskjemaet la dem til i samme handling, og de gjelder bare
- * kravposten som viser til dem (VS-U51, VS-U53).
- */
-export function varsleneForanKravet(
-  varsler: readonly LestVarsel[],
-  nytt: Pick<Dokument, 'dokumentasjon'>,
-  dokumentet: (id: string) => Pick<Dokument, 'dokumentasjon'> | undefined
-): LestVarsel[] {
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
-  return varsler.filter(
-    (v) => !dokumentet(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
-  );
 }
 
 /**
@@ -207,17 +226,9 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
   const sendt = (k: Krav) => dagenSendt(k, dokumenter[plass.get(k.dokument)!]);
   const eldre = new Map(kravUtenforRekken.map((k) => [k.id, k]));
   return krav.flatMap((k, i) => {
-    const varsler = varsleneForanKravet(
-      u.spor.vederlag.kravpostvarsler.filter(
-        (v) => kjent(v) && plass.get(v.dokument)! < plass.get(k.dokument)!
-      ),
-      dokumenter[plass.get(k.dokument)!],
-      (id) => dokumenter[plass.get(id)!]
-    );
     const varslene = kravpostvarslene(
       k,
       krav.slice(0, i),
-      varsler,
       sendtFoer(kravUtenforRekken, sendt, sendt(k))
     );
     return kravposterI(k).flatMap((p) => {
@@ -249,16 +260,15 @@ export function kravpostvarseletStrider(
     if (p.varsel === undefined) continue;
     const posten = p.betegnelse ? `kravposten ${p.betegnelse}` : `kravpost nr. ${i + 1}`;
     const hjemmel = varselhjemmel(p);
+    const valget = p.varsel.art === 'gitt' ? 'viser til et varsel' : 'sier at kravet er varselet';
     if (hjemmel === null)
-      return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4`;
-    // KA-U75: også en kravpost som er trukket og tas med igjen, sammenlignes med siste versjon den sto i.
-    const somFoer = [...tidligere]
-      .reverse()
-      .map((k) => kravposterI(k).find((q) => q.id === p.id))
-      .find((q) => q !== undefined);
-    if (hattFoer(p, hjemmel, tidligere) && somFoer?.varsel !== p.varsel)
-      return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon`;
-    if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))
+      return `${posten} ${valget}, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4`;
+    // KA-U75: også en kravpost som er trukket og tas med igjen, sammenlignes med siste versjon den
+    // sto i. VS-U87 punkt 23: et valg i forrige versjon kan rettes.
+    if (hattFoer(p, hjemmel, tidligere) && sistI(tidligere, p.id)?.varsel === undefined)
+      return `${posten} ${valget}, men hadde oppgjørsformen i en tidligere kravversjon`;
+    const gitt = varseletPostenViserTil(p);
+    if (gitt !== undefined && !varsler.some((v) => v.id === gitt && v.hjemmel === hjemmel))
       return `${posten} viser til et varsel som ikke er et varsel etter punkt ${hjemmel} sendt eller registrert i saken før kravet`;
   }
   return null;

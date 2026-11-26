@@ -345,6 +345,11 @@ export interface Sporsbrevtekst {
    */
   rettidighetUtenVarsel?: Partial<Record<Hjemmel, (gjelder: string, j: Journalen) => string>>;
   /**
+   * Følgen byggherren gjør gjeldende av at varselet etter en bestemmelse i sporet kom for sent, som
+   * leddsetningen etter «byggherren gjør gjeldende at varselet kom for sent, og».
+   */
+  foelgenAvSentVarsel?: Partial<Record<Hjemmel, string>>;
+  /**
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
    */

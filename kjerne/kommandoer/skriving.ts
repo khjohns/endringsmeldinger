@@ -70,7 +70,6 @@ import {
   type Avsnitt,
   type Avvisning,
   type Beslutningsgrunnlag,
-  type Dokument,
   type Journalrad,
   type Krav,
   type Domenehendelse,
@@ -297,14 +296,9 @@ export interface Sporsskriving {
   handlingen?(k: Extract<Kommando, { type: 'krav' }>, skriving: Skrivesteg): Utfall | null;
   /**
    * Varselet for hver post i kravet `k` i det nye dokumentet som trenger et, etter postens `id`,
-   * til brevteksten. `lest` er journalen før dokumentet.
+   * til brevteksten. `u` er saken før dokumentet.
    */
-  postvarsler?(
-    k: Krav,
-    nytt: Dokument,
-    lest: readonly Domenehendelse[],
-    u: Utledning
-  ): Record<string, Kravpostvarselet>;
+  postvarsler?(k: Krav, u: Utledning): Record<string, Kravpostvarselet>;
 }
 
 /**
@@ -943,7 +937,7 @@ function brevtekstFor(
       varslerIEldreKrav: varslerIEldreKrav(u),
       kravpostvarsler: Object.fromEntries(
         ny.dokument.krav.flatMap((k) =>
-          Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
+          Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, u) ?? {})
         )
       ),
       // Varslene for sporene brevet har krav i, som kravteksten viser til.

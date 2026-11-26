@@ -57,10 +57,10 @@ describe('vederlagskravet', () => {
     expect(
       (
         vederlagskravet(v, [null, { art: 'kravet', hjemmel: '34.4' }]).innhold.kravposter as {
-          varsel?: string;
+          varsel?: unknown;
         }[]
       )[1].varsel
-    ).toBe('v1');
+    ).toEqual({ art: 'gitt', varsel: 'v1' });
     const foer = { art: 'foer' as const, hjemmel: '34.4' as const, krav: 'd1', varsel: null };
     expect(
       (vederlagskravet(v, [null, foer]).innhold.kravposter as { varsel?: string }[])[1].varsel
@@ -85,9 +85,8 @@ describe('vederlagskravet', () => {
       .kravposter as { varsel?: unknown }[];
     expect(b.varsel).toEqual(a.varsel);
     expect(a.varsel).toEqual({
-      sendt: '2026-09-28',
-      korrespondansetype: 'brev',
-      dokumentasjon: ['f1'],
+      art: 'gitt',
+      varsel: { sendt: '2026-09-28', korrespondansetype: 'brev', dokumentasjon: ['f1'] },
     });
   });
 

@@ -54,6 +54,7 @@ import {
   SPOR,
   VARSELSPOR,
   erKravpostvarselhjemmel,
+  erVederlagsvarselhjemmel,
   erVarselhjemmel,
   type Dokument,
   type Domenehendelse,
@@ -198,8 +199,8 @@ export interface Sporutledning {
    */
   kravpostvarsler: LestVarsel[];
   /**
-   * Byggherrens svar på et varsel etter § 34.3.3 første ledd eller § 34.4 som står alene, i
-   * rekkefølgen i journalen. `gjelder` er varselet (VS-U77 punkt 30–35, VS-U79). Svarene på hvert
+   * Byggherrens svar på et varsel i vederlaget som står alene, i rekkefølgen i journalen.
+   * `gjelder` er varselet (VS-U87 punkt 30–35, VS-U79). Svarene på hvert
    * varsel er én kjede, som svarene på en kravversjon. Bare vederlaget har dem, og de står ikke i
    * `svar`.
    */
@@ -1400,10 +1401,10 @@ function kontrollerSvarene(
 }
 
 /**
- * VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene, er et svar på
- * vederlaget. Standpunktene gjelder varselet: rettidigheten etter varselets bestemmelse og, for
- * § 34.3.3, justeringen (VS-U77 punkt 30 og 31). Svaret godkjenner ikke noe krav, så det faller
- * ikke sammen med noe (GR-U7).
+ * VS-U79: svaret på et varsel i vederlaget som står alene, er et svar på vederlaget. Standpunktene
+ * gjelder varselet: rettidigheten etter varselets bestemmelse og, for § 34.3.3, justeringen
+ * (VS-U87 punkt 30–32). Svaret på varselet etter § 34.1.2 eller § 34.1.3 har rettidigheten
+ * (punkt 32). Svaret godkjenner ikke noe krav, så det faller ikke sammen med noe (GR-U7).
  */
 function kontrollerSvarPaaVarselet(
   s: Svar,
@@ -1411,8 +1412,11 @@ function kontrollerSvarPaaVarselet(
   bakover: Bakover,
   ugyldig: Ugyldig
 ): void {
-  if (s.spor !== 'vederlag' || !erKravpostvarselhjemmel(varselet.hjemmel))
-    ugyldig(s.id, 'svaret gjelder et varsel som ikke er etter punkt 34.3.3 eller 34.4');
+  if (s.spor !== 'vederlag' || !erVederlagsvarselhjemmel(varselet.hjemmel))
+    ugyldig(
+      s.id,
+      'svaret gjelder et varsel som ikke er etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4'
+    );
   else if (!bakover(s.id, s.gjelder))
     ugyldig(s.id, 'svaret viser til et varsel som ikke står før det');
   else if (
@@ -1426,6 +1430,14 @@ function kontrollerSvarPaaVarselet(
   // VS-U77 punkt 30: svaret på varselet etter § 34.3.3 har standpunktet til justeringen.
   else if (varselet.hjemmel === '34.3.3' && !s.standpunkter.some((p) => p.art === 'justering'))
     ugyldig(s.id, 'svaret på varselet etter punkt 34.3.3 har ikke standpunktet til justeringen');
+  else if (
+    (varselet.hjemmel === '34.1.2' || varselet.hjemmel === '34.1.3') &&
+    !s.standpunkter.some((p) => p.art === 'rettidighet')
+  )
+    ugyldig(
+      s.id,
+      `svaret på varselet etter punkt ${varselet.hjemmel} har ikke standpunktet til varselet`
+    );
   else if (s.beslutningsgrunnlag.sammenfall)
     ugyldig(s.id, 'svaret på et varsel faller ikke sammen med et krav');
 }

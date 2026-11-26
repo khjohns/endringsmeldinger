@@ -180,7 +180,12 @@ export function sisteStandpunktTilVarslene(
   for (const { s, dag, lagtTil } of sendt)
     for (const p of s.standpunkter) {
       if (p.art !== 'rettidighet' || !erKravpostvarselhjemmel(p.hjemmel)) continue;
-      const gjelder = [p.gjelder, ...poster.flatMap((x) => (x.varsel === p.gjelder ? [x.id] : []))];
+      const gjelder = [
+        p.gjelder,
+        ...poster.flatMap((x) =>
+          x.varsel?.art === 'gitt' && x.varsel.varsel === p.gjelder ? [x.id] : []
+        ),
+      ];
       for (const g of gjelder) {
         const noekkel = `${p.hjemmel} ${g}`;
         const foer = siste.get(noekkel);

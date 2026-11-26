@@ -84,7 +84,7 @@ import {
   AKSEPTFRISTEN,
   vilkaaretILagslinjen,
 } from './tekst.ts';
-import { erKravpostvarselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -599,25 +599,29 @@ function punkteneISvaret(
   return brevpunkter;
 }
 
-/** Temaene i svaret på varselet etter § 34.3.3 første ledd og § 34.4 (VS-U77 punkt 30 og 31). */
+/** Temaene i svaret på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
 const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
   { punkt: FORHOLDET, overskrift: 'Forholdet' },
+  { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
+  { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
   { punkt: '34.3.3', overskrift: 'Varselet om justering av enhetsprisene (punkt 34.3.3)' },
   { punkt: '34.4', overskrift: 'Varselet om regningsarbeid (punkt 34.4)' },
   { punkt: 'justering', overskrift: 'Justering av enhetsprisene (punkt 34.3.2)' },
 ];
 
 /**
- * Byggherrens svar på et varsel etter § 34.3.3 første ledd eller § 34.4 som står alene (VS-U77
- * punkt 30 og 31, VS-U79), i punkter som svaret på kravet (LV-U34). Innsigelsen står
- * prinsipalt og justeringen subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene
- * svaret på forholdet opptar (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
+ * Byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32, VS-U79), i
+ * punkter som svaret på kravet (LV-U34). Innsigelsen etter § 34.3.3 står prinsipalt og justeringen
+ * subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene svaret på forholdet opptar
+ * (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
  */
 function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
   const { j } = t;
   const hjemmel = varselhjemmel(s.gjelder, j);
-  if (hjemmel !== '34.3.3' && hjemmel !== '34.4')
-    throw new KanIkkeUttrykkes(`svaret gjelder et varsel etter § ${hjemmel}, som står i kravet`);
+  if (!erVederlagsvarselhjemmel(hjemmel))
+    throw new KanIkkeUttrykkes(
+      `svaret gjelder et varsel etter § ${hjemmel}, som ikke besvares alene`
+    );
   const fra = forholdetsLag(s, t, nr.forholdetStaar);
   const plassen = plassenI(s, fra.forskyvning);
   const ledd: Svarledd[] = [
@@ -628,7 +632,11 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
           punkt: hjemmel,
           plass: plassen(p.id),
           vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),
-          tekst: stor(varseltekst(p, 'varselet', [], t)),
+          tekst: stor(
+            erKravpostvarselhjemmel(hjemmel)
+              ? varseltekst(p, 'varselet', [], t)
+              : rettidighetIVarselet(p, s, j)
+          ),
         };
       if (p.art === 'justering')
         return {
@@ -647,6 +655,51 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
     innledning: `Byggherren svarer på ${beskriv(s.gjelder, j)}.${forrigeSvar(s, j)}`,
     oversikten: null,
   });
+}
+
+/**
+ * VS-U87 punkt 32 og 33: standpunktet i svaret på varselet etter § 34.1.2 eller § 34.1.3 som står
+ * alene. Svaret erstatter det forrige svaret på varselet. Innsigelsen fra et tidligere svar på det
+ * bevares med brevet den først ble gjort gjeldende i, og svaret gjentar den eller gir den opp
+ * uttrykkelig (punkt 6 og 10). Ordlyden følger `rettidighetstekst` for svaret på kravet.
+ */
+function rettidighetIVarselet(
+  p: Extract<Standpunkt, { art: 'rettidighet' }>,
+  s: Svar,
+  j: Journalen
+): string {
+  let foerst: string | undefined;
+  for (let id = s.erstatter; id; ) {
+    const forrige = j.svar(id);
+    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;
+    foerst = j.brevet(forrige.dokument);
+    id = forrige.erstatter;
+  }
+  if (p.iTide)
+    return foerst
+      ? `byggherren gir opp innsigelsen i ${foerst} og gjør ikke gjeldende at varselet kom for sent.`
+      : 'byggherren gjør ikke gjeldende at varselet kom for sent.';
+  return forSentMedFoelgen(
+    brevtekstI('vederlag'),
+    'varselet',
+    p.hjemmel,
+    foerst ? `, jf. innsigelsen i ${foerst}` : ''
+  );
+}
+
+/**
+ * «Byggherren gjør gjeldende at `om` kom for sent», med henvisningen `jf` og følgen sporet gir for
+ * bestemmelsen (`Sporsbrevtekst.foelgenAvSentVarsel`, #1905 punkt 7).
+ */
+function forSentMedFoelgen(
+  sporet: Sporsbrevtekst,
+  om: string,
+  hjemmel: Hjemmel,
+  jf: string,
+  kom = 'kom for sent'
+): string {
+  const foelgen = sporet.foelgenAvSentVarsel?.[hjemmel];
+  return `byggherren gjør gjeldende at ${om} ${kom}${jf}${foelgen ? `, og ${foelgen}` : ''}.`;
 }
 
 /**
@@ -901,9 +954,7 @@ function rettidighetstekst(
     );
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
-  if (!p.iTide && p.hjemmel === '34.1.3')
-    return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
-  if (!p.iTide) return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}.`;
+  if (!p.iTide) return forSentMedFoelgen(sporet, omVarselet, p.hjemmel, jf);
   return aapne.length
     ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`
     : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
@@ -955,9 +1006,7 @@ function varseltekst(
   if (p.iTide && brevet)
     return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${om} kom for sent.`;
   if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
-  return p.hjemmel === '34.3.3'
-    ? `byggherren gjør gjeldende at ${om} kom for sent${jf}, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
-    : `byggherren gjør gjeldende at ${om} ${forSent}${jf}.`;
+  return forSentMedFoelgen(brevtekstI('vederlag'), om, p.hjemmel, jf, forSent);
 }
 
 /** KA-U72: standpunktet til beløpet for en kravpost der tilbudet ikke er akseptert, står ikke i brevet. */

@@ -175,6 +175,8 @@ export const UTLEDNINGEN: Lesbar[] = [
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
       // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
       'spor/vederlag/kommando.ts:datoenForVarselet',
+      // VS-U87 punkt 23: varslene et krav lagt til kan vise til.
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
@@ -208,7 +210,6 @@ export const UTLEDNINGEN: Lesbar[] = [
     [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`],
   ],
   [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
-  ['Utsagn', 'relasjon', 'dokument', [VARSLER_I_ELDRE_KRAV]],
   [
     'spor/vederlag/utledning.ts:sendtFoer',
     'relasjon',
@@ -224,13 +225,15 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'spor/vederlag/kommando.ts:kravpostsperre',
       'spor/vederlag/kommando.ts:kravpostvarslerIBrevet',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
   ],
+  // VS-U87 punkt 22 og 23: om kravet ellers ville vært varselet for kravposten.
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'varsleneForanKravet',
-    ['spor/vederlag/kommando.ts:foranKravet'],
+    'kravetVilleVaertVarselet',
+    ['spor/vederlag/kommando.ts:varselvalgetMangler'],
   ],
   [
     'spor/vederlag/utledning.ts',

@@ -246,8 +246,11 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     );
     await fireEvent.click(knapp('Send til byggherren'));
     await screen.findByText('Brevet er sendt til byggherren.');
-    const [, p2] = sistSendt(demosak().journal()).kravposter as { varsel?: string }[];
-    expect(typeof p2.varsel).toBe('string');
+    const [, p2] = sistSendt(demosak().journal()).kravposter as {
+      varsel?: { art: string; varsel?: unknown };
+    }[];
+    expect(p2.varsel?.art).toBe('gitt');
+    expect(typeof p2.varsel?.varsel).toBe('string');
     // OV-U79: beskrivelsen av varselet som er lagt til, står i saken (krav fra #2074 i #807).
     await fireEvent.click(knapp('Tilbake til saken'));
     const varselet = await screen.findByRole('heading', {

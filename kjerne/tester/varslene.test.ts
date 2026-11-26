@@ -1767,7 +1767,7 @@ it('datoen pålegget ble mottatt følger varslingsplikten etter punkt 32.2 for h
   expect(avvik).toEqual([]);
 });
 
-describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, VS-U55, D-16 i BF-14, #1663)', () => {
+describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, VS-U55, VS-U87 punkt 23, #1663)', () => {
   const vederlagskrav = (kravposter: Data[]) => ({
     type: 'krav',
     spor: 'vederlag',
@@ -1842,41 +1842,46 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
     expect(s.avvist('TE', { ...sendVarsel('34.4'), spor: 'frist' })).not.toBeNull();
   });
 
-  it('et varsel sendt før det første kravet gjelder kravpostene med den beregningsregelen, og kravet viser til det i stedet for å være varselet (D-16, VS-U55)', () => {
+  it('har saken et varsel etter samme bestemmelse som ingen kravpost viser til, avvises kravet der posten mangler valget, og med valget viser kravet til varselet (VS-U87 punkt 23, #2408)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
+    const varsel = s.u().spor.vederlag.kravpostvarsler[0]!.id;
+    const poster = (p2: Data) => [{ ...tilbudspost, beloep: 1000 }, p2, justert];
+    expect(s.avvisning('TE', vederlagskrav(poster(regning)))).toEqual({
+      regel: 'VARSELVALGET_MANGLER',
+      melding:
+        'Kravpost nr. 2 sier ikke hvilket varsel den gjelder. Saken har et varsel etter punkt 34.4 som ingen kravpost viser til. Velg varselet posten gjelder, eller at kravet er varselet for posten.',
+    });
     const tekst = laast(
-      s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning, justert]))
+      s.send('TE', vederlagskrav(poster({ ...regning, varsel: { art: 'gitt', varsel } })))
     ).join(' ');
-    expect(tekst).toContain(
-      'Totalentreprenøren krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt\u00a034.4 og punkt\u00a030.'
-    );
     expect(tekst).not.toContain(varselRegning);
     expect(tekst).toContain(
       'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev K201-KOE-017-02 av 3. oktober 2026.'
     );
-    // Varselet etter punkt 34.4 gjelder ikke justeringen av enhetsprisene.
+    // Kontrollsak: varselet etter punkt 34.4 krever ikke valget for justeringen av enhetsprisene.
     expect(tekst).toContain(varselEnhetspriser);
   });
 
-  it('et varsel registrert før det første kravet gjelder på samme måte, og kravet viser til korrespondansen (D-16, VS-U52, VS-U55)', () => {
+  it('valget «kravet er varselet» gir brevet som sier det, også når saken har et varsel etter samme bestemmelse (VS-U87 punkt 22 og 23, #2408)', () => {
     const s = paaberopt();
     s.send('TE', registrertVarsel('34.3.3'));
-    const tekst = laast(s.send('TE', vederlagskrav([regning, justert]))).join(' ');
-    expect(tekst).not.toContain(varselEnhetspriser);
-    expect(tekst).toContain(
-      'Varselet om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 ble gitt i totalentreprenørens e-post av 28. september 2026.'
-    );
+    expect(s.avvist('TE', vederlagskrav([regning, justert]))).toBe('VARSELVALGET_MANGLER');
+    const tekst = laast(
+      s.send('TE', vederlagskrav([regning, { ...justert, varsel: { art: 'kravet' } }]))
+    ).join(' ');
+    expect(tekst).toContain(varselEnhetspriser);
+    expect(tekst).not.toContain('ble gitt i totalentreprenørens e-post');
     expect(tekst).toContain(varselRegning);
   });
 
-  it('et varsel etter det første kravet gjelder ikke en ny kravpost uten valget i VS-U50, så kravet er varselet for den (VS-U49, D-19)', () => {
+  it('et varsel etter det første kravet som ingen kravpost viser til, krever valget for en ny kravpost i en senere versjon (VS-U87 punkt 23, #2408)', () => {
     const s = paaberopt();
     s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
     s.send('TE', sendVarsel('34.4'));
-    const tekst = laast(
-      s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning]))
-    ).join(' ');
+    const krav = (p2: Data) => vederlagskrav([{ ...tilbudspost, beloep: 1000 }, p2]);
+    expect(s.avvist('TE', krav(regning))).toBe('VARSELVALGET_MANGLER');
+    const tekst = laast(s.send('TE', krav({ ...regning, varsel: { art: 'kravet' } }))).join(' ');
     expect(tekst).toContain(varselRegning);
   });
 
@@ -1935,7 +1940,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         'TE',
         vederlagskrav([
           { ...tilbudspost, beloep: 1000 },
-          { ...regning, varsel },
+          { ...regning, varsel: { art: 'gitt', varsel } },
         ])
       )
     ).join(' ');
@@ -1944,7 +1949,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev K201-KOE-017-03 av 4. oktober 2026.'
     );
     const post = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[1]!;
-    expect(post.varsel, 'kravposten viser til varselet, ikke omvendt (VS-U54)').toBe(varsel);
+    expect(post.varsel, 'kravposten viser til varselet, ikke omvendt (VS-U54)').toEqual({
+      art: 'gitt',
+      varsel,
+    });
     expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
   });
 
@@ -1954,15 +1962,18 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     s.send('TE', sendVarsel('34.4'));
     const varsel = varslene(s)[0]!.id;
     const p1 = { ...tilbudspost, beloep: 1000 };
-    s.send('TE', vederlagskrav([p1, { ...regning, varsel }]));
+    s.send('TE', vederlagskrav([p1, { ...regning, varsel: { art: 'gitt', varsel } }]));
     const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[1]!.id;
     s.send('TE', { ...vederlagskrav([p1]), innhold: { kravposter: [p1], trekker: [p2] } });
     expect(
-      s.avvist('TE', vederlagskrav([p1, { ...regning, id: p2, varsel }])),
+      s.avvist('TE', vederlagskrav([p1, { ...regning, id: p2, varsel: { art: 'gitt', varsel } }])),
       'samme varsel som før trekket'
     ).toBeNull();
     expect(
-      s.avvist('TE', vederlagskrav([p1, { ...regning, id: p2, varsel: randomUUID() }])),
+      s.avvist(
+        'TE',
+        vederlagskrav([p1, { ...regning, id: p2, varsel: { art: 'gitt', varsel: randomUUID() } }])
+      ),
       'kontrollsak: et annet varsel'
     ).toBe('KRAVPOSTVARSELET');
   });
@@ -1977,37 +1988,47 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(t, 'forutsetning: kravet godtas').not.toBeNull();
       return t!.join(' ').match(/ble gitt i (.*?\d{4})\./)?.[1];
     };
-    // Kontrollsak: uten valget gjelder det første (D-16, VS-U55).
-    expect(gittI(s.vis('TE', vederlagskrav([justert])))).toBe(
-      'brev K201-KOE-017-02 av 3. oktober 2026'
-    );
-    expect(gittI(laast(s.send('TE', vederlagskrav([{ ...justert, varsel: valgt }]))))).toBe(
-      'totalentreprenørens e-post av 28. september 2026'
-    );
+    // Kontrollsak: uten valget tas kravet ikke imot (VS-U87 punkt 23).
+    expect(s.avvist('TE', vederlagskrav([justert]))).toBe('VARSELVALGET_MANGLER');
+    expect(
+      gittI(
+        laast(s.send('TE', vederlagskrav([{ ...justert, varsel: { art: 'gitt', varsel: valgt } }])))
+      )
+    ).toBe('totalentreprenørens e-post av 28. september 2026');
   });
 
   it('kravposten kan bare vise til et varsel etter samme bestemmelse i saken, og bare når posten er varsel for seg (VS-U49, VS-U50)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     const varsel = varslene(s)[0]!.id;
-    expect(s.avvist('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000, varsel }]))).toBe(
-      'KRAVPOSTVARSELET'
-    );
-    expect(s.avvist('TE', vederlagskrav([{ ...justert, varsel }])), 'annen bestemmelse').toBe(
-      'KRAVPOSTVARSELET'
-    );
-    expect(s.avvist('TE', vederlagskrav([{ ...regning, varsel: randomUUID() }]))).toBe(
-      'KRAVPOSTVARSELET'
-    );
-    expect(s.avvist('TE', vederlagskrav([{ ...regning, varsel }])), 'kontrollsak').toBeNull();
-    s.send('TE', vederlagskrav([{ ...regning, varsel }]));
-    // P1 hadde regningsarbeid i forrige versjon, så varselet er gitt før (VS-U49), og posten kan
-    // bare gjenta det den viste til.
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...tilbudspost, beloep: 1000, varsel: { art: 'gitt', varsel } }])
+      )
+    ).toBe('KRAVPOSTVARSELET');
+    expect(
+      s.avvist('TE', vederlagskrav([{ ...justert, varsel: { art: 'gitt', varsel } }])),
+      'annen bestemmelse'
+    ).toBe('KRAVPOSTVARSELET');
+    expect(
+      s.avvist('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: randomUUID() } }]))
+    ).toBe('KRAVPOSTVARSELET');
+    expect(
+      s.avvist('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }])),
+      'kontrollsak'
+    ).toBeNull();
+    s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]));
+    // P1 hadde regningsarbeid i forrige versjon og viste til et varsel, så et feil valg rettes
+    // (VS-U87 punkt 23).
     s.send('TE', registrertVarsel('34.4'));
     const annet = varslene(s).at(-1)!.id;
-    expect(s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: annet }]))).toBe(
-      'KRAVPOSTVARSELET'
-    );
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: annet } }])
+      )
+    ).toBeNull();
     expect(
       s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1' }])),
       'kontrollsak'
@@ -2018,24 +2039,28 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     const varsel = varslene(s)[0]!.id;
-    s.send('TE', vederlagskrav([{ ...regning, varsel }]));
+    s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]));
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);
     const krav = (s.journal.at(-1)!.data.krav as Data[])[0]!;
     const post = (krav.innhold ?? krav) as Data;
     const kravposter = post.kravposter as Data[];
-    kravposter[0]!.varsel = krav.id;
+    kravposter[0]!.varsel = { art: 'gitt', varsel: krav.id };
     const u = s.u();
     expect(u.forstaatt).toBe(false);
     expect(JSON.stringify(u.begrensninger)).toContain('ikke er et varsel etter punkt 34.4');
   });
 
-  it('et varsel i saken som én kravpost viser til, gjelder også en annen post med samme beregningsregel i det første kravet (D-16, VS-U50)', () => {
+  it('et varsel i saken som én kravpost viser til, gjelder ikke en annen post i samme krav uten valget, og hver post velger (VS-U87 punkt 23, F-7 i BF-37, #2408)', () => {
     const s = paaberopt();
     s.send('TE', registrertVarsel('34.4'));
     const varsel = varslene(s)[0]!.id;
-    const tekst = laast(s.send('TE', vederlagskrav([{ ...regning, varsel }, regning]))).join(' ');
-    expect(tekst).not.toContain(varselRegning);
-    expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
+    const gitt = { ...regning, varsel: { art: 'gitt', varsel } };
+    expect(s.avvist('TE', vederlagskrav([gitt, regning]))).toBe('VARSELVALGET_MANGLER');
+    const tekst = laast(
+      s.send('TE', vederlagskrav([gitt, { ...regning, varsel: { art: 'kravet' } }]))
+    ).join(' ');
+    expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(1);
+    expect(tekst).toContain(varselRegning);
   });
 
   it('et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises, så brevet ikke tar varselet for et dokument fra kravskjemaet (VS-U73, VS-U51, #1823)', () => {
@@ -2043,7 +2068,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     const varselet = registrertVarsel('34.4');
     s.send('TE', varselet);
     const varsel = varslene(s)[0]!.id;
-    for (const poster of [[regning], [{ ...regning, varsel }, regning]])
+    for (const poster of [[regning], [{ ...regning, varsel: { art: 'gitt', varsel } }, regning]])
       expect(
         s.avvisning('TE', { ...vederlagskrav(poster), dokumentasjon: varselet.dokumentasjon })
       ).toEqual({
@@ -2051,7 +2076,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         melding:
           'Et vedlegg ved kravet ligger alt ved varselet for en kravpost i totalentreprenørens e-post av 28. september 2026. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.',
       });
-    const rad = s.send('TE', { ...vederlagskrav([regning]), dokumentasjon: [PLAN] });
+    const rad = s.send('TE', {
+      ...vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]),
+      dokumentasjon: [PLAN],
+    });
     expect(laast(rad).join(' '), 'kontrollsak').toContain('ble gitt i totalentreprenørens e-post');
   });
 
@@ -2071,7 +2099,11 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       nyId: randomUUID,
     };
     const lastetOpp = randomUUID();
-    const kravet = { ...vederlagskrav([regning]), dokumentasjon: [lastetOpp] };
+    const varsel = varslene(s)[0]!.id;
+    const kravet = {
+      ...vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]),
+      dokumentasjon: [lastetOpp],
+    };
     const lager = (sum: string) =>
       new Map([[lastetOpp, { vedlegg_id: lastetOpp, filnavn: 'varsel.pdf', innhold_sha256: sum }]]);
     const avvisning = (u: ReturnType<typeof forhaandsvis>) =>
@@ -2099,7 +2131,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     s.send('TE', varselet);
     const varsel = varslene(s)[0]!.id;
     const lagtTil = {
-      ...vederlagskrav([{ ...regning, varsel }]),
+      ...vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]),
       ...SOM_BREV,
       sendt: '2026-10-01',
       dokumentasjon: varselet.dokumentasjon,
@@ -2107,25 +2139,52 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     expect(s.avvist('TE', lagtTil)).toBeNull();
     expect(
       s.avvist('TE', {
-        ...vederlagskrav([{ ...regning, varsel }]),
+        ...vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]),
         dokumentasjon: varselet.dokumentasjon,
       }),
       'kontrollsak: det samme kravet sendt fra løsningen'
     ).toBe('KRAVPOSTVARSELET');
   });
 
-  it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
+  it('en kravpost i en ny versjon kan gjenta varselet, og et feil valg rettes til et annet varsel uten å åpne tidsrommet for svaret igjen (KA-U56, VS-U87 punkt 23 og 33)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     s.send('TE', registrertVarsel('34.4'));
     const [foerste, andre] = varslene(s).map((v) => v.id);
-    s.send('TE', vederlagskrav([{ ...regning, varsel: foerste }]));
+    s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: foerste } }]));
     expect(
-      s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: foerste }]))
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: foerste } }])
+      )
     ).toBeNull();
-    expect(s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: andre }]))).toBe(
-      'KRAVPOSTVARSELET'
-    );
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: andre } }])
+      )
+    ).toBeNull();
+    const tekst = laast(
+      s.send(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel: andre } }])
+      )
+    ).join(' ');
+    expect(tekst).toContain('ble gitt i totalentreprenørens e-post av 28. september 2026');
+    expect(handlinger(s.u(), 'BH'), 'punkt 33').not.toContain(`svare:${foerste}`);
+  });
+
+  it('en kravpost uten valg i forrige versjon kan ikke vise til et varsel i en ny versjon, fordi kravet var varselet (VS-U87 punkt 22 og 23)', () => {
+    const s = paaberopt();
+    s.send('TE', vederlagskrav([regning]));
+    s.send('TE', registrertVarsel('34.4'));
+    const varsel = varslene(s)[0]!.id;
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: { art: 'gitt', varsel } }])
+      )
+    ).toBe('KRAVPOSTVARSELET');
   });
 
   describe('dokumentet TE legger til i kravskjemaet som varselet for posten (VS-U51, VS-U53)', () => {
@@ -2150,7 +2209,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const s = paaberopt();
       const varsel = dokument();
       const foer = s.journal.length;
-      const krav = s.send('TE', vederlagskrav([{ ...regning, varsel }]));
+      const krav = s.send('TE', vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel } }]));
       const [varselrad] = s.journal.slice(foer);
       expect(s.journal.length - foer, 'to rader: varselet og kravet').toBe(2);
       expect(varselrad!.data).toMatchObject({
@@ -2162,7 +2221,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         undefined
       );
       const utsagn = (varselrad!.data.utsagn as Data[])[0]!.id;
-      expect(kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.varsel).toBe(utsagn);
+      expect(kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.varsel).toEqual({
+        art: 'gitt',
+        varsel: utsagn,
+      });
       expect(varslene(s).map((v) => v.id)).toEqual([utsagn]);
       const vedlegg = varsel.dokumentasjon[0]!.toLowerCase();
       expect(((krav.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id)).toEqual([
@@ -2180,14 +2242,14 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
     });
 
-    it('dokumentet for én kravpost er ikke varselet for en annen post etter samme bestemmelse i det første kravet (VS-U51, VS-U53, D-16)', () => {
+    it('dokumentet for én kravpost er ikke varselet for en annen post etter samme bestemmelse i det første kravet (VS-U51, VS-U53, VS-U87 punkt 23)', () => {
       const s = paaberopt();
       const krav = s.send(
         'TE',
         vederlagskrav([
-          { ...regning, varsel: dokument() },
+          { ...regning, varsel: { art: 'gitt', varsel: dokument() } },
           regning,
-          { ...regning, varsel: dokument() },
+          { ...regning, varsel: { art: 'gitt', varsel: dokument() } },
         ])
       );
       const tekst = laast(krav).join(' ');
@@ -2202,7 +2264,12 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       s.send('TE', varselet);
       const delt = { ...dokument(), dokumentasjon: [varselet.dokumentasjon[0]!.toUpperCase()] };
       const foer = s.journal.length;
-      expect(s.avvisning('TE', vederlagskrav([{ ...regning, varsel: delt }, regning]))).toEqual({
+      expect(
+        s.avvisning(
+          'TE',
+          vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: delt } }, regning])
+        )
+      ).toEqual({
         regel: 'KRAVPOSTVARSELET',
         melding:
           'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved varselet for en kravpost i saken. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.',
@@ -2211,18 +2278,29 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(
         s.avvisning(
           'TE',
-          vederlagskrav([{ ...regning, varsel: dokument() }, regning, { ...regning, varsel: delt }])
+          vederlagskrav([
+            { ...regning, varsel: { art: 'gitt', varsel: dokument() } },
+            regning,
+            { ...regning, varsel: { art: 'gitt', varsel: delt } },
+          ])
         )?.melding,
         'det andre dokumentet i kravskjemaet'
       ).toContain('i varselet for kravpost nr. 3 ligger alt ved');
       expect(s.journal.length, 'heller ikke varselet for kravpost nr. 1 skrives').toBe(foer);
       expect(
-        s.avvist('BH', vederlagskrav([{ ...regning, varsel: delt }, regning])),
+        s.avvist(
+          'BH',
+          vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: delt } }, regning])
+        ),
         'byggherren får grunnen til at kravet ikke kan sendes, før vedleggene i varslene'
       ).toBe('FEIL_PART');
-      // Kontrollsak: med et eget dokument gjelder varselet i saken den andre posten (D-16, VS-U55).
+      // Kontrollsak: med et eget dokument kan den andre posten vise til varselet i saken (VS-U55).
+      const iSaken = { ...regning, varsel: { art: 'gitt', varsel: varslene(s)[0]!.id } };
       const tekst = laast(
-        s.send('TE', vederlagskrav([{ ...regning, varsel: dokument() }, regning]))
+        s.send(
+          'TE',
+          vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: dokument() } }, iSaken])
+        )
       ).join(' ');
       expect(tekst).not.toContain(varselRegning);
       expect(tekst).toContain('ble gitt i totalentreprenørens e-post');
@@ -2235,9 +2313,9 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const krav = s.send(
         'TE',
         vederlagskrav([
-          { ...regning, varsel },
-          { ...justert, varsel },
-          { ...regning, varsel },
+          { ...regning, varsel: { art: 'gitt', varsel } },
+          { ...justert, varsel: { art: 'gitt', varsel } },
+          { ...regning, varsel: { art: 'gitt', varsel } },
         ])
       );
       const rader = s.journal.slice(foer);
@@ -2245,7 +2323,9 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const utsagn = rader[0]!.data.utsagn as Data[];
       expect(utsagn.map((x) => x.hjemmel)).toEqual(['34.4', '34.3.3']);
       const poster = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
-      expect(poster.map((p) => p.varsel)).toEqual([utsagn[0]!.id, utsagn[1]!.id, utsagn[0]!.id]);
+      expect(poster.map((p) => p.varsel)).toEqual(
+        [utsagn[0]!.id, utsagn[1]!.id, utsagn[0]!.id].map((varsel) => ({ art: 'gitt', varsel }))
+      );
       expect((krav.data.dokumentasjon ?? []) as Data[]).toHaveLength(1);
       expect(
         laast(krav)
@@ -2262,8 +2342,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         s.avvist(
           'TE',
           vederlagskrav([
-            { ...regning, varsel },
-            { ...justert, varsel: { ...varsel, sendt: '2026-09-26' } },
+            { ...regning, varsel: { art: 'gitt', varsel } },
+            { ...justert, varsel: { art: 'gitt', varsel: { ...varsel, sendt: '2026-09-26' } } },
           ])
         )
       ).toBe('UGYLDIG_FORM');
@@ -2271,10 +2351,13 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         s.avvist(
           'TE',
           vederlagskrav([
-            { ...regning, varsel },
+            { ...regning, varsel: { art: 'gitt', varsel } },
             {
               ...justert,
-              varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, randomUUID()] },
+              varsel: {
+                art: 'gitt',
+                varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, randomUUID()] },
+              },
             },
           ])
         )
@@ -2283,8 +2366,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         s.avvist(
           'TE',
           vederlagskrav([
-            { ...regning, varsel },
-            { ...justert, varsel: dokument() },
+            { ...regning, varsel: { art: 'gitt', varsel } },
+            { ...justert, varsel: { art: 'gitt', varsel: dokument() } },
           ])
         ),
         'kontrollsak'
@@ -2330,8 +2413,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const vist = proev(
         s,
         vederlagskrav([
-          { ...regning, varsel },
-          { ...justert, varsel: kopi },
+          { ...regning, varsel: { art: 'gitt', varsel } },
+          { ...justert, varsel: { art: 'gitt', varsel: kopi } },
         ]),
         kopier
       );
@@ -2350,8 +2433,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           proev(
             s,
             vederlagskrav([
-              { ...regning, varsel },
-              { ...justert, varsel: { ...kopi, sendt: '2026-09-26' } },
+              { ...regning, varsel: { art: 'gitt', varsel } },
+              { ...justert, varsel: { art: 'gitt', varsel: { ...kopi, sendt: '2026-09-26' } } },
             ]),
             kopier
           )
@@ -2360,8 +2443,14 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const toGanger = proev(
         s,
         vederlagskrav([
-          { ...regning, varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] } },
-          { ...justert, varsel: kopi },
+          {
+            ...regning,
+            varsel: {
+              art: 'gitt',
+              varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, PLAN] },
+            },
+          },
+          { ...justert, varsel: { art: 'gitt', varsel: kopi } },
         ]),
         { ...kopier, [PLAN]: varsel.dokumentasjon[0]! }
       );
@@ -2372,8 +2461,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const annen = proev(
         s,
         vederlagskrav([
-          { ...regning, varsel },
-          { ...justert, varsel: kopi },
+          { ...regning, varsel: { art: 'gitt', varsel } },
+          { ...justert, varsel: { art: 'gitt', varsel: kopi } },
         ]),
         {}
       );
@@ -2392,8 +2481,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const vist = proev(
         s,
         vederlagskrav([
-          { ...regning, varsel: foerste },
-          { ...justert, varsel: andre },
+          { ...regning, varsel: { art: 'gitt', varsel: foerste } },
+          { ...justert, varsel: { art: 'gitt', varsel: andre } },
         ]),
         { [kopi]: tegning }
       );
@@ -2404,10 +2493,13 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           proev(
             s,
             vederlagskrav([
-              { ...regning, varsel: foerste },
+              { ...regning, varsel: { art: 'gitt', varsel: foerste } },
               {
                 ...justert,
-                varsel: { ...andre, dokumentasjon: [andre.dokumentasjon[0]!, tegning] },
+                varsel: {
+                  art: 'gitt',
+                  varsel: { ...andre, dokumentasjon: [andre.dokumentasjon[0]!, tegning] },
+                },
               },
             ]),
             {}
@@ -2418,7 +2510,14 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       s.send('TE', { ...registrertVarsel('34.4'), dokumentasjon: foerste.dokumentasjon });
       expect(
         avvisningen(
-          proev(s, vederlagskrav([{ ...justert, varsel: andre }, regning]), { [kopi]: tegning })
+          proev(
+            s,
+            vederlagskrav([
+              { ...justert, varsel: { art: 'gitt', varsel: andre } },
+              { ...regning, varsel: { art: 'gitt', varsel: varslene(s)[0]!.id } },
+            ]),
+            { [kopi]: tegning }
+          )
         ),
         'et annet brev med fila fra et varsel i saken'
       ).toBeNull();
@@ -2429,7 +2528,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const varselet = registrertVarsel('34.4');
       s.send('TE', varselet);
       const kopi = dokument();
-      const kommando = vederlagskrav([{ ...regning, varsel: kopi }, regning]);
+      const kommando = vederlagskrav([
+        { ...regning, varsel: { art: 'gitt', varsel: kopi } },
+        { ...regning, varsel: { art: 'gitt', varsel: s.u().spor.vederlag.kravpostvarsler[0]!.id } },
+      ]);
       expect(
         avvisningen(proev(s, kommando, { [kopi.dokumentasjon[0]!]: varselet.dokumentasjon[0]! }))
       ).toEqual({
@@ -2449,7 +2551,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         avvisningen(
           proev(
             s,
-            { ...vederlagskrav([regning, { ...regning, varsel }]), dokumentasjon: [kopi] },
+            {
+              ...vederlagskrav([regning, { ...regning, varsel: { art: 'gitt', varsel } }]),
+              dokumentasjon: [kopi],
+            },
             kopier
           )
         )
@@ -2464,8 +2569,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
             s,
             {
               ...vederlagskrav([
-                { ...regning, varsel },
-                { ...justert, varsel },
+                { ...regning, varsel: { art: 'gitt', varsel } },
+                { ...justert, varsel: { art: 'gitt', varsel } },
               ]),
               dokumentasjon: [kopi],
             },
@@ -2478,7 +2583,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         avvisningen(
           proev(
             s,
-            { ...vederlagskrav([regning, { ...regning, varsel }]), dokumentasjon: [kopi] },
+            {
+              ...vederlagskrav([regning, { ...regning, varsel: { art: 'gitt', varsel } }]),
+              dokumentasjon: [kopi],
+            },
             {}
           )
         ),
@@ -2489,8 +2597,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     it('serveren får radene én og én: varselet først, så kravet med sin egen klokke (VS-U53)', () => {
       const s = paaberopt();
       const kommando = vederlagskrav([
-        { ...justert, varsel: dokument() },
-        { ...regning, varsel: dokument() },
+        { ...justert, varsel: { art: 'gitt', varsel: dokument() } },
+        { ...regning, varsel: { art: 'gitt', varsel: dokument() } },
       ]);
       const vedlegg = mellomlager(kommando);
       const vist = forhaandsvis(kommando, kontekst('2026-10-07'), s.journal, KJERNE, vedlegg);
@@ -2526,7 +2634,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const s = paaberopt();
       s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
       // KA-U56: P1 verken tas med eller trekkes.
-      const kommando = vederlagskrav([{ ...regning, varsel: dokument() }]);
+      const kommando = vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: dokument() } }]);
       // Serveren får den første raden før den skriver noe; den skal være avvisningen.
       const u = vurderTrinnvis(
         kommando,
@@ -2541,7 +2649,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           'TE',
           vederlagskrav([
             { ...tilbudspost, beloep: 1000 },
-            { ...regning, varsel: dokument() },
+            { ...regning, varsel: { art: 'gitt', varsel: dokument() } },
           ])
         ),
         'kontrollsak'
@@ -2551,11 +2659,18 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     it('et dokument for en post som ikke trenger varselet, eller med en dato som ikke er en dato, avvises før noe skrives (VS-U50)', () => {
       const s = paaberopt();
       expect(
-        s.avvist('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000, varsel: dokument() }]))
+        s.avvist(
+          'TE',
+          vederlagskrav([
+            { ...tilbudspost, beloep: 1000, varsel: { art: 'gitt', varsel: dokument() } },
+          ])
+        )
       ).toBe('KRAVPOSTVARSELET');
       const feil = s.avvisning(
         'TE',
-        vederlagskrav([{ ...regning, varsel: { ...dokument(), sendt: '2026-13-40' } }])
+        vederlagskrav([
+          { ...regning, varsel: { art: 'gitt', varsel: { ...dokument(), sendt: '2026-13-40' } } },
+        ])
       );
       expect(feil?.regel).toBe('UGYLDIG_FORM');
       expect(feil?.melding).toContain('Varselet for kravpost nr. 1');
@@ -2565,7 +2680,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const s = paaberopt();
       const varselet = dokument();
       const krav = s.send('TE', {
-        ...vederlagskrav([{ ...regning, varsel: varselet }]),
+        ...vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: varselet } }]),
         dokumentasjon: [PLAN],
       });
       expect(((krav.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id)).toEqual([
@@ -2581,7 +2696,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     it('et vedlegg ved vederlagskravet som også er dokumentet med varselet for en kravpost, avvises i formen (VS-U51)', () => {
       const s = paaberopt();
       const varselet = dokument();
-      const krav = vederlagskrav([{ ...regning, varsel: varselet }]);
+      const krav = vederlagskrav([{ ...regning, varsel: { art: 'gitt', varsel: varselet } }]);
       expect(
         s.avvisning('TE', { ...krav, dokumentasjon: [varselet.dokumentasjon[0]!.toUpperCase()] })
           ?.melding

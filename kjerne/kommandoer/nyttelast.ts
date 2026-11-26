@@ -71,7 +71,7 @@ import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts
 export type Svarstandpunkter = (
   s: Svarutkast,
   utregning: Record<string, unknown>,
-  /** Kravversjonen svaret gjelder, eller varselet etter § 34.3.3 eller § 34.4 (VS-U79). */
+  /** Kravversjonen svaret gjelder, eller varselet som står alene (VS-U79). */
   krav: Krav | Svaretsvarsel,
   /** Påberopelsen svaret er regnet mot (#342), `null` i forholdet. */
   paaberopelse: Krav | null
@@ -158,7 +158,15 @@ function kontrollerSvar(
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
   if (varselet)
-    return kontrollerSvaretPaaVarselet(s, varselet, u, svarstandpunkter, paaberopelse!, sendt);
+    return kontrollerSvaretPaaVarselet(
+      s,
+      varselet,
+      u,
+      svarstandpunkter,
+      paaberopelse!,
+      sendt,
+      regler
+    );
   if (!krav) throw new Error('Svaret gjelder verken et krav eller et varsel.');
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
@@ -201,9 +209,10 @@ function kontrollerSvar(
 }
 
 /**
- * VS-U79: svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene, regnes mot påberopelsen
+ * VS-U79: svaret på et varsel som står alene, regnes mot påberopelsen
  * som et svar på kravet, men har ingen utregning. Vurderingene prøves etter VS-U77 punkt 30 og 31
- * (`vurderingeneISvaretPaaVarselet`). Når svaret kan gis, prøver forutsetningene (punkt 33).
+ * og VS-U87 punkt 32 (`vurderingeneISvaretPaaVarselet`). Når svaret kan gis, prøver forutsetningene
+ * (punkt 33).
  */
 function kontrollerSvaretPaaVarselet(
   s: Svarutkast,
@@ -211,9 +220,10 @@ function kontrollerSvaretPaaVarselet(
   u: Utledning,
   svarstandpunkter: Svarstandpunkter,
   paaberopelse: Krav,
-  sendt: string | null
+  sendt: string | null,
+  regler: Regelsett
 ): Avvisning | null {
-  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
+  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt, paaberopelse, regler);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});

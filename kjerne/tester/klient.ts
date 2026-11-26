@@ -353,19 +353,24 @@ function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn
         oppgjoersform: p.oppgjoersform ?? 'tilbud',
         ...(p.justert === undefined ? {} : { justert: p.justert }),
         ...(p.belop === undefined ? {} : { beloep: p.belop }),
-        // VS-U50, VS-U54: etiketten til et varsel i saken, eller et dokument fra kravskjemaet
-        // med datoen (VS-U53), som får et vedlegg.
-        ...(typeof p.varsel === 'string'
-          ? { varsel: navn?.id(`${p.varsel}#varsel`) }
-          : typeof p.varsel === 'object' && p.varsel !== null
-            ? {
-                varsel: {
-                  ...lagtTil(p.varsel as Handling),
-                  dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
-                  ...(p.varsel as Record<string, unknown>),
-                },
-              }
-            : {}),
+        // VS-U87 punkt 23: etiketten til et varsel i saken, `kravet` når kravet er varselet, eller
+        // et dokument fra kravskjemaet med datoen (VS-U53), som får et vedlegg.
+        ...(p.varsel === 'kravet'
+          ? { varsel: { art: 'kravet' } }
+          : typeof p.varsel === 'string'
+            ? { varsel: { art: 'gitt', varsel: navn?.id(`${p.varsel}#varsel`) } }
+            : typeof p.varsel === 'object' && p.varsel !== null
+              ? {
+                  varsel: {
+                    art: 'gitt',
+                    varsel: {
+                      ...lagtTil(p.varsel as Handling),
+                      dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
+                      ...(p.varsel as Record<string, unknown>),
+                    },
+                  },
+                }
+              : {}),
       })),
       ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
     };

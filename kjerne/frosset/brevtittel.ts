@@ -3,7 +3,15 @@
  * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import { SPOR, type Dokument, type Sakskode, type Spor, type Svar } from '../typer.ts';
+import {
+  erVederlagsvarselhjemmel,
+  SPOR,
+  type Dokument,
+  type Sakskode,
+  type Spor,
+  type Svar,
+  type Vederlagsvarselhjemmel,
+} from '../typer.ts';
 import { liste } from './brevdeler.ts';
 import { svaretGjelderEtVarsel } from '../spor/vederlag/format.ts';
 import { medHardeMellomrom, sakensKode } from './tekst.ts';
@@ -91,12 +99,17 @@ export const KRAVTITTEL: Record<Spor, string> = {
 /**
  * Det svaret gjelder: i tittelen, «krav om …», og i overskriften på svaret og i forbeholdet når
  * brevet svarer på flere krav, «kravet om …» (LV-U80, LV-U81). Svaret på et varsel som står alene,
- * nevner varselet (VS-U77 punkt 30 og 31, VS-U79).
+ * nevner varselet (VS-U87 punkt 30–32, VS-U79).
  */
-const SVARET_GJELDER: Record<Spor | '34.3.3' | '34.4', { tittel: string; del: string }> = {
+const SVARET_GJELDER: Record<Spor | Vederlagsvarselhjemmel, { tittel: string; del: string }> = {
   forhold: { tittel: 'forholdet', del: 'forholdet' },
   vederlag: { tittel: 'krav om vederlagsjustering', del: 'kravet om vederlagsjustering' },
   frist: { tittel: 'krav om fristforlengelse', del: 'kravet om fristforlengelse' },
+  '34.1.2': { tittel: 'varsel om vederlagsjustering', del: 'varselet om vederlagsjustering' },
+  '34.1.3': {
+    tittel: 'varsel om særskilt vederlagsjustering',
+    del: 'varselet om særskilt vederlagsjustering',
+  },
   '34.3.3': {
     tittel: 'varsel om justering av enhetsprisene',
     del: 'varselet om justering av enhetsprisene',
@@ -114,6 +127,8 @@ export const SVARTITTEL: Record<Spor, string> = {
 
 /** Tittelen på byggherrens svar på et varsel som står alene. */
 export const SVARTITTEL_PAA_VARSELET = {
+  '34.1.2': svartittel('34.1.2'),
+  '34.1.3': svartittel('34.1.3'),
   '34.3.3': svartittel('34.3.3'),
   '34.4': svartittel('34.4'),
 } as const;
@@ -125,9 +140,14 @@ export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter'>) =>
 export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly S[]): S[] =>
   [...svar].sort((a, b) => SPOR.indexOf(a.spor) - SPOR.indexOf(b.spor));
 
-/** Bestemmelsen varselet er gitt etter: standpunktet til justeringen står bare etter § 34.3.3. */
-const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): '34.3.3' | '34.4' =>
-  s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '34.4') ? '34.4' : '34.3.3';
+/**
+ * Bestemmelsen varselet er gitt etter: rettidigheten, ellers justeringen, som står bare etter
+ * § 34.3.3.
+ */
+const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): Vederlagsvarselhjemmel => {
+  const p = s.standpunkter.find((x) => x.art === 'rettidighet');
+  return p?.art === 'rettidighet' && erVederlagsvarselhjemmel(p.hjemmel) ? p.hjemmel : '34.3.3';
+};
 
 export const UTSAGNSTITTEL = {
   aksept: 'Aksept av svaret',

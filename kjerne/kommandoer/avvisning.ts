@@ -20,7 +20,7 @@ import type { Avvisning, Part } from '../typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
-  // VS-U79: et svar på et varsel etter § 34.3.3 eller § 34.4 gjelder varselet.
+  // VS-U79: et svar på et varsel i vederlaget som står alene, gjelder varselet.
   const paaVarselet = (s: { spor: string; gjelder: string }) =>
     s.spor === 'vederlag' && varseletSvaretGjelder(u, s.gjelder) !== null;
   switch (k.type) {
