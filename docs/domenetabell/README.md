@@ -548,6 +548,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_KORRIGERING` | GR-36 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03, KA-56 | — |
 | `VARSELET_GJELDER_EN_KRAVPOST` | — | Kontrollen av kommandoen: byggherren kan svare på et varsel etter punkt 34.3.3 første ledd eller 34.4 som står alene, bare så lenge ingen sendt kravversjon har en kravpost som gjelder varselet (VS-U77 punkt 33). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varselsvar.test.ts`. |
+| `VARSELET_GJELDER_ET_SENDT_KRAV` | — | Kontrollen av kommandoen: byggherren kan svare på det særskilte varselet etter punkt 34.1.3 som står alene, bare så lenge ingen sendt kravversjon har den særskilte vederlagsjusteringen (VS-U87 punkt 33). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varselsvar.test.ts`. |
 | `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VARSEL_FOER_GRUNNLAGSDATOEN` | — | Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts`. |
 | `VARSEL_REGISTRERT` | VS-06, VS-07 | — |

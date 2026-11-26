@@ -679,10 +679,27 @@ function rettidighetIVarselet(
     return foerst
       ? `byggherren gir opp innsigelsen i ${foerst} og gjør ikke gjeldende at varselet kom for sent.`
       : 'byggherren gjør ikke gjeldende at varselet kom for sent.';
-  const jf = foerst ? `, jf. innsigelsen i ${foerst}` : '';
-  return p.hjemmel === '34.1.3'
-    ? `byggherren gjør gjeldende at varselet kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`
-    : `byggherren gjør gjeldende at varselet kom for sent${jf}.`;
+  return forSentMedFoelgen(
+    brevtekstI('vederlag'),
+    'varselet',
+    p.hjemmel,
+    foerst ? `, jf. innsigelsen i ${foerst}` : ''
+  );
+}
+
+/**
+ * «Byggherren gjør gjeldende at `om` kom for sent», med henvisningen `jf` og følgen sporet gir for
+ * bestemmelsen (`Sporsbrevtekst.foelgenAvSentVarsel`, #1905 punkt 7).
+ */
+function forSentMedFoelgen(
+  sporet: Sporsbrevtekst,
+  om: string,
+  hjemmel: Hjemmel,
+  jf: string,
+  kom = 'kom for sent'
+): string {
+  const foelgen = sporet.foelgenAvSentVarsel?.[hjemmel];
+  return `byggherren gjør gjeldende at ${om} ${kom}${jf}${foelgen ? `, og ${foelgen}` : ''}.`;
 }
 
 /**
@@ -937,9 +954,7 @@ function rettidighetstekst(
     );
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
-  if (!p.iTide && p.hjemmel === '34.1.3')
-    return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
-  if (!p.iTide) return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}.`;
+  if (!p.iTide) return forSentMedFoelgen(sporet, omVarselet, p.hjemmel, jf);
   return aapne.length
     ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`
     : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
@@ -991,9 +1006,7 @@ function varseltekst(
   if (p.iTide && brevet)
     return `byggherren gir opp innsigelsen i ${brevet} og gjør ikke gjeldende at ${om} kom for sent.`;
   if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
-  return p.hjemmel === '34.3.3'
-    ? `byggherren gjør gjeldende at ${om} kom for sent${jf}, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
-    : `byggherren gjør gjeldende at ${om} ${forSent}${jf}.`;
+  return forSentMedFoelgen(brevtekstI('vederlag'), om, p.hjemmel, jf, forSent);
 }
 
 /** KA-U72: standpunktet til beløpet for en kravpost der tilbudet ikke er akseptert, står ikke i brevet. */
