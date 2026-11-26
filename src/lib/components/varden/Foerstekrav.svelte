@@ -10,15 +10,18 @@
   import Melding from './Melding.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import { brevet } from './lesing';
-  import { BREVTYPER, HANDLINGENE, TOMT_SPOR } from './tekster';
+  import { HANDLINGENE, TOMT_SPOR, varselet } from './tekster';
 
   let {
     u,
     spor,
+    hjemmel,
     onregistrer,
   }: {
     u: Utledning;
     spor: 'vederlag' | 'frist';
+    /** Bestemmelsen for varselet i sporet, så registreringen heter som under «Andre handlinger» (U-3). */
+    hjemmel: '33.4' | '34.1.2';
     /** Registreringen av et varsel sendt på annen måte, når den er bygget for sporet. */
     onregistrer?: () => void;
   } = $props();
@@ -26,7 +29,7 @@
 
   const varslene = $derived(varsleneISporet(u, spor));
   let ikkeBygget = $state(false);
-  const registrer = BREVTYPER.find((b) => b.type === 'varsle')!.tekst;
+  const registrer = $derived(varselet('varsle', hjemmel));
 </script>
 
 <Melding art="info" levende={false}>{TOMT_SPOR.foersteKrav(spor)}</Melding>

@@ -928,7 +928,7 @@
   {/snippet}
 
   {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
-    <Foerstekrav {u} spor="vederlag" />
+    <Foerstekrav {u} spor="vederlag" hjemmel="34.1.2" />
   {/if}
 
   <section

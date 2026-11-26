@@ -737,7 +737,12 @@
   {/snippet}
 
   {#if !lagtTil && !varsel && nesteKravErDetFoerste(u, 'frist')}
-    <Foerstekrav {u} spor="frist" onregistrer={kanRegistrere ? registrerVarselet : undefined} />
+    <Foerstekrav
+      {u}
+      spor="frist"
+      hjemmel="33.4"
+      onregistrer={kanRegistrere ? registrerVarselet : undefined}
+    />
   {/if}
 
   {#if kanVarsle}

@@ -85,7 +85,9 @@ describe('et spor uten varsel eller krav (BF-51)', () => {
     ).toBeTruthy();
     // Registreringen av varselet i vederlaget er ikke bygget ennå (#2010), og knappen sier det.
     await fireEvent.click(
-      skjema.getByRole('button', { name: 'Registrer et varsel som er sendt på annen måte' })
+      skjema.getByRole('button', {
+        name: /^Registrer et varsel som er sendt på annen måte etter punkt.(34\.1\.2|33\.4)$/,
+      })
     );
     expect(skjema.getByText('Denne handlingen er ikke bygget i prøven ennå.')).toBeTruthy();
   });
@@ -98,7 +100,9 @@ describe('et spor uten varsel eller krav (BF-51)', () => {
       skjema.getByText('Dette er det første kravet om fristforlengelse i saken.')
     ).toBeTruthy();
     await fireEvent.click(
-      skjema.getByRole('button', { name: 'Registrer et varsel som er sendt på annen måte' })
+      skjema.getByRole('button', {
+        name: /^Registrer et varsel som er sendt på annen måte etter punkt.(34\.1\.2|33\.4)$/,
+      })
     );
     expect(
       screen.queryByText('Dette er det første kravet om fristforlengelse i saken.')
@@ -149,7 +153,7 @@ describe('påminnelsen ved det første kravet (U-3 i BF-51)', () => {
     const forloep: Forloep = { id: 'foerstekrav', rader: [], start: null, steg, kontroller: [] };
     const k = await kjoer(forloep, minnebane({ sakstittel: 'Tegningene' }));
     const u = await k.utledning();
-    render(Foerstekrav, { u, spor: 'frist' });
+    render(Foerstekrav, { u, spor: 'frist', hjemmel: '33.4' });
     const varselbrevet = brevene(u).find((b) => b.spor.includes('frist'))!;
     const linje = screen.getByRole('listitem').textContent!;
     expect(linje).toMatch(
