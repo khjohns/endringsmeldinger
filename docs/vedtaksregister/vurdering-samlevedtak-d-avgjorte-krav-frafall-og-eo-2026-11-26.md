@@ -31,7 +31,7 @@ De hører derfor til tema 10.
 og OV-U3, og KA-U52 punkt 6, KA-U51 punkt 10 og MM-U43 punkt 7 sier det samme. Det som står igjen
 av tema 5, er predikatet, som visningen og KA-U88 punkt 13 og HF-U35 punkt 8 leser.
 
-**K3. Revisjonen av et frafall er avgjort i HF-U29.** Punkt 4 og E3 i HF-U29 tok bort sperrene mot
+**K3. Revisjonen av et frafall er avgjort i HF-U29.** Punkt 4 i HF-U29 og E3 i versjon 1 (HF-U25), som HF-U29 viser til, tok bort sperrene mot
 avslag og påberopelse etter et frafall (MM-U34 punkt 7, HF-U27). E3 sier at bindingen i GR-U17 og
 «Frafallet faller ikke bort» i GR-U20 hører til kjeden for frafall. De står igjen her.
 
@@ -59,21 +59,25 @@ Hver setning har kilden i parentes. Språket følger E6.
    erklæringen får. Den legger ingen erklæring i munnen på en part. (MM-U33 s1 og første ledd av s3)
    Om en ny erklæring er rettslig virksom mot en tidligere, følger MM-U60 punkt 8. (MM-U33 s3)
 2. Partene har selv ansvar for hva de mener allerede er avtalt. (MM-U33 s5)
-3. Når løsningen ikke lar en part gjøre noe, er det en begrensning i løsningen. Det betyr ikke at en
-   rett eller et tilbud har falt bort. (MM-U33 s6; KA-U88 punkt 8; EO-U39, «Sperrene»)
+3. Når løsningen ikke lar en part gjøre noe, beskrives det som en begrensning i løsningen, ikke som
+   at en rett eller et tilbud har falt bort. (MM-U33 s6; KA-U88 punkt 8; EO-U39, «Sperrene»)
 
 ###### B. Kravene er avgjort
 
 4. Kravene i saken er avgjort når forholdet er avklart etter punkt 12 i KA-U88, totalentreprenøren
    har sendt minst ett krav om vederlagsjustering eller fristforlengelse, og hvert slikt krav er
-   trukket eller har registrert enighet. (OV-U3 s1; KA-U88 punkt 10 og 12; E1) Et spor der
-   totalentreprenøren ikke har sendt et krav, følger punkt 8 i HF-U35. (OV-U3 s2–s3)
+   trukket eller har registrert enighet om byggherrens gjeldende svar (KA-U88 punkt 13). (OV-U3 s1;
+   KA-U88 punkt 10, 12 og 13; E1) Et spor der totalentreprenøren ikke har sendt et krav, følger
+   punkt 8 i HF-U35. Et varsel alene er ikke et krav (KA-U2). (OV-U3 s2–s3) Henvisningene til OV-U3
+   i KA-U88 punkt 13 og HF-U35 punkt 8 leses som dette punktet.
 5. Predikatet leses av utsagnene og relasjonene, ikke av status. (KA-U11 s5; MM-U34 punkt 12)
-6. At kravene er avgjort, sperrer ingen handling. Løsningen viser det som en opplysning og
-   framstiller det ikke som en rettslig avgjørelse. (MM-U34 punkt 12; KA-U52 punkt 6; E2)
-7. Sender totalentreprenøren det første kravet i et spor etter at kravene er avgjort, er de ikke
-   lenger avgjort før det nye kravet er det. Et varsel alene endrer ikke dette. Kravet får datoen
-   det sendes, ikke datoen for tidligere aktivitet i saken. (OV-U3 s10, s11 og s13; KA-U52 punkt 7)
+6. At kravene er avgjort, sperrer ingen handling. Sperrene står i EO-U39 punkt 8 og 12, HF-U35
+   punkt 3 og 9 og KA-U51 punkt 11. Løsningen viser predikatet som en opplysning og framstiller det
+   ikke som en rettslig avgjørelse. (MM-U34 punkt 12; KA-U52 punkt 6; E2)
+7. Sender totalentreprenøren det første kravet i et spor etter at kravene er avgjort, går det i
+   samme sak, unntatt der KA-U52 punkt 6 sperrer, og kravene er ikke lenger avgjort før det nye
+   kravet er det. Et varsel alene endrer ikke dette. Kravet får datoen det sendes, ikke datoen for
+   tidligere aktivitet i saken. (OV-U3 s9–s11 og s13; KA-U52 punkt 7)
 
 ###### Beslutningsdel og designdel
 
@@ -90,16 +94,17 @@ Hver setning har kilden i parentes. Språket følger E6.
 - **E1 «Virksom enighet».** OV-U3 s1 sier «virksom enighet» og «avklart etter GR-U7». Etter KA-U88
   punkt 10 og 12 er det registrert enighet, og forholdet er avklart etter punkt 12. Forhold: endrer
   OV-U3.
-- **E2 Sperren.** KA-U11 s2 og s4 og OV-U3 s6–s7, s9 og s12 sperrer handlinger når kravene er
-  avgjort. Sperren er opphevet (K2), og grensen er nå endringsordren (EO-U39 punkt 12). «Saken er
-  avsluttet» leses som «lukket med endringsordre» (MM-U34 punkt 12). Begrunnelsen i KA-U11 s6 faller
-  med sperren. Forhold: alt løst, med MM-U34 punkt 12 som kilde.
+- **E2 Sperren.** KA-U11 s2 og s4 og OV-U3 s6–s7 og s12 sperrer handlinger når kravene er avgjort.
+  Sperren er opphevet (K2), og grensen er nå endringsordren (EO-U39 punkt 12). Varselet etter punkt
+  33.4 i KA-U11 s2 var tatt ut av OV-U3 (s6 og s8). «Saken er avsluttet» leses som «lukket med
+  endringsordre» (MM-U34 punkt 12). Begrunnelsen i KA-U11 s6 faller med sperren. Forhold: alt løst,
+  med MM-U34 punkt 12 og OV-U3 s6 og s8 som kilde.
 - **E3 Forhold som alt er løst.** Disse står med den senere posten som kilde og endrer ikke noe:
   MM-U33 s4 (MM-U60 punkt 1 og 13; KA-U88 punkt 13), s9–s13 (KA-U87 punkt 2–4; MM-U47 punkt 1–4),
-  s16–s17 (KA-U52 punkt 5–6; EO-U39 punkt 9), s21–s26 og s28–s34 (EO-U39 punkt 5, 9, 11, 12, 33–35
-  og «Sperrene»; HF-U35 punkt 9), og s18–s20 (KA-U88). KA-U11 s1 (OV-U3; HF-U35 punkt 8) og s3
-  (MM-U47 punkt 9). KA-U29 (MM-U47 punkt 10; HF-U35 punkt 9). OV-U3 s8 og s17 (KA-U52 punkt 7;
-  HF-U35 punkt 4). MM-U36 s2–s3 (MM-U47 punkt 4).
+  s16–s17 (KA-U52 punkt 5–6; EO-U39 punkt 9), s21–s23, s25–s26 og s28–s34 (EO-U39 punkt 5, 9, 11,
+  12, 33–35 og «Sperrene»; HF-U35 punkt 9), og s18–s20 (KA-U88). KA-U11 s1 (OV-U3; HF-U35 punkt 8)
+  og s3 (MM-U47 punkt 9). KA-U29 (MM-U47 punkt 10; HF-U35 punkt 9), som HF-U35 førte under «Står».
+  OV-U3 s8 og s17 (KA-U52 punkt 7; HF-U35 punkt 4).
 - **E4 Det motsatte av det som står.** MM-U33 s15 sier at innsigelsen etter punkt 5 tredje ledd
   sendes som innsigelse. I første versjon sendes den som innlegg (MM-U35; MM-U47, beslutningsdelen).
   MM-U33 s24 sier at bare en endringsordre lukker saken. En godkjent registrering lukker også
@@ -129,13 +134,16 @@ flyttet eller til F).
 
 ###### B. Virkningen i løsningen
 
-3. Frafallet er byggherrens standpunkt, ikke en enighet. Totalentreprenøren kan ikke godta det.
-   Forholdet er avklart ved frafallet uten aksept, også mens en ny versjon av forholdet venter på
-   svar (KA-U88 punkt 12; GR-U34 punkt 12). (GR-U9 s1–s2; GR-U17 s1; GR-U23 s1)
+3. Frafallet er byggherrens standpunkt, ikke en enighet. Løsningen avviser totalentreprenørens
+   aksept av frafallet, som en begrensning i løsningen (KA-U88 punkt 8). Forholdet er avklart ved
+   frafallet uten aksept, også mens en ny versjon av forholdet venter på svar, til byggherren i et
+   nytt svar avslår forholdet eller påberoper at det er varslet for sent (KA-U88 punkt 12 og 13;
+   GR-U34 punkt 12; punkt 4). (GR-U9 s1 og første del av s2; GR-U17 s1; GR-U23 s1; E8)
 4. Frafallet står i saken når totalentreprenøren sender en ny versjon av forholdet. Et nytt svar
    etter frafallet følger HF-U29 punkt 4: løsningen viser frafallet sammen med det nye svaret, og
-   avgjør ikke om byggherren er bundet av frafallet (MM-U60 punkt 8). (GR-U17 s1; GR-U20 s1; GR-U28
-   s7; spørsmål 4)
+   avgjør ikke om byggherren er bundet av frafallet (MM-U60 punkt 8), om frafallet har andre
+   rettsvirkninger, eller om partenes krav er berettiget. (GR-U17 s1; GR-U20 s1; GR-U28 s7;
+   spørsmål 4)
 5. At byggherren har frafalt pålegget, hindrer ikke at saken inngår i en endringsordre. Krav om
    vederlag og frist for arbeid som er utført, behandles i saken. (GR-U28 s1–s3; EO-U39 punkt 5 og 9)
 
@@ -145,21 +153,28 @@ flyttet eller til F).
 
 ###### Endret innhold
 
-- **E1 Sperrene mot revisjon.** GR-U9 s2 («beholder revisjonsretten»), GR-U17 s2, GR-U20 s2 og
-  GR-U23 s2 er endret av HF-U29 punkt 4 og E3. GR-U17 s3 («KA-U11 går foran») faller med sperren
-  (D1 E2). Forhold: alt løst, med HF-U29 som kilde.
+- **E1 Sperrene mot revisjon.** GR-U17 s2, GR-U20 s2 og GR-U23 s2 er endret av HF-U29 punkt 4 og
+  E3 i versjon 1 (HF-U25), som HF-U29 viser til. Revisjonsretten i GR-U9 s2 står i HF-U29 punkt 1
+  og 4. GR-U17 s3 («KA-U11 går foran») faller med sperren (D1 E2). Forhold: alt løst, med HF-U29
+  som kilde.
 - **E2 Bindingen.** GR-U17 s1 sier at byggherren «er bundet av løftet om endringsordre for utført
   arbeid», og GR-U20 s1 at frafallet ikke faller bort. Etter svar 4 A: punkt 4. Forhold: endrer
   GR-U17 og GR-U20; i tråd med MM-U60 punkt 8 og GR-U28 s7.
 - **E3 Statusnavnene.** `OMFORENT` i GR-U3 s1 og `FRAFALT` i raden for sporstatusen faller. Ingen
   regel leser etiketten (MM-U34 punkt 12). At forholdet er avklart, står i punkt 3.
 - **E4 Endringsordren for utført arbeid.** GR-U3 s2 og s2 i raden for `FRAFALT` (egen EO-sak, ikke
-  fra KOE-saken) er endret av GR-U28 og EO-U39 punkt 5–9.
+  fra KOE-saken) er endret av GR-U28 og EO-U39 punkt 5–9. GR-U28 s4 (GR-U3 endres) er forholdet, og
+  s5 (endringsordren går gjennom en EO-sak med fullmakt) står i EO-U39 punkt 1–2.
 - **E5 Svarene på vederlag og frist.** Raden #235 s3 (svarene blir prinsipale) er dekket av GR-U34
-  punkt 12 og KA-U88 punkt 12. S2 i raden er begrunnelse og faller med punkt 2 og 4.
+  punkt 12 og KA-U88 punkt 12 for utledningen. «I brev og fullmakt» er ikke dekket, og hører til E
+  og G. S2 i raden er begrunnelsen for punkt 2, og «mot endringsordre for utført arbeid» følger
+  punkt 4 og 5.
 - **E6 Henvisningene.** GR-U2, GR-U21, GR-U24, HF-U25 og EO-U1 er opphevet, og GR-U1, GR-U7, HF-U5
   og HF-U8 er samlet. De leses som postene som opphever eller samler dem.
 - **E7 Språket.** Som E6 i D1.
+- **E8 Aksepten.** «TE kan ikke godta frafallet» i GR-U9 s1 og GR-U17 s1 skrives som en avvisning i
+  løsningen, etter D1 punkt 3 og KA-U88 punkt 8. Henvisningen til GR-U17 i KA-U88 punkt 8 leses som
+  punkt 3. Forhold: presiserer GR-U9 og GR-U17.
 
 **Samler:** GR-U3, GR-U9, GR-U17, GR-U18, GR-U20, GR-U23, GR-U28 og radene for #235 og `FRAFALT`.
 
@@ -170,18 +185,19 @@ flyttet eller til F).
 1. Godkjenner byggherren forholdet uten å påberope at det er varslet for sent, i en underkategori der
    punkt 32.2 gjaldt da brevet ble sendt (GR-U11), er svaret en endringsordre etter punkt 32.3 første
    ledd a når kravene i punkt 31.3 også er oppfylt. Det gjelder også når brevet ikke sier noe om
-   varslingen. (GR-U10 s3; GR-U12 s1; GR-U13 s1) Om punkt 32.2 gjaldt, fryses etter MM-U60 punkt 4.
+   varslingen. (GR-U10 s3; GR-U12 s1; GR-U13 s1) Om punkt 32.2 gjaldt, fryses etter MM-U60 punkt 4,
+   og for et brev som er lagt til, etter reglene ved registreringen (MM-U60 punkt 19).
 2. For et svar sendt fra løsningen sørger løsningen for kravene i punkt 31.3: brevet sier at
    endringen kreves og hva den går ut på, og svaret går gjennom fullmakten. (GR-U13 s2; EO-U39 punkt
-   4) For et brev lagt til som svar gjelder EO-U39 punkt 43–48 og OV-U123 punkt 8. (GR-U12 s2;
-   GR-U13 s3–s5)
+   4) Om svaret krever to underskrifter etter EO-U39 punkt 3, avgjøres i G. For et brev lagt til som
+   svar gjelder EO-U39 punkt 43–48 og OV-U123 punkt 8. (GR-U12 s2; GR-U13 s3–s5; E5)
 
 ###### B. Hva brevet sier om endringen
 
 3. Brevet beskriver endringen ved å vise til totalentreprenørens krav i kravversjonen svaret
    gjelder, også etter en ny kravversjon. Er kravet sendt fra løsningen, gjengir brevet
    totalentreprenørens beskrivelse av pålegget. Er det lagt til, viser brevet til det uten
-   gjengivelse. (GR-U14 s2 og s7)
+   gjengivelse. (GR-U14 s1–s4 og s7; ordlyden i E)
 4. Løsningen tolker ikke beskrivelsen. Byggherren står bak gjengivelsen som beskrivelse av endringen,
    og setningen er byggherrens utsagn, ikke løsningens vurdering. Setningen velges når vilkårene i
    punkt 1 er oppfylt. (GR-U14 s3–s6; KA-U87)
@@ -193,14 +209,19 @@ flyttet eller til F).
 
 ###### Endret innhold
 
-- **E1 Endringsordren som pålegg.** HF-U12 er dekket av EO-U39 punkt 17, 27 og 63 og E6. HF-U12 s3
-  (uenighet i en ny KOE-sak) gjelder en endringsordre i en EO-sak (EO-U39 punkt 35). Er
-  endringsordren svaret på forholdet, lukker den ikke saken (EO-U39 punkt 10).
-- **E2 Fra C.** KA-U12 s4–s6 er dekket av EO-U39 punkt 10 og 15.
+- **E1 Endringsordren som pålegg.** HF-U12 er dekket av EO-U39 punkt 17, 27 og 63 og E6 i EO-U39.
+  HF-U12 s3 (uenighet i en ny KOE-sak) gjelder bare en endringsordre i en EO-sak (EO-U39 punkt 35).
+  Er endringsordren svaret på forholdet, lukker den ikke saken (EO-U39 punkt 10). Forhold: snevrer
+  inn HF-U12 s3.
+- **E2 Fra C.** KA-U12 s4–s6 er dekket av EO-U39 punkt 1, 10 og 15.
 - **E3 «Låst».** GR-U14 s3 «byggherrens låste tekst» blir «brevet» (KA-U88 E2).
 - **E4 Språket.** Som E6 i D1. «Registrert» blir «lagt til» etter OV-U123.
+- **E5 Registratorens opplysning.** GR-U13 s3–s5 (opplysningen om punkt 31.3, og at en manglende
+  opplysning ikke er nok) er endret av OV-U6 og OV-U13, som EO-U39 og OV-U123 samler: byggherren
+  opplyser det når brevet legges til som svar. Hjemmet er EO-U39 punkt 43–48 og OV-U123 punkt 8.
 
-**Samler:** GR-U10 s3, GR-U12 (unntatt s3), GR-U13 (unntatt s6), GR-U14 (ordlyden i E) og HF-U12.
+**Samler:** GR-U10 s3, GR-U12 (unntatt s3), GR-U13 (unntatt s6), GR-U14 (ordlyden i E), HF-U12 og
+KA-U12 s4–s6.
 **Står:** GR-U11, OV-U12 og OV-U46 (A), GFK-U2, LV-U15 og OV-U2 (G og H) og MM-U25 (design).
 
 ## Spørsmålene
@@ -212,21 +233,24 @@ og stilles som nummerert liste.
 > avgjort, tema 9 frafallet og tema 10 forholdet godkjent som endringsordre.
 > - **A (anbefalt):** Tre samlevedtak, D1, D2 og D3, lagt fram samlet og ført i én vedtaks-PR.
 >   Restene går til A, E, F, G og H som under «Delingen».
-> - **B:** Som A, men D3 føres som en versjon 4 av samlevedtaket for endringsordren (EO-U39).
+> - **B:** Som A, men D3 føres som en versjon 4 av samlevedtaket for endringsordren, som opphever
+>   EO-U39 og tar inn D3. Henvisningene til punktene i EO-U39 i HF-U29 punkt 2, 5 og 7 og KA-U88
+>   punkt 8 må da leses mot versjon 4.
 >
 > Styrer: antall poster, og om EO-U39 skrives på nytt.
 
 > **2. Tilslutning til D1 (juridisk).** Samlevedtaket for løsningens rolle og kravene er avgjort
-> (foreløpig MM-U62) gjelder med E1–E6. Forhold: samler postene under «Samler» og endrer OV-U3
-> (E1).
+> (foreløpig MM-U62) gjelder med E1–E6. Forhold: samler postene under «Samler», også KA-U29, som
+> HF-U35 førte under «Står», og endrer OV-U3 (E1).
 > - **A (anbefalt):** Ja, som utkastet.
 > - **B:** Som A, med rettelsene oppdragsgiver gir per punkt.
 >
 > Styrer: hvor løsningens rolle og predikatet «kravene er avgjort» leses.
 
 > **3. Tilslutning til D2 (juridisk).** Samlevedtaket for frafall etter punkt 32.3 første ledd c
-> (foreløpig GR-U41) gjelder med E1–E7, og med punkt 2 og 4 etter svarene på spørsmål 4 og 5.
-> Forhold: samler postene under «Samler» og endrer GR-U17 og GR-U20 (E2).
+> (foreløpig GR-U41) gjelder med E1–E8, og med punkt 2 og 4 etter svarene på spørsmål 4 og 5.
+> Forhold: samler postene under «Samler», endrer GR-U17 og GR-U20 (E2) og presiserer GR-U9 og
+> GR-U17 (E8).
 > - **A (anbefalt):** Ja, som utkastet.
 > - **B:** Som A, med rettelsene oppdragsgiver gir per punkt.
 >
@@ -237,14 +261,19 @@ og stilles som nummerert liste.
 > en ny versjon. Siden har MM-U34 punkt 7 og HF-U29 punkt 4 latt byggherren svare med avslag etter
 > frafallet, med frafallet vist uten konklusjon. GR-U28 (28.10) sier at løsningen ikke avgjør
 > rettsvirkningene av frafallet, og MM-U60 punkt 8 at den ikke avgjør om en part er bundet. Svar 5
-> A i C (HF-U35 punkt 2) beholdt derimot at et avkall binder, som kontraktens virkning.
+> A i C (HF-U35 punkt 2) beholdt derimot at et avkall binder etter avtaleloven § 7. Avkallet har en
+> virkning i løsningen, som gjennomfører det. Bindingen ved frafallet har ingen, fordi byggherren
+> kan svare med avslag (HF-U29 punkt 4).
 > - **A (anbefalt):** Punkt 4 i D2 står: frafallet står i saken, løsningen viser det sammen med et
 >   nytt svar og avgjør ikke om byggherren er bundet av det. Forhold: endrer GR-U17 og GR-U20; i tråd
 >   med MM-U60 punkt 8, GR-U28 og HF-U29 punkt 4.
-> - **B:** Punkt 4 får en setning til foran: «Etter frafallet er byggherren bundet av løftet om
->   endringsordre for arbeid som er utført, og frafallet faller ikke bort når totalentreprenøren
->   sender en ny versjon av forholdet. Bindingen er kontraktens virkning, ikke løsningens vurdering.»
->   Forhold: snevrer inn MM-U60 punkt 8 for frafallet, som HF-U35 punkt 2 for avkallet.
+> - **B:** Punkt 4 blir: «Etter frafallet er byggherren bundet av løftet om endringsordre for arbeid
+>   som er utført, og frafallet faller ikke bort når totalentreprenøren sender en ny versjon av
+>   forholdet. Bindingen er virkningen etter kontrakten og loven, ikke løsningens vurdering.
+>   Løsningen hindrer ikke et nytt svar etter HF-U29 punkt 4, og viser frafallet sammen med det.»
+>   Forhold: snevrer inn MM-U60 punkt 8 og GR-U28 s7 for frafallet, som HF-U35 punkt 2 for
+>   avkallet; i tråd med HF-U29 punkt 4 bare så langt løsningen ikke leser bindingen. B avgjør et
+>   spørsmål kontrakten overlater til partene («Domenekjernen» i `CLAUDE.md`).
 >
 > Styrer: om D2 sier at frafallet binder byggherren.
 
@@ -254,12 +283,14 @@ og stilles som nummerert liste.
 > - **A (anbefalt):** Punkt 2 i D2 står: frafallet kan ikke stå i samme svar som påberopelsen.
 >   Forhold: snevrer inn raden for #235 til samme svar; i tråd med HF-U27.
 > - **B:** Punkt 2 utgår, og byggherren kan i samme svar påberope at forholdet er varslet for sent og
->   subsidiært frafalle pålegget. Forhold: opphever raden for #235 s1.
+>   subsidiært frafalle pålegget. Et subsidiært frafall gjør ikke forholdet avklart. Forhold:
+>   opphever raden for #235 s1, presiserer KA-U88 punkt 12 og GR-U34 punkt 12 og endrer punkt 3 i D2.
 >
 > Styrer: om løsningen avviser et svar med både frafall og påberopelse.
 
 > **6. Tilslutning til D3 (juridisk).** Samlevedtaket for forholdet godkjent som endringsordre
-> (foreløpig GR-U42) gjelder med E1–E4. Forhold: samler postene under «Samler».
+> (foreløpig GR-U42) gjelder med E1–E5. Forhold: samler postene under «Samler» og snevrer inn
+> HF-U12 s3 (E1).
 > - **A (anbefalt):** Ja, som utkastet.
 > - **B:** Som A, med rettelsene oppdragsgiver gir per punkt.
 >
@@ -285,17 +316,19 @@ Kartleggingen har ikke lest koden utover dette, og ingenting er kjørt.
   gjelder et svar fra løsningen som er en endringsordre, hører til G.
 - GR-U32 endrer GR-U14 s1 «som i A», og teksten i A står ikke i posten (E).
 - MM-U60 punkt 24 og GR-U34 punkt 12 viser til HF-U25, som er opphevet av HF-U29.
-- HF-U35 fører KA-U29 under «Står», men bruker posten som kilde i punkt 9. D1 samler den.
 
 ## Verifikasjon og grenser
 
 - **Kjørt og observert:** skriptet over `vedtak.toml` på `5eef25c` (postene som gjenstår, og
   forholdene inn til dem), `--vis` for de 25 postene, EO-U39, GR-U12, GR-U13, OV-U124 og KA-U12, og
   lista over gjeldende samlevedtak.
-- **Lest av økta selv:** E3 i HF-U29, punkt 4 i HF-U29, E7 i MM-U60, MM-U34 punkt 12, KA-U52 punkt
+- **Lest av økta selv:** E3 i HF-U25, punkt 4 i HF-U29, E7 i MM-U60, MM-U34 punkt 12, KA-U52 punkt
   6–7, punkt 10 og E7 i HF-U35, MM-U60 punkt 8 og 17, BF-51 D-1, `kanFrafalle` og raden #213.
 - **Lest av subagentene:** setningsdelingen og oppslagene mot samlevedtakene. Statusene de merket
   som slutning, er ikke kontrollert av økta.
-- **Ikke kontrollert:** sitatene fra NS 8407 (ingen er brukt), OV-U123 punkt 19 mot OV-U3 s13, og
-  om punkt 1 i D2 dekker alle underkategoriene i GR-U11. Kildekontrollen og prøvingen av
-  alternativene står i PR-en.
+- **Kontrollene:** kildekontrollen (14 funn) og prøvingen av alternativene mot vedtakene (11 funn)
+  er gjort én gang i hver sin subagent 26.11, og funnene er rettet én gang. De står i PR #2428
+  under «Funn og utfall». Rettingene er ikke prøvd på nytt (vedtaksskillen).
+- **Ikke kontrollert:** sitatene fra NS 8407 (ingen er brukt), OV-U123 punkt 19 mot OV-U3 s13, at
+  ID-ene i K4 er ledige når postene føres, og om KA-U88 punkt 12 og GR-U34 punkt 12 dekker
+  fullmakten i raden #235 s3.
