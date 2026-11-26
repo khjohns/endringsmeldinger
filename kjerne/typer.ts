@@ -255,7 +255,12 @@ export type Utsagn =
    * etter § 34.1.3 annet ledd ville påløpe, i et eget utsagn. `gjelder` er varselet etter
    * § 34.1.3, det registrerte eller kravet som er det første varselet løsningen kjenner.
    */
-  | { id: string; art: 'kunnskapsdato'; gjelder: string; klar_over_utgiftene: string };
+  | { id: string; art: 'kunnskapsdato'; gjelder: string; klar_over_utgiftene: string }
+  /**
+   * Innlegget i fritekst fra en av partene (OV-U97, MM-U47 punkt 1–6). `gjelder` er brevet det viser
+   * til (punkt 2). Tittelen og teksten står i brevet. Ingen regel leser innlegget (punkt 4).
+   */
+  | { id: string; art: 'innlegg'; gjelder: string };
 
 /**
  * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen

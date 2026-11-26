@@ -543,6 +543,15 @@ function dokument(
         ],
       };
     }
+    case 'innlegg': {
+      // MM-U47 punkt 2: henvisningen er den låste teksten, og partens tekst følger som utdypningen.
+      const id = nyId();
+      utdypninger.set(id, { utdypning: k.utdypning });
+      return {
+        utsagn: [{ id, art: 'innlegg', gjelder: k.gjelder }],
+        ...(bundne.length ? { dokumentasjon: bundne } : {}),
+      };
+    }
     case 'bestridelse':
     case 'ingen_krav':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
@@ -782,7 +791,15 @@ function skriv(
   let brevtittel: string | null = null;
   let deresRef: string[] = [];
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
+    const brevet = brevtekstFor(
+      rad,
+      lest,
+      u,
+      kjerne,
+      utdypninger,
+      kontekst,
+      k.type === 'innlegg' ? k.tittel.trim() : null
+    );
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
     deresRef = brevet?.deresRef ?? [];
@@ -908,7 +925,9 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  { sakskode }: Pick<Kontekst, 'sakskode'>
+  { sakskode }: Pick<Kontekst, 'sakskode'>,
+  /** MM-U47, designdelen: tittelen parten skrev på innlegget. */
+  partensTittel: string | null = null
 ): { tekst: Avsnitt[]; tittel: string | null; deresRef: string[] } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -949,7 +968,7 @@ function brevtekstFor(
     };
     const tekst = lagBrevtekst(ny.dokument, lest, saken, kjerne.regler, utdypninger);
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
-    const tittel = lagBrevtittel(ny.dokument);
+    const tittel = partensTittel ?? lagBrevtittel(ny.dokument);
     return {
       tekst,
       tittel: tittel && medSakskode(tittel, sakskode),

@@ -30,6 +30,7 @@ import {
   avvikIMerkingen,
   avvikITittelen,
   ulikSakIMerkingenOgTittelen,
+  erInnlegg,
 } from '../frosset/brevtittel.ts';
 import {
   FORBEHOLDET,
@@ -382,6 +383,8 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   begrunnelse: 'BH',
   korrigering: 'TE',
   kunnskapsdato: 'TE',
+  // MM-U47 punkt 1, MM-U56: begge parter sender innlegg.
+  innlegg: null,
 };
 
 /**
@@ -557,6 +560,15 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'et registrert brev har en opplysning om datoen utgiftene etter § 34.1.3 ble kjent'
     );
+  // D-6 i BF-03: et innlegg sendt utenfor løsningen legges til som korrespondanse (OV-U4).
+  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'innlegg'))
+    throw new Uforstaatt('et registrert brev har et innlegg');
+  // MM-U47 punkt 1–2: innlegget er et eget brev med én henvisning.
+  if (
+    dokument.utsagn.some((u) => u.art === 'innlegg') &&
+    (dokument.utsagn.length > 1 || dokument.krav.length || dokument.svar.length)
+  )
+    throw new Uforstaatt('innlegget står ikke alene i brevet');
   // OV-U4, OV-U16: et dokument uten krav, svar eller utsagn er et brev registrert som
   // dokumentasjon. OV-U79: annen registrert korrespondanse kan ha beskrivelsen, men ikke sporene.
   if (!data.krav && !data.svar && !data.utsagn) dokumentasjonsbrev(dokument);
@@ -596,6 +608,9 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt('sendemåten står i et dokument som ikke er et registrert brev (OV-U79)');
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U50)');
+  // MM-U47, designdelen: innlegget fra løsningen har tittelen parten skrev.
+  if (data.brevtekst && data.brevtittel === undefined && erInnlegg(dokument))
+    throw new Uforstaatt('innlegget har ingen tittel');
   if (data.brevtittel !== undefined) {
     const avvik = avvikITittelen(data.brevtittel, dokument);
     if (avvik) throw new Uforstaatt(avvik);

@@ -17,7 +17,7 @@ import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
 import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
-import { datoFor, kalenderdag } from '../format/leser.ts';
+import { datoFor, dokumenterI, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import {
   BARE_LAGT_TIL,
@@ -507,6 +507,15 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
 }
 
 /**
+ * MM-U47 punkt 2: innlegget viser til ett brev i saken, også et registrert brev. Rettingen som sier
+ * at et brev ikke hører til saken (OV-U18), er ikke et brev.
+ */
+function henvisningenIInnlegget(gjelder: string, u: Utledning): Avvisning | null {
+  for (const d of dokumenterI(u.journal)) if (d.id === gjelder && !d.ikkeISaken) return null;
+  return avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1). `sendt` er dagen et
  * brev lagt til ble sendt, og `null` for et brev fra løsningen (OV-U98).
@@ -635,6 +644,8 @@ export function nyttelastkontroll(
       // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39, opphevet av KA-U46) bygges ikke.
       return utdypningKreves ? begrunnelsensTekst(k) : null;
     }
+    case 'innlegg':
+      return henvisningenIInnlegget(k.gjelder, u);
     case 'korrigering':
       return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u, regler);
   }

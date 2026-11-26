@@ -115,6 +115,14 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon'],
   // OV-U79: bare et brev har sendemåten, også i varselet i fristkravet.
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'varsel'],
+  // MM-U47 punkt 2 og designdelen: innlegget har en tittel og en tekst.
+  ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'tittel utdypning'],
+  // MM-U47, designdelen: tittelen parten skrev, fryses i brevet, og ingen regel leser den.
+  ['Kommando', 'kommando', 'tittel', ['kommandoer/skriving.ts:skriv']],
+  // MM-U47 punkt 2: innlegget viser til et brev i saken, ikke rettingen etter OV-U18.
+  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
+  ['Utledning', 'utsagn', 'journal', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
+  ['Dokument', 'relasjon', 'id ikkeISaken', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
   // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
   ['kommandoer/kommando.ts:formfeil(k)', 'kommando', 'beskrivelse'],
   ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],

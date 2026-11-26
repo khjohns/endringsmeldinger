@@ -7773,6 +7773,86 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['VS-U88 punkt 9, LV-U4 punkt 5: svaret på en senere kravversjon gjentar påberopelsen'],
   },
+  {
+    id: 'F1377a',
+    feilklasse:
+      'innlegget avvises etter at totalentreprenøren har godtatt avslaget av grunnlaget (GR-U27, MM-U47 punkt 10)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "  if (h.type === 'sende_innlegg') return null;",
+        "  if (h.type === 'sende_innlegg') return u.forholdAvvist ? avvis('FORHOLD_AVVIST', '') : null;",
+      ],
+    ],
+    mal: ['etter at totalentreprenøren har godtatt avslaget av grunnlaget, godtas innlegg'],
+  },
+  {
+    id: 'F1377b',
+    feilklasse: 'innlegget avvises i en sak løsningen ikke forstår (MM-U44)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "  if (h.type === 'sende_innlegg') return null;",
+        "  if (h.type === 'sende_innlegg') return u.forstaatt ? null : avvis('SAK_IKKE_FORSTAATT', '');",
+      ],
+    ],
+    mal: ['i en sak løsningen ikke forstår, godtas innlegget'],
+  },
+  {
+    id: 'F1377c',
+    feilklasse:
+      'innlegget kan vise til et element i et brev, ikke bare til brevet (MM-U47 punkt 2)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "  return avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');",
+        "  return u.elementer[gjelder] ? null : avvis('INGEN_BREV', 'Innlegget må vise til et brev i saken.');",
+      ],
+    ],
+    mal: ['innlegget må vise til et brev i saken, ikke til et element i brevet'],
+  },
+  {
+    id: 'F1377d',
+    feilklasse: 'innlegget mangler henvisningen til brevet det viser til (MM-U47 punkt 2, LV-U53)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['      return `${part} viser til ${j.brevet(u.gjelder)}:`;', '      return `${part}:`;'],
+    ],
+    mal: ['totalentreprenørens innlegg viser til byggherrens svar med merkingen og datoen'],
+  },
+  {
+    id: 'F1377e',
+    feilklasse: 'Deres ref. mangler motpartens brev innlegget viser til (LV-U27)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "  // LV-U27: innlegget som viser til motpartens brev (skissen for BF-03, U-4).\n  'innlegg',\n",
+        '',
+      ],
+    ],
+    mal: ['byggherrens senere begrunnelse er et innlegg som viser til totalentreprenørens innlegg'],
+  },
+  {
+    id: 'F1377f',
+    feilklasse: 'innlegget godtas med en tittel med bare mellomrom (MM-U47, designdelen)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      ['      if (!(kommando[felt] as string).trim())', '      if (!(kommando[felt] as string))'],
+    ],
+    mal: ['innlegget må ha en tittel og en tekst'],
+  },
+  {
+    id: 'F1377g',
+    feilklasse: 'en lagret rad med et registrert innlegg gjøres forstått (D-6 i BF-03, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'innlegg'))\n    throw new Uforstaatt('et registrert brev har et innlegg');\n",
+        '',
+      ],
+    ],
+    mal: ['en lagret rad med et registrert innlegg gjør saken ikke forstått'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

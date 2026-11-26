@@ -279,6 +279,18 @@ export type Kommando = (
       /** Arbeidsvalget D-5 i BF-48, etter MM-U53: TEs valgfrie forklaring. Løsningen tolker den ikke. */
       utdypning?: string;
     }
+  /**
+   * Innlegget i fritekst fra en av partene (OV-U97, MM-U47 punkt 1–6, MM-U56). `gjelder` er brevet
+   * det viser til, `tittel` tittelen parten skriver, og `utdypning` teksten som følger
+   * henvisningen (punkt 2 og designdelen). `dokumentasjon` er vedleggene (G-6 i BF-03).
+   */
+  | {
+      type: 'innlegg';
+      gjelder: string;
+      tittel: string;
+      utdypning: string;
+      dokumentasjon?: string[];
+    }
 ) &
   Brevtekst;
 
@@ -483,6 +495,17 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     },
     ['type', 'gjelder', 'klar_over_utgiftene']
   ),
+  innlegg: objekt(
+    {
+      type: { const: 'innlegg' },
+      gjelder: ID,
+      tittel: TEKST,
+      utdypning: TEKST,
+      dokumentasjon: liste(ID),
+      ...BREVTEKST,
+    },
+    ['type', 'gjelder', 'tittel', 'utdypning']
+  ),
 };
 
 /** Kunnskapsdatoen etter § 34.1.3 i kommandoen, eller `undefined` (VS-U86 punkt 12 og 14). */
@@ -678,6 +701,11 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor && new Set(k.spor).size !== k.spor.length)
       feil.push('$.spor: samme spor står to ganger');
   }
+  // MM-U47 punkt 2 og designdelen: innlegget har en tittel og en tekst.
+  if (type === 'innlegg' && !feil.length)
+    for (const felt of ['tittel', 'utdypning'] as const)
+      if (!(kommando[felt] as string).trim())
+        feil.push(`$.${felt}: innlegget har ingen ${felt === 'tittel' ? 'tittel' : 'tekst'}`);
   if (type === 'begrunnelse' && !feil.length)
     // KA-U35: den registrerte begrunnelsen har ingen tekst i appen. KA-U34: brevet fra appen har
     // bare setningen og teksten.

@@ -346,6 +346,22 @@ valgfrie forklaring står som utdypningen under den faste teksten."""
 felt = ["id", "art", "gjelder", "klar_over_utgiftene"]
 grunnlag = "VS-U82, VS-U83, VS-U84, VS-U85, VS-U86, MM-U59, MM-U53"
 
+[[utsagn]]
+art = "innlegg"
+avsender = "TE eller BH"
+beskrivelse = """
+Innlegget i fritekst fra en av partene, i et eget brev fra løsningen. `gjelder` er
+brevet innlegget viser til: et brev fra løsningen eller registrert korrespondanse i saken,
+også et annet innlegg. Tittelen parten skrev, står i `brevtittel` med sakens kode, og
+partens tekst står som utdypningen under henvisningen «<Part> viser til <brevet>:».
+Vedleggene står i `dokumentasjon`. Ingen regel leser innlegget: det endrer ikke utfallet
+eller et standpunkt, og sporet venter ikke på svar. Godtas fra begge parter, også i et
+spor med enighet, i en lukket sak og i en sak løsningen ikke forstår. Et innlegg sendt
+utenfor løsningen står som korrespondanse, og et registrert brev med innlegget gjør saken
+ikke forstått."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "OV-U97, MM-U47, MM-U44, MM-U56, GR-U27, LV-U53, LV-U27"
+
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.
 # ---------------------------------------------------------------------------

@@ -943,7 +943,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 }
 
 export type Utsagn<A extends Utsagnet['art']> = Extract<Utsagnet, { art: A }>;
-export type Henvisning = Utsagn<'protest' | 'begrunnelse' | 'foresporselssvar'>;
+export type Henvisning = Utsagn<'protest' | 'begrunnelse' | 'foresporselssvar' | 'innlegg'>;
 /** Fører en begrensning for elementet `id` etter lesereglene i 4.2. */
 export type Ugyldig = (id: string, grunn: string) => void;
 /** `fra` viser til `til` med lavere saksversjon. */
@@ -1511,6 +1511,9 @@ function kanGjelde(
     case 'foresporselssvar':
       // VS-U27: en forespørsel fra appen. Forespørselen er fra BH og svaret fra TE (format/leser.ts).
       return maal.art === 'foresporsel';
+    case 'innlegg':
+      // MM-U47 punkt 2: et brev i saken.
+      return maal.art === 'dokument';
   }
 }
 

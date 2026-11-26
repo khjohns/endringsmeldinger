@@ -106,6 +106,8 @@ export const BREVTEKSTEN: Lesbar[] = [
     'lagBrevtittel avvikITittelen medSakskode',
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
+  // MM-U47, designdelen: innlegget har tittelen parten skrev (`leser.ts`).
+  ['frosset/brevtittel.ts', 'brevtekst', 'erInnlegg', ['format/leser.ts:lesDokument']],
   [
     'UTSAGNSTITTEL',
     'brevtekst',

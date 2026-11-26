@@ -1167,6 +1167,9 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
           : []),
       ].join(' ');
     }
+    case 'innlegg':
+      // MM-U47 punkt 2 og LV-U53: henvisningen, og partens tekst følger som utdypningen.
+      return `${part} viser til ${j.brevet(u.gjelder)}:`;
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.
       const svar = j.svar(u.gjelder);
@@ -1201,6 +1204,8 @@ const SVARER_GODTAR_BESTRIDER = new Set<Utsagn['art']>([
   'bestridelse',
   'protest',
   'foresporselssvar',
+  // LV-U27: innlegget som viser til motpartens brev (skissen for BF-03, U-4).
+  'innlegg',
 ]);
 
 /**

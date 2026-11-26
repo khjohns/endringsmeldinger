@@ -115,10 +115,10 @@ form = "Innlegg. Tar det I1–I5 gjelder, og utdyping."
 naar = "Nå."
 tilstander = "Merket som innlegg etter siste brev."
 status = "grunnsett"
-noekler = []
-kommandoer = []
+noekler = ["sende_innlegg"]
+kommandoer = ["innlegg"]
 skjema = []
-mangler = "Kommandoen i kjernen, uten regel, og skjemaet i Varden."
+mangler = "Skjemaet og visningen i Varden (G-15 i BF-03)."
 
 # ---------------------------------------------------------------------------
 # Utover grunnsettet, beholdt nå (OV-U99 punkt 1)

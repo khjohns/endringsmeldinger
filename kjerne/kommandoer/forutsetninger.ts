@@ -47,6 +47,8 @@ export type Handlingsnoekkel =
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | { type: 'registrere_brev' }
+  /** OV-U97, MM-U47: innlegget i fritekst, fra begge parter. Brevet det viser til, står i kommandoen. */
+  | { type: 'sende_innlegg' }
   /** VS-U79: byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
   | { type: 'svare' | 'revidere'; gjelder: string }
   | {
@@ -85,6 +87,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   svare_paa_foresporsel: 'TE',
   ingen_krav: 'TE',
   registrere_brev: null,
+  sende_innlegg: null,
   svare: 'BH',
   revidere: 'BH',
   bestride: null,
@@ -218,6 +221,9 @@ export function forutsetninger(
   // OV-U4: hver side registrerer sine egne brev som dokumentasjon, uten virkning, også når
   // saken ikke er forstått, etter godtatt avslag og etter trekk.
   if (h.type === 'registrere_brev') return null;
+  // MM-U47 punkt 5 og 10, MM-U44, MM-U56: innlegget sperrer ingenting og godtas fra begge parter,
+  // også etter enighet, etter godtatt avslag og når saken ikke er forstått.
+  if (h.type === 'sende_innlegg') return null;
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
   if (!u.forstaatt)
     return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');

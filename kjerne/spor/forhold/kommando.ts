@@ -141,7 +141,7 @@ function kategorisperre(
       'ANNEN_ENDRINGSORDRE',
       eldre
         ? `Påberopelsen er sendt før totalentreprenørens siste påberopelse i saken og gjelder en annen endringsordre enn «${forrige.endringsordre}». ${somDokumentasjon}`
-        : `Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak.`
+        : `Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «${forrige.endringsordre}». Et forslag om å rette betegnelsen sendes som innlegg, og en annen endringsordre påberopes i en ny sak.`
     );
   return null;
 }

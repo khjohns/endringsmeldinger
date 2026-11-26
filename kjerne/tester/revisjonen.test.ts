@@ -391,7 +391,7 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     expect(s.avvisning('TE', versjon({ ...endringsordre, endringsordre: 'EO-2' }))).toEqual({
       regel: 'ANNEN_ENDRINGSORDRE',
       melding:
-        'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak.',
+        'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «EO-1». Et forslag om å rette betegnelsen sendes som innlegg, og en annen endringsordre påberopes i en ny sak.',
     });
   });
 

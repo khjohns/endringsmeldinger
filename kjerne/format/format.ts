@@ -258,6 +258,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     { ...artfelt('kunnskapsdato'), gjelder: ID, klar_over_utgiftene: KALENDERDAG },
     ['id', 'art', 'gjelder', 'klar_over_utgiftene']
   ),
+  innlegg: objekt({ ...artfelt('innlegg'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

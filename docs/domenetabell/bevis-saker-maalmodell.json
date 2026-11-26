@@ -308,8 +308,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": ["registrere_brev", "korrigere:K-g1"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg", "korrigere:K-g1"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "kravene_avgjort": false
           }
         },
@@ -519,8 +519,8 @@
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:vederlag", "trekke:vederlag", "krav:frist", "trekke:frist", "registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4", "korrigere:K-g1"],
-            "handlinger.BH": ["revidere:forhold", "revidere:vederlag", "revidere:frist", "registrere_brev"],
+            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:vederlag", "trekke:vederlag", "krav:frist", "trekke:frist", "registrere_brev", "sende_innlegg", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4", "korrigere:K-g1"],
+            "handlinger.BH": ["revidere:forhold", "revidere:vederlag", "revidere:frist", "registrere_brev", "sende_innlegg"],
             "kravene_avgjort": true
           }
         }
@@ -604,8 +604,8 @@
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_trukket",
             "visning.etiketter.forhold": { "inneholder": ["trukket"], "mangler": ["paalegg_frafalt"] },
-            "handlinger.TE": ["registrere_brev", "korrigere:K-g1"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg", "korrigere:K-g1"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "kravene_avgjort": false
           }
         },
@@ -1165,8 +1165,8 @@
           "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.S-x": "ikke_tolket"
           }
@@ -1242,8 +1242,8 @@
           "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.status": "kan_ikke_utledes"
           }
         },
@@ -1287,8 +1287,8 @@
           "kilde": ["MM-U2", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.D4": "ikke_tolket",
             "visning.journal.K-v1": "tolket",
@@ -1444,8 +1444,8 @@
           "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.journal.S-v2": "ikke_tolket"
           }
         },
@@ -1500,8 +1500,8 @@
           "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.status": "kan_ikke_utledes"
           }
         },
@@ -1800,8 +1800,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:frist", "trekke:frist", "registrere_brev", "varsle:frist"],
-            "handlinger.BH": ["revidere:forhold", "revidere:frist", "registrere_brev"]
+            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:frist", "trekke:frist", "registrere_brev", "sende_innlegg", "varsle:frist"],
+            "handlinger.BH": ["revidere:forhold", "revidere:frist", "registrere_brev", "sende_innlegg"]
           }
         }
       ]
@@ -1880,8 +1880,8 @@
             "avvist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "handlinger.TE": ["krav:forhold", "trekke:forhold", "registrere_brev"],
-            "handlinger.BH": ["revidere:forhold", "registrere_brev"]
+            "handlinger.TE": ["krav:forhold", "trekke:forhold", "registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["revidere:forhold", "registrere_brev", "sende_innlegg"]
           }
         },
         {
@@ -3103,8 +3103,8 @@
           "kilde": ["MM-U2", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"],
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.D4": "ikke_tolket",
             "visning.journal.K-v1": "tolket"
@@ -4553,8 +4553,8 @@
           "forventet": {
             "forstaatt": false,
             "visning.journal.D5": "ikke_tolket",
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev"]
+            "handlinger.TE": ["registrere_brev", "sende_innlegg"],
+            "handlinger.BH": ["registrere_brev", "sende_innlegg"]
           }
         }
       ]

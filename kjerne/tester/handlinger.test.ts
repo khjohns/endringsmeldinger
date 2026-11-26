@@ -66,9 +66,12 @@ describe('sporet og hjemmelen i de tilbudte handlingene (#1703)', () => {
     for (const { noekler, h } of alle) expect(noekler).toContain(h.noekkel);
   });
 
-  it('hver handling unntatt registreringen av et brev hører til et spor (OV-U16)', () => {
+  it('hver handling unntatt registreringen av et brev hører til et spor, og innlegget viser til brevet (OV-U16, G-7 i BF-03)', () => {
+    // G-7 i BF-03: innlegget hører til sporet til brevet det viser til, som står i kommandoen.
     const utenSpor = alle
-      .filter(({ h }) => h.spor === null && h.type !== 'registrere_brev')
+      .filter(
+        ({ h }) => h.spor === null && h.type !== 'registrere_brev' && h.type !== 'sende_innlegg'
+      )
       .map(({ forloep, part, h }) => `${forloep} ${part} ${h.noekkel}`);
     expect(utenSpor).toEqual([]);
     expect(alle.filter(({ h }) => h.type === 'registrere_brev').every(({ h }) => !h.spor)).toBe(
