@@ -40,8 +40,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
   const registrer = (hjemmel: '34.1.2' | '34.1.3') => ({
     type: 'varsel',
     ...SOM_BREV,
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel }],
     sendt: '2026-09-28',
     dokumentasjon: [randomUUID()],
   });
@@ -68,7 +67,9 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
 
   it('det særskilte varselet kan sendes etter vederlagskravet, varselet etter § 34.1.2 ikke (OV-U8 (opphevet av OV-U89), VS-U16)', () => {
     const s = sakMedKrav();
-    expect(s.avvist('TE', { ...sendVarsel, hjemmel: '34.1.2' })).toBe('VEDERLAGSKRAV_SENDT');
+    expect(s.avvist('TE', { ...sendVarsel, varsler: [{ hjemmel: '34.1.2' }] })).toBe(
+      'VEDERLAGSKRAV_SENDT'
+    );
     expect(s.avvist('TE', sendVarsel)).toBeNull();
     expect(handlinger(s.u(), 'TE')).toEqual(
       expect.arrayContaining(['sende_varsel:34.1.3', 'varsle:34.1.3'])

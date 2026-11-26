@@ -27,16 +27,14 @@ const OPPGIR = (dato: string) =>
 
 const sendVarsel = (dato?: string) => ({
   type: 'send_varsel',
-  varsler: [{ hjemmel: '34.1.3' }],
-  ...(dato ? { klar_over_utgiftene: dato } : {}),
+  varsler: [{ hjemmel: '34.1.3', ...(dato ? { klar_over_utgiftene: dato } : {}) }],
 });
 const registrer = (sendt: string, dato?: string) => ({
   type: 'varsel',
   ...SOM_BREV,
-  varsler: [{ hjemmel: '34.1.3' }],
+  varsler: [{ hjemmel: '34.1.3', ...(dato ? { klar_over_utgiftene: dato } : {}) }],
   sendt,
   dokumentasjon: [randomUUID()],
-  ...(dato ? { klar_over_utgiftene: dato } : {}),
 });
 const kravet = (dato?: string, beloep = 40000) => ({
   type: 'krav',
@@ -191,7 +189,10 @@ describe('datoen i brevet med varselet (VS-U86 punkt 12 og 13, VS-U82)', () => {
   it('bare varselet etter § 34.1.3 har datoen, og en dato som ikke finnes, avvises av formen (VS-U86 punkt 12)', () => {
     const s = medPaaberopelsen();
     expect(
-      s.avvist('TE', { ...sendVarsel(), hjemmel: '34.1.2', klar_over_utgiftene: '2026-09-28' })
+      s.avvist('TE', {
+        ...sendVarsel(),
+        varsler: [{ hjemmel: '34.1.2', klar_over_utgiftene: '2026-09-28' }],
+      })
     ).toBe('UGYLDIG_FORM');
     expect(s.avvist('TE', sendVarsel('2026-02-30'))).toBe('UGYLDIG_FORM');
     expect(s.avvist('TE', kravet('2026-02-30'))).toBe('UGYLDIG_FORM');

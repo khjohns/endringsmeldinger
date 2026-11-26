@@ -60,6 +60,9 @@ import {
   varseletGitt,
 } from './brevsak.ts';
 
+/** VS-U87 punkt 27: arbeidet varselet etter punkt 34.3.3 eller 34.4 gjelder. */
+const ARBEIDET = 'Graving ved kum 4';
+
 /**
  * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
  * At en dato etter brevets dato avvises, er arbeidsvalg 1 i #664, og vurderer ikke
@@ -801,18 +804,11 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
     innhold: tilbud(125000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
   });
   const varsel = (
-    spor: string,
+    _spor: string,
     hjemmel: string,
     dokumentasjon: string[],
     sendt = '2026-10-01'
-  ) => ({
-    type: 'varsel',
-    ...SOM_BREV,
-    spor,
-    hjemmel,
-    sendt,
-    dokumentasjon,
-  });
+  ) => ({ type: 'varsel', ...SOM_BREV, varsler: [{ hjemmel }], sendt, dokumentasjon });
 
   it.each([
     ['33.4', 'frist', fristkravet],
@@ -1190,8 +1186,15 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
 
   it('varselet etter § 34.1.2 står i vederlaget, og varselet etter § 33.4 i fristen (OV-U5)', () => {
     const s = medPaaberopelse('svikt');
+    // Sporet følger hjemmelen, og et brev fra løsningen har varsler i ett spor (beslutningsdelen i VS-U87).
     expect(s.avvist('TE', { ...sendVarsel, spor: 'frist' })).toBe('UGYLDIG_FORM');
-    expect(s.avvist('TE', { ...sendVarsel, hjemmel: '33.4' })).toBe('UGYLDIG_FORM');
+    expect(
+      s.avvisning('TE', {
+        type: 'send_varsel',
+        varsler: [{ hjemmel: '34.1.2' }, { hjemmel: '33.4' }],
+      })?.melding
+    ).toContain('varslene i et brev fra løsningen står i ett spor');
+    expect(s.avvist('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] })).toBeNull();
   });
 
   it('et nytt varsel fra appen etter vederlagskravet avvises, og et tidligere varsel kan registreres (OV-U5, VS-U16)', () => {
@@ -1407,11 +1410,10 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
  * rekkefølgen. Påberopelsen er brev K201-KOE-017-01 av 2. oktober 2026, med datoen 25. september.
  */
 describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', () => {
-  const registrering = (spor: string, hjemmel: string, sendt: string) => ({
+  const registrering = (_spor: string, hjemmel: string, sendt: string) => ({
     type: 'varsel',
     ...SOM_BREV,
-    spor,
-    hjemmel,
+    varsler: [{ hjemmel }],
     sendt,
     dokumentasjon: [randomUUID()],
   });
@@ -1765,15 +1767,13 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
   const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
   const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
     type: 'send_varsel',
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel, arbeid: ARBEIDET }],
   });
   const registrertVarsel = (hjemmel: string) => ({
     type: 'varsel',
     korrespondansetype: 'e_post',
     beskrivelse: 'Varsel om vederlagsjustering',
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel }],
     sendt: '2026-09-28',
     dokumentasjon: [randomUUID()],
   });
@@ -1789,10 +1789,10 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
   it('TE sender varselet etter punkt 34.4 og etter punkt 34.3.3 fra løsningen uten krav (VS-U48)', () => {
     const s = paaberopt();
     expect(laast(s.send('TE', sendVarsel('34.4')))).toEqual([
-      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${ARBEIDET}» som følge av forholdet ${I_SAKEN}.`,
     ]);
     expect(laast(s.send('TE', sendVarsel('34.3.3')))).toEqual([
-      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene for arbeidet «${ARBEIDET}» som følge av forholdet ${I_SAKEN}.`,
     ]);
     expect(s.u().spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual(['34.4', '34.3.3']);
     expect(s.u().spor.vederlag.varsler, 'ikke et varsel etter SK-12').toEqual({});
@@ -1826,7 +1826,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
 
   it('et varsel etter punkt 34.4 står ikke i fristen (OV-U5)', () => {
     const s = paaberopt();
-    expect(s.avvist('TE', { ...sendVarsel('34.4'), spor: 'frist' })).not.toBeNull();
+    expect(s.avvist('TE', { ...sendVarsel('34.4'), spor: 'frist' })).toBe('UGYLDIG_FORM');
   });
 
   it('har saken et varsel etter samme bestemmelse som ingen kravpost viser til, avvises kravet der posten mangler valget, og med valget viser kravet til varselet (VS-U87 punkt 23, #2408)', () => {
@@ -1896,15 +1896,13 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
   const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
   const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
     type: 'send_varsel',
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel, arbeid: ARBEIDET }],
   });
   const registrertVarsel = (hjemmel: string, sendt = '2026-09-28') => ({
     type: 'varsel',
     korrespondansetype: 'e_post',
     beskrivelse: 'Varsel om vederlagsjustering',
-    spor: 'vederlag',
-    hjemmel,
+    varsler: [{ hjemmel }],
     sendt,
     dokumentasjon: [randomUUID()],
   });
@@ -2293,7 +2291,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(tekst).toContain('ble gitt i totalentreprenørens e-post');
     });
 
-    it('samme dokument for to kravposter er ett registrert brev med ett varsel per bestemmelse, og hver post viser til sitt (VS-U52, VS-U53)', () => {
+    it('samme dokument for tre kravposter er ett registrert brev med ett varsel per kravpost, og hver post viser til sitt (VS-U87 punkt 23 og 27, G-3 i BF-37, VS-U53)', () => {
       const s = paaberopt();
       const varsel = dokument();
       const foer = s.journal.length;
@@ -2308,10 +2306,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const rader = s.journal.slice(foer);
       expect(rader, 'ett brev og kravet').toHaveLength(2);
       const utsagn = rader[0]!.data.utsagn as Data[];
-      expect(utsagn.map((x) => x.hjemmel)).toEqual(['34.4', '34.3.3']);
+      expect(utsagn.map((x) => x.hjemmel)).toEqual(['34.4', '34.3.3', '34.4']);
       const poster = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
       expect(poster.map((p) => p.varsel)).toEqual(
-        [utsagn[0]!.id, utsagn[1]!.id, utsagn[0]!.id].map((varsel) => ({ art: 'gitt', varsel }))
+        utsagn.map((x) => ({ art: 'gitt', varsel: x.id }))
       );
       expect((krav.data.dokumentasjon ?? []) as Data[]).toHaveLength(1);
       expect(

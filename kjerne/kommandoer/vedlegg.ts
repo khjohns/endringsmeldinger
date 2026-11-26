@@ -6,13 +6,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import { kravSomVarsler, rettedeBrev, type Utledning } from '../utledning/utled.ts';
-import {
-  avvis,
-  VARSELSPOR,
-  type Avvisning,
-  type Dokument,
-  type Domenehendelse,
-} from '../typer.ts';
+import { avvis, VARSELSPOR, type Avvisning, type Dokument, type Domenehendelse } from '../typer.ts';
 import type { Kommando } from './kommando.ts';
 import type { Vedleggsoppslag } from './skriving.ts';
 

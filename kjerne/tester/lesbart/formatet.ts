@@ -102,6 +102,9 @@ export const FORMATET: Lesbar[] = [
   // ingen regel vurderer rettidigheten (punkt 16).
   ['Utsagn', 'utsagn', 'klar_over_utgiftene'],
   ['format/leser.ts:lesDokument(e)', 'rad', 'klar_over_utgiftene'],
+  // VS-U87 punkt 27: arbeidet i varselet står i brevet.
+  ['Utsagn', 'utsagn', 'arbeid'],
+  ['format/leser.ts:lesDokument(e)', 'rad', 'arbeid'],
   ['Kommando', 'kommando', 'klar_over_utgiftene'],
   [
     'Vederlagsinnhold.saerskilt',

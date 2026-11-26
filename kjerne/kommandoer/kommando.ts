@@ -652,7 +652,9 @@ export function formfeil(kommando: unknown): string[] {
       feil.push('$.forbehold: påberopelsen av forholdet har ikke noe forbehold');
   }
   if ((type === 'varsel' || type === 'send_varsel') && !feil.length)
-    feil.push(...varselfeil(kommando as unknown as Extract<Kommando, { type: 'varsel' | 'send_varsel' }>));
+    feil.push(
+      ...varselfeil(kommando as unknown as Extract<Kommando, { type: 'varsel' | 'send_varsel' }>)
+    );
   // VS-U86 punkt 12 og 14: datoen er en kalenderdag. I vederlagskravet kontrollerer sporet den.
   const kunnskapsdato = kommando.klar_over_utgiftene;
   if (!feil.length && typeof kunnskapsdato === 'string' && !erKalenderdato(kunnskapsdato))

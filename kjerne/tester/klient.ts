@@ -486,11 +486,13 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         ...(typeof h.arbeid === 'string' ? { arbeid: h.arbeid } : {}),
         ...kunnskapsdatoI(h),
       };
+      // Beslutningsdelen i VS-U87: `varsler` gir flere varsler i samme brev.
+      const varsler = Array.isArray(h.varsler) ? (h.varsler as (typeof varselet)[]) : [varselet];
       // VS-U15: uten en dato sender appen varselet. VS-U86 punkt 12: `klar_over_utgiftene`.
-      if (typeof h.sendt !== 'string') return { type: 'send_varsel', varsler: [varselet] };
+      if (typeof h.sendt !== 'string') return { type: 'send_varsel', varsler };
       return {
         type: 'varsel',
-        varsler: [varselet],
+        varsler,
         sendt: h.sendt as string,
         ...lagtTil(h),
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.

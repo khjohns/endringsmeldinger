@@ -83,6 +83,7 @@ import {
   OVERSIKTEN,
   UTEN_BEGRUNNELSE_I_SVARET,
   AKSEPTFRISTEN,
+  VARSELPUNKTET,
   vilkaaretILagslinjen,
 } from './tekst.ts';
 import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
@@ -280,7 +281,7 @@ export function lagBrevtekst(
     if (flereVarsler && u.art === 'varsel')
       leggPunkter(u.id, [
         {
-          punkt: 'varsel',
+          punkt: VARSELPUNKTET,
           overskrift: VARSELNAVN[uttrykkbar(u.hjemmel)],
           avsnitt: [utsagnstekst(u, t, regler)],
         },
