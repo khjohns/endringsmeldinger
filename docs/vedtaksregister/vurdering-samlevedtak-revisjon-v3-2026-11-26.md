@@ -158,7 +158,9 @@ står, og stilles som nummerert liste.
 
 ## Svarene
 
-Venter.
+Oppdragsgiver 26.11, ordrett, videresendt av orkestratoren og ført i #1534
+([7190795449](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7190795449)):
+«1A 2A». Samlevedtaket er ført som HF-U36, med E11 etter 2 A: punkt 2 viser til MM-U59 punkt 6 og 20.
 
 ## Kontrollene
 
