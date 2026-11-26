@@ -94,9 +94,11 @@
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
   // U-3, D-2: varslene som alt er gitt i saken, med brevet.
   const gitte = $derived(varsleneISporet(u, 'vederlag'));
-  // U-10 og D-7 i BF-48: etter at datoen er oppgitt, står den fast, med veien til det egne brevet
-  // (`kunnskapsdatoIVarselet` i kjernen).
+  // U-10 og D-7 i BF-48: etter at datoen er oppgitt, står den fast i et varsel fra løsningen, med
+  // veien til det egne brevet (`kunnskapsdatoIVarselet` i kjernen). Et varsel som registreres, kan
+  // ha datoen brevet oppga (U-11, D-1).
   const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  const datoenStaarFast = $derived(!!sisteKunnskapsdato && !registreres);
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
 
   // Den åpne raden: `null` er ingen. En ny rad åpnes.
@@ -153,6 +155,7 @@
   }
   function velgMaate(x: 'send' | 'registrer' | null) {
     valg.utenfor = x === 'registrer' ? (valg.utenfor ?? tomKorrespondanse()) : null;
+    if (datoenStaarFast) for (const r of valg.rader) r.klarOver = '';
   }
 
   const punkter = $derived(
@@ -195,6 +198,17 @@
     });
   }
 </script>
+
+{#snippet fastDato()}
+  <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
+  {#if kunnskapsdatoVarselet && onkunnskapsdato}
+    <div>
+      <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
+        >{KUNNSKAPSDATO.egetBrevLenke(sisteKunnskapsdato !== null)}</Knapp
+      >
+    </div>
+  {/if}
+{/snippet}
 
 {#snippet raden(r: Varselrad)}
   {@const n = r.noekkel}
@@ -259,15 +273,8 @@
           feil={feil(`arbeid-${n}`)}
         />
       {:else if r.hjemmel === '34.1.3'}
-        {#if sisteKunnskapsdato}
-          <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
-          {#if kunnskapsdatoVarselet && onkunnskapsdato}
-            <div>
-              <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
-                >{KUNNSKAPSDATO.egetBrevLenke(sisteKunnskapsdato !== null)}</Knapp
-              >
-            </div>
-          {/if}
+        {#if datoenStaarFast}
+          {@render fastDato()}
         {:else}
           <Datofelt
             id={id(`klar-over-${n}`)}
@@ -278,6 +285,7 @@
             bind:verdi={r.klarOver}
             feil={feil(`klar-over-${n}`)}
           />
+          {#if sisteKunnskapsdato}{@render fastDato()}{/if}
         {/if}
       {/if}
       <div class="fot">

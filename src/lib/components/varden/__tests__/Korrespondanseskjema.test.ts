@@ -674,4 +674,43 @@ describe('vederlagskravet lagt til, sendt før det registrerte varselet etter pu
     ).toBe(feltet);
     expect(within(rad).queryByText('Gis i dette brevet.') !== null).toBe(feltet);
   });
+
+  it('har det registrerte varselet datoen, står den fast også i kravet sendt før det (D-7 i BF-48, VS-U85, Codex-reviewet)', async () => {
+    const medDatoen = skrevet(
+      medGrunnlag,
+      'TE',
+      {
+        type: 'varsel',
+        varsler: [{ hjemmel: '34.1.3', klar_over_utgiftene: '2026-10-01' }],
+        sendt: '2026-10-12',
+        korrespondansetype: 'brev',
+        sendemaate: 'post',
+        beskrivelse: 'Det særskilte varselet.',
+        dokumentasjon: ['v-1'],
+      },
+      new Map([['v-1', BREVET]])
+    );
+    const { kjernesak } = await saken(medDatoen, 'TE');
+    render(Vederlagskrav, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+      lagtTil: lagtTil('2026-10-10'),
+      onlagttil: () => {},
+    });
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Legg til særskilt vederlagsjustering' })
+    );
+    const rad = screen
+      .getByRole('heading', { level: 4, name: /^Varsel om særskilt/ })
+      .closest('li')!;
+    expect(
+      within(rad).queryByLabelText(/^Når ble du klar over at utgiftene ville påløpe\?/)
+    ).toBeNull();
+    expect(within(rad).getByText('Gis i dette brevet.')).toBeTruthy();
+    expect(
+      within(rad).getByText(/^Klar over at utgiftene ville påløpe 1\. oktober 2026, oppgitt i/)
+    ).toBeTruthy();
+  });
 });

@@ -182,9 +182,13 @@
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
   // #2425: et krav lagt til, sendt før det registrerte varselet, gir varselet og kan ha datoen.
   const girSaerskilt = $derived(kravetErDetFoersteVarselet(u, lagtTil?.dato ?? null));
+  // U-10 og D-7 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet. Kjernen
+  // avviser datoen i kravet når den er oppgitt (`kunnskapsdatoISperren`).
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  const kanOppgiDatoen = $derived(girSaerskilt && !sisteKunnskapsdato);
   const saerskiltI = $derived(girSaerskilt ? null : saerskiltvarselet);
   const iDag = dagensDato();
-  const kommando = $derived(vederlagskravet(v, varslene, girSaerskilt));
+  const kommando = $derived(vederlagskravet(v, varslene, kanOppgiDatoen));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
   const varselkolonner = $derived(
     lagtTil ? KRAVSKJEMA.varselkolonnerLagtTil : KRAVSKJEMA.varselkolonner
@@ -315,7 +319,7 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(
-    manglerIKravet(v, varslene, uid, navnet, girSaerskilt ? (lagtTil?.dato ?? iDag) : null)
+    manglerIKravet(v, varslene, uid, navnet, kanOppgiDatoen ? (lagtTil?.dato ?? iDag) : null)
   );
   const iVarselseksjonen = (m: Mangel) =>
     /-(varsel|type|dato|dokument)-/.test(m.felt) || m.felt === id('klar-over');
@@ -399,8 +403,6 @@
   };
   const klarOver = $derived(klarOverForholdet(u));
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
-  // U-10 i BF-48: datoen fra et annet brev står fast, med veien til det egne brevet.
-  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
@@ -612,7 +614,7 @@
         : [];
     }),
     // U-2 i BF-48: datoen i posten etter § 34.1.3, når kravet gir varselet.
-    ...(girSaerskilt && v.saerskilt?.klarOver
+    ...(kanOppgiDatoen && v.saerskilt?.klarOver
       ? [
           {
             naar: v.saerskilt.klarOver,
@@ -943,7 +945,11 @@
   {/snippet}
 
   {#if visSendevalget}
-    <Sendevalg navn={id('hva')} hva="krav" onvelg={() => onvarsle?.(!kanSendeVarsel)} />
+    <Sendevalg
+      navn={id('hva')}
+      hva="krav"
+      onvelg={() => onvarsle?.(!kanSendeVarsel || !!valg?.varsling?.utenfor)}
+    />
   {/if}
 
   {#if !lagtTil && nesteKravErDetFoerste(u, 'vederlag')}
@@ -1130,7 +1136,7 @@
           <div class="brevet">
             <span class="visually-hidden">{varselkolonner[2]}:</span>
             <p>{varselI(saerskiltI)}</p>
-            {#if !girSaerskilt}
+            {#if !kanOppgiDatoen}
               <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
               {#if kunnskapsdatoVarselet && onkunnskapsdato}
                 <Knapp variant="lenke" onclick={() => onkunnskapsdato(kunnskapsdatoVarselet)}
@@ -1139,7 +1145,7 @@
               {/if}
             {/if}
           </div>
-          {#if girSaerskilt && v.saerskilt}
+          {#if kanOppgiDatoen && v.saerskilt}
             <div class="varselvalgene">
               <Datofelt
                 id={id('klar-over')}

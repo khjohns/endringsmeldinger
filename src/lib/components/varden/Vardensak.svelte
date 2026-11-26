@@ -782,7 +782,13 @@
       if (!eldreKrav(u, 'frist', lagtTil.valg.korrespondanse.dato))
         utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
       aapneUtkast({ art: 'fristkrav', fraKorrespondansen: true });
-    } else aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
+    } else {
+      // Varslene i utkastet står; kravet lagt til fylles ut i kravskjemaet (BF-49).
+      const v = utkastene.vederlagskrav;
+      if (v?.hva === 'varsel' && !eldreKrav(u, 'vederlag', lagtTil.valg.korrespondanse.dato))
+        v.hva = 'krav';
+      aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
+    }
   }
   /**
    * Et krav lagt til, sendt før det siste i sporet, har et eget utkast i skjemaet (OV-U118,
@@ -1048,7 +1054,7 @@
 {/snippet}
 
 {#snippet vederlagskrav(u: Utledning)}
-  {#if utkastene.vederlagskrav?.hva === 'varsel' && utkastene.vederlagskrav.varsling}
+  {#if utkastene.vederlagskrav?.hva === 'varsel' && utkastene.vederlagskrav.varsling && !lagtTilI('vederlag', 'krav')}
     <Vederlagsvarsel
       {kjernesak}
       {u}

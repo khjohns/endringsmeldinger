@@ -278,3 +278,73 @@ describe('utkastet til kravet og brevkontrollen etter varslene (/code-review)', 
     expect(screen.queryByText(/^Kravet i brev/)).toBeNull();
   });
 });
+
+describe('valgene i varselutkastet står (Codex-reviewet)', () => {
+  it('registreringen står med datoen når TE går til kravet og tilbake til «Bare varsle» («Ugyldig valg og avbrudd» i BF-37)', async () => {
+    await aapneSom('te-skal-varsle');
+    await bareVarsle();
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
+    );
+    await skriv('Datoen det ble sendt', '2026-09-30');
+    await fireEvent.click(screen.getByRole('radio', { name: 'Send kravet' }));
+    await screen.findByLabelText('Beskrivelse av posten');
+    await fireEvent.click(screen.getByRole('radio', { name: 'Bare varsle, uten krav' }));
+    await screen.findByRole('heading', { name: 'Varslene i brevet' });
+    expect(
+      screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
+    ).toHaveProperty('checked', true);
+    expect(felt('Datoen det ble sendt').value).toBe('2026-09-30');
+  });
+
+  it('et krav lagt til som korrespondanse åpner kravskjemaet, også med varselutkastet påbegynt (BF-49 «Arbeidsmåten»)', async () => {
+    await aapneSom('te-skal-varsle');
+    await bareVarsle();
+    await fireEvent.click(screen.getAllByRole('button', { name: /^Vederlagsjustering/ })[0]!);
+    await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
+    await skriv('Datoen det ble sendt', '2026-09-30');
+    const fil = new File(['%PDF-1.4'], 'kravet.pdf', { type: 'application/pdf' });
+    await fireEvent.change(document.querySelector('input[type=file]')!, {
+      target: { files: [fil] },
+    });
+    await screen.findByText('kravet.pdf');
+    await fireEvent.input(screen.getByRole('textbox', { name: /Kort beskrivelse/ }), {
+      target: { value: 'Kravet om graving' },
+    });
+    await fireEvent.click(screen.getByRole('radio', { name: 'Et krav' }));
+    await fireEvent.click(knapp('Gå videre'));
+    expect(await screen.findByLabelText('Beskrivelse av posten')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Varslene i brevet' })).toBeNull();
+  });
+});
+
+describe('datoen etter punkt 34.1.3 i et varsel som registreres (U-11 og D-1 i BF-48, Codex-reviewet)', () => {
+  it('er datoen alt oppgitt, kan registreringen ha datoen brevet oppga, med den siste opplysningen og lenken ved feltet', async () => {
+    await aapneSom('datoen-er-oppgitt', 'TE', 'BF-48');
+    await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
+    await skriv('Datoen det ble sendt', '2026-10-20');
+    const fil = new File(['%PDF-1.4'], 'varselet.pdf', { type: 'application/pdf' });
+    await fireEvent.change(document.querySelector('input[type=file]')!, {
+      target: { files: [fil] },
+    });
+    await screen.findByText('varselet.pdf');
+    await fireEvent.input(screen.getByRole('textbox', { name: /Kort beskrivelse/ }), {
+      target: { value: 'Det særskilte varselet' },
+    });
+    await fireEvent.click(screen.getByRole('radio', { name: 'Et varsel' }));
+    await fireEvent.click(knapp('Gå videre'));
+    await screen.findByRole('heading', { name: 'Varslene i brevet' });
+    await fireEvent.click(knapp(/^Endre /));
+    await fireEvent.click(
+      screen.getByRole('radio', { name: /^Varsel om særskilt vederlagsjustering/ })
+    );
+    expect(
+      screen.getByLabelText('Når ble du klar over at utgiftene ville påløpe?, Valgfri')
+    ).toBeTruthy();
+    expect(screen.getByText(/^Klar over at utgiftene ville påløpe .*, oppgitt i/)).toBeTruthy();
+  });
+});
