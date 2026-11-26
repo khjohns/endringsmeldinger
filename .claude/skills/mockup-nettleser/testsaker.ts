@@ -390,6 +390,73 @@ export const TESTSAKER: Record<string, Testsak> = {
       await te.screenshot({ path: `${ut}/foerste-krav-frist.png` });
     },
   },
+  'varselvalg-kravpost': {
+    tittel: 'Grøftene ved kum 4',
+    formaal:
+      '#2452: kravposten velger hvilket av varslene uten kravpost den gjelder (U-7 i BF-37), og kravet sendes gjennom serveren.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'prosjektering',
+        navn: 'K-g1',
+        utdypning: 'Tegningene for grøftene viser en trasé som krysser eksisterende kum og fjernvarmerør.',
+      },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        varsler: [
+          { hjemmel: '34.4', arbeid: 'Ekstra graving i grøften ved kum 4' },
+          { hjemmel: '34.4', arbeid: 'Omlegging av fjernvarmerør langs fasade nord' },
+        ],
+      },
+    ],
+    async iNettleseren({ te, saksrute, ut }) {
+      await te.goto(saksrute);
+      await te.getByRole('button', { name: 'Send krav om vederlagsjustering' }).click({ timeout: 30_000 });
+      await te.getByLabel('Beskrivelse av posten', { exact: true }).fill('Ekstra graving ved kum 4');
+      await te.getByRole('radio', { name: /^Regningsarbeid/ }).check();
+      await te.getByRole('button', { name: 'Ferdig' }).click();
+      const valget = te.getByRole('group', { name: 'Hvilket varsel før regningsarbeidet gjelder P1?' });
+      await valget.scrollIntoViewIfNeeded();
+      await te.screenshot({ path: `${ut}/varselvalg-uten-valg.png` });
+      await valget.getByRole('radio', { name: /: Ekstra graving i grøften ved kum 4$/ }).check();
+      await te.getByText(/^Brevet sier at varselet for P1 ble gitt i brev 2\./).waitFor();
+      await te.screenshot({ path: `${ut}/varselvalg-valgt.png` });
+      await te.setViewportSize({ width: 390, height: 844 });
+      await valget.scrollIntoViewIfNeeded();
+      await te.screenshot({ path: `${ut}/varselvalg-valgt-390.png` });
+      await te.setViewportSize({ width: 1440, height: 900 });
+      await te.addScriptTag({ path: createRequire(import.meta.url).resolve('axe-core/axe.min.js') });
+      const brudd = await te.evaluate(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const r = await (window as any).axe.run(document, {
+          runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+        });
+        return r.violations.map((v: { id: string; nodes: unknown[] }) => `${v.id} (${v.nodes.length})`);
+      });
+      console.log(`TE  axe på skjemaet: ${brudd.length ? brudd.join(', ') : 'ingen brudd'}`);
+      await te.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await te.screenshot({ path: `${ut}/varselvalg-brevet.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        te.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        te.getByRole('button', { name: 'Send til byggherren', exact: true }).click(),
+      ]);
+      const kommando = JSON.parse(svar.request().postData() ?? '{}');
+      console.log(
+        `TE  POST kommandoer (kravet): ${svar.status()}, varselet for P1 ${JSON.stringify(kommando.kommando?.innhold?.kravposter?.[0]?.varsel ?? kommando.innhold?.kravposter?.[0]?.varsel)}`
+      );
+      if (svar.status() !== 201) throw new Error(`Kravet ble ikke sendt: ${await svar.text()}`);
+      await te.waitForLoadState('networkidle');
+      await te.screenshot({ path: `${ut}/varselvalg-sendt.png` });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
