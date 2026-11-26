@@ -143,7 +143,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       'kommandoer/skriving.ts:brevtekstFor',
       'kommandoer/handlinger.ts:kandidater',
       'spor/vederlag/kommando.ts:kunnskapsdatoen',
-      'spor/vederlag/kommando.ts:kunnskapsdatoISperren',
+      'spor/vederlag/kommando.ts:kravetErDetFoersteVarselet',
     ],
   ],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
