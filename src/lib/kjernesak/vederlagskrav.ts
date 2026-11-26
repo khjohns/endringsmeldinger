@@ -12,7 +12,11 @@ import {
 } from '#kjerne/spor/vederlag/utledning.ts';
 import { varselhjemmel } from '#kjerne/spor/vederlag/format.ts';
 import type { Krav, Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
-import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
+import {
+  varseletFoerBrevet as foersteVarselFoerBrevet,
+  varseletForNyttSvar,
+  type Utledning,
+} from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
@@ -153,6 +157,14 @@ export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarsele
     null
   );
 };
+
+/**
+ * Det første varselet etter § 34.1.3 i saken, registrert eller et krav, også et krav utenfor
+ * rekken, som det egne brevet med kunnskapsdatoen viser til (VS-U85, `varseletFoerBrevet` i
+ * kjernen), eller `null`.
+ */
+export const foersteVarsel3413 = (u: Utledning): string | null =>
+  foersteVarselFoerBrevet(u, '34.1.3') ?? null;
 
 /**
  * Byggherrens standpunkt til varselet for kravposten slik det sto før brevet `dokument`, som

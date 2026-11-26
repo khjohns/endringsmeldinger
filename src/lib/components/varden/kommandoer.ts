@@ -445,6 +445,22 @@ export function korrigeringen(
 }
 
 /**
+ * TEs egne brev med datoen TE ble klar over at utgiftene etter § 34.1.3 annet ledd ville påløpe
+ * (VS-U86 punkt 14, VS-U82). `gjelder` er varselet kjernen tilbyr handlingen for, og den valgfrie
+ * forklaringen er `utdypning` (D-5 i BF-48). Kjernen avviser en uendret dato og en dato etter
+ * brevets dato.
+ */
+export function kunnskapsdatoen(v: Korrigeringsvalg, gjelder: string) {
+  const utdypning = v.forklaring.trim();
+  return {
+    type: 'kunnskapsdato' as const,
+    gjelder,
+    klar_over_utgiftene: v.dato,
+    ...(utdypning ? { utdypning } : {}),
+  };
+}
+
+/**
  * TEs nye versjon av påberopelsen (BF-10, KA-U52): kategoriene og endringsordren står som i
  * gjeldende versjon (GR-U40 punkt 7), datoen er TEs siste opplysning, også etter en korrigering
  * (MM-U59 punkt 10, #1617), og teksten er utdypningen (S-3 i BF-10). Kjernen avviser en annen

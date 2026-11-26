@@ -14,6 +14,7 @@
     verdi = $bindable(),
     feil = null,
     paakrevd = false,
+    valgfri = false,
     inaktiv = false,
     oninput,
   }: {
@@ -25,12 +26,14 @@
     verdi: string;
     feil?: string | null;
     paakrevd?: boolean;
+    /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
+    valgfri?: boolean;
     inaktiv?: boolean;
     oninput?: () => void;
   } = $props();
 </script>
 
-<Felt {id} {etikett} {hjelp} {feil}>
+<Felt {id} {etikett} {hjelp} {feil} {valgfri}>
   <input
     {id}
     class="feltramme"

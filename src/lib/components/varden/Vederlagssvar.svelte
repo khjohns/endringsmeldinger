@@ -30,6 +30,7 @@
   import Svarskjema from './Svarskjema.svelte';
   import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
+  import Stoettekort from './Stoettekort.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
@@ -46,7 +47,7 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, brevMedElement, standpunktene } from './lesing';
+  import { brevet, brevMedElement, sisteKunnskapsdatoen, standpunktene } from './lesing';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -66,6 +67,7 @@
     innsigelsenOmVarselet,
     leselinjene,
     oppgivelsestekst,
+    KUNNSKAPSDATO,
     VEDERLAGET,
     standpunkttekst,
   } from './tekster';
@@ -114,6 +116,8 @@
         : SKJEMA.godkjennAlleFormerBlandet
   );
   const stoppet = $derived(harPost || hinder !== null);
+  // U-9 i BF-48: TEs siste opplysning om datoen etter § 34.1.3 ved svaret på kravet med posten.
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
 
   let valgtPost = $state<string | null>(null);
   let postliste = $state<Postliste<Kravpost> | null>(null);
@@ -415,6 +419,12 @@
   {/if}
 {/snippet}
 
+{#snippet kunnskapsdatokortet()}
+  <Stoettekort id={`${uid}-kunnskapsdato`} tittel={KUNNSKAPSDATO.stoettetittel}>
+    <p class="kunnskapsdato">{KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}</p>
+  </Stoettekort>
+{/snippet}
+
 <Svarskjema
   lagfeil={!stoppet && lagene === null}
   {kjernesak}
@@ -436,6 +446,7 @@
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
+  stoettekort={harPost ? kunnskapsdatokortet : undefined}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     {#snippet metodevalgene(p: Kravpost)}
@@ -665,6 +676,10 @@
 </Svarskjema>
 
 <style>
+  .kunnskapsdato {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
