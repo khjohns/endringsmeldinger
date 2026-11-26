@@ -109,7 +109,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'UTSAGNSTITTEL',
     'brevtekst',
-    'aksept trekk innsigelse korrigering kunnskapsdato',
+    'aksept trekk korrigering kunnskapsdato',
     ['frosset/brevtittel.ts'],
   ],
   // LV-U80, LV-U81: det svaret gjelder, i tittelen, overskriften på svaret og forbeholdet.
@@ -322,7 +322,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/linje.ts:beslutningslinje(grunntekst)',
     'brevtekst',
-    'forhold beloep oppgjoersform justering hindring spesifisering dager',
+    'forhold ikke_svar beloep oppgjoersform justering hindring spesifisering dager',
     ['frosset/linje.ts:beslutningslinje'],
   ],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],
@@ -523,24 +523,20 @@ export const BREVTEKSTEN: Lesbar[] = [
   ['Forholdet', 'brevtekst', 'navn hjemmel', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
   ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
-  ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra dag svar', ['frosset/brevtekst.ts']],
-  ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
   // LV-U76, LV-U77, LV-U49: innsigelsene forespørselen fastholder, og varslene de gjelder.
   [
-    'frosset/brevtekst.ts:innsigelseneIForesporselen.kom',
+    'frosset/brevtekst.ts:innsigelseneIForesporselen',
     'relasjon',
     'gjelder dokument',
     ['frosset/brevtekst.ts'],
   ],
   ['Fastholdt', 'brevtekst', 'hva varslene', ['frosset/brevtekst.ts']],
-  // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
-  // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
-  ['frosset/standpunkt.ts', 'brevtekst', 'innsigelsenErOppgitt', ['frosset/brevtekst.ts']],
+  // Teksten sier det brevet sier: § 32.2 for kravet og endringsordren etter GR-U12.
   ['spor/forhold/frysing.ts', 'brevtekst', 'blirEndringsordre', ['spor/forhold/tekst.ts']],
   [
     'frosset/byggeklosser.ts',
     'brevtekst',
     'gjelderVarslingsplikten standpunktet',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+    ['spor/forhold/tekst.ts'],
   ],
 ];

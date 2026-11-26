@@ -62,32 +62,15 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       laast(rad)[0].slice(setningenEtterLvU18(rad).length + 1);
     const forholdssvar = (s: ReturnType<typeof sak>, vurderinger: Data) =>
       s.send('BH', { type: 'brev', svar: [svar('forhold', s.krav('forhold'), vurderinger)] });
-    const innsigelseMot334 = (s: ReturnType<typeof sak>) => {
-      s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
-      s.send('BH', { type: 'innsigelse', gjelder: s.u().spor.frist.varsler['33.4']!.id });
-    };
-
-    it('LV-U76: etter en påberopelse etter § 33.4 fastholder forespørselen den prinsipalt, med brevet innsigelsen står i', () => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      innsigelseMot334(s);
-      const rad = s.send('BH', foresporsel);
-      expect(forbeholdet(rad)).toBe(
-        'Byggherren fastholder prinsipalt at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-03 av 4. oktober 2026. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'
-      );
-    });
-
-    it('LV-U77: preklusjonen etter § 32.2, avslaget og påberopelsen etter § 33.4 står i rekkefølgen etter OV-U32', () => {
+    it('LV-U77: preklusjonen etter § 32.2 og avslaget står i rekkefølgen etter OV-U32', () => {
       const s = sak();
       s.send('TE', PAABEROPELSE);
       forholdssvar(s, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false });
-      innsigelseMot334(s);
       const rad = s.send('BH', foresporsel);
       expect(forbeholdet(rad)).toBe(
         [
           'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
           'Subsidiært fastholder byggherren avslaget av kravet på endringsordre, jf. svaret i brev K201-KOE-017-02 av 3. oktober 2026.',
-          'Videre subsidiært fastholder byggherren at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.',
           'Forespørselen sendes for det tilfellet at innsigelsene ikke fører frem.',
         ].join(' ')
       );
@@ -103,45 +86,14 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       );
     });
 
-    it('LV-U77: byggherrens egen påberopelse etter § 32.2 står prinsipalt, foran påberopelsen etter § 33.4', () => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-      innsigelseMot334(s);
-      const rad = s.send('BH', foresporsel);
-      expect(forbeholdet(rad)).toBe(
-        [
-          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
-          'Subsidiært fastholder byggherren at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.',
-          'Forespørselen sendes for det tilfellet at innsigelsene ikke fører frem.',
-        ].join(' ')
-      );
-    });
-
-    it('LV-U77: en egen påberopelse etter § 32.2 som svaret på forholdet gjentar, viser til begge brevene i rekkefølgen de ble sendt', () => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-      forholdssvar(s, { resultat: 'godkjent', grunnlag_varslet_i_tide: false });
-      const rad = s.send('BH', foresporsel);
-      expect(forbeholdet(rad)).toBe(
-        'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsene i brev K201-KOE-017-02 av 3. oktober 2026 og brev K201-KOE-017-03 av 4. oktober 2026. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'
-      );
-    });
-
     it('LV-U77: preklusjonen etter § 32.2 i svaret på en tidligere påberopelsesversjon står, også når den nye versjonen er ubesvart (arbeidsvalget 15.10 i #500)', () => {
       const s = sak();
       s.send('TE', PAABEROPELSE);
       forholdssvar(s, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false });
       s.send('TE', PAABEROPELSE);
-      innsigelseMot334(s);
       const rad = s.send('BH', foresporsel);
       expect(forbeholdet(rad)).toBe(
-        [
-          'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026.',
-          'Subsidiært fastholder byggherren at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-05 av 6. oktober 2026.',
-          'Forespørselen sendes for det tilfellet at innsigelsene ikke fører frem.',
-        ].join(' ')
+        'Byggherren fastholder prinsipalt at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-02 av 3. oktober 2026. Forespørselen sendes for det tilfellet at innsigelsen ikke fører frem.'
       );
     });
 
@@ -149,11 +101,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       const s = sak();
       s.send('TE', PAABEROPELSE);
       forholdssvar(s, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false });
-      innsigelseMot334(s);
-      expect(s.send('BH', foresporsel).data.deres_ref).toEqual([
-        'K201-KOE-017-01',
-        'K201-KOE-017-03',
-      ]);
+      expect(s.send('BH', foresporsel).data.deres_ref).toEqual(['K201-KOE-017-01']);
       const k = sak();
       k.send('TE', PAABEROPELSE);
       expect(
@@ -176,15 +124,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       });
       const rad = s.send('BH', foresporsel);
       expect(laast(rad)[0], 'bare setningen etter LV-U18').toBe(setningenEtterLvU18(rad));
-      expect(laast(rad)[0]).not.toContain('fastholder');
-    });
-
-    it('LV-U77: en egen påberopelse etter § 32.2 som et senere svar på forholdet gir opp, står ikke i forespørselen', () => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-      forholdssvar(s, { resultat: 'godkjent', grunnlag_varslet_i_tide: true });
-      const rad = s.send('BH', foresporsel);
       expect(laast(rad)[0]).not.toContain('fastholder');
     });
   });
@@ -554,28 +493,10 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s } = medBegrunnelse();
     const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     expect(laast(krav)).toEqual(SLUTTFRISTEN_20);
-    // Uten innsigelse mot begrunnelsen er det ingen påberopelse etter § 33.6.2 å gjenta (VS-U29).
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [
-          svar(
-            'frist',
-            s.krav('frist'),
-            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
-            FRIST_FULLT[1]
-          ),
-        ],
-      })
-    ).toBe('UGYLDIG_VURDERING');
   });
 
-  it('VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2, som svaret på kravet gjentar', () => {
+  it('VS-U88 punkt 8: svaret på det første kravet etter begrunnelsen påberoper at den kom for sent, uten en innsigelse først', () => {
     const { s, b } = medBegrunnelse();
-    const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: b });
-    expect(laast(innsigelse)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt\u00a033.6.2 kom for sent (NS 8407 punkt\u00a05 tredje ledd).',
-    ]);
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     const rad = fristsvar(
       s,
@@ -587,70 +508,240 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     expect(p).toMatchObject({ gjelder: b, i_tide: false });
     expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør gjeldende at totalentreprenørens svar på forespørselen etter punkt\u00a033.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
+      'Byggherren gjør gjeldende at totalentreprenørens svar på forespørselen etter punkt\u00a033.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
     );
   });
 
+  describe('VS-U95: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd', () => {
+    const ikkeSvar = () => {
+      const v: Data = { ...FRIST_FULLT[0], begrunnelse_ikke_svar: true };
+      return v;
+    };
+    const medKravEtterBegrunnelsen = () => {
+      const m = medBegrunnelse();
+      m.s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      return m;
+    };
+
+    it('VS-U95, VS-U88 punkt 8 og 9: standpunktet står i svaret på det første kravet etter begrunnelsen, registreres og vises uten utledet virkning', () => {
+      const { s, b } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      const svaret = (rad.data.svar as Data[])[0];
+      const standpunkter = svaret.standpunkter as Data[];
+      const p = standpunkter.find((x) => x.art === 'ikke_svar')!;
+      expect(p).toMatchObject({ gjelder: b, hjemmel: '33.6.2' });
+      expect(
+        standpunkter.filter((x) => x.hjemmel === '33.6.2'),
+        'ett standpunkt etter § 33.6.2 (VS-U88 punkt 8)'
+      ).toHaveLength(1);
+      const grunnlag = svaret.beslutningsgrunnlag as Data;
+      expect(grunnlag.uten_virkning).toContain(p.id);
+      expect(grunnlag.virkninger, 'ingen lag fra standpunktet').toHaveLength(1);
+      expect(svaret.utregning).toEqual({
+        frister: [
+          expect.objectContaining({
+            resultat: 'godkjent',
+            godkjent_dager: 20,
+            lag: [{ lag: 1, dager: 20 }],
+          }),
+        ],
+      });
+      expect(laast(rad).join('\n\n')).toContain(
+        '2. Svaret på forespørselen (punkt\u00a033.6.2)\n\nByggherren gjør gjeldende at totalentreprenørens begrunnelse i brev K201-KOE-017-03 av 4. oktober 2026 ikke er et svar på forespørselen etter punkt\u00a033.6.2 annet ledd.'
+      );
+      expect(rad.data.deres_ref, 'LV-U49: brevet med begrunnelsen').toEqual([
+        'K201-KOE-017-03',
+        'K201-KOE-017-04',
+      ]);
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('VS-U95: kontrollsak, at begrunnelsen kom for sent, gir laget etter § 33.6.2 tredje ledd', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const svaret = (rad.data.svar as Data[])[0];
+      const r = (svaret.standpunkter as Data[]).find((x) => x.hjemmel === '33.6.2')!;
+      expect((svaret.beslutningsgrunnlag as Data).virkninger).toContainEqual({
+        standpunkt: r.id,
+        lag: 1,
+      });
+      expect((svaret.utregning as { frister: Data[] }).frister[0].resultat).toBe('avslaatt');
+    });
+
+    it('VS-U88 punkt 8: standpunktet står i stedet for påberopelsen av at begrunnelsen kom for sent, ikke ved siden av', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const brev = (vurderinger: Data) => ({
+        type: 'brev',
+        svar: [
+          svar('frist', s.krav('frist'), vurderinger, { resultat: 'godkjent', godkjent_dager: 20 }),
+        ],
+      });
+      expect(s.avvist('BH', brev(ikkeSvar())), 'kontrollsak').toBeNull();
+      // Regelsettet avviser kombinasjonen før formatet, med feltet og grunnen.
+      expect(
+        JSON.stringify(s.avvisning('BH', brev({ ...ikkeSvar(), foresporsel_svar_ok: true })))
+      ).toContain('tar da ikke stilling til om den kom for sent');
+      expect(
+        s.avvist('BH', brev({ ...FRIST_FULLT[0], begrunnelse_ikke_svar: false })),
+        'uten standpunktet etter § 33.6.2 mangler svaret spørsmålet'
+      ).toBe('UGYLDIG_VURDERING');
+    });
+
+    it('VS-U95: standpunktet gjelder bare en begrunnelse, ikke et krav som svarer på forespørselen', () => {
+      const { s } = medForesporsel();
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const vurderinger = {
+        ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+        begrunnelse_ikke_svar: true,
+      };
+      expect(
+        s.avvist('BH', {
+          type: 'brev',
+          svar: [
+            svar('frist', s.krav('frist'), vurderinger, {
+              resultat: 'godkjent',
+              godkjent_dager: 20,
+            }),
+          ],
+        })
+      ).toBe('UGYLDIG_VURDERING');
+    });
+
+    it('VS-U95: en lest rad der standpunktet viser til noe annet enn begrunnelsen, gjør saken ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+      const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+        (x) => x.art === 'ikke_svar'
+      )!;
+      p.gjelder = s.krav('frist');
+      expect(s.u().forstaatt).toBe(false);
+      expect(
+        s
+          .u()
+          .begrensninger.map((x) => x.grunn)
+          .join()
+      ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
+    });
+
+    it('VS-U95, VS-U88 punkt 9: standpunktet står bare i svaret på det første kravet etter begrunnelsen, ikke i svaret på en senere kravversjon', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const forrige = s.krav('frist');
+      s.send('TE', {
+        ...utenFelt(FRISTKRAV, 'varsel'),
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+      });
+      expect(s.u().spor.frist.gjeldendeKrav!.erstatter, 'forutsetning: en ny kravversjon').toBe(
+        forrige
+      );
+      const brev = (
+        vurderinger: Data,
+        resultat: Data = { resultat: 'godkjent', godkjent_dager: 25 }
+      ) => ({
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), vurderinger, resultat)],
+      });
+      const dager = { ...FRIST_FULLT[0], dager: 25 };
+      expect(
+        s.avvist(
+          'BH',
+          brev(
+            { ...dager, foresporsel_svar_ok: false },
+            { resultat: 'avslaatt', godkjent_dager: 0 }
+          )
+        ),
+        'kontrollsak: svaret gjentar påberopelsen'
+      ).toBeNull();
+      expect(s.avvist('BH', brev({ ...dager, begrunnelse_ikke_svar: true }))).toBe(
+        'UGYLDIG_VURDERING'
+      );
+    });
+
+    it('VS-U88 punkt 9, LV-U4 punkt 5: svaret på en senere kravversjon gjentar påberopelsen etter § 33.6.2 og § 33.4 med brevet den står i, eller gir den opp', () => {
+      const tekstPaaV2 = (v: Data, resultat: Data) => {
+        const { s } = medKravEtterBegrunnelsen();
+        fristsvar(
+          s,
+          { ...FRIST_FULLT[0], frist_varsel_ok: false, foresporsel_svar_ok: false },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        );
+        s.send('TE', {
+          ...utenFelt(FRISTKRAV, 'varsel'),
+          innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+        });
+        return laast(fristsvar(s, { ...FRIST_FULLT[0], dager: 25, ...v }, resultat)).join('\n\n');
+      };
+      const gjentatt = tekstPaaV2(
+        { frist_varsel_ok: false, foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      expect(gjentatt.match(/jf\. innsigelsen i brev K201-KOE-017-05/g)).toHaveLength(2);
+      const oppgitt = tekstPaaV2(
+        { frist_varsel_ok: true, foresporsel_svar_ok: true },
+        { resultat: 'godkjent', godkjent_dager: 25 }
+      );
+      expect(oppgitt.match(/gir opp innsigelsen i brev K201-KOE-017-05/g)).toHaveLength(2);
+    });
+
+    it('VS-U95: en lest rad med standpunktet i svaret på en senere kravversjon gjør saken ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(s, ikkeSvar(), { resultat: 'godkjent', godkjent_dager: 20 });
+      const svaret = (rad.data.svar as Data[])[0];
+      s.send('TE', {
+        ...utenFelt(FRISTKRAV, 'varsel'),
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
+      });
+      expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+      svaret.gjelder = s.krav('frist');
+      expect(s.u().forstaatt).toBe(false);
+      expect(
+        s
+          .u()
+          .begrensninger.map((x) => x.grunn)
+          .join()
+      ).toContain('standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse');
+    });
+
+    it('VS-U88 punkt 8: en lest rad med både standpunktet og rettidigheten etter § 33.6.2 er ikke forstått', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(
+        s,
+        { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const svaret = (rad.data.svar as Data[])[0];
+      const standpunkter = svaret.standpunkter as Data[];
+      const r = standpunkter.find((x) => x.hjemmel === '33.6.2')!;
+      const med = [
+        ...standpunkter.slice(0, 2),
+        { id: randomUUID(), art: 'ikke_svar', gjelder: r.gjelder, hjemmel: '33.6.2' },
+        ...standpunkter.slice(2),
+      ];
+      expect(() => standpunkterISvaret('frist', svaret), 'kontrollsak').not.toThrow();
+      expect(() => standpunkterISvaret('frist', { ...svaret, standpunkter: med })).toThrow(
+        /to standpunkter etter § 33.6.2/
+      );
+    });
+  });
+
   it('standpunktet etter § 33.6.2 gir TEs brev med begrunnelsen under Deres ref., men ikke forespørselen (LV-U49, D-1 i BF-07, arbeidsvalget A i #1497)', () => {
-    const { s, b } = medBegrunnelse();
-    s.send('BH', { type: 'innsigelse', gjelder: b });
+    const { s } = medBegrunnelse();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     const rad = fristsvar(
       s,
       { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
-    expect(rad.data.deres_ref).toEqual(['K201-KOE-017-03', 'K201-KOE-017-05']);
-  });
-
-  it('etter «i tide» etter § 33.6.2 godtas en senere innsigelse mot begrunnelsen (MM-U34 punkt 6, HF-U4)', () => {
-    const { s, b } = medBegrunnelse();
-    s.send('BH', { type: 'innsigelse', gjelder: b });
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    // Delvis godkjent, så svaret ikke gir registrert enighet ved sammenfall (GR-U7).
-    const rad = fristsvar(
-      s,
-      { ...FRIST_FULLT[0], dager: 10, foresporsel_svar_ok: true },
-      { resultat: 'delvis_godkjent', godkjent_dager: 10 }
-    );
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at totalentreprenørens svar på forespørselen etter punkt\u00a033.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
-    );
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
-  });
-
-  it('HF-U4, VS-U29: etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon ikke opp innsigelsen mot begrunnelsen på nytt', () => {
-    const { s, b } = medBegrunnelse();
-    s.send('BH', { type: 'innsigelse', gjelder: b });
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    // Delvis godkjent, så svaret ikke gir enighet og kravet kan endres (GR-U10).
-    const delvis = [
-      { ...FRIST_FULLT[0], dager: 10, foresporsel_svar_ok: true },
-      { resultat: 'delvis_godkjent', godkjent_dager: 10 },
-    ] as const;
-    const foerste = fristsvar(s, ...delvis);
-    expect(laast(foerste).join('\n\n'), 'kontrollsak: det første svaret').toContain(
-      'gir opp innsigelsen'
-    );
-    s.send('TE', {
-      type: 'krav',
-      spor: 'frist',
-      innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] },
-      utdypning: 'Mer.',
-    });
-    expect(laast(fristsvar(s, ...delvis)).join('\n\n')).not.toContain('innsigelsen');
-  });
-
-  it('VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret på kravet gjenta den eller gi den opp', () => {
-    const { s, b } = medBegrunnelse();
-    s.send('BH', { type: 'innsigelse', gjelder: b });
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-      })
-    ).toBe('UGYLDIG_VURDERING');
+    expect(rad.data.deres_ref).toEqual(['K201-KOE-017-03', 'K201-KOE-017-04']);
   });
 
   it('VS-U31: en ny forespørsel fra appen avvises når saken alt har en, også før TE har svart', () => {
@@ -836,33 +927,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     expect(tekst(id('33.4')), 'kontrollsak: § 33.4 har dagens tekst').toBe(
       'Totalentreprenøren protesterer mot påberopelsen av for sen varsling i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
-    );
-  });
-
-  it('VS-U29: «ikke et svar etter annet ledd» registreres uten virkning, og gjelder bare begrunnelsen', () => {
-    const { s, b } = medBegrunnelse();
-    const rad = s.send('BH', { type: 'innsigelse', gjelder: b, grunn: 'ikke_svar' });
-    expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt\u00a033.6.2 ikke er et svar etter punkt\u00a033.6.2 annet ledd.',
-    ]);
-    // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [
-          svar(
-            'frist',
-            s.krav('frist'),
-            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
-            FRIST_FULLT[1]
-          ),
-        ],
-      })
-    ).toBe('UGYLDIG_VURDERING');
-    const forhold = s.krav('forhold');
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: forhold, grunn: 'ikke_svar' })).toBe(
-      'UGYLDIG_INNSIGELSE'
     );
   });
 });

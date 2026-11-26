@@ -25,6 +25,12 @@ def _rad(register, id_):
     return next(h for h in register["handling"] if h["id"] == id_)
 
 
+def _med_avvik(r):
+    """Registeret med et gyldig avvik, så formen på avvikene kan prøves også når lista er tom."""
+    r.setdefault("avvik", []).append({"noekler": ["protest:*"], "handling": "I2", "funn": "K0", "issue": 1})
+    return r["avvik"]
+
+
 def test_registeret_er_gyldig(register):
     assert hr.valider(register) == []
 
@@ -49,8 +55,8 @@ def test_registeret_er_gyldig(register):
         (lambda r: r["betegnelse"][0].update(status="foreldet"), "ukjent status foreldet"),
         (lambda r: r["betegnelse"].append(copy.deepcopy(r["betegnelse"][0])), "står to ganger"),
         (lambda r: r["betegnelse"][0].update(kilde="OV-U97"), "kilde er ikke en liste"),
-        (lambda r: r["avvik"].append(copy.deepcopy(r["avvik"][0])), "står i et annet avvik"),
-        (lambda r: r["avvik"][0].update(handling="G1"), "nøklene står ikke i handlingen G1"),
+        (lambda r: _med_avvik(r).append(copy.deepcopy(r["avvik"][-1])), "står i et annet avvik"),
+        (lambda r: _med_avvik(r)[-1].update(handling="G1"), "nøklene står ikke i handlingen G1"),
         (lambda r: r.update(tilstand=[]), "ukjent seksjon"),
     ],
 )
@@ -62,7 +68,7 @@ def test_vakta_melder_feil_i_formen(register, endring, melding):
 
 def test_et_avvik_maa_gjelde_en_handling_som_ikke_skal_tilbys(register):
     endret = copy.deepcopy(register)
-    endret["avvik"].append({"noekler": ["krav:forhold"], "handling": "G1", "funn": "K0", "issue": 1})
+    endret.setdefault("avvik", []).append({"noekler": ["krav:forhold"], "handling": "G1", "funn": "K0", "issue": 1})
     assert any("ikke et avvik" in f for f in hr.valider(endret))
 
 

@@ -231,12 +231,6 @@ export type Kommando = (
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
-  /**
-   * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. Mot TEs
-   * begrunnelse etter § 33.6.2 annet ledd b kan byggherren i stedet gjøre gjeldende at den
-   * ikke er et svar etter annet ledd (`grunn`, VS-U29).
-   */
-  | { type: 'innsigelse'; gjelder: string; grunn?: 'ikke_svar' }
   /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
   | { type: 'foresporsel'; spor: 'frist'; hjemmel: '33.6.2' }
   /**
@@ -244,10 +238,8 @@ export type Kommando = (
    * kravet ikke foreligger. `gjelder` er forespørselen, og begrunnelsen er utdypningen.
    */
   | { type: 'foresporselssvar'; gjelder: string; utdypning: string }
-  /** VS-U1, MP-U6: mot en innsigelse, en påberopelse i et svar eller alle innsigelsene i et dokument. */
+  /** VS-U1, MP-U6: mot byggherrens påberopelse i et svar, eller alle påberopelsene i et svar. */
   | { type: 'protest'; gjelder: string }
-  /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
-  | { type: 'passivitet'; gjelder: string }
   /**
    * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
    * (KA-U34). Registrert har den datoen brevet ble sendt og brevet som vedlegg, uten
@@ -438,10 +430,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     { type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] }, ...BREVTEKST },
     ['type', 'spor']
   ),
-  innsigelse: objekt(
-    { type: { const: 'innsigelse' }, gjelder: ID, grunn: { const: 'ikke_svar' }, ...BREVTEKST },
-    ['type', 'gjelder']
-  ),
   foresporsel: objekt(
     {
       type: { const: 'foresporsel' },
@@ -456,7 +444,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     ['type', 'gjelder', 'utdypning']
   ),
   protest: henvisning('protest'),
-  passivitet: henvisning('passivitet'),
   begrunnelse: objekt(
     {
       type: { const: 'begrunnelse' },

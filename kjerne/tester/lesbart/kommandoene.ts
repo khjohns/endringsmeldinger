@@ -10,7 +10,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Kommando',
     'kommando',
-    'type spor svar innhold varsel varsler erstatter regelversjon sendt hjemmel dokumentasjon gjelder grunn',
+    'type spor svar innhold varsel varsler erstatter regelversjon sendt hjemmel dokumentasjon gjelder',
   ],
   // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
   ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
@@ -247,18 +247,17 @@ export const KOMMANDOENE: Lesbar[] = [
     ],
   ],
   // OV-U109: dagen forespørselen og fristkravet ble sendt.
-  [
-    'Dokument',
-    'relasjon',
-    'id',
-    ['spor/frist/frysing.ts:svarPaaForesporsler', 'utledning/utled.ts:partensPaaberopelser'],
-  ],
-  // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
+  ['Dokument', 'relasjon', 'id', ['spor/frist/frysing.ts:svarPaaForesporsler']],
+  // MM-U43 punkt 9: et svar uten virkning står ikke i brevteksten.
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
-  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelseneIForesporselen']],
-  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:innsigelsenFoer']],
+  [
+    'Saken',
+    'relasjon',
+    'utenVirkning',
+    ['frosset/brevtekst.ts:innsigelsenFoer', 'frosset/brevtekst.ts:paaberopelsenFoerIFristen'],
+  ],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -406,7 +405,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Svarsfrysing',
     'frosset',
-    'virkninger utfall godkjennerHeleKravet tausOmVarselet vilkaar hvertITideGirOppInnsigelsen ogsaaInnsigelserEtter',
+    'virkninger utfall godkjennerHeleKravet tausOmVarselet vilkaar',
     ['frosset/standpunkt.ts'],
   ],
   // VS-U77 punkt 9 og 12: varslene i kravet svaret ikke sier noe om (#2316), og VS-U81: lagene
@@ -424,7 +423,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Sporskontroller',
     'predikat',
-    'kravet kravene svaret kanFaaPassivitet leserDatoen svaretKanGodtas saken',
+    'kravet kravene svaret leserDatoen svaretKanGodtas saken',
     ['utledning/utled.ts'],
   ],
   // Skrivingen i sporet (#1783).
@@ -633,7 +632,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Sporsnyttelast',
     'predikat',
-    'begrunnelse svarsperre kravsperre innsigelse utdypning oppgittDatoIKravet',
+    'begrunnelse svarsperre kravsperre utdypning oppgittDatoIKravet',
     ['kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],
@@ -650,7 +649,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Sporsforutsetninger',
     'predikat',
-    'innsigelsenErIkkeBygget svaret kravet trekket aksepten foresporsel',
+    'svaret kravet trekket aksepten foresporsel',
     ['kommandoer/forutsetninger.ts'],
   ],
   // VS-U19, VS-U27, VS-U30, VS-U31: forespørselen etter § 33.6.2 i sporet som har den (#1783).

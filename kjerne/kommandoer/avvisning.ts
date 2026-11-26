@@ -64,9 +64,7 @@ export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] 
       return [{ type: 'bestride', gjelder: k.gjelder }];
     case 'ingen_krav':
       return [{ type: 'ingen_krav', spor: k.spor }];
-    case 'innsigelse':
     case 'protest':
-    case 'passivitet':
       return [{ type: k.type, gjelder: k.gjelder }];
     case 'begrunnelse':
       return [{ type: 'begrunne', gjelder: k.gjelder }];

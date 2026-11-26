@@ -121,17 +121,6 @@ describe('Deres ref. i brevet løsningen sender (LV-U27, LV-U49, BF-07)', () => 
     expect((await sist(k)).data.deres_ref).toEqual([m(3)]);
   });
 
-  it('T-8: TEs innsigelse mot BHs svar viser til svaret, ikke til eget krav (LV-U49)', async () => {
-    const k = await kjoering([
-      KRAV_FORHOLD,
-      SVAR_FORHOLD,
-      KRAV_VEDERLAG,
-      SVAR_VEDERLAG,
-      { handling: 'innsigelse', part: 'TE', gjelder: 'S-v1', navn: 'I-1' },
-    ]);
-    expect((await sist(k)).data.deres_ref).toEqual([m(4)]);
-  });
-
   it('T-12: TE trekker kravet, og brevet har ingen Deres ref. (LV-U49)', async () => {
     const k = await kjoering([KRAV_FORHOLD, SVAR_FORHOLD, KRAV_VEDERLAG, SVAR_VEDERLAG]);
     const u = await k.send({ handling: 'trekk', spor: 'vederlag' });

@@ -412,12 +412,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
     case 'uten_virkning':
       return u.utenVirkning.map((x) => x.element);
-    case 'innsigelser':
-      return u.innsigelser.map((x) => `${x.part}:${x.gjelder}`);
     case 'protester':
       return u.protester.map((x) => `${x.part}:${x.gjelder}`);
-    case 'passivitet':
-      return u.passivitet.map((x) => x.gjelder);
     case 'paaberopelse':
       return svar().svar.paaberopelse;
     case 'forhold_avklart':

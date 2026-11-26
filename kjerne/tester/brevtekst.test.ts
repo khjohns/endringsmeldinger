@@ -35,6 +35,7 @@ import {
   FRISTKRAV,
   FRIST_FULLT,
   I_SAKEN,
+  medFristen,
   KLAR_OVER,
   KLAR_OVER_TEKST,
   KOE_17,
@@ -1038,9 +1039,12 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
       ...SOM_BREV,
     });
-    const innsigelse = { type: 'innsigelse', gjelder: krav };
-    expect(s.avvisning('BH', innsigelse)).toBeNull();
-    expect(s.vis('BH', innsigelse)?.join(' '), 'forutsetning').not.toContain('Fundament');
+    const aksept = {
+      type: 'brev',
+      svar: [svar('forhold', krav, { resultat: 'godkjent', grunnlag_varslet_i_tide: true })],
+    };
+    expect(s.avvisning('BH', aksept)).toBeNull();
+    expect(s.vis('BH', aksept)?.join(' '), 'forutsetning').not.toContain('Fundament');
   });
 
   it('et filnavn med et slikt tegn fra før stopper brevet, og meldingen nevner vedlegget (#1138)', () => {
@@ -1393,17 +1397,27 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
       });
     const epost = varselet('e_post', '2026-10-02');
     expect(epost.data.korrespondansetype).toBe('e_post');
-    const innsigelse = (rad: Journalrad) =>
-      s
-        .vis('BH', {
-          type: 'innsigelse',
-          gjelder: (rad.data.utsagn as Data[])[0].id,
-        })
-        ?.join('\n');
-    expect(
-      s.avvisning('BH', { type: 'innsigelse', gjelder: (epost.data.utsagn as Data[])[0].id })
-    ).toBeNull();
-    expect(innsigelse(epost)).toContain('i totalentreprenørens e-post av 2. oktober 2026');
+    /** Byggherrens svar på fristkravet, som påberoper at varselet kom for sent. */
+    const fristsvaret = (t: ReturnType<typeof sak>) => {
+      t.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const brev = {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            t.krav('frist'),
+            medFristen({ ...FRIST_FULLT[0], frist_varsel_ok: false }),
+            {
+              resultat: 'avslaatt',
+              godkjent_dager: 0,
+            }
+          ),
+        ],
+      };
+      expect(t.avvisning('BH', brev)).toBeNull();
+      return t.vis('BH', brev)?.join('\n');
+    };
+    expect(fristsvaret(s)).toContain('i totalentreprenørens e-post av 2. oktober 2026');
     // Arbeidsvalget 1 A 16.11 i #807 (LV-U42): møtereferatet med typen, og et notat eller annet
     // dokument som «dokument».
     for (const [korrespondansetype, omtalt] of [
@@ -1412,7 +1426,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     ]) {
       const t = sak();
       t.send('TE', PAABEROPELSE);
-      const rad = t.send('TE', {
+      t.send('TE', {
         type: 'varsel',
         varsler: [{ hjemmel: '33.4' }],
         sendt: '2026-10-02',
@@ -1420,9 +1434,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         beskrivelse: 'Varsel om fristforlengelse',
         dokumentasjon: [randomUUID()],
       });
-      expect(
-        t.vis('BH', { type: 'innsigelse', gjelder: (rad.data.utsagn as Data[])[0].id })?.join('\n')
-      ).toContain(`i totalentreprenørens ${omtalt} av 2. oktober 2026`);
+      expect(fristsvaret(t)).toContain(`i totalentreprenørens ${omtalt} av 2. oktober 2026`);
     }
   });
 

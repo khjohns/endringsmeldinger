@@ -367,7 +367,6 @@ export const KONTROLLER_I_VEDERLAGET = {
     saerskiltStrider(k, tidligere),
   kravene: kontrollerKravpostvarslene,
   svaret: kontrollerPostene,
-  kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: () => {},

@@ -361,42 +361,59 @@ describe('formatet (7.1.2, 4.4)', () => {
  */
 describe('lesereglene for referansene (4.2)', () => {
   const vederlagIgjen = { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' };
-  // OV-U7: kommandoen for bestridelse avvises, så bestridelsen lages av BHs innsigelse D5.
-  const varselOgInnsigelse = [
+  const varselet = [
     'godkjent_forhold',
     { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
     { handling: 'varsel', spor: 'frist', sendt: '2026-09-02', navn: 'D4' },
-    { handling: 'innsigelse', part: 'BH', gjelder: 'D4#varsel', navn: 'D5' },
   ];
   const element = (r: Journalrad[], k: Kjoering, navn: string, felt: 'krav' | 'utsagn') =>
     (radMed(r, k, navn).data[felt] as Data[])[0];
   const id = (k: Kjoering, navn: string) => k.navn.id(navn);
-  const tilBestridelse = (r: Journalrad[], k: Kjoering) => {
-    // Raden lages for hånd (OV-U7), så den har ikke tittelen innsigelsen ble frosset med (#1533).
-    delete radMed(r, k, 'D5').data.brevtittel;
-    return Object.assign(element(r, k, 'D5', 'utsagn'), {
-      art: 'bestridelse',
-      gjelder: id(k, 'D4#sendt'),
-      hva: 'mottatt',
-    });
+  /** OV-U7: kommandoen for bestridelse avvises, så byggherrens bestridelse lages for hånd. */
+  const medBestridelse = (r: Journalrad[], k: Kjoering): Journalrad => {
+    const siste = r.at(-1)!;
+    const rad: Journalrad = {
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      aktor_rolle: 'BH',
+      data: {
+        utsagn: [
+          { id: randomUUID(), art: 'bestridelse', gjelder: id(k, 'D4#sendt'), hva: 'mottatt' },
+        ],
+      },
+    };
+    r.push(rad);
+    return rad;
   };
 
-  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
+  it('en bestridelse med en tittel skrivingen ikke gir den, er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
     const bane = minnebane();
-    const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
+    const k = await bygg(bane, varselet as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
-    const tittel = radMed(rader, k, 'D5').data.brevtittel;
-    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt\u00a05 i sak KOE-17');
-    tilBestridelse(rader, k);
-    radMed(rader, k, 'D5').data.brevtittel = tittel;
+    // En tittel løsningen gir andre brev, som ikke påberoper et forhold (GR-U31).
+    const tittel = 'Aksept av svaret';
+    // Med tekst fra løsningen, så det er tittelen og ikke den manglende teksten som avvises.
+    const medTekst = (r: Journalrad[]) => {
+      const rad = medBestridelse(r, k);
+      const u = (rad.data.utsagn as Data[])[0];
+      rad.data.brevtekst = [
+        { gjelder: u.id, laast: 'Byggherren bestrider at brevet ble mottatt.' },
+      ];
+      return rad;
+    };
+    const kontroll = structuredClone(rader);
+    medTekst(kontroll);
+    expect(utled(lesJournal(kontroll, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(true);
+    medTekst(rader).data.brevtittel = tittel;
     expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
   });
 
   it('en bestridelse fra motparten som står i journalen, leses (MM-U7)', async () => {
     const bane = minnebane();
-    const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
+    const k = await bygg(bane, varselet as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
-    tilBestridelse(rader, k);
+    medBestridelse(rader, k);
     const u = utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
     const o = u.opplysninger.find((x) => x.opplysning.id === id(k, 'D4#sendt'));
@@ -454,10 +471,9 @@ describe('lesereglene for referansene (4.2)', () => {
     ],
     [
       'en bestridelse av egen opplysning (MM-U7)',
-      varselOgInnsigelse,
+      varselet,
       (r, k) => {
-        tilBestridelse(r, k);
-        radMed(r, k, 'D5').aktor_rolle = 'TE';
+        medBestridelse(r, k).aktor_rolle = 'TE';
       },
     ],
     [

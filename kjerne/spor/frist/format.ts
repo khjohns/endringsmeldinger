@@ -57,6 +57,7 @@ export function gjelderHeleFristkravet(s: Standpunkt): boolean {
   return (
     s.art === 'hindring' ||
     s.art === 'rettidighet' ||
+    s.art === 'ikke_svar' ||
     (s.art === 'spesifisering' && !erInnsigelseIFristen(s))
   );
 }
@@ -66,6 +67,8 @@ export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: b
   // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`kontrollerHjemleneIFristen`).
   { art: 'rettidighet', paakrevd: false },
   { art: 'rettidighet', paakrevd: false },
+  // VS-U95: i stedet for rettidigheten etter § 33.6.2 (`kontrollerStandpunkteneIFristen`).
+  { art: 'ikke_svar', paakrevd: false },
   { art: 'hindring', paakrevd: false },
   { art: 'spesifisering', paakrevd: false },
   { art: 'dager', paakrevd: true },
@@ -119,7 +122,17 @@ export function fristinnhold(lagret: boolean): {
 export const RELASJON_I_FRISTKRAVET: Record<string, Skjema> = { gjelder: ID };
 
 /** Skjemaene for standpunktene i svaret på fristkravet, etter `STANDPUNKT`. */
-export const STANDPUNKT_I_FRISTEN: Record<'hindring' | 'spesifisering' | 'dager', Skjema> = {
+export const STANDPUNKT_I_FRISTEN: Record<
+  'ikke_svar' | 'hindring' | 'spesifisering' | 'dager',
+  Skjema
+> = {
+  // VS-U95: `gjelder` er TEs begrunnelse etter § 33.6.2 annet ledd b.
+  ikke_svar: objekt({ ...artfelt('ikke_svar'), gjelder: ID, hjemmel: { const: '33.6.2' } }, [
+    'id',
+    'art',
+    'gjelder',
+    'hjemmel',
+  ]),
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
     'art',
@@ -237,6 +250,8 @@ const radenFor = (utregning: Data, gjelder: string, sti: string): Fristrad => {
 function standpunktIFristen(e: Data, utregning: Data, sti: string): Standpunkt | null {
   const id = e.id as string;
   switch (e.art) {
+    case 'ikke_svar':
+      return { id, art: 'ikke_svar', gjelder: e.gjelder as string, hjemmel: '33.6.2' };
     case 'hindring':
       return { id, art: 'hindring', oppfylt: e.oppfylt as boolean };
     case 'spesifisering': {
@@ -272,12 +287,13 @@ function standpunktIFristen(e: Data, utregning: Data, sti: string): Standpunkt |
 }
 
 /**
- * Rekkefølgen i svaret: rettidigheten, hindringen og spesifiseringen én gang (VS-U17, KA-U78),
+ * Rekkefølgen i svaret: rettidigheten, standpunktet om at begrunnelsen ikke er et svar, hindringen
+ * og spesifiseringen én gang (VS-U17, VS-U95, KA-U78),
  * og så dagene for hver frist, én gang per frist og i samme rekkefølge som radene i utregningen.
  * Dagene byggherren måtte forstå, gjelder de samme fristene (D-5).
  */
 function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti: string): void {
-  const rekkefoelge = ['rettidighet', 'hindring', 'spesifisering', 'dager'];
+  const rekkefoelge = ['rettidighet', 'ikke_svar', 'hindring', 'spesifisering', 'dager'];
   let forrige = 0;
   for (const s of ut) {
     const plass = rekkefoelge.indexOf(s.art);
@@ -285,6 +301,12 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
       throw new Uforstaatt(`${sti}: standpunktet ${s.art} står i feil rekkefølge i fristen`);
     forrige = plass;
   }
+  // VS-U88 punkt 8, VS-U95: ett standpunkt etter § 33.6.2 om begrunnelsen.
+  if (
+    ut.some((s) => s.art === 'ikke_svar') &&
+    ut.some((s) => s.art === 'rettidighet' && s.hjemmel === '33.6.2')
+  )
+    throw new Uforstaatt(`${sti}: svaret har to standpunkter etter § 33.6.2`);
   const dagene = ut.flatMap((s) => (s.art === 'dager' ? [s.gjelder] : []));
   const radene = utregningIFristen(utregning).frister;
   if (dagene.join() !== radene.map((r) => r.gjelder).join())

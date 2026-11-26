@@ -70,10 +70,6 @@ export const FRYSING_I_FRISTEN = {
   utfall: utfallIFristen,
   godkjennerHeleKravet: fristenGodkjent,
   vilkaar: 'forhold_avklart',
-  // VS-U20, arbeidsvalget 15.10 i #309. Gjelder rettidigheten etter § 33.4 og § 33.6.2.
-  hvertITideGirOppInnsigelsen: true,
-  // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
-  ogsaaInnsigelserEtter: ['33.6.2'],
 } satisfies Svarsfrysing;
 
 // ---------- Utregningen av svaret (B-13) ----------
@@ -83,6 +79,7 @@ const FRISTVURDERINGER = new Set<string>([
   'frist_varsel_ok',
   'spesifisert_krav_ok',
   'foresporsel_svar_ok',
+  'begrunnelse_ikke_svar',
   'vilkar_oppfylt',
   'frister',
 ]);
@@ -126,12 +123,14 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
  */
 export const fristkravet = (
   krevd: number,
-  foresporsel: Foresporselsrelasjon | null
+  foresporsel: Foresporselsrelasjon | null,
+  foersteKrav = false
 ): Fristkrav => ({
   krevd_dager: krevd,
   varsel_type: 'spesifisert',
   er_svar_paa_foresporsel: foresporsel?.art === 'svar',
   har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
+  er_foerste_krav: foersteKrav,
   // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
   har_innsigelse_mot_varsel: true,
   har_tidligere_varsel_i_tide: false,
@@ -142,6 +141,7 @@ export const vurderingenAvFristen = (v: Svarvurdering, f: Dagvurdering): Fristvu
   frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
   spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
   foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
+  begrunnelse_ikke_svar: v.begrunnelse_ikke_svar as boolean | undefined,
   vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
   godkjent_dager: f.dager,
 });
@@ -186,6 +186,9 @@ export function standpunkterIFristen(
       hjemmel: '33.6.2',
       i_tide: v.foresporsel_svar_ok,
     });
+  // VS-U95: i stedet for rettidigheten, uten virkning.
+  if (v.begrunnelse_ikke_svar === true && foresporsel?.art === 'begrunnelse')
+    ut.push({ id: nyId(), art: 'ikke_svar', gjelder: foresporsel.gjelder, hjemmel: '33.6.2' });
   if (typeof v.vilkar_oppfylt === 'boolean')
     ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
   const frister = fristvurderinger(v, krav);
@@ -263,7 +266,10 @@ function regnUtFrist(
   const krevd = innholdIFristen(krav).frister.map((f) => f.dager);
   const fristene = fristvurderinger(v, krav);
   fristene.forEach((f, i) => {
-    kontroller(vurderingenAvFristen(v, f), fristkravet(krevd[i]!, foresporsel));
+    kontroller(
+      vurderingenAvFristen(v, f),
+      fristkravet(krevd[i]!, foresporsel, krav.erstatter === null)
+    );
     dagerMaatteForstaa(v, f);
   });
   let n = 0;

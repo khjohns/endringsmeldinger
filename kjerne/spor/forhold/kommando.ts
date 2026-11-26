@@ -245,7 +245,6 @@ export const NYTTELAST_I_FORHOLDET = {
   begrunnelse: begrunnelseIForholdet,
   svarsperre: () => null,
   kravsperre: (k, u, sendt) => kategorisperre(k, u, sendt) ?? datosperre(k, u, sendt),
-  innsigelse: () => null,
   utdypning: utdypningIForholdet,
   oppgittDatoIKravet: oppgittDatoIForholdet,
 } satisfies Sporsnyttelast;
@@ -322,14 +321,6 @@ function akseptAvFrafallet(u: Utledning): Avvisning | null {
 
 /** Forutsetningene i forholdet (`forutsetninger`). */
 export const FORUTSETNINGER_I_FORHOLDET = {
-  innsigelsenErIkkeBygget: (u, gjelder) =>
-    // Det registrerte varselet etter § 32.2 har ingen brevtekst før S-4 i #807 er bygget.
-    u.spor.forhold.varsler['32.2']?.id === gjelder
-      ? avvis(
-          'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
-        )
-      : null,
   svaret: svaretPaaberoperRegistrertVarsel,
   kravet: 'påberopelsen av forholdet',
   trekket: trekkAvPaaberopelsen,

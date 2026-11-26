@@ -64,7 +64,7 @@ export interface Brevet {
    */
   sendt: string | null;
   spor: Spor[];
-  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'varsel' | 'registrert' | 'annet';
+  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'varsel' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
   /** Vår ref., merkingen som ble frosset med brevet (LV-U44, LV-U24), eller `null`. */
@@ -92,7 +92,7 @@ function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
   if (d.krav.length) return 'krav';
-  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'innsigelse', 'varsel'].includes(x.art));
+  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'varsel'].includes(x.art));
   return (u?.art as Brevet['art']) ?? 'annet';
 }
 

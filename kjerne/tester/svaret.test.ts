@@ -1,16 +1,14 @@
 /**
  * Byggherrens svar i brevene: svaret, forbeholdet, oppgjøret som fast sum, aksepten,
- * innsigelsen, protesten og passiviteten, bestridelsen, den senere begrunnelsen og svaret når
- * kravene er avgjort. Forventningene har kilde i LV-U4 (punkt 4–12, og 5.2, 5.5b og 5.6 i
- * svaret), GR-U14 (teksten etter § 31.3 i en godkjenning som er en endringsordre), VS-U9 og
- * VS-U11 (svaret gjentar eller gir opp innsigelsen) og B-13 05.10 (svaret når forholdet er
+ * protesten, bestridelsen, den senere begrunnelsen og svaret når kravene er avgjort.
+ * Forventningene har kilde i LV-U4 (punkt 4–12, og 5.2, 5.5b og 5.6 i svaret), GR-U14 (teksten
+ * etter § 31.3 i en godkjenning som er en endringsordre) og B-13 05.10 (svaret når forholdet er
  * avslått eller prekludert), og vedtakene i navnet på hver gruppe.
  * Saken i minnet er `sak()` i `brevsak.ts`.
  */
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
 import { Uforstaatt } from '../format/skjema.ts';
@@ -62,7 +60,6 @@ import {
   tekst,
   tilbud,
   utenFelt,
-  varseletIFristkravet,
 } from './brevsak.ts';
 
 describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
@@ -1253,214 +1250,26 @@ describe('aksepten (LV-U4 punkt 6)', () => {
   });
 });
 
-describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)', () => {
-  const medInnsigelse = () => {
+describe('protest og senere begrunnelse (LV-U4 punkt 8–9, OV-U7)', () => {
+  const medSvaret = () => {
     const s = sakMedKrav();
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-    return s;
-  };
-
-  it('innsigelsen står i brevet med det den gjelder', () => {
-    const s = sakMedKrav();
-    const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
-    expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt\u00a05 tredje ledd).',
-    ]);
-  });
-
-  it('svaret gjentar innsigelsen og viser til den', () => {
-    const s = medInnsigelse();
-    const rad = s.send('BH', {
+    const svaret = s.send('BH', {
       type: 'brev',
       svar: [
         svar('forhold', s.krav('forhold'), {
-          resultat: 'avslaatt',
-          grunnlag_varslet_i_tide: false,
-        }),
-      ],
-    });
-    expect(laast(rad)[1]).toBe(
-      '1. Varselet etter punkt\u00a032.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
-    );
-  });
-
-  // Arbeidsvalg 1 i #770 (#536): en påberopelse i et registrert brev er dokumentasjon
-  // (OV-U4), og en innsigelse mot det er ingen påberopelse etter § 32.2. Kommandoene og
-  // brevteksten leser det likt.
-  describe('innsigelse mot et registrert påberopelse (#536)', () => {
-    const medRegistrertKrav = () => {
-      const s = sakMedKrav();
-      const registrert = randomUUID();
-      s.rad('TE', {
-        krav: [
-          {
-            id: registrert,
-            spor: 'forhold',
-            hovedkategori: 'endring',
-            underkategori: 'irregulaer_endring',
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-        ...SOM_BREV,
-      });
-      expect(s.u().forstaatt).toBe(true);
-      return { s, registrert };
-    };
-    const avslag = (s: ReturnType<typeof sak>) => ({
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'avslaatt',
-          grunnlag_varslet_i_tide: false,
-        }),
-      ],
-    });
-    // Avslått, så svaret ikke gir registrert enighet (GR-U7) og testen bare gjelder «i tide».
-    const iTide = (s: ReturnType<typeof sak>) => ({
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'avslaatt',
-          grunnlag_varslet_i_tide: true,
-        }),
-      ],
-    });
-
-    it('brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen (OV-U80)', () => {
-      const { s, registrert } = medRegistrertKrav();
-      s.send('BH', { type: 'innsigelse', gjelder: registrert });
-      expect(laast(s.send('BH', avslag(s)))[1]).toContain('jf. innsigelsen');
-      // Kontrollsak: samme forløp med innsigelsen mot påberopelsen fra appen.
-      const k = medRegistrertKrav().s;
-      k.send('BH', { type: 'innsigelse', gjelder: k.krav('forhold') });
-      expect(laast(k.send('BH', avslag(k)))[1]).toContain('jf. innsigelsen');
-    });
-
-    it('kommandoene avviser den ikke etter et «i tide», og heller ikke innsigelsen mot kravet fra appen (MM-U34 punkt 6, HF-U4)', () => {
-      const { s, registrert } = medRegistrertKrav();
-      s.send('BH', iTide(s));
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: registrert })).toBeNull();
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
-    });
-  });
-
-  describe('innsigelsen i et brev lagt til, og et svar lagt til samme dag (#2037, OV-U98, OV-U104)', () => {
-    const avslaget = (s: ReturnType<typeof sak>) => ({
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'avslaatt',
-          grunnlag_varslet_i_tide: false,
-        }),
-      ],
-    });
-    const lagtTil = (dato: string) => ({
-      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato }],
-      ...SOM_BREV,
-    });
-
-    it('en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen', () => {
-      const s = sakMedKrav();
-      s.rad('BH', {
-        utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: s.krav('forhold') }],
-        ...lagtTil('2026-09-30'),
-      });
-      expect(s.u().forstaatt).toBe(true);
-      expect(laast(s.send('BH', avslaget(s)))[1]).not.toContain('jf. innsigelsen');
-      // Kontrollsak: innsigelsen fra løsningen gjentas.
-      const k = sakMedKrav();
-      k.send('BH', { type: 'innsigelse', gjelder: k.krav('forhold') });
-      expect(laast(k.send('BH', avslaget(k)))[1]).toContain('jf. innsigelsen');
-    });
-
-    it('et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den', () => {
-      const merket = (dag: (innsigelsen: string) => string) => {
-        const s = sakMedKrav();
-        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-        const innsigelse = (rad.data.utsagn as Data[])[0].id;
-        const svaret = avslaget(s).svar[0] as Data;
-        delete svaret.utdypning;
-        delete svaret.utdypninger;
-        const lagt = s.send('BH', {
-          type: 'brev',
-          svar: [svaret],
-          sendt: dag(rad.tidsstempel.slice(0, 10)),
-          ...SOM_BREV,
-          dokumentasjon: [randomUUID()],
-        });
-        return { u: s.u(), svar: (lagt.data.svar as Data[])[0].id, innsigelse };
-      };
-      const samme = merket((dag) => dag);
-      expect(samme.u.sendtSammeDag).toContainEqual({ element: samme.svar, med: samme.innsigelse });
-      const foer = merket(() => '2026-10-03');
-      expect(
-        foer.u.sendtSammeDag.filter((x) => x.med === foer.innsigelse),
-        'kontrollsak: sendt dagen før'
-      ).toEqual([]);
-    });
-
-    it('et svar lagt til sammenliknes ikke med en innsigelse et senere svar alt har gitt opp, som brevteksten heller ikke gjentar (OV-U104, OV-U105, VS-U9, #2090)', () => {
-      const merket = (iTide: boolean) => {
-        const s = sakMedKrav();
-        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-        const innsigelse = (rad.data.utsagn as Data[])[0].id;
-        s.send('BH', {
-          type: 'brev',
-          svar: [
-            svar('forhold', s.krav('forhold'), {
-              resultat: 'avslaatt',
-              grunnlag_varslet_i_tide: iTide,
-            }),
-          ],
-        });
-        const godkjenning = svar('forhold', s.krav('forhold'), {
           resultat: 'godkjent',
-          grunnlag_varslet_i_tide: true,
-        }) as Data;
-        delete godkjenning.utdypning;
-        delete godkjenning.utdypninger;
-        s.send('BH', {
-          type: 'brev',
-          svar: [godkjenning],
-          sendt: rad.tidsstempel.slice(0, 10),
-          ...SOM_BREV,
-          dokumentasjon: [randomUUID()],
-        });
-        expect(s.u().forstaatt, 'forutsetning: saken er forstått').toBe(true);
-        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
-      };
-      expect(merket(true), '«i tide» i svaret fra løsningen ga opp innsigelsen').toEqual([]);
-      expect(merket(false), 'kontrollsak: svaret fra løsningen gjentok den').toHaveLength(1);
+          grunnlag_varslet_i_tide: false,
+        }),
+      ],
     });
-
-    it('i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen mot påberopelsen, som brevteksten heller ikke gjentar (VS-U24, MM-U43 punkt 8, #2050)', () => {
-      const merket = (innhold: Data, vurderinger: Data) => {
-        const s = sak();
-        s.send('TE', { ...PAABEROPELSE, innhold });
-        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-        const innsigelse = (rad.data.utsagn as Data[])[0].id;
-        const svaret = svar('forhold', s.krav('forhold'), vurderinger) as Data;
-        delete svaret.utdypning;
-        delete svaret.utdypninger;
-        s.send('BH', {
-          type: 'brev',
-          svar: [svaret],
-          sendt: rad.tidsstempel.slice(0, 10),
-          korrespondansetype: 'brev',
-          sendemaate: 'post',
-          beskrivelse: 'Svaret sendt per post.',
-          dokumentasjon: [randomUUID()],
-        });
-        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
-      };
-      const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER };
-      expect(merket(svikt, { resultat: 'avslaatt' })).toEqual([]);
-      expect(
-        merket(PAABEROPELSE.innhold, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false }),
-        'kontrollsak: § 32.2 gjelder'
-      ).toHaveLength(1);
-    });
-  });
+    const svarId = (svaret.data.svar as Data[])[0].id as string;
+    return {
+      s,
+      brevet: svaret.event_id,
+      svarId,
+      rettidighet: ((svaret.data.svar as Data[])[0].standpunkter as Data[])[0].id as string,
+    };
+  };
 
   /** Svarene som et brev lagt til, sendt `sendt`, uten tekst fra løsningen (OV-U80). */
   const lagtTilSomBrev = (svarene: Data[], sendt: string) => ({
@@ -1510,19 +1319,6 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     ).toBe(kontroll.forhold);
   });
 
-  it('OV-U104: et vederlagssvar lagt til samme dag som en innsigelse mot vederlagskravet merkes ikke, fordi brevteksten ikke sammenlikner dem', () => {
-    const s = sakMedKrav();
-    const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
-    s.send(
-      'BH',
-      lagtTilSomBrev(
-        [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
-        rad.tidsstempel.slice(0, 10)
-      )
-    );
-    expect(s.u().sendtSammeDag).toEqual([]);
-  });
-
   it('OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det', () => {
     const merket = (kravet: string) => {
       const s = sak();
@@ -1552,506 +1348,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     expect(foer.u.sendtSammeDag, 'kontrollsak: sendt dagen før varselet').toEqual([]);
   });
 
-  it('gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)', () => {
-    const s = medInnsigelse();
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'avslaatt',
-          grunnlag_varslet_i_tide: true,
-        }),
-      ],
-    });
-    expect(laast(rad)[1]).toBe(
-      '1. Varselet etter punkt\u00a032.2\n\nByggherren gir opp innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.'
-    );
-  });
-
-  it('gir byggherren opp innsigelsen mot fristvarselet, nevner brevet varselet etter § 33.4 (LV-U5)', () => {
-    const s = sakMedKrav();
-    const varselet = varseletIFristkravet(s);
-    s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
-    );
-  });
-
-  const girOpp = 'gir opp innsigelsen';
-
-  it('uten eget varsel er en innsigelse mot det første fristkravet ingen påberopelse etter § 33.4, og et «i tide» gir den ikke opp (VS-U24)', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    s.send('TE', {
-      type: 'krav',
-      spor: 'frist',
-      innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
-      utdypning: FRISTKRAV.utdypning,
-    });
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
-    );
-    expect(laast(rad).join('\n\n')).not.toContain(girOpp);
-  });
-
-  it('et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet (VS-U24)', () => {
-    const s = sakMedKrav();
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
-    );
-    expect(laast(rad).join('\n\n')).not.toContain(girOpp);
-  });
-
-  it('et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon (VS-U24)', () => {
-    const s = sakMedKrav();
-    const nyttKrav = (dager: number) => ({
-      type: 'krav',
-      spor: 'frist',
-      innhold: { frister: [{ navn: 'Sluttfristen', dager }] },
-      utdypning: FRISTKRAV.utdypning,
-    });
-    s.send('TE', nyttKrav(25));
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
-    s.send('TE', nyttKrav(30));
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('frist', s.krav('frist'), FRIST_FULLT[0], {
-          resultat: 'delvis_godkjent',
-          godkjent_dager: 20,
-        }),
-      ],
-    });
-    expect(laast(rad).join('\n\n')).not.toContain(girOpp);
-  });
-
-  it('et «nei» om varselet viser ikke til en innsigelse mot fristkravet (VS-U24, del 2 av #407)', () => {
-    const s = sakMedKrav();
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar(
-          'frist',
-          s.krav('frist'),
-          { ...FRIST_FULLT[0], frist_varsel_ok: false },
-          { resultat: 'avslaatt', godkjent_dager: 0 }
-        ),
-      ],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
-    );
-    expect(laast(rad).join('\n\n')).not.toContain('jf. innsigelsen');
-  });
-
-  it('med innsigelser mot både fristkravet og varselet gir et «i tide» opp bare den mot varselet (VS-U11, VS-U24)', () => {
-    const s = sakMedKrav();
-    const varselet = varseletIFristkravet(s);
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
-    s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-05 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
-    );
-  });
-
-  it('et «i tide» i forholdet gir ikke opp innsigelsen mot fristvarselet (VS-U9, VS-U11)', () => {
-    const s = sakMedKrav();
-    const varselet = varseletIFristkravet(s);
-    s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
-    s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'godkjent',
-          grunnlag_varslet_i_tide: true,
-        }),
-      ],
-    });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar(
-          'frist',
-          s.krav('frist'),
-          { ...FRIST_FULLT[0], frist_varsel_ok: false },
-          { resultat: 'avslaatt', godkjent_dager: 0 }
-        ),
-      ],
-    });
-    expect(laast(rad).join('\n\n')).toContain(
-      'kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
-    );
-  });
-
-  it('VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen, også når det siste svaret sier «for sent» (arbeidsvalget 15.10 i #309)', () => {
-    const rettidighet = (
-      spor: 'frist' | 'vederlag',
-      hjemmel: '33.4' | '34.1.2',
-      iTide: boolean
-    ) => ({
-      spor,
-      standpunkter: [
-        { id: randomUUID(), art: 'rettidighet' as const, gjelder: 'k', hjemmel, iTide },
-      ],
-    });
-    expect(
-      innsigelsenErOppgitt('frist', [rettidighet('frist', '33.4', false)]),
-      'kontrollsak: bare «for sent» gir den ikke opp'
-    ).toBe(false);
-    expect(
-      innsigelsenErOppgitt('vederlag', [
-        rettidighet('vederlag', '34.1.2', true),
-        rettidighet('vederlag', '34.1.2', false),
-      ]),
-      'kontrollsak: i vederlaget teller det siste standpunktet'
-    ).toBe(false);
-    expect(
-      innsigelsenErOppgitt('frist', [
-        rettidighet('frist', '33.4', true),
-        rettidighet('frist', '33.4', false),
-      ])
-    ).toBe(true);
-  });
-
-  describe('varselet etter § 32.2 er det samme i hver påberopelsesversjon (VS-U24, arbeidsvalget 15.10 i #500)', () => {
-    const medNyVersjon = () => {
-      const s = medInnsigelse();
-      s.send('TE', PAABEROPELSE);
-      return s;
-    };
-
-    it('et «i tide» på den nye versjonen gir opp innsigelsen mot den første', () => {
-      const s = medNyVersjon();
-      const rad = s.send('BH', {
-        type: 'brev',
-        svar: [
-          svar('forhold', s.krav('forhold'), {
-            resultat: 'avslaatt',
-            grunnlag_varslet_i_tide: true,
-          }),
-        ],
-      });
-      expect(laast(rad)[1]).toContain(
-        'Byggherren gir opp innsigelsen etter NS 8407 punkt\u00a05 i brev K201-KOE-017-04 av 5. oktober 2026'
-      );
-    });
-
-    it('et «for sent» på den nye versjonen gjentar innsigelsen mot den første', () => {
-      const s = medNyVersjon();
-      const rad = s.send('BH', {
-        type: 'brev',
-        svar: [
-          svar('forhold', s.krav('forhold'), {
-            resultat: 'avslaatt',
-            grunnlag_varslet_i_tide: false,
-          }),
-        ],
-      });
-      expect(laast(rad)[1]).toContain('jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026');
-    });
-
-    it('et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt, men ikke et sendt før den (OV-U105, OV-U104)', () => {
-      const forSent = (s: ReturnType<typeof sak>) => ({
-        type: 'brev',
-        svar: [
-          svar('forhold', s.krav('forhold'), {
-            resultat: 'avslaatt',
-            grunnlag_varslet_i_tide: false,
-          }),
-        ],
-      });
-      /** `utenVirkning`: svaret gjelder kravversjonen den nye påberopelsen har erstattet (OV-U98). */
-      const etterITide = (sendt: string, utenVirkning = false) => {
-        const s = medInnsigelse();
-        const gjelder = s.krav('forhold');
-        if (utenVirkning) s.send('TE', PAABEROPELSE);
-        s.rad('BH', {
-          svar: [
-            {
-              id: randomUUID(),
-              spor: 'forhold',
-              gjelder,
-              standpunkter: [
-                {
-                  id: randomUUID(),
-                  art: 'rettidighet',
-                  gjelder,
-                  hjemmel: '32.2',
-                  i_tide: true,
-                },
-                { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
-              ],
-            },
-          ],
-          opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
-          ...SOM_BREV,
-        });
-        if (utenVirkning) expect(s.u().utenVirkning, 'forutsetning').toHaveLength(1);
-        else s.send('TE', PAABEROPELSE);
-        // Byggherren kan påberope det samme på nytt (VS-U77 punkt 13).
-        expect(s.avvist('BH', forSent(s))).toBeNull();
-        return laast(s.send('BH', forSent(s)))[1];
-      };
-      const innsigelsen = 'jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026';
-      expect(etterITide('2026-10-06')).not.toContain(innsigelsen);
-      expect(etterITide('2026-10-04'), 'kontrollsak: svaret er sendt før innsigelsen').toContain(
-        innsigelsen
-      );
-      expect(
-        etterITide('2026-12-01', true),
-        'et svar uten virkning gir den ikke opp (MM-U43 punkt\u00a09)'
-      ).toContain(innsigelsen);
-    });
-
-    /** GR-U11: § 32.2 gjelder ikke kategorien. */
-    const svikt = {
-      type: 'krav',
-      spor: 'forhold',
-      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
-    };
-
-    /**
-     * Skiftet mellom svikt og endring kan ikke sendes fra appen (GR-U22), så det står
-     * som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U43 punkt 6). Et
-     * registrert krav ville vært dokumentasjon uten virkning (OV-U4).
-     */
-    const skifte = (s: ReturnType<typeof sak>, kommando: { innhold: Data }) => {
-      expect(s.avvist('TE', kommando)).toBe('ANNEN_HJEMMEL');
-      s.rad('TE', {
-        krav: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            erstatter: s.krav('forhold'),
-            hovedkategori: kommando.innhold.hovedkategori,
-            underkategori: kommando.innhold.underkategori,
-          },
-        ],
-      });
-    };
-
-    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11, MM-U43 punkt 8)', () => {
-      const tekstMed = (iTide: boolean) => {
-        const s = sak();
-        s.send('TE', svikt);
-        s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
-        skifte(s, PAABEROPELSE);
-        return laast(
-          s.send('BH', {
-            type: 'brev',
-            svar: [
-              svar('forhold', s.krav('forhold'), {
-                resultat: 'avslaatt',
-                grunnlag_varslet_i_tide: iTide,
-              }),
-            ],
-          })
-        ).join('\n\n');
-      };
-      expect(tekstMed(true)).not.toContain(girOpp);
-      const forSent = tekstMed(false);
-      expect(forSent).toContain(
-        'totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent'
-      );
-      expect(forSent).not.toContain('jf. innsigelsen');
-    });
-
-    it('etter et «i tide» etter § 32.2 godtas en innsigelse mot en versjon der § 32.2 ikke gjelder, og mot versjonen som fikk «i tide» (MM-U34 punkt 6, VS-U24, GR-U11, MM-U43 punkt 8)', () => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      const foerste = s.krav('forhold');
-      s.send('BH', {
-        type: 'brev',
-        svar: [svar('forhold', foerste, { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
-      });
-      skifte(s, svikt);
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBeNull();
-    });
-
-    /** Underkategorien skifter innenfor endring, og § 32.2 gjelder begge (GR-U11). */
-    const samordning = {
-      ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, underkategori: 'samordning' },
-    };
-    /** Svaret fra appen på den første versjonen, så skiftet til en ny underkategori. */
-    const skifteEtter = (iTide: boolean) => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      s.send('BH', {
-        type: 'brev',
-        svar: [
-          svar('forhold', s.krav('forhold'), {
-            resultat: 'avslaatt',
-            grunnlag_varslet_i_tide: iTide,
-          }),
-        ],
-      });
-      skifte(s, samordning);
-      return s;
-    };
-    /** Et svar på den nye versjonen utenfor kommandoene, uten et standpunkt om rettidigheten. */
-    const besvar = (s: ReturnType<typeof sak>, registrert: boolean) =>
-      s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            gjelder: s.krav('forhold'),
-            standpunkter: [{ id: randomUUID(), art: 'forhold', resultat: 'avslaatt' }],
-          },
-        ],
-        ...(registrert
-          ? {
-              opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
-              ...SOM_BREV,
-            }
-          : {}),
-      });
-
-    it.each([
-      ['utenfor kommandoene', false],
-      ['i et registrert brev (OV-U80, OV-U98)', true],
-    ])(
-      'etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar %s har besvart den (MM-U34 punkt\u00a06, HF-U8)',
-      (_, registrert) => {
-        const s = skifteEtter(true);
-        besvar(s, registrert);
-        const u = s.u();
-        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-        const nytt = u.spor.forhold.svar.find((x) => x.gjelder === s.krav('forhold'));
-        expect(
-          nytt?.beslutningsgrunnlag.varslingsplikt,
-          'forutsetning: svaret på den nye versjonen frøs at § 32.2 gjelder (GR-U12)'
-        ).toBe(true);
-        expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
-      }
-    );
-
-    it('etter et «i tide» på en tidligere versjon godtas en innsigelse mot en ubesvart versjon i en annen underkategori (restavviket i #798)', () => {
-      // Karakteriserer dagens atferd, ikke en vedtatt forventning: ingen svar med virkning
-      // har frosset varslingsplikten i den nye underkategorien, så innsigelsen leses ikke
-      // som en påberopelse etter § 32.2. Avviket gjelder bare et kategoriskifte fra før GR-U22.
-      const s = skifteEtter(true);
-      expect(
-        s.u().spor.forhold.svar.some((x) => x.gjelder === s.krav('forhold')),
-        'forutsetning: ingen svar med virkning på den nye versjonen'
-      ).toBe(false);
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
-    });
-
-    it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U43 punkt 8, GR-U12, #776)', () => {
-      const s = sak();
-      s.send('TE', {
-        ...PAABEROPELSE,
-        innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
-      });
-      const krav = s.krav('forhold');
-      // Et svar utenfor kommandoene med «i tide» etter § 32.2, der § 32.2 ikke gjelder kategorien.
-      s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            gjelder: krav,
-            standpunkter: [
-              {
-                id: randomUUID(),
-                art: 'rettidighet',
-                gjelder: krav,
-                hjemmel: '32.2',
-                i_tide: true,
-              },
-              { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
-            ],
-          },
-        ],
-      });
-      expect(
-        s.u().spor.forhold.svar[0].beslutningsgrunnlag.varslingsplikt,
-        'forutsetning: § 32.2 gjaldt ikke kategorien da svaret ble sendt (GR-U11)'
-      ).toBe(false);
-      const innsigelse = { type: 'innsigelse', gjelder: krav };
-      expect(s.avvist('BH', innsigelse), 'innsigelsen er ingen påberopelse (VS-U24)').toBeNull();
-      s.send('BH', innsigelse);
-      const nyere = {
-        ...KJERNE,
-        regler: { ...KJERNE.regler, gjelderVarslingsplikten: () => true },
-      };
-      const u = utledJournal(s.journal, nyere);
-      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-      expect(
-        s.avvist('BH', innsigelse, nyere),
-        'en ny innsigelse er heller ingen påberopelse under det nyere regelsettet (MM-U43 punkt\u00a08, #776)'
-      ).toBeNull();
-      const revisjon = {
-        type: 'revisjon',
-        erstatter: s.u().spor.forhold.gjeldendeSvar!.id,
-        svar: svar('forhold', krav, { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
-      };
-      // Karakteriserer dagens atferd: brevteksten spør regelsettet når brevet skrives
-      // (`innsigelsenPaaberoper`, #776). Revisjonen fryser at § 32.2 gjelder, så svaret og
-      // teksten sier det samme (#798).
-      expect(s.vis('BH', revisjon, nyere)?.[1]).toContain(
-        `${girOpp} etter NS 8407 punkt\u00a05 i brev K201-KOE-017-03 av 4. oktober 2026`
-      );
-    });
-  });
-
-  /**
-   * BHs innsigelse mot påberopelsen (brev 5) og svaret på forholdet med
-   * påberopelsen av for sen varsling (brev 6): alt en protest, påberopt passivitet og
-   * en senere begrunnelse kunne gjelde før OV-U7.
-   */
-  const medSvarPaaInnsigelsen = () => {
-    const s = medInnsigelse();
-    const innsigelse = s.journal.at(-1)!;
-    const svaret = s.send('BH', {
-      type: 'brev',
-      svar: [
-        svar('forhold', s.krav('forhold'), {
-          resultat: 'godkjent',
-          grunnlag_varslet_i_tide: false,
-        }),
-      ],
-    });
-    const svarId = (svaret.data.svar as Data[])[0].id as string;
-    return {
-      s,
-      innsigelse: (innsigelse.data.utsagn as Data[])[0].id as string,
-      brevet: innsigelse.event_id,
-      svarId,
-      rettidighet: ((svaret.data.svar as Data[])[0].standpunkter as Data[])[0].id as string,
-    };
-  };
-
-  it('protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, med FEIL_PART for parten handlingen ikke tilhører (#997), og ingen hendelse skrives (OV-U7, arbeidsvalget 16.10 på #587)', () => {
-    const { s, innsigelse, brevet, svarId, rettidighet } = medSvarPaaInnsigelsen();
-    // Påberopt passivitet er TEs handling og den senere begrunnelsen byggherrens (#997).
+  it('protest og senere begrunnelse avvises fra begge parter, med FEIL_PART for parten handlingen ikke tilhører (#997), og ingen hendelse skrives (OV-U7, arbeidsvalget 16.10 på #587)', () => {
+    const { s, brevet, svarId, rettidighet } = medSvaret();
+    // Den senere begrunnelsen er byggherrens (#997).
     const kommandoer: [Data, Part | null][] = [
-      [{ type: 'protest', gjelder: innsigelse }, null],
       [{ type: 'protest', gjelder: brevet }, null],
       [{ type: 'protest', gjelder: rettidighet }, null],
-      [{ type: 'passivitet', gjelder: s.krav('forhold') }, 'TE'],
       [{ type: 'begrunnelse', gjelder: svarId, utdypning: BEGRUNNELSE }, 'BH'],
       [
         {
@@ -2070,6 +1372,21 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         expect(s.avvist(part, k), `${part}: ${JSON.stringify(k)}`).toBe(
           eier === null || eier === part ? 'IKKE_I_FOERSTE_VERSJON' : 'FEIL_PART'
         );
+    expect(s.journal).toHaveLength(foer);
+  });
+
+  it('den egne innsigelsen etter punkt 5 og påberopt passivitet er ukjente kommandoer for begge parter, og ingen hendelse skrives (VS-U89, VS-U94)', () => {
+    const { s, svarId } = medSvaret();
+    const foer = s.journal.length;
+    for (const part of ['TE', 'BH'] as const)
+      for (const k of [
+        { type: 'innsigelse', gjelder: part === 'TE' ? svarId : s.krav('forhold') },
+        { type: 'passivitet', gjelder: s.krav('forhold') },
+      ])
+        expect(s.avvisning(part, k), `${part}: ${k.type}`).toEqual({
+          regel: 'UGYLDIG_FORM',
+          melding: `Ukjent kommando: ${k.type}`,
+        });
     expect(s.journal).toHaveLength(foer);
   });
 
@@ -2093,36 +1410,32 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     }
   });
 
-  it('protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, en påberopelse og et svar (OV-U7)', () => {
-    const { s, brevet, svarId } = medSvarPaaInnsigelsen();
+  it('protest og senere begrunnelse tilbys ingen av partene, også med et svar med en påberopelse (OV-U7)', () => {
+    const { s, brevet, svarId } = medSvaret();
     const u = s.u();
-    expect(u.elementer[brevet]?.art, 'forutsetning: brevet med innsigelsen').toBe('dokument');
+    expect(u.elementer[brevet]?.art, 'forutsetning: brevet med svaret').toBe('dokument');
     expect(u.elementer[svarId]?.art, 'forutsetning: svaret').toBe('svar');
     for (const part of ['TE', 'BH'] as const) {
       const tilbudt = handlinger(u, part);
-      expect(tilbudt, `kontrollsak: ${part} tilbys en innsigelse`).toContain(
-        part === 'TE' ? `innsigelse:${svarId}` : `innsigelse:${s.krav('vederlag')}`
+      expect(tilbudt, `kontrollsak: ${part} tilbys noe`).not.toEqual([]);
+      expect(tilbudt.filter((h) => /^(protest|innsigelse|passivitet|begrunne):/.test(h))).toEqual(
+        []
       );
-      expect(tilbudt.filter((h) => /^(protest|passivitet|begrunne):/.test(h))).toEqual([]);
     }
   });
 
-  it('en lest protest, påberopt passivitet og senere begrunnelse gjør saken fortsatt forstått og vises ved siden av, uten virkning på sporene (OV-U7, VS-U1, VS-U12, KA-U34 (opphevet av KA-U46))', () => {
-    const { s, innsigelse, svarId } = medSvarPaaInnsigelsen();
+  it('en lest protest og senere begrunnelse gjør saken fortsatt forstått og vises ved siden av, uten virkning på sporene (OV-U7, VS-U1, KA-U34 (opphevet av KA-U46))', () => {
+    const { s, rettidighet, svarId } = medSvaret();
     const foer = s.u();
     const utsagn = (art: string, gjelder: string) => ({
       utsagn: [{ id: randomUUID(), art, gjelder }],
     });
-    const protest = s.rad('TE', utsagn('protest', innsigelse));
-    const passivitet = s.rad('TE', utsagn('passivitet', s.krav('forhold')));
+    const protest = s.rad('TE', utsagn('protest', rettidighet));
     const begrunnelse = s.rad('BH', utsagn('begrunnelse', svarId));
     const u = s.u();
     expect(u.forstaatt).toBe(true);
     expect(u.protester.map((p) => [p.part, p.gjelder, p.hendelse])).toEqual([
-      ['TE', innsigelse, protest.event_id],
-    ]);
-    expect(u.passivitet.map((p) => [p.part, p.gjelder, p.hendelse])).toEqual([
-      ['TE', s.krav('forhold'), passivitet.event_id],
+      ['TE', rettidighet, protest.event_id],
     ]);
     const b = (begrunnelse.data.utsagn as Data[])[0].id as string;
     expect(u.elementer[b]).toEqual({
@@ -2131,15 +1444,39 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       art: 'begrunnelse',
     });
     const v = visning(u, GJELDENDE_REGLER);
-    expect(v.spor.forhold.etiketter).toContain('passivitet_paaberopt');
     expect(
       v.journal
-        .filter((j) => [protest, passivitet, begrunnelse].some((r) => r.event_id === j.hendelse))
+        .filter((j) => [protest, begrunnelse].some((r) => r.event_id === j.hendelse))
         .map((j) => j.tolket)
-    ).toEqual([true, true, true]);
+    ).toEqual([true, true]);
     expect(u.utenVirkning).toEqual([]);
     expect(u.spor).toEqual(foer.spor);
     expect(u.svar).toEqual(foer.svar);
+  });
+
+  it('en lagret egen innsigelse etter punkt 5 eller påberopt passivitet gjør saken ikke forstått, også med grunnen at noe ikke er et svar etter punkt 33.6.2 (VS-U89, MM-U2, VS-U94)', () => {
+    const { s, svarId, rettidighet } = medSvaret();
+    const lest = (part: Part, data: Data) =>
+      utledJournal(
+        [
+          ...s.journal,
+          {
+            ...s.journal.at(-1)!,
+            event_id: randomUUID(),
+            versjon: s.journal.at(-1)!.versjon + 1,
+            aktor_rolle: part,
+            data: { utsagn: [{ id: randomUUID(), ...data }] },
+          },
+        ],
+        KJERNE
+      ).forstaatt;
+    expect(lest('TE', { art: 'protest', gjelder: rettidighet }), 'kontrollsak').toBe(true);
+    expect(lest('TE', { art: 'innsigelse', gjelder: svarId })).toBe(false);
+    expect(lest('BH', { art: 'innsigelse', gjelder: s.krav('forhold') })).toBe(false);
+    expect(lest('BH', { art: 'innsigelse', gjelder: s.krav('forhold'), grunn: 'ikke_svar' })).toBe(
+      false
+    );
+    expect(lest('TE', { art: 'passivitet', gjelder: s.krav('forhold') })).toBe(false);
   });
 });
 
@@ -2318,16 +1655,6 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     ).toBe(true);
   });
 
-  it('når kravene er avgjort, godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter (OV-U3, MM-U34 punkt 13)', () => {
-    const s = utenFrist();
-    expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
-    s.send('TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
-    const varsel = s.u().spor.frist.varsler['33.4']!.id;
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
-    expect(s.u().spor.vederlag.enighet, 'forutsetning: enighet i vederlaget').not.toBeNull();
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') })).toBeNull();
-  });
-
   it('uten et sendt vederlags- eller fristkrav er kravene ikke avgjort, også når forholdet er godkjent (OV-U3)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -2482,17 +1809,6 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.spor).toEqual(foer.spor);
   });
 
-  it('en lest påberopt passivitet etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, VS-U12)', () => {
-    const { s, foer } = avgjort();
-    const paaberopelse = s.krav('forhold');
-    s.rad('TE', utsagn(randomUUID(), 'passivitet', paaberopelse));
-    const u = s.u();
-    expect(u.forstaatt).toBe(true);
-    expect(u.passivitet.map((p) => [p.part, p.gjelder])).toEqual([['TE', paaberopelse]]);
-    expect(u.utenVirkning).toEqual([]);
-    expect(u.spor).toEqual(foer.spor);
-  });
-
   /** Saken lukket etter GR-U27: TE har godtatt avslaget på forholdet. */
   const lukket = () => {
     const s = sakMedKrav();
@@ -2524,17 +1840,6 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     const u = s.u();
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
     expect(u.elementer[id]?.art).toBe('begrunnelse');
-    expect(u.utenVirkning).toEqual([]);
-    expect(u.spor).toEqual(foer.spor);
-  });
-
-  it('en lest påberopt passivitet etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, VS-U12)', () => {
-    const { s, foer } = lukket();
-    const paaberopelse = s.krav('forhold');
-    s.rad('TE', utsagn(randomUUID(), 'passivitet', paaberopelse));
-    const u = s.u();
-    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-    expect(u.passivitet.map((p) => [p.part, p.gjelder])).toEqual([['TE', paaberopelse]]);
     expect(u.utenVirkning).toEqual([]);
     expect(u.spor).toEqual(foer.spor);
   });

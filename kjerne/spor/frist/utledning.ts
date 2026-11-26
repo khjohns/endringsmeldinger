@@ -5,7 +5,6 @@
  */
 
 import { dokumenterI, foerDagen } from '../../format/leser.ts';
-import { erPaaberopelse } from '../../frosset/standpunkt.ts';
 import { forlengetFrist } from '../../regler/hverdager.ts';
 import type {
   Bakover,
@@ -41,7 +40,6 @@ export const KONTROLLER_I_FRISTEN = {
     if (iSvaret.join() !== iKravet.join())
       ugyldig(s.id, 'dagene i svaret er ikke de samme fristene som i kravet');
   },
-  kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: (s, bakover, ugyldig) => {
@@ -130,18 +128,12 @@ export function foresporselenKravetSvarerPaa(
 
 /**
  * Hvordan gjeldende fristkrav står til en forespørsel etter § 33.6.2, slik svaret leser det.
- * Etter TEs begrunnelse etter annet ledd b har svaret et standpunkt etter § 33.6.2 bare når
- * byggherren har gjort gjeldende i en egen innsigelse at begrunnelsen kom for sent: svaret
- * gjentar påberopelsen eller gir den opp (VS-U29, VS-U9, VS-U11).
+ * Etter TEs begrunnelse etter annet ledd b gjør byggherren gjeldende i svaret at begrunnelsen
+ * kom for sent, med ett standpunkt etter § 33.6.2, og svaret på et senere fristkrav gjentar
+ * påberopelsen eller gir den opp (VS-U88 punkt 8 og 9, VS-U89).
  */
-export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | null {
-  const f = foresporselsrelasjon(u.spor.frist.foresporsler);
-  if (f?.art !== 'begrunnelse') return f;
-  for (const d of dokumenterI(u.journal))
-    if (d.avsender === 'BH' && d.utsagn.some((x) => erPaaberopelse(x) && x.gjelder === f.gjelder))
-      return f;
-  return null;
-}
+export const foresporselForFristsvar = (u: Utledning): Foresporselsrelasjon | null =>
+  foresporselsrelasjon(u.spor.frist.foresporsler);
 
 /**
  * VS-U19, VS-U88 punkt 3: TE har fremmet et krav om dager, fra løsningen eller lagt til med

@@ -130,7 +130,6 @@ export const PART: Record<string, Part> = {
   aksept: 'TE',
   trekk: 'TE',
   varsel: 'TE',
-  passivitet: 'TE',
   korrigering: 'TE',
   kunnskapsdato: 'TE',
   brev: 'BH',
@@ -516,9 +515,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         hva: h.hva as 'sendt' | 'mottatt',
       };
     }
-    case 'innsigelse':
     case 'protest':
-    case 'passivitet':
       return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
     case 'begrunnelse':
       // KA-U35: med `sendt` er begrunnelsen registrert. Feltene går videre, så kjernen avviser formen.

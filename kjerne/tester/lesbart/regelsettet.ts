@@ -47,12 +47,13 @@ export const REGELSETTET: Lesbar[] = [
     'Fristkrav',
     'regelsett',
     `krevd_dager varsel_type er_svar_paa_foresporsel har_innsigelse_mot_varsel
-     har_tidligere_varsel_i_tide har_begrunnelse_etter_b`,
+     har_tidligere_varsel_i_tide har_begrunnelse_etter_b er_foerste_krav`,
   ],
   [
     'Fristvurdering',
     'utsagn',
-    'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt godkjent_dager',
+    `frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok begrunnelse_ikke_svar
+     vilkar_oppfylt godkjent_dager`,
   ],
   [
     'regler/frist.ts:beregnSynlighet',

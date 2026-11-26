@@ -33,7 +33,7 @@ import {
   varseletEtter322,
 } from '../spor/forhold/kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
+import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
 import {
   datoenDetBleSendt,
@@ -51,7 +51,6 @@ import { ugyldigAkseptfrist, utenAkseptfrist } from '../regler/akseptfrist.ts';
 import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import {
   avvis,
-  SPOR,
   VARSELSPOR,
   varseletSendt,
   type Avvisning,
@@ -95,8 +94,6 @@ export interface Sporsnyttelast {
     u: Utledning,
     sendt: string | null
   ): Avvisning | null;
-  /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
-  innsigelse(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null;
   /** Utdypningen kravet i sporet må ha under den låste teksten (`kravetsUtdypning`), eller `null`. */
   utdypning(k: Extract<Kommando, { type: 'krav' }>, regler: Regelsett): Avvisning | null;
   /** Datoen TE oppgir i kravet i sporet og det den gjelder (`oppgittDatoI`), eller `null`. */
@@ -612,16 +609,6 @@ export function nyttelastkontroll(
         );
       return null;
     }
-    case 'passivitet': {
-      // VS-U12 og GR-U11: passivitetsregelen gjelder bare der § 32.2 gjelder.
-      const krav = u.spor.forhold.krav.find((x) => x.id === k.gjelder);
-      return gjelderVarslingsplikten(krav, regler)
-        ? null
-        : avvis(
-            'VARSLINGSPLIKT_GJELDER_IKKE',
-            'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så punkt 32.3 annet ledd gjelder heller ikke.'
-          );
-    }
     case 'registrert_brev':
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
@@ -644,22 +631,6 @@ export function nyttelastkontroll(
     case 'protest':
     case 'bestridelse':
       return null;
-    case 'innsigelse': {
-      // VS-U29: at noe ikke er et svar etter § 33.6.2 annet ledd, gjelder bare TEs begrunnelse.
-      if (k.grunn !== undefined)
-        return u.elementer[k.gjelder]?.art === 'foresporselssvar'
-          ? null
-          : avvis(
-              'UGYLDIG_INNSIGELSE',
-              'Bare totalentreprenørens begrunnelse etter punkt 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
-            );
-      for (const spor of SPOR) {
-        const hinder = nyttelastI(spor).innsigelse(k.gjelder, u, regler);
-        if (hinder) return hinder;
-      }
-      // MM-U34 punkt 6 og 15: også en påberopelse etter at byggherren har sagt «i tide».
-      return null;
-    }
     case 'begrunnelse': {
       // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39, opphevet av KA-U46) bygges ikke.
       return utdypningKreves ? begrunnelsensTekst(k) : null;
