@@ -554,20 +554,23 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s } = medBegrunnelse();
     const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     expect(laast(krav)).toEqual(SLUTTFRISTEN_20);
-    // Uten innsigelse mot begrunnelsen er det ingen påberopelse etter § 33.6.2 å gjenta (VS-U29).
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [
-          svar(
-            'frist',
-            s.krav('frist'),
-            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
-            FRIST_FULLT[1]
-          ),
-        ],
-      })
-    ).toBe('UGYLDIG_VURDERING');
+  });
+
+  it('VS-U88 punkt 8: svaret på det første kravet etter begrunnelsen påberoper at den kom for sent, uten en innsigelse først', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (x) => x.hjemmel === '33.6.2'
+    );
+    expect(p).toMatchObject({ gjelder: b, i_tide: false });
+    expect(laast(rad).join('\n\n')).toContain(
+      'Byggherren gjør gjeldende at totalentreprenørens svar på forespørselen etter punkt\u00a033.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
+    );
   });
 
   it('VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2, som svaret på kravet gjentar', () => {
@@ -845,21 +848,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(laast(rad)).toEqual([
       'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt\u00a033.6.2 ikke er et svar etter punkt\u00a033.6.2 annet ledd.',
     ]);
-    // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [
-          svar(
-            'frist',
-            s.krav('frist'),
-            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
-            FRIST_FULLT[1]
-          ),
-        ],
-      })
-    ).toBe('UGYLDIG_VURDERING');
     const forhold = s.krav('forhold');
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: forhold, grunn: 'ikke_svar' })).toBe(
       'UGYLDIG_INNSIGELSE'

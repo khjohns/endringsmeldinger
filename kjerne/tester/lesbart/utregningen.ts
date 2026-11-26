@@ -98,13 +98,6 @@ export const UTREGNINGEN: Lesbar[] = [
     'innsigelsenErOppgitt',
     ['utledning/utled.ts:registreringenStrider'],
   ],
-  // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'erPaaberopelse',
-    ['spor/frist/utledning.ts:foresporselForFristsvar'],
-  ],
   // VS-U24, VS-U29, OV-U104, OV-U105: påberopelsene et svar gjentar eller gir opp, og dagen det
   // sammenliknes med dem, likt i brevteksten og utledningen (#2050).
   [

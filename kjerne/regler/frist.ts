@@ -8,9 +8,9 @@ export interface Fristkrav {
   varsel_type: Fristvarseltype | null;
   er_svar_paa_foresporsel: boolean;
   /**
-   * § 33.6.2 femte ledd: TE har begrunnet etter annet ledd b før kravet, så § 33.6.1 gjelder,
-   * og byggherren har gjort gjeldende i en egen innsigelse at begrunnelsen kom for sent. Svaret
-   * gjentar påberopelsen eller gir den opp (VS-U29).
+   * § 33.6.2 femte ledd: TE har begrunnet etter annet ledd b før kravet, så § 33.6.1 gjelder.
+   * Svaret gjør gjeldende at begrunnelsen kom for sent, gjentar påberopelsen eller gir den opp
+   * (VS-U88 punkt 8 og 9).
    */
   har_begrunnelse_etter_b?: boolean;
   har_innsigelse_mot_varsel: boolean;
@@ -38,7 +38,7 @@ export function beregnSynlighet(krav: Fristkrav) {
   return {
     frist_varsel_ok: fristVarselOk,
     spesifisert_krav_ok: krav.varsel_type === 'spesifisert' && !krav.er_svar_paa_foresporsel,
-    // VS-U29: etter en innsigelse mot begrunnelsen gjentar svaret den eller gir den opp.
+    // VS-U88 punkt 8 og 9: etter begrunnelsen tar svaret stilling til om den kom for sent.
     foresporsel_svar_ok: krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b === true,
   };
 }
@@ -92,14 +92,14 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   for (const felt of spoersmaalene)
     if (!mangler(v[felt]) && typeof v[felt] !== 'boolean')
       feil[felt] = 'er verken true eller false';
-  // VS-U29: etter begrunnelsen gjentar svaret byggherrens innsigelse mot den, eller gir den opp.
+  // VS-U88 punkt 8 og 9: standpunktet etter § 33.6.2 gjelder svaret eller begrunnelsen.
   if (
     !krav.er_svar_paa_foresporsel &&
     !krav.har_begrunnelse_etter_b &&
     !mangler(v.foresporsel_svar_ok)
   )
     feil.foresporsel_svar_ok =
-      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at totalentreprenørens siste begrunnelse etter punkt 33.6.2 annet ledd b kom for sent';
+      'kravet svarer ikke på en forespørsel etter punkt 33.6.2, og totalentreprenøren har ikke begrunnet etter annet ledd b';
   // KA-U78 siste setning: laget etter punkt 33.6.1 finnes ikke, så ethvert svar avvises.
   if (krav.er_svar_paa_foresporsel && !mangler(v.spesifisert_krav_ok)) {
     feil.spesifisert_krav_ok =

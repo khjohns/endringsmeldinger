@@ -2709,22 +2709,16 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F321',
-    feilklasse: 'svaret kan påberope § 33.6.2 mot begrunnelsen uten en egen innsigelse (VS-U29)',
-    fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [["  if (f?.art !== 'begrunnelse') return f;", '  return f;']],
-    mal: ['et krav etter begrunnelsen svarer ikke på forespørselen'],
-  },
-  {
-    id: 'F322',
-    feilklasse: '«ikke et svar etter annet ledd» leses som en påberopelse etter § 33.6.2 (VS-U29)',
+    feilklasse:
+      'svaret på kravet etter begrunnelsen kan ikke påberope § 33.6.2 uten en egen innsigelse først (VS-U88 punkt 8, #2442)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        'erPaaberopelse(x) && x.gjelder === f.gjelder',
-        "x.art === 'innsigelse' && x.gjelder === f.gjelder",
+        '  foresporselsrelasjon(u.spor.frist.foresporsler);',
+        "  ((f) => (f?.art === 'begrunnelse' ? null : f))(foresporselsrelasjon(u.spor.frist.foresporsler));",
       ],
     ],
-    mal: ['«ikke et svar etter annet ledd» registreres uten virkning'],
+    mal: ['VS-U88 punkt 8: svaret på det første kravet etter begrunnelsen'],
   },
   {
     id: 'F323',
