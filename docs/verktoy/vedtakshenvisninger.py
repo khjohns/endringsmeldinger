@@ -96,16 +96,7 @@ AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 # En opphevet ID uten posten som opphever den, per fil, med antallet og issuet som skriver
 # henvisningene om. Lista skal bare krympe.
 KJENTE_AVVIK = (
-    ("kjerne/format/leser.ts", "KA-U34", 1, "#1377"),
-    ("kjerne/frosset/brevtekst.ts", "KA-U34", 1, "#1377"),
-    ("kjerne/kommandoer/kommando.ts", "KA-U34", 2, "#1377"),
-    ("kjerne/kommandoer/kommando.ts", "KA-U35", 2, "#1377"),
     ("kjerne/kommandoer/nyttelast.ts", "KA-U38", 1, "#1433"),
-    ("kjerne/kommandoer/skriving.ts", "KA-U35", 1, "#1377"),
-    ("kjerne/tester/svaret.test.ts", "KA-U34", 1, "#1377"),
-    ("kjerne/tester/klient.ts", "KA-U35", 1, "#1377"),
-    ("kjerne/typer.ts", "KA-U34", 1, "#1377"),
-    ("kjerne/utledning/utled.ts", "KA-U34", 1, "#1377"),
     ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),

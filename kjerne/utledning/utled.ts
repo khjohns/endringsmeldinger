@@ -27,7 +27,6 @@ import {
   kalenderdag,
   lesJournal,
   dagenSendt,
-  sammeSlag,
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import {
@@ -58,7 +57,6 @@ import {
   type Opplysning,
   type Utsagn as Utsagnet,
   type OppgittDatofelt,
-  type Opplysningsslag,
   type Part,
   type Spor,
   type Standpunkt,
@@ -209,8 +207,6 @@ export interface Element {
   hendelse: string;
   part: Part;
   art: 'dokument' | 'krav' | 'svar' | 'standpunkt' | 'opplysning' | Utsagnet['art'];
-  /** Byggherrens påberopelse i et svar: et standpunkt om at varselet kom for sent (VS-U9). */
-  innsigelse?: boolean;
 }
 
 /**
@@ -219,36 +215,6 @@ export interface Element {
  */
 const erSvarPaaVarselet = (s: Pick<Svar, 'gjelder'>, elementer: Record<string, Element>) =>
   elementer[s.gjelder]?.art === 'varsel';
-
-/**
- * VS-U1, MP-U6: en protest gjelder motpartens påberopelse i et svar, eller et dokument fra
- * motparten med påberopelser, og da alle påberopelsene i det (VS-U94).
- */
-export function kanFaaProtest(id: string, part: Part, elementer: Record<string, Element>): boolean {
-  const maal = elementer[id];
-  return (
-    maal !== undefined &&
-    maal.part !== part &&
-    (maal.innsigelse === true ||
-      (maal.art === 'dokument' &&
-        Object.values(elementer).some((e) => e.hendelse === id && e.innsigelse === true)))
-  );
-}
-
-/** En protest, som viser til påberopelsen den gjelder. */
-export interface Paaberopelse {
-  id: string;
-  part: Part;
-  gjelder: string;
-  hendelse: string;
-}
-
-export interface Bestridelse {
-  part: Part;
-  hva: Opplysningsslag;
-  /** Hendelsen bestridelsen står i. */
-  hendelse: string;
-}
 
 /**
  * OV-U4, OV-U16: et brev registrert som dokumentasjon, slik den som registrerte oppga det.
@@ -274,15 +240,10 @@ export interface Utledning {
   begrensninger: { hendelse: string; grunn: string }[];
   journal: Domenehendelse[];
   svar: Record<string, Svarberegning>;
-  /** Opplysningene, med bestridelsene. */
-  opplysninger: {
-    opplysning: Opplysning;
-    bestridelser: Bestridelse[];
-  }[];
+  /** Opplysningene om dokumentene. */
+  opplysninger: { opplysning: Opplysning }[];
   /** Hvert element i saken, også de uten virkning. */
   elementer: Record<string, Element>;
-  /** Protestene mot en påberopelse (VS-U1, MP-U6). Uten virkning på utfallet. */
-  protester: Paaberopelse[];
   /**
    * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen
    * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
@@ -387,7 +348,6 @@ function tom(
     svar: {},
     opplysninger: [],
     elementer: {},
-    protester: [],
     datoopplysninger: [],
     kunnskapsdatoer: [],
     utenVirkning: [],
@@ -943,7 +903,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 }
 
 export type Utsagn<A extends Utsagnet['art']> = Extract<Utsagnet, { art: A }>;
-export type Henvisning = Utsagn<'protest' | 'begrunnelse' | 'foresporselssvar'>;
+export type Henvisning = Utsagn<'foresporselssvar' | 'innlegg'>;
 /** Fører en begrensning for elementet `id` etter lesereglene i 4.2. */
 export type Ugyldig = (id: string, grunn: string) => void;
 /** `fra` viser til `til` med lavere saksversjon. */
@@ -1025,7 +985,6 @@ function utledSporene(
   const elementer: Record<string, Element> = {};
   const aksepter: Utsagn<'aksept'>[] = [];
   const trekk: Utsagn<'trekk'>[] = [];
-  const bestridelser: Utsagn<'bestridelse'>[] = [];
   const varsler: LestVarsel[] = [];
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
@@ -1049,8 +1008,6 @@ function utledSporene(
         return aksepter.push(u);
       case 'trekk':
         return trekk.push(u);
-      case 'bestridelse':
-        return bestridelser.push(u);
       case 'varsel':
         return varsler.push(u);
       case 'foresporsel':
@@ -1084,7 +1041,6 @@ function utledSporene(
       for (const p of s.standpunkter) {
         plasser(p.id, h);
         registrer(p.id, h, d.avsender, 'standpunkt');
-        if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].innsigelse = true;
       }
       if (harVirkning(s.id))
         (erSvarPaaVarselet(s, elementer)
@@ -1127,7 +1083,6 @@ function utledSporene(
     ...SPOR.flatMap((n) => spor[n].svarPaaVarsler).map((s) => [s.id, s] as const),
   ]);
   const alleKrav = new Map(SPOR.flatMap((n) => spor[n].krav).map((k) => [k.id, k]));
-  const alleOpplysninger = new Map(opplysninger.map((o) => [o.id, o]));
   const ugyldig: Ugyldig = (id, grunn) =>
     begrensninger.push({ hendelse: plass.get(id)?.hendelse ?? id, grunn });
   const bakover: Bakover = (fra, til) =>
@@ -1138,9 +1093,6 @@ function utledSporene(
   );
   // VS-U17, VS-U19: hver forespørsel og det som svarte på den.
   const besvart = svarPaaForesporsler(dokumenter.values());
-  /** Avsenderen av dokumentet elementet står i. */
-  const avsenderAv = (id: string): Part | undefined =>
-    dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   kontrollerKravkjedene(spor, ugyldig);
   // Lesingen kaster ikke for en dato den ikke kan lese; uten dato gjelder det egne varselet.
@@ -1182,7 +1134,6 @@ function utledSporene(
     besvart,
   };
   for (const n of SPOR) kontrollerI(n).saken(saken, bakover, ugyldig);
-  kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
   kontrollerKorrigeringene(korrigeringer, kravMedUten, elementer, bakover, ugyldig);
   kontrollerKunnskapsdatoene(
@@ -1232,20 +1183,10 @@ function utledSporene(
     forstaatt: true,
     svar,
     elementer,
-    protester: protester(henvisninger, elementer),
     datoopplysninger,
     kunnskapsdatoer: kunnskapsopplysninger,
     utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
-    opplysninger: opplysninger.map((o) => ({
-      opplysning: o,
-      bestridelser: bestridelser
-        .filter((b) => b.gjelder === o.id)
-        .map((b) => ({
-          part: avsenderAv(b.id)!,
-          hva: b.hva,
-          hendelse: plass.get(b.id)!.hendelse,
-        })),
-    })),
+    opplysninger: opplysninger.map((o) => ({ opplysning: o })),
     spor,
     ...forholdssvaretsVirkning(spor, svar, dokumenter),
   };
@@ -1468,8 +1409,7 @@ function kontrollerTrekk(
 }
 
 /**
- * Hvert utsagn som viser til et annet, viser bakover til noe det kan gjelde. Protesten
- * gjelder motparten (VS-U1, MP-U6).
+ * Hvert utsagn som viser til et annet, viser bakover til noe det kan gjelde.
  * Et element uten virkning er bevart og vist (MM-U43 punkt 9), så et utsagn kan vise til det,
  * med samme krav til art og part.
  */
@@ -1482,11 +1422,7 @@ function kontrollerHenvisningene(
 ): void {
   for (const x of henvisninger) {
     const maal = elementer[x.gjelder];
-    if (
-      !maal ||
-      !bakover(x.id, x.gjelder) ||
-      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer)
-    )
+    if (!maal || !bakover(x.id, x.gjelder) || !kanGjelde(x.art, maal))
       ugyldig(x.id, `${x.art} viser ikke til noe den kan gjelde før den`);
     // KA-U1: én begrunnelse per forespørsel, og ikke etter at et krav har svart.
     else if (x.art === 'foresporselssvar' && !besvart.some((f) => f.svar === x.id))
@@ -1495,45 +1431,14 @@ function kontrollerHenvisningene(
 }
 
 /** Det utsagnet kan gjelde, etter arten. */
-function kanGjelde(
-  art: Henvisning['art'],
-  maal: Element,
-  part: Part,
-  id: string,
-  elementer: Record<string, Element>
-) {
+function kanGjelde(art: Henvisning['art'], maal: Element) {
   switch (art) {
-    case 'protest':
-      return kanFaaProtest(id, part, elementer);
-    case 'begrunnelse':
-      // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
-      return maal.art === 'svar';
     case 'foresporselssvar':
       // VS-U27: en forespørsel fra appen. Forespørselen er fra BH og svaret fra TE (format/leser.ts).
       return maal.art === 'foresporsel';
-  }
-}
-
-function kontrollerBestridelsene(
-  bestridelser: readonly Utsagn<'bestridelse'>[],
-  alleOpplysninger: Map<string, Opplysning>,
-  avsenderAv: (id: string) => Part | undefined,
-  bakover: Bakover,
-  ugyldig: Ugyldig
-): void {
-  for (const b of bestridelser) {
-    const o = alleOpplysninger.get(b.gjelder);
-    if (
-      !o ||
-      !bakover(b.id, b.gjelder) ||
-      avsenderAv(b.id) === undefined ||
-      o.oppgittAv === avsenderAv(b.id) ||
-      !sammeSlag(o.hva, b.hva)
-    )
-      ugyldig(
-        b.id,
-        'bestridelsen viser ikke til en opplysning av samme slag fra motparten før den'
-      );
+    case 'innlegg':
+      // MM-U47 punkt 2: et brev i saken.
+      return maal.art === 'dokument';
   }
 }
 
@@ -1746,20 +1651,6 @@ function settSubsidiaer(
       ? grunnerFraForholdet(svar[kilde.id].svar, svar[kilde.id].virkninger)
       : [];
   }
-}
-
-function protester(
-  henvisninger: readonly Henvisning[],
-  elementer: Record<string, Element>
-): Paaberopelse[] {
-  return henvisninger
-    .filter((x) => x.art === 'protest')
-    .map((x) => ({
-      id: x.id,
-      part: elementer[x.id].part,
-      gjelder: x.gjelder,
-      hendelse: elementer[x.id].hendelse,
-    }));
 }
 
 /**

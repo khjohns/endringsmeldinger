@@ -158,6 +158,10 @@ export const UTSAGNSTITTEL = {
   kunnskapsdato: 'Når utgiftene etter punkt 34.1.3 ble kjent',
 } as const;
 
+/** Brevet er et innlegg (MM-U47 punkt 1–2), som står alene i brevet (`leser.ts`). */
+export const erInnlegg = (d: Pick<Dokument, 'utsagn'>): boolean =>
+  d.utsagn.some((x) => x.art === 'innlegg');
+
 /**
  * Tittelen etter det brevet inneholder: «Påberopelse av <forholdet>» (GR-U31), ellers etter
  * det første svaret, kravet eller utsagnet. `null` for et brev uten slik tittel.
@@ -194,6 +198,8 @@ export function avvikITittelen(
   tittel: string,
   d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>
 ): string | null {
+  // MM-U47, designdelen: innlegget har tittelen parten skriver.
+  if (erInnlegg(d)) return null;
   if (lagBrevtittel(d) === null)
     return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U50)';
   const f = paaberoptForhold(d);

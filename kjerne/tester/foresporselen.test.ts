@@ -5,9 +5,8 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { lagBrevtekst } from '../frosset/brevtekst.ts';
 import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
-import type { Dokument, Journalrad } from '../typer.ts';
+import type { Journalrad } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { begrunnelsenKanAvvisesSomSvar, foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { visning } from '../utledning/visning.ts';
@@ -21,7 +20,6 @@ import {
   MOT,
   PAABEROPELSE,
   SLUTTFRISTEN_20,
-  TITTEL,
   laast,
   sak,
   svar,
@@ -891,61 +889,5 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       melding:
         'Totalentreprenøren har krevd dager her, så forespørselen etter punkt 33.6.2 kan ikke sendes.',
     });
-  });
-
-  it('LV-U20: protesten mot påberopelsen etter § 33.6.2 sier at den gjelder TEs svar på forespørselen', () => {
-    const { s } = medForesporsel();
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    const rad = fristsvar(
-      s,
-      { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), foresporsel_svar_ok: false },
-      { resultat: 'avslaatt', godkjent_dager: 0 }
-    );
-    const standpunkter = (rad.data.svar as Data[])[0].standpunkter as Data[];
-    const id = (hjemmel: string) => standpunkter.find((p) => p.hjemmel === hjemmel)!.id as string;
-    const protest = (gjelder: string): Dokument => ({
-      id: 'protesten',
-      avsender: 'TE',
-      lagtTilAv: 'TE',
-      registrert: '2026-10-07T10:00:00Z',
-      opplysninger: [],
-      dokumentasjon: [],
-      krav: [],
-      svar: [],
-      utsagn: [{ id: 'p', art: 'protest', gjelder }],
-      brevtekst: null,
-      brevtittel: null,
-      brevnummer: null,
-      merking: null,
-      deresRef: [],
-      korrespondansetype: null,
-      sendemaate: null,
-      beskrivelse: null,
-      spor: [],
-      retter: null,
-      ikkeISaken: false,
-    });
-    const saken = {
-      sakskode: { kode: 'koe' as const, loepenummer: 17 },
-      tittel: TITTEL,
-      svarPaaPaaberopelsen: null,
-      datoopplysninger: [],
-      sisteKunnskapsdato: null,
-      subsidiaer: { vederlag: [], frist: [] },
-      avklartVedFrafall: false,
-      varslerIEldreKrav: [],
-      kravpostvarsler: {},
-      utenVirkning: [],
-      varsletFoer: {},
-      paaberopelse: null,
-    };
-    const tekst = (gjelder: string) =>
-      lagBrevtekst(protest(gjelder), s.u().journal, saken, KJERNE.regler)[0].laast;
-    expect(tekst(id('33.6.2'))).toBe(
-      'Totalentreprenøren protesterer mot påberopelsen av at totalentreprenørens svar på forespørselen etter NS 8407 punkt\u00a033.6.2 kom for sent i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
-    );
-    expect(tekst(id('33.4')), 'kontrollsak: § 33.4 har dagens tekst').toBe(
-      'Totalentreprenøren protesterer mot påberopelsen av for sen varsling i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
-    );
   });
 });

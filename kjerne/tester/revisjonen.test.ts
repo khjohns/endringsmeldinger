@@ -391,7 +391,7 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     expect(s.avvisning('TE', versjon({ ...endringsordre, endringsordre: 'EO-2' }))).toEqual({
       regel: 'ANNEN_ENDRINGSORDRE',
       melding:
-        'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak.',
+        'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «EO-1». Et forslag om å rette betegnelsen sendes som innlegg, og en annen endringsordre påberopes i en ny sak.',
     });
   });
 
@@ -905,11 +905,11 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(grunner(s)).toContain('svaret viser til et element uten virkning');
     });
 
-    it('en protest mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U43 punkt 6)', () => {
+    it('et innlegg som viser til svaret uten virkning i stedet for brevet, viser ikke til noe det kan gjelde (MM-U47 punkt 2, MM-U43 punkt 6)', () => {
       const { s, id } = endringsordreUtenVirkning();
-      s.rad('BH', { utsagn: [{ id: randomUUID(), art: 'protest', gjelder: id }] });
+      s.rad('BH', { utsagn: [{ id: randomUUID(), art: 'innlegg', gjelder: id }] });
       expect(s.u().forstaatt).toBe(false);
-      expect(grunner(s)).toContain('protest viser ikke til noe den kan gjelde før den');
+      expect(grunner(s)).toContain('innlegg viser ikke til noe den kan gjelde før den');
     });
   });
 });

@@ -222,11 +222,6 @@ export type Utsagn =
       /** Regelversjonen TE fikk se (B-13, KA-U10 (opphevet av MM-U50)). Innholdet står i brevet. */
       regelversjon: number;
     }
-  /**
-   * MM-U1, MM-U7: bestrider en opplysning fra motparten: at dokumentet ble sendt
-   * eller mottatt, eller at det var en endringsordre.
-   */
-  | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
   | { id: string; art: 'foresporsel'; hjemmel: '33.6.2' }
   /**
@@ -234,16 +229,6 @@ export type Utsagn =
    * kravet ikke foreligger. `gjelder` er forespørselen. Ikke en kravversjon; teksten står i brevteksten.
    */
   | { id: string; art: 'foresporselssvar'; gjelder: string }
-  /**
-   * VS-U1, MP-U6: TEs protest mot byggherrens påberopelse i et svar: standpunktet om
-   * rettidighet, eller svaret, som da gjelder alle påberopelsene i det (VS-U94).
-   */
-  | { id: string; art: 'protest'; gjelder: string }
-  /**
-   * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
-   * teksten står i brevteksten. Endrer ingen standpunkter.
-   */
-  | { id: string; art: 'begrunnelse'; gjelder: string }
   /**
    * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TE korrigerer sin opplysning
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, kravet eller
@@ -255,7 +240,12 @@ export type Utsagn =
    * etter § 34.1.3 annet ledd ville påløpe, i et eget utsagn. `gjelder` er varselet etter
    * § 34.1.3, det registrerte eller kravet som er det første varselet løsningen kjenner.
    */
-  | { id: string; art: 'kunnskapsdato'; gjelder: string; klar_over_utgiftene: string };
+  | { id: string; art: 'kunnskapsdato'; gjelder: string; klar_over_utgiftene: string }
+  /**
+   * Innlegget i fritekst fra en av partene (OV-U97, MM-U47 punkt 1–6). `gjelder` er brevet det viser
+   * til (punkt 2). Tittelen og teksten står i brevet. Ingen regel leser innlegget (punkt 4).
+   */
+  | { id: string; art: 'innlegg'; gjelder: string };
 
 /**
  * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen

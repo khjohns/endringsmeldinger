@@ -31,15 +31,18 @@ export interface TilbudtHandling {
 
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor og et svar per varsel i vederlaget
- * (VS-U79, VS-U87 punkt 30–32). «Ingen krav», bestridelse, protest og senere begrunnelse tilbys
- * ikke (OV-U7).
+ * (VS-U79, VS-U87 punkt 30–32), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
   for (const spor of SPOR)
     for (const type of ['krav', 'trekke', 'godta', 'svare', 'revidere'] as const)
       ut.push({ type, spor });
-  ut.push({ type: 'sende_foresporsel', spor: 'frist' }, { type: 'registrere_brev' });
+  ut.push(
+    { type: 'sende_foresporsel', spor: 'frist' },
+    { type: 'registrere_brev' },
+    { type: 'sende_innlegg' }
+  );
   for (const spor of KRAVSPOR)
     for (const type of ['varsle', 'sende_varsel'] as const) ut.push({ type, spor });
   for (const type of ['varsle', 'sende_varsel'] as const)

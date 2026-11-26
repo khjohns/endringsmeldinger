@@ -1010,7 +1010,7 @@ function standpunkttekst(p: Standpunkt, s: Svar, krav: Krav, j: Journalen): stri
   return standpunktetISporet(p.art, p, krav, s, j);
 }
 
-/** Det en innsigelse eller en protest viser til, med brevet det står i (LV-U4 punkt 7 og 8). */
+/** Det svaret viser til, med brevet det står i (LV-U4 punkt 7). */
 function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
   switch (e.art) {
@@ -1020,14 +1020,6 @@ function beskriv(id: string, j: Journalen): string {
     }
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
-    case 'standpunkt': {
-      const p = e.standpunkt;
-      const hva =
-        p.art === 'rettidighet' && utenVarsel(p, brevtekstI(e.svar.spor))
-          ? `at ${VARSELET_I_SVARET[p.hjemmel]} kom for sent`
-          : 'for sen varsling';
-      return `påberopelsen av ${hva} i svaret i ${j.brevet(e.svar.dokument)}`;
-    }
     case 'utsagn':
       // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
       if (e.utsagn.art === 'varsel')
@@ -1035,8 +1027,6 @@ function beskriv(id: string, j: Journalen): string {
       if (e.utsagn.art === 'foresporselssvar')
         return `${PARTENS.TE} svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
       break;
-    case 'dokument':
-      return `innsigelsene i ${j.brevet(e.dokument.id)}`;
   }
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
@@ -1083,7 +1073,7 @@ function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
   throw new KanIkkeUttrykkes(`${id} er ikke et varsel`);
 }
 
-/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22 og KA-U34 (opphevet av KA-U46) ordrett. */
+/** LV-U4 punkt 3 og 6–13, og VS-U15 og KA-U22 ordrett, og innlegget etter MM-U47 punkt 2. */
 function utsagnstekst(u: Utsagn, t: Tekst): string {
   const { j, saken, nytt, sak } = t;
   const part = PART[nytt.avsender];
@@ -1133,13 +1123,6 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
     case 'foresporselssvar':
       // LV-U18 setning 2. TEs begrunnelse følger som utdypningen.
       return `Totalentreprenøren svarer på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(u.gjelder))} at grunnlaget for å beregne kravet ikke foreligger (punkt 33.6.2 annet ledd b).`;
-    case 'protest':
-      return `${part} protesterer mot ${beskriv(u.gjelder, j)}.`;
-    case 'bestridelse': {
-      const e = j.element(u.gjelder);
-      if (e.art !== 'opplysning') throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en opplysning`);
-      return `${part} bestrider opplysningen i ${j.brevet(e.opplysning.dokument)} om at ${opplysningen(e.opplysning, j)}.`;
-    }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59), med partene skrevet fullt
       // ut (`docs/sprak.md`) og henvisningen etter LV-U44.
@@ -1167,11 +1150,9 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
           : []),
       ].join(' ');
     }
-    case 'begrunnelse': {
-      // KA-U34: byggherrens tekst følger som utdypningen.
-      const svar = j.svar(u.gjelder);
-      return `Byggherren begrunner sitt svar på ${brevtekstI(svar.spor).svaretGjelder(j.krav(svar.gjelder))} i ${j.brevet(svar.dokument)}:`;
-    }
+    case 'innlegg':
+      // MM-U47 punkt 2 og LV-U53: henvisningen, og partens tekst følger som utdypningen.
+      return `${part} viser til ${j.brevet(u.gjelder)}:`;
   }
 }
 
@@ -1198,9 +1179,9 @@ function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
 /** Utsagnene som svarer på, godtar eller bestrider det de `gjelder` (LV-U49). */
 const SVARER_GODTAR_BESTRIDER = new Set<Utsagn['art']>([
   'aksept',
-  'bestridelse',
-  'protest',
   'foresporselssvar',
+  // LV-U27: innlegget som viser til motpartens brev (skissen for BF-03, U-4).
+  'innlegg',
 ]);
 
 /**

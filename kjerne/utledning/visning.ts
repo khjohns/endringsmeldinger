@@ -586,7 +586,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const kode = sak && STATUS_FOR[sak];
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
-  for (const { opplysning: o, bestridelser } of u.opplysninger) {
+  for (const { opplysning: o } of u.opplysninger) {
     const e = [
       o.hva === 'endringsordre'
         ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
@@ -602,14 +602,6 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       )
     )
       e.push('mottaksdato_mangler');
-    for (const b of bestridelser)
-      e.push(
-        {
-          sendt: 'sending_bestridt',
-          mottatt: 'mottak_bestridt',
-          endringsordre: 'endringsordre_bestridt',
-        }[b.hva]
-      );
     opplysninger[o.id] = e;
   }
   const journal = kilder(u, ikkeTolket);

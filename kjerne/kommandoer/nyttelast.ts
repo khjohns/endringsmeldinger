@@ -17,7 +17,7 @@ import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
 import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
-import { datoFor, kalenderdag } from '../format/leser.ts';
+import { datoFor, dokumenterI, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import {
   BARE_LAGT_TIL,
@@ -39,6 +39,7 @@ import {
   datoenDetBleSendt,
   kravSomVarsler,
   kravversjonenPaaDagen,
+  rettedeBrev,
   sendtFoerGjeldendeSvar,
   type Utledning,
 } from '../utledning/utled.ts';
@@ -246,16 +247,6 @@ function kravetsUtdypning(
   return nyttelastI(k.spor).utdypning(k, regler);
 }
 
-/**
- * KA-U34 (opphevet av KA-U46): en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
- * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35 (opphevet av KA-U46)).
- */
-function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvisning | null {
-  return k.sendt === undefined && !k.utdypning?.trim()
-    ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
-    : null;
-}
-
 /** VS-U58. */
 const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;
 type VarselOmForholdet = (typeof VARSLER_OM_FORHOLDET)[number];
@@ -341,8 +332,7 @@ export type OppgittDato = {
 /**
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
  * fra i påberopelsen (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
- * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
- * byggherrens registrerte begrunnelse ble sendt (KA-U35 (opphevet av KA-U46)).
+ * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5).
  */
 function oppgittDatoI(k: Kommando): OppgittDato[] {
   if (k.type === 'varsel')
@@ -361,10 +351,6 @@ function oppgittDatoI(k: Kommando): OppgittDato[] {
         },
       ]
     : [];
-  if (k.type === 'begrunnelse')
-    return k.sendt === undefined
-      ? []
-      : [{ dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' }];
   if (k.type === 'korrigering') {
     const { felt, dato } = korrigertDato(k);
     return [{ dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' }];
@@ -507,6 +493,21 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
 }
 
 /**
+ * MM-U47 punkt 2: innlegget viser til ett brev i saken, også et registrert brev. Rettingen som sier
+ * at et brev ikke hører til saken, er ikke et brev (OV-U18), og en rettet registrering står bare i
+ * historikken (OV-U17, OV-U18), som for vedleggene (`kravetErVarselet`).
+ */
+function henvisningenIInnlegget(gjelder: string, u: Utledning): Avvisning | null {
+  const rettet = rettedeBrev(u.registrerteBrev);
+  for (const d of dokumenterI(u.journal))
+    if (d.id === gjelder && !d.ikkeISaken && !rettet.has(d.id)) return null;
+  return avvis(
+    'INGEN_BREV',
+    'Innlegget må vise til et brev i saken, eller til den siste registreringen av det.'
+  );
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1). `sendt` er dagen et
  * brev lagt til ble sendt, og `null` for et brev fra løsningen (OV-U98).
@@ -628,13 +629,9 @@ export function nyttelastkontroll(
     case 'foresporsel':
     case 'foresporselssvar':
     case 'ingen_krav':
-    case 'protest':
-    case 'bestridelse':
       return null;
-    case 'begrunnelse': {
-      // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39, opphevet av KA-U46) bygges ikke.
-      return utdypningKreves ? begrunnelsensTekst(k) : null;
-    }
+    case 'innlegg':
+      return henvisningenIInnlegget(k.gjelder, u);
     case 'korrigering':
       return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u, regler);
   }

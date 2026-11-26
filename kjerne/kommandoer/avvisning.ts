@@ -60,14 +60,10 @@ export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] 
       return [{ type: 'sende_foresporsel', spor: k.spor }];
     case 'foresporselssvar':
       return [{ type: 'svare_paa_foresporsel', gjelder: k.gjelder }];
-    case 'bestridelse':
-      return [{ type: 'bestride', gjelder: k.gjelder }];
     case 'ingen_krav':
       return [{ type: 'ingen_krav', spor: k.spor }];
-    case 'protest':
-      return [{ type: k.type, gjelder: k.gjelder }];
-    case 'begrunnelse':
-      return [{ type: 'begrunne', gjelder: k.gjelder }];
+    case 'innlegg':
+      return [{ type: 'sende_innlegg' }];
     case 'korrigering':
       return [{ type: 'korrigere', gjelder: k.gjelder }];
     case 'kunnskapsdato':

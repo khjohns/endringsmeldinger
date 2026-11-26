@@ -185,7 +185,7 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
   })
 ) as Record<Spor, Skjema>;
 
-/** Slagene opplysning om et dokument, som også er det en bestridelse gjelder (MM-U7). */
+/** Slagene opplysning om et dokument (HF-U1, GR-U13). */
 export const OPPLYSNINGSSLAG = [
   'sendt',
   'mottatt',
@@ -218,14 +218,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'gjelder',
     'regelversjon',
   ]),
-  bestridelse: objekt(
-    {
-      ...artfelt('bestridelse'),
-      gjelder: ID,
-      hva: { enum: [...OPPLYSNINGSSLAG] },
-    },
-    ['id', 'art', 'gjelder', 'hva']
-  ),
   foresporsel: objekt({ ...artfelt('foresporsel'), hjemmel: { const: '33.6.2' } }, [
     'id',
     'art',
@@ -236,8 +228,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'art',
     'gjelder',
   ]),
-  protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
-  begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): datoen står i samme felt som
   // i kravet, og korrigeringen har nøyaktig én av dem.
   korrigering: objekt(
@@ -258,6 +248,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     { ...artfelt('kunnskapsdato'), gjelder: ID, klar_over_utgiftene: KALENDERDAG },
     ['id', 'art', 'gjelder', 'klar_over_utgiftene']
   ),
+  innlegg: objekt({ ...artfelt('innlegg'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

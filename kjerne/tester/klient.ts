@@ -4,6 +4,7 @@
  * Regelsettet `n+1` er en kontrollert regelendring i prøven, ikke et vedtak.
  */
 
+import { dokumenterI } from '../format/leser.ts';
 import { createHash } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
@@ -500,34 +501,6 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
           : [navn.nyId()],
       };
     }
-    case 'bestridelse': {
-      const varsel = u.spor.frist.varsler['33.4'];
-      const gjelder = h.gjelder as string;
-      const sendt = u.opplysninger.find(
-        (o) => o.opplysning.dokument === varsel?.dokument && o.opplysning.hva === 'sendt'
-      );
-      return {
-        type: 'bestridelse',
-        // `varsel#sendt` i de genererte forløpene er sendingen av det registrerte varselet.
-        gjelder: gjelder.startsWith('varsel#')
-          ? (sendt?.opplysning.id ?? 'ingen')
-          : navn.id(gjelder),
-        hva: h.hva as 'sendt' | 'mottatt',
-      };
-    }
-    case 'protest':
-      return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
-    case 'begrunnelse':
-      // KA-U35: med `sendt` er begrunnelsen registrert. Feltene går videre, så kjernen avviser formen.
-      return {
-        type: 'begrunnelse',
-        gjelder: navn.id(h.gjelder as string),
-        ...(typeof h.sendt === 'string' ? { sendt: h.sendt, ...lagtTil(h) } : utdypning(h)),
-        ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
-          ? { utdypning: h.utdypning }
-          : {}),
-        ...(Array.isArray(h.dokumentasjon) ? { dokumentasjon: h.dokumentasjon as string[] } : {}),
-      };
     case 'registrert_brev':
       // OV-U4, OV-U16, OV-U17: brevet ligger ved, også når forløpet ikke nevner det.
       return {
@@ -570,9 +543,26 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         klar_over_utgiftene: h.klar_over_utgiftene as string,
         ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
       };
+    case 'innlegg':
+      // MM-U47 punkt 2: innlegget viser til brevet. Etiketten kan være brevet eller et krav, et svar
+      // eller et utsagn i det, som i de andre handlingene.
+      return {
+        type: 'innlegg',
+        gjelder: brevetMed(navn.id(h.gjelder as string), u),
+        tittel: (h.tittel as string | undefined) ?? 'Innlegg',
+        utdypning: (h.utdypning as string | undefined) ?? 'Teksten i innlegget.',
+        ...(h.vedlegg ? { dokumentasjon: [navn.nyId()] } : {}),
+      };
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }
+}
+
+/** Brevet elementet `id` står i, eller `id` når det er et brev eller ikke finnes. */
+function brevetMed(id: string, u: Utledning): string {
+  for (const d of dokumenterI(u.journal))
+    if (d.id === id || [...d.krav, ...d.svar, ...d.utsagn].some((e) => e.id === id)) return d.id;
+  return id;
 }
 
 /** Parten som sender handlingen. En handling begge parter kan sende, har parten i bevis-saken. */

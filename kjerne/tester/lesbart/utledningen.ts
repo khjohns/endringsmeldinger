@@ -46,12 +46,9 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   // Hvem som sa hvert element, og hva det er (KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
-  ['utledning/utled.ts:Element', 'relasjon', 'hendelse part art innsigelse'],
-  // VS-U1, MP-U6: hva en protest kan gjelde.
-  ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
+  ['utledning/utled.ts:Element', 'relasjon', 'art'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
   ['spor/frist/utledning.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
-  ['utledning/utled.ts:protester(elementer)', 'relasjon', '*'],
   // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn utenforRekken', ['utledning/utled.ts:utled']],
   [

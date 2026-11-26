@@ -492,8 +492,6 @@ function dokument(
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: varselutsagn(k.varsler, nyId) };
-    case 'protest':
-      return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
     case 'foresporsel':
       // VS-U19: brevet er forespørselen, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'foresporsel', hjemmel: k.hjemmel }] };
@@ -502,22 +500,6 @@ function dokument(
       const id = nyId();
       utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'foresporselssvar', gjelder: k.gjelder }] };
-    }
-    case 'begrunnelse': {
-      const id = nyId();
-      const utsagn = [{ id, art: 'begrunnelse', gjelder: k.gjelder }];
-      // KA-U35: et registrert brev, som varselet over.
-      if (k.sendt !== undefined)
-        return {
-          utsagn,
-          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-          korrespondansetype: k.korrespondansetype,
-          ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
-          ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
-          ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
-        };
-      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
-      return { utsagn };
     }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): datoen i feltet kravet har.
@@ -543,7 +525,15 @@ function dokument(
         ],
       };
     }
-    case 'bestridelse':
+    case 'innlegg': {
+      // MM-U47 punkt 2: henvisningen er den låste teksten, og partens tekst følger som utdypningen.
+      const id = nyId();
+      utdypninger.set(id, { utdypning: k.utdypning });
+      return {
+        utsagn: [{ id, art: 'innlegg', gjelder: k.gjelder }],
+        ...(bundne.length ? { dokumentasjon: bundne } : {}),
+      };
+    }
     case 'ingen_krav':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
       throw new Error(`kommandoen ${k.type} skrives ikke i første versjon (OV-U7)`);
@@ -782,7 +772,15 @@ function skriv(
   let brevtittel: string | null = null;
   let deresRef: string[] = [];
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
+    const brevet = brevtekstFor(
+      rad,
+      lest,
+      u,
+      kjerne,
+      utdypninger,
+      kontekst,
+      k.type === 'innlegg' ? k.tittel.trim() : null
+    );
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
     deresRef = brevet?.deresRef ?? [];
@@ -908,7 +906,9 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  { sakskode }: Pick<Kontekst, 'sakskode'>
+  { sakskode }: Pick<Kontekst, 'sakskode'>,
+  /** MM-U47, designdelen: tittelen parten skrev på innlegget. */
+  partensTittel: string | null = null
 ): { tekst: Avsnitt[]; tittel: string | null; deresRef: string[] } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -949,7 +949,7 @@ function brevtekstFor(
     };
     const tekst = lagBrevtekst(ny.dokument, lest, saken, kjerne.regler, utdypninger);
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
-    const tittel = lagBrevtittel(ny.dokument);
+    const tittel = partensTittel ?? lagBrevtittel(ny.dokument);
     return {
       tekst,
       tittel: tittel && medSakskode(tittel, sakskode),

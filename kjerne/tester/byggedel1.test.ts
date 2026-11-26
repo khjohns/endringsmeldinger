@@ -1,7 +1,7 @@
 /**
  * Formen og lesereglene byggedel 1 av #309 la til: tekst basen ikke kan lagre
  * (#373), påberopelsesversjonen i svaret (#342, HF-U1), sammenfallet (MM-U43 punkt 8, #326),
- * merkingen (KA-U16, KA-U20), protesten (VS-U1), og virkningene i et registrert svar
+ * merkingen (KA-U16, KA-U20), og virkningene i et registrert svar
  * (OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
  */
 
@@ -19,7 +19,6 @@ import { KJERNE } from '../versjon.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import type { Kjoering } from './kjoerer.ts';
-import { SOM_BREV } from './brevet.ts';
 
 type Data = Record<string, unknown>;
 
@@ -240,7 +239,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
-    // VS-U89, VS-U94: ikke hendelsestyper.
+    // VS-U89, VS-U94, MM-U48: ikke hendelsestyper.
     ['en egen innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', false],
     ['en egen innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', false],
     ['en påberopt passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', false],
@@ -351,63 +350,5 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g2'));
     expect(u.spor.vederlag.gjeldendeSvar?.id).toBe(k.navn.id('S-v1'));
     expect(u.utenVirkning).toEqual([]);
-  });
-
-  it('en lest begrunnelse av et registrert svar, oppgitt sendt før svaret, er forstått, mens kommandoen avvises i første versjon (OV-U7; KA-U34 og KA-U36, opphevet av KA-U46)', async () => {
-    const svaret = {
-      handling: 'rad',
-      part: 'BH',
-      spor: 'vederlag',
-      navn: 'S-v1',
-      dokument: 'D5',
-      gjelder: 'K-v1',
-      paaberopelse: 'K-g2',
-      vurdering: 'godkjent',
-      godkjent_belop: 100000,
-      sendt: '2026-10-02',
-    };
-    const bane = minnebane();
-    const k = await bygg(bane, [...foer, svaret]);
-    const journal = await bane.journal();
-    const kommando = {
-      type: 'begrunnelse',
-      gjelder: k.navn.id('S-v1'),
-      sendt: '2026-10-01',
-      ...SOM_BREV,
-      dokumentasjon: [randomUUID()],
-    };
-    const u = vurder(
-      kommando,
-      {
-        sakId: journal[0].sak_id,
-        aktoerId: 'bh',
-        part: 'BH',
-        teamId: null,
-        sakskode: { kode: 'koe' as const, loepenummer: 17 },
-        kontraktsforkortelse: 'K201',
-        kontraktsfrister: [],
-        tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
-        nyId: () => randomUUID(),
-      },
-      journal,
-      KJERNE,
-      mellomlager(kommando)
-    );
-    expect(u.godtatt ? null : u.avvisning.regel).toBe('IKKE_I_FOERSTE_VERSJON');
-
-    const lest = minnebane();
-    await bygg(lest, [
-      ...foer,
-      svaret,
-      {
-        handling: 'rad',
-        art: 'begrunnelse',
-        gjelder: 'S-v1',
-        part: 'BH',
-        navn: 'D6',
-        sendt: '2026-10-01',
-      },
-    ]);
-    expect(forstaatt(await lest.journal())).toBe(true);
   });
 });
