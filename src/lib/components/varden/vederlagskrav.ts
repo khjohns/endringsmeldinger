@@ -27,10 +27,12 @@ import type { Varslingsvalg } from './vederlagsvarsel';
  * Det TE oppgir om varselet for en kravpost som kravet ellers er varselet for (VS-U50, D-19):
  * `kravet` er normalsvaret, `saken` et varsel i saken etter samme bestemmelse, `dokument` et
  * dokument sendt utenfor løsningen som legges til i saken (VS-U51, VS-U53), og `samme` det samme
- * dokumentet som for kravposten `som` (VS-U52, oppdragsgiver 11.11).
+ * dokumentet som for kravposten `som` (VS-U52, oppdragsgiver 11.11). `ingen` er «Ingen av dem.
+ * Dette kravet er varselet» når skjemaet spør hvilket av varslene uten kravpost posten gjelder
+ * (U-7 i BF-37, VS-U87 punkt 23).
  */
 export interface Varselvalg extends Korrespondansevalg {
-  art: 'kravet' | 'saken' | 'dokument' | 'samme';
+  art: 'kravet' | 'saken' | 'dokument' | 'samme' | 'ingen';
   varsel: string | null;
   som: string | null;
 }
@@ -170,8 +172,23 @@ export function kravposteneISporet(eldre: Eldrekrav): Kravpost[] {
   );
 }
 
-/** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */
-export function gjeldendeVarselvalg(v: Kravvalg, p: Kravpostvalg): Varselvalg {
+/**
+ * Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. Har
+ * saken varsler etter samme bestemmelse som ingen kravpost viser til (`vs.velges`), gjelder et av
+ * dem eller `ingen`, og et enkelt varsel er forhåndsvalgt (U-7 i BF-37, D-5).
+ */
+export function gjeldendeVarselvalg(
+  v: Kravvalg,
+  p: Kravpostvalg,
+  vs: Varselet | null = null
+): Varselvalg {
+  const velges = vs?.art === 'kravet' ? (vs.velges ?? []) : [];
+  if (velges.length) {
+    if (p.varsel.art === 'ingen') return p.varsel;
+    if (p.varsel.art === 'saken' && velges.some((x) => x.id === p.varsel.varsel)) return p.varsel;
+    return { ...tomtVarselvalg(), art: 'saken', varsel: velges.length === 1 ? velges[0].id : null };
+  }
+  if (p.varsel.art === 'ingen') return tomtVarselvalg();
   if (p.varsel.art !== 'samme') return p.varsel;
   // Bare en post som er med i kravet, kan ha dokumentet (VS-U53).
   const kilde = postene(v).find((q) => q.noekkel === p.varsel.som);
@@ -193,16 +210,21 @@ export function vederlagskravet(
   saerskiltVarsler = false
 ) {
   const kravposter = postene(v).map((p, i) => {
-    const valg = gjeldendeVarselvalg(v, p);
+    const valg = gjeldendeVarselvalg(v, p, varslene[i]);
     // VS-U87 punkt 23: valget sendes som varselet posten viser til. «Kravet er varselet» er
-    // standardvalget i skjemaet og sendes ikke før skjemaet spør om det (#2010).
+    // standardvalget i skjemaet og sendes bare når skjemaet spør om det (U-7 i BF-37, #2010).
     const gitt =
-      varslene[i]?.art !== 'kravet' || valg.art === 'kravet'
+      varslene[i]?.art !== 'kravet' || valg.art === 'kravet' || valg.art === 'ingen'
         ? undefined
         : valg.art === 'saken'
           ? (valg.varsel ?? undefined)
           : registreringen(valg);
-    const varsel = gitt === undefined ? undefined : { art: 'gitt' as const, varsel: gitt };
+    const varsel =
+      varslene[i]?.art === 'kravet' && valg.art === 'ingen'
+        ? ({ art: 'kravet' } as const)
+        : gitt === undefined
+          ? undefined
+          : ({ art: 'gitt', varsel: gitt } as const);
     return definert({
       id: p.id ?? undefined,
       beskrivelse: p.beskrivelse.trim(),
@@ -240,7 +262,7 @@ export function vedleggIKravet(v: Kravvalg, varslene: readonly (Varselet | null)
   return vedleggskart(
     postene(v).flatMap((p, i) => {
       if (varslene[i]?.art !== 'kravet') return [];
-      const valg = gjeldendeVarselvalg(v, p);
+      const valg = gjeldendeVarselvalg(v, p, varslene[i]);
       return valg.art === 'dokument' ? valg.vedlegg : [];
     })
   );
@@ -295,8 +317,16 @@ export function manglerIKravet(
       legg('anslag', beloepsfeil(p.anslag, false, ''));
     }
     if (p.form === 'regningsarbeid') legg('overslag', beloepsfeil(p.overslag, false, ''));
-    if (varslene[i]?.art !== 'kravet') return;
-    const valg = gjeldendeVarselvalg(v, p);
+    const vs = varslene[i];
+    if (vs?.art !== 'kravet') return;
+    const valg = gjeldendeVarselvalg(v, p, vs);
+    if (vs.velges?.length) {
+      legg(
+        'varsel',
+        valg.art === 'saken' && valg.varsel === null ? KRAVSKJEMA.manglerValget : null
+      );
+      return;
+    }
     if (p.varsel.art === 'saken')
       legg('varsel', valg.varsel === null ? KRAVSKJEMA.manglerVarselet : null);
     // «Samme dokument» krever at den andre posten selv oppgir dokumentet, så feltene kontrolleres der.

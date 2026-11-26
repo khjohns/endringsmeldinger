@@ -33,7 +33,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
 | [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 5 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
 | [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 28 | Knappen i Varden: 6 px radius, minst 44 px høy. |
-| [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 5 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
+| [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
 | [`Lagttilmerknader`](../src/lib/components/varden/Lagttilmerknader.svelte) | 4 | Det kjernen sier om et krav, et svar eller en aksept lagt til, før det legges til: kravet eller svaret blir ikke gjeldende fordi det er sendt før det siste (OV-U102, OV-U103), og brevene det er sendt samme dag som (OV-U104). |
 | [`Linjefelt`](../src/lib/components/varden/Linjefelt.svelte) | 6 | Et felt i skjemaene med labelen over, hjelpeteksten under labelen, feltet med enheten og feilmeldingen under (system.md, «Feltene står under hverandre», #1925). |
@@ -53,7 +53,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Tidslinje`](../src/lib/components/varden/Tidslinje.svelte) | 8 | Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. |
 | [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 4 | Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178). |
 | [`Utkaststempel`](../src/lib/components/varden/Utkaststempel.svelte) | 2 | Stempelet i brevhodet mens brevet skrives og kontrolleres (system.md, #2178). |
-| [`Valg`](../src/lib/components/varden/Valg.svelte) | 11 | Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én avkrysning med samme form. |
+| [`Valg`](../src/lib/components/varden/Valg.svelte) | 10 | Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én avkrysning med samme form. |
 | [`Valgfri`](../src/lib/components/varden/Valgfri.svelte) | 4 | Teksten i en label eller et spørsmål over et valgfritt felt, med «Valgfri» til høyre på linja (system.md, «Et valgfritt felt har «Valgfri» til høyre», oppdragsgiver 16.11). |
 | [`Vardensak`](../src/lib/components/varden/Vardensak.svelte) | 3 | Varden: eksperimentell saksvisning (#1331, konseptet i docs/design/konsept-varden/). |
 | [`Vardenskall`](../src/lib/components/varden/Vardenskall.svelte) | 2 | Skallet i Varden: panelet til venstre som et saksomslag, med innholdet kalleren gir øverst og avsenderen nederst (panel B i `vederlagsoversikt.html`, #1899), og arbeidsflaten med topplinja. |

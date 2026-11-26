@@ -29,6 +29,8 @@ If the screen survives the squint — one thing leads, tiers are legible, it bre
 
 Now read what the branch changed and fix the concrete tells. Stay in the diff; these are the line-level signatures, grouped so you can move fast:
 
+**I dette repoet:** les `docs/sprak.md` sammen med `.interface-design/system.md` før du retter. Hver synlig tekst i diffen, også `aria-label` og feilmeldinger, leses mot språkfila og «Ordene i brevene og skjemaene» der. En tekst som strider mot språkfila, er et funn med språkfila som kilde og raden som belegg. Står ordlyden i en bestilling (U-punkt) og bestillingen strider mot språkfila, er det et funn mot bestillingen. Ordlyden velges ikke i stillhet.
+
 **Tokens & color** — generic names (`--gray-700`, `--surface-2`, inline hex) → semantic names mapped to primitives · competing accents → one · decorative gradients/tints → remove or make them mean status/action · different hues per surface → one hue, shift lightness.
 
 **Typography** — system/Inter default where a direction exists → the chosen face · size-only hierarchy → add weight + color · slack tracking on large headings → tighten · updating numbers proportional → `tabular-nums`.

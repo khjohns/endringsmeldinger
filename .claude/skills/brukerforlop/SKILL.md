@@ -154,7 +154,7 @@ gjøres den i runder. Ett kall over hele siden gir grunne funn (BF-44, 13.11).
 
 1. **Les først.** Les skillen `interface-design`, [systemfila](../../../.interface-design/system.md)
    og [språkfila](../../../docs/sprak.md) før første runde, også når økta ikke har laget skissen.
-   `/design-review` laster ikke `interface-design` og nevner ikke språkfila.
+   `/design-review` laster ikke `interface-design`, men leser systemfila og språkfila selv.
 2. **Helheten.** Se alle tilstandene i nettleseren, på 1440 og 390 px. Er det flere konsepter,
    anbefal ett og si hva som må rettes i det.
 3. **Én del om gangen.** Kjør `/design-review` på den viktigste komponenten, så de andre. Det
