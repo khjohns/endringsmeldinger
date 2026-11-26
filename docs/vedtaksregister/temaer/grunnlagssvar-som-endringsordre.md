@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `96549fad5e00a5847437e57b7aa254513122b813ef74d287714c84b3e96a0300`
+Kontrollsum (SHA-256 over utdraget visningen leser): `487cd6919e807cdc91d4cad3480600adeb403de6beaaed45f9f07fbd5a54aa72`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1776,7 +1776,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.11, oppdragsgiver (#1534, #2428)
 
-**Følge:** Samler [GR-U10](#gr-u10). Samler [GR-U12](#gr-u12). Samler [GR-U13](#gr-u13). Samler [GR-U14](#gr-u14). Samler [HF-U12](#hf-u12). Samler [KA-U12](../../plans/vedtak.md#ka-u12). Snevrer inn [HF-U12](#hf-u12). Teksten står under tabellen, i [Samlevedtaket for forholdet godkjent som endringsordre](../../plans/vedtak.md#samlevedtak-eo-forholdet). Samler postene under «Samler» der: av GR-U10 s3, av GR-U12 alt unntatt s3 og av GR-U13 alt unntatt s6, som MM-U60 samler, av GR-U14 alt unntatt ordlyden, som hører til gruppe E, og av KA-U12 s4–s6. Snevrer inn HF-U12 s3 (E1). Henvisningene til GR-U13 og GR-U14 i EO-U39 leses som til dette samlevedtaket.
+**Følge:** Samler [GR-U10](#gr-u10). Samler [GR-U12](#gr-u12). Samler [GR-U13](#gr-u13). Samler [GR-U14](#gr-u14). Samler [HF-U12](#hf-u12). Samler [KA-U12](../../plans/vedtak.md#ka-u12). Snevrer inn [HF-U12](#hf-u12). Teksten står under tabellen, i [Samlevedtaket for forholdet godkjent som endringsordre](../../plans/vedtak.md#samlevedtak-eo-forholdet). Samler postene under «Samler» der: av GR-U10 s3, av GR-U12 alt unntatt s3 og av GR-U13 alt unntatt s6, som MM-U60 samler, av GR-U14 alt unntatt ordlyden i s1 og s7, som hører til gruppe E, og av KA-U12 s4–s6. Snevrer inn HF-U12 s3 (E1). Henvisningene til GR-U13 og GR-U14 i EO-U39 leses som til dette samlevedtaket («Delingen» i vurderingen).
 
 **Regelrader:** —
 
