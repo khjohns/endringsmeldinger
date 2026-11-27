@@ -12,7 +12,11 @@
   import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
-  import { arbeidetI, hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    arbeidetI,
+    hjemmelenForVarselet,
+    varsleneIVederlagskravet,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -105,7 +109,7 @@
   const part = $derived(kjernesak.part as Part);
   const alleBrev = $derived(brevene(u));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes(spor)));
-  const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor, u));
+  const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor));
   const noekler = $derived(iSporet.map((h) => h.noekkel));
   const handlingen = (n: string) => iSporet.find((h) => h.noekkel === n);
   const svaret = $derived(u.spor[spor].gjeldendeSvar);
@@ -134,7 +138,14 @@
     h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
       ? hjemmelenForVarselet(u, h.gjelder)
       : null;
-  const varselsvarene = $derived(iSporet.filter((h) => h.type === 'svare' && varselhjemmel(h)));
+  // VS-U96 punkt 38: svaret bare på varslene i vederlagskravet, når kravet selv er varselet.
+  const varslene = (h: TilbudtHandling | undefined) =>
+    h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
+      ? varsleneIVederlagskravet(u, h.gjelder)
+      : null;
+  const varselsvarene = $derived(
+    iSporet.filter((h) => h.type === 'svare' && (varselhjemmel(h) || varslene(h)))
+  );
   // Et svar uten skjema står under «Andre handlinger», også det første.
   const svarPaaVarselet = $derived(
     varselsvarene.find((h) => skjemaene.includes(h.noekkel)) ?? null
@@ -329,6 +340,16 @@
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
+    const iKravet = varslene(h);
+    if (iKravet) {
+      const [en, ...flere] = iKravet.poster;
+      const svare = h!.type === 'svare';
+      return en && !flere.length
+        ? (svare ? VARSELSVARET.svar : VARSELSVARET.nyttSvar)(en.hjemmel)
+        : svare
+          ? VARSELSVARET.svarPaaVarslene
+          : VARSELSVARET.nyttSvarPaaVarslene;
+    }
     const v = varselhjemmel(h);
     if (v) {
       const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);
@@ -453,19 +474,10 @@
 {/snippet}
 
 <!-- Handlingen står ved brevet den svarer på (U-16 i BF-44). -->
-{#snippet vedBrevet()}
+<!-- `ved` er brevet handlingene står ved, så svarene på varslene i det står i samme gruppe. -->
+{#snippet vedBrevet(ved: string | null = null)}
   <div class="knapper">
     {#if primaer}{@render primaerknapp(primaer)}{/if}
-    {#if revidere}
-      {@const r = revidere}
-      <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
-      <Knapp
-        variant="lenke"
-        kompakt
-        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
-        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
-      >
-    {/if}
     {#if varselVedSiden}
       {@const n = varselVedSiden}
       <Knapp onclick={() => (bygget.includes(n) ? velg(n) : (primaerIkkeBygget = true))}
@@ -475,6 +487,17 @@
     {#if godtaVedBrevet}
       <Knapp onclick={() => velg(`godta:${spor}`)} aria-describedby={hindringFor(`godta:${spor}`)}
         >{HANDLINGENE.godta(avslag)}</Knapp
+      >
+    {/if}
+    {#if ved}{@render varselknapper(ved)}{/if}
+    {#if revidere}
+      {@const r = revidere}
+      <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
+      <Knapp
+        variant="lenke"
+        kompakt
+        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
+        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
       >
     {/if}
   </div>
@@ -491,18 +514,18 @@
 
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
-  {#if id === handlingVed}{@render vedBrevet()}{/if}
-  {#if varselVed[id]?.length}
-    <div class="knapper">
-      <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
-      {#each varselVed[id] as n, i (n)}
-        <Knapp
-          variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
-          onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
-        >
-      {/each}
-    </div>
-  {/if}
+  {#if id === handlingVed}{@render vedBrevet(id)}
+  {:else if varselVed[id]?.length}<div class="knapper">{@render varselknapper(id)}</div>{/if}
+{/snippet}
+
+{#snippet varselknapper(id: string)}
+  <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
+  {#each varselVed[id] ?? [] as n, i (n)}
+    <Knapp
+      variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
+      onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
+    >
+  {/each}
 {/snippet}
 
 {#snippet lestBrevet(b: Brevet)}

@@ -702,6 +702,114 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.screenshot({ path: `${ut}/varselsvar-334-nytt.png`, fullPage: true });
     },
   },
+  'bare-varselet-i-kravet': {
+    tittel: 'Pumping og graving ved kum 4',
+    formaal:
+      '#2456 (K2): byggherrens svar bare på varslene i vederlagskravet, per kravpost, når kravet selv er varselet etter punkt 34.3.3 og 34.4 (VS-U96 punkt 38 og 39), sendt gjennom serveren.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt omlegging av ledningene ved kum 4.',
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [
+          { oppgjoersform: 'regningsarbeid', varsel: 'kravet' },
+          { oppgjoersform: 'enhetspriser', justert: true, varsel: 'kravet' },
+          { oppgjoersform: 'tilbud', belop: 40000 },
+        ],
+      },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på varslene i kravet' }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/bare-varslene-handlingen.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/bare-varslene-handlingen-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Svar på varslene i kravet' }).click();
+      await bh.getByRole('heading', { name: /^Svar på varslene i krav om vederlagsjustering/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/bare-varslene-tomt.png`, fullPage: true });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.screenshot({ path: `${ut}/bare-varslene-mangler.png`, fullPage: true });
+      await bh.getByRole('button', { name: 'Varselet kom for sent' }).click();
+      const p2 = bh.getByRole('region', { name: /P2 / });
+      await p2.getByRole('radio', { name: 'Kom for sent' }).check();
+      await p2.getByRole('radio', { name: 'Godtar justeringen' }).check();
+      await bh.getByText('Gjelder hvis').first().waitFor();
+      await bh.screenshot({ path: `${ut}/bare-varslene.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/bare-varslene-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await bh.screenshot({ path: `${ut}/bare-varslene-brev.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        bh.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        bh.getByRole('button', { name: 'Send til totalentreprenøren', exact: true }).click(),
+      ]);
+      console.log(`BH  POST kommandoer (svaret bare på varslene i vederlagskravet): ${svar.status()}`);
+      if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
+      await bh.getByRole('button', { name: /Tilbake til saken/ }).waitFor({ timeout: 30_000 });
+      // VS-U96 punkt 39: svarplikten for kravet står, og et nytt svar på varslene tilbys.
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på kravet' }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/bare-varslene-sendt.png`, fullPage: true });
+    },
+  },
+  'bare-varselet-i-fristkravet': {
+    tittel: 'Peling i akse C',
+    formaal:
+      '#2456 (K2): byggherrens svar bare på varselet når fristkravet selv er varselet etter punkt 33.4 (VS-U96 punkt 38 og 39), sendt gjennom serveren, og tidslinja etterpå (#2481).',
+    spor: 'frist',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt flere peler i akse C.',
+      },
+      { handling: 'krav', spor: 'frist', navn: 'K-f1', dager: 20 },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      const svaret = bh.getByRole('button', { name: 'Svar på varselet om fristforlengelse' });
+      await svaret.waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/bare-fristvarselet-handlingen.png`, fullPage: true });
+      await svaret.click();
+      await bh.getByRole('heading', { name: /^Svar på varsel om fristforlengelse/ }).waitFor();
+      await bh.getByRole('radio', { name: 'Kom for sent' }).check();
+      await bh.screenshot({ path: `${ut}/bare-fristvarselet.png`, fullPage: true });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await bh.screenshot({ path: `${ut}/bare-fristvarselet-brev.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        bh.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        bh.getByRole('button', { name: 'Send til totalentreprenøren', exact: true }).click(),
+      ]);
+      console.log(`BH  POST kommandoer (svaret bare på varselet i fristkravet): ${svar.status()}`);
+      if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
+      await bh.getByRole('button', { name: /Tilbake til saken/ }).waitFor({ timeout: 30_000 });
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Nytt svar på varselet om fristforlengelse' }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/bare-fristvarselet-sendt.png`, fullPage: true });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
