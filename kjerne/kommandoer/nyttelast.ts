@@ -365,7 +365,8 @@ const detSomRettesHeter = (d: DetSomRettes): string =>
   d.art === 'varsel' ? `varselet etter punkt ${d.hjemmel}` : DET_SOM_RETTES[d.element.spor];
 
 /**
- * D-7 i BF-50: rettingen av datoen avvises når datoen er den som gjelder (MM-U61), og når en
+ * D-7 i BF-50: rettingen av datoen avvises når datoen er den som gjelder (svaret B 27.11 i #1309,
+ * som det forkastede alternativet i MM-U61 sier ordrett), og når en
  * varseldato for et varsel om forholdet er før datoen i påberopelsen (VS-U58). Arbeidsvalget i D-7:
  * det samme gjelder en kravdato for et krav som er det første varselet løsningen kjenner (VS-U86).
  * Datoen etter brevets dato avvises i `oppgittDatoEtterBrevet`.
@@ -376,7 +377,8 @@ function kontrollerRettingen(
   regler: Regelsett
 ): Avvisning | null {
   const d = detSomRettes(u, k.gjelder);
-  if (!d) throw new Error(`Forutsetningene har godtatt en retting av ${k.gjelder}.`);
+  // Forutsetningene avviser en retting uten noe å rette (`rettingen`).
+  if (!d) return null;
   const ny = kalenderdag(k.dato);
   const gjelder = datoenSomGjelder(u, d.element);
   const hva = detSomRettesHeter(d);

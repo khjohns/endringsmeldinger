@@ -1,7 +1,8 @@
 /**
  * Totalentreprenørens retting av datoen for et varsel eller et krav sendt utenfor løsningen og lagt
  * til som korrespondanse (BF-50, #1309 punkt 8 og 18). Kildene er punkt 8 og 18–24 i samlevedtaket
- * for retting av sendt brev (MM-U59), MM-U61, VS-U58, VS-U86 og EO-U39 punkt 68. Avvisningene når
+ * for retting av sendt brev (MM-U59), svaret B 27.11 i #1309 (rettingen gjelder straks, også til en
+ * tidligere dato), VS-U58, VS-U86 og EO-U39 punkt 68. Avvisningene når
  * datoen er etter brevets dato, og når kravdatoen er før datoen i påberopelsen, er arbeidsvalgene i
  * D-7 i BF-50. Brevet med rettingen er ikke bygget (G-8), så en retting kontrollene godtar, avvises
  * til slutt med `IKKE_I_FOERSTE_VERSJON`, og rettingene i journalen skrives med `rad`.
@@ -10,7 +11,6 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { datoenSomGjelder, varseletForNyttSvar, type Utledning } from '../utledning/utled.ts';
-import { rettingeneSomStaarAapne } from '../utledning/rettingen.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { KJERNE } from '../versjon.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -130,46 +130,32 @@ describe('rettingen viser til et varsel eller et krav lagt til (MM-U59 punkt 8 o
   });
 });
 
-describe('datoen som gjelder (MM-U59 punkt 8 og 19, MM-U61, D-3 og D-4 i BF-50)', () => {
+describe('datoen som gjelder (MM-U59 punkt 8 og 18, svaret B 27.11 i #1309, D-3 og D-4 i BF-50)', () => {
   it('variant A: en senere dato gjelder straks', () => {
     const { s, varselet } = medVarselet();
     const id = rettingIJournalen(s, varselet, '2026-10-01');
     expect(datoen(s.u(), varselet)).toBe('2026-10-01');
-    expect(s.u().rettinger).toMatchObject([
-      { id, gjelder: varselet, dato: '2026-10-01', gjaldt: '2026-09-28', begynte: id },
-    ]);
-    expect(rettingeneSomStaarAapne(s.u().rettinger, varselet)).toEqual([]);
+    expect(s.u().rettinger).toMatchObject([{ id, gjelder: varselet, dato: '2026-10-01' }]);
   });
 
-  it('variant B: en tidligere dato står åpen, og datoen som gjaldt, gjelder (MM-U61)', () => {
+  it('variant B: en tidligere dato gjelder også straks, uten byggherrens aksept', () => {
     const { s, varselet } = medVarselet();
-    const id = rettingIJournalen(s, varselet, '2026-09-26');
-    expect(datoen(s.u(), varselet)).toBe('2026-09-28');
-    expect(rettingeneSomStaarAapne(s.u().rettinger, varselet).map((r) => r.id)).toEqual([id]);
+    rettingIJournalen(s, varselet, '2026-09-26');
+    expect(datoen(s.u(), varselet)).toBe('2026-09-26');
   });
 
-  it('D-4: en ny retting sammenlignes med datoen som gjelder etter en senere retting, ikke med datoen først oppgitt', () => {
+  it('D-4: datoen som gjelder, er den i den siste rettingen', () => {
     const { s, varselet } = medVarselet();
     rettingIJournalen(s, varselet, '2026-10-01');
-    // 30. september er etter datoen først oppgitt, men før datoen som gjelder.
-    const andre = rettingIJournalen(s, varselet, '2026-09-30');
-    expect(datoen(s.u(), varselet)).toBe('2026-10-01');
-    expect(s.u().rettinger.find((r) => r.id === andre)).toMatchObject({
-      gjaldt: '2026-10-01',
-      begynte: null,
-    });
-    expect(rettingeneSomStaarAapne(s.u().rettinger, varselet).map((r) => r.id)).toEqual([andre]);
+    rettingIJournalen(s, varselet, '2026-09-26');
+    expect(datoen(s.u(), varselet)).toBe('2026-09-26');
   });
 
-  it('variant D: to rettinger til tidligere datoer står begge åpne (punkt 22)', () => {
+  it('kontrollsak: rettingen av ett varsel endrer ikke datoen for et annet', () => {
     const { s, varselet } = medVarselet();
-    const foerste = rettingIJournalen(s, varselet, '2026-09-27');
-    const andre = rettingIJournalen(s, varselet, '2026-09-26');
-    expect(rettingeneSomStaarAapne(s.u().rettinger, varselet).map((r) => r.id)).toEqual([
-      foerste,
-      andre,
-    ]);
-    expect(datoen(s.u(), varselet)).toBe('2026-09-28');
+    const krav = kravet(s.send('TE', fristkravLagtTil('2026-09-30')));
+    rettingIJournalen(s, varselet, '2026-10-01');
+    expect(datoen(s.u(), krav)).toBe('2026-09-30');
   });
 
   it('VS-U86: det første varselet skifter når varselet rettes til en dag etter kravet', () => {
@@ -180,14 +166,14 @@ describe('datoen som gjelder (MM-U59 punkt 8 og 19, MM-U61, D-3 og D-4 i BF-50)'
     expect(varseletForNyttSvar(s.u(), '33.4')).toBe(krav);
   });
 
-  it('kontrollsak: en retting til en tidligere dato som står åpen, skifter ikke det første varselet (MM-U61)', () => {
+  it('VS-U86: det første varselet skifter også når varselet rettes til en dag før kravet', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const varselet = utsagnet(s.send('TE', registrer('33.4', '2026-10-01')));
     const krav = kravet(s.send('TE', fristkravLagtTil('2026-09-30')));
     expect(varseletForNyttSvar(s.u(), '33.4')).toBe(krav);
     rettingIJournalen(s, varselet, '2026-09-29');
-    expect(varseletForNyttSvar(s.u(), '33.4')).toBe(krav);
+    expect(varseletForNyttSvar(s.u(), '33.4')).toBe(varselet);
   });
 
   it('punkt 8: et svar sendt før rettingen står med varselet det gjaldt, og saken er forstått', () => {
@@ -226,7 +212,7 @@ describe('datoen som gjelder (MM-U59 punkt 8 og 19, MM-U61, D-3 og D-4 i BF-50)'
 });
 
 describe('avvisningene (D-7 i BF-50)', () => {
-  it('MM-U61: en retting til datoen som gjelder, avvises og nevner datoen', () => {
+  it('svaret B 27.11 i #1309: en retting til datoen som gjelder, avvises og nevner datoen', () => {
     const { s, varselet } = medVarselet();
     expect(s.avvisning('TE', retting(varselet, '2026-09-28'))).toEqual({
       regel: 'DATOEN_ER_UENDRET',

@@ -273,7 +273,7 @@ export interface Utledning {
    */
   kunnskapsdatoer: Kunnskapsopplysning[];
   /**
-   * Punkt 8 og 18–23 i samlevedtaket for retting av sendt brev (MM-U59): TEs rettinger av datoen
+   * Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): TEs rettinger av datoen
    * for et varsel eller et krav lagt til som korrespondanse, i rekkefølgen i journalen. Datoen
    * som gjelder, står i `datoenSomGjelder`.
    */

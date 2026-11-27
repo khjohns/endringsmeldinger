@@ -182,23 +182,16 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:datoenForVarselet',
     ],
   ],
-  // Punkt 8 og 18–23 i samlevedtaket for retting av sendt brev (MM-U59) og MM-U61: TEs retting av
-  // datoen for et varsel eller et krav lagt til, og datoen som gjelder etter punkt 19, som premiss
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59) og svaret B 27.11 i #1309: TEs
+  // retting av datoen for et varsel eller et krav lagt til, og datoen som gjelder, som premiss
   // for nye svar og for det første varselet (VS-U86). Hva som var gjeldende, leser den oppgitte
   // datoen (punkt 18).
   ['Utsagn', 'utsagn', 'dato', ['utledning/rettingen.ts:rettingeneI']],
   ['Utledning', 'utsagn', 'rettinger'],
-  ['Retting', 'relasjon', 'gjelder'],
+  ['Retting', 'relasjon', 'id gjelder'],
   ['Retting', 'utsagn', 'dato'],
-  ['Retting', 'predikat', 'gjaldt begynte'],
   ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/rettingen.ts:rettingeneI']],
-  ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/rettingen.ts:rettingeneI.oppgitt']],
-  [
-    'Dokument',
-    'relasjon',
-    'id',
-    ['utledning/rettingen.ts:rettingeneI', 'utledning/rettingen.ts:rettingeneI.oppgitt'],
-  ],
+  ['Dokument', 'relasjon', 'id', ['utledning/rettingen.ts:rettingeneI']],
   ['utledning/rettingen.ts', 'predikat', 'rettingeneI', ['utledning/utled.ts:utledSporene']],
   [
     'utledning/rettingen.ts',

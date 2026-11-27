@@ -57,7 +57,7 @@ export const KOMMANDOENE: Lesbar[] = [
   ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59), D-1, D-2 og D-7 i BF-50: den
-  // nye datoen i TEs retting, varselet eller kravet den viser til, og datoen som gjelder (punkt 19).
+  // nye datoen i TEs retting, varselet eller kravet den viser til, og datoen som gjelder.
   [
     'Kommando',
     'kommando',

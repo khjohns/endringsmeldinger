@@ -8273,7 +8273,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F1309a',
     feilklasse:
-      'rettidigheten i et svar kontrolleres mot datoen som gjelder nå, ikke datoen som gjaldt da svaret ble sendt (MM-U59 punkt 8 og 19, BF-50)',
+      'rettidigheten i et svar kontrolleres mot datoen som gjelder nå, ikke datoen som gjaldt da svaret ble sendt (MM-U59 punkt 8, BF-50)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -8286,27 +8286,22 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F1309b',
     feilklasse:
-      'en retting til en tidligere dato gjelder straks, uten byggherrens aksept (MM-U61, D-3 i BF-50)',
+      'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, svaret B 27.11 i #1309)',
     fil: `${K}/utledning/rettingen.ts`,
-    endringer: [
-      [
-        'const senere = gjaldt !== null && x.dato > gjaldt;',
-        'const senere = gjaldt !== null && x.dato !== gjaldt;',
-      ],
-    ],
-    mal: ['en tidligere dato står åpen', 'skifter ikke det første varselet'],
+    endringer: [['foer(r.id)).at(-1)?.dato', 'foer(r.id)).at(0)?.dato']],
+    mal: ['D-4: datoen som gjelder, er den i den siste rettingen'],
   },
   {
     id: 'F1309c',
     feilklasse:
-      'det første varselet leses av datoen først oppgitt, ikke datoen som gjelder etter rettingen (MM-U59 punkt 19, VS-U86)',
+      'det første varselet leses av datoen først oppgitt, ikke datoen som gjelder etter rettingen (MM-U59 punkt 8 og 18, VS-U86)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    (v) => datoenSomGjelder(u, v)\n', '    (v) => datoenDetBleSendt(u, v)\n']],
     mal: ['det første varselet skifter når varselet rettes'],
   },
   {
     id: 'F1309d',
-    feilklasse: 'en retting til datoen som gjelder, godtas (MM-U61, D-7 i BF-50)',
+    feilklasse: 'en retting til datoen som gjelder, godtas (svaret B 27.11 i #1309, D-7 i BF-50)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['  if (ny === gjelder)\n', '  if (false)\n']],
     mal: ['en retting til datoen som gjelder, avvises'],
@@ -8344,6 +8339,19 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en retting som viser til et varsel sendt fra løsningen, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F1309h',
+    feilklasse:
+      'en retting til en tidligere dato venter på byggherrens aksept i stedet for å gjelde straks (svaret B 27.11 i #1309)',
+    fil: `${K}/utledning/rettingen.ts`,
+    endringer: [
+      [
+        'r.gjelder === gjelder && foer(r.id)',
+        "r.gjelder === gjelder && foer(r.id) && r.dato > (oppgitt ?? '')",
+      ],
+    ],
+    mal: ['variant B: en tidligere dato gjelder også straks'],
   },
 ];
 

@@ -326,13 +326,13 @@ beskrivelse = """
 TEs retting av datoen for et varsel eller et krav TE har sendt utenfor løsningen og lagt til
 som korrespondanse, i et eget brev fra løsningen. `gjelder` er varselet eller kravet, og
 `dato` den nye datoen. Opplysningen i brevet med varselet eller kravet står uendret. Ikke en
-kravversjon, og den endrer ikke hvilket krav eller svar som er gjeldende. En senere dato enn
-den som gjelder, gjelder straks som premiss for nye svar og for det første varselet løsningen
-kjenner. En tidligere dato gjelder først når byggherren godtar rettingen, og til da gjelder
-datoen som gjaldt da rettingen ble sendt. Et svar byggherren alt har gitt, står med virkningen
-det hadde. En retting sendt utenfor løsningen står som dokumentasjon."""
+kravversjon, og den endrer ikke hvilket krav eller svar som er gjeldende. Den nye datoen gjelder
+straks som TEs siste opplysning, også når den er tidligere, uten byggherrens aksept, og er premiss
+for nye svar og for det første varselet løsningen kjenner. Et svar byggherren alt har gitt, står
+med virkningen det hadde. Godtas også i en lukket sak og i en sak en endringsordre omfatter, og
+endrer ikke utfallet. En retting sendt utenfor løsningen står som dokumentasjon."""
 felt = ["id", "art", "gjelder", "dato"]
-grunnlag = "MM-U59 punkt 8 og 18–23, MM-U61, VS-U58, VS-U86, OV-U123 punkt 17"
+grunnlag = "MM-U59 punkt 8 og 18, svaret B 27.11 i #1309, VS-U58, VS-U86, OV-U123 punkt 17, EO-U39 punkt 68"
 
 [[utsagn]]
 art = "innlegg"
