@@ -41,6 +41,7 @@ import {
   TransaksjonAvbrutt,
   utenKontekst,
   UsikkertUtfall,
+  VRANGLAAS,
   type Pool,
 } from './datalag.ts';
 import {
@@ -144,7 +145,17 @@ type Utfall = 'feilet' | 'usikkert' | 'avvist';
  * Azure SQL som er opptatt eller flytter basen.
  */
 const FORBIGAAENDE_SQL = new Set([
-  1205, 1222, 4060, 10928, 10929, 40197, 40501, 40613, 49918, 49919, 49920,
+  VRANGLAAS,
+  1222,
+  4060,
+  10928,
+  10929,
+  40197,
+  40501,
+  40613,
+  49918,
+  49919,
+  49920,
 ]);
 
 /**

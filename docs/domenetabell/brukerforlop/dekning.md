@@ -274,6 +274,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U60](../../plans/vedtak.md#mm-u60) | — | BF-03 te-har-mottatt-svaret, BF-37 te-skal-varsle | — |
 | [MM-U61](../../plans/vedtak.md#mm-u61) | — | — | BF-50 |
 | [MM-U62](../../plans/vedtak.md#mm-u62) | BF-08 te-har-godtatt-svaret | BF-51 fristsporet-er-tomt | — |
+| [MM-U63](../../plans/vedtak.md#mm-u63) | — | — | BF-50 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U2](../../plans/vedtak.md#ov-u2) | — | BF-45 te-har-mottatt-svaret | — |
 | [OV-U3](../../plans/vedtak.md#ov-u3) | BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | BF-44 te-har-mottatt-svaret, BF-51 sporene-er-tomme, BF-51 fristsporet-er-tomt | — |

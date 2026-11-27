@@ -27,11 +27,14 @@ import {
   TransaksjonAvbrutt,
   UgyldigKontekst,
   UsikkertUtfall,
+  MINSTE_RESTTID_MS,
+  VRANGLAAS,
+  VRANGLAASFORSOEK,
   type Forbindelse,
   type Kontekst,
   type Pool,
 } from '../datalag.ts';
-import { enGang, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
+import { enGang, feilFraBasen, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
 import { opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const KONTEKST: Kontekst = {
@@ -740,6 +743,203 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     ).rejects.toBeInstanceOf(UgyldigKontekst);
     expect(laant).toBe(false);
     delete (pool as unknown as { acquire?: unknown }).acquire;
+  });
+
+  // Kilde: F0b i hovedplanen, krav 2 og 4, og #555.
+  describe('flere skrivinger og nye forsøk (#555)', () => {
+    beforeAll(async () => {
+      await base.pool
+        .request()
+        .batch(
+          'CREATE TABLE laas (id int NOT NULL PRIMARY KEY, n int NOT NULL); INSERT laas VALUES (1, 0), (2, 0);'
+        );
+    });
+
+    async function tellerne(): Promise<number[]> {
+      const r = await pool.request().query<{ n: number }>('SELECT n FROM laas ORDER BY id');
+      return r.recordset.map((rad) => rad.n);
+    }
+
+    /**
+     * Gjør transaksjonen i `arbeid` til vranglåsoffer: den oppdaterer rad 1 og venter på
+     * rad 2, mens en annen transaksjon holder rad 2 og venter på rad 1. Den andre legger
+     * 10 til begge radene og committer. Løftet er den andre transaksjonen.
+     */
+    function motpart(): { arbeid: (f: () => sql.Request) => Promise<void>; ferdig: Promise<void> } {
+      let aHar1!: () => void;
+      const harRad1 = new Promise<void>((ok) => (aHar1 = ok));
+      let bHar2!: () => void;
+      const harRad2 = new Promise<void>((ok) => (bHar2 = ok));
+      const ferdig = (async () => {
+        const tx = new sql.Transaction(base.pool);
+        await tx.begin();
+        await new sql.Request(tx).batch('UPDATE laas SET n = n + 10 WHERE id = 2');
+        bHar2();
+        await harRad1;
+        await new sql.Request(tx).batch('UPDATE laas SET n = n + 10 WHERE id = 1');
+        await tx.commit();
+      })();
+      return {
+        ferdig,
+        arbeid: async (f) => {
+          await f().batch('SET DEADLOCK_PRIORITY LOW; UPDATE laas SET n = n + 1 WHERE id = 1');
+          aHar1();
+          await harRad2;
+          await f().batch('UPDATE laas SET n = n + 1 WHERE id = 2');
+        },
+      };
+    }
+
+    it('en feil etter tre skrivinger i hver sin forespørsel etterlater ingen av dem', async () => {
+      const ider = [randomUUID(), randomUUID(), randomUUID()];
+      const foer = await tellerne();
+      const feil = await transaksjon(pool, KONTEKST, async (f) => {
+        for (const id of ider) await skriv(f, id);
+        await f().batch('UPDATE laas SET n = n + 1');
+        await f().batch(`THROW 51422, N'Ugyldig', 1`);
+      }).catch((e: unknown) => e);
+      expect(feilnummer(feil)).toBe(51422);
+      for (const id of ider) expect(await lagret(pool, id)).toBe(false);
+      expect(await tellerne()).toEqual(foer);
+    });
+
+    it('en feil i arbeidet etter tre skrivinger, uten feil fra basen, etterlater ingen av dem', async () => {
+      const ider = [randomUUID(), randomUUID(), randomUUID()];
+      await expect(
+        transaksjon(pool, KONTEKST, async (f) => {
+          for (const id of ider) await skriv(f, id);
+          throw new Error('arbeidet feilet etter skrivingene');
+        })
+      ).rejects.toThrow('arbeidet feilet etter skrivingene');
+      for (const id of ider) expect(await lagret(pool, id)).toBe(false);
+    });
+
+    it('vranglåsoffer: transaksjonen kjøres på nytt fra begynnelsen, og bare skrivingene i det andre forsøket er lagret', async () => {
+      const { arbeid, ferdig } = motpart();
+      const ider: string[] = [];
+      const foer = await tellerne();
+      const svar = await transaksjon(pool, KONTEKST, async (f) => {
+        const id = randomUUID();
+        ider.push(id);
+        await skriv(f, id);
+        if (ider.length === 1) await arbeid(f);
+        else
+          await f().batch('SET DEADLOCK_PRIORITY NORMAL; UPDATE laas SET n = n + 1 WHERE id = 1');
+        return sesjonen(f);
+      });
+      await ferdig;
+      expect(ider).toHaveLength(2);
+      expect(await lagret(pool, ider[0])).toBe(false);
+      expect(await lagret(pool, ider[1])).toBe(true);
+      expect(await tellerne()).toEqual([foer[0] + 11, foer[1] + 10]);
+      expect(svar).toMatchObject({ trancount: 1, koe_prosjekt: KONTEKST.prosjekt });
+      const etter = await sesjonen(() => pool.request());
+      expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
+    }, 30_000);
+
+    it.each([
+      ['og returnerer', false],
+      ['og sender en forespørsel til, som feiler', true],
+    ])(
+      'vranglåsoffer som arbeidet fanger %s: serveren har rullet tilbake, og transaksjonen kjøres på nytt',
+      async (_navn, fortsetter) => {
+        const { arbeid, ferdig } = motpart();
+        let kall = 0;
+        let foelgefeil: unknown;
+        const svar = await transaksjon(pool, KONTEKST, async (f) => {
+          kall++;
+          if (kall === 1) {
+            await arbeid(f).catch(() => undefined);
+            if (fortsetter)
+              await f()
+                .batch('SELECT 1')
+                .catch((e: unknown) => {
+                  foelgefeil = e;
+                  throw e;
+                });
+          } else await f().batch('SET DEADLOCK_PRIORITY NORMAL');
+          return kall;
+        });
+        await ferdig;
+        expect(svar).toBe(2);
+        if (fortsetter) expect(feilnummer(foelgefeil)).not.toBe(VRANGLAAS);
+      },
+      30_000
+    );
+
+    it('vranglåsoffer i hvert forsøk: arbeidet kjøres VRANGLAASFORSOEK ganger, og feilen fra siste forsøk kastes', async () => {
+      const ider: string[] = [];
+      let siste: Error | undefined;
+      const feil = await transaksjon(pool, KONTEKST, async (f) => {
+        const id = randomUUID();
+        ider.push(id);
+        await skriv(f, id);
+        throw (siste = feilFraBasen(VRANGLAAS));
+      }).catch((e: unknown) => e);
+      expect(ider).toHaveLength(VRANGLAASFORSOEK);
+      expect(feil).toBe(siste);
+      for (const id of ider) expect(await lagret(pool, id)).toBe(false);
+    });
+
+    // Kilde: F0b krav 4.
+    it.each<[string, number]>([
+      ['avvisning', 51403],
+      ['versjonskonflikt', 51409],
+      ['kommando-ID-en er brukt', 51410],
+      ['ugyldig', 51422],
+    ])('%s (%i): arbeidet kjøres én gang, og feilen kastes', async (_navn, nummer) => {
+      let kall = 0;
+      const feil = await transaksjon(pool, KONTEKST, async (f) => {
+        kall++;
+        await f().batch(`THROW ${nummer}, N'Fra basen', 1`);
+      }).catch((e: unknown) => e);
+      expect(kall).toBe(1);
+      expect(feilnummer(feil)).toBe(nummer);
+    });
+
+    it('usikkert utfall: arbeidet kjøres én gang, selv om COMMIT feilet med 1205', async () => {
+      vedNesteLaan(pool, (f) =>
+        enGang(f, 'commitTransaction', () => (cb) => setImmediate(cb, feilFraBasen(VRANGLAAS)))
+      );
+      let kall = 0;
+      const feil = await transaksjon(pool, KONTEKST, async () => {
+        kall++;
+      }).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(UsikkertUtfall);
+      expect(kall).toBe(1);
+    });
+
+    it('fristen rekker ikke til et nytt forsøk etter 1205: arbeidet kjøres én gang, og 1205 kastes', async () => {
+      let kall = 0;
+      const vranglaas = feilFraBasen(VRANGLAAS);
+      const feil = await transaksjon(
+        pool,
+        KONTEKST,
+        async () => {
+          kall++;
+          throw vranglaas;
+        },
+        { frist: MINSTE_RESTTID_MS }
+      ).catch((e: unknown) => e);
+      expect(kall).toBe(1);
+      expect(feil).toBe(vranglaas);
+    });
+
+    it('fristen utløper før arbeidet kaster 1205: FristUtloept, og arbeidet kjøres én gang', async () => {
+      let kall = 0;
+      const feil = await transaksjon(
+        pool,
+        KONTEKST,
+        async () => {
+          kall++;
+          await new Promise((ok) => setTimeout(ok, 150));
+          throw feilFraBasen(VRANGLAAS);
+        },
+        { frist: 100 }
+      ).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(FristUtloept);
+      expect(kall).toBe(1);
+    });
   });
 });
 
