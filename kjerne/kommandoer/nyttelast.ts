@@ -35,6 +35,7 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
+import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import {
   datoenDetBleSendt,
   kravSomVarsler,
@@ -538,6 +539,32 @@ function henvisningenIInnlegget(gjelder: string, u: Utledning): Avvisning | null
 }
 
 /**
+ * OV-U6, OV-U124, D-11 i BF-49: endringsordren byggherren legger til, er svaret på forholdet når
+ * svaret blir en endringsordre etter § 31.3 (`svaretBlirEndringsordre`, som utledningen leser i
+ * `erRegistrertEndringsordre`). Avvisningen bruker de eksisterende kodene (#807, 7218847960).
+ */
+function endringsordren(
+  svar: readonly Svarutkast[],
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  const s = svar.find((x) => x.spor === 'forhold');
+  if (!s) return null;
+  if (u.registrerteBrev.some((b) => b.dokument === s.gjelder))
+    return avvis(
+      'FEIL_KRAVREFERANSE',
+      'Endringsordren kan ikke legges til som svar på et krav som står som dokumentasjon. Totalentreprenøren må ha sendt kravet fra løsningen eller lagt det til som krav. Brevet kan legges til som dokumentasjon.'
+    );
+  const krav = u.spor.forhold.krav.find((x) => x.id === s.gjelder);
+  if (krav && !svaretBlirEndringsordre(s.vurderinger, kategori(krav), regler))
+    return avvis(
+      'UGYLDIG_VURDERING',
+      'Svaret er ikke en endringsordre etter punkt 31.3: byggherren må godkjenne forholdet uten å påberope preklusjon, og forholdet må være i en underkategori der punkt 32.2 gjelder.'
+    );
+  return null;
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1). `sendt` er dagen et
  * brev lagt til ble sendt, og `null` for et brev fra løsningen (OV-U98).
@@ -555,6 +582,10 @@ export function nyttelastkontroll(
   // dokumentasjonen fra samme side, som en ny registrering som dokumentasjon (OV-U17).
   if ((erRegistrering(k) || k.type === 'varsel') && k.retter !== undefined) {
     const hinder = retting(k.retter, part, u);
+    if (hinder) return hinder;
+  }
+  if ((k.type === 'brev' || k.type === 'revisjon') && k.endringsordre) {
+    const hinder = endringsordren([k.svar].flat(), u, regler);
     if (hinder) return hinder;
   }
   switch (k.type) {

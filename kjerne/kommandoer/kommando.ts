@@ -105,6 +105,14 @@ export interface Registrering {
   retter?: string;
 }
 
+/**
+ * OV-U6, OV-U124, D-11 i BF-49: byggherren oppgir at svaret på forholdet lagt til er sin egen
+ * endringsordre etter § 31.3. Lagres som opplysningen `endringsordre` i journalen.
+ */
+export interface Endringsordren {
+  endringsordre?: true;
+}
+
 /** Kravet, svaret eller aksepten er lagt til med datoen det ble sendt (OV-U98). */
 export const erRegistrering = (
   k: Kommando
@@ -187,8 +195,8 @@ export type Kommando = (
       /** Forbeholdet i kravet om fristforlengelse eller vederlagsjustering (KA-U82, LV-U74). */
       forbehold?: string;
     } & Registrering)
-  | ({ type: 'brev'; svar: Svarutkast[] } & Registrering)
-  | ({ type: 'revisjon'; erstatter: string; svar: Svarutkast } & Registrering)
+  | ({ type: 'brev'; svar: Svarutkast[] } & Registrering & Endringsordren)
+  | ({ type: 'revisjon'; erstatter: string; svar: Svarutkast } & Registrering & Endringsordren)
   | ({
       type: 'aksept';
       spor: Spor;
@@ -362,6 +370,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       svar: { type: 'array', items: SVARUTKAST },
       ...BREVTEKST,
       ...REGISTRERING,
+      endringsordre: { const: true },
     },
     ['type', 'svar']
   ),
@@ -372,6 +381,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       svar: SVARUTKAST,
       ...BREVTEKST,
       ...REGISTRERING,
+      endringsordre: { const: true },
     },
     ['type', 'erstatter', 'svar']
   ),
@@ -720,6 +730,16 @@ export function formfeil(kommando: unknown): string[] {
           : []),
       ])
     );
+  }
+  // OV-U6, D-11 i BF-49: endringsordren er et svar på forholdet lagt til.
+  if ((type === 'brev' || type === 'revisjon') && !feil.length && 'endringsordre' in kommando) {
+    const svar = (kommando as { svar: Svarutkast | Svarutkast[] }).svar;
+    if (!('sendt' in kommando))
+      feil.push(
+        '$.endringsordre: bare et svar lagt til med datoen det ble sendt (`sendt`), kan være byggherrens endringsordre'
+      );
+    else if (![svar].flat().some((s) => s.spor === 'forhold'))
+      feil.push('$.endringsordre: brevet har ikke noe svar på forholdet');
   }
   if (!feil.length) feil.push(...korrespondansefeil(kommando));
   if (type === 'krav' && !feil.length && erObjekt(kommando.varsel))

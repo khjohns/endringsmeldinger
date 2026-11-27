@@ -8126,6 +8126,48 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['innsigelsen som er gitt opp i et nytt svar på varselet, står ikke'],
   },
+  {
+    id: 'F807j',
+    feilklasse:
+      'endringsordren lagt til godtas som svar på forholdet når svaret ikke blir en endringsordre (OV-U6, D-11 i BF-49)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (krav && !svaretBlirEndringsordre(s.vurderinger, kategori(krav), regler))',
+        '  if (krav && false)',
+      ],
+    ],
+    mal: ['et avslag med endringsordren avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F807k',
+    feilklasse:
+      'endringsordren som svar på et krav som står som dokumentasjon, avvises uten beskjeden etter OV-U124',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (u.registrerteBrev.some((b) => b.dokument === s.gjelder))', '  if (false)']],
+    mal: ['endringsordren som svar på et krav som står som dokumentasjon'],
+  },
+  {
+    id: 'F807l',
+    feilklasse: 'endringsordren lagt til lagres uten opplysningen om § 31.3 (OV-U6, D-11 i BF-49)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "      ...(endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),",
+        '      ...[],',
+      ],
+    ],
+    mal: ['lagres med opplysningen om § 31.3', 'nytt svar etter et svar byggherren har lagt til'],
+  },
+  {
+    id: 'F807m',
+    feilklasse: 'endringsordren godtas i et brev uten svar på forholdet (D-11 i BF-49)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      ["    else if (![svar].flat().some((s) => s.spor === 'forhold'))", '    else if (false)'],
+    ],
+    mal: ['avvises som form'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

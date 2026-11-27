@@ -368,6 +368,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'utledning/utled.ts:utled',
       'kommandoer/vedlegg.ts:kravetErVarselet',
       'spor/frist/kommando.ts:varseldokumentetISaken',
+      'kommandoer/nyttelast.ts:endringsordren',
     ],
   ],
   [
@@ -375,6 +376,22 @@ export const KOMMANDOENE: Lesbar[] = [
     'relasjon',
     'dokument lagtTilAv rettetAv',
     ['utledning/utled.ts:registreringer', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  // OV-U124: endringsordren avvises som svar på et krav som står som dokumentasjon.
+  ['RegistrertBrev', 'relasjon', 'dokument', ['kommandoer/nyttelast.ts:endringsordren']],
+  // OV-U6, D-11 i BF-49: byggherrens opplysning om at svaret lagt til er en endringsordre, og
+  // kontrollen av at svaret blir en endringsordre, som utledningen leser.
+  [
+    'Endringsordren',
+    'kommando',
+    'endringsordre',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:dokument'],
+  ],
+  [
+    'frosset/frysing.ts',
+    'frosset',
+    'svaretBlirEndringsordre',
+    ['kommandoer/nyttelast.ts:endringsordren'],
   ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
@@ -831,6 +848,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'spor/forhold/kommando.ts:lagIForholdet',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
+      'kommandoer/nyttelast.ts:endringsordren',
     ],
   ],
   [

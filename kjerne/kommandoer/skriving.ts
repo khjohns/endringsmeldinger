@@ -360,10 +360,19 @@ const UTEN_VIRKNING_MELDING = (grunn: string) =>
  * OV-U80, OV-U98: et krav, et svar eller en aksept lagt til med datoen avsenderen oppgir, typen
  * og brevet som vedlegg. Tomt for et brev fra løsningen.
  */
-function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): Data {
+function registrering(
+  k: Registrering,
+  nyId: () => string,
+  bundne: Vedlegg[],
+  endringsordre?: true
+): Data {
   if (k.sendt === undefined) return {};
   return {
-    opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+    opplysninger: [
+      { id: nyId(), hva: 'sendt', dato: k.sendt },
+      // OV-U6, D-11 i BF-49: opplysningen om § 31.3 i brevet med endringsordren.
+      ...(endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),
+    ],
     korrespondansetype: k.korrespondansetype,
     ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
     ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
@@ -443,7 +452,7 @@ function dokument(
           kjerne,
           sendt
         ),
-        ...registrering(k, nyId, bundne),
+        ...registrering(k, nyId, bundne, k.endringsordre),
       };
     case 'revisjon': {
       // OV-U103: et svar lagt til, sendt før det gjeldende, står utenfor rekken og erstatter ikke det.
@@ -455,7 +464,7 @@ function dokument(
           kjerne,
           sendt
         ),
-        ...registrering(k, nyId, bundne),
+        ...registrering(k, nyId, bundne, k.endringsordre),
       };
     }
     case 'aksept':
