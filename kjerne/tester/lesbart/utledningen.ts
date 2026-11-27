@@ -82,11 +82,15 @@ export const UTLEDNINGEN: Lesbar[] = [
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:kravposteneSomVarsler',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],
   // VS-U79: om svaret gjelder et varsel, og om det står alene.
   ['utledning/utled.ts:erSvarPaaVarselet(elementer)', 'relasjon', '*'],
+  // VS-U96 punkt 38 og 39: svaret gjelder bare varselet i kravversjonen.
+  ['Svar', 'utsagn', 'bareVarselet'],
+  ['utledning/utled.ts:kontrollerSvarkjedene', 'relasjon', 'gjelder svarene'],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['spor/frist/kommando.ts']],
   // VS-U95: om svaret kan gjøre gjeldende at begrunnelsen etter § 33.6.2 annet ledd b ikke er et svar.
@@ -130,6 +134,8 @@ export const UTLEDNINGEN: Lesbar[] = [
       'kommandoer/handlinger.ts:kandidater',
       'spor/vederlag/kommando.ts:kunnskapsdatoen',
       'spor/vederlag/kommando.ts:kravetErDetFoersteVarselet',
+      // VS-U96 punkt 38: varselet etter § 33.4 når kravet selv er varselet.
+      'spor/frist/kommando.ts:fristvarseletIKravet',
     ],
   ],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.

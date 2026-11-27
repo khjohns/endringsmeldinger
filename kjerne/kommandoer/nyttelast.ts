@@ -9,9 +9,10 @@ import {
   kontrollerKunnskapsdatoen,
   kunnskapsdatoIVarselet,
   NYTTELAST_I_VEDERLAGET,
+  vurderingeneISvaretBarePaaVarselet,
   vurderingeneISvaretPaaVarselet,
 } from '../spor/vederlag/kommando.ts';
-import { svaretsVarsel, type Svaretsvarsel } from './standpunkter.ts';
+import { svaretsVarsel, type Svaretsvarsel, type VarsleneIKravet } from './standpunkter.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
@@ -74,7 +75,7 @@ export type Svarstandpunkter = (
   s: Svarutkast,
   utregning: Record<string, unknown>,
   /** Kravversjonen svaret gjelder, eller varselet som står alene (VS-U79). */
-  krav: Krav | Svaretsvarsel,
+  krav: Krav | Svaretsvarsel | VarsleneIKravet,
   /** Påberopelsen svaret er regnet mot (#342), `null` i forholdet. */
   paaberopelse: Krav | null
 ) => Standpunkt[];
@@ -132,12 +133,18 @@ function kontrollerSvar(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor[s.spor];
-  const varselet = svaretsVarsel(u, s);
+  const varselet = svaretsVarsel(u, s, sendt);
   const funnet =
     sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
   const krav = varselet ? null : funnet;
-  if (!varselet && (!krav || s.gjelder !== krav.id))
+  // VS-U96 punkt 38: svaret bare på varselet gjelder også den gjeldende kravversjonen.
+  if ((!varselet || s.bare_varselet) && (!funnet || s.gjelder !== funnet.id))
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
+  if (s.bare_varselet && !varselet)
+    return avvis(
+      'INGEN_VARSEL',
+      'Svaret kan gjelde bare varselet når kravet selv er varselet etter punkt 33.4, 34.3.3 eller 34.4.'
+    );
   // OV-U103 for en eldre kravversjon. Forutsetningene prøver bare den gjeldende.
   if (
     krav &&
@@ -208,16 +215,24 @@ function kontrollerSvar(
  */
 function kontrollerSvaretPaaVarselet(
   s: Svarutkast,
-  varselet: Svaretsvarsel,
+  varselet: Svaretsvarsel | VarsleneIKravet,
   u: Utledning,
   svarstandpunkter: Svarstandpunkter,
   paaberopelse: Krav,
   sendt: string | null
 ): Avvisning | null {
   const feil =
-    varselet.hjemmel === '33.4'
-      ? vurderingeneISvaretPaaFristvarselet(s)
-      : vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
+    'poster' in varselet
+      ? vurderingeneISvaretBarePaaVarselet(
+          s,
+          varselet.poster,
+          u.spor.vederlag.krav.find((k) => k.id === varselet.krav)!,
+          u,
+          sendt
+        )
+      : varselet.hjemmel === '33.4'
+        ? vurderingeneISvaretPaaFristvarselet(s)
+        : vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});
@@ -575,7 +590,7 @@ export function nyttelastkontroll(
     case 'revisjon': {
       const sporet = u.spor[k.svar.spor];
       // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
-      const forrige = svaretsVarsel(u, k.svar)
+      const forrige = svaretsVarsel(u, k.svar, sendt)
         ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
         : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)

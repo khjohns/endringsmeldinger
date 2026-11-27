@@ -114,8 +114,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    const varselet = varsler.find((v) => v.id === s.gjelder);',
-        '    (s as { gjelder: string }).gjelder = spor[s.spor].krav.filter((k) => bakover(s.id, k.id)).at(-1)?.id ?? s.gjelder;\n    const varselet = varsler.find((v) => v.id === s.gjelder);',
+        '    const varselet = s.bareVarselet ? undefined : varsler.find((v) => v.id === s.gjelder);',
+        '    (s as { gjelder: string }).gjelder = spor[s.spor].krav.filter((k) => bakover(s.id, k.id)).at(-1)?.id ?? s.gjelder;\n    const varselet = s.bareVarselet ? undefined : varsler.find((v) => v.id === s.gjelder);',
       ],
     ],
     // F-MM-E3 er ikke mål: et svar flyttet til et annet krav stopper også på postene (OV-U23).
@@ -453,7 +453,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F29',
     feilklasse: 'skriveren utelater `gjelder` i svaret (7.2)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['    gjelder: s.gjelder,\n    ...(erstatter', '    ...(erstatter']],
+    endringer: [['    gjelder: s.gjelder,\n    ...(s.bare_varselet', '    ...(s.bare_varselet']],
     mal: ['F-MM-A', 'hvert dokument er én rad med format 1'],
   },
   {
@@ -4500,12 +4500,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar på vederlaget med beløp for andre poster enn dem kravet har, er forstått (OV-U23)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);',
-        '    void krav;',
-      ],
-    ],
+    endringer: [['    else kontrollerI(s.spor).svaret(s, krav, ugyldig);', '    else void krav;']],
     mal: [
       'beløpet viser til en kravpost som ikke står i kravet',
       'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd',
@@ -6562,8 +6557,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '                  if (q?.varsel !== undefined) return varseletPostenViserTil(q) === gjelder;',
-        '                  if (q?.varsel !== undefined) return false;',
+        '    if (q?.varsel !== undefined) return varseletPostenViserTil(q);',
+        '    if (q?.varsel !== undefined) return undefined;',
       ],
     ],
     mal: [
@@ -6640,8 +6635,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));',
-        '    const varslene = new Set<string>();',
+        '      ...new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder)),',
+        '      ...new Set<string>(),',
       ],
     ],
     mal: ['et svar som erstatter et svar som alt er erstattet, gjør saken ikke forstått'],
@@ -6679,8 +6674,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "    p.hjemmel === '34.4' && poster.some((x) => x.id === p.gjelder)",
-        "    p.hjemmel === '34.4'",
+        "    p.hjemmel === '34.4' && !bareVarselet && poster.some((x) => x.id === p.gjelder)",
+        "    p.hjemmel === '34.4' && !bareVarselet",
       ],
     ],
     mal: ['etter punkt 34.4 sier brevet at varselet kom for sent'],
@@ -7836,7 +7831,10 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       ['    d.svar.some((x) => {', '    d.krav.some((x) => {'],
-      ['      const k = kravene.get(x.gjelder);', '      const k = kravene.get(x.id);'],
+      [
+        '      const k = kravene.get(x.gjelder);\n      return (',
+        '      const k = kravene.get(x.id);\n      return (',
+      ],
     ],
     mal: [
       'til byggherren har svart på det (VS-U96 punkt 33)',
@@ -7899,6 +7897,87 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/frist.ts`,
     endringer: [["  if (typeof v.varslet_i_tide !== 'boolean')", '  if (false)']],
     mal: ['svaret uten standpunktet til varselet avvises (punkt 32)'],
+  },
+  {
+    id: 'F2456h',
+    feilklasse:
+      'byggherren får ikke tilbud om å svare bare på varselet når kravet selv er varselet (VS-U96 punkt 38, #2456)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        "    if (k) for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: k.id });",
+        '    void k;',
+      ],
+    ],
+    mal: ['byggherren får tilbud om å svare bare på varselet i kravet'],
+  },
+  {
+    id: 'F2456i',
+    feilklasse:
+      'utledningen leser svaret bare på varselet som et svar på kravet, etter formen og ikke feltet (VS-U96 punkt 39, DM-06, #2456)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        ") => s.bareVarselet || elementer[s.gjelder]?.art === 'varsel';",
+        ") => elementer[s.gjelder]?.art === 'varsel';",
+      ],
+    ],
+    mal: [
+      'svaret gjelder bare varselet, standpunktet viser til kravet',
+      'byggherren svarer bare på varselet for postene, og svaret er ikke et svar på kravet',
+    ],
+  },
+  {
+    id: 'F2456j',
+    feilklasse:
+      'kravet regnes som varselet etter punkt 33.4 også når totalentreprenøren har varslet før kravet (VS-U96 punkt 7 og 38, #2456)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [["v !== undefined && v !== sporet.varsler['33.4']?.id", 'v !== undefined']],
+    mal: ['med et varsel etter punkt 33.4 før kravet er kravet ikke varselet'],
+  },
+  {
+    id: 'F2456k',
+    feilklasse:
+      'en kravpost som viser til et varsel i saken, regnes som en post kravet er varselet for (VS-U96 punkt 23 og 38, #2456)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'hjemmel && (viserTil === undefined || !varslene.has(viserTil))',
+        'hjemmel && viserTil !== null',
+      ],
+    ],
+    mal: ['en kravpost uten varselplikt eller som viser til et varsel i saken, er ikke med'],
+  },
+  {
+    id: 'F2456l',
+    feilklasse:
+      'svaret bare på varselet sier ikke at byggherren ikke har tatt stilling til kravet (VS-U96 punkt 39, #2456)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  const innledning = s.bareVarselet', '  const innledning = false']],
+    mal: ['svaret gjelder bare varselet, standpunktet viser til kravet'],
+  },
+  {
+    id: 'F2456m',
+    feilklasse:
+      'svaret bare på varselet etter punkt 34.4 sier at varselet «ikke ble gitt», som bare svaret på kravposten sier (VS-U96 punkt 31 og 38, #2456)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "    p.hjemmel === '34.4' && !bareVarselet && poster.some((x) => x.id === p.gjelder)",
+        "    p.hjemmel === '34.4' && poster.some((x) => x.id === p.gjelder)",
+      ],
+    ],
+    mal: ['byggherren svarer bare på varselet for postene'],
+  },
+  {
+    id: 'F2456n',
+    feilklasse:
+      'svaret bare på varselet for en kravpost tas imot etter at byggherren har svart på kravversjonen med posten (VS-U96 punkt 33 og 38, #2456)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['  return poster.filter((p) => !besvart.has(`${p.id} ${p.hjemmel}`));', '  return poster;'],
+    ],
+    mal: ['svaret på kravet etter svaret bare på varselet stenger svaret bare på varselet'],
   },
 ];
 

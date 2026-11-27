@@ -52,6 +52,7 @@ import {
   vederlagsinnhold,
 } from './format.ts';
 import { erKalenderdato, erObjekt, feilI, objekt } from '../../format/skjema.ts';
+import { UgyldigVurdering } from '../../regler/feil.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
@@ -333,15 +334,7 @@ export function hindrerSvaretPaaVarselet(
         (varselet.hjemmel === '34.1.2' ||
           (varselet.hjemmel === '34.1.3'
             ? harProduktivitetspost(k)
-            : kravposterI(k).some((p) => {
-                // VS-U96 punkt 23: uten valg i versjonen står valget i den forrige.
-                const i = sporet.krav.findIndex((v) => v.id === k.id);
-                for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
-                  const q = kravposterI(v).find((x) => x.id === p.id);
-                  if (q?.varsel !== undefined) return varseletPostenViserTil(q) === gjelder;
-                }
-                return false;
-              }))) &&
+            : kravposterI(k).some((p) => varseletPostenGjelder(u, k, p.id) === gjelder))) &&
         (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
       );
     })
@@ -355,6 +348,186 @@ export function hindrerSvaretPaaVarselet(
       : varselet.hjemmel === '34.1.3'
         ? `${ikke} en kravversjon med den særskilte vederlagsjusteringen. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
         : `${ikke} en kravversjon med en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
+  );
+}
+
+/**
+ * VS-U96 punkt 23: varselet kravposten `post` i kravversjonen `k` viser til. Uten valg i versjonen
+ * står valget i den forrige, og `undefined` er at kravet er varselet for posten eller ikke sier noe.
+ */
+function varseletPostenGjelder(u: Utledning, k: Krav, post: string): string | undefined {
+  const sporet = u.spor.vederlag;
+  const i = sporet.krav.findIndex((v) => v.id === k.id);
+  for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
+    const q = kravposterI(v).find((x) => x.id === post);
+    if (q?.varsel !== undefined) return varseletPostenViserTil(q);
+  }
+  return undefined;
+}
+
+/** VS-U96 punkt 38: en kravpost i kravversjonen der kravet selv er varselet. */
+export interface VarseletIKravposten {
+  id: string;
+  hjemmel: Kravpostvarselhjemmel;
+}
+
+/**
+ * VS-U96 punkt 38 og 22: kravpostene i kravversjonen `gjelder` der kravet selv er varselet etter
+ * § 34.3.3 første ledd eller § 34.4, fordi posten ikke viser til et varsel i saken. Med
+ * `aapne` bare postene byggherren ikke har svart på i en kravversjon med posten og samme
+ * varselhjemmel (punkt 33), med svarene sendt til og med dagen `sendt` (OV-U98).
+ */
+export function kravposteneSomVarsler(
+  u: Utledning,
+  gjelder: string,
+  sendt: string | null,
+  aapne = true
+): VarseletIKravposten[] {
+  const sporet = u.spor.vederlag;
+  const krav = sporet.krav.find((k) => k.id === gjelder);
+  if (!krav) return [];
+  const varslene = new Set(sporet.kravpostvarsler.map((v) => v.id));
+  const poster = kravposterI(krav).flatMap((p): VarseletIKravposten[] => {
+    const hjemmel = varselhjemmel(p);
+    const viserTil = varseletPostenGjelder(u, krav, p.id);
+    return hjemmel && (viserTil === undefined || !varslene.has(viserTil))
+      ? [{ id: p.id, hjemmel }]
+      : [];
+  });
+  if (!aapne) return poster;
+  const dokumentene = [...dokumenterI(u.journal)];
+  const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
+  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+  const besvart = new Set(
+    dokumentene.flatMap((d) =>
+      d.svar.flatMap((x) => {
+        const k = kravene.get(x.gjelder);
+        if (
+          !medVirkning.has(x.id) ||
+          k?.spor !== 'vederlag' ||
+          (sendt !== null && foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
+        )
+          return [];
+        return kravposterI(k).map((p) => `${p.id} ${varselhjemmel(p)}`);
+      })
+    )
+  );
+  return poster.filter((p) => !besvart.has(`${p.id} ${p.hjemmel}`));
+}
+
+/**
+ * VS-U96 punkt 38 og 33: det som hindrer byggherrens svar bare på varselet i vederlagskravet
+ * `gjelder`, eller et nytt svar som erstatter det forrige (`hva`).
+ */
+export function hindrerSvaretBarePaaVarselet(
+  u: Utledning,
+  gjelder: string,
+  hva: 'Svaret' | 'Revisjonen',
+  sendt: string | null
+): Avvisning | null {
+  const sporet = u.spor.vederlag;
+  if (!kravposteneSomVarsler(u, gjelder, sendt, false).length)
+    return avvis(
+      'INGEN_VARSEL',
+      `${hva} kan ikke gjelde bare varselet, fordi kravet ikke selv er varselet etter punkt 34.3.3 eller 34.4 for noen kravpost.`
+    );
+  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  if (hva === 'Svaret' && forrige)
+    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
+  if (hva === 'Revisjonen' && !forrige)
+    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  return kravposteneSomVarsler(u, gjelder, sendt).length
+    ? null
+    : avvis(
+        'KRAVET_ER_BESVART',
+        `${hva} kan ikke gjelde varselet, fordi byggherren har svart på en kravversjon med kravpostene kravet er varselet for. Byggherren tar stilling til varselet i svaret på kravposten.`
+      );
+}
+
+/**
+ * VS-U96 punkt 38: vurderingene i svaret bare på varselet i vederlagskravet, én per kravpost i
+ * `poster`, med standpunktene etter VS-U96 punkt 30 og 31 (`kontrollerSvaretPaaVarselet`).
+ */
+export function vurderingeneISvaretBarePaaVarselet(
+  s: Svarutkast,
+  poster: readonly VarseletIKravposten[],
+  krav: Krav,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
+  const staar = standpunkteneTilVarslene(u, sendt, true);
+  const feil = avvisteFelt(() => {
+    const v = s.vurderinger as Data;
+    const ukjent = Object.keys(v).filter((f) => f !== 'kravposter');
+    if (ukjent.length)
+      throw new UgyldigVurdering(
+        Object.fromEntries(
+          ukjent.map((f) => [f, 'kjernen leser ikke feltet i svaret bare på varselet'])
+        )
+      );
+    for (const { post, svar } of postsvarene(v, poster, krav)) {
+      const innsigelsenStaar = staar.some(
+        (x) => x.gjelder === post.id && x.hjemmel === post.hjemmel && !x.iTide
+      );
+      kontrollerSvaretPaaVarselet(post.hjemmel, svar, innsigelsenStaar, post.betegnelse);
+      if (sendt === null) kontrollerInnsigelsenSomStaar(post.betegnelse, svar, innsigelsenStaar);
+    }
+  });
+  return avvisteVurderinger(feil);
+}
+
+/**
+ * Svaret på hver kravpost i svaret bare på varselet, i rekkefølgen i kravet. Hver post i svaret
+ * er en av `poster`, én gang, og svaret har minst én.
+ */
+function postsvarene(
+  v: Data,
+  poster: readonly VarseletIKravposten[],
+  krav: Krav
+): { post: VarseletIKravposten & { betegnelse: string }; svar: Data }[] {
+  if (
+    !Array.isArray(v.kravposter) ||
+    !v.kravposter.length ||
+    v.kravposter.some((p) => !erObjekt(p))
+  )
+    throw new UgyldigVurdering({
+      kravposter:
+        'mangler: svaret bare på varselet har standpunktet til varselet for minst én kravpost',
+    });
+  const svarene = new Map<string, Data>();
+  for (const p of v.kravposter as Data[]) {
+    const post = poster.find((x) => x.id === p.gjelder);
+    if (!post)
+      throw new UgyldigVurdering({
+        kravposter: `kravet er ikke selv varselet for kravposten «${String(p.gjelder)}»`,
+      });
+    if (svarene.has(post.id))
+      throw new UgyldigVurdering({
+        kravposter: `kravposten «${post.id}» er besvart mer enn én gang`,
+      });
+    // Svaret på posten uten `gjelder`, som svaret på et varsel som står alene.
+    svarene.set(post.id, Object.fromEntries(Object.entries(p).filter(([f]) => f !== 'gjelder')));
+  }
+  return kravposterI(krav).flatMap((k) => {
+    const post = poster.find((x) => x.id === k.id);
+    const svar = svarene.get(k.id);
+    return post && svar ? [{ post: { ...post, betegnelse: k.betegnelse }, svar }] : [];
+  });
+}
+
+/**
+ * VS-U96 punkt 38: standpunktene i svaret bare på varselet i vederlagskravet, i rekkefølgen
+ * kravpostene står i kravet. Hvert gjelder kravposten, som i svaret på kravet.
+ */
+export function standpunkterBarePaaVarselet(
+  v: Svarvurdering,
+  poster: readonly VarseletIKravposten[],
+  krav: Krav,
+  nyId: () => string
+): Data[] {
+  return postsvarene(v as Data, poster, krav).flatMap(({ post, svar }) =>
+    standpunkterPaaVarselet(svar, { id: post.id, hjemmel: post.hjemmel }, nyId)
   );
 }
 

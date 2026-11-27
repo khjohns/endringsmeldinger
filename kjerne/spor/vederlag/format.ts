@@ -507,22 +507,32 @@ function kontrollerVederlagsstandpunktene(
 
 /**
  * VS-U79, VS-U87 punkt 30–32: i svaret på et varsel som står alene står
- * rettidigheten og justeringen, i den rekkefølgen og hver høyst én gang, og begge gjelder samme
- * varsel. Svaret har ingen utregning.
+ * rettidigheten og justeringen, i den rekkefølgen og hver høyst én gang for hvert varsel. Svaret har
+ * ingen utregning.
  */
 function kontrollerSvaretPaaVarselet(
   ut: Standpunkt[],
   utregning: Record<string, unknown>,
   sti: string
 ): void {
-  const arter = ut.map((s) => s.art).join(' ');
-  const varselet = 'gjelder' in ut[0]! ? ut[0].gjelder : undefined;
+  // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost etter
+  // hverandre. At svaret på et varsel som står alene gjelder ett varsel, kontrollerer utledningen.
+  const grupper: { gjelder: string | undefined; arter: string[] }[] = [];
+  for (const s of ut) {
+    const gjelder = 'gjelder' in s ? s.gjelder : undefined;
+    if (grupper.at(-1)?.gjelder === gjelder) grupper.at(-1)!.arter.push(s.art);
+    else grupper.push({ gjelder, arter: [s.art] });
+  }
   if (
-    !['rettidighet', 'justering', 'rettidighet justering'].includes(arter) ||
-    ut.some((s) => !('gjelder' in s) || s.gjelder !== varselet)
+    grupper.some(
+      (g) =>
+        g.gjelder === undefined ||
+        !['rettidighet', 'justering', 'rettidighet justering'].includes(g.arter.join(' '))
+    ) ||
+    new Set(grupper.map((g) => g.gjelder)).size !== grupper.length
   )
     throw new Uforstaatt(
-      `${sti}: standpunktene i svaret på varselet står ikke i rekkefølgen varselet og justeringen, eller gjelder ikke samme varsel`
+      `${sti}: standpunktene i svaret på varselet står ikke i rekkefølgen varselet og justeringen for hvert varsel`
     );
   if (Object.keys(utregning).length)
     throw new Uforstaatt(`${sti}: svaret på et varsel har en utregning`);

@@ -31,7 +31,8 @@ export interface TilbudtHandling {
 
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor, et svar per varsel i vederlaget
- * og på varselet etter § 33.4 (VS-U79, VS-U96 punkt 30–32), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
+ * og på varselet etter § 33.4 (VS-U79, VS-U96 punkt 30–32), svaret bare på varselet i gjeldende
+ * vederlags- og fristkrav (punkt 38), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
@@ -57,6 +58,12 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
     ...kravpostvarsler,
   ])
     if (v) for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: v.id });
+  // VS-U96 punkt 38: svaret bare på varselet i den gjeldende kravversjonen, når kravet selv er
+  // varselet.
+  for (const spor of KRAVSPOR) {
+    const k = u.spor[spor].gjeldendeKrav;
+    if (k) for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: k.id });
+  }
   for (const [id, e] of Object.entries(u.elementer))
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): korrigeringen viser til TEs

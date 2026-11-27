@@ -390,6 +390,7 @@ export const FORMATET: Lesbar[] = [
       'frosset/brevtekst.ts:paaberopelsenFoerIFristen',
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:kravposteneSomVarsler',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
@@ -424,6 +425,10 @@ export const FORMATET: Lesbar[] = [
     ['format/leser.ts:lesDokument'],
   ],
   ['format/leser.ts:lesSvar(e)', 'rad', 'akseptfrist', ['format/leser.ts']],
+  // VS-U96 punkt 38: svaret bare på varselet i kravversjonen.
+  ['format/leser.ts:lesSvar(e)', 'rad', 'bare_varselet', ['format/leser.ts']],
+  // VS-U96 punkt 38: standpunktene for hvert varsel i svaret på varselet.
+  ['spor/vederlag/format.ts:kontrollerSvaretPaaVarselet', 'relasjon', 'gjelder arter'],
   // HF-U23 punkt 1 og 2: kontrollen av akseptfristen leser svarene slik brevet fryser dem.
   [
     'kommandoer/nyttelast.ts:akseptfristeneIBrevet(s)',

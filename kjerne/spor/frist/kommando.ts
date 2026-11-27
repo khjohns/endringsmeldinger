@@ -18,6 +18,7 @@ import type { Regelsett } from '../../regler/regelsett.ts';
 import {
   kravversjoneneKravetProevesMot,
   rettedeBrev,
+  varseletFoerBrevet,
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -205,6 +206,18 @@ export function fristvarseletSvaretGjelder(
 ): Svaretsvarsel<'33.4'> | null {
   const v = u.spor.frist.varsler['33.4'];
   return v?.id === gjelder ? { id: v.id, hjemmel: '33.4' } : null;
+}
+
+/**
+ * VS-U96 punkt 38: varselet etter § 33.4 et svar bare på varselet i kravversjonen `gjelder` gjelder,
+ * når kravet selv er varselet (punkt 7), ellers `null`. Varselet er det første kravet som varsler,
+ * som i svaret på kravet (`varseletForNyttSvar`).
+ */
+export function fristvarseletIKravet(u: Utledning, gjelder: string): Svaretsvarsel<'33.4'> | null {
+  const sporet = u.spor.frist;
+  if (!sporet.krav.some((k) => k.id === gjelder)) return null;
+  const v = varseletFoerBrevet(u, '33.4');
+  return v !== undefined && v !== sporet.varsler['33.4']?.id ? { id: v, hjemmel: '33.4' } : null;
 }
 
 /**

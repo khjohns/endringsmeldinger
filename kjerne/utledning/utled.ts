@@ -210,11 +210,14 @@ export interface Element {
 }
 
 /**
- * Svaret gjelder et varsel, ikke en kravversjon (VS-U79). At varselet er etter § 34.3.3 eller
- * § 34.4, kontrollerer `kontrollerSvarPaaVarselet`.
+ * Svaret gjelder et varsel, ikke en kravversjon (VS-U79), eller bare varselet i kravversjonen
+ * (VS-U96 punkt 38 og 39). At varselet kan besvares alene, kontrollerer `kontrollerSvarPaaVarselet`
+ * og `Sporskontroller.svaretBarePaaVarselet`.
  */
-const erSvarPaaVarselet = (s: Pick<Svar, 'gjelder'>, elementer: Record<string, Element>) =>
-  elementer[s.gjelder]?.art === 'varsel';
+const erSvarPaaVarselet = (
+  s: Pick<Svar, 'gjelder' | 'bareVarselet'>,
+  elementer: Record<string, Element>
+) => s.bareVarselet || elementer[s.gjelder]?.art === 'varsel';
 
 /**
  * OV-U4, OV-U16: et brev registrert som dokumentasjon, slik den som registrerte oppga det.
@@ -948,6 +951,11 @@ export interface Sporskontroller {
   ): void;
   /** Svaret `s` mot kravversjonen det gjelder. */
   svaret(s: Svar, krav: Krav, ugyldig: Ugyldig): void;
+  /**
+   * Svaret `s` bare på varselet i kravversjonen det gjelder (VS-U96 punkt 38): standpunktene
+   * gjelder bare varselet, som i svaret på kravet.
+   */
+  svaretBarePaaVarselet(s: Svar, krav: Krav, ugyldig: Ugyldig): void;
   /** Svaret leser TEs opplysning om datoen (`Svarberegning.datoopplysning`). */
   leserDatoen: boolean;
   /** TE kan godta byggherrens gjeldende svar i sporet (`svarIkkeGodtatt`). */
@@ -1237,13 +1245,18 @@ function kontrollerSvarene(
   ugyldig: Ugyldig
 ): void {
   for (const s of alleSvar.values()) {
-    const varselet = varsler.find((v) => v.id === s.gjelder);
+    const varselet = s.bareVarselet ? undefined : varsler.find((v) => v.id === s.gjelder);
     if (varselet) kontrollerSvarPaaVarselet(s, varselet, bakover, ugyldig);
     else if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))
       ugyldig(s.id, 'svaret viser til et krav som ikke står før det i sporet');
     if (s.erstatter !== null) {
       const forrige = alleSvar.get(s.erstatter);
-      if (!forrige || forrige.gjelder !== s.gjelder || !bakover(s.id, s.erstatter))
+      if (
+        !forrige ||
+        forrige.gjelder !== s.gjelder ||
+        forrige.bareVarselet !== s.bareVarselet ||
+        !bakover(s.id, s.erstatter)
+      )
         ugyldig(s.id, 'revisjonen erstatter et svar som ikke står før den på samme krav');
     }
     // #342, HF-U1: et svar på vederlag eller frist viser til påberopelsesversjonen det ble regnet mot.
@@ -1263,7 +1276,10 @@ function kontrollerSvarene(
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, ugyldig);
     const krav = alleKrav.get(s.gjelder);
-    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);
+    if (krav?.spor !== s.spor) continue;
+    // VS-U96 punkt 38 og 39: svaret bare på varselet har bare standpunktene til varselet.
+    if (s.bareVarselet) kontrollerI(s.spor).svaretBarePaaVarselet(s, krav, ugyldig);
+    else kontrollerI(s.spor).svaret(s, krav, ugyldig);
   }
 }
 
@@ -1372,10 +1388,13 @@ function kontrollerStandpunktet(
  */
 function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyldig): void {
   for (const n of SPOR) {
-    const svarene = [...spor[n].svar, ...spor[n].svarPaaVarsler];
-    // Kravpostvarslene fylles i sporet etter kontrollene, så varslene leses av svarene.
-    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));
-    for (const gjelder of [...spor[n].krav.map((k) => k.id), ...varslene]) {
+    // Kravpostvarslene fylles i sporet etter kontrollene, så varslene leses av svarene. Svarene
+    // bare på varselet i en kravversjon er en egen kjede (VS-U96 punkt 38).
+    const kjedene = [
+      ...spor[n].krav.map((k) => ({ gjelder: k.id, svarene: spor[n].svar })),
+      ...new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder)),
+    ].map((x) => (typeof x === 'string' ? { gjelder: x, svarene: spor[n].svarPaaVarsler } : x));
+    for (const { gjelder, svarene } of kjedene) {
       const paaKravet = svarene.filter((s) => s.gjelder === gjelder);
       if (!paaKravet.length) continue;
       const foerste = paaKravet.filter((s) => s.erstatter === null);

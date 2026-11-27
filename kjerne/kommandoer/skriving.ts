@@ -30,7 +30,7 @@ import { foresporselenKravetSvarerPaa } from '../spor/frist/utledning.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
 import { frys } from '../frosset/frysing.ts';
 import type { StandpunktFoer } from '../frosset/standpunkt.ts';
-import { standpunkter, type Svaretsvarsel } from './standpunkter.ts';
+import { standpunkter, type Svaretsvarsel, type VarsleneIKravet } from './standpunkter.ts';
 import { forbeholdetBestrider, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
 import {
   BrevetAvvises,
@@ -209,6 +209,7 @@ function svar(
     id,
     spor: s.spor,
     gjelder: s.gjelder,
+    ...(s.bare_varselet ? { bare_varselet: true } : {}),
     ...(erstatter ? { erstatter } : {}),
     // #342: påberopelsesversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
     ...(bygd.paaberopelse ? { paaberopelse: bygd.paaberopelse.id } : {}),
@@ -691,7 +692,7 @@ function skriv(
   const svarstandpunkter = (
     s: Svarutkast,
     utregning: Data,
-    krav: Krav | Svaretsvarsel,
+    krav: Krav | Svaretsvarsel | VarsleneIKravet,
     paaberopelse: Krav | null
   ) => {
     const lagret = standpunkter(s, krav, u, kontekst.nyId);

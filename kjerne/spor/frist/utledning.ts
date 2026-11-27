@@ -40,6 +40,15 @@ export const KONTROLLER_I_FRISTEN = {
     if (iSvaret.join() !== iKravet.join())
       ugyldig(s.id, 'dagene i svaret er ikke de samme fristene som i kravet');
   },
+  // VS-U96 punkt 38: bare standpunktet til varselet etter § 33.4, og varselet prøver
+  // `kontrollerStandpunktet` i `utledning/utled.ts`.
+  svaretBarePaaVarselet: (s, _, ugyldig) => {
+    if (s.standpunkter.some((p) => p.art !== 'rettidighet' || p.hjemmel !== '33.4'))
+      ugyldig(
+        s.id,
+        'svaret bare på varselet har et annet standpunkt enn til varselet etter § 33.4'
+      );
+  },
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: (s, bakover, ugyldig) => {

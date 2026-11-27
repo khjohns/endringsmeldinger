@@ -9,6 +9,7 @@ import {
   type Dokument,
   type Sakskode,
   type Spor,
+  type Standpunkt,
   type Svar,
   type SvarbarVarselhjemmel,
   type Vederlagsvarselhjemmel,
@@ -137,10 +138,21 @@ export const SVARTITTEL_PAA_VARSELET = {
   '33.4': svartittel('33.4'),
 } as const;
 
-export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter'>) =>
+export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter' | 'bareVarselet'>) =>
   s.spor === 'frist' && svaretGjelderFristvarselet(s)
     ? SVARET_GJELDER['33.4']
-    : SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
+    : s.bareVarselet && new Set(s.standpunkter.map(varseletsHjemmel)).size > 1
+      ? VARSLENE_I_VEDERLAGSKRAVET
+      : SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
+
+/**
+ * VS-U96 punkt 38: svaret bare på varslene etter § 34.3.3 og § 34.4 for flere kravposter i
+ * vederlagskravet. Ordlyden er design.
+ */
+const VARSLENE_I_VEDERLAGSKRAVET = {
+  tittel: 'varslene i krav om vederlagsjustering',
+  del: 'varslene i kravet om vederlagsjustering',
+};
 
 /** Svarene i rekkefølgen de står i brevet og i tittelen: forholdet først (LV-U34, LV-U80). */
 export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly S[]): S[] =>
@@ -150,8 +162,8 @@ export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly
  * Bestemmelsen varselet er gitt etter: rettidigheten, ellers justeringen, som står bare etter
  * § 34.3.3.
  */
-const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): Vederlagsvarselhjemmel => {
-  const p = s.standpunkter.find((x) => x.art === 'rettidighet');
+const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'> | Standpunkt): Vederlagsvarselhjemmel => {
+  const p = 'standpunkter' in s ? s.standpunkter.find((x) => x.art === 'rettidighet') : s;
   return p?.art === 'rettidighet' && erVederlagsvarselhjemmel(p.hjemmel) ? p.hjemmel : '34.3.3';
 };
 

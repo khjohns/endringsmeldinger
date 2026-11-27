@@ -21,8 +21,10 @@ import type { Avvisning, Part } from '../typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
-  // VS-U79, VS-U96 punkt 32: et svar på et varsel som står alene, gjelder varselet.
-  const paaVarselet = (s: { spor: Spor; gjelder: string }) => svaretsVarsel(u, s) !== null;
+  // VS-U79, VS-U96 punkt 32 og 38: et svar på et varsel som står alene, eller bare på varselet i
+  // kravet, gjelder varselet.
+  const paaVarselet = (s: { spor: Spor; gjelder: string; bare_varselet?: true }) =>
+    s.bare_varselet === true || svaretsVarsel(u, s) !== null;
   switch (k.type) {
     case 'krav':
       return [{ type: 'krav', spor: k.spor }];

@@ -34,6 +34,9 @@ export const KONTROLLER_I_FORHOLDET = {
   kravet: () => null,
   kravene: () => {},
   svaret: () => {},
+  // VS-U96 punkt 38: forholdet har ikke noe varsel som besvares bare i kravet.
+  svaretBarePaaVarselet: (s, _, ugyldig) =>
+    ugyldig(s.id, 'svaret på påberopelsen kan ikke gjelde bare varselet'),
   leserDatoen: true,
   // Et frafall av pålegget kan TE ikke godta (GR-U9), så det står ikke som et svar som ikke
   // er godtatt. Unntaket gjelder bare forholdet (arbeidsvalget 20.10 i #1050).

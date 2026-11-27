@@ -321,6 +321,11 @@ export interface Svar {
   dokument: string;
   /** Kravversjonen svaret gjelder. */
   gjelder: string;
+  /**
+   * VS-U96 punkt 38 og 39: svaret gjelder bare varselet i kravversjonen `gjelder`, når kravet selv
+   * er varselet etter § 33.4, § 34.3.3 første ledd eller § 34.4, og er ikke et svar på kravet.
+   */
+  bareVarselet: boolean;
   /** Svaret denne revisjonen erstatter, på samme kravversjon. */
   erstatter: string | null;
   /**
