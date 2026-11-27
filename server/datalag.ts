@@ -324,7 +324,7 @@ interface Frist {
  * kastes, også når arbeidet returnerer en `Tilbakerulling`. COMMIT som er sendt,
  * avbrytes ikke, for da ville et kjent utfall blitt usikkert; den har grensen til
  * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`, og den
- * gjelder alle forsøkene samlet, utenom ventingen på en forbindelse til et nytt forsøk.
+ * gjelder alle forsøkene samlet, fra første lån.
  *
  * Velger serveren transaksjonen som vranglåsoffer (`VRANGLAAS`), er den rullet
  * tilbake, og hele transaksjonen kjøres på nytt med `arbeid` fra begynnelsen, høyst
@@ -342,13 +342,15 @@ export async function transaksjon<T>(
   kontroller(kontekst);
   if (!(frist > 0 && frist <= TRANSAKSJONSFRIST_MS))
     throw new RangeError(`Fristen ${frist} ms er ikke over 0 og høyst ${TRANSAKSJONSFRIST_MS} ms.`);
-  const slutt = Date.now() + frist;
+  let slutt: number | undefined;
+  // Etter lånet, så ventingen på en forbindelse til et nytt forsøk regnes med.
+  const fristEtterLaan = () => (slutt ??= Date.now() + frist) - Date.now();
   for (let forsoek = 1; ; forsoek++) {
     try {
-      return await ettForsoek(pool, kontekst, arbeid, slutt - Date.now());
+      return await ettForsoek(pool, kontekst, arbeid, fristEtterLaan);
     } catch (feil) {
       const pause = 20 + Math.random() * 80 * forsoek;
-      const igjen = slutt - Date.now() - pause;
+      const igjen = (slutt ?? Date.now()) - Date.now() - pause;
       if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil) || igjen < MINSTE_RESTTID_MS)
         throw feil;
       loggFeil('Datalaget: transaksjonen var vranglåsoffer og kjøres på nytt', feil, 'warn', {
@@ -374,14 +376,28 @@ function vranglaasoffer(feil: unknown): boolean {
   return feilnummer(feil) === VRANGLAAS;
 }
 
+/**
+ * Fanget arbeidet en vranglås og fikk en følgefeil fra `mssql` (`ENOTBEGUN`) på neste
+ * forespørsel, er vranglåsen årsaken: den gis som `TransaksjonAvbrutt`, så
+ * transaksjonen prøves på nytt.
+ */
+function etterVranglaas(tx: sql.Transaction, feil: unknown): unknown {
+  const aarsak = (tx as unknown as { _abortReason?: unknown })._abortReason;
+  if (feilnummer(feil) === VRANGLAAS || feilnummer(aarsak) !== VRANGLAAS) return feil;
+  return new TransaksjonAvbrutt('Serveren valgte transaksjonen som vranglåsoffer.', {
+    cause: aarsak,
+  });
+}
+
 async function ettForsoek<T>(
   pool: Pool,
   kontekst: Kontekst,
   arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>,
-  frist: number
+  fristEtterLaan: () => number
 ): Promise<T> {
   const utlaan = pool as unknown as Utlaan;
   const forbindelse = await utlaan.acquire(pool);
+  const frist = fristEtterLaan();
   const forelder = reservasjon(pool, forbindelse);
   const tilstand: Frist = { utloept: false, commitSendt: false };
   const tidtaker = setTimeout(() => {
@@ -460,7 +476,7 @@ async function iTransaksjon<T>(
     svar = await arbeid(foresp);
   } catch (feil) {
     // Med XACT_ABORT har serveren alt rullet tilbake; kontrollen etter nullstillingen bekrefter det.
-    if (avbruttAvServeren) return { feil, avsluttet: true };
+    if (avbruttAvServeren) return { feil: etterVranglaas(tx, feil), avsluttet: true };
     try {
       await tx.rollback();
       return { feil, avsluttet: true };

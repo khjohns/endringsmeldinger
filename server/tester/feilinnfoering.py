@@ -739,6 +739,11 @@ FEILINNFOERINGER = [
     ("S185", "et nytt forsøk etter en vranglås får en ny frist (#555)", "server/datalag.ts",
      " || igjen < MINSTE_RESTTID_MS)\n        throw feil;", ")\n        throw feil;",
      "fristen rekker ikke til et nytt forsøk"),
+    ("S186", "en følgefeil etter en vranglås som arbeidet fanger, erstatter vranglåsen (#555)",
+     "server/datalag.ts",
+     "if (avbruttAvServeren) return { feil: etterVranglaas(tx, feil), avsluttet: true };",
+     "if (avbruttAvServeren) return { feil, avsluttet: true };",
+     "og sender en forespørsel til, som feiler"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

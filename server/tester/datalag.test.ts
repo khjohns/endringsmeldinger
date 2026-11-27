@@ -837,18 +837,35 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     }, 30_000);
 
-    it('vranglåsoffer som arbeidet fanger: serveren har rullet tilbake, og transaksjonen kjøres på nytt', async () => {
-      const { arbeid, ferdig } = motpart();
-      let kall = 0;
-      const svar = await transaksjon(pool, KONTEKST, async (f) => {
-        kall++;
-        if (kall === 1) await arbeid(f).catch(() => undefined);
-        else await f().batch('SET DEADLOCK_PRIORITY NORMAL');
-        return kall;
-      });
-      await ferdig;
-      expect(svar).toBe(2);
-    }, 30_000);
+    it.each([
+      ['og returnerer', false],
+      ['og sender en forespørsel til, som feiler', true],
+    ])(
+      'vranglåsoffer som arbeidet fanger %s: serveren har rullet tilbake, og transaksjonen kjøres på nytt',
+      async (_navn, fortsetter) => {
+        const { arbeid, ferdig } = motpart();
+        let kall = 0;
+        let foelgefeil: unknown;
+        const svar = await transaksjon(pool, KONTEKST, async (f) => {
+          kall++;
+          if (kall === 1) {
+            await arbeid(f).catch(() => undefined);
+            if (fortsetter)
+              await f()
+                .batch('SELECT 1')
+                .catch((e: unknown) => {
+                  foelgefeil = e;
+                  throw e;
+                });
+          } else await f().batch('SET DEADLOCK_PRIORITY NORMAL');
+          return kall;
+        });
+        await ferdig;
+        expect(svar).toBe(2);
+        if (fortsetter) expect(feilnummer(foelgefeil)).not.toBe(VRANGLAAS);
+      },
+      30_000
+    );
 
     it('vranglåsoffer i hvert forsøk: arbeidet kjøres VRANGLAASFORSOEK ganger, og feilen fra siste forsøk kastes', async () => {
       const ider: string[] = [];
