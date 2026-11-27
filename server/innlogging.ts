@@ -33,7 +33,6 @@ import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
 import { fast, feilsvar, svarhoder } from './inngang.ts';
-import { kallgrense, type Kallgrense } from './webhook.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -63,8 +62,8 @@ export interface Innlogging {
   oauth: Innloggingsleverandoer;
   /** Entra-innloggingen (#831). Uten den svarer Entra-inngangene 503. */
   entra?: EntraLeverandoer | null;
-  /** Grensen for innlogginger som startes; uten den `INNLOGGINGER_PER_MINUTT` (#1059). */
-  grense?: Kallgrense;
+  /** Grensen for innlogginger som startes; uten den `innloggingsgrense()` (#1059). */
+  grense?: Innloggingsgrense;
 }
 
 const FORSOEKETS_LEVETID = 600;
@@ -73,19 +72,55 @@ const STOERSTE_RETURSTI = 2048;
 /** `Cache-Control: no-store` settes av ruteren for hvert svar (`svarhoder`). */
 const PRIVAT = { 'Referrer-Policy': 'no-referrer' };
 
+/** Sann når en innlogging fra `adresse` kan startes nå, og telles da. */
+export interface Innloggingsgrense {
+  tillat(adresse: string, naa?: number): boolean;
+}
+
 /**
- * Hvor mange innlogginger som kan startes i minuttet, for Catenda og Entra samlet. Hver start
- * skriver et innloggingsforsøk, og inngangen er åpen (#1059). Kallene telles samlet, som for
- * webhooken (`kallgrense` i `webhook.ts`), fordi adressen bak nginx ikke kan prøves. Med
- * levetiden på 600 s står det høyst 3000 forsøk i basen.
+ * Hver start skriver et innloggingsforsøk, og inngangen er åpen (#1059). Startene telles per
+ * klientadresse i faste minuttvinduer, så én kilde ikke kan stenge ute de andre, og samlet
+ * under et tak for en kilde som kan sette adressen selv. Adressen er `X-Real-IP`, som nginx
+ * overskriver med `$remote_addr` (`nginx.conf`), ellers forbindelsens.
  */
-export const INNLOGGINGER_PER_MINUTT = 300;
-const grenser = new WeakMap<Innlogging, Kallgrense>();
-function innloggingsgrense(innlogging: Innlogging): Kallgrense {
+export const INNLOGGINGER_PER_ADRESSE = 30;
+export const INNLOGGINGER_TOTALT = 3000;
+
+export function innloggingsgrense(
+  perAdresse = INNLOGGINGER_PER_ADRESSE,
+  totalt = INNLOGGINGER_TOTALT
+): Innloggingsgrense {
+  let vindu = -1;
+  let antall = 0;
+  let perKilde = new Map<string, number>();
+  return {
+    tillat(adresse, naa = Date.now()) {
+      const dette = Math.floor(naa / 60_000);
+      if (dette !== vindu) {
+        vindu = dette;
+        antall = 0;
+        perKilde = new Map();
+      }
+      const fra = perKilde.get(adresse) ?? 0;
+      if (antall >= totalt || fra >= perAdresse) return false;
+      antall += 1;
+      perKilde.set(adresse, fra + 1);
+      return true;
+    },
+  };
+}
+
+const grenser = new WeakMap<Innlogging, Innloggingsgrense>();
+function grenseFor(innlogging: Innlogging): Innloggingsgrense {
   if (innlogging.grense) return innlogging.grense;
   let grense = grenser.get(innlogging);
-  if (!grense) grenser.set(innlogging, (grense = kallgrense(INNLOGGINGER_PER_MINUTT)));
+  if (!grense) grenser.set(innlogging, (grense = innloggingsgrense()));
   return grense;
+}
+
+function klientadresse(foresporsel: IncomingMessage): string {
+  const hode = foresporsel.headers['x-real-ip'];
+  return (typeof hode === 'string' && hode) || foresporsel.socket.remoteAddress || '';
 }
 
 /** `validate_config` i `AuthService`: statiske HTTPS-adresser, HTTP bare mot localhost i utvikling. */
@@ -312,8 +347,14 @@ async function loggInn(
     await avvist();
     return utilgjengelig();
   }
-  if (!innloggingsgrense(avh.innlogging).tillat())
-    return feilsvar(429, 'RATE_LIMITED', 'For mange innlogginger. Prøv igjen om et minutt.');
+  if (!grenseFor(avh.innlogging).tillat(klientadresse(foresporsel))) {
+    const [status, kropp] = feilsvar(
+      429,
+      'RATE_LIMITED',
+      'For mange innlogginger. Prøv igjen om et minutt.'
+    );
+    return [status, kropp, { 'Retry-After': '60' }];
+  }
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   try {
     const forsoek = await opprettInnloggingsforsoek(

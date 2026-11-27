@@ -680,7 +680,8 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
            VALUES (@h, @bruker, REPLICATE('a', 64), DATEADD(second, @sekunder, SYSUTCDATETIME()))`
         );
     let ferdig!: () => void;
-    const ryddet = new Promise<void>((ok) => (ferdig = ok));
+    let feilet!: (feil: Error) => void;
+    const ryddet = new Promise<void>((ok, nei) => ((ferdig = ok), (feilet = nei)));
     const loekke = startJobbkjoerer(
       {
         datalag: o.datalag.kjoeretid.pool,
@@ -692,6 +693,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
           info: (linje) => {
             if (JSON.parse(linje).sted === 'Utløpte sesjoner og innloggingsforsøk er slettet')
               ferdig();
+          },
+          error: (linje) => {
+            if (JSON.parse(linje).sted === 'Utløpte sesjoner og innloggingsforsøk ble ikke slettet')
+              feilet(new Error(linje));
           },
         },
       },
@@ -710,6 +715,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
         h: string;
       }>('SELECT token_hash AS h FROM koe.app_sessions WHERE token_hash IN (@a, @b)');
     expect(igjen.recordset.map((r) => r.h)).toEqual([gyldig]);
+    await eier
+      .request()
+      .input('b', sql.Char(64), gyldig)
+      .query('DELETE koe.app_sessions WHERE token_hash = @b');
   });
 
   it('løkka gjør en ny jobb når den vekkes, uten å vente på pollingen', async () => {
