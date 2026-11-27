@@ -5345,7 +5345,7 @@ E1–E6 står som i versjon 1 ([VS-U47](#samlevedtak-spesifisering)).
 
 Teksten under er samlevedtaket [VS-U97](#vs-u97), vedtatt 27.11 av oppdragsgiver (#1534),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-f-utledning-og-passivitet-2026-11-27.md)
-som F1, med svarene 1 A og 2 A. «s3» er tredje setning i posten, og «K» viser til punktene i vurderingen.
+som F1, med svarene 1 A og 2 A. «s3» er tredje setning i vedtaksteksten til posten det vises til, uten «Forkastet», og «K» viser til punktene i vurderingen.
 
 Samlevedtaket er et *vedtak* med designdel. Hver setning har kilden i parentes.
 

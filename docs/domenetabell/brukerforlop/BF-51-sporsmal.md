@@ -88,7 +88,7 @@ sendt utenfor den (OV-U4).
 
 - HF-U11: «Appen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i
   tide, eller at taushet har gitt virkning (MM-U12).» MM-U12 er opphevet av MM-U50.
-- VS-U10 (design): «for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold»
+- VS-U10 (design, opphevet av VS-U97): «for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold»
   etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en fast frist.
   Forkastet: en veiledende frist per prosjekt, og en fast frist på 10 dager»
 - MM-U40 (design, i systemfila): «Varden har ingen arbeidsliste. Siden for saken viser hvilke brev
@@ -100,21 +100,21 @@ sendt utenfor den (OV-U4).
   forholdet. Løsningen sender ingen egen melding om sporet, setter ingen frist og viser ingen
   fristveiledning for totalentreprenørens varsel eller krav i et spor uten varsel eller krav. Den sier
   ikke at en frist er oversittet. Fristveiledningen for svaret på byggherrens forespørsel etter
-  punkt 33.6.2 står som før (VS-U10).»
+  punkt 33.6.2 står som før (VS-U10).» VS-U10 er opphevet av VS-U97.
   *Forhold:* presiserer HF-U11 og MM-U40 for et spor uten varsel eller krav.
 - **B:** «Som A. I tillegg viser siden for sporet datoen forholdet ble påberopt i saken, antall dager
   siden og bestemmelsen for varselet, punkt 33.4 for fristforlengelsen og punkt 34.1.2 for
   vederlagsjusteringen, uten en fast frist og uten å si at fristen er oversittet.»
-  *Forhold:* utvider VS-U10 til en frist som ikke løper fra mottaket av en melding fra motparten.
+  *Forhold:* utvider VS-U10 (opphevet av VS-U97) til en frist som ikke løper fra mottaket av en melding fra motparten.
   Endrer MM-U24 (fristveiledningen står bare ved kravet). Presiserer HF-U11.
 - **C:** «Som A. I tillegg får byggherren en melding når totalentreprenøren ikke har sendt et varsel
   eller et krav i sporet innen et fast antall dager etter at forholdet ble påberopt.»
-  *Forhold:* endrer VS-U10, som forkastet en fast frist, og MM-U40 og MM-U24, som sier at saken
+  *Forhold:* endrer VS-U10 (opphevet av VS-U97), som forkastet en fast frist, og MM-U40 og MM-U24, som sier at saken
   ikke sier hvem som skal handle, og at visningen ikke sier at en part har plikt. Strider mot HF-U11 hvis meldingen leses som at fristen er oversittet.
 
 **Anbefaling: A.** Tilstanden sier det løsningen vet. B regner fra påberopelsen, som kan ligge før
 totalentreprenøren ble klar over virkningen for vederlaget eller fristen, så dagene kan leses som en
-frist løsningen ikke kjenner. C setter en fast frist, som VS-U10 forkastet.
+frist løsningen ikke kjenner. C setter en fast frist, som VS-U10 (opphevet av VS-U97) forkastet.
 
 **Hva valget styrer.** Hva U-5 og U-6 i bestillingen viser byggherren, og om siden for sporet får en
 fristveiledning.
