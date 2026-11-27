@@ -185,11 +185,6 @@ export const VARSELSVARET = haerdet({
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
-  // VS-U87 punkt 32, OV-U89 punkt 13.
-  krevesIkke: 'Ingenting å sende. Punkt 34.1.2 krever ikke varsel. Forkast utkastet.',
-  /** Punktet og panelet, uten noe å velge. */
-  krevesIkkeLinje:
-    'Saken gjelder en endring, og da krever ikke punkt 34.1.2 varsel. Du tar ikke stilling til om varselet kom i tide.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
   /** Med arbeidet etter VS-U87 punkt 27. */
   svar: (h: Vederlagsvarselhjemmel, b?: Brevref, arbeid?: string) =>
@@ -220,6 +215,11 @@ export const FRISTSVAR = haerdet({
   foresporselSpoersmaal: 'Kom svaret på forespørselen om dagene i tide?',
   foresporselITide: 'Svarte i tide',
   foresporselForSent: 'Svarte for sent',
+  // VS-U95: i stedet for spørsmålet om svaret kom i tide, og spørsmålet dekker alle tre valgene.
+  begrunnelseSpoersmaal: 'Hvordan svarte totalentreprenøren på forespørselen om dagene?',
+  begrunnelseIkkeSvar: 'Begrunnelsen er ikke et svar',
+  begrunnelseIkkeSvarForklaring: (b: Brevref | null) =>
+    `Totalentreprenørens begrunnelse${b ? ` i ${brevref(b)}` : ''} er ikke et svar på forespørselen etter punkt 33.6.2 annet ledd.`,
   // KA-U81: spørsmålet og valgene nevner begge vilkårene.
   hindringTittel: 'Hindringen',
   hindringSpoersmaal:
