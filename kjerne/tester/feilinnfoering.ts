@@ -8136,7 +8136,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F807i',
     feilklasse: 'aksepten lagt til tilbys uten et svar som gjaldt på dagen (D-9 i BF-49, OV-U98)',
     fil: `${K}/kommandoer/handlinger.ts`,
-    endringer: [["(h.type !== 'godta' || svarSomGjaldt(u, h.spor!, sendt))", 'true']],
+    endringer: [["(h.type !== 'godta' || svarSomKanGodtas(u, h.spor!, sendt))", 'true']],
     mal: ['aksepten tilbys bare når et svar i sporet var byggherrens gjeldende svar på dagen'],
   },
   {
@@ -8235,6 +8235,32 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et krav fra løsningen med en henvisning til en registrering avvises som form'],
+  },
+  {
+    id: 'F807p',
+    feilklasse:
+      'aksepten lagt til tilbys for et svar partene er enige om (D-9 i BF-49, GR-U8, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        'svaretGjaldt(u, s, dag) && akseptenStrider(s, s.id, u, utenVirkning) === null',
+        'svaretGjaldt(u, s, dag)',
+      ],
+    ],
+    mal: ['aksepten tilbys ikke for et svar partene er enige om'],
+  },
+  {
+    id: 'F807q',
+    feilklasse:
+      'svaret lagt til tilbys for en dag da ingen kravversjon i sporet var gjeldende (D-7 i BF-49, OV-U98, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        "(h.type !== 'svare' && h.type !== 'revidere') || kravversjonGjaldt(u, h.spor!, sendt)",
+        'true',
+      ],
+    ],
+    mal: ['svaret tilbys ikke for en dag da ingen kravversjon'],
   },
 ];
 

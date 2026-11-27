@@ -92,4 +92,54 @@ describe('kategoriene som handlinger for korrespondansen lagt til (G-1 i BF-49)'
     expect(s.u().forstaatt, 'forutsetning').toBe(false);
     expect(noeklene(s, 'TE', dagen)).toEqual(['registrere_brev']);
   });
+  it('svaret tilbys ikke for en dag da ingen kravversjon i sporet var gjeldende, og avvisningen sier det samme (D-7 i BF-49, OV-U98, INV-MM-1)', () => {
+    const { s, dagen } = paaberopt();
+    const foer = '2020-01-01';
+    expect(noeklene(s, 'BH', foer)).not.toContain('svare:forhold');
+    const svaret = (sendt: string) => ({
+      type: 'brev',
+      ...SOM_BREV,
+      sendt,
+      dokumentasjon: [randomUUID()],
+      svar: [
+        svar(
+          'forhold',
+          s.u().spor.forhold.gjeldendeKrav!.id,
+          { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          {},
+          null
+        ),
+      ],
+    });
+    expect(s.avvist('BH', svaret(foer))).not.toBeNull();
+    // Kontrollsak: samme dag som påberopelsen.
+    expect(noeklene(s, 'BH', dagen)).toContain('svare:forhold');
+    expect(s.avvist('BH', svaret(dagen))).toBeNull();
+  });
+
+  it('aksepten tilbys ikke for et svar partene er enige om, og avvisningen sier det samme (D-9 i BF-49, GR-U8, INV-MM-1)', () => {
+    const { s } = paaberopt();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.u().spor.forhold.gjeldendeKrav!.id, {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+    const dag = dagenEtterSisteRad(s);
+    expect(noeklene(s, 'TE', dag)).not.toContain('godta:forhold');
+    expect(
+      s.avvist('TE', {
+        type: 'aksept',
+        spor: 'forhold',
+        svar: s.u().spor.forhold.gjeldendeSvar!.id,
+        regelversjon: KJERNE.regler.versjon,
+        ...SOM_BREV,
+        sendt: dag,
+        dokumentasjon: [randomUUID()],
+      })
+    ).not.toBeNull();
+  });
 });

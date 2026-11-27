@@ -873,10 +873,23 @@ function utsagnetStrider(
   const gjelder = 'gjelder' in x ? x.gjelder : null;
   /** Svaret en aksept gjelder, også et svar utenfor rekken (OV-U103). */
   const svaret = x.art === 'aksept' ? u.svar[x.gjelder]?.svar : undefined;
-  const sporet = svaret?.spor;
   const l = lukket(u);
   if (l) return `${x.art} etter at ${l}`;
   if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
+  return akseptenStrider(svaret, gjelder, u, utenVirkning);
+}
+
+/**
+ * Hvorfor en aksept av svaret strider mot journalen, eller `null`. Tilbudet av en aksept lagt
+ * til leser det samme (`tilbudteLagtTil`, D-9 i BF-49).
+ */
+export function akseptenStrider(
+  svaret: Svar | undefined,
+  gjelder: string | null,
+  u: Utledning,
+  utenVirkning: (id: string | null) => boolean
+): string | null {
+  const sporet = svaret?.spor;
   if (sporet && u.spor[sporet].trukket)
     return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)';
   // GR-U9 også for et frafall i et svar som ikke lenger er gjeldende (#2022 punkt 3).

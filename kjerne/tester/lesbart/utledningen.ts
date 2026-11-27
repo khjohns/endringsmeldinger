@@ -77,7 +77,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'utledning/utled.ts:datoenDetBleSendt',
       // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
-      'utledning/utled.ts:utsagnetStrider',
+      'utledning/utled.ts:akseptenStrider',
       'spor/frist/utledning.ts:fristkravErFremmet',
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',

@@ -71,7 +71,27 @@ export const KOMMANDOENE: Lesbar[] = [
     'varseletsDato',
     ['kommandoer/handlinger.ts:tilbudteLagtTil'],
   ],
-  ['utledning/utled.ts', 'relasjon', 'svaretGjaldt', ['kommandoer/handlinger.ts:svarSomGjaldt']],
+  ['utledning/utled.ts', 'relasjon', 'svaretGjaldt', ['kommandoer/handlinger.ts:svarSomKanGodtas']],
+  // D-7 og D-9 i BF-49, INV-MM-1: tilbudet av korrespondanse lagt til leser det samme som
+  // utledningen: aksepten (GR-U8, GR-U9) og kravversjonen og påberopelsen på dagen (OV-U98).
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'akseptenStrider',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas'],
+  ],
+  [
+    'Utledning',
+    'relasjon',
+    'utenVirkning',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas.utenVirkning'],
+  ],
+  [
+    'Utledning.utenVirkning',
+    'relasjon',
+    'element',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas.utenVirkning'],
+  ],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   // VS-U51, VS-U53: dokumentet kravskjemaet legger til som varselet for en kravpost, skrives
@@ -278,6 +298,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/utkastlag.ts:lageneIUtkastet',
       // D-7 i BF-49: forhåndsvisningen leser påberopelsen på dagen, som kontrollen.
       'spor/vederlag/kommando.ts:lagIVederlaget',
+      'kommandoer/handlinger.ts:kravversjonGjaldt',
     ],
   ],
   // OV-U98, D-7 i BF-49: forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder.
@@ -852,7 +873,7 @@ export const KOMMANDOENE: Lesbar[] = [
     ['utledning/utled.ts'],
   ],
   // GR-U9: en aksept av et frafall, også i et svar som ikke er gjeldende (#2022 punkt 3).
-  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:utsagnetStrider']],
+  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:akseptenStrider']],
   [
     'spor/forhold/format.ts',
     'utsagn',

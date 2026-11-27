@@ -11,7 +11,13 @@ import {
   VARSEL_I_SPORET,
   type Handlingsnoekkel,
 } from './forutsetninger.ts';
-import { svaretGjaldt, varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
+import {
+  akseptenStrider,
+  kravversjonenPaaDagen,
+  svaretGjaldt,
+  varseletFoerBrevet,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { varseletsDato } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typer.ts';
@@ -178,16 +184,29 @@ export function tilbudteLagtTil(
       (h, i) =>
         forutsetninger(kandidatene[i]!, part, u, sendt) === null &&
         (h.type !== 'varsle' || varseletsDato(h.hjemmel!, sendt, u, regler) === null) &&
-        (h.type !== 'godta' || svarSomGjaldt(u, h.spor!, sendt))
+        (h.type !== 'godta' || svarSomKanGodtas(u, h.spor!, sendt)) &&
+        ((h.type !== 'svare' && h.type !== 'revidere') || kravversjonGjaldt(u, h.spor!, sendt))
     );
 }
 
 /**
- * D-9 i BF-49, OV-U98: et svar i sporet var byggherrens gjeldende svar på dagen `dag`, så en aksept
- * lagt til kan gjelde det. Kontrollen av registreringen leser det samme (`registreringenStrider`).
+ * D-9 i BF-49, OV-U98: et svar i sporet var byggherrens gjeldende svar på dagen `dag`, og en aksept
+ * av det strider ikke mot journalen (GR-U8, GR-U9). Utledningen leser det samme
+ * (`registreringenStrider` og `akseptenStrider`).
  */
-const svarSomGjaldt = (u: Utledning, spor: Spor, dag: string): boolean =>
-  [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].some((s) => svaretGjaldt(u, s, dag));
+const svarSomKanGodtas = (u: Utledning, spor: Spor, dag: string): boolean => {
+  const utenVirkning = (id: string | null) => u.utenVirkning.some((x) => x.element === id);
+  return [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].some(
+    (s) => svaretGjaldt(u, s, dag) && akseptenStrider(s, s.id, u, utenVirkning) === null
+  );
+};
+
+/**
+ * D-7 i BF-49, OV-U98: en kravversjon i sporet var gjeldende på dagen `dag`, og påberopelsen var
+ * sendt, som `registreringenStrider` og `kontrollerSvar` krever av et svar lagt til.
+ */
+const kravversjonGjaldt = (u: Utledning, spor: Spor, dag: string): boolean =>
+  kravversjonenPaaDagen(u, spor, dag) !== null && kravversjonenPaaDagen(u, 'forhold', dag) !== null;
 
 export function handlinger(u: Utledning, part: Part): string[] {
   return tilbudte(u, part).map((h) => h.noekkel);
