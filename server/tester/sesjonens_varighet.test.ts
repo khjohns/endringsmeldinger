@@ -177,6 +177,8 @@ describe.skipIf(!TESTBASE_URL)('sesjonens tidsavbrudd og tilbakekalling (#1806)'
     });
 
     it('logger ikke ut på nytt en person som alt er uten rolle', async () => {
+      await synk([person(oid.bh), person(oid.te)]);
+      await synk([person(oid.te)]);
       const ny = await opprettSesjon(kjoeretid(), o.bh.id);
       await synk([person(oid.te)]);
       expect(await sesjonen(ny.token)).toBe(200);

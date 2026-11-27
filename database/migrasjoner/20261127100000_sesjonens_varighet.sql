@@ -86,7 +86,7 @@ BEGIN
      AND (v.ny > DATEADD(second, LEAST(60, @inaktivitet / 10), s.expires_at) OR v.ny < s.expires_at);
 
   SELECT u.id AS bruker, u.email, u.name, s.csrf_token, s.expires_at AS utloeper,
-         DATEDIFF_BIG(second, @klokke, s.expires_at) AS sekunder_igjen
+         DATEDIFF_BIG(millisecond, @klokke, s.expires_at) / 1000 AS sekunder_igjen
     FROM koe.app_sessions s
     JOIN koe.app_users u ON u.id = s.user_id
    WHERE s.token_hash = @token AND s.expires_at > @klokke
