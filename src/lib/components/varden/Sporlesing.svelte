@@ -12,7 +12,11 @@
   import { forseringKanVelges, nesteKravErDetFoerste } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
-  import { arbeidetI, hjemmelenForVarselet } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    arbeidetI,
+    hjemmelenForVarselet,
+    varsleneIVederlagskravet,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -134,7 +138,14 @@
     h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
       ? hjemmelenForVarselet(u, h.gjelder)
       : null;
-  const varselsvarene = $derived(iSporet.filter((h) => h.type === 'svare' && varselhjemmel(h)));
+  // VS-U96 punkt 38: svaret bare på varslene i vederlagskravet, når kravet selv er varselet.
+  const varslene = (h: TilbudtHandling | undefined) =>
+    h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
+      ? varsleneIVederlagskravet(u, h.gjelder)
+      : null;
+  const varselsvarene = $derived(
+    iSporet.filter((h) => h.type === 'svare' && (varselhjemmel(h) || varslene(h)))
+  );
   // Et svar uten skjema står under «Andre handlinger», også det første.
   const svarPaaVarselet = $derived(
     varselsvarene.find((h) => skjemaene.includes(h.noekkel)) ?? null
@@ -329,6 +340,16 @@
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
+    const iKravet = varslene(h);
+    if (iKravet) {
+      const [en, ...flere] = iKravet.poster;
+      const svare = h!.type === 'svare';
+      return en && !flere.length
+        ? (svare ? VARSELSVARET.svar : VARSELSVARET.nyttSvar)(en.hjemmel)
+        : svare
+          ? VARSELSVARET.svarPaaVarslene
+          : VARSELSVARET.nyttSvarPaaVarslene;
+    }
     const v = varselhjemmel(h);
     if (v) {
       const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);

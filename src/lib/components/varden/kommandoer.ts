@@ -37,6 +37,8 @@ import {
   varseletFoer,
   varselhjemmelFor,
   type VarseletAlene,
+  type VarseletIPosten,
+  type VarsleneIVederlagskravet,
 } from '#lib/kjernesak/vederlagskrav.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
@@ -464,6 +466,79 @@ export function varselsvaret(
   };
   return varselet.forrigeSvar
     ? { type: 'revisjon', erstatter: varselet.forrigeSvar, svar }
+    : { type: 'brev', svar: [svar] };
+}
+
+/** Det BH har valgt for varselet i én kravpost i svaret bare på varslene (VS-U96 punkt 38). */
+export interface Postvarselvalg {
+  varsletITide: boolean | null;
+  /** Bare for varselet etter § 34.3.3 (VS-U96 punkt 30). */
+  godtarJustering: boolean | null;
+}
+
+/** Det BH har valgt i svaret bare på varslene i vederlagskravet, per kravpost (VS-U96 punkt 38). */
+export interface Varslenesvalg {
+  poster: Record<string, Postvarselvalg>;
+  begrunnelser: Record<string, string>;
+  forbehold: string;
+}
+
+export const tomtVarslenesvar = (): Varslenesvalg => ({
+  poster: {},
+  begrunnelser: {},
+  forbehold: '',
+});
+
+export const postvarselvalget = (v: Varslenesvalg, post: string): Postvarselvalg =>
+  v.poster[post] ?? { varsletITide: null, godtarJustering: null };
+
+/** Standpunktet til varselet for kravposten i valget, regnet som for kravposten i svaret på kravet. */
+export const varseletIPosten = (v: Varslenesvalg, p: VarseletIPosten): boolean | null =>
+  standpunktetIValget(
+    postvarselvalget(v, p.post.id).varsletITide,
+    p.foer?.iTide === false,
+    p.hjemmel === '34.4'
+  );
+
+/**
+ * BHs svar bare på varslene i vederlagskravet der kravet selv er varselet, eller et nytt svar som
+ * erstatter det forrige (VS-U96 punkt 33 og 38, svaret på spørsmål 3 i #2456): kravversjonen i
+ * `gjelder`, `bare_varselet` og standpunktet til hver kravpost BH har tatt stilling til. Svaret har
+ * ikke noe resultat. Begrunnelsen står bare for `punktene` brevet har, som i `svarbrevet`.
+ */
+export function varslenesvaret(
+  v: Varslenesvalg,
+  varslene: Pick<VarsleneIVederlagskravet, 'kravversjon' | 'poster' | 'forrigeSvar'>,
+  regler: Regelsett,
+  punktene: readonly string[] = []
+):
+  | { type: 'brev'; svar: Svarutkast[] }
+  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
+  const kravposter = varslene.poster.flatMap((p) => {
+    const iTide = varseletIPosten(v, p);
+    const justering =
+      p.hjemmel === '34.3.3' ? postvarselvalget(v, p.post.id).godtarJustering : null;
+    return iTide === null && justering === null
+      ? []
+      : [
+          definert({
+            gjelder: p.post.id,
+            varslet_i_tide: iTide ?? undefined,
+            godtar_justering: justering ?? undefined,
+          }),
+        ];
+  });
+  const svar: Svarutkast = {
+    spor: 'vederlag',
+    gjelder: varslene.kravversjon,
+    bare_varselet: true,
+    regelversjon: regler.versjon,
+    vurderinger: { kravposter } as unknown as Svarvurdering,
+    resultat: {},
+    ...utdypningene(v, punktene),
+  };
+  return varslene.forrigeSvar
+    ? { type: 'revisjon', erstatter: varslene.forrigeSvar, svar }
     : { type: 'brev', svar: [svar] };
 }
 

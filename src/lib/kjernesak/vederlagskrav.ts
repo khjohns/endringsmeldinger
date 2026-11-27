@@ -305,6 +305,13 @@ export interface VarseletIPosten {
   foer: StandpunktTilVarselet | null;
 }
 
+/** Varslene i vederlagskravet byggherren kan svare bare på (`varsleneIVederlagskravet`). */
+export interface VarsleneIVederlagskravet {
+  kravversjon: string;
+  poster: VarseletIPosten[];
+  forrigeSvar: string | null;
+}
+
 /**
  * Kravpostene i vederlagskravet `gjelder` byggherren kan svare bare på varselet for, i rekkefølgen
  * i kravet, og det forrige svaret bare på varselet, som et nytt svar erstatter (VS-U96 punkt 33 og
@@ -313,7 +320,7 @@ export interface VarseletIPosten {
 export function varsleneIVederlagskravet(
   u: Utledning,
   gjelder: string
-): { kravversjon: string; poster: VarseletIPosten[]; forrigeSvar: string | null } | null {
+): VarsleneIVederlagskravet | null {
   const v = svaretsVarsel(u, { spor: 'vederlag', gjelder, bare_varselet: true });
   const krav = u.spor.vederlag.krav.find((k) => k.id === gjelder);
   if (!v || !('poster' in v) || !krav) return null;

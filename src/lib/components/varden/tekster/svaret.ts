@@ -1,7 +1,15 @@
 import { opplistet, PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
+import { SVARTITTEL_PAA_VARSELET, svaretGjelder } from '#kjerne/frosset/brevtittel.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Kravpost, Oppgjoersform, Part, SvarbarVarselhjemmel } from '#kjerne/typer.ts';
+import type {
+  Kravpost,
+  Kravpostvarselhjemmel,
+  Oppgjoersform,
+  Part,
+  Svar,
+  SvarbarVarselhjemmel,
+} from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
@@ -203,6 +211,25 @@ export const VARSELSVARET = haerdet({
   endreDem: 'Vil du endre dem, sender du et nytt svar på kravet.',
   svaretI: (b: Brevref) => `Svaret i ${brevref(b)}`,
   nyttSvarPaaKravet: 'Nytt svar på kravet',
+  // VS-U96 punkt 38 og 39: svaret bare på varslene i vederlagskravet, per kravpost.
+  bareVarslene: 'Du svarer bare på varslene. Du tar stilling til kravet i et senere svar.',
+  manglerPost: 'Ta stilling til varselet for minst én kravpost.',
+  svarPaaVarslene: 'Svar på varslene i kravet',
+  /**
+   * Tittelen kjernen gir svaret bare på varslene: varselet for én kravpost, ellers varslene i
+   * kravet (`svaretGjelder`).
+   */
+  tittel: (poster: readonly { id: string; hjemmel: Kravpostvarselhjemmel }[]) =>
+    poster.length === 1
+      ? SVARTITTEL_PAA_VARSELET[poster[0]!.hjemmel]
+      : `Svar på ${
+          svaretGjelder({
+            spor: 'vederlag',
+            bareVarselet: true,
+            standpunkter: poster.map((p) => ({ gjelder: p.id })),
+          } as unknown as Pick<Svar, 'spor' | 'standpunkter' | 'bareVarselet'>).tittel
+        }`,
+  nyttSvarPaaVarslene: 'Nytt svar på varslene i kravet',
 });
 
 /**
