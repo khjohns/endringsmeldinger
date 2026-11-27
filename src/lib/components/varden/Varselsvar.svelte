@@ -13,6 +13,7 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
     erSvarPaaVarsel,
+    iKjedenTil,
     varseletFoerBrevet,
     type VarseletAlene,
   } from '#lib/kjernesak/vederlagskrav.ts';
@@ -29,6 +30,7 @@
   import {
     kravetIKortform,
     tomtVarselsvar,
+    utenTekster,
     varselsvaret,
     varseletISvaret,
     type Varselsvalg,
@@ -83,7 +85,8 @@
 
   const hjemmel = $derived(varselet.hjemmel);
   const spor = $derived(VARSELSPOR[hjemmel]);
-  const varselbrevet = $derived(brevMedUtsagn(u, varselet.id));
+  // Brevet svaret gjelder: kravversjonen når kravet selv er varselet (VS-U96 punkt 38).
+  const varselbrevet = $derived(brevMedUtsagn(u, varselet.kravversjon ?? varselet.id));
   const foer = $derived(
     varselet.foer && {
       iTide: varselet.foer.iTide,
@@ -91,12 +94,10 @@
       ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, varselet.foer.dokument),
     }
   );
-  const utenTekster = (v: Varselsvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
-  // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn (#1925).
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
-    const s = etter?.spor[spor].svarPaaVarsler.findLast((x) => x.gjelder === varselet.id);
+    const s = etter?.spor[spor].svarPaaVarsler.findLast(iKjedenTil(varselet));
     // Svaret sendes fra løsningen, så det fryses med det gjeldende svaret på forholdet
     // (`svaretPaaForholdetPaaDagen` uten dag, OV-U32).
     return s && s.id !== varselet.forrigeSvar
