@@ -541,8 +541,16 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
       utledJournal(senere, KJERNE).spor.frist.gjeldendeKrav!.erstatter,
       'forutsetning'
     ).not.toBeNull();
-    await svarskjemaet(senere, reaktiv({ ...tomtFristsvar(), begrunnelseIkkeSvar: true }));
+    const valg = reaktiv({ ...tomtFristsvar(), begrunnelseIkkeSvar: true });
+    const sendt = await svarskjemaet(senere, valg);
     expect(screen.getByRole('radio', { name: 'Svarte i tide' })).toBeInTheDocument();
     expect(ikkeSvar()).toBeNull();
+    // Valget fra utkastet nullstilles og sendes ikke.
+    expect(valg.begrunnelseIkkeSvar).toBe(false);
+    await svarPaaResten();
+    await radio('Svarte i tide');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(vurderingen(sendt)).not.toHaveProperty('begrunnelse_ikke_svar');
   });
 });
