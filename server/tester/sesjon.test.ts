@@ -201,6 +201,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       ['uten tidsavbrudd', 3600, null],
       ['med tidsavbrudd under ett minutt', 3600, 59],
       ['med tidsavbrudd over levetiden', 3600, 3601],
+      ['med levetid over et døgn', 86401, 3600],
     ])('basen avviser opprettelsen og lesingen %s', async (_navn, levetid, inaktivitet) => {
       const med = (r: sql.Request) =>
         r.input('levetid', sql.Int, levetid).input('inaktivitet', sql.Int, inaktivitet);
