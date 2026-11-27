@@ -8460,6 +8460,22 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['leseren: en retting som ikke står alene i brevet, gjør saken ikke forstått'],
   },
+  {
+    id: 'F1309n',
+    feilklasse:
+      'varseldatoen etter punkt 32.2 kan rettes til en dag etter påberopelsen (VS-U38, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["(d.hjemmel === '32.2' ? varseletEtter322(ny, u, regler) : null)", 'null']],
+    mal: ['varseldatoen rettes ikke til en dag etter påberopelsen, og samme dag godtas'],
+  },
+  {
+    id: 'F1309o',
+    feilklasse:
+      'en påberopelse lagt til kan rettes til en dag før varselet etter punkt 32.2 (VS-U38, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (varslet !== null && ny < varslet)', 'if (false)']],
+    mal: ['påberopelsen rettes ikke til en dag før varselet, og samme dag godtas'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

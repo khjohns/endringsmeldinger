@@ -363,7 +363,7 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U26](../../plans/vedtak.md#vs-u26) | — | BF-05 start | BF-10 |
 | [VS-U27](../../plans/vedtak.md#vs-u27) | — | — | BF-07 |
 | [VS-U34](../../plans/vedtak.md#vs-u34) | — | BF-05 start | BF-14 |
-| [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start, BF-49 te-aapner-traaden | BF-14 |
+| [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start, BF-49 te-aapner-traaden, BF-50 te-har-lagt-til-varselet-og-kravet | BF-14 |
 | [VS-U39](../../plans/vedtak.md#vs-u39) | — | BF-05 start | — |
 | [VS-U40](../../plans/vedtak.md#vs-u40) | BF-49 te-aapner-traaden | BF-49 te-aapner-traaden | — |
 | [VS-U48](../../plans/vedtak.md#vs-u48) | — | — | BF-14 |

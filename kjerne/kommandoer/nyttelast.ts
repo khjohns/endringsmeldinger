@@ -365,8 +365,9 @@ const detSomRettesHeter = (d: DetSomRettes): string =>
   d.art === 'varsel' ? `varselet etter punkt ${d.hjemmel}` : DET_SOM_RETTES[d.element.spor];
 
 /**
- * D-7 i BF-50: rettingen av datoen avvises når datoen er den som gjelder, og når en varseldato for
- * et varsel om forholdet er før datoen i påberopelsen (MM-U63, VS-U58). Arbeidsvalget i D-7:
+ * D-7 i BF-50: rettingen av datoen avvises når datoen er den som gjelder, når en varseldato for
+ * et varsel om forholdet er før datoen i påberopelsen (MM-U63, VS-U58), og når varselet etter
+ * § 32.2 da blir senere enn påberopelsen (VS-U38). Arbeidsvalget i D-7:
  * det samme gjelder en kravdato for et krav som er det første varselet løsningen kjenner (VS-U86).
  * Datoen etter brevets dato avvises i `oppgittDatoEtterBrevet`.
  */
@@ -392,7 +393,18 @@ function kontrollerRettingen(
       `Datoen som gjelder for ${hva}, er alt ${norskDato(ny)}. Rettingen må oppgi en annen dato.`
     );
   if (d.art === 'varsel')
-    return erVarselOmForholdet(d.hjemmel) ? varseletFoerGrunnlagsdatoen(d.hjemmel, ny, u) : null;
+    return erVarselOmForholdet(d.hjemmel)
+      ? (varseletFoerGrunnlagsdatoen(d.hjemmel, ny, u) ??
+          (d.hjemmel === '32.2' ? varseletEtter322(ny, u, regler) : null))
+      : null;
+  // VS-U38: varselet etter § 32.2 kan ikke være senere enn påberopelsen, også etter rettingen.
+  const varselet = d.element.spor === 'forhold' ? u.spor.forhold.varsler['32.2'] : undefined;
+  const varslet = varselet ? datoenSomGjelder(u, varselet) : null;
+  if (varslet !== null && ny < varslet)
+    return avvis(
+      'VARSEL_ETTER_PAABEROPELSEN',
+      `Den nye datoen for ${hva}, ${norskDato(ny)}, er før varselet etter punkt 32.2, som er oppgitt sendt ${norskDato(varslet)}. Varselet kan ikke være sendt etter påberopelsen.`
+    );
   const grunnlag = grunnlagsdatoen(u);
   if (grunnlag === null || ny >= grunnlag.dag) return null;
   const varsler = VARSLER_OM_FORHOLDET.find((h) =>

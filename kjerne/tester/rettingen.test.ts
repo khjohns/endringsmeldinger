@@ -413,3 +413,42 @@ describe('tilbudet (G-7 i BF-50, INV-MM-1)', () => {
     expect(s.avvist('TE', retting(s.krav('forhold'), '2026-09-28'))).toBe('UGYLDIG_HENVISNING');
   });
 });
+
+describe('VS-U38: varselet etter punkt 32.2 er ikke senere enn påberopelsen etter rettingen (D-7 i BF-50)', () => {
+  /** Påberopelsen lagt til, sendt 30. september, og varselet etter § 32.2 lagt til, sendt 28. september. */
+  function medPaaberopelsenLagtTil() {
+    const s = sak();
+    const paaberopelsen = kravet(
+      s.send('TE', {
+        type: 'krav',
+        spor: 'forhold',
+        innhold: PAABEROPELSE.innhold,
+        sendt: '2026-09-30',
+        ...SOM_BREV,
+        dokumentasjon: [randomUUID()],
+      })
+    );
+    const varselet = utsagnet(s.send('TE', registrer('32.2', '2026-09-28')));
+    return { s, paaberopelsen, varselet };
+  }
+
+  it('varseldatoen rettes ikke til en dag etter påberopelsen, og samme dag godtas', () => {
+    const { s, varselet } = medPaaberopelsenLagtTil();
+    expect(s.avvisning('TE', retting(varselet, '2026-10-01'))).toEqual({
+      regel: 'VARSEL_ETTER_PAABEROPELSEN',
+      melding:
+        'Varselet etter punkt 32.2 er oppgitt sendt 1. oktober 2026, etter påberopelsen av forholdet, som ble sendt 30. september 2026.',
+    });
+    expect(s.avvist('TE', retting(varselet, '2026-09-30'))).toBeNull();
+  });
+
+  it('påberopelsen rettes ikke til en dag før varselet, og samme dag godtas', () => {
+    const { s, paaberopelsen } = medPaaberopelsenLagtTil();
+    expect(s.avvisning('TE', retting(paaberopelsen, '2026-09-27'))).toEqual({
+      regel: 'VARSEL_ETTER_PAABEROPELSEN',
+      melding:
+        'Den nye datoen for påberopelsen av forholdet, 27. september 2026, er før varselet etter punkt 32.2, som er oppgitt sendt 28. september 2026. Varselet kan ikke være sendt etter påberopelsen.',
+    });
+    expect(s.avvist('TE', retting(paaberopelsen, '2026-09-28'))).toBeNull();
+  });
+});

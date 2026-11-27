@@ -200,6 +200,12 @@
             "MM-U59",
             "OV-U123"
           ]
+        },
+        {
+          "tekst": "TE ser at varseldatoen etter punkt 32.2 ikke kan rettes til en dag etter påberopelsen, og at påberopelsen ikke kan rettes til en dag før varselet.",
+          "kilde": [
+            "VS-U38"
+          ]
         }
       ]
     },
