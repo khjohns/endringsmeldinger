@@ -36,7 +36,7 @@ import {
   type UbesvartIVederlaget,
   type Vederlagssvar,
 } from '../../regler/vederlag.ts';
-import { hjemmelenGjelder, type Svarvurdering } from '../../frosset/byggeklosser.ts';
+import type { Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   denAndreRegelen,
   harProduktivitetspost,
@@ -85,6 +85,7 @@ import {
   kravversjoneneKravetProevesMot,
   paaberopelseFor,
   varseletFoerBrevet,
+  varselEtter3412KrevesIkke,
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -291,10 +292,9 @@ const VARSLINGSPLIKTEN_GJELDER_IKKE = avvis(
 );
 
 /**
- * VS-U87 punkt 33: det som hindrer byggherrens svar på varselet `gjelder` som står alene, eller et
- * nytt svar som erstatter det forrige (`hva`). Byggherren kan svare så lenge ingen sendt
- * kravversjon har det varselet gjelder. Et svar lagt til, sendt på dagen
- * `sendt`, prøves mot kravene sendt før den dagen (OV-U98).
+ * VS-U96 punkt 33: det som hindrer byggherrens svar på varselet `gjelder` som står alene, eller et
+ * nytt svar som erstatter det forrige (`hva`). Et svar lagt til, sendt på dagen `sendt`, prøves mot
+ * byggherrens svar på kravene sendt til og med den dagen (OV-U98).
  */
 export function hindrerSvaretPaaVarselet(
   u: Utledning,
@@ -309,40 +309,50 @@ export function hindrerSvaretPaaVarselet(
       'INGEN_VARSEL',
       `${hva} må gjelde et varsel etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4 fra totalentreprenøren.`
     );
+  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
+  if (varselet.hjemmel === '34.1.2' && varselEtter3412KrevesIkke(u, sendt))
+    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
   if (hva === 'Svaret' && forrige)
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
-  // Kravversjonen som har det varselet gjelder: kravposten som viser til varselet etter § 34.3.3
-  // eller § 34.4, vederlagskravet for § 34.1.2 og den særskilte vederlagsjusteringen for § 34.1.3.
-  const besvaresIKravet = [...dokumenterI(u.journal)].some((d) =>
-    d.krav.some(
-      (k) =>
-        k.spor === 'vederlag' &&
+  // VS-U96 punkt 33: byggherrens svar med virkning på kravversjonene med det varselet gjelder.
+  const dokumentene = [...dokumenterI(u.journal)];
+  const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
+  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+  const besvartIKravet = dokumentene.some((d) =>
+    d.svar.some((x) => {
+      const k = kravene.get(x.gjelder);
+      return (
+        medVirkning.has(x.id) &&
+        k?.spor === 'vederlag' &&
         (varselet.hjemmel === '34.1.2' ||
           (varselet.hjemmel === '34.1.3'
             ? harProduktivitetspost(k)
-            : kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder))) &&
-        (sendt === null || !foerDagen(sendt, dagenSendt({ id: k.id, dokument: d.id }, d) ?? ''))
-    )
+            : kravposterI(k).some((p) => {
+                // VS-U96 punkt 23: uten valg i versjonen står valget i den forrige.
+                const i = sporet.krav.findIndex((v) => v.id === k.id);
+                for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
+                  const q = kravposterI(v).find((x) => x.id === p.id);
+                  if (q?.varsel !== undefined) return varseletPostenViserTil(q) === gjelder;
+                }
+                return false;
+              }))) &&
+        (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
+      );
+    })
   );
-  if (!besvaresIKravet) return null;
-  const ikke = `${hva} kan ikke gjelde varselet, fordi`;
-  if (varselet.hjemmel === '34.1.2')
-    return avvis(
-      'VEDERLAGSKRAV_SENDT',
-      `${ikke} vederlagskravet er sendt. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
-    );
-  if (varselet.hjemmel === '34.1.3')
-    return avvis(
-      'VARSELET_GJELDER_ET_SENDT_KRAV',
-      `${ikke} en sendt kravversjon har den særskilte vederlagsjusteringen. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
-    );
+  if (!besvartIKravet) return null;
+  const ikke = `${hva} kan ikke gjelde varselet, fordi byggherren har svart på`;
   return avvis(
-    'VARSELET_GJELDER_EN_KRAVPOST',
-    `${ikke} en sendt kravversjon har en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
+    'KRAVET_ER_BESVART',
+    varselet.hjemmel === '34.1.2'
+      ? `${ikke} vederlagskravet. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
+      : varselet.hjemmel === '34.1.3'
+        ? `${ikke} en kravversjon med den særskilte vederlagsjusteringen. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
+        : `${ikke} en kravversjon med en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
   );
 }
 
@@ -400,13 +410,8 @@ export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
   varselet: Svaretsvarsel,
   u: Utledning,
-  sendt: string | null,
-  paaberopelse: Krav,
-  regler: Regelsett
+  sendt: string | null
 ): Avvisning | null {
-  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
-  if (varselet.hjemmel === '34.1.2' && !hjemmelenGjelder('34.1.2', paaberopelse, regler))
-    return VARSLINGSPLIKTEN_GJELDER_IKKE;
   const staar = standpunkteneTilVarslene(u, sendt, true).some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );
