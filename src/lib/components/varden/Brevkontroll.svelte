@@ -30,8 +30,8 @@
     kommando: Record<string, unknown>;
     virkninger: string[];
     /**
-     * Innleggene som viser til brevet aksepten gjelder, med overskriften. De inngår ikke i det
-     * som godtas (D-8 og U-7 i BF-03, MM-U47 punkt 4).
+     * Innleggene som viser til brevet aksepten gjelder, med overskriften. Utfallet leser bare
+     * standpunktene i svaret (D-8 og U-7 i BF-03, MM-U47 punkt 4).
      */
     innleggene?: { tittel: string; rader: string[] } | null;
   };

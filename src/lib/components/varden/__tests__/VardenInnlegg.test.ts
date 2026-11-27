@@ -132,7 +132,7 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     expect(within(liste).getByText(/^Brev 5 · Totalentreprenøren · .* · Varselet kom i tide$/));
     expect(
       screen.getByText(
-        'Innlegget inngår ikke i aksepten. Aksepten frafaller ikke andre krav eller innsigelser.'
+        'Løsningen leser bare standpunktene i svaret, ikke innlegget. Aksepten frafaller ikke andre krav eller innsigelser.'
       )
     ).toBeVisible();
   });

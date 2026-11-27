@@ -387,7 +387,7 @@
       kommando,
       kanIkkeLages: STILLING.godta,
       tilBrevkontrollen: (brevet) => {
-        // D-8 i BF-03: innleggene som viser til svaret, uten tolkning. De inngår ikke i aksepten.
+        // D-8 i BF-03: innleggene som viser til svaret, uten tolkning. Utfallet leser bare standpunktene.
         const innlegg = svarbrevet ? innleggSomViserTil(alleBrev, svarbrevet.id) : [];
         onakseptbrev({
           kommando,

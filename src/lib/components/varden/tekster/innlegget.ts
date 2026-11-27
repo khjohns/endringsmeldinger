@@ -69,5 +69,5 @@ export const INNLEGGET = haerdet({
   innleggsrad: (b: Brevet) =>
     `${brevrefStor(b)} · ${stor(PARTEN[b.avsender])} · ${dato(b.registrert)} · ${TRAADEN.hva(b)}`,
   inngaarIkke: (antall: number) =>
-    `${antall === 1 ? 'Innlegget inngår' : 'Innleggene inngår'} ikke i aksepten. Aksepten frafaller ikke andre krav eller innsigelser.`,
+    `Løsningen leser bare standpunktene i svaret, ikke ${antall === 1 ? 'innlegget' : 'innleggene'}. Aksepten frafaller ikke andre krav eller innsigelser.`,
 });
