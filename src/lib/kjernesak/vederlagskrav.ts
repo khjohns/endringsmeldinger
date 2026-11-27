@@ -14,6 +14,7 @@ import {
   type Krav,
   type Kravpost,
   type Kravpostvarselhjemmel,
+  type Svar,
   type SvarbarVarselhjemmel,
   VARSELSPOR,
 } from '#kjerne/typer.ts';
@@ -222,13 +223,24 @@ export interface VarseletAlene {
   kravversjon: string | null;
 }
 
-/** Kjeden av svar et nytt svar på varselet hører til, som kjernen leser den (`svarkjeden`). */
-export const kjedenFor = (varselet: VarseletAlene) =>
-  svarkjeden({
-    spor: VARSELSPOR[varselet.hjemmel],
-    gjelder: varselet.kravversjon ?? varselet.id,
-    bareVarselet: varselet.kravversjon !== null,
-  });
+/**
+ * Om svaret `s` er i kjeden av svar et nytt svar på varselet hører til, som kjernen leser den
+ * (`svarkjeden`, VS-U96 punkt 33 og 38).
+ */
+export const iKjedenTil =
+  (varselet: Pick<VarseletAlene, 'id' | 'hjemmel' | 'kravversjon'>) =>
+  (s: Pick<Svar, 'spor' | 'gjelder' | 'bareVarselet'>) =>
+    svarkjeden(s) ===
+    svarkjeden({
+      spor: VARSELSPOR[varselet.hjemmel],
+      gjelder: varselet.kravversjon ?? varselet.id,
+      bareVarselet: varselet.kravversjon !== null,
+    });
+
+/** Om svaret `s` er i kjeden av svar bare på varslene i vederlagskravet `kravversjon`. */
+export const iKjedenTilVarslene =
+  (kravversjon: string) => (s: Pick<Svar, 'spor' | 'gjelder' | 'bareVarselet'>) =>
+    svarkjeden(s) === svarkjeden({ spor: 'vederlag', gjelder: kravversjon, bareVarselet: true });
 
 /**
  * Om brevet `dokument` er et svar på et varsel som står alene. Innsigelsen etter § 34.4 der sa at
@@ -337,11 +349,9 @@ export function varsleneIVederlagskravet(
         ]
       : [];
   });
-  const kjeden = svarkjeden({ spor: 'vederlag', gjelder, bareVarselet: true });
   return {
     kravversjon: gjelder,
     poster,
-    forrigeSvar:
-      u.spor.vederlag.svarPaaVarsler.findLast((s) => svarkjeden(s) === kjeden)?.id ?? null,
+    forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast(iKjedenTilVarslene(gjelder))?.id ?? null,
   };
 }

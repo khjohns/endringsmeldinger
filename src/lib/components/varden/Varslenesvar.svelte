@@ -9,8 +9,12 @@
 <script lang="ts">
   import { FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { VarseletIPosten, VarsleneIVederlagskravet } from '#lib/kjernesak/vederlagskrav.ts';
-  import { svarkjeden, type Utledning } from '#kjerne/utledning/utled.ts';
+  import {
+    iKjedenTilVarslene,
+    type VarseletIPosten,
+    type VarsleneIVederlagskravet,
+  } from '#lib/kjernesak/vederlagskrav.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -63,15 +67,14 @@
   const uid = $props.id();
 
   const kravbrevet = $derived(brevMedUtsagn(u, varslene.kravversjon));
-  const kjeden = $derived(
-    svarkjeden({ spor: 'vederlag', gjelder: varslene.kravversjon, bareVarselet: true })
-  );
   const utenTekster = (v: Varslenesvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn (#1925).
   const utkast = $derived(varslenesvaret(utenTekster(valg), varslene, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
-    const s = etter?.spor.vederlag.svarPaaVarsler.findLast((x) => svarkjeden(x) === kjeden);
+    const s = etter?.spor.vederlag.svarPaaVarsler.findLast(
+      iKjedenTilVarslene(varslene.kravversjon)
+    );
     // Svaret sendes fra løsningen, så det fryses med det gjeldende svaret på forholdet (OV-U32).
     return s && s.id !== varslene.forrigeSvar
       ? standpunktene(s, etter!, etter!.spor.forhold.gjeldendeSvar)
