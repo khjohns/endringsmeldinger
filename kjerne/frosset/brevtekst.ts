@@ -1071,6 +1071,14 @@ function beskriv(id: string, j: Journalen): string {
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
 
+/** Varselet eller kravet en retting gjelder (U-3 i BF-50), uten brevet det står i. */
+function detSomRettes(id: string, j: Journalen): string {
+  const e = j.element(id);
+  if (e.art === 'utsagn' && e.utsagn.art === 'varsel') return VARSELET_I_SVARET[e.utsagn.hjemmel];
+  if (e.art === 'krav') return brevtekstI(e.krav.spor).svaretGjelder(e.krav);
+  throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
+}
+
 /**
  * Det registrerte varselet etter § 32.2 har ingen brevtekst ennå: teksten når et svar viser
  * til det, venter på S-4 i #807, og fra løsningen er påberopelsen varselet (GR-U31).
@@ -1190,8 +1198,19 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
           : []),
       ].join(' ');
     }
-    case 'retting':
-      throw new KanIkkeUttrykkes('brevet med rettingen av datoen er ikke bygget (G-8 i BF-50)');
+    case 'retting': {
+      // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59), U-3 og D-9 i BF-50: den nye
+      // datoen, varselet eller kravet med henvisningen, og datoen som gjaldt da rettingen ble
+      // sendt. Brevet sier ikke virkningen. Ordlyden er design.
+      const dokument = j.dokumentetTil(u.gjelder);
+      const rettet = saken.rettetDato[u.gjelder];
+      const sendt = dagenSendt({ id: u.gjelder, dokument }, j.dokumentMed(u.gjelder)!);
+      if (sendt === null) throw new KanIkkeUttrykkes(`datoen for ${u.gjelder} kan ikke leses`);
+      const gjaldt = rettet
+        ? `${norskDato(rettet.dato)}, etter rettingen i ${j.brevet(rettet.dokument)}`
+        : norskDato(sendt);
+      return `Totalentreprenøren retter datoen for ${detSomRettes(u.gjelder, j)} i ${j.brevet(dokument)} til ${norskDato(u.dato)}. Datoen som gjaldt, var ${gjaldt}.`;
+    }
     case 'innlegg':
       // MM-U47 punkt 2 og LV-U53: henvisningen, og partens tekst følger som utdypningen.
       return `${part} viser til ${j.brevet(u.gjelder)}:`;

@@ -17,7 +17,7 @@ import { kalenderdag } from '../format/leser.ts';
 import { nyttelastkontroll, oppgittDatoEtterBrevet, type Svarstandpunkter } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import { avvis, type Avvisning, type Part } from '../typer.ts';
+import type { Avvisning, Part } from '../typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er én handling per svar. */
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
@@ -90,13 +90,6 @@ export function avvisning(
   }
   return (
     nyttelastkontroll(k, part, u, regler, svarstandpunkter, sendt, utdypningKreves) ??
-    oppgittDatoEtterBrevet(k, brevetsDato) ??
-    // G-8 i BF-50: brevet med rettingen av datoen er ikke bygget ennå.
-    (k.type === 'retting'
-      ? avvis(
-          'IKKE_I_FOERSTE_VERSJON',
-          'Rettingen av datoen kan ikke sendes ennå, fordi løsningen ikke kan lage brevet med rettingen.'
-        )
-      : null)
+    oppgittDatoEtterBrevet(k, brevetsDato)
   );
 }

@@ -384,6 +384,8 @@ export const FORMATET: Lesbar[] = [
     'dagenSendt',
     [
       'utledning/utled.ts:datoenDetBleSendt',
+      // D-9 i BF-50: datoen som gjaldt da rettingen ble sendt, uten en tidligere retting.
+      'frosset/brevtekst.ts:utsagnstekst',
       // VS-U77 punkt 9 og 12: dagen et svar med standpunktet til varselet for kravposten ble sendt.
       'frosset/brevtekst.ts:innsigelsenFoer',
       // VS-U88 punkt 9: dagen et tidligere fristsvar med påberopelsen ble sendt.

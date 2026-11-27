@@ -176,27 +176,43 @@ export const UTSAGNSTITTEL = {
   kunnskapsdato: 'Når utgiftene etter punkt 34.1.3 ble kjent',
 } as const;
 
+/** U-3 i BF-50: tittelen på brevet med rettingen av datoen for et varsel eller et krav. Ordlyden er design. */
+export const RETTINGSTITTEL = {
+  varsel: 'Retting av varseldatoen',
+  krav: 'Retting av kravdatoen',
+} as const;
+
+/** Om rettingen `gjelder` retter datoen for et varsel eller et krav. */
+export type RettingenGjelder = (gjelder: string) => keyof typeof RETTINGSTITTEL;
+
 /** Brevet er et innlegg (MM-U47 punkt 1–2), som står alene i brevet (`leser.ts`). */
 export const erInnlegg = (d: Pick<Dokument, 'utsagn'>): boolean =>
   d.utsagn.some((x) => x.art === 'innlegg');
 
 /**
  * Tittelen etter det brevet inneholder: «Påberopelse av <forholdet>» (GR-U31), ellers etter
- * det første svaret, kravet eller utsagnet. `null` for et brev uten slik tittel.
+ * det første svaret, kravet eller utsagnet. `null` for et brev uten slik tittel. `rettes` sier om
+ * en retting i brevet gjelder et varsel eller et krav, og trengs bare for brevet med rettingen.
  */
-export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
-  const tittel = tittelen(d);
+export function lagBrevtittel(
+  d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>,
+  rettes?: RettingenGjelder
+): string | null {
+  const tittel = tittelen(d, rettes);
   return tittel === null ? null : medHardeMellomrom(tittel);
 }
 
-function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
+function tittelen(
+  d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>,
+  rettes: RettingenGjelder | undefined
+): string | null {
   // LV-U80, LV-U34: tittelen nevner alle kravene brevet svarer på.
   if (d.svar.length)
     return `Svar på ${liste(iBrevetsRekkefoelge(d.svar).map((s) => svaretGjelder(s).tittel))}`;
   const f = paaberoptForhold(d);
   if (f) return paaberopelsenAv(f.navn);
   if (d.krav.length) return KRAVTITTEL[d.krav[0].spor];
-  for (const x of d.utsagn)
+  for (const x of d.utsagn) {
     if (
       x.art === 'aksept' ||
       x.art === 'trekk' ||
@@ -204,6 +220,12 @@ function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null 
       x.art === 'korrigering'
     )
       return UTSAGNSTITTEL[x.art];
+    if (x.art === 'retting') {
+      if (!rettes)
+        throw new Error('Tittelen på rettingen krever varselet eller kravet den gjelder.');
+      return RETTINGSTITTEL[rettes(x.gjelder)];
+    }
+  }
   return null;
 }
 
@@ -218,6 +240,8 @@ export function avvikITittelen(
 ): string | null {
   // MM-U47, designdelen: innlegget har tittelen parten skriver.
   if (erInnlegg(d)) return null;
+  // U-3 i BF-50: brevet med rettingen har en tittel uansett hva det retter.
+  if (d.utsagn.some((x) => x.art === 'retting')) return null;
   if (lagBrevtittel(d) === null)
     return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U50)';
   const f = paaberoptForhold(d);

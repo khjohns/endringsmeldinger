@@ -2,33 +2,12 @@
   "id": "BF-50",
   "tittel": "Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen",
   "brukerhistorie": "TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. Den nye datoen gjelder straks som TEs siste opplysning, også når den er tidligere, uten BHs aksept. BH tar stilling til den nye datoen i et senere svar eller i et innlegg. Begge partene ser datoen som gjelder og de tidligere datoene.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har påberopt forholdet i brev 1 og lagt til et varsel om fristforlengelse sendt med e-post (variant A, B, D, E og F) eller et vederlagskrav sendt med e-post (variant C). TE retter datoen til en senere dato (A) eller en tidligere (B–F). I variant E er saken lukket, og i variant F er datoen før datoen i påberopelsen."
+    "beskrivelse": "TE påberoper forholdet i brev 1, med datoen pålegget ble mottatt, 01.10.2026. TE legger til et varsel om fristforlengelse sendt med e-post 14.10.2026 og et vederlagskrav sendt med e-post 20.10.2026. Stegene går gjennom variant A, B, C og D, og fristkravet sendes fra løsningen etter variant B. Byggherren avslår forholdet, totalentreprenøren godtar svaret, og saken er lukket i variant E. Variant F er prøvd ved det første kontrollpunktet."
   },
   "bestilling": "BF-50.md",
-  "kilder": [
-    "MM-U59",
-    "MM-U61",
-    "MM-U63",
-    "LV-U83",
-    "OV-U123",
-    "VS-U86",
-    "KA-U52",
-    "EO-U39",
-    "VS-U58",
-    "MM-U50",
-    "GR-U27",
-    "LV-U4",
-    "LV-U27",
-    "LV-U53",
-    "KA-U16",
-    "LV-U29",
-    "LV-U55",
-    "OV-U17",
-    "LV-U56"
-  ],
   "venter_paa": [
     "#1309"
   ],
@@ -49,6 +28,363 @@
       "dato": "2026-11-27",
       "forhold": "MM-U63",
       "hva": "Rettingen gjelder straks, også til en tidligere dato, uten byggherrens aksept. M-3, M-5, U-8, D-5, D-6, G-3 og G-4 utgår, og forløpet er skrevet om etter MM-U63."
+    },
+    {
+      "dato": "2026-11-27",
+      "forhold": "#1309",
+      "hva": "Forløpet er kjørbart i testklienten, med stegene gjennom variant A–E og variant F prøvd ved det første kontrollpunktet (G-12)."
+    }
+  ],
+  "steg": [
+    {
+      "handling": "tiden_gaar",
+      "til": "2026-10-02"
+    },
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "endring",
+      "underkategori": "irregulaer_endring",
+      "dato": "2026-10-01",
+      "navn": "K-g1",
+      "utdypning": "Byggherren påla oss å endre peleplanen i byggemøtet."
+    },
+    {
+      "handling": "tiden_gaar",
+      "til": "2026-10-21"
+    },
+    {
+      "handling": "varsel",
+      "spor": "frist",
+      "sendt": "2026-10-14",
+      "navn": "V1"
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "belop": 100000,
+      "sendt": "2026-10-20",
+      "navn": "K-v1"
+    },
+    {
+      "handling": "retting",
+      "navn": "R1",
+      "gjelder": "V1#varsel",
+      "dato": "2026-10-16",
+      "utdypning": "Varselet ble sendt 16.10.2026, ikke 14.10.2026."
+    },
+    {
+      "handling": "retting",
+      "navn": "R2",
+      "gjelder": "V1#varsel",
+      "dato": "2026-10-10"
+    },
+    {
+      "handling": "krav",
+      "spor": "frist",
+      "dager": 20,
+      "navn": "K-f1",
+      "utdypning": "Pelingen tar fire uker lenger."
+    },
+    {
+      "handling": "retting",
+      "navn": "R3",
+      "gjelder": "K-v1",
+      "dato": "2026-10-17"
+    },
+    {
+      "handling": "retting",
+      "navn": "R4",
+      "gjelder": "V1#varsel",
+      "dato": "2026-10-08"
+    },
+    {
+      "handling": "brev",
+      "navn": "D11",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "avslaatt",
+          "varslet_i_tide": true,
+          "utdypning": "Endringen av peleplanen var avtalt i kontrakten."
+        }
+      ]
+    },
+    {
+      "handling": "aksept",
+      "spor": "forhold",
+      "navn": "D12"
+    },
+    {
+      "handling": "retting",
+      "navn": "R5",
+      "gjelder": "V1#varsel",
+      "dato": "2026-10-09"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-har-lagt-til-varselet-og-kravet",
+      "etter": 5,
+      "beskrivelse": "TE har lagt til varselet sendt 14.10.2026 og vederlagskravet sendt 20.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-14",
+            "dato_som_gjelder.K-v1": "2026-10-20",
+            "handlinger.TE": {
+              "inneholder": [
+                "rette_datoen:V1#varsel",
+                "rette_datoen:K-v1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "VS-U58"
+          ],
+          "prov": {
+            "handling": "retting",
+            "gjelder": "V1#varsel",
+            "dato": "2026-09-28"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "VARSEL_FOER_GRUNNLAGSDATOEN"
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "prov": {
+            "handling": "retting",
+            "gjelder": "V1#varsel",
+            "dato": "2026-10-14"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner «Rett datoen» ved varselet og kravet lagt til, og ser datoen som gjelder med brevet den kommer fra.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        },
+        {
+          "tekst": "TE ser at en dato før datoen i påberopelsen, eller samme dato som gjelder, stoppes ved feltet med begge datoene.",
+          "kilde": [
+            "MM-U63",
+            "VS-U58"
+          ]
+        },
+        {
+          "tekst": "TE ser «Rett datoen» bare ved et varsel eller krav lagt til som korrespondanse, ikke ved et varsel sendt fra løsningen, som har serverens dato.",
+          "kilde": [
+            "MM-U59",
+            "OV-U123"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "varseldatoen-er-rettet-til-en-senere-dato",
+      "etter": 6,
+      "beskrivelse": "Variant A: TE har rettet varseldatoen til 16.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-16"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser i brevkontrollen at den nye datoen gjelder straks, og ser den nye datoen ved varselet etter sending.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        },
+        {
+          "tekst": "TE ser brevet med tittelen med sakens kode, den nye datoen, varselet med henvisningen til brevet og datoen som gjaldt. Ordet «retter» skiller brevet fra korrigeringen av datoen i påberopelsen.",
+          "kilde": [
+            "MM-U59",
+            "LV-U4",
+            "LV-U27",
+            "LV-U53",
+            "LV-U55"
+          ]
+        },
+        {
+          "tekst": "TE ser at forklaringen er valgfri og står under den faste teksten, og at løsningen ikke tolker den.",
+          "kilde": [
+            "KA-U16"
+          ]
+        },
+        {
+          "tekst": "Begge partene ser at brevet med varselet står slik det ble sendt.",
+          "kilde": [
+            "MM-U50"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "varseldatoen-er-rettet-til-en-tidligere-dato",
+      "etter": 7,
+      "beskrivelse": "Variant B: TE har rettet varseldatoen til 10.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-10"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at også en tidligere dato gjelder straks, uten byggherrens aksept.",
+          "kilde": [
+            "MM-U63"
+          ]
+        },
+        {
+          "tekst": "TE ser ikke at rettingen venter på byggherrens aksept. Den ordningen er opphevet.",
+          "kilde": [
+            "MM-U63",
+            "MM-U61"
+          ]
+        },
+        {
+          "tekst": "Begge partene ser at varselet med datoen som gjelder, kan bli et annet første varsel enn før.",
+          "kilde": [
+            "VS-U86"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kravdatoen-er-rettet",
+      "etter": 9,
+      "beskrivelse": "Fristkravet er sendt fra løsningen, og variant C: TE har rettet kravdatoen til 17.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.K-v1": "2026-10-17",
+            "dato_som_gjelder.V1#varsel": "2026-10-10"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge partene ser i fristkravet datoen som gjelder for varselet, med rettingen den kommer fra.",
+          "kilde": [
+            "LV-U83",
+            "MM-U63"
+          ]
+        },
+        {
+          "tekst": "TE ser at kravet lagt til med kategorien krav kan rettes, og at rettingen ikke endrer hvilket krav eller svar som var gjeldende.",
+          "kilde": [
+            "KA-U52",
+            "OV-U123",
+            "MM-U59"
+          ]
+        },
+        {
+          "tekst": "I kravet står varselet med brevet det ble gitt i og datoen som gjelder, og en ny versjon av påberopelsen følger reglene for den.",
+          "kilde": [
+            "LV-U4",
+            "LV-U29",
+            "LV-U56"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "varseldatoen-er-rettet-to-ganger",
+      "etter": 10,
+      "beskrivelse": "Variant D: TE har rettet varseldatoen på nytt, til 08.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-08"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge partene ser at datoen i den siste rettingen gjelder, og de tidligere datoene med brevene.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "datoen-er-rettet-i-en-lukket-sak",
+      "etter": 13,
+      "beskrivelse": "Variant E: saken er lukket etter GR-U27, og TE har rettet varseldatoen til 09.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "EO-U39",
+            "GR-U27"
+          ],
+          "forventet": {
+            "forhold_avvist": true,
+            "dato_som_gjelder.V1#varsel": "2026-10-09"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at rettingen godtas i en lukket sak, og at utfallet ikke endres.",
+          "kilde": [
+            "MM-U59",
+            "EO-U39"
+          ]
+        }
+      ]
     }
   ]
 }

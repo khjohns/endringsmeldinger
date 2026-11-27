@@ -80,6 +80,18 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   // VS-U86 punkt 14 (VS-U85): det egne utsagnet viser til det første varselet etter § 34.1.3.
   const varselet = varseletFoerBrevet(u, '34.1.3');
   if (varselet !== undefined) ut.push({ type: 'oppgi_kunnskapsdato', gjelder: varselet });
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): rettingen viser til et
+  // varsel eller et krav, og forutsetningen avgjør hvilke (D-1 og D-2 i BF-50).
+  for (const spor of SPOR) {
+    const s = u.spor[spor];
+    for (const e of [
+      ...s.krav,
+      ...s.kravUtenforRekken,
+      ...Object.values(s.varsler),
+      ...s.kravpostvarsler,
+    ])
+      if (e) ut.push({ type: 'rette_datoen', gjelder: e.id });
+  }
   return ut;
 }
 

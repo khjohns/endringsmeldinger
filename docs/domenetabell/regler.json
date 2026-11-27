@@ -1618,6 +1618,41 @@
       "dato": "2026-11-15",
       "ref": "../plans/vedtak.md#ov-u97",
       "radetikett": "OV-U97: Løsningen har et grunnsett av handlinger"
+    },
+    {
+      "id": "VS-U58",
+      "type": "vedtak",
+      "dato": "2026-11-10",
+      "ref": "../plans/vedtak.md#vs-u58",
+      "radetikett": "VS-U58: Et varsel om forholdet, etter punkt 32.2, 33.4, 34.1.2 eller 34.1.3, kan ikke være oppgitt sendt før datoen TE har oppgitt i grunnlagskravet"
+    },
+    {
+      "id": "VS-U86",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#vs-u86",
+      "radetikett": "VS-U86: Utkastet til versjon 3 gjelder som samlevedtaket for varslingsdatoen"
+    },
+    {
+      "id": "OV-U123",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#ov-u123",
+      "radetikett": "OV-U123: Utkastet til versjon 2 gjelder som samlevedtaket for brev sendt utenfor løsningen"
+    },
+    {
+      "id": "LV-U83",
+      "type": "vedtak",
+      "dato": "2026-11-25",
+      "ref": "../plans/vedtak.md#lv-u83",
+      "radetikett": "LV-U83: Der et krav totalentreprenøren sender fra løsningen, sier når et varsel ble sendt"
+    },
+    {
+      "id": "MM-U63",
+      "type": "vedtak",
+      "dato": "2026-11-27",
+      "ref": "../plans/vedtak.md#mm-u63",
+      "radetikett": "MM-U63: Totalentreprenørens retting av datoen for et varsel sendt utenfor løsningen etter punkt 8 i samlevedtaket for retting av sendt brev"
     }
   ],
   "rader": [
@@ -3284,6 +3319,40 @@
       ]
     },
     {
+      "id": "GR-38",
+      "tilfelle": "TE retter datoen for et varsel eller et krav TE har sendt utenfor løsningen og lagt til som korrespondanse, i et eget brev fra løsningen med henvisning til brevet med varselet eller kravet, til en senere eller en tidligere dato. Saken kan være lukket.",
+      "forventet": "Brevet godtas og nevner den nye datoen, varselet eller kravet med henvisningen og datoen som gjaldt da rettingen ble sendt. Det er ikke en ny kravversjon, og brevet det retter, står uendret. Den nye datoen gjelder straks som TEs siste opplysning, også når den er tidligere, og datoen i den siste rettingen gjelder. Datoen som gjelder, er premiss for nye svar og for hvilket varsel som er det første løsningen kjenner, mens et svar sendt før rettingen står med datoen som gjaldt da. Et krav fra løsningen sier datoen som gjelder for varselet og viser til rettingen. Rettingen godtas også i en sak lukket etter GR-U27 og endrer ikke utfallet. Den avvises når varselet eller kravet er sendt fra løsningen, når datoen er den samme som gjelder, og når en varseldato er før datoen i påberopelsen.",
+      "bh_standpunkt": "Byggherren tar stilling til den nye datoen i et senere svar, i et nytt svar eller i et innlegg.",
+      "rettslig_virkning": "Løsningen avgjør ikke hvilken dato som er riktig, eller om totalentreprenøren er bundet av den første datoen (MM-U63).",
+      "rettidighet": "Ikke vurdert av løsningen.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U59",
+        "MM-U63",
+        "LV-U83",
+        "VS-U58",
+        "VS-U86",
+        "OV-U98",
+        "OV-U123",
+        "EO-U39",
+        "GR-U27",
+        "MM-U50",
+        "KA-U16"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/rettingen.ts#rettingen",
+        "kjerne/kommandoer/nyttelast.ts#kontrollerRettingen",
+        "kjerne/utledning/rettingen.ts#datoEtterRettingene",
+        "kjerne/utledning/utled.ts#datoenSomGjelder",
+        "kjerne/frosset/brevtekst.ts#utsagnstekst",
+        "kjerne/frosset/brevdeler.ts#gitt"
+      ],
+      "regelkoder": [
+        "DATOEN_ER_UENDRET"
+      ]
+    },
+    {
       "id": "KA-31",
       "tilfelle": "TE sier «ingen krav» i vederlag eller frist fra appen.",
       "forventet": "Kommandoen godtas i et spor uten kravversjon når grunnlaget er sendt, også etter et varsel etter § 33.4. Den avvises før grunnlaget er sendt, i et spor med krav (TE trekker kravet i stedet), og når TE alt har sagt «ingen krav» i sporet. Kommandoen har ingen fritekst.",
@@ -4080,7 +4149,7 @@
     "VARSELVALGET_MANGLER": "Kontrollen av kommandoen: har saken et varsel etter punkt 34.3.3 eller 34.4 som ingen kravpost viser til, tas et vederlagskrav ikke imot før hver kravpost kravet ellers ville vært varselet for, sier hvilket varsel den gjelder eller at kravet er varselet (VS-U87 punkt 23). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts`.",
     "VEDLEGG_FINNES_IKKE": "Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts` og `server/tester/vedlegg.test.ts`.",
     "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, og ingen rad sier den; den prøves i `kjerne/tester/kjerne.test.ts`.",
-    "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/varslene.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
+    "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Det gjelder også datoen i en retting (arbeidsvalget i D-7 i BF-50). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/varslene.test.ts`, `kjerne/tester/rettingen.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
     "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
@@ -4095,10 +4164,10 @@
     "VARSLINGSPLIKT_GJELDER_IKKE": "Avvisningen der varslingsplikten ikke gjelder forholdet som er påberopt: varselet etter § 32.2 som registreres (GR-U11) og svaret på varselet etter § 34.1.2 der saken gjelder en endring (VS-U87 punkt 32, OV-U89 punkt 13). For svaret er den en forutsetning i `hindrerSvaretPaaVarselet`, så svaret heller ikke tilbys (#2464). Ingen rad sier avvisningen; den prøves i `kjerne/tester/varslene.test.ts` og `kjerne/tester/varselsvar.test.ts`.",
     "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
     "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/varslene.test.ts`.",
-    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts`.",
+    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav, en korrigering av datoen og en retting av varseldatoen (MM-U63). Arbeidsvalget i D-7 i BF-50 avviser også en rettet kravdato før datoen i påberopelsen når kravet er det første varselet. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/varslene.test.ts` og `kjerne/tester/rettingen.test.ts`, og for rettingen i bevis-saken F-MM-RETT1 for GR-38.",
     "IKKE_GJELDENDE_PAA_SENDEDATOEN": "Kontrollen av kommandoen: en registrering av et svar eller en aksept som ikke får virkning med datoen avsenderen oppgir, avvises (OV-U98). KA-50 sier avvisningen, men ingen bevis-sak for målmodellen prøver kommandoen med en oppgitt dato; den prøves i `kjerne/tester/registrering.test.ts`.",
     "KRAV_FOER_FORESPORSELEN": "Kontrollen av kommandoen: et svar på forespørselen etter § 33.6.2 avvises når totalentreprenøren hadde sendt et krav om dager før den, lagt til etterpå (OV-U109). Ingen rad sier avvisningen; den prøves i `kjerne/tester/foresporselen.test.ts`.",
     "KRAVET_ER_IKKE_VARSELET": "Kontrollen av kommandoen: kunnskapsdatoen etter § 34.1.3 annet ledd står i vederlagskravet bare når kravet er det første varselet løsningen kjenner (VS-U86 punkt 9 og 12, D-2 i BF-48). Ingen rad sier avvisningen; den prøves i `kjerne/tester/kunnskapsdatoen.test.ts` (#2012).",
-    "UGYLDIG_HENVISNING": "Kontrollen av kommandoen: brevet som supplerer eller endrer kunnskapsdatoen etter § 34.1.3, viser til det første varselet etter § 34.1.3 (VS-U86 punkt 14, D-6 i BF-48). Ingen rad sier avvisningen; den prøves i `kjerne/tester/kunnskapsdatoen.test.ts` (#2012)."
+    "UGYLDIG_HENVISNING": "Kontrollen av kommandoen: brevet som supplerer eller endrer kunnskapsdatoen etter § 34.1.3, viser til det første varselet etter § 34.1.3 (VS-U86 punkt 14, D-6 i BF-48). Rettingen av datoen viser til et varsel eller et krav TE har lagt til som korrespondanse (MM-U59 punkt 8 og 18, D-2 i BF-50). Ingen rad sier avvisningen; den prøves i `kjerne/tester/kunnskapsdatoen.test.ts` (#2012) og `kjerne/tester/rettingen.test.ts`, og for rettingen i bevis-saken F-MM-RETT1 for GR-38."
   }
 }

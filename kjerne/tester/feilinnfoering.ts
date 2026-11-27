@@ -8409,6 +8409,44 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['variant B: en tidligere dato gjelder også straks'],
   },
+  {
+    id: 'F1309i',
+    feilklasse:
+      'brevet med rettingen nevner den første rettingen som datoen som gjaldt, ikke den siste (D-4 og D-9 i BF-50)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['u.rettinger.map((r) => [r.gjelder', 'u.rettinger.toReversed().map((r) => [r.gjelder'],
+    ],
+    mal: ['D-4: etter to rettinger nevner brevet datoen i den siste, med rettingen den kom fra'],
+  },
+  {
+    id: 'F1309j',
+    feilklasse:
+      'et krav fra løsningen sier ikke datoen som gjelder for et rettet varsel og viser ikke til rettingen (LV-U83, endret av MM-U63)',
+    fil: `${K}/frosset/brevdeler.ts`,
+    endringer: [['const rettet = saken.rettetDato[varsel];', 'const rettet = undefined;']],
+    mal: ['kravet oppgir datoen som gjelder og viser til rettingen'],
+  },
+  {
+    id: 'F1309k',
+    feilklasse: 'rettingen av en kravdato får tittelen for varseldatoen (U-3 i BF-50)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['RETTINGSTITTEL[rettes(x.gjelder)]', 'RETTINGSTITTEL.varsel']],
+    mal: ['variant C: tittelen på rettingen av et krav sier kravdatoen'],
+  },
+  {
+    id: 'F1309l',
+    feilklasse:
+      'TE får ikke tilbud om å rette datoen for et varsel eller et krav lagt til (G-7 i BF-50, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        "if (e) ut.push({ type: 'rette_datoen', gjelder: e.id });",
+        "if (e && false) ut.push({ type: 'rette_datoen', gjelder: e.id });",
+      ],
+    ],
+    mal: ['TE får tilbud om å rette datoen for varselet og kravet lagt til'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

@@ -79,7 +79,8 @@ export const KOMMANDOENE: Lesbar[] = [
     'kommandoer/rettingen.ts',
     'predikat',
     'detSomRettes',
-    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+    // U-3 i BF-50: om rettingen gjelder et varsel eller et krav, for tittelen.
+    ['kommandoer/nyttelast.ts:kontrollerRettingen', 'kommandoer/skriving.ts:rettes'],
   ],
   ['kommandoer/rettingen.ts', 'predikat', 'rettingen', ['kommandoer/forutsetninger.ts:henvisning']],
   [

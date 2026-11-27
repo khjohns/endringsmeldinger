@@ -89,7 +89,7 @@ const METODEN = {
 function kravposttekst(
   p: Kravpost,
   varselet: Kravpostvarselet | undefined,
-  t: Pick<Tekst, 'j' | 'nytt'>
+  t: Pick<Tekst, 'j' | 'saken' | 'nytt'>
 ): string {
   const deler = [`${kravpostnavnet(p)}${p.pns ? ` (PNS ${p.pns})` : ''}.`];
   if (p.oppgjoersform === 'tilbud') deler.push(`Totalentreprenøren krever ${eksMva(p.beloep!)}`);

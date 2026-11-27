@@ -189,6 +189,8 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Utsagn', 'utsagn', 'dato', ['utledning/rettingen.ts:rettingeneI']],
   ['Utledning', 'utsagn', 'rettinger'],
   ['Retting', 'relasjon', 'id gjelder'],
+  // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
+  ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Retting', 'utsagn', 'dato'],
   ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/rettingen.ts:rettingeneI']],
   ['Dokument', 'relasjon', 'id', ['utledning/rettingen.ts:rettingeneI']],

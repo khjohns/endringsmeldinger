@@ -23,7 +23,12 @@ import {
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
-import { enighetensVirkning, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';
+import {
+  datoenSomGjelder,
+  enighetensVirkning,
+  kraveneErAvgjort,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
@@ -39,7 +44,7 @@ import {
   type Handling,
 } from './klient.ts';
 import type { Kommando } from '../kommandoer/kommando.ts';
-import type { Journalrad } from '../typer.ts';
+import { SPOR, type Journalrad } from '../typer.ts';
 
 export type Kontroll = {
   etter: number;
@@ -465,6 +470,20 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return handlinger(u, hale[0] as 'TE');
     // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen,
     // med datoen, og opplysningen som var TEs siste da svaret ble gitt (designdelen).
+    // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder for
+    // varselet eller kravet etter TEs rettinger (`datoenSomGjelder`).
+    case 'dato_som_gjelder': {
+      const e = SPOR.flatMap((spor) => {
+        const s = u.spor[spor];
+        return [
+          ...s.krav,
+          ...s.kravUtenforRekken,
+          ...Object.values(s.varsler),
+          ...s.kravpostvarsler,
+        ];
+      }).find((x) => x?.id === id(hale[0]));
+      return e ? datoenSomGjelder(u, e) : null;
+    }
     case 'datoopplysninger':
       return u.datoopplysninger.map((o) => `${o.id}:${o.dato}`);
     case 'datoopplysning':

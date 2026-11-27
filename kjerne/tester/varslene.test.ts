@@ -1034,6 +1034,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
       datoopplysninger: [],
+      rettetDato: {},
       sisteKunnskapsdato: null,
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,

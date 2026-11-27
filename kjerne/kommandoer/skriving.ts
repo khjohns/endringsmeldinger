@@ -41,6 +41,7 @@ import {
   type Utdypning,
 } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
+import { detSomRettes } from './rettingen.ts';
 import {
   brevtekstI,
   datoForDokumentet,
@@ -916,6 +917,13 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
       );
 }
 
+/** U-3 i BF-50: om rettingen gjelder et varsel eller et krav, for tittelen. */
+function rettes(u: Utledning, gjelder: string): 'varsel' | 'krav' {
+  const det = detSomRettes(u, gjelder);
+  if (!det) throw new Skrivefeil(`Rettingen viser til ${gjelder}, som ikke kan rettes.`);
+  return det.art;
+}
+
 /**
  * LV-U2, LV-U3: teksten i brevet appen sender, laget av alle partens utsagn i det.
  * Et registrert brev, som et varsel sendt utenfor appen, får ingen (MM-U17 (opphevet av MM-U50)).
@@ -948,6 +956,9 @@ function brevtekstFor(
       svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
       utenVirkning: u.utenVirkning.map((x) => x.element),
       datoopplysninger: u.datoopplysninger,
+      rettetDato: Object.fromEntries(
+        u.rettinger.map((r) => [r.gjelder, { dato: r.dato, dokument: r.dokument }])
+      ),
       sisteKunnskapsdato: sisteKunnskapsdato(u),
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
@@ -971,7 +982,7 @@ function brevtekstFor(
     };
     const tekst = lagBrevtekst(ny.dokument, lest, saken, kjerne.regler, utdypninger);
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
-    const tittel = partensTittel ?? lagBrevtittel(ny.dokument);
+    const tittel = partensTittel ?? lagBrevtittel(ny.dokument, (gjelder) => rettes(u, gjelder));
     return {
       tekst,
       tittel: tittel && medSakskode(tittel, sakskode),
