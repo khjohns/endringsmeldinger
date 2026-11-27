@@ -1382,39 +1382,39 @@ describe('forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder
     spor: 'vederlag',
     kravposter: [{ post: 'P1', belop: 50000 }, { belop: 40000 }],
   };
-  const beloepene = (sendt: string | null, gjelder: (u: Utledning) => string) =>
+  const saken = () =>
     kjoer(
       { id: 'lag-paa-dagen', rader: [], start: 'krav_irreg', steg: [toPoster], kontroller: [] },
       minnebane(),
       { valg: { klokke: dagklokke() } }
-    )
-      .then((k) => k.utledning())
-      .then(
-        (u) =>
-          lagForUtkastet(
-            {
-              spor: 'vederlag',
-              gjelder: gjelder(u),
-              regelversjon: KJERNE.regler.versjon,
-              vurderinger: {},
-              resultat: {},
-            },
-            u,
-            KJERNE.regler,
-            sendt
-          ).standpunkter.filter((x) => x.art === 'beloep').length
-      );
+    ).then((k) => k.utledning());
+  const lagene = (u: Utledning, sendt: string | null, gjelder: string) =>
+    lagForUtkastet(
+      {
+        spor: 'vederlag',
+        gjelder,
+        regelversjon: KJERNE.regler.versjon,
+        vurderinger: {},
+        resultat: {},
+      },
+      u,
+      KJERNE.regler,
+      sendt
+    ).standpunkter.filter((x) => x.art === 'beloep').length;
 
   it('et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den, ikke i den nye', async () => {
-    expect(await beloepene('2026-09-23', (u) => u.spor.vederlag.krav[0]!.id)).toBe(1);
+    const u = await saken();
+    expect(lagene(u, '2026-09-23', u.spor.vederlag.krav[0]!.id)).toBe(1);
   });
 
   it('kontrollsak: et svar fra løsningen har lagene for kravpostene i det gjeldende kravet', async () => {
-    expect(await beloepene(null, (u) => u.spor.vederlag.gjeldendeKrav!.id)).toBe(2);
+    const u = await saken();
+    expect(lagene(u, null, u.spor.vederlag.gjeldendeKrav!.id)).toBe(2);
   });
 
   it('et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag', async () => {
-    await expect(beloepene('2026-09-23', () => 'ukjent')).rejects.toThrow(
+    const u = await saken();
+    expect(() => lagene(u, '2026-09-23', 'ukjent')).toThrow(
       'Svarutkastet gjelder ikke en kravversjon i vederlag.'
     );
   });
