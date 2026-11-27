@@ -779,7 +779,7 @@ export const TESTSAKER: Record<string, Testsak> = {
   'bare-varselet-i-fristkravet': {
     tittel: 'Peling i akse C',
     formaal:
-      '#2456 (K2): byggherrens svar bare på varselet når fristkravet selv er varselet etter punkt 33.4 (VS-U96 punkt 38 og 39), sendt gjennom serveren, og tidslinja etterpå (#2481).',
+      '#2456 (K2): byggherrens svar bare på varselet når fristkravet selv er varselet etter punkt 33.4 (VS-U96 punkt 38 og 39), sendt gjennom serveren, tidslinja etterpå (#2481) og innsigelsen i svaret på kravet (VS-U96 punkt 34).',
     spor: 'frist',
     steg: [
       {
@@ -817,6 +817,16 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.goto(saksrute);
       await bh.getByRole('button', { name: 'Nytt svar på varselet om fristforlengelse' }).waitFor({ timeout: 30_000 });
       await bh.screenshot({ path: `${ut}/bare-fristvarselet-sendt.png`, fullPage: true });
+      // VS-U96 punkt 34: svaret på kravet viser innsigelsen og gjentar den.
+      await bh.getByRole('button', { name: 'Svar på kravet' }).click();
+      await bh.getByText('Svaret gjentar innsigelsen.').waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/fristsvar-innsigelsen.png`, fullPage: true });
+      await bh.getByRole('button', { name: 'Gi opp innsigelsen' }).click();
+      await bh.getByText('Du gir opp innsigelsen.').waitFor();
+      await bh.screenshot({ path: `${ut}/fristsvar-oppgitt.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/fristsvar-oppgitt-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
 };

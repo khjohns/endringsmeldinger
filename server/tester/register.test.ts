@@ -554,6 +554,17 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   });
 
+  it.each(hver.filter(([, r]) => r.metode === 'GET'))(
+    '%s: svaret har Cache-Control: no-store, også når det ikke finnes (#1059)',
+    async (_n, r) => {
+      const svar = await fetch(`${server.url}${r.eksempel(sak)}`, {
+        headers: { 'X-Project-ID': o.prosjekt.id, Cookie: `__Host-koe_session=${o.te.token}` },
+      });
+      expect(svar.status).toBeLessThan(500);
+      expect(svar.headers.get('cache-control')).toBe('no-store');
+    }
+  );
+
   // `.claude/rules/tilgang.md`: prosjektgrensen avgjøres før kontraktsrollen, som i Flask (#1106).
   it.each(hver)(
     '%s: et medlem uten kontraktsteam mot en sak i et annet prosjekt gir FORBIDDEN, ikke kontraktsrollen (#1106)',
@@ -863,8 +874,8 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       spion.mockRestore();
     }
     expect(skrevet).toHaveLength(3);
-    expect(skrevet[1].at(-1)).toHaveProperty('Referrer-Policy');
-    expect(skrevet[2].at(-1)).not.toHaveProperty('Referrer-Policy');
+    expect(skrevet[1].at(-1)).toHaveProperty('referrer-policy');
+    expect(skrevet[2].at(-1)).not.toHaveProperty('referrer-policy');
   });
 
   it('en sti new URL ikke kan lese, gir 404 og tar ikke ned serveren (#754)', async () => {

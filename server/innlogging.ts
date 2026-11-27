@@ -32,7 +32,7 @@ import { informasjonskapsel, sesjonsnavn, uuidMedBindestreker } from './autorisa
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
-import { fast, svarhoder } from './inngang.ts';
+import { fast, feilsvar, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -43,6 +43,7 @@ import {
   brukInnloggingsforsoek,
   opprettInnloggingsforsoek,
   opprettSesjon,
+  sesjonsvarighet,
   slettSesjon,
 } from './sesjon.ts';
 
@@ -61,13 +62,69 @@ export interface Innlogging {
   oauth: Innloggingsleverandoer;
   /** Entra-innloggingen (#831). Uten den svarer Entra-inngangene 503. */
   entra?: EntraLeverandoer | null;
+  /** Grensen for innlogginger som startes; uten den `innloggingsgrense()` (#1059). */
+  grense?: Innloggingsgrense;
 }
 
-const SESJONENS_LEVETID = 8 * 3600;
 const FORSOEKETS_LEVETID = 600;
 const STOERSTE_RETURSTI = 2048;
 
-const PRIVAT = { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+/** `Cache-Control: no-store` settes av ruteren for hvert svar (`svarhoder`). */
+const PRIVAT = { 'Referrer-Policy': 'no-referrer' };
+
+/** Sann når en innlogging fra `adresse` kan startes nå, og telles da. */
+export interface Innloggingsgrense {
+  tillat(adresse: string, naa?: number): boolean;
+}
+
+/**
+ * Hver start skriver et innloggingsforsøk, og inngangen er åpen (#1059). Startene telles per
+ * klientadresse i faste minuttvinduer, så én kilde ikke kan stenge ute de andre, og samlet
+ * under et tak for mange kilder og for en kilde som når serveren utenom nginx og setter
+ * adressen selv. Adressen er `X-Real-IP`, som nginx overskriver med `$remote_addr`
+ * (`nginx.conf`), ellers forbindelsens. nginx og serveren går i hver sin container
+ * (`Dockerfile.ts-serveren`), så forbindelsen er nginx sin og kan ikke skille kildene. Med taket og levetiden på 600 s står det om lag 6000 forsøk i basen, pluss
+ * det som venter på ryddingen.
+ */
+export const INNLOGGINGER_PER_ADRESSE = 30;
+export const INNLOGGINGER_TOTALT = 600;
+
+export function innloggingsgrense(
+  perAdresse = INNLOGGINGER_PER_ADRESSE,
+  totalt = INNLOGGINGER_TOTALT
+): Innloggingsgrense {
+  let vindu = -1;
+  let antall = 0;
+  let perKilde = new Map<string, number>();
+  return {
+    tillat(adresse, naa = Date.now()) {
+      const dette = Math.floor(naa / 60_000);
+      if (dette !== vindu) {
+        vindu = dette;
+        antall = 0;
+        perKilde = new Map();
+      }
+      const fra = perKilde.get(adresse) ?? 0;
+      if (antall >= totalt || fra >= perAdresse) return false;
+      antall += 1;
+      perKilde.set(adresse, fra + 1);
+      return true;
+    },
+  };
+}
+
+const grenser = new WeakMap<Innlogging, Innloggingsgrense>();
+function grenseFor(innlogging: Innlogging): Innloggingsgrense {
+  if (innlogging.grense) return innlogging.grense;
+  let grense = grenser.get(innlogging);
+  if (!grense) grenser.set(innlogging, (grense = innloggingsgrense()));
+  return grense;
+}
+
+function klientadresse(foresporsel: IncomingMessage): string {
+  const hode = foresporsel.headers['x-real-ip'];
+  return (typeof hode === 'string' && hode) || foresporsel.socket.remoteAddress || '';
+}
 
 /** `validate_config` i `AuthService`: statiske HTTPS-adresser, HTTP bare mot localhost i utvikling. */
 function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
@@ -293,6 +350,14 @@ async function loggInn(
     await avvist();
     return utilgjengelig();
   }
+  if (!grenseFor(avh.innlogging).tillat(klientadresse(foresporsel))) {
+    const [status, kropp] = feilsvar(
+      429,
+      'RATE_LIMITED',
+      'For mange innlogginger. Prøv igjen om et minutt.'
+    );
+    return [status, kropp, { 'Retry-After': '60' }];
+  }
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   try {
     const forsoek = await opprettInnloggingsforsoek(
@@ -357,7 +422,7 @@ async function tilbakekall(
     // Basen gir den lagrede stien tilbake uten ny kontroll.
     const innlogget = (token: string) =>
       omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
-        kapsel(navn, token, SESJONENS_LEVETID, naa),
+        kapsel(navn, token, sesjonsvarighet().levetid, naa),
         ryddForsoek,
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
@@ -394,8 +459,9 @@ async function loggUt({ token }: Innlogget, avh: Required<Avhengigheter>): Promi
   ];
 }
 
+/** `expiresIn` er sekundene til sesjonen løper ut uten ny bruk, etter lesingen i denne forespørselen. */
 async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
-  return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
+  return [200, { csrfToken: sesjon.csrfToken, expiresIn: sesjon.sekunderIgjen }];
 }
 
 const TILBAKEKALLET: Rute = {
@@ -457,7 +523,6 @@ export const INNLOGGINGSRUTER: readonly Rute[] = [
     metode: 'GET',
     ...fast('/api/csrf-token'),
     tilgang: { utenProsjekt: 'CSRF-tokenet hører til sesjonen, ikke til et prosjekt.' },
-    hoder: { 'Cache-Control': 'no-store' },
     behandle: csrfToken,
   },
 ];
