@@ -3,7 +3,7 @@
  * testklienten, så utledningen og brevene er kjernens. Forventningene har kildene i bestillingen
  * BF-45 (U-2–U-13, D-1–D-3, D-9, D-10, D-12) og vedtakene de viser til: MM-U50 for dagene som i
  * brevet, OV-U32 og KA-U78 for lagene, VS-U20 for varselet som gjelder alle fristene, KA-U80 og
- * OV-U42 for hindringen og avslaget av én frist, KA-U77 for gjeldende frist, GR-U34 for forbeholdet
+ * OV-U42 og LV-U85 punkt 11 for hindringen og avslaget av én frist, KA-U77 for gjeldende frist, GR-U34 for forbeholdet
  * og FO-U1 og OV-U2 for forseringen.
  */
 
@@ -130,6 +130,52 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
       null,
     ]);
   });
+
+  it.each([
+    ['avslått', { resultat: 'avslaatt', varslet_i_tide: true }, 'avslaatt'],
+    ['prekludert', { resultat: 'godkjent', varslet_i_tide: false }, 'prekludert'],
+  ])(
+    'med forholdet %s står hindringen i laget med vilkåret, og ikke på linjen uten lag (LV-U85 punkt 11, U-3, D-3)',
+    async (_n, forhold, grunn) => {
+      const steg: Handling[] = [
+        { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring', navn: 'K-g1' },
+        { handling: 'krav', spor: 'frist', frister: [{ frist_id: 2, dager: 20 }], navn: 'K-f1' },
+        {
+          handling: 'brev',
+          navn: 'D3',
+          svar: [
+            { spor: 'forhold', navn: 'S-g1', ...forhold },
+            {
+              spor: 'frist',
+              navn: 'S-f1',
+              varsel_i_tide: true,
+              hindring: true,
+              spesifisering_i_tide: true,
+              frister: [{ dager: 20 }],
+            },
+          ],
+        },
+      ] as Handling[];
+      const u = await utledning(steg);
+      const k = kravetOgSvaretIFristen(u, brevene(u))!;
+      // OV-U42: varselet i tide og spesifiseringen i tide står fortsatt uten lag.
+      expect(k.utenLag.map((s) => s.art)).toEqual(['rettidighet', 'spesifisering']);
+      const hindringen = k.felles.find((l) =>
+        l.standpunkter.some(({ standpunkt }) => standpunkt.art === 'hindring')
+      );
+      expect(hindringen?.etikett).toBe('subsidiært');
+      expect(hindringen?.vilkaar).toEqual([expect.objectContaining({ art: 'grunn', grunn })]);
+      await vis(steg);
+      const alle = within(screen.getByRole('region', { name: FRISTEN.forAlle }));
+      const linjen = alle.getByText(
+        'Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+      );
+      expect(linjen.classList.contains('uten-lag')).toBe(false);
+      expect(
+        alle.getByText(utenHardeMellomrom(FRISTEN.vilkaar(hindringen!.vilkaar)))
+      ).toBeVisible();
+    }
+  );
 
   it('før svaret har fristene bare dagene i kravet', async () => {
     const u = await utledning(BF45.steg.slice(0, 3));

@@ -30,6 +30,7 @@ import {
   type ForholdetISakslisten,
 } from '../spor/forhold/visning.ts';
 import {
+  forskyvningIBrevet,
   vederlagetISakslisten,
   VISNING_I_VEDERLAGET,
   type VederlagetISakslisten,
@@ -336,7 +337,8 @@ const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
 };
 
 /**
- * Brevet vurdert med dagens regler gir et standpunkt en annen virkning (MM-U9). Svaret leses med
+ * Brevet vurdert med dagens regler gir et standpunkt en annen virkning (MM-U9), med lagene forholdet
+ * opptok foran sporet da det ble sendt (`forskyvningIBrevet`). Svaret leses med
  * innsigelsene fra svarene før slik kjernen kjente dem da det ble sendt eller lagt til, som da det
  * ble frosset (VS-U81): de er ikke en regel.
  */
@@ -356,7 +358,7 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
       : [];
   return ulikeVirkninger(
     u.svar[g.id].virkninger,
-    virkninger(g, paaberopelseFor(g, u), regler, 0, staar)
+    virkninger(g, paaberopelseFor(g, u), regler, forskyvningIBrevet(g, u), staar)
   );
 }
 
