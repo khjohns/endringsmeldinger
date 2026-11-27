@@ -184,6 +184,14 @@ stilles som nummerert liste.
 > Styrer: hvor regelen for hva løsningen utleder og bare viser leses, og hvilken dato
 > fristveiledningen regnes fra (E6).
 
+## Svarene
+
+Oppdragsgiver 27.11, ordrett, videresendt av orkestratoren og ført i #1534
+([7215506178](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7215506178)):
+«1A, 2A». Ført som VS-U97. Raden 24.09 fikk ankeret `passivitet-uten-konklusjon` (K9), og LV-U9 er
+tatt ut av `bindende_i` for MM-U24 (K7). I det forkastede alternativet 1 B står «system.md» uten
+kodeformat, fordi vakttesten avviser kodenavn i vedtaksteksten.
+
 ## Kontrollene
 
 Den uavhengige kontrollen av klassene (C1–C6) og prøvingen av kildene og alternativene mot vedtakene
