@@ -201,10 +201,15 @@ function svarutkast(
   h: Record<string, unknown>,
   u: Utledning,
   regler: Regelsett,
-  navn: Navn
+  navn: Navn,
+  lagtTilMed = false
 ): Svarutkast {
   const spor = h.spor as Spor;
-  const krav = u.spor[spor].gjeldendeKrav;
+  // OV-U98: et svar lagt til kan gjelde en eldre kravversjon, og regnes mot den.
+  const krav =
+    (typeof h.gjelder === 'string'
+      ? u.spor[spor].krav.find((k) => k.id === navn.id(h.gjelder as string))
+      : undefined) ?? u.spor[spor].gjeldendeKrav;
   const v = vurderinger(spor, h, krav);
   let resultat: Record<string, unknown> = {};
   try {
@@ -221,7 +226,8 @@ function svarutkast(
     regelversjon: regler.versjon,
     vurderinger: v,
     resultat,
-    ...svarutdypning(spor, h, krav),
+    // OV-U80: et svar lagt til har ingen tekst fra løsningen.
+    ...(lagtTilMed ? {} : svarutdypning(spor, h, krav)),
     ...(typeof h.akseptfrist === 'string' ? { akseptfrist: h.akseptfrist } : {}),
   };
 }
@@ -429,6 +435,26 @@ function lagtTil(h: Handling) {
   };
 }
 
+const erLagtTil = (h: Handling) => typeof h.sendt === 'string';
+
+/**
+ * OV-U80, OV-U98: et krav, svar eller en aksept lagt til med datoen det ble sendt, med brevet som
+ * vedlegg. D-13 i BF-49: `retter` er registreringen som dokumentasjon det retter.
+ */
+const registreringI = (h: Handling, navn: Navn) =>
+  erLagtTil(h)
+    ? {
+        sendt: h.sendt as string,
+        ...lagtTil(h),
+        dokumentasjon: [navn.nyId()],
+        ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
+      }
+    : {};
+
+/** OV-U6, D-11 i BF-49: byggherrens egen endringsordre lagt til som svar på forholdet. */
+const endringsordreI = (h: Handling) =>
+  h.endringsordre === true ? { endringsordre: true as const } : {};
+
 /** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
 export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: Navn): Kommando {
   const spor = h.spor as Spor;
@@ -445,16 +471,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
               : INNHOLD.frist(h, u),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         // OV-U80, OV-U98: med `sendt` er kravet lagt til, uten tekst fra løsningen.
-        ...(typeof h.sendt === 'string'
-          ? { sendt: h.sendt, ...lagtTil(h), dokumentasjon: [navn.nyId()] }
-          : spor === 'vederlag'
-            ? {}
-            : utdypning(h)),
+        ...(erLagtTil(h) ? registreringI(h, navn) : spor === 'vederlag' ? {} : utdypning(h)),
       };
     case 'brev':
       return {
         type: 'brev',
-        svar: (h.svar as Handling[]).map((s) => svarutkast(s, u, regler, navn)),
+        svar: (h.svar as Handling[]).map((s) => svarutkast(s, u, regler, navn, erLagtTil(h))),
+        ...registreringI(h, navn),
+        ...endringsordreI(h),
       };
     case 'revisjon':
       return {
@@ -463,7 +487,9 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
           typeof h.erstatter === 'string'
             ? navn.id(h.erstatter)
             : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen'),
-        svar: svarutkast(h, u, regler, navn),
+        svar: svarutkast(h, u, regler, navn, erLagtTil(h)),
+        ...registreringI(h, navn),
+        ...endringsordreI(h),
       };
     case 'aksept': {
       // TE godtar svaret TE har sett: gjeldende svar, ellers det siste i sporet (KA-07).
@@ -471,7 +497,13 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         typeof h.svar === 'string'
           ? navn.id(h.svar)
           : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen');
-      return { type: 'aksept', spor, svar, regelversjon: regler.versjon };
+      return {
+        type: 'aksept',
+        spor,
+        svar,
+        regelversjon: regler.versjon,
+        ...registreringI(h, navn),
+      };
     }
     case 'trekk':
       return { type: 'trekk', spor };
@@ -512,6 +544,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         beskrivelse: h.beskrivelse as string,
         dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
+        // OV-U79: parten som sendte brevet, når det er motparten. D-12 i BF-49: skjemaet parten
+        // avbrøt.
+        ...(h.avsender === 'TE' || h.avsender === 'BH' ? { avsender: h.avsender } : {}),
+        ...(h.ikke_fylt_ut === 'krav' || h.ikke_fylt_ut === 'svar'
+          ? { ikke_fylt_ut: h.ikke_fylt_ut }
+          : {}),
       };
     case 'ikke_i_saken':
       return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };
