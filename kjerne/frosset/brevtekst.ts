@@ -82,7 +82,11 @@ import {
   VARSELPUNKTET,
   vilkaaretILagslinjen,
 } from './tekst.ts';
-import { erKravpostvarselhjemmel, erVederlagsvarselhjemmel } from '../typer.ts';
+import {
+  erKravpostvarselhjemmel,
+  erSvarbarVarselhjemmel,
+  erVederlagsvarselhjemmel,
+} from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -561,18 +565,19 @@ function punkteneISvaret(
   return brevpunkter;
 }
 
-/** Temaene i svaret på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
+/** Temaene i svaret på et varsel som står alene (VS-U96 punkt 30–32). */
 const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
   { punkt: FORHOLDET, overskrift: 'Forholdet' },
   { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
   { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
   { punkt: '34.3.3', overskrift: 'Varselet om justering av enhetsprisene (punkt 34.3.3)' },
   { punkt: '34.4', overskrift: 'Varselet om regningsarbeid (punkt 34.4)' },
+  { punkt: '33.4', overskrift: 'Varselet om fristforlengelse (punkt 33.4)' },
   { punkt: 'justering', overskrift: 'Justering av enhetsprisene (punkt 34.3.2)' },
 ];
 
 /**
- * Byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32, VS-U79), i
+ * Byggherrens svar på et varsel som står alene (VS-U96 punkt 30–32, VS-U79), i
  * punkter som svaret på kravet (LV-U34). Innsigelsen etter § 34.3.3 står prinsipalt og justeringen
  * subsidiært, med lagene i beslutningsgrunnlaget (VS-U4), etter lagene svaret på forholdet opptar
  * (OV-U32). Svaret har ingen kravposter, beløp eller tabell.
@@ -580,7 +585,7 @@ const TEMAENE_I_SVARET_PAA_VARSELET: Tema[] = [
 function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
   const { j } = t;
   const hjemmel = varselhjemmel(s.gjelder, j);
-  if (!erVederlagsvarselhjemmel(hjemmel))
+  if (!erSvarbarVarselhjemmel(hjemmel))
     throw new KanIkkeUttrykkes(
       `svaret gjelder et varsel etter § ${hjemmel}, som ikke besvares alene`
     );
@@ -620,8 +625,8 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
 }
 
 /**
- * VS-U87 punkt 32 og 33: standpunktet i svaret på varselet etter § 34.1.2 eller § 34.1.3 som står
- * alene. Svaret erstatter det forrige svaret på varselet. Innsigelsen fra et tidligere svar på det
+ * VS-U96 punkt 32 og 33: standpunktet i svaret på varselet etter § 33.4, § 34.1.2 eller § 34.1.3
+ * som står alene. Svaret erstatter det forrige svaret på varselet. Innsigelsen fra et tidligere svar på det
  * bevares med brevet den først ble gjort gjeldende i, og svaret gjentar den eller gir den opp
  * uttrykkelig (punkt 6 og 10). Ordlyden følger `rettidighetstekst` for svaret på kravet.
  */
@@ -642,7 +647,7 @@ function rettidighetIVarselet(
       ? `byggherren gir opp innsigelsen i ${foerst} og gjør ikke gjeldende at varselet kom for sent.`
       : 'byggherren gjør ikke gjeldende at varselet kom for sent.';
   return forSentMedFoelgen(
-    brevtekstI('vederlag'),
+    brevtekstI(s.spor),
     'varselet',
     p.hjemmel,
     foerst ? `, jf. innsigelsen i ${foerst}` : ''
@@ -768,27 +773,38 @@ interface Fastholdt {
 
 /**
  * LV-U76 og LV-U77: innsigelsene byggherren fastholder i forespørselen etter § 33.6.2, i
- * rekkefølgen etter OV-U32: preklusjonen etter § 32.2 og avslaget av forholdet. Bare en
+ * rekkefølgen etter OV-U32: preklusjonen etter § 32.2, avslaget av forholdet og påberopelsen etter
+ * § 33.4 (LV-U84 punkt 18). Bare en
  * påberopelse i et svar er en innsigelse forespørselen fastholder (LV-U84 punkt 18, VS-U89).
  * Preklusjonen er byggherrens siste standpunkt etter § 32.2 i et svar på forholdet, også på en
  * tidligere påberopelsesversjon, fordi varselet er det samme i hver versjon (arbeidsvalget 15.10 i
  * #500). Den viser til varselet (VS-U86 punkt 10) og til brevet der byggherren gjorde den
  * gjeldende (LV-U4 punkt 5). En innsigelse byggherren har gitt opp, er ikke med. Et ubesvart
- * forhold er GR-U34, og avslaget leses bare av svaret på gjeldende versjon. Etter § 33.4 har
- * byggherren ikke svart før forespørselen, fordi den ikke sendes etter et krav med dager (VS-U19).
+ * forhold er GR-U34, og avslaget leses bare av svaret på gjeldende versjon. Påberopelsen etter
+ * § 33.4 står sist, og bare i svaret på varselet som står alene, fordi forespørselen ikke sendes
+ * etter et krav med dager (VS-U19, VS-U96 punkt 34).
  */
 function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
   const { j, nytt, saken } = t;
   let preklusjonen: { gjelder: string; dokument: string } | null = null;
+  // VS-U96 punkt 34: påberopelsen etter § 33.4 i svaret på varselet som står alene, med brevet den
+  // først ble gjort gjeldende i (punkt 6).
+  let etter334: { gjelder: string; dokument: string } | null = null;
   for (const d of j.dokumenter) {
     if (d.avsender !== nytt.avsender || d.id === nytt.id) continue;
     for (const svar of d.svar) {
-      if (svar.spor !== 'forhold' || saken.utenVirkning.includes(svar.id)) continue;
-      const p = svar.standpunkter.find(
-        (x): x is Extract<Standpunkt, { art: 'rettidighet' }> =>
-          x.art === 'rettidighet' && x.hjemmel === '32.2'
-      );
-      if (p) preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
+      if (saken.utenVirkning.includes(svar.id)) continue;
+      for (const p of svar.standpunkter) {
+        if (p.art !== 'rettidighet') continue;
+        if (svar.spor === 'forhold' && p.hjemmel === '32.2')
+          preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
+        if (
+          svar.spor === 'frist' &&
+          p.hjemmel === '33.4' &&
+          j.element(svar.gjelder).art === 'utsagn'
+        )
+          etter334 = p.iTide ? null : (etter334 ?? { gjelder: p.gjelder, dokument: d.id });
+      }
     }
   }
   const ut: Fastholdt[] = [];
@@ -808,6 +824,11 @@ function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
         : 'avslaget av forholdet';
     ut.push({ hva: `${avslaget}, jf. svaret i ${j.brevet(g.dokument)}`, varslene: [] });
   }
+  if (etter334)
+    ut.push({
+      hva: `at ${VARSELET_I_SVARET['33.4']} i ${j.brevet(j.dokumentetTil(etter334.gjelder))} kom for sent, jf. innsigelsen i ${j.brevet(etter334.dokument)}`,
+      varslene: [etter334.gjelder],
+    });
   return ut;
 }
 

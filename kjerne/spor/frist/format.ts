@@ -23,6 +23,7 @@ import type {
   Standpunkt,
   Standpunktsart,
   Standpunktsvirkning,
+  Svar,
 } from '../../typer.ts';
 import { kontrollerRadene } from '../poster/format.ts';
 import { kategori } from '../forhold/format.ts';
@@ -71,8 +72,19 @@ export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: b
   { art: 'ikke_svar', paakrevd: false },
   { art: 'hindring', paakrevd: false },
   { art: 'spesifisering', paakrevd: false },
-  { art: 'dager', paakrevd: true },
+  // Påkrevd i svaret på kravet, ikke i svaret på varselet (`kontrollerStandpunkteneIFristen`).
+  { art: 'dager', paakrevd: false },
 ];
+
+/**
+ * VS-U96 punkt 32: svaret gjelder varselet etter § 33.4 som står alene, ikke en kravversjon. Det har
+ * bare standpunktet til varselet. Utledningen kontrollerer at `gjelder` er varselet
+ * (`kontrollerSvarPaaVarselet` i `utledning/utled.ts`).
+ */
+export const svaretGjelderFristvarselet = (svar: Pick<Svar, 'standpunkter'>): boolean =>
+  svar.standpunkter.length === 1 &&
+  svar.standpunkter[0]!.art === 'rettidighet' &&
+  svar.standpunkter[0]!.hjemmel === '33.4';
 
 const DAGER: Skjema = { type: 'integer', minimum: 1 };
 
@@ -184,7 +196,10 @@ export const UTREGNINGSSKJEMA_I_FRISTEN: Skjema = objekt(
       )
     ),
   },
-  ['frister']
+  [],
+  // VS-U96 punkt 32: svaret på varselet etter § 33.4 som står alene har ingen utregning
+  // (`svaretGjelderFristvarselet`).
+  [{ required: ['frister'] }, objekt({}, [])]
 );
 
 /** En frist i fristtabellen for prosjektet, slik serveren gir den i `Kontekst` (GFK-U18). */
@@ -233,15 +248,22 @@ export const utregningIFristen = (utregning: Record<string, unknown>): Fristutre
 export const dageneILagene = (utregning: Record<string, unknown>): Map<string, number[]> =>
   new Map(utregningIFristen(utregning).frister.map((f) => [f.gjelder, f.lag.map((l) => l.dager)]));
 
-/** Svaret godkjenner dager for en frist i et av lagene (HF-U23 punkt 1). */
+/**
+ * Svaret godkjenner dager for en frist i et av lagene (HF-U23 punkt 1). Svaret på varselet etter
+ * § 33.4 har ingen utregning og godkjenner ingen dager (VS-U96 punkt 32).
+ */
 export const godkjennerDagerIEtLag = (utregning: Record<string, unknown>): boolean =>
+  'frister' in utregning &&
   [...dageneILagene(utregning).values()].some((lagene) => lagene.some((d) => d > 0));
 
 type Data = Record<string, unknown>;
 
 /** Raden for fristen `gjelder` i utregningen. */
 const radenFor = (utregning: Data, gjelder: string, sti: string): Fristrad => {
-  const rad = utregningIFristen(utregning).frister.find((r) => r.gjelder === gjelder);
+  const rad =
+    'frister' in utregning
+      ? utregningIFristen(utregning).frister.find((r) => r.gjelder === gjelder)
+      : undefined;
   if (!rad) throw new Uforstaatt(`${sti}: utregningen har ingen rad for fristen ${gjelder}`);
   return rad;
 };
@@ -293,6 +315,15 @@ function standpunktIFristen(e: Data, utregning: Data, sti: string): Standpunkt |
  * Dagene byggherren måtte forstå, gjelder de samme fristene (D-5).
  */
 function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti: string): void {
+  if (svaretGjelderFristvarselet({ standpunkter: ut })) {
+    if ('frister' in utregning)
+      throw new Uforstaatt(`${sti}: svaret på varselet etter § 33.4 har ingen utregning`);
+    return;
+  }
+  if (!ut.some((s) => s.art === 'dager'))
+    throw new Uforstaatt(`${sti}: svaret på frist mangler standpunktet dager`);
+  if (!('frister' in utregning))
+    throw new Uforstaatt(`${sti}: svaret på kravet om fristforlengelse har ingen utregning`);
   const rekkefoelge = ['rettidighet', 'ikke_svar', 'hindring', 'spesifisering', 'dager'];
   let forrige = 0;
   for (const s of ut) {
@@ -354,6 +385,7 @@ function kontrollerUtregningenIFristen(
   virkninger: Standpunktsvirkning[],
   sti: string
 ): void {
+  if (svaretGjelderFristvarselet({ standpunkter: ut })) return;
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.frister: ${hva}`);
   const dagene = ut.filter((s) => s.art === 'dager');
   const rader = utregningIFristen(utregning).frister;
