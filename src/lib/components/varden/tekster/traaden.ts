@@ -33,12 +33,16 @@ export const TRAADEN = haerdet({
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     if (b.brevtittel && spor.length <= 1) return b.brevtittel.replace(/ i sak \S+$/, '');
     const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
+    // Et svar bare på et varsel heter etter varselet, som brevtittelen (VS-U96 punkt 39, #2481).
+    const besvart = spor
+      .filter((s) => s !== 'forhold')
+      .map((s) => b.svarPaaVarselet[s]?.tittel ?? `krav om ${KRAVET[s]}`);
     if (b.art === 'krav' && spor.length)
       return spor.includes('forhold')
         ? ['Påberopelse av forholdet', ...krav].join(' og ')
         : stor(krav.join(' og '));
     if (b.art === 'svar' && spor.length)
-      return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...krav].join(' og ')}`;
+      return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...besvart].join(' og ')}`;
     // Den frosne tittelen nevner saken, som tråden står i («Korrigering av datoen i sak KOE-17»).
     return TIDSLINJE.hva(b).replace(/ i sak \S+$/, '');
   },

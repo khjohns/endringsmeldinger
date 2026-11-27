@@ -91,10 +91,11 @@ export interface Brevet {
   /** Bestemmelsene for varslene i brevet, tom for et brev uten varsel (OV-U25, VS-U48, VS-U52). */
   varselhjemler: Varselhjemmel[];
   /**
-   * Varselet hvert svar i brevet bare på et varsel gjelder, per spor, med ordene i brevtittelen
-   * («varselet om fristforlengelse»). Et svar på kravet står ikke her (VS-U96 punkt 39, #2481).
+   * Varselet hvert svar i brevet bare på et varsel gjelder, per spor, med ordene i brevtittelen:
+   * `tittel` «varsel om fristforlengelse» og `del` «varselet om fristforlengelse». Et svar på
+   * kravet står ikke her (VS-U96 punkt 39, #2481).
    */
-  svarPaaVarselet: Partial<Record<Spor, string>>;
+  svarPaaVarselet: Partial<Record<Spor, { tittel: string; del: string }>>;
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -175,7 +176,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         vedlegg: d.dokumentasjon.map((v) => v.filnavn),
         varselhjemler: d.utsagn.flatMap((x) => (x.art === 'varsel' ? [x.hjemmel] : [])),
         svarPaaVarselet: Object.fromEntries(
-          d.svar.filter((s) => varselsvar.has(s.id)).map((s) => [s.spor, svaretGjelder(s).del])
+          d.svar.filter((s) => varselsvar.has(s.id)).map((s) => [s.spor, svaretGjelder(s)])
         ),
       },
     ];

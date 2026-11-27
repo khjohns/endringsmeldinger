@@ -512,6 +512,22 @@ export const varseletIPosten = (v: Varslenesvalg, p: VarseletIPosten): boolean |
     p.hjemmel === '34.4'
   );
 
+const justeringIPosten = (v: Varslenesvalg, p: VarseletIPosten): boolean | null =>
+  p.hjemmel === '34.3.3' ? postvarselvalget(v, p.post.id).godtarJustering : null;
+
+/** Kravpostene svaret har et standpunkt til, i rekkefølgen i kravet. */
+export const besvartePoster = (v: Varslenesvalg, poster: readonly VarseletIPosten[]) =>
+  poster.filter((p) => varseletIPosten(v, p) !== null || justeringIPosten(v, p) !== null);
+
+/**
+ * Postene tittelen på svaret gjelder, som kjernen leser dem av standpunktene (`svaretGjelder`):
+ * postene svaret har et standpunkt til, eller alle før byggherren har valgt.
+ */
+export const postenITittelen = (v: Varslenesvalg, poster: readonly VarseletIPosten[]) => {
+  const besvart = besvartePoster(v, poster);
+  return (besvart.length ? besvart : poster).map((p) => ({ id: p.post.id, hjemmel: p.hjemmel }));
+};
+
 /**
  * BHs svar bare på varslene i vederlagskravet der kravet selv er varselet, eller et nytt svar som
  * erstatter det forrige (VS-U96 punkt 33 og 38, svaret på spørsmål 3 i #2456): kravversjonen i
@@ -526,20 +542,13 @@ export function varslenesvaret(
 ):
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
-  const kravposter = varslene.poster.flatMap((p) => {
-    const iTide = varseletIPosten(v, p);
-    const justering =
-      p.hjemmel === '34.3.3' ? postvarselvalget(v, p.post.id).godtarJustering : null;
-    return iTide === null && justering === null
-      ? []
-      : [
-          definert({
-            gjelder: p.post.id,
-            varslet_i_tide: iTide ?? undefined,
-            godtar_justering: justering ?? undefined,
-          }),
-        ];
-  });
+  const kravposter = besvartePoster(v, varslene.poster).map((p) =>
+    definert({
+      gjelder: p.post.id,
+      varslet_i_tide: varseletIPosten(v, p) ?? undefined,
+      godtar_justering: justeringIPosten(v, p) ?? undefined,
+    })
+  );
   const svar: Svarutkast = {
     spor: 'vederlag',
     gjelder: varslene.kravversjon,

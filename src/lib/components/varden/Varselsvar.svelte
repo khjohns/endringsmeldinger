@@ -85,7 +85,8 @@
 
   const hjemmel = $derived(varselet.hjemmel);
   const spor = $derived(VARSELSPOR[hjemmel]);
-  const varselbrevet = $derived(brevMedUtsagn(u, varselet.id));
+  // Brevet svaret gjelder: kravversjonen når kravet selv er varselet (VS-U96 punkt 38).
+  const varselbrevet = $derived(brevMedUtsagn(u, varselet.kravversjon ?? varselet.id));
   const foer = $derived(
     varselet.foer && {
       iTide: varselet.foer.iTide,

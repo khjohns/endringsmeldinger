@@ -12,6 +12,7 @@ import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import { varsleneIVederlagskravet } from '#lib/kjernesak/vederlagskrav.ts';
 import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
@@ -24,6 +25,10 @@ import {
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
 import Varslenesvar from '#lib/components/varden/Varslenesvar.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import Varselsvar from '#lib/components/varden/Varselsvar.svelte';
+import { brevene } from '#lib/components/varden/lesing.ts';
+import { TIDSLINJE, TRAADEN } from '#lib/components/varden/tekster/index.ts';
+import { varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
 
 afterEach(cleanup);
 
@@ -243,5 +248,85 @@ describe('handlingen ved kravet i Varden (VS-U96 punkt 38 og 39, U-16 i BF-44)',
     expect(
       await screen.findByRole('heading', { name: /^Svar på varsel om fristforlengelse/ })
     ).toBeInTheDocument();
+  });
+});
+
+describe('funnene fra /code-review av #2488', () => {
+  it('tittelen følger postene svaret har standpunkt til, som brevtittelen i kjernen (`svaretGjelder`)', async () => {
+    await skjemaet(medVederlagskravet());
+    expect(
+      screen.getByRole('heading', { name: /^Svar på varslene i krav om vederlagsjustering/ })
+    ).toBeInTheDocument();
+    await fireEvent.click(posten('P1').getByRole('button', { name: 'Varselet kom for sent' }));
+    expect(screen.queryByRole('heading', { name: /^Svar på varslene/ })).toBeNull();
+    expect(screen.getByRole('heading', { name: /^Svar på varsel / })).toBeInTheDocument();
+  });
+
+  it('svaret bare på varselet i en ny versjon av fristkravet svarer på brevet med den versjonen (VS-U96 punkt 38)', async () => {
+    const v1 = medFristkravet();
+    const v2 = skrevet(v1, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: {
+        frister: [
+          {
+            id: innholdIFristen(utledJournal(v1, KJERNE).spor.frist.gjeldendeKrav!).frister[0]!.id,
+            navn: 'Sluttfristen',
+            dager: 25,
+          },
+        ],
+      },
+      utdypning: 'Pelingen tar fem uker lenger.',
+    });
+    const kjernesak = kjernesakFor(v2);
+    await kjernesak.last();
+    const u = kjernesak.utledning!;
+    const krav = u.spor.frist.gjeldendeKrav!;
+    render(Varselsvar, {
+      kjernesak,
+      u,
+      varselet: varseletSvaretPaa(u, krav.id)!,
+      onbrevkontroll: () => {},
+      onforkast: () => {},
+    });
+    const nummer = brevene(u).find((b) => b.id === krav.dokument)!.nummer;
+    expect(screen.getByText(new RegExp(`^Svarer på brev ${nummer} `))).toBeInTheDocument();
+  });
+
+  it('brevtråden og tidslinja kaller et brev med svar bare på varslene i både vederlaget og fristen etter varslene (#2481)', () => {
+    const vederlag = medVederlagskravet([REGNINGSARBEID, FAST]);
+    const journal = skrevet(vederlag, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+      utdypning: 'Pelingen tar fire uker lenger.',
+    });
+    const u = utledJournal(journal, KJERNE);
+    const { id, poster } = kravet(journal);
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'vederlag',
+          gjelder: id,
+          bare_varselet: true,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { kravposter: [{ gjelder: poster[0], varslet_i_tide: false }] },
+          resultat: {},
+        },
+        {
+          spor: 'frist',
+          gjelder: u.spor.frist.gjeldendeKrav!.id,
+          bare_varselet: true,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const brevet = brevene(utledJournal(besvart, KJERNE)).at(-1)!;
+    expect(TRAADEN.hva(brevet)).not.toMatch(/krav om/);
+    expect(TRAADEN.hva(brevet)).toMatch(/^Svar på varsel .* og varsel om fristforlengelse$/);
+    expect(TIDSLINJE.hva(brevet)).toMatch(/^Svar på varselet .* og varselet om fristforlengelse$/);
   });
 });

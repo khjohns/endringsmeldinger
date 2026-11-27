@@ -78,6 +78,7 @@
     tomtSvar,
     tomtVarselsvar,
     tomtVarslenesvar,
+    postenITittelen,
     valgFraSvaret,
     type Innleggsvalg,
     type Korrigeringsvalg,
@@ -391,7 +392,12 @@
     return h
       ? SVARTITTEL_PAA_VARSELET[h]
       : varslene
-        ? VARSELSVARET.tittel(varslene.poster.map((p) => ({ id: p.post.id, hjemmel: p.hjemmel })))
+        ? VARSELSVARET.tittel(
+            postenITittelen(
+              utkastene.varslenesvar[utkast.gjelder] ?? tomtVarslenesvar(),
+              varslene.poster
+            )
+          )
         : '';
   }
 

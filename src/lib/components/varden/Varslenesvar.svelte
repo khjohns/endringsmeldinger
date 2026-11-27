@@ -23,6 +23,7 @@
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
     kravetIKortform,
+    postenITittelen,
     postvarselvalget,
     tomtVarslenesvar,
     utenTekster,
@@ -197,9 +198,7 @@
   const foerI = (p: VarseletIPosten) =>
     p.foer && { iTide: p.foer.iTide, brev: brevet(u, p.foer.dokument), ikkeGitt: false };
   const virkninger: string[] = [];
-  const tittel = $derived(
-    VARSELSVARET.tittel(varslene.poster.map((p) => ({ id: p.post.id, hjemmel: p.hjemmel })))
-  );
+  const tittel = $derived(VARSELSVARET.tittel(postenITittelen(valg, varslene.poster)));
 </script>
 
 <Svarskjema

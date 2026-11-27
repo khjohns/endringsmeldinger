@@ -23,7 +23,7 @@ export const TIDSLINJE = haerdet({
       return spor.includes('forhold') ? 'Påberopelse av forholdet' : `Krav om ${om(KRAVET)}`;
     // Et svar bare på et varsel heter etter varselet, som brevtittelen (VS-U96 punkt 39, #2481).
     if (b.art === 'svar' && spor.length)
-      return `Svar på ${spor.map((s) => b.svarPaaVarselet[s] ?? SAKSDELEN[s]).join(' og ')}`;
+      return `Svar på ${spor.map((s) => b.svarPaaVarselet[s]?.del ?? SAKSDELEN[s]).join(' og ')}`;
     if (b.art === 'trekk' && spor.length)
       return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
     if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;
