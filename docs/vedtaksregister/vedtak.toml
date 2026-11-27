@@ -13273,6 +13273,96 @@ E1–E6 står som i versjon 1 ([VS-U47](#samlevedtak-spesifisering)).
   KA-U77 slik EO-U40, EO-U41, GR-U38 og GR-U39 har endret og presisert det. Det skjemaet viser, står
   i designdelen (prinsippet 14.11).
 - **E11.** Språket: «TE» blir «totalentreprenøren».
+
+##### <a id="samlevedtak-utledning"></a>Samlevedtaket for det løsningen utleder, det den bare viser, og passiviteten (VS-U97)
+
+Teksten under er samlevedtaket [VS-U97](#vs-u97), vedtatt 27.11 av oppdragsgiver (#1534),
+slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-f-utledning-og-passivitet-2026-11-27.md)
+som F1, med svarene 1 A og 2 A. «s3» er tredje setning i vedtaksteksten til posten det vises til, uten «Forkastet», og «K» viser til punktene i vurderingen.
+
+Samlevedtaket er et *vedtak* med designdel. Hver setning har kilden i parentes.
+
+###### A. Tre måter
+
+1. Løsningen behandler bestemmelsene om varsler, svar og frister på tre måter: den utleder virkningen
+   av partens standpunkt, den registrerer og viser utsagnet med frist og bestemmelse, eller den
+   vurderer selv der et vedtak sier det. (VS-U3 s1, s2, s5 og s8)
+2. Løsningen utleder virkningen av partens standpunkt etter punkt 32.2 og 32.3 første ledd a–c, 33.1,
+   33.4 og 33.6.1, valgretten i punkt 33.8, og punkt 34.1.2, 34.1.3, 34.2.2 og 34.3.3 første ledd. Å
+   utlede betyr å registrere standpunktet og vise virkningen på partens premisser, ikke å fastslå at
+   kravet er prekludert. (VS-U3 s2–s3; VS-U96 punkt 3)
+3. Løsningen åpner for totalentreprenørens valg etter punkt 33.8, men bekrefter ikke at valgretten
+   finnes. (VS-U3 s4; FO-U10)
+4. For virkningen etter punkt 33.6.2 tredje ledd gjelder VS-U88 punkt 4. (VS-U3 s9; E9)
+5. Løsningen registrerer og viser utsagnet med frist og bestemmelse for punkt 32.3 tredje ledd, punkt
+   33.6.2 tredje ledd når totalentreprenøren ikke svarer, punkt 33.7 annet ledd, 30 %-grensen i
+   punkt 33.8, punkt 34.2.1, punkt 34.3.3 annet ledd, punkt 34.4 og punkt 35.2. Det betyr uten
+   automatisk utledning, ikke uten rettsvirkning. (VS-U3 s5–s6 og s9; E1; E3; E4)
+6. Løsningen vurderer selv bare der det er vedtatt: om punkt 32.2 gjelder for kategorien,
+   sammenlikningen av beløp og dager, og punkt 33.6.2 fjerde ledd (KA-U4). (VS-U3 s8)
+
+###### B. Bestemmelsene som er endret
+
+7. En påberopelse i et svar av at motparten har varslet, krevd eller svart for sent, er innsigelsen
+   etter punkt 5 tredje ledd, og virkningen utledes der punkt 2 sier det. Den egne innsigelsen etter
+   punkt 5 tredje ledd er ikke en egen handling og følger VS-U89; løsningen tolker den ikke og utleder
+   ingen virkning av den. (VS-U96 punkt 1, 3 og 19; VS-U89; E3)
+8. Totalentreprenørens påberopelse av byggherrens passivitet etter punkt 32.3 annet ledd følger
+   VS-U90. Løsningen trekker ingen konklusjon av passiviteten (VS-U96 punkt 4). (VS-U90; raden 24.09;
+   E4)
+9. Gjør byggherren gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent, registreres
+   og vises standpunktet uten utledet virkning. (OV-U115 punkt 11; VS-U96 punkt 31; E1)
+10. Løsningen følger punkt 35.2 slik kontraktsgrunnlaget (Del II pkt. B.2.17) endrer det: første ledd
+    bokstav a om oppmann før overtakelsen gjelder ikke. For punkt 35.2 viser løsningen bare fristen
+    for å iverksette søksmål eller voldgift etter overtakelsen. (VS-U42; E2)
+
+###### Designdel
+
+Står til forløpet for veiledningen om passivitet og frister er skrevet (K3).
+
+- For punkt 32.3 annet ledd, 33.6.2 tredje ledd, 33.7 annet ledd, 34.3.3 annet ledd og 35.2 viser
+  løsningen fristen og bestemmelsen som veiledning, uten å trekke konklusjonen. Fristen er
+  bestemmelsen og fristens utgangspunkt, ikke en dato. Det bindende står i VS-U96 punkt 4 og punkt 5
+  og 8 over. (VS-U2; VS-U10, Følge; raden 24.09; E10)
+- For en frist etter kulepunktet over eller punkt 5 tredje ledd som løper «uten ugrunnet opphold»
+  etter et brev, viser veiledningen datoen, antall dager siden og bestemmelsen, uten en fast frist.
+  Datoen er datoen for utsagnet etter LV-U86 punkt 1 og OV-U123 punkt 11. Har brevet to datoer i
+  løsningen, viser veiledningen begge, med parten som oppga dem. Veiledningen sier ikke at brevet kom
+  fram den dagen. (VS-U10 s1; E6)
+- Fristen etter punkt 35.2 vises uten dato. (VS-U42, designdelen)
+- Hvor veiledningen står ved kravet, står i `system.md` MM-U24.
+
+###### Endret innhold
+
+- **E1 Punkt 5 og 9, punkt 34.4.** VS-U3 s10 «Hvordan appen behandler § 34.4, avgjøres når § 30 er
+  lest» er avgjort av OV-U115 punkt 11 (fra VS-U28, som presiserte VS-U3 for punkt 34.4). Punkt 34.4
+  står i listen i punkt 5.
+- **E2 Punkt 10, punkt 35.2.** VS-U3 s7 om oppmann før overtakelsen gjelder ikke (VS-U42).
+- **E3 Punkt 5 og 7, punkt 5 tredje ledd.** VS-U3 s5 har punkt 5 tredje ledd i listen over det som
+  registreres og vises. VS-U89 endret VS-U3 for punkt 5 tredje ledd utenfor svaret, og VS-U96 punkt 1,
+  3 og 19 sier at påberopelsen i et svar er innsigelsen etter punkt 5 tredje ledd, med virkning der
+  VS-U3 sier det. Punkt 5 tredje ledd står derfor i punkt 7 og ikke i listen.
+- **E4 Punkt 5 og 8, punkt 32.3 annet ledd.** VS-U90 endret VS-U3 for punkt 32.3 annet ledd og
+  opphevet VS-U12: påberopelsen er et innlegg, ikke et utsagn løsningen registrerer. Punkt 32.3 annet
+  ledd står derfor i punkt 8 og i veiledningen, og ikke i listen i punkt 5. At det VS-U3 sier om
+  punktet, ikke bygges i første versjon (Følge, OV-U7), gjelder ikke lenger. «Varsles» i raden 24.09
+  leses som veiledningen, som VS-U2 utvidet raden til.
+- **E5 Følge i VS-U3.** Henvisningene til VS-U12, VS-U13, KA-U23, FO-U3 og paragrafmatrisen føres ikke
+  videre. FO-U3, som sier hvordan 30 %-grensen vises, er samlet i FO-U10, og punkt 33.3 står i
+  OV-U128 og KA-U23 (K8).
+- **E6 Designdelen, datoen.** «Mottaksdatoen» i VS-U10 strider mot `system.md` MM-U24 («regnet fra
+  sendingen») og mot LV-U86 punkt 1 (K6). Designdelen bruker datoen for utsagnet. Den forkastede
+  faste fristen står. E6 løser en motsigelse og endrer innholdet, så F1 opphever VS-U10 i stedet for å
+  samle den (svar 4 A i #1534). «Som før (VS-U10)» i OV-U126 gjelder designdelen i F1.
+- **E7 HF-U22.** HF-U22 sier det samme som HF-U36 punkt 8 for et svar etter akseptfristen (K5), og
+  gjelder som HF-U36 punkt 8.
+- **E8 Ordene.** «Appen» er «løsningen», og «§» er «punkt», etter [språkfila](../sprak.md).
+- **E9 Punkt 4.** VS-U3 s9 står i VS-U88 punkt 4, som viser til VS-U3. Regelen står ett sted.
+- **E10 Veiledningen.** VS-U2 og raden 24.09 sier at veiledningen ikke trekker konklusjonen. Den
+  setningen står i VS-U96 punkt 4 (fra HF-U11 s3), og resten er visning. Den står i designdelen.
+
+**Samler:** VS-U3, VS-U42, VS-U2, HF-U22 og raden 24.09. **Opphever:** VS-U10 (E6). Henvisningene
+til dem i andre poster gjelder F1, også «der VS-U3 sier det» i VS-U96 punkt 3, som gjelder punkt 2.
 '''
 
 [[gruppe.vedtak]]
@@ -13546,6 +13636,7 @@ med [VS-U1](#vs-u1) («ethvert varsel, krav eller svar fra motparten») og
 [VS-U4](#vs-u4), som alt er symmetrisk. Ikke bygget. Formatet hører til #309'''
 
 [[gruppe.vedtak]]
+anker = "passivitet-uten-konklusjon"
 klasse = "vedtak"
 designdel = "hvordan passiviteten vises"
 vedtak = '''
@@ -13566,6 +13657,7 @@ VS-U2: passivitet og søksmålsfrist vises som veiledning. § 32.3 annet ledd, �
 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 vises med frist og
 bestemmelse, uten at appen trekker konklusjonen'''
 vedtatt = "09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35"
+forhold = [{ art = "utvider", vedtak = "passivitet-uten-konklusjon" }]
 folge = '''
 Utvider vedtaket om passivitet under B-13 (§ 32.3 annet ledd) til de andre
 bestemmelsene. Presisert 10.10 av [VS-U3](#vs-u3) for § 33.6.2 tredje ledd: påberoper
@@ -13581,7 +13673,7 @@ VS-U10: for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunn
 etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en
 fast frist. Forkastet: en veiledende frist per prosjekt, og en fast frist på 10 dager'''
 vedtatt = "10.10, oppdragsgiver (#309)"
-forhold = [{ art = "presiserer", vedtak = "vs-u2" }]
+forhold = [{ art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "passivitet-uten-konklusjon" }]
 folge = '''
 Presiserer [VS-U2](#vs-u2): «frist» er bestemmelsen og fristens utgangspunkt, ikke en
 dato. Presiserer også vedtaket om passivitet under B-13: appen viser ingen fast frist.
@@ -18183,6 +18275,71 @@ tekst = '''
 Svarene i #2456 føres som en egen post, og versjon 4 samler den.'''
 forkastet = true
 
+
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+id = "VS-U97"
+dato = 2026-11-27
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/1b44a08/docs/vedtaksregister/vurdering-samlevedtak-f-utledning-og-passivitet-2026-11-27.md#spørsmålene), som en nummerert liste i tekst.
+
+**1. Delingen (prosess).** Tema 25 samles i ett samlevedtak, F1, fordi regelen i VS-U3 er endret
+av tre senere vedtak (K4). Designet som alt står i `system.md` (MM-U24, MM-U30, MM-U40), blir
+stående der.
+- **A (anbefalt):** F1 samler VS-U3, VS-U42, VS-U2, HF-U22 og raden 24.09 og opphever VS-U10.
+  Designdelen står i F1 til forløpet for veiledningen om passivitet og frister er skrevet.
+- **B:** F1 samler bare VS-U3, VS-U42 og raden 24.09. VS-U2, VS-U10 og HF-U22 står som
+  designposter til forløpet skrives, E6, E7 og E10 føres ikke, og motsigelsen mellom
+  «mottaksdatoen» i VS-U10 og «regnet fra sendingen» i `system.md` MM-U24 blir stående.
+
+Styrer: om veiledningen leses i én post før forløpet finnes, og om motsigelsen om datoen løses nå.
+
+**2. Tilslutning til F1 (juridisk).** Samlevedtaket for det løsningen utleder, det den bare viser,
+og passiviteten (foreløpig VS-U97) gjelder med E1–E10. Forhold: samler VS-U3, VS-U42, VS-U2,
+HF-U22 og raden 24.09, og opphever VS-U10, fordi E6 løser motsigelsen om datoen fristveiledningen
+regnes fra: datoen for brevet i løsningen, ikke datoen det ble mottatt. Henvisningene til postene i
+andre poster gjelder F1, også «som før (VS-U10)» i OV-U126. Det endrer ikke innholdet i VS-U88
+punkt 4, VS-U89, VS-U90, VS-U96 punkt 4, OV-U115 punkt 11 eller HF-U36 punkt 8, som det viser til.
+- **A (anbefalt):** Ja, som utkastet.
+- **B:** Som A, med rettelsene oppdragsgiver gir per punkt eller E-punkt.
+
+Styrer: hvor regelen for hva løsningen utleder og bare viser leses, og hvilken dato
+fristveiledningen regnes fra (E6).'''
+valgt = "1 A, 2 A"
+svar = '''
+Oppdragsgiver 27.11, ordrett, videresendt av orkestratoren og ført i #1534 ([7215506178](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7215506178)): «1A, 2A». Valgt samlet for denne posten: 1 A, 2 A.'''
+forhold = [
+  { art = "samler", vedtak = "vs-u3" },
+  { art = "samler", vedtak = "vs-u42" },
+  { art = "samler", vedtak = "vs-u2" },
+  { art = "samler", vedtak = "hf-u22" },
+  { art = "samler", vedtak = "passivitet-uten-konklusjon" },
+  { art = "opphever", vedtak = "vs-u10" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for det løsningen utleder, det den bare viser, og passiviteten](#samlevedtak-utledning). Henvisningene til VS-U3, VS-U42, VS-U2, HF-U22, VS-U10 og raden 24.09 i andre poster gjelder VS-U97, også «som før (VS-U10)» i OV-U126 (svar 2 A). VS-U10 er opphevet fordi E6 løser motsigelsen om datoen fristveiledningen regnes fra (svar 1 A og 2 A).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A"
+tekst = '''
+Utkastet til F1 gjelder som samlevedtaket for det løsningen utleder, det den bare viser, og passiviteten, med punktene, designdelen og «Endret innhold» E1–E10, slik det står i vurderingsfila under «Utkastet til F1». Spørsmål 1: F1 samler VS-U3, VS-U42, VS-U2, HF-U22 og raden 24.09 og opphever VS-U10. Designdelen står i F1 til forløpet for veiledningen om passivitet og frister er skrevet. Spørsmål 2: Ja, som utkastet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+F1 samler bare VS-U3, VS-U42 og raden 24.09. VS-U2, VS-U10 og HF-U22 står som designposter til forløpet skrives, E6, E7 og E10 føres ikke, og motsigelsen mellom «mottaksdatoen» i VS-U10 og «regnet fra sendingen» i system.md MM-U24 blir stående.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Som A, med rettelsene oppdragsgiver gir per punkt eller E-punkt.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Endringsordre og forsering"
@@ -25833,7 +25990,7 @@ tekst = "I et brev fra appen utleder appen virkningen av standpunktet i den fast
 [[gruppe.vedtak]]
 klasse = "design"
 flyttet_til = ".interface-design/system.md#mm-u24"
-bindende_i = ["lv-u9", "hf-u11", "hf-u23"]
+bindende_i = ["hf-u11", "hf-u23"]
 id = "MM-U24"
 dato = 2026-10-17
 hvem = "oppdragsgiver"

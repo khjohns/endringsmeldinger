@@ -349,7 +349,6 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U2](../../plans/vedtak.md#vs-u2) | — | — | BF-14, BF-20 |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-45 bh-har-mottatt-kravet | BF-14, BF-20, BF-47 |
 | [VS-U4](../../plans/vedtak.md#vs-u4) | — | — | BF-14, BF-20 |
-| [VS-U10](../../plans/vedtak.md#vs-u10) | — | — | BF-20 |
 | [VS-U11](../../plans/vedtak.md#vs-u11) | — | — | BF-01V |
 | [VS-U14](../../plans/vedtak.md#vs-u14) | — | — | BF-14 |
 | [VS-U15](../../plans/vedtak.md#vs-u15) | — | — | BF-20 |
@@ -399,3 +398,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U89](../../plans/vedtak.md#vs-u89) | — | BF-03 te-har-mottatt-svaret | — |
 | [VS-U90](../../plans/vedtak.md#vs-u90) | — | BF-03 te-har-mottatt-svaret | — |
 | [VS-U91](../../plans/vedtak.md#vs-u91) | — | — | BF-49 |
+| [VS-U97](../../plans/vedtak.md#vs-u97) | — | — | BF-20 |
