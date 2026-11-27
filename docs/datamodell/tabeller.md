@@ -749,7 +749,7 @@ Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesj
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
 | Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.les_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (triggeren `koe.app_project_memberships_tilbakekall`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.synkroniser_hr`, som sletter sesjonene til en deaktivert person); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra) |
 | Funn | — |
-| Belegg | L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700). |
+| Belegg | L 16.10: migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700). K 27.11: `server/tester/sesjon.test.ts` og `server/tester/sesjonens_varighet.test.ts` for levetiden, tidsavbruddet og tilbakekallingen (#1806). |
 
 ### `koe.app_oauth_attempts`
 

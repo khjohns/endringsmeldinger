@@ -395,9 +395,8 @@ async function loggUt({ token }: Innlogget, avh: Required<Avhengigheter>): Promi
 }
 
 /** `expiresIn` er sekundene til sesjonen løper ut uten ny bruk, etter lesingen i denne forespørselen. */
-async function csrfToken({ sesjon }: Innlogget, avh: Required<Avhengigheter>): Promise<Svar> {
-  const sekunder = Math.floor((sesjon.utloeper.getTime() - avh.tidspunkt().getTime()) / 1000);
-  return [200, { csrfToken: sesjon.csrfToken, expiresIn: Math.max(0, sekunder) }];
+async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
+  return [200, { csrfToken: sesjon.csrfToken, expiresIn: sesjon.sekunderIgjen }];
 }
 
 const TILBAKEKALLET: Rute = {

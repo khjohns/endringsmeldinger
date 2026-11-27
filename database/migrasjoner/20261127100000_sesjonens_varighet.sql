@@ -5,11 +5,13 @@
 -- egen verdi. `expires_at` er fortsatt tidspunktet sesjonen slutter å gjelde:
 -- det tidligste av `created_at` pluss levetiden og siste bruk pluss
 -- tidsavbruddet. `les_sesjon` flytter det fram ved bruk, men skriver bare når det
--- flytter seg mer enn ett minutt, så ikke hver forespørsel blir en skriving.
+-- flytter seg mer enn ett minutt, eller en tidel av tidsavbruddet når det er kortere,
+-- så ikke hver forespørsel blir en skriving og sesjonen aldri løper ut ved jevn bruk.
 --
 -- Tilbakekallingen ved tap av medlemskap er en trigger, så hver vei som gjør et
 -- medlemskap inaktivt, sletter sesjonene: synkroniseringen, innloggingen og driftens
--- prosedyrer. HR-synkroniseringen sletter sesjonene til en person som er deaktivert.
+-- prosedyrer. HR-synkroniseringen sletter sesjonene til en person som mister rollen eller er
+-- deaktivert.
 
 CREATE OR ALTER PROCEDURE koe.kontroller_sesjonsvarighet
   @levetid int, @inaktivitet int
@@ -57,7 +59,7 @@ END
 GO
 
 -- Brukeren og CSRF-tokenet for en sesjon som gjelder, ellers ingen rad. `utloeper`
--- er det nye tidspunktet etter bruken. En sesjon utover levetiden avvises også når
+-- er det nye tidspunktet etter bruken, og `sekunder_igjen` tiden dit etter basens klokke. En sesjon utover levetiden avvises også når
 -- `expires_at` er satt med en lengre levetid enn den som gjelder nå.
 CREATE OR ALTER PROCEDURE koe_api.les_sesjon
   @token_hash nvarchar(4000), @levetid int, @inaktivitet int
@@ -79,9 +81,10 @@ BEGIN
    CROSS APPLY (SELECT LEAST(DATEADD(second, @levetid, s.created_at), DATEADD(second, @inaktivitet, @naa)) AS ny) v
    WHERE s.token_hash = @token AND s.expires_at > @klokke
      AND DATEADD(second, @levetid, s.created_at) > @klokke
-     AND (v.ny > DATEADD(second, 60, s.expires_at) OR v.ny < s.expires_at);
+     AND (v.ny > DATEADD(second, LEAST(60, @inaktivitet / 10), s.expires_at) OR v.ny < s.expires_at);
 
-  SELECT u.id AS bruker, u.email, u.name, s.csrf_token, s.expires_at AS utloeper
+  SELECT u.id AS bruker, u.email, u.name, s.csrf_token, s.expires_at AS utloeper,
+         DATEDIFF_BIG(second, @klokke, s.expires_at) AS sekunder_igjen
     FROM koe.app_sessions s
     JOIN koe.app_users u ON u.id = s.user_id
    WHERE s.token_hash = @token AND s.expires_at > @klokke
@@ -102,8 +105,9 @@ BEGIN
 END
 GO
 
--- Sesjonene til en person bildet fra Graph sier er deaktivert (`aktiv` er ikke
--- `true`), for hver av brukerens sesjoner, også når brukeren har medlemskap. Ellers
+-- Sesjonene til en person som mister rollen i HR-kopien (deaktivert i Entra, borte fra
+-- bildet fra Graph eller uten en stillingstittel som gir rolle), og til en person bildet
+-- sier er deaktivert (`aktiv` er ikke `true`), også når brukeren har medlemskap. Ellers
 -- som i `20261119210000_tilgangslogg.sql`.
 CREATE OR ALTER PROCEDURE koe_api.synkroniser_hr
   @tenant uniqueidentifier, @personer nvarchar(max),
@@ -156,7 +160,9 @@ BEGIN
   INSERT koe.app_identities (id, user_id, provider, issuer, subject)
   SELECT NEWID(), bruker, N'entra', @issuer, LOWER(CONVERT(nvarchar(36), oid)) FROM @person WHERE ny = 1;
 
+  DECLARE @mistet TABLE (bruker uniqueidentifier NOT NULL PRIMARY KEY, rolle nvarchar(100) NULL);
   UPDATE h SET rolle = NULL, leder_oid = NULL, hentet = @hentet
+  OUTPUT deleted.bruker_id, deleted.rolle INTO @mistet (bruker, rolle)
     FROM koe.hr_kopi h WITH (UPDLOCK, HOLDLOCK)
    WHERE h.tenant_id = @tenant AND NOT EXISTS (SELECT 1 FROM @person p WHERE p.bruker = h.bruker_id);
   UPDATE h SET tenant_id = @tenant, oid = p.oid, rolle = p.rolle, leder_oid = p.leder, hentet = @hentet
@@ -166,11 +172,12 @@ BEGIN
     FROM @person p
    WHERE NOT EXISTS (SELECT 1 FROM koe.hr_kopi h WHERE h.bruker_id = p.bruker);
   DELETE s FROM koe.app_sessions s
-    JOIN koe.app_identities i ON i.user_id = s.user_id
-     AND i.provider = N'entra' AND i.issuer = @issuer
-    JOIN OPENJSON(@personer) WITH (oid uniqueidentifier '$.oid', aktiv bit '$.aktiv') p
-      ON i.subject = LOWER(CONVERT(nvarchar(36), p.oid))
-   WHERE p.aktiv IS NULL OR p.aktiv = 0;
+   WHERE s.user_id IN (SELECT bruker FROM @mistet WHERE rolle IS NOT NULL)
+      OR s.user_id IN (
+        SELECT i.user_id FROM koe.app_identities i
+          JOIN OPENJSON(@personer) WITH (oid uniqueidentifier '$.oid', aktiv bit '$.aktiv') p
+            ON i.subject = LOWER(CONVERT(nvarchar(36), p.oid))
+         WHERE i.provider = N'entra' AND i.issuer = @issuer AND (p.aktiv IS NULL OR p.aktiv = 0));
   EXEC koe.skriv_tilgangslogg 'hr_synk', @korrelasjon;
   COMMIT;
 END

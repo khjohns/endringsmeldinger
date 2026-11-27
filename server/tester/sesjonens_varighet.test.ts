@@ -134,25 +134,10 @@ describe.skipIf(!TESTBASE_URL)('sesjonens tidsavbrudd og tilbakekalling (#1806)'
     expect(await sesjonen(sesjon.token)).toBe(200);
   });
 
-  it('HR-synkroniseringen sletter sesjonene til en person som er deaktivert i Entra, også med medlemskap', async () => {
+  describe('HR-synkroniseringen', () => {
     const tenant = randomUUID();
-    const [bhOid, teOid] = [randomUUID(), randomUUID()];
-    await settInn(() => eier().request(), 'entra_tenant', { tenant_id: tenant });
-    for (const [oid, bruker] of [
-      [bhOid, o.bh],
-      [teOid, o.te],
-    ] as const)
-      await eier()
-        .request()
-        .input('tenant', sql.UniqueIdentifier, tenant)
-        .input('oid', sql.UniqueIdentifier, oid)
-        .input('epost', '')
-        .input('navn', '')
-        .output('bruker', sql.UniqueIdentifier, bruker.id)
-        .execute('koe_drift.registrer_entra_identitet');
-    await eier().request().query(`EXEC koe_drift.sett_rolle N'hr_rolle', 5000;
-      EXEC koe_drift.sett_stillingstittel N'HR-tittel', N'hr_rolle';`);
-    const person = (oid: string, aktiv: boolean) => ({
+    const oid = { bh: randomUUID(), te: randomUUID(), utenTeam: randomUUID() };
+    const person = (oid: string, aktiv = true) => ({
       oid,
       stillingstittel: 'HR-tittel',
       leder: null,
@@ -160,17 +145,49 @@ describe.skipIf(!TESTBASE_URL)('sesjonens tidsavbrudd og tilbakekalling (#1806)'
       epost: '',
       navn: '',
     });
-    const synk = (bhAktiv: boolean) =>
-      synkroniserHr(kjoeretid(), {
-        tenant,
-        personerMedTittel: async () => [person(bhOid, bhAktiv), person(teOid, true)],
-      });
+    const synk = (personer: ReturnType<typeof person>[]) =>
+      synkroniserHr(kjoeretid(), { tenant, personerMedTittel: async () => personer });
 
-    await synk(true);
-    expect(await sesjonen(o.bh.token)).toBe(200);
-    await synk(false);
-    expect(await sesjonen(o.bh.token)).toBe(401);
-    // Kontroll: personen som fortsatt er aktiv, beholder sesjonen.
-    expect(await sesjonen(o.te.token)).toBe(200);
+    beforeAll(async () => {
+      await settInn(() => eier().request(), 'entra_tenant', { tenant_id: tenant });
+      for (const [id, bruker] of [
+        [oid.bh, o.bh],
+        [oid.te, o.te],
+        [oid.utenTeam, o.utenTeam],
+      ] as const)
+        await eier()
+          .request()
+          .input('tenant', sql.UniqueIdentifier, tenant)
+          .input('oid', sql.UniqueIdentifier, id)
+          .input('epost', '')
+          .input('navn', '')
+          .output('bruker', sql.UniqueIdentifier, bruker.id)
+          .execute('koe_drift.registrer_entra_identitet');
+      await eier().request().query(`EXEC koe_drift.sett_rolle N'hr_rolle', 5000;
+        EXEC koe_drift.sett_stillingstittel N'HR-tittel', N'hr_rolle';`);
+    });
+
+    it('sletter sesjonene til en person som mister rollen fordi den er borte fra bildet fra Graph, også med medlemskap', async () => {
+      await synk([person(oid.bh), person(oid.te)]);
+      expect(await sesjonen(o.bh.token)).toBe(200);
+      await synk([person(oid.te)]);
+      expect(await sesjonen(o.bh.token)).toBe(401);
+      // Kontroll: personen som fortsatt har rollen, beholder sesjonen.
+      expect(await sesjonen(o.te.token)).toBe(200);
+    });
+
+    it('logger ikke ut på nytt en person som alt er uten rolle', async () => {
+      const ny = await opprettSesjon(kjoeretid(), o.bh.id);
+      await synk([person(oid.te)]);
+      expect(await sesjonen(ny.token)).toBe(200);
+    });
+
+    it('sletter sesjonene til en person som er deaktivert i Entra uten å ha hatt rolle', async () => {
+      const ny = await opprettSesjon(kjoeretid(), o.utenTeam.id);
+      expect(await sesjonen(ny.token)).toBe(200);
+      await synk([person(oid.te), person(oid.utenTeam, false)]);
+      expect(await sesjonen(ny.token)).toBe(401);
+      expect(await sesjonen(o.te.token)).toBe(200);
+    });
   });
 });

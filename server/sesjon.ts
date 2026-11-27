@@ -77,7 +77,8 @@ export class UgyldigSesjonsvarighet extends Error {
 }
 
 function minutter(miljoe: NodeJS.ProcessEnv, variabel: Sesjonsvariabel, standard: number): number {
-  const tall = Number(miljoe[variabel] || standard);
+  const verdi = miljoe[variabel] || String(standard);
+  const tall = /^\d+$/.test(verdi) ? Number(verdi) : NaN;
   if (!(Number.isSafeInteger(tall) && tall >= 1 && tall <= STOERSTE_LEVETID_MINUTTER))
     throw new UgyldigSesjonsvarighet(
       variabel,
@@ -88,14 +89,15 @@ function minutter(miljoe: NodeJS.ProcessEnv, variabel: Sesjonsvariabel, standard
 
 /**
  * `KOE_SESJON_LEVETID_MINUTTER` og `KOE_SESJON_INAKTIVITET_MINUTTER`, med 8 timer og 60
- * minutter når de mangler. Tidsavbruddet kan ikke være lengre enn levetiden.
+ * minutter, eller levetiden når den er kortere, når de mangler. Tidsavbruddet kan ikke være
+ * lengre enn levetiden.
  */
 export function sesjonsvarighet(miljoe: NodeJS.ProcessEnv = process.env): Sesjonsvarighet {
   const levetid = minutter(miljoe, 'KOE_SESJON_LEVETID_MINUTTER', STANDARD_LEVETID_MINUTTER);
   const inaktivitet = minutter(
     miljoe,
     'KOE_SESJON_INAKTIVITET_MINUTTER',
-    STANDARD_INAKTIVITET_MINUTTER
+    Math.min(STANDARD_INAKTIVITET_MINUTTER, levetid)
   );
   if (inaktivitet > levetid)
     throw new UgyldigSesjonsvarighet(
@@ -116,6 +118,8 @@ export interface Sesjon {
   bruker: Bruker;
   csrfToken: string;
   utloeper: Date;
+  /** Sekundene til `utloeper` etter basens klokke. */
+  sekunderIgjen: number;
 }
 
 export async function opprettSesjon(
@@ -158,6 +162,7 @@ export async function lesSesjon(pool: Pool, sesjonstoken: string): Promise<Sesjo
         name: string;
         csrf_token: string;
         utloeper: Date;
+        sekunder_igjen: string | number;
       }>('koe_api.les_sesjon')
   );
   const rad = svar.recordset[0];
@@ -166,6 +171,7 @@ export async function lesSesjon(pool: Pool, sesjonstoken: string): Promise<Sesjo
     bruker: { id: rad.bruker.toLowerCase(), email: rad.email, name: rad.name },
     csrfToken: rad.csrf_token,
     utloeper: rad.utloeper,
+    sekunderIgjen: Number(rad.sekunder_igjen),
   };
 }
 

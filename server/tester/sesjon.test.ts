@@ -50,12 +50,25 @@ describe('sesjonsvarigheten fra miljøet (#1806)', () => {
     ).toEqual({ levetid: 86_400, inaktivitet: 60 });
   });
 
+  it('tidsavbruddet er levetiden når den er under 60 minutter og tidsavbruddet ikke er satt', () => {
+    expect(sesjonsvarighet({ KOE_SESJON_LEVETID_MINUTTER: '30' })).toEqual({
+      levetid: 1800,
+      inaktivitet: 1800,
+    });
+  });
+
   it.each([
     ['levetid over 24 timer', { KOE_SESJON_LEVETID_MINUTTER: '1441' }],
+    ['levetid i heksadesimal', { KOE_SESJON_LEVETID_MINUTTER: '0x3C' }],
+    ['levetid med eksponent', { KOE_SESJON_LEVETID_MINUTTER: '1e3' }],
+    ['levetid med mellomrom', { KOE_SESJON_LEVETID_MINUTTER: ' 90 ' }],
     ['levetid 0', { KOE_SESJON_LEVETID_MINUTTER: '0' }],
     ['tidsavbrudd som ikke er et heltall', { KOE_SESJON_INAKTIVITET_MINUTTER: '1.5' }],
     ['tidsavbrudd som ikke er et tall', { KOE_SESJON_INAKTIVITET_MINUTTER: 'en time' }],
-    ['tidsavbrudd over levetiden', { KOE_SESJON_LEVETID_MINUTTER: '30' }],
+    [
+      'tidsavbrudd over levetiden',
+      { KOE_SESJON_LEVETID_MINUTTER: '30', KOE_SESJON_INAKTIVITET_MINUTTER: '31' },
+    ],
   ])('avviser %s', (_navn, miljoe) => {
     expect(() => sesjonsvarighet(miljoe)).toThrow();
   });
@@ -162,6 +175,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       expect(await lesSesjon(kjoeretid.pool, ny.token)).not.toBeNull();
       await settTider(ny.token, -16 * 60_000, -1000);
       expect(await lesSesjon(kjoeretid.pool, ny.token)).toBeNull();
+    });
+
+    it('med et tidsavbrudd på ett minutt holder jevn bruk sesjonen i live', async () => {
+      vi.stubEnv('KOE_SESJON_INAKTIVITET_MINUTTER', '1');
+      const ny = await opprettSesjon(kjoeretid.pool, bruker);
+      await settTider(ny.token, -30_000, 30_000);
+      const foer = await klokke();
+      await lesSesjon(kjoeretid.pool, ny.token);
+      expect((await lagretUtloep(ny.token))!.getTime()).toBeGreaterThanOrEqual(
+        foer.getTime() + 60_000
+      );
     });
 
     it('lesingen skriver ikke utløpet på nytt når det flytter seg under ett minutt', async () => {
