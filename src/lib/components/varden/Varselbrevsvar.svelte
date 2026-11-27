@@ -1,10 +1,8 @@
 <!--
-  BH svarer på flere varsler som står alene i samme brev, i ett svarskjema og ett brev (M-5 og U-8 i
-  BF-37, #2451). Brevet har ett svar per varsel BH tar stilling til, med varselet i `gjelder`
-  (svaret 27.11 i #2451, VS-U96 punkt 32). Hver rad har spørsmålene fra svaret på ett varsel
-  (`Varselsvar`, `Varselstandpunkt`) og arbeidet under navnet. BH svarer på minst ett varsel. Et
-  nytt svar på ett av varslene erstatter bare det forrige svaret på det varselet (punkt 33), og har
-  sitt eget skjema. Kjernen lager brevet og avviser det den ikke godtar.
+  BH svarer på flere varsler som står alene i samme brev, i ett skjema (M-5 og U-8 i BF-37), med
+  ett svar per varsel BH tar stilling til (svaret 27.11 i #2451, VS-U96 punkt 32). Hver rad har
+  spørsmålene fra `Varselsvar` (`Varselstandpunkt`). Et nytt svar på ett varsel har sitt eget skjema
+  (VS-U96 punkt 33). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
   import { lagBrevtittel } from '#kjerne/frosset/brevtittel.ts';
@@ -185,7 +183,12 @@
       ? [{ punkt: FORHOLDET, navn: SKJEMA.forholdspunktet, linjer: forholdet }]
       : []),
     ...varslene.flatMap((v) => [
-      { punkt: v.id, navn: navnet(v), linjer: iPunktet(v.id, SKJEMA.ikkeBesvart) },
+      {
+        punkt: v.id,
+        navn: navnet(v),
+        // VS-U77 punkt 31: uten innsigelse trenger BH ikke svare på varselet etter § 34.4.
+        linjer: iPunktet(v.id, v.hjemmel === '34.4' ? SKJEMA.ingenInnsigelse : SKJEMA.ikkeBesvart),
+      },
       ...(v.hjemmel === '34.3.3'
         ? [
             {

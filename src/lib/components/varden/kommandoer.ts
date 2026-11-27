@@ -499,8 +499,8 @@ export const harStandpunkt = (v: Varselsvalg, varselet: VarseletAlene): boolean 
   (varselet.hjemmel === '34.3.3' && v.godtarJustering !== null);
 
 /**
- * BHs svar på varslene i et brev som står alene: ett brev med ett svar per varsel BH har tatt
- * stilling til, med varselet i `gjelder` (svaret 27.11 i #2451, VS-U96 punkt 32). Begrunnelsen
+ * BHs svar på varslene i et brev som står alene, ett svar per varsel BH har tatt stilling til
+ * (svaret 27.11 i #2451, VS-U96 punkt 32). Begrunnelsen
  * for et varsel står bare for punktene svaret på det har i brevet (`punktene`), som i
  * `svarbrevet`.
  */

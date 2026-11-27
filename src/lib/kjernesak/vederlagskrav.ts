@@ -280,10 +280,9 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
 
 /**
  * Varslene som står alene i brevet med varselet `gjelder`, i brevets rekkefølge og i samme spor, når
- * kjernen tilbyr byggherrens første svar på flere av dem (M-5 og U-8 i BF-37, #2451). Svaret på dem
- * er ett brev med ett svar per varsel (svaret 27.11 i #2451). Ellers `null`, og svaret på varselet
- * har sitt eget skjema. `nr` er nummeret varselet har i brevet (U-6 i BF-37). Et nytt svar på et varsel erstatter bare det forrige svaret på det
- * varselet (VS-U96 punkt 33), så det står for seg.
+ * kjernen tilbyr byggherrens første svar på flere av dem (M-5 i BF-37, svaret 27.11 i #2451, VS-U96
+ * punkt 33). Ellers `null`, og svaret på varselet har sitt eget skjema. `nr` er nummeret varselet
+ * har i brevet (U-6 i BF-37).
  */
 export function varsleneIBrevet(
   u: Utledning,
