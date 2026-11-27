@@ -92,7 +92,7 @@ HANDLINGER = {
 # `rad` er en hendelse fra en annen skriver; ingen av dem er en kommando.
 MAALMODELL_HANDLINGER = {
     "krav", "brev", "revisjon", "aksept", "trekk", "varsel", "regelendring", "rad",
-    "registrert_brev", "ikke_i_saken", "korrigering", "innlegg",
+    "registrert_brev", "ikke_i_saken", "korrigering", "innlegg", "retting",
 }
 # Kilder en kontroll i målmodellen kan ha utenom regler.json: akseptkriteriet i issuet.
 MAALMODELL_KILDER = {"#304"}

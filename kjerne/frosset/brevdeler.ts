@@ -43,6 +43,11 @@ export interface Saken {
    * journalen. Den siste i feltet er den en ny versjon må gjengi (`DATOEN_KAN_IKKE_ENDRES`).
    */
   datoopplysninger: { felt: OppgittDato; dato: string; dokument: string }[];
+  /**
+   * Den siste rettingen før brevet av datoen for hvert varsel og krav TE har rettet, med brevet den
+   * står i (punkt 8 i samlevedtaket for retting av sendt brev, MM-U59, `datoenSomGjelder`).
+   */
+  rettetDato: Record<string, { dato: string; dokument: string }>;
   /** TEs siste opplysning om kunnskapsdatoen etter § 34.1.3 før brevet (VS-U85, `sisteKunnskapsdato`). */
   sisteKunnskapsdato: { dato: string; dokument: string } | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
@@ -442,7 +447,11 @@ export function liste(deler: string[]): string {
  * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
  * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
  */
-export function gitt(varsel: string, om: string, { j, nytt }: Pick<Tekst, 'j' | 'nytt'>): string {
+export function gitt(
+  varsel: string,
+  om: string,
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+): string {
   const brevet = j.brevet(j.dokumentetTil(varsel));
   // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
   const e = j.element(varsel);
@@ -450,7 +459,12 @@ export function gitt(varsel: string, om: string, { j, nytt }: Pick<Tekst, 'j' | 
   const hva = arbeid === undefined ? om : `${om} for arbeidet «${arbeid}»`;
   const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   const dokumentet = j.dokumentMed(varsel)?.dokumentasjon ?? [];
+  // LV-U83, endret av MM-U63: datoen som gjelder, med rettingen den kommer fra.
+  const rettet = saken.rettetDato[varsel];
+  const etter = rettet
+    ? ` Totalentreprenøren har rettet datoen for varselet til ${norskDato(rettet.dato)} i ${j.brevet(rettet.dokument)}.`
+    : '';
   return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
-    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
-    : `${hva} ble gitt i ${brevet}.`;
+    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.${etter}`
+    : `${hva} ble gitt i ${brevet}.${etter}`;
 }

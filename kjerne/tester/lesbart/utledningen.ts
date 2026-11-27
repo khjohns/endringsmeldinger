@@ -165,14 +165,56 @@ export const UTLEDNINGEN: Lesbar[] = [
     'relasjon',
     'datoenDetBleSendt',
     [
-      'spor/forhold/kommando.ts:varseletEtter322.dagen',
-      'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
-      // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
-      'spor/vederlag/kommando.ts:datoenForVarselet',
       // VS-U87 punkt 23: varslene et krav lagt til kan vise til.
       'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
   ],
+  // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder etter en
+  // retting, for de samme kontrollene.
+  [
+    'utledning/utled.ts',
+    'utsagn',
+    'datoenSomGjelder',
+    [
+      'spor/forhold/kommando.ts:varseletEtter322.dagen',
+      'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+      // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
+      'spor/vederlag/kommando.ts:datoenForVarselet',
+    ],
+  ],
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59) og MM-U63: TEs
+  // retting av datoen for et varsel eller et krav lagt til, og datoen som gjelder, som premiss
+  // for nye svar og for det første varselet (VS-U86). Hva som var gjeldende, leser den oppgitte
+  // datoen (punkt 18).
+  ['Utsagn', 'utsagn', 'dato', ['utledning/utled.ts:utledSporene']],
+  ['Utledning', 'utsagn', 'rettinger'],
+  ['Retting', 'relasjon', 'id gjelder'],
+  // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
+  ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Retting', 'utsagn', 'dato'],
+  // OV-U98: dagen brevet med rettingen ble sendt, mot dagen et svar lagt til oppgir.
+  ['Retting', 'utsagn', 'sendt'],
+  ['utledning/rettingen.ts:medRettingeneTil', 'relasjon', 'rettinger'],
+  [
+    'utledning/rettingen.ts',
+    'utsagn',
+    'datoEtterRettingene',
+    [
+      'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
+      'utledning/utled.ts:datoenSomGjelder',
+      // LV-U83: datoen som gjelder for varselet i fristkravet.
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
+  ],
+  ['utledning/utled.ts:kontrollerRettingene(elementer)', 'relasjon', '*'],
+  [
+    'utledning/utled.ts:Element',
+    'relasjon',
+    'hendelse part',
+    ['utledning/utled.ts:kontrollerRettingene'],
+  ],
+  // Brevet rettingen står i (`Retting.dokument`).
+  ['utledning/utled.ts:Element', 'relasjon', 'hendelse', ['utledning/utled.ts:utledSporene']],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.

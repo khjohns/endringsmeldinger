@@ -18,7 +18,7 @@ import { norskDato } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
 import { BEGRUNNELSESPUNKTENE, begrunnelseskravet } from '../../regler/forhold.ts';
 import {
-  datoenDetBleSendt,
+  datoenSomGjelder,
   paaberopelseFor,
   kravSomVarsler,
   sendtFoerSisteKrav,
@@ -220,8 +220,9 @@ export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett)
       'VARSLINGSPLIKT_GJELDER_IKKE',
       'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere.'
     );
-  // OV-U102: et krav utenfor rekken kan gi datoen påberopelsen først ble sendt.
-  const dagen = (k: Pick<Krav, 'id' | 'dokument'>) => datoenDetBleSendt(u, k);
+  // OV-U102: et krav utenfor rekken kan gi datoen påberopelsen først ble sendt. Punkt 19 i
+  // samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder etter en retting.
+  const dagen = (k: Pick<Krav, 'id' | 'dokument'>) => datoenSomGjelder(u, k);
   const krav = kravSomVarsler('32.2', u.spor.forhold, () => true);
   const id = varseletFoerSvaret('32.2', [], krav, () => true, dagen);
   const foerst = krav.find((k) => k.id === id);

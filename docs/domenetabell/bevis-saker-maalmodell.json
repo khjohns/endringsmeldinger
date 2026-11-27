@@ -11150,6 +11150,68 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-RETT1",
+      "forslag": "#1309: TE retter datoen for et varsel lagt til som korrespondanse til en tidligere dato, og rettingen gjelder straks",
+      "rader": ["GR-38"],
+      "start": null,
+      "steg": [
+        { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-19", "navn": "V1" },
+        { "handling": "retting", "gjelder": "V1#varsel", "dato": "2026-09-17", "navn": "R1" }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U59", "MM-U63"],
+          "forventet": {
+            "avvist": false,
+            "dato_som_gjelder.V1#varsel": "2026-09-19",
+            "handlinger.TE": { "inneholder": ["rette_datoen:V1#varsel"], "mangler": ["rette_datoen:K-g1"] }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U59", "MM-U63"],
+          "prov": { "handling": "retting", "gjelder": "V1#varsel", "dato": "2026-09-19" },
+          "forventet": { "avvist": true, "regel": "DATOEN_ER_UENDRET" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U59", "VS-U58"],
+          "prov": { "handling": "retting", "gjelder": "V1#varsel", "dato": "2026-09-14" },
+          "forventet": { "avvist": true, "regel": "VARSEL_FOER_GRUNNLAGSDATOEN" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U59", "OV-U123"],
+          "prov": { "handling": "retting", "gjelder": "K-g1", "dato": "2026-09-14" },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_HENVISNING" }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": ["MM-U59", "VS-U58"],
+          "prov": { "handling": "retting", "gjelder": "V1#varsel", "dato": "2026-09-15" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["MM-U59", "MM-U63"],
+          "forventet": {
+            "avvist": false,
+            "dato_som_gjelder.V1#varsel": "2026-09-17",
+            "handlinger.TE": { "inneholder": ["rette_datoen:V1#varsel"] }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-KA-U56",
       "forslag": "KA-U56: en ny kravversjon tar med eller trekker hver kravpost i forrige versjon",
       "rader": ["KA-55"],

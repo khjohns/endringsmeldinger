@@ -35,6 +35,7 @@ import type {
   Varselhjemmel,
 } from '../typer.ts';
 import { FORUTSETNINGER_I_FORHOLDET, korrigering } from '../spor/forhold/kommando.ts';
+import { rettingen } from './rettingen.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
@@ -61,7 +62,7 @@ export type Handlingsnoekkel =
    */
   | { type: 'svare' | 'revidere'; gjelder: string }
   | {
-      type: 'korrigere' | 'oppgi_kunnskapsdato' | 'svare_paa_foresporsel';
+      type: 'korrigere' | 'oppgi_kunnskapsdato' | 'svare_paa_foresporsel' | 'rette_datoen';
       gjelder: string;
     };
 
@@ -95,6 +96,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   revidere: 'BH',
   korrigere: 'TE',
   oppgi_kunnskapsdato: 'TE',
+  rette_datoen: 'TE',
 };
 
 /** Typene i handlingsnøklene, med parten som eier hver av dem i `PART`. */
@@ -102,7 +104,7 @@ export const HANDLINGSTYPER = Object.keys(PART) as Handlingsnoekkel['type'][];
 
 /**
  * Handlingene som viser til et annet element: svaret på et varsel som står alene, begrunnelsen
- * på forespørselen, korrigeringen og kunnskapsdatoen.
+ * på forespørselen, korrigeringen, kunnskapsdatoen og rettingen av datoen.
  */
 function henvisning(
   h: Extract<Handlingsnoekkel, { gjelder: string }>,
@@ -148,6 +150,8 @@ function henvisning(
       return korrigering(h.gjelder, u);
     case 'oppgi_kunnskapsdato':
       return kunnskapsdatoen(h.gjelder, u);
+    case 'rette_datoen':
+      return rettingen(h.gjelder, u);
   }
 }
 

@@ -252,6 +252,14 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     ['id', 'art', 'gjelder', 'klar_over_utgiftene']
   ),
   innlegg: objekt({ ...artfelt('innlegg'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): den nye datoen for varselet
+  // eller kravet `gjelder`.
+  retting: objekt({ ...artfelt('retting'), gjelder: ID, dato: KALENDERDAG }, [
+    'id',
+    'art',
+    'gjelder',
+    'dato',
+  ]),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

@@ -282,6 +282,17 @@ export type Kommando = (
       utdypning?: string;
     }
   /**
+   * Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): TE retter datoen for varselet
+   * eller kravet `gjelder`, lagt til som korrespondanse, i et eget brev. `dato` er den nye datoen.
+   */
+  | {
+      type: 'retting';
+      gjelder: string;
+      dato: string;
+      /** D-9 i BF-50, etter MM-U53: TEs valgfrie forklaring. Løsningen tolker den ikke. */
+      utdypning?: string;
+    }
+  /**
    * Innlegget i fritekst fra en av partene (OV-U97, MM-U47 punkt 1–6, MM-U56). `gjelder` er brevet
    * det viser til, `tittel` tittelen parten skriver, og `utdypning` teksten som følger
    * henvisningen (punkt 2 og designdelen). `dokumentasjon` er vedleggene (G-6 i BF-03).
@@ -475,6 +486,10 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       ...BREVTEKST,
     },
     ['type', 'gjelder', 'klar_over_utgiftene']
+  ),
+  retting: objekt(
+    { type: { const: 'retting' }, gjelder: ID, dato: DATO, utdypning: TEKST, ...BREVTEKST },
+    ['type', 'gjelder', 'dato']
   ),
   innlegg: objekt(
     {
@@ -751,6 +766,8 @@ export function formfeil(kommando: unknown): string[] {
   if (!feil.length) feil.push(...korrespondansefeil(kommando));
   if (type === 'krav' && !feil.length && erObjekt(kommando.varsel))
     feil.push(...sendemaatefeil('$.varsel.', kommando.varsel));
+  if (type === 'retting' && !feil.length && !erKalenderdato(kommando.dato))
+    feil.push(`$.dato: ${JSON.stringify(kommando.dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'korrigering' && !feil.length) {
     const { felt, dato } = korrigertDato(
       kommando as unknown as Extract<Kommando, { type: 'korrigering' }>

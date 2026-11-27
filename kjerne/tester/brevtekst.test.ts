@@ -773,6 +773,7 @@ describe('vedleggene står i teksten (A4)', () => {
     tittel: TITTEL,
     svarPaaPaaberopelsen: null,
     datoopplysninger: [],
+    rettetDato: {},
     sisteKunnskapsdato: null,
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
