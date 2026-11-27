@@ -829,6 +829,76 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
+  'varsler-i-ett-brev': {
+    tittel: 'Graving og fjernvarme ved kum 4',
+    formaal:
+      '#2451: byggherrens svar på flere varsler i samme brev, i ett svarskjema og ett brev med ett svar per varsel (M-5 og U-8 i BF-37, svaret 27.11 i #2451), sendt gjennom serveren.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt omlegging av ledningene ved kum 4.',
+      },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        varsler: [
+          { hjemmel: '34.4', arbeid: 'Ekstra graving i grøften ved kum 4' },
+          { hjemmel: '34.4', arbeid: 'Omlegging av fjernvarmerør langs fasade nord' },
+          { hjemmel: '34.3.3', arbeid: 'Økte mengder sprengstein i byggegropen' },
+        ],
+      },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      const handlingen = bh.getByRole('button', { name: 'Svar på varslene', exact: true });
+      await handlingen.waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/varselbrev-handlingen.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselbrev-handlingen-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await handlingen.click();
+      await bh.getByRole('heading', { name: /^Svar på varslene i brev/ }).first().waitFor();
+      await bh.screenshot({ path: `${ut}/varselbrev-tomt.png`, fullPage: true });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.screenshot({ path: `${ut}/varselbrev-mangler.png`, fullPage: true });
+      const rad = (nr: number) =>
+        bh
+          .locator('section')
+          .filter({ has: bh.getByRole('heading', { name: new RegExp(`^${nr}\\. Varselet`) }) })
+          .last();
+      await rad(2).getByRole('button', { name: 'Varselet kom for sent' }).click();
+      await rad(3).getByRole('radio', { name: 'Kom for sent' }).check();
+      await rad(3).getByRole('radio', { name: 'Bestrider justeringen' }).check();
+      await rad(2).getByRole('textbox', { name: /^Begrunnelse/ }).fill('Graving var i gang før varselet kom.');
+      await bh.getByText('Gjelder hvis').first().waitFor();
+      await bh.screenshot({ path: `${ut}/varselbrev-svar.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselbrev-svar-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await bh.screenshot({ path: `${ut}/varselbrev-brev.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        bh.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        bh.getByRole('button', { name: 'Send til totalentreprenøren', exact: true }).click(),
+      ]);
+      console.log(`BH  POST kommandoer (svaret på varslene i brevet): ${svar.status()}`);
+      if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
+      await bh.getByRole('button', { name: /Tilbake til saken/ }).waitFor({ timeout: 30_000 });
+      // VS-U96 punkt 33: etterpå står svaret på det tredje varselet og nye svar for hvert varsel.
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: /^Svar på varselet om regningsarbeid/ }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/varselbrev-sendt.png`, fullPage: true });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */
