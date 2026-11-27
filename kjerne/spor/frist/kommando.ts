@@ -222,13 +222,11 @@ export function fristvarseletIKravet(u: Utledning, gjelder: string): Svaretsvars
 }
 
 /**
- * VS-U96 punkt 34, samlevedtaket for varslene, versjon 4, punkt 7, 9 og 10: byggherrens innsigelse
- * mot varselet etter § 33.4 som står mot et nytt svar på kravet om fristforlengelse, med brevet den
- * først ble gjort gjeldende i, eller `null`. Innsigelsen kan stå i svaret på varselet, i svaret bare
- * på varselet i kravet eller i et svar på kravet, og står til byggherren gir den opp eller sier at
- * varselet kom i tide. Varselet er det et nytt svar gjelder (`varseletForNyttSvar`). Et svar lagt
- * til, sendt på dagen `sendt`, leser svarene sendt til og med den dagen (OV-U104). Brevteksten
- * leser innsigelsen på samme måte (`paaberopelsenSomStaar`).
+ * Byggherrens innsigelse mot varselet etter § 33.4 som står mot et nytt svar på kravet om
+ * fristforlengelse, med brevet den først ble gjort gjeldende i, eller `null` (VS-U96 punkt 34,
+ * samlevedtaket for varslene, versjon 4, punkt 6, 7, 9 og 10). Varselet er det et nytt svar
+ * gjelder (`varseletForNyttSvar`). Et svar lagt til, sendt på dagen `sendt`, leser svarene sendt
+ * til og med den dagen (OV-U104).
  */
 export function innsigelsenMotFristvarselet(
   u: Utledning,
@@ -370,7 +368,7 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning, sendt: string | null
   const utfylt: Record<string, unknown> = { ...v };
   if (!ikkeSvar || !mangler(v.foresporsel_svar_ok)) delete utfylt.begrunnelse_ikke_svar;
   for (const felt of ubesvart) utfylt[felt] = true;
-  // VS-U96 punkt 34: svaret gjentar innsigelsen mot varselet som utgangspunkt.
+  // VS-U96 punkt 34.
   if (ubesvart.has('frist_varsel_ok') && innsigelsenMotFristvarselet(u, sendt))
     utfylt.frist_varsel_ok = false;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))

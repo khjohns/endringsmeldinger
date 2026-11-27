@@ -406,8 +406,8 @@ export function foresporselsrelasjon(
  * Brevet med den første påberopelsen etter `hjemmel` mot varselet `gjelder` som ikke er gitt opp
  * siden, i `svarene` i fristen med dagen hvert ble sendt, eller `undefined` (VS-U96 punkt 34,
  * VS-U88 punkt 9, samlevedtaket for varslene, versjon 4, punkt 6, 9 og 10). Svarene leses i
- * rekkefølgen de ble sendt, og svar fra samme dag i journalens rekkefølge. Brevteksten og
- * svarskjemaet leser innsigelsen herfra.
+ * rekkefølgen de ble sendt, og svar fra samme dag i journalens rekkefølge. Brevteksten
+ * (`paaberopelsenFoerIFristen`) og `innsigelsenMotFristvarselet` leser innsigelsen herfra.
  */
 export function paaberopelsenSomStaar(
   svarene: readonly { dag: string; s: Pick<Svar, 'dokument' | 'standpunkter'> }[],
