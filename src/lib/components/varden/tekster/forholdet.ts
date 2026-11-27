@@ -2,7 +2,7 @@ import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Part, Spor, Standpunkt } from '#kjerne/typer.ts';
 import type { Forholdsordene } from '#kjerne/spor/forhold/tekst.ts';
-import type { Brevref, Datoopplysningen, Innlegget } from '../lesing';
+import type { Brevref, Datoopplysningen, Brevinnholdet } from '../lesing';
 import { iSvaretPaaForholdet, setningene, standpunkttekst, utsagnet } from './standpunkt';
 import { SAKSDELEN, brevref, brevrefStor } from './felles';
 import { dato, haerdet } from './format';
@@ -10,7 +10,7 @@ import { dato, haerdet } from './format';
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
 /** Korrigeringen i en lukket sak (D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
 const KORRIGERT_I_LUKKET =
-  'Saken står lukket. Korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes herfra ennå.';
+  'Saken står lukket. Korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg.';
 
 export const FORHOLDET = haerdet({
   utenNavn: 'Forholdet',
@@ -31,7 +31,10 @@ export const FORHOLDET = haerdet({
   /** En frist byggherrens svar ikke har dager for (KA-U74). */
   ikkeISvaret: 'Ikke i svaret',
   /** Forholdet med standpunktene i svaret, med setningene i statuslinjen (#2040). */
-  forholdsrot: (navn: string, svar: { rader: Innlegget['standpunkter']; brev: Brevref } | null) => {
+  forholdsrot: (
+    navn: string,
+    svar: { rader: Brevinnholdet['standpunkter']; brev: Brevref } | null
+  ) => {
     const s = svar ? setningene(svar.rader) : [];
     return svar && s.length
       ? `${navn} · ${brevrefStor(svar.brev)}: ${s.map((x, i) => (i ? stor(x) : x)).join('. ')}`

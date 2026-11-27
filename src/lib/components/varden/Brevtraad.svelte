@@ -14,13 +14,13 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
-  import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
+  import type { Brevet, Brevref, Brevinnholdet } from './lesing';
+  import { FORHOLDET, INNLEGGET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
 
   let {
     brev,
     spor,
-    innlegg = new Map(),
+    innhold = new Map(),
     fulgtOpp = new Map(),
     eldreKrav = new Set(),
     dokumentasjon,
@@ -37,14 +37,14 @@
     brevet,
     oeverst,
     nederst,
-    leggTilKorrespondanse,
+    traadlenkene,
   }: {
     /** Brevene i tråden i rekkefølgen i journalen (`brevITraaden`). Tråden viser dem nyest først. */
     brev: Brevet[];
     /** Siden tråden står på, som gir overskriften. */
     spor: Spor;
-    /** Innholdet i brevene med krav eller svar om forholdet (`innleggene`). */
-    innlegg?: Map<string, Innlegget>;
+    /** Innholdet i brevene med krav eller svar om forholdet (`brevinnholdene`). */
+    innhold?: Map<string, Brevinnholdet>;
     /** Brevet som følger opp et eldre krav, etter brevet med det eldre (`oppfoelgingene`). */
     fulgtOpp?: Map<string, Brevref>;
     /**
@@ -82,27 +82,31 @@
     oeverst?: Snippet<[Brevet]>;
     /** Det siden viser sist under brevet, over handlingen, som akseptfristen (U-11 i BF-44). */
     nederst?: Snippet<[Brevet]>;
-    leggTilKorrespondanse?: Snippet;
+    traadlenkene?: Snippet;
   } = $props();
   const uid = $props.id();
+
+  /** Teksten parten skrev i innlegget, som følger henvisningen i brevet (MM-U47 punkt 2). */
+  const partensTekst = (b: Brevet) =>
+    (b.avsnitt ?? []).flatMap((a) => a.utdypning?.trim() || []).join('\n\n');
 
   const nyestFoerst = $derived(brev.map((b, n) => ({ b, n })).reverse());
 </script>
 
 <div class="traadhode">
   <h3 id={`${uid}-tittel`}>{TRAADEN.tittel(spor)}</h3>
-  {@render leggTilKorrespondanse?.()}
+  {@render traadlenkene?.()}
 </div>
 <ol class="traad" aria-labelledby={`${uid}-tittel`}>
   {#if venterPaaSvar}
-    <li class="innlegg tom">
+    <li class="brevrad tom">
       <span class="part" aria-hidden="true">BH</span>
       <p>{FORHOLDET.svarIkkeRegistrert}</p>
     </li>
   {/if}
   {#each nyestFoerst as { b, n } (b.id)}
     {@const registrert = b.art === 'registrert'}
-    {@const i = innlegg.get(b.id)}
+    {@const i = innhold.get(b.id)}
     {@const fulgt = fulgtOpp.get(b.id)}
     <!-- OV-U104: merknaden står ved korrespondansen som er lagt til, ikke ved brevet fra løsningen. -->
     {@const samme = registrert ? (sammeDag.get(b.id) ?? []) : []}
@@ -113,7 +117,7 @@
          i linja under (svar 1 A i #1999). -->
     {@const datoen = b.registrert}
     <li
-      class="innlegg"
+      class="brevrad"
       class:kompakt={registrert}
       class:eldre={!!fulgt}
       class:valgt={tilHoeyre}
@@ -131,6 +135,7 @@
         </span>
         <span class="meta">
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
+          {#if b.art === 'innlegg'}<span>{INNLEGGET.merke}</span>{/if}
           {#if b.avsnitt}
             {#if tilHoeyre}
               <span class="vises">{TRAADEN.vises}</span>
@@ -150,7 +155,7 @@
           {hva}<span class="visually-hidden">{TRAADEN.fra(b.avsender)}</span>
         </h4>
       </div>
-      {#if registrert || i || b.vedlegg.length || oeverst || nederst || samme.length}
+      {#if registrert || i || b.art === 'innlegg' || b.vedlegg.length || oeverst || nederst || samme.length}
         <div class="innhold">
           {#if oeverst}
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
@@ -231,6 +236,17 @@
               {#if staar}<Melding art="info" levende={false}>{staar}</Melding>{/if}
             {/if}
           {/if}
+          {#if b.art === 'innlegg'}
+            <!-- MM-U47 punkt 2: brevet innlegget viser til, og teksten parten skrev. -->
+            {@const til = brev.find((x) => x.id === b.viserTil)}
+            {@const tekst = partensTekst(b)}
+            {#if til}<p class="datolinje">{INNLEGGET.viserTilBrev(til)}</p>{/if}
+            {#if tekst}
+              <Sitat>
+                <p class="utdrag" class:bh={b.avsender === 'BH'}>«{tekst}»</p>
+              </Sitat>
+            {/if}
+          {/if}
           {#if b.vedlegg.length}
             <ul class="filer" aria-label={TRAADEN.vedlegg(b)}>
               {#each b.vedlegg as fil, k (k)}
@@ -267,18 +283,18 @@
     margin: var(--spacing-2) 0 0;
     padding: 0 0 var(--spacing-2);
   }
-  .innlegg {
+  .brevrad {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
     padding: var(--spacing-3) var(--spacing-5);
   }
-  .innlegg + .innlegg {
+  .brevrad + .brevrad {
     border-top: var(--rule-subtle);
   }
   /* Streken mellom ringene binder brevene sammen til én tråd. */
-  .innlegg::before {
+  .brevrad::before {
     content: '';
     position: absolute;
     left: 35px;
@@ -286,18 +302,18 @@
     bottom: 0;
     border-left: 1px solid var(--rule-strong-color);
   }
-  .innlegg:first-child::before {
+  .brevrad:first-child::before {
     top: var(--spacing-5);
   }
-  .innlegg:last-child::before {
+  .brevrad:last-child::before {
     bottom: auto;
     height: var(--spacing-5);
   }
-  .innlegg:only-child::before {
+  .brevrad:only-child::before {
     display: none;
   }
   /* Brevet som vises til høyre, har en strek i blekk og sier det i tekst (U-16). */
-  .innlegg.valgt {
+  .brevrad.valgt {
     box-shadow: inset 3px 0 0 var(--ink);
   }
   .part {
@@ -498,7 +514,7 @@
     }
   }
   @media (max-width: 560px) {
-    .innlegg {
+    .brevrad {
       padding-left: var(--spacing-4);
       padding-right: var(--spacing-4);
     }
@@ -515,7 +531,7 @@
     .kompakt .part {
       left: var(--spacing-4);
     }
-    .innlegg::before {
+    .brevrad::before {
       left: 27px;
     }
     /* På smal skjerm går brevet ut til kantene av kortet (U-16). */

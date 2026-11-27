@@ -444,7 +444,7 @@
             "staar": "Aksepten gjelder hele svaret i brev 5, også at varselet kom for sent."
           },
           {
-            "staar": "Innleggene inngår ikke i aksepten."
+            "staar": "Løsningen leser bare standpunktene i svaret, ikke innleggene."
           },
           {
             "klikk": "Tilbake til vederlagsjusteringen",
@@ -588,6 +588,11 @@
       "dato": "2026-11-26",
       "forhold": "#1377",
       "hva": "Forløpet er kjørbart med stegene fra BF-01, innleggene fra begge parter og et innlegg etter enigheten (G-5)."
+    },
+    {
+      "dato": "2026-11-27",
+      "forhold": "#1377",
+      "hva": "D-8 og steget i brevkontrollen sier hva løsningen leser: bare standpunktene i svaret, ikke innleggene (oppdragsgiver 27.11, svar 9 A)."
     }
   ]
 }

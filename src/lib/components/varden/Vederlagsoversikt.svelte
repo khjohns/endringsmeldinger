@@ -38,7 +38,7 @@
     handling,
     brevet,
     levering = new Map(),
-    leggTilKorrespondanse,
+    traadlenkene,
     merknad,
     kunnskapsdatoVarselet = null,
     onkunnskapsdato,
@@ -106,7 +106,7 @@
 <Sporside tittel={VEDERLAGET.tittel} hjemmel={VEDERLAGET.hjemmel} siste={traad.at(-1)} {merknad}>
   <Brevtraad
     brev={traad}
-    {leggTilKorrespondanse}
+    {traadlenkene}
     spor="vederlag"
     {fulgtOpp}
     {eldreKrav}

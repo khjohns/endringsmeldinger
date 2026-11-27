@@ -21,7 +21,7 @@ import {
   brevITraaden,
   oppfoelgingene,
   type Brevet,
-  type Innlegget,
+  type Brevinnholdet,
 } from '#lib/components/varden/lesing.ts';
 import { TRAADEN } from '#lib/components/varden/tekster/index.ts';
 import { createRawSnippet } from 'svelte';
@@ -155,7 +155,7 @@ describe('Siden for forholdet', () => {
     const { u } = await vis([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
     const brev = traad()
       .getAllByRole('listitem')
-      .filter((li) => li.classList.contains('innlegg'));
+      .filter((li) => li.classList.contains('brevrad'));
     expect(brev.map((li) => li.querySelector('.part')?.textContent)).toEqual([
       'BH',
       'TE',
@@ -558,6 +558,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       nummer,
       art,
       spor,
+      viserTil: null,
       avsender: art === 'svar' ? 'BH' : 'TE',
       lagtTilAv: art === 'svar' ? 'BH' : 'TE',
       registrert: '2026-10-01T10:00:00Z',
@@ -575,7 +576,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
 
   it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U59 punkt 10–11)', () => {
     const k = brev('k5', 5, 'annet', ['forhold']);
-    const innlegg = new Map<string, Innlegget>([
+    const innhold = new Map<string, Brevinnholdet>([
       [
         k.id,
         {
@@ -606,7 +607,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
         k,
       ],
       spor: 'forhold',
-      innlegg,
+      innhold,
       dokumentasjon: [],
       venterPaaSvar: false,
       onles: () => {},

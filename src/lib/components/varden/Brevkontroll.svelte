@@ -29,6 +29,11 @@
   export type TilBrevkontrollen = Kontrollbrev & {
     kommando: Record<string, unknown>;
     virkninger: string[];
+    /**
+     * Innleggene som viser til brevet aksepten gjelder, med overskriften (D-8 og U-7 i BF-03,
+     * MM-U47 punkt 4).
+     */
+    innleggene?: { tittel: string; rader: string[] } | null;
   };
 
   /**
@@ -72,6 +77,7 @@
     relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
     virkninger,
+    innleggene = null,
     kanIkkeGjoeresOm = false,
     sendTekst,
     tilbakeTil,
@@ -224,6 +230,16 @@
         {/if}
       {/each}
     </dl>
+    {#if innleggene?.rader.length}
+      <div class="sender">
+        <h3 id={`${uid}-innleggene`}>{innleggene.tittel}</h3>
+        <ul aria-labelledby={`${uid}-innleggene`}>
+          {#each innleggene.rader as rad, i (i)}
+            <li>{rad}</li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
     {#if punktene.length}
       <div class="sender">
         <h3 id={`${uid}-punktene`}>{BREVSTEG.punktene}</h3>

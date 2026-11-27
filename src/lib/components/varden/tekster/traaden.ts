@@ -19,6 +19,8 @@ export const TRAADEN = haerdet({
     b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse' | 'varselhjemler'>
   ) => {
     if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
+    // MM-U47, designdelen: innlegget har tittelen parten skrev, også når det gjelder flere spor.
+    if (b.art === 'innlegg' && b.brevtittel) return b.brevtittel.replace(/ i sak \S+$/, '');
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     if (b.brevtittel && spor.length <= 1) return b.brevtittel.replace(/ i sak \S+$/, '');
     const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
@@ -32,10 +34,16 @@ export const TRAADEN = haerdet({
     return TIDSLINJE.hva(b).replace(/ i sak \S+$/, '');
   },
   nummer: (n: number) => `brev ${n}`,
+  /**
+   * Linja under betegnelsen. Et innlegg etter siste brev står med parten og datoen, uten tolkning
+   * (D-9 i BF-03, svaret 26.11 i #2435).
+   */
   siste: (b: Brevet) =>
     b.art === 'registrert'
       ? `${stor(PARTEN[b.lagtTilAv])} la til korrespondanse ${dato(b.registrert)}.`
-      : `${stor(PARTEN[b.avsender])} sendte siste brev ${dato(b.registrert)}.`,
+      : b.art === 'innlegg'
+        ? `${stor(PARTEN[b.avsender])} har sendt et innlegg ${dato(b.registrert)}.`
+        : `${stor(PARTEN[b.avsender])} sendte siste brev ${dato(b.registrert)}.`,
   /** Et eldre krav, oppdatert i et nytt brev med kravet (U-5 i BF-44). */
   fulgtOpp: (b: Brevref) => ` · oppdatert i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
