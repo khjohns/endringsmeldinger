@@ -13,7 +13,7 @@ import { minnebane } from './bane.ts';
 import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import { dagklokke } from './testmiljoe.ts';
-import { svaretGjaldt, varseletFoerSvaret } from '../utledning/utled.ts';
+import { svaretGjaldt, varseletFoerSvaret, type Utledning } from '../utledning/utled.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
@@ -1372,6 +1372,51 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
       virkning: 1,
       forutsetninger: [],
     });
+  });
+});
+
+describe('forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder (OV-U98, D-7 i BF-49)', () => {
+  // Prefikset sender vederlagskravet med P1 22.09, og steget en ny versjon med P1 og P2 24.09.
+  const toPoster: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    kravposter: [{ post: 'P1', belop: 50000 }, { belop: 40000 }],
+  };
+  const beloepene = (sendt: string | null, gjelder: (u: Utledning) => string) =>
+    kjoer(
+      { id: 'lag-paa-dagen', rader: [], start: 'krav_irreg', steg: [toPoster], kontroller: [] },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    )
+      .then((k) => k.utledning())
+      .then(
+        (u) =>
+          lagForUtkastet(
+            {
+              spor: 'vederlag',
+              gjelder: gjelder(u),
+              regelversjon: KJERNE.regler.versjon,
+              vurderinger: {},
+              resultat: {},
+            },
+            u,
+            KJERNE.regler,
+            sendt
+          ).standpunkter.filter((x) => x.art === 'beloep').length
+      );
+
+  it('et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den, ikke i den nye', async () => {
+    expect(await beloepene('2026-09-23', (u) => u.spor.vederlag.krav[0]!.id)).toBe(1);
+  });
+
+  it('kontrollsak: et svar fra løsningen har lagene for kravpostene i det gjeldende kravet', async () => {
+    expect(await beloepene(null, (u) => u.spor.vederlag.gjeldendeKrav!.id)).toBe(2);
+  });
+
+  it('et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag', async () => {
+    await expect(beloepene('2026-09-23', () => 'ukjent')).rejects.toThrow(
+      'Svarutkastet gjelder ikke en kravversjon i vederlag.'
+    );
   });
 });
 

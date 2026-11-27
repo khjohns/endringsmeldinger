@@ -226,7 +226,19 @@ export const KOMMANDOENE: Lesbar[] = [
     'utledning/utled.ts',
     'relasjon',
     'kravversjonenPaaDagen',
-    ['kommandoer/nyttelast.ts:kontrollerSvar', 'kommandoer/utkastlag.ts:lageneIUtkastet'],
+    [
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
+      // D-7 i BF-49: forhåndsvisningen leser påberopelsen på dagen, som kontrollen.
+      'spor/vederlag/kommando.ts:lagIVederlaget',
+    ],
+  ],
+  // OV-U98, D-7 i BF-49: forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder.
+  [
+    'kommandoer/utkastlag.ts',
+    'relasjon',
+    'kravetUtkastetGjelder',
+    ['spor/vederlag/kommando.ts:lagIVederlaget', 'spor/frist/kommando.ts:lagIFristen'],
   ],
   // OV-U98, #2057: et svar lagt til fryses med lagene i svaret på forholdet som gjaldt da.
   [

@@ -8008,6 +8008,22 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['korrespondanse lagt til med et nummer er ikke forstått'],
   },
+  {
+    id: 'F807b',
+    feilklasse:
+      'forhåndsvisningen av et svar lagt til leser det gjeldende kravet, ikke kravversjonen svaret gjelder (OV-U98, D-7 i BF-49, #807)',
+    fil: `${K}/kommandoer/utkastlag.ts`,
+    endringer: [
+      [
+        'sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === utkast.gjelder);',
+        'sporet.gjeldendeKrav;',
+      ],
+    ],
+    mal: [
+      'et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den',
+      'et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag',
+    ],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

@@ -81,6 +81,7 @@ import {
   avvisteFelt,
   avvisteVurderinger,
   forutsetningene,
+  kravetUtkastetGjelder,
   lageneIUtkastet,
   utenom,
 } from '../../kommandoer/utkastlag.ts';
@@ -367,7 +368,7 @@ export function lagIFristen(
   sendt: string | null
 ): LagIFristen {
   const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u);
-  const krav = u.spor.frist.gjeldendeKrav!;
+  const krav = kravetUtkastetGjelder(u, utkast, sendt);
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
   const utregning = {
@@ -382,7 +383,7 @@ export function lagIFristen(
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, krav, u, regler, sendt);
   const fristene = fristvurderinger(utkast.vurderinger, krav);
   const utenDager = new Set(
     fristene.filter((f) => typeof f.dager !== 'number').map((f) => f.gjelder)
