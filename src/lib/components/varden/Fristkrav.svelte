@@ -81,6 +81,7 @@
     onvedsiden,
     sakslenke,
     lagtTil = null,
+    onavbrudd,
     onendre = () => {},
     onlagttil = () => {},
   }: {
@@ -106,6 +107,8 @@
      * løsningen. Kravet har da ingen begrunnelse og ikke noe varsel (OV-U80).
      */
     lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
     /** Tilbake til korrespondansen. */
     onendre?: () => void;
     /** Kravet er lagt til. */
@@ -708,6 +711,7 @@
           ? { tekst: KRAVSKJEMA.paaberoptI(paaberopelsen), brev: paaberopelsen }
           : null}
   {lagtTil}
+  avbrudd={onavbrudd ? { hva: 'krav', leggTil: onavbrudd } : null}
   part={kjernesak.part}
   {onendre}
   {flyt}

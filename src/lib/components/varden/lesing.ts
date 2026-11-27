@@ -304,12 +304,6 @@ export function brevMedElement(u: Utledning, id: string): Brevet | null {
 /** Brevet utsagnet `id` står i, som forespørselen etter § 33.6.2. */
 export const brevMedUtsagn = brevMedElement;
 
-/** Byggherrens svar i sporet, også dem utenfor rekken (OV-U103). */
-export const svareneISporet = (u: Utledning, spor: Spor) => [
-  ...u.spor[spor].svar,
-  ...u.spor[spor].svarUtenforRekken,
-];
-
 /**
  * OV-U104: brevene i saken et brev lagt til er sendt samme dag som, slik kjernen sammenlikner dem
  * i utledningen `etter` med brevet, og ikke i `foer`. Løsningen kjenner ikke rekkefølgen.

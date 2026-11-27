@@ -22,9 +22,14 @@
     type Sideprops,
     sendtSammeDag,
   } from './lesing';
-  import { TRAADEN, VEDERLAGET } from './tekster';
+  import { LEGG_TIL, TRAADEN, VEDERLAGET } from './tekster';
   import { foersteVarsel3413, varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
-  import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
+  import {
+    kravbeloepene,
+    kravetOgSvaret,
+    varseletIEldreKrav,
+    varsleneIKravene,
+  } from './vederlagsoversikt';
   import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
@@ -49,6 +54,7 @@
   const k = $derived(kravetOgSvaret(u, alle));
   const beloepene = $derived(kravbeloepene(u));
   const varslene = $derived(varsleneIKravene(u, alle));
+  const iEldreKrav = $derived(varseletIEldreKrav(u));
   const fulgtOpp = $derived(oppfoelgingene(u, alle));
   const eldreKrav = $derived(eldreKravISporet(u, 'vederlag', alle));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
@@ -75,9 +81,11 @@
 {#snippet oeverst(b: Brevet)}
   {@const n = beloepene.get(b.id)}
   {@const levert = levering.get(b.id)}
+  {@const poster = iEldreKrav.get(b.id)}
   {#if n !== undefined}<p class="kravtall">
       {VEDERLAGET.kravbeloep(n, varslene.get(b.id))}
     </p>{/if}
+  {#if poster}<p class="kravtall">{LEGG_TIL.kravetErVarseletFor(poster)}</p>{/if}
   {#if levert !== undefined && (levert === null || akseptfrist?.brev === b.id)}
     <p class="levering">{TRAADEN.levering(b.registrert, levert)}</p>
   {/if}

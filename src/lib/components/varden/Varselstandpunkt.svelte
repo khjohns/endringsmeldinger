@@ -5,7 +5,9 @@
   har samme spørsmål som for punkt 34.3.3 (VS-U87 punkt 32, VS-U96 punkt 32). Punkt 34.4 er en
   setning med en lenke (`system.md`, «Normalsvaret er en setning, unntaket en lenke»), og en innsigelse fra et tidligere svar gjentas til byggherren
   gir den opp (VS-U77 punkt 9, 10 og 12). I svaret på varselet står varselet og justeringen i
-  hvert sitt punkt i brevet (`vis`), med punktet som overskrift og spørsmålet kort.
+  hvert sitt punkt i brevet (`vis`), med punktet som overskrift og spørsmålet kort. I et svar lagt
+  til gjentas ikke en innsigelse som står, uten et valg: svaret kan si at varselet kom for sent, at
+  det kom i tide, eller ingenting om det (`taus`, U-7 i BF-49).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -13,7 +15,7 @@
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import type { Brevref } from './lesing';
-  import { SKJEMA } from './tekster';
+  import { LEGG_TIL, SKJEMA } from './tekster';
 
   let {
     varselId,
@@ -22,6 +24,8 @@
     foer,
     varsletITide = $bindable(null),
     godtarJustering = $bindable(null),
+    taus = $bindable(false),
+    lagtTil = false,
     ikkeGitt,
     varselValgfri = true,
     varselFeil = null,
@@ -46,6 +50,10 @@
     foer: { iTide: boolean; brev: Brevref | null; ikkeGitt: boolean } | null;
     varsletITide: boolean | null;
     godtarJustering: boolean | null;
+    /** Svaret lagt til sier ikke noe om varselet (U-7 i BF-49). */
+    taus?: boolean;
+    /** Svaret legges til med datoen det ble sendt (OV-U80). */
+    lagtTil?: boolean;
     /** Innsigelsen etter § 34.4 i dette svaret er at varselet ikke ble gitt (VS-U77 punkt 31). */
     ikkeGitt: boolean;
     /** Svaret på varselet etter § 34.1.2 og § 34.1.3 som står alene, har bare standpunktet til det. */
@@ -88,8 +96,36 @@
   </div>
 {/snippet}
 
+{#snippet tauseValget()}
+  <!-- U-7 i BF-49: tre valg uten forhåndsvalg, og brevet innsigelsen sto i ved «for sent». -->
+  <Valg
+    navn={varselId}
+    spoersmaal={LEGG_TIL.svaretOmVarselet}
+    feil={varselFeil}
+    hjelp={foer?.brev ? SKJEMA.innsigelsenStaar(foer.brev, hjemmel, foer.ikkeGitt) : undefined}
+    beskrevetAv={beskrevetAvVarselet}
+    valg={[
+      {
+        verdi: 'for_sent',
+        tekst: SKJEMA.komForSent,
+        ...(foer?.brev ? { forklaring: LEGG_TIL.somI(foer.brev) } : {}),
+      },
+      { verdi: 'i_tide', tekst: SKJEMA.komITide },
+      { verdi: 'taus', tekst: LEGG_TIL.tausOmVarselet },
+    ]}
+    bind:verdi={
+      () => (taus ? 'taus' : varsletITide === null ? null : varsletITide ? 'i_tide' : 'for_sent'),
+      (x) => {
+        taus = x === 'taus';
+        varsletITide = x === 'i_tide' ? true : x === 'for_sent' ? false : null;
+      }
+    }
+    lett
+  />
+{/snippet}
+
 {#if hjemmel === '34.4' && staar}
-  {@render innsigelsenSomStaar()}
+  {#if lagtTil}{@render tauseValget()}{:else}{@render innsigelsenSomStaar()}{/if}
   {@render etterVarselet?.()}
 {:else if hjemmel === '34.4'}
   <div class="setning">
@@ -117,7 +153,9 @@
   {#if vis !== 'justeringen'}
     <div class="betinget">
       {@render foranVarselet?.()}
-      {#if staar}
+      {#if staar && lagtTil}
+        {@render tauseValget()}
+      {:else if staar}
         {@render innsigelsenSomStaar()}
       {:else}
         <Valg

@@ -68,6 +68,7 @@
     spoersmaal,
     stoettekort,
     lagtTil = null,
+    onavbrudd,
     svarerPaa = null,
     onendre = () => {},
     onlagttil = () => {},
@@ -123,6 +124,8 @@
      * ingen brevtekst.
      */
     lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
     /** Brevet med kravversjonen svaret gjelder, når det ikke er gjeldende versjon (OV-U98). */
     svarerPaa?: Brevet | null;
     /** Tilbake til korrespondansen. */
@@ -330,6 +333,7 @@
   }}
   {onvedsiden}
   {lagtTil}
+  avbrudd={onavbrudd ? { hva: 'svar', leggTil: onavbrudd } : null}
   part={kjernesak.part}
   {onendre}
   {flyt}

@@ -7,7 +7,7 @@
   sendeflyten kommer fra `sendeflyt.svelte.ts`.
 -->
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type { ComponentProps, Snippet } from 'svelte';
   import type { Part } from '#kjerne/typer.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -42,6 +42,7 @@
     onvedsiden,
     sendes = true,
     lagtTil = null,
+    avbrudd = null,
     part = null,
     onendre = () => {},
     flyt,
@@ -70,6 +71,8 @@
     sendes?: boolean;
     /** Korrespondansen kravet eller svaret legges til fra (OV-U80), eller `null`. */
     lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: spørsmålet når skjemaet for kravet eller svaret lagt til lukkes. */
+    avbrudd?: ComponentProps<typeof Forkastutkast>['avbrudd'];
     part?: Part | null;
     /** Tilbake til korrespondansen. */
     onendre?: () => void;
@@ -204,7 +207,7 @@
       {/if}
 
       <div class="skjemafot" class:skilt>
-        <Forkastutkast tekst={forkastTekst} {onforkast} />
+        <Forkastutkast tekst={forkastTekst} {onforkast} avbrudd={lagtTil ? avbrudd : null} />
       </div>
     </Utkastkort>
   {/snippet}

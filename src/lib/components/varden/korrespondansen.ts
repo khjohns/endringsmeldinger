@@ -6,11 +6,19 @@
  */
 import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 import type { Varselposten } from '#kjerne/kommandoer/kommando.ts';
-import type { Korrespondansetype, Part, Sendemaate, Spor, Varselhjemmel } from '#kjerne/typer.ts';
+import type {
+  IkkeFyltUt,
+  Korrespondansetype,
+  Part,
+  Sendemaate,
+  Spor,
+  Varselhjemmel,
+} from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import {
   KRAVTEKSTENE,
   SVARTEKSTENE,
+  svaretGjaldt,
   type Kjernesakkontekst,
 } from '#lib/kjernesak/kontekst.svelte.ts';
 import { definert } from './kommandoer';
@@ -122,14 +130,14 @@ const uten = (o: object, felt: readonly string[]) =>
  * med datoen, typen, dokumentet og beskrivelsen, og uten teksten løsningen ellers skriver i brevet
  * (utdypningen, begrunnelsen og forbeholdet, OV-U80). Kjernen avviser det som mangler.
  */
-export function lagtTil<K extends { type: 'krav' | 'brev' | 'aksept'; svar?: unknown }>(
-  kommando: K,
-  v: Korrespondansevalg
-): K & ReturnType<typeof registreringen> {
+export function lagtTil<
+  K extends { type: 'krav' | 'brev' | 'revisjon' | 'aksept'; svar?: unknown },
+>(kommando: K, v: Korrespondansevalg): K & ReturnType<typeof registreringen> {
   // G-2 i BF-49: feltene med tekst fra løsningen er kjernens lister.
   const ut = kommando.type === 'krav' ? uten(kommando, KRAVTEKSTENE) : { ...kommando };
   if (Array.isArray(kommando.svar))
     ut.svar = kommando.svar.map((s: object) => uten(s, SVARTEKSTENE));
+  else if (kommando.type === 'revisjon') ut.svar = uten(kommando.svar as object, SVARTEKSTENE);
   return { ...ut, ...registreringen(v) } as K & ReturnType<typeof registreringen>;
 }
 
@@ -178,6 +186,39 @@ export const tomtLagtTil = (spor: Spor): Lagttilvalg => ({
   varsler: [],
 });
 
+/**
+ * Svaret et svar lagt til i sporet, sendt `dato`, erstatter: byggherrens gjeldende svar når kjernen
+ * tilbyr bare et nytt svar på det for datoen (HF-U29, OV-U98), ellers ingen.
+ */
+export function svaretLagtTilErstatter(
+  kjernesak: Kjernesakkontekst,
+  u: Utledning,
+  spor: Spor,
+  dato: string
+): string | undefined {
+  const tilbudt = kjernesak.tilbudteLagtTil(dato, kjernesak.part);
+  const i = (type: string) => tilbudt.some((h) => h.type === type && h.spor === spor);
+  return !i('svare') && i('revidere') ? u.spor[spor].gjeldendeSvar?.id : undefined;
+}
+
+/**
+ * Kategoriene som fylles ut i krav- eller svarskjemaet før de legges til (OV-U80). Et krav om
+ * forholdet er en ny versjon av påberopelsen uten tekst (D-5 i BF-49), så det legges til herfra.
+ */
+export const fyllesUtISkjemaet = (
+  k: Korrespondansekategori | null,
+  spor: Spor
+): k is 'krav' | 'svar' => k === 'svar' || (k === 'krav' && spor !== 'forhold');
+
+/**
+ * D-9 i BF-49, OV-U98: svarene en aksept lagt til kan gjelde, de som var byggherrens gjeldende svar
+ * på dagen `dag` (`svaretGjaldt`). Før datoen er oppgitt, står alle svarene i sporet.
+ */
+export const svareneSomGjaldt = (u: Utledning, spor: Spor, dag: string) =>
+  [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].filter(
+    (s) => !dag || svaretGjaldt(u, s, dag)
+  );
+
 /** VS-U87 punkt 27: varselet etter § 34.3.3 og § 34.4 har arbeidet det gjelder. */
 export const harArbeid = (h: Varselhjemmel) => h === '34.3.3' || h === '34.4';
 
@@ -210,9 +251,8 @@ export const tilbudteVarsler = (tilbudte: readonly TilbudtHandling[]): Varselhje
  * Kategoriene parten kan velge i sporet, fra handlingene kjernen tilbyr for korrespondansen med
  * datoen og avsenderen (G-1 i BF-49, `tilbudteLagtTil`). Korrespondanse motparten har sendt, er
  * bare dokumentasjon (D-1, U-3). Varselet står når kjernen tilbyr et varsel i et av sporene, så ett
- * brev kan ha varsler i flere spor (#2455). Kravet står i vederlaget og fristen, og svaret på
- * forholdet, til svarene og kravet i forholdet bygges (G-5 og G-8). I en sak kjernen ikke forstår,
- * er bare dokumentasjonen med (MM-U2).
+ * brev kan ha varsler i flere spor (#2455). Kravet og svaret står i sporet når kjernen tilbyr dem
+ * for datoen (G-5 og G-8). I en sak kjernen ikke forstår, er bare dokumentasjonen med (MM-U2).
  */
 export function kategoriene(
   part: Part | null,
@@ -228,8 +268,8 @@ export function kategoriene(
   return [
     'dokumentasjon',
     ...(tilbudteVarsler(tilbudte).length ? (['varsel'] as const) : []),
-    ...(spor !== 'forhold' && i('krav') ? (['krav'] as const) : []),
-    ...(spor === 'forhold' && (i('svare') || i('revidere')) ? (['svar'] as const) : []),
+    ...(i('krav') ? (['krav'] as const) : []),
+    ...(i('svare') || i('revidere') ? (['svar'] as const) : []),
     ...(i('godta') ? (['aksept'] as const) : []),
   ];
 }
@@ -267,6 +307,17 @@ export function dokumentasjonen(v: Lagttilvalg, part: Part | null) {
     ...(v.avsender && v.avsender !== part ? { avsender: v.avsender } : {}),
   };
 }
+
+/**
+ * D-12 og U-9 i BF-49: korrespondansen som dokumentasjon i sporet, når skjemaet for kravet eller
+ * svaret `hva` ikke er fylt ut. Kategorien lagres bare for merket (G-11).
+ */
+export const utenSkjemaet = (v: Korrespondansevalg, spor: Spor, hva: IkkeFyltUt) => ({
+  type: 'registrert_brev' as const,
+  spor: [spor],
+  ...registreringen(v),
+  ikke_fylt_ut: hva,
+});
 
 /**
  * Varslene i korrespondansen i én kommando, også i flere spor (#2455, beslutningsdelen i VS-U87).

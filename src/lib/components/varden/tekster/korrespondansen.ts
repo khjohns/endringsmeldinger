@@ -205,6 +205,32 @@ export const LEGG_TIL = haerdet({
   retter: (r: Rettingen) => `Lagt til på nytt i stedet for ${rettingen(r)}.`,
   rettet: (r: Rettingen) =>
     `Lagt til på nytt ${dato(r.registrert)}. Den nye står i stedet for denne.`,
+  /** U-7 i BF-49: svaret lagt til der byggherrens innsigelse mot varselet står. */
+  svaretOmVarselet: 'Hva sier svaret om varselet?',
+  somI: (b: Brevref) => `Som i ${brevref(b)}`,
+  tausOmVarselet: 'Svaret sier ikke noe om varselet',
+  svaretOmVarseletMangler: 'Velg hva svaret sier om varselet.',
+  /** U-15 i BF-49, OV-U120: et eldre krav er varselet for kravposten. */
+  varseletErEldreKrav: (b: Brevref, sendt: string | null, post?: string) =>
+    `Varselet${post ? ` for ${post}` : ''} er kravet i ${brevref(b)}${
+      sendt && b.nummer !== null ? `, sendt ${dato(sendt)}` : ''
+    }.`,
+  /** U-15 i BF-49: ved det eldre kravet i tråden. */
+  kravetErVarseletFor: (poster: readonly string[]) =>
+    `Kravet er varselet for ${liste([...poster])}.`,
+  /** U-9 i BF-49: krav- eller svarskjemaet lukkes uten at det er lagt til. */
+  avbrudd: {
+    tittel: (hva: 'krav' | 'svar') =>
+      `Legge til korrespondansen uten ${hva === 'krav' ? 'kravet' : 'svaret'}?`,
+    tekst: (hva: 'krav' | 'svar') =>
+      `Korrespondansen står da i saken som dokumentasjon, med merket «Skjemaet er ikke fylt ut». Den sier ingenting om ${
+        hva === 'krav' ? 'saken' : 'kravet'
+      } før du legger den til på nytt som ${hva}.`,
+    ja: 'Legg til som dokumentasjon',
+    nei: 'Ikke legg til',
+    tilbake: 'Tilbake til skjemaet',
+    lagtTil: 'Korrespondansen er lagt til som dokumentasjon. Skjemaet er ikke fylt ut.',
+  },
   /** OV-U104 og MM-U50 punkt 8. */
   sammeDag: (brev: readonly Brevref[]) =>
     `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Rekkefølgen er ikke kjent her. Det er ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,

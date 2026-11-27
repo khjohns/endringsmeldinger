@@ -13,12 +13,13 @@ import {
   erInnsigelseIVederlaget,
   innsigelsenIVederlaget,
   krevdSamlet,
+  kravposterI,
 } from '#kjerne/spor/vederlag/format.ts';
 import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import type { Krav, Kravpost, Oppgjoersform, Standpunkt, Svar } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
+import { varseleneIEldreKrav, varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
 import type { Brevet } from './lesing';
 import { lageneISvaret, medForbehold, type Svarlaget } from './svarlagene';
 
@@ -191,6 +192,25 @@ export function varsleneIKravene(u: Utledning, alle: Brevet[]): Map<string, stri
     if (!brev || !u.spor.vederlag.krav.some((k) => k.dokument === brev.id)) continue;
     if (!brev.avsnitt?.some((a) => a.punkt === hjemmel)) continue;
     ut.set(brev.id, [...(ut.get(brev.id) ?? []), hjemmel]);
+  }
+  return ut;
+}
+
+/**
+ * U-15 i BF-49, OV-U120: kravpostene et eldre krav er varselet for, etter brevet med det eldre
+ * kravet (`varseleneIEldreKrav`).
+ */
+export function varseletIEldreKrav(u: Utledning): Map<string, string[]> {
+  const navn = new Map(
+    [...u.spor.vederlag.kravUtenforRekken, ...u.spor.vederlag.krav]
+      .flatMap(kravposterI)
+      .map((p) => [p.id, p.betegnelse])
+  );
+  const ut = new Map<string, string[]>();
+  for (const v of varseleneIEldreKrav(u)) {
+    const betegnelse = navn.get(v.gjelder);
+    if (betegnelse && !ut.get(v.dokument)?.includes(betegnelse))
+      ut.set(v.dokument, [...(ut.get(v.dokument) ?? []), betegnelse]);
   }
   return ut;
 }

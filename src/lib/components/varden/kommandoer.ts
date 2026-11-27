@@ -30,11 +30,13 @@ import {
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
+import { kravversjonenPaaDagen } from '#lib/kjernesak/kontekst.svelte.ts';
 import { lesKroner, visKroner } from '#lib/utils/belop.ts';
 import { kroner } from '#kjerne/frosset/tekst.ts';
 import { KRAVSKJEMA } from './tekster';
 import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import {
+  innsigelseneSomStaar,
   varseletFoer,
   varselhjemmelFor,
   type VarseletAlene,
@@ -67,6 +69,11 @@ export interface Postvalg {
    * `true` bare oppgivelsen av en innsigelse som står (VS-U63, `varseletFoer`).
    */
   varsletITide: boolean | null;
+  /**
+   * U-7 i BF-49: et svar lagt til sier ikke noe om varselet der byggherrens innsigelse står, og
+   * leses med innsigelsen (VS-U77 punkt 9 og 12, VS-U80). Velges bare i et svar lagt til.
+   */
+  tausOmVarselet: boolean;
   /** Om BH godtar justeringen av enhetsprisene etter § 34.3.2 (KA-U68). */
   godtarJustering: boolean | null;
 }
@@ -109,6 +116,7 @@ export const tomPost = (): Postvalg => ({
   delbeloep: '',
   kreverTilbud: false,
   varsletITide: null,
+  tausOmVarselet: false,
   godtarJustering: null,
 });
 
@@ -131,14 +139,23 @@ export const tomtSvar = (): Svarvalg => ({
  * en innsigelse som står, gjentas når byggherren ikke har valgt noe (VS-U77 punkt 9), og etter
  * § 34.4 er «i tide» bare oppgivelsen av en innsigelse som står (VS-U63). Utgangspunktet lagres
  * ikke i valgene, så det følger ikke med til et annet varsel når kravposten skifter
- * oppgjørsform (VS-U77 punkt 14).
+ * oppgjørsform (VS-U77 punkt 14). Et svar lagt til, sendt `sendt`, leser innsigelsen på dagen og
+ * gjentar den ikke uten et valg: det kan si ingenting om varselet (`tausOmVarselet`, U-7 i BF-49).
  */
-export const varseletIValgene = (u: Utledning, post: Kravpost, v: Postvalg): boolean | null =>
-  standpunktetIValget(
-    v.varsletITide,
-    varseletFoer(u, post)?.iTide === false,
-    regelen(post) === 'regningsarbeid'
-  );
+export const varseletIValgene = (
+  u: Utledning,
+  post: Kravpost,
+  v: Postvalg,
+  sendt: string | null = null
+): boolean | null => {
+  const staar = innsigelsenStaar(u, post, sendt);
+  if (sendt !== null && staar) return v.tausOmVarselet ? null : v.varsletITide;
+  return standpunktetIValget(v.varsletITide, staar, regelen(post) === 'regningsarbeid');
+};
+
+/** Byggherrens innsigelse mot varselet for kravposten står mot svaret sendt `sendt` (VS-U80). */
+export const innsigelsenStaar = (u: Utledning, post: Kravpost, sendt: string | null = null) =>
+  varseletFoer(u, post, sendt)?.iTide === false;
 
 /**
  * Standpunktet til et varsel etter § 34.3.3 eller § 34.4 i valget: en innsigelse som `staar`,
@@ -213,11 +230,11 @@ export const definert = <T extends object>(felt: T): T =>
  * Svaret på én kravpost. Et felt skjemaet ikke spør om i valgene, sendes ikke, så et valg som
  * står igjen etter et endret standpunkt, ikke gir et svar kjernen avviser (KA-U71, KA-U72).
  */
-function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning) {
+function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning, sendt: string | null) {
   const beloep = beloepsvalget(p, post);
   const stilt = stiltIPosten(p, post);
   const kreverTilbud = stilt.includes('krever_tilbud') && p.kreverTilbud;
-  const varslet = stilt.includes('varslet_i_tide') ? varseletIValgene(u, post, p) : null;
+  const varslet = stilt.includes('varslet_i_tide') ? varseletIValgene(u, post, p, sendt) : null;
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
@@ -252,15 +269,35 @@ function saerskiltsvaret(s: Saerskiltvalg, krevd: number) {
 }
 
 /** Om BH tar stilling til varselet etter § 34.1.2 (OV-U15), med kjernens predikat. */
-export const spoerOmHovedvarselet = (u: Utledning, regler: Regelsett): boolean =>
-  hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler);
+export const spoerOmHovedvarselet = (
+  u: Utledning,
+  regler: Regelsett,
+  paaberopelse = u.spor.forhold.gjeldendeKrav
+): boolean => hjemmelenGjelder('34.1.2', paaberopelse, regler);
+
+/**
+ * Kravversjonen og påberopelsen svaret gjelder: de gjeldende for et svar fra løsningen, og de som
+ * var gjeldende på dagen `sendt` for et svar lagt til (OV-U98, D-7 i BF-49).
+ */
+export const kravetSvaretGjelder = (
+  u: Utledning,
+  spor: 'vederlag' | 'frist',
+  sendt: string | null
+) =>
+  sendt === null
+    ? { krav: u.spor[spor].gjeldendeKrav, paaberopelse: u.spor.forhold.gjeldendeKrav }
+    : {
+        krav: kravversjonenPaaDagen(u, spor, sendt),
+        paaberopelse: kravversjonenPaaDagen(u, 'forhold', sendt),
+      };
 
 /** Ett svar per kravpost (KA-U57). */
 function vurderingene(
   v: Svarvalg,
   krav: Krav,
   hovedvarselet: boolean,
-  u: Utledning
+  u: Utledning,
+  sendt: string | null
 ): Svarvurdering {
   const poster = kravposterI(krav);
   const krevd = krevdSaerskilt(krav);
@@ -268,7 +305,7 @@ function vurderingene(
     hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
     ...(krevd === null ? {} : saerskiltsvaret(v.saerskilt ?? tomtSaerskilt(), krevd)),
     kravposter: poster.length
-      ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse), u))
+      ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse), u, sendt))
       : undefined,
   });
 }
@@ -371,6 +408,7 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
       delbeloep: beloep === 'deler' ? visKroner(godkjent) : '',
       kreverTilbud: !!form?.kreverTilbud,
       varsletITide: hjemmel ? varselet(hjemmel, post.id) : null,
+      tausOmVarselet: false,
       godtarJustering: finn('justering', (s) => s.gjelder === post.id)?.godtar ?? null,
     };
   };
@@ -395,20 +433,29 @@ export function valgFraSvaret(svar: Svar, krav: Krav): Svarvalg {
   };
 }
 
-/** BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav (`svarbrevet`). */
+/**
+ * BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav (`svarbrevet`). Et
+ * svar lagt til, sendt `sendt`, gjelder kravversjonen og påberopelsen på dagen
+ * (`kravetSvaretGjelder`). Resultatet regnes med innsigelsene svaret leses med, som kjernen
+ * regner det (VS-U80, VS-U81).
+ */
 export function vederlagssvaret(
   v: Svarvalg,
   u: Utledning,
   regler: Regelsett,
-  punktene: readonly string[] = []
+  punktene: readonly string[] = [],
+  sendt: string | null = null
 ): { type: 'brev'; svar: Svarutkast[] } | null {
-  const krav = u.spor.vederlag.gjeldendeKrav;
+  const { krav, paaberopelse } = kravetSvaretGjelder(u, 'vederlag', sendt);
   if (!krav) return null;
   return svarbrevet(
     'vederlag',
     krav,
-    vurderingene(v, krav, spoerOmHovedvarselet(u, regler), u),
-    { paaberopelse: u.spor.forhold.gjeldendeKrav },
+    vurderingene(v, krav, spoerOmHovedvarselet(u, regler, paaberopelse), u, sendt),
+    {
+      paaberopelse,
+      staar: innsigelseneSomStaar(u, sendt),
+    },
     v,
     regler,
     punktene

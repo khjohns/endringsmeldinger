@@ -14,6 +14,7 @@
   } from '#kjerne/spor/forhold/format.ts';
   import { standpunktet } from '#kjerne/frosset/byggeklosser.ts';
   import { blirEndringsordre, preklusjonPaaberopt } from '#kjerne/spor/forhold/frysing.ts';
+  import { svaretBlirEndringsordre } from '#kjerne/frosset/frysing.ts';
   import {
     BREVTEKSTEN_I_FORHOLDET,
     forholdet as forholdIKatalogen,
@@ -22,7 +23,13 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import {
+    lagtTil as kommandoenLagtTil,
+    svaretLagtTilErstatter,
+    type Korrespondansevalg,
+  } from './korrespondansen';
+  import { somNyttSvar } from './kommandoer';
+  import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -62,6 +69,7 @@
     onforkast,
     onvedsiden,
     lagtTil = null,
+    onavbrudd,
     onendre,
     onlagttil,
     onleggtil,
@@ -77,6 +85,8 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null`. */
     lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
     onendre?: () => void;
     onlagttil?: () => void;
     /** U-14: veien til skjemaet for korrespondanse lagt til, med kategorien svar. */
@@ -163,6 +173,22 @@
   const lagene = $derived(
     kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold', lagtTil?.dato || null)
   );
+  // U-13 i BF-49, OV-U6: valget står bare i et svar lagt til som kjernen leser som en endringsordre
+  // etter § 31.3 (`svaretBlirEndringsordre`), og følger med bare da.
+  const kanVaereEndringsordre = $derived(
+    !!lagtTil &&
+      svaretBlirEndringsordre(utkast.svar[0]!.vurderinger, kategori(krav), kjernesak.regler)
+  );
+  // Et svar lagt til etter byggherrens gjeldende svar er et nytt svar på det (HF-U29).
+  const erstatter = $derived(
+    lagtTil?.dato ? svaretLagtTilErstatter(kjernesak, u, 'forhold', lagtTil.dato) : undefined
+  );
+  const somLagtTil = (k: { type: 'brev'; svar: Svarutkast[] }) => {
+    const n = somNyttSvar(k, erstatter);
+    return kanVaereEndringsordre && valg.egenEndringsordre
+      ? { ...n, endringsordre: true as const }
+      : n;
+  };
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   // GR-U12: kjernen stiller spørsmålet om varselet etter punkt 32.2 (#2279).
   const varseletStilt = $derived(stilt(lagene, 'grunnlag_varslet_i_tide'));
@@ -182,7 +208,7 @@
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
   const etter = $derived(
     kjernesak.forhaandsvist(
-      lagtTil ? kommandoenLagtTil(utkast, lagtTil) : utkast,
+      lagtTil ? kommandoenLagtTil(somLagtTil(utkast), lagtTil) : utkast,
       lagtTil ? vedleggskart(lagtTil.vedlegg) : undefined
     )
   );
@@ -304,8 +330,12 @@
   {u}
   spor="forhold"
   {utkast}
-  medTekstene={(punktene) => forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!}
+  medTekstene={(punktene) =>
+    lagtTil
+      ? somLagtTil(forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!)
+      : forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!}
   {lagtTil}
+  {onavbrudd}
   svarerPaa={lagtTil ? kravbrevet : null}
   {onendre}
   {onlagttil}
@@ -370,6 +400,19 @@
         stablet
       />
       {#if frafallMangler}<p class="dempet">{frafallMangler}</p>{/if}
+      {#if kanVaereEndringsordre}
+        <Valg
+          navn={`${uid}-endringsordre`}
+          spoersmaal={FORHOLDSSVAR.egenEndringsordreSpoersmaal}
+          valg={[{ verdi: true, tekst: FORHOLDSSVAR.egenEndringsordre }]}
+          hjelp={FORHOLDSSVAR.egenEndringsordreHjelp}
+          bind:verdi={
+            () => valg.egenEndringsordre || null, (x) => (valg.egenEndringsordre = x === true)
+          }
+          avkrysning
+          lett
+        />
+      {/if}
       {#if forholdspunktet}
         <Sitat etikett={FORHOLDSSVAR.endringsordreMerke}>
           <p>{FORHOLDSSVAR.brevetSier}</p>
