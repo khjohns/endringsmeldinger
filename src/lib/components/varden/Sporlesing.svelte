@@ -478,16 +478,6 @@
 {#snippet vedBrevet(ved: string | null = null)}
   <div class="knapper">
     {#if primaer}{@render primaerknapp(primaer)}{/if}
-    {#if revidere}
-      {@const r = revidere}
-      <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
-      <Knapp
-        variant="lenke"
-        kompakt
-        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
-        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
-      >
-    {/if}
     {#if varselVedSiden}
       {@const n = varselVedSiden}
       <Knapp onclick={() => (bygget.includes(n) ? velg(n) : (primaerIkkeBygget = true))}
@@ -500,6 +490,16 @@
       >
     {/if}
     {#if ved}{@render varselknapper(ved)}{/if}
+    {#if revidere}
+      {@const r = revidere}
+      <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
+      <Knapp
+        variant="lenke"
+        kompakt
+        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
+        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
+      >
+    {/if}
   </div>
   {@render ikkeBygget()}
   {#if flyt.hindring}

@@ -171,13 +171,11 @@ med egne ord (#1187). Hvilke handlinger som vises, og når en knapp er inaktiv, 
 i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
 [`uu-sjekk`](../.claude/skills/uu-sjekk/SKILL.md).
 
-- **Rekkefølgen er primær, sekundær, tertiær**, venstrestilt, også i dialoger og
-  på smal skjerm. Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen
-  følger den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme
-  gruppe.
 - **Knappene i en gruppe står vannrett ved siden av hverandre**, venstrestilt, i
-  rekkefølgen primær, sekundær, tertiær. Er det ikke plass, for eksempel på smal skjerm,
-  brytes de til neste linje i samme rekkefølge (oppdragsgiver 27.11, #2493).
+  rekkefølgen primær, sekundær, tertiær, også i dialoger. Er det ikke plass, for eksempel
+  på smal skjerm, brytes de til neste linje i samme rekkefølge (oppdragsgiver 27.11,
+  #2493). Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen følger
+  den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme gruppe.
 - **Knappeteksten sier hva som skjer**, med et verb i imperativ og helst høyst tre
   ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
 - **Feltene står under hverandre**, med label over feltet og hjelpeteksten under
