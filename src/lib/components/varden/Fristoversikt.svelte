@@ -73,7 +73,11 @@
 {#snippet nederst(b: Brevet)}
   {#if foresporsel?.id === b.id}
     <Melding art="info" levende={false}>
-      {FRISTEN.foresporsel(b.registrert, kalenderdager(b.registrert, dagensDato()))}
+      <!-- #2485: regnet fra datoen brevet ble sendt; datoen det ble lagt til står i raden. -->
+      {FRISTEN.foresporsel(
+        b.sendt ?? b.registrert,
+        kalenderdager(b.sendt ?? b.registrert, dagensDato())
+      )}
     </Melding>
   {/if}
   <Datolinjer {b} {klar} varselbrev={varsel?.dokument ?? null} {akseptfrist} />

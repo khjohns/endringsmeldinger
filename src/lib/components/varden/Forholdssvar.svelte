@@ -160,7 +160,9 @@
       krav
     )!
   );
-  const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
+  const lagene = $derived(
+    kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold', lagtTil?.dato || null)
+  );
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   // GR-U12: kjernen stiller spørsmålet om varselet etter punkt 32.2 (#2279).
   const varseletStilt = $derived(stilt(lagene, 'grunnlag_varslet_i_tide'));

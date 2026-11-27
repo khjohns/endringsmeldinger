@@ -54,8 +54,10 @@ export const FRISTKRAV = haerdet({
   dagerTilVarselet: (d: string, varslet: string, n: number) =>
     `Du oppgir at du ble klar over forholdet ${dato(d)}. Varselet ble gitt ${dato(varslet)}, ${n} kalenderdager etter.`,
   // U-11: svaret på forespørselen etter punkt 33.6.2 (VS-U17, VS-U19).
-  foresporsel: (b: Brevref, mottatt: string, dagerSiden: number) =>
-    `Byggherren ber deg angi og begrunne antall dager (${brevref(b)}, ${dato(mottatt)}, mottatt ${dagerSiden === 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
+  // #2485: dagene regnes fra datoen brevet ble sendt, og et brev lagt til har også datoen det ble
+  // lagt til (designdelen i VS-U97). Løsningen sier ikke når brevet kom fram (LV-U86 punkt 1).
+  foresporsel: (b: Brevref, sendt: string, dagerSiden: number, lagtTil: string | null) =>
+    `Byggherren ber deg angi og begrunne antall dager (${brevref(b)}, sendt ${dato(sendt)}, ${dagerSiden <= 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}${lagtTil ? `, lagt til ${dato(lagtTil)}` : ''}). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
   hvordanSvarer: 'Hvordan svarer du?',
   bokstavValg: [
     { verdi: 'a' as const, tekst: 'Angi og begrunne dagene (bokstav a)' },

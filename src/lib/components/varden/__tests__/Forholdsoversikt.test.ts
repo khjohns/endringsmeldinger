@@ -168,7 +168,10 @@ describe('Siden for forholdet', () => {
     expect(registrert.querySelector('h4')?.textContent).toMatch(
       /^Foreløpig tilbakemelding om pålegget/
     );
-    expect(registrert.textContent).toContain('Sendt 20. september 2026, ifølge byggherren.');
+    // U-10 i BF-49: typen, avsenderen, datoen, sendemåten og hvem som la den til og når.
+    expect(registrert.textContent).toContain(
+      'Brev fra byggherren. Sendt 20. september 2026 per post, ifølge byggherren. Lagt til av byggherren 20. september 2026.'
+    );
     expect(within(registrert).queryByRole('button', { name: /Les brevet/ })).toBeNull();
     // Vedleggene står under brevet sitt (U-5 i BF-44, LV-U14).
     expect(within(registrert).getByRole('list', { name: 'Vedlegg' }).textContent).toMatch(/\S/);
@@ -506,6 +509,7 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
     const r = {
       ...brev('r', 'registrert', ['forhold']),
       avsender: 'BH',
+      lagtTilAv: 'BH',
       sendt: null,
       registrert: '2026-11-03T10:00:00Z',
       nummer: null,
@@ -521,7 +525,7 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
       onles: () => {},
     });
     expect(document.querySelector('.datolinje')?.textContent?.trim()).toBe(
-      'Lagt til 3. november 2026.'
+      'Lagt til av byggherren 3. november 2026.'
     );
   });
 
@@ -536,6 +540,7 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
       avsnitt: null,
       merking: null,
       brevtittel: null,
+      korrespondansetype: 'e_post',
     } as Brevet;
     render(Brevtraad, {
       brev: [{ ...r, beskrivelse: null, vedlegg: [] }],
@@ -545,7 +550,7 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
       onles: () => {},
     });
     expect(document.querySelector('.datolinje')?.textContent?.trim()).toBe(
-      'Sendt 20. oktober 2026, ifølge totalentreprenøren. Lagt til 3. november 2026.'
+      'E-post fra byggherren. Sendt 20. oktober 2026, ifølge totalentreprenøren. Lagt til av totalentreprenøren 3. november 2026.'
     );
     expect(document.querySelector('.part')?.textContent).toBe('BH');
   });
@@ -573,6 +578,12 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       vedlegg: [],
       varselhjemler: [],
       svarPaaVarselet: {},
+      korrespondansetype: null,
+      sendemaate: null,
+      kategori: null,
+      ikkeFyltUt: null,
+      retter: null,
+      rettetAv: null,
     }) as Brevet;
 
   it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U59 punkt 10–11)', () => {

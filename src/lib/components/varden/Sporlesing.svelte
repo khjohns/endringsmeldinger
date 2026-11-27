@@ -79,6 +79,7 @@
     onkorriger,
     onkunnskapsdato,
     onakseptbrev,
+    onpaanytt,
     nySak,
     sakslenke,
   }: {
@@ -101,6 +102,8 @@
     onkunnskapsdato?: (varselet: string) => void;
     /** Aksepten til brevkontrollen, med virkningen slik kjernen regner den. */
     onakseptbrev: (k: TilBrevkontrollen) => void;
+    /** Parten legger dokumentasjonen fra egen side til på nytt med valget (U-12 i BF-49). */
+    onpaanytt?: (b: Brevet) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (BF-45 U-5). */
     sakslenke?: (sakId: string) => string;
   } = $props();
@@ -296,9 +299,28 @@
     }
     return ved;
   });
+  // D-13 og U-12 i BF-49: korrespondanse lagt til som dokumentasjon av egen side, som ikke er
+  // rettet, kan legges til på nytt med valget (OV-U17).
+  const kanRettes = $derived(
+    new Set(
+      u.registrerteBrev.flatMap((r) => (r.lagtTilAv === part && !r.rettetAv ? [r.dokument] : []))
+    )
+  );
+  const paaNyttVed = $derived(
+    new Map(
+      onpaanytt && u.forstaatt
+        ? brevITraaden(alleBrev, spor)
+            .filter((b) => kanRettes.has(b.id))
+            .map((b) => [b.id, b])
+        : []
+    )
+  );
   const handlingerVed = $derived([
-    ...(handlingVed === null ? [] : [handlingVed]),
-    ...Object.keys(varselVed).filter((b) => b !== handlingVed),
+    ...new Set([
+      ...(handlingVed === null ? [] : [handlingVed]),
+      ...Object.keys(varselVed),
+      ...paaNyttVed.keys(),
+    ]),
   ]);
   const vedVarslene = $derived(Object.values(varselVed).flat());
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
@@ -520,8 +542,18 @@
 
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
+  {@const paaNytt = paaNyttVed.get(id)}
   {#if id === handlingVed}{@render vedBrevet(id)}
   {:else if varselVed[id]?.length}<div class="knapper">{@render varselknapper(id)}</div>{/if}
+  {#if paaNytt}
+    <div class="knapper">
+      <Knapp
+        variant="sekundaer"
+        aria-label={LEGG_TIL.leggTilPaaNyttNavn(paaNytt.beskrivelse ?? '')}
+        onclick={() => onpaanytt?.(paaNytt)}>{LEGG_TIL.leggTilPaaNytt}</Knapp
+      >
+    </div>
+  {/if}
 {/snippet}
 
 {#snippet varselknapper(id: string)}

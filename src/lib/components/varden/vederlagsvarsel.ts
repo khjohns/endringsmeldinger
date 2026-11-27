@@ -7,15 +7,18 @@
  */
 
 import type { Kravvarselhjemmel } from '#kjerne/typer.ts';
-import { definert } from './kommandoer';
 import {
+  harArbeid,
   korrespondansefeilene,
   registreringen,
   tomKorrespondanse,
+  varselposten,
   type Korrespondansevalg,
 } from './korrespondansen';
 import type { Mangel } from './mangler';
 import { vedleggskart } from './nysak';
+
+export { harArbeid };
 import { KUNNSKAPSDATO, VEDERLAGSVARSEL } from './tekster';
 
 /**
@@ -24,9 +27,6 @@ import { KUNNSKAPSDATO, VEDERLAGSVARSEL } from './tekster';
  */
 const VARSELHJEMLENE = ['34.4', '34.3.3', '34.1.2', '34.1.3'] as const;
 export type Vederlagsvarselhjemmel = (typeof VARSELHJEMLENE)[number] & Kravvarselhjemmel;
-
-/** VS-U87 punkt 27: varselet etter § 34.3.3 og § 34.4 har arbeidet det gjelder. */
-export const harArbeid = (h: Vederlagsvarselhjemmel) => h === '34.3.3' || h === '34.4';
 
 /** Ett varsel i brevet. `klarOver` er datoen etter § 34.1.3 annet ledd (U-1 i BF-48, VS-U86). */
 export interface Varselrad {
@@ -114,17 +114,6 @@ export function hjemlerForRaden(
     ? VARSELHJEMLENE.filter((h) => h === rad.hjemmel || valgbare.includes(h))
     : valgbare;
 }
-
-/**
- * Varselet slik kommandoen bærer det: arbeidet bare etter § 34.3.3 og § 34.4, og datoen bare
- * etter § 34.1.3 (`varselfeil` i kjernen).
- */
-const varselposten = (r: Varselrad) =>
-  definert({
-    hjemmel: r.hjemmel,
-    arbeid: harArbeid(r.hjemmel) ? r.arbeid.trim() || undefined : undefined,
-    klar_over_utgiftene: r.hjemmel === '34.1.3' ? r.klarOver || undefined : undefined,
-  });
 
 /** Kommandoen TE sender: `send_varsel` fra løsningen, eller `varsel` med registreringen. */
 export function varslingen(v: Varslingsvalg): Record<string, unknown> {
