@@ -737,7 +737,7 @@ FEILINNFOERINGER = [
      "  if (feil instanceof TransaksjonAvbrutt) return feilnummer(feil.cause) === VRANGLAAS;\n", "",
      "vranglåsoffer som arbeidet fanger"),
     ("S185", "et nytt forsøk etter en vranglås får en ny frist (#555)", "server/datalag.ts",
-     " || !vranglaasoffer(feil) || igjen <= 0) throw feil;", " || !vranglaasoffer(feil)) throw feil;",
+     " || igjen < MINSTE_RESTTID_MS)\n        throw feil;", ")\n        throw feil;",
      "fristen rekker ikke til et nytt forsøk"),
 ]
 

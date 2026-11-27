@@ -324,13 +324,13 @@ interface Frist {
  * kastes, også når arbeidet returnerer en `Tilbakerulling`. COMMIT som er sendt,
  * avbrytes ikke, for da ville et kjent utfall blitt usikkert; den har grensen til
  * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`, og den
- * gjelder alle forsøkene samlet.
+ * gjelder alle forsøkene samlet, utenom ventingen på en forbindelse til et nytt forsøk.
  *
  * Velger serveren transaksjonen som vranglåsoffer (`VRANGLAAS`), er den rullet
  * tilbake, og hele transaksjonen kjøres på nytt med `arbeid` fra begynnelsen, høyst
  * `VRANGLAASFORSOEK` ganger i alt. `arbeid` skal derfor ikke ha virkninger utenfor
- * transaksjonen. Etter siste forsøk, eller når fristen ikke rekker til et nytt, kastes
- * feilen fra det. Ingen annen feil gir et
+ * transaksjonen. Etter siste forsøk, eller når mindre enn `MINSTE_RESTTID_MS` av
+ * fristen er igjen etter pausen, kastes feilen fra det. Ingen annen feil gir et
  * nytt forsøk: en avvisning, en versjonskonflikt og et usikkert utfall kastes straks.
  */
 export async function transaksjon<T>(
@@ -349,7 +349,8 @@ export async function transaksjon<T>(
     } catch (feil) {
       const pause = 20 + Math.random() * 80 * forsoek;
       const igjen = slutt - Date.now() - pause;
-      if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil) || igjen <= 0) throw feil;
+      if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil) || igjen < MINSTE_RESTTID_MS)
+        throw feil;
       loggFeil('Datalaget: transaksjonen var vranglåsoffer og kjøres på nytt', feil, 'warn', {
         antall: forsoek,
       });
@@ -360,6 +361,9 @@ export async function transaksjon<T>(
 
 /** Antall forsøk i alt når transaksjonen er vranglåsoffer. */
 export const VRANGLAASFORSOEK = 3;
+
+/** Det som må være igjen av fristen etter pausen for at et nytt forsøk startes. */
+export const MINSTE_RESTTID_MS = 1_000;
 
 /**
  * Feilen fra arbeidet, eller årsaken når arbeidet fanget den og serveren rullet

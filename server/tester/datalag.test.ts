@@ -27,6 +27,7 @@ import {
   TransaksjonAvbrutt,
   UgyldigKontekst,
   UsikkertUtfall,
+  MINSTE_RESTTID_MS,
   VRANGLAAS,
   VRANGLAASFORSOEK,
   type Forbindelse,
@@ -744,9 +745,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     delete (pool as unknown as { acquire?: unknown }).acquire;
   });
 
-  // Kilde: F0b i hovedplanen, krav 2 og 4, og #555: en feil midt i transaksjonen
-  // etterlater ingen delvise skrivinger, en vranglås prøves på nytt, og en avvisning
-  // som aldri kan lykkes, prøves ikke på nytt.
+  // Kilde: F0b i hovedplanen, krav 2 og 4, og #555.
   describe('flere skrivinger og nye forsøk (#555)', () => {
     beforeAll(async () => {
       await base.pool
@@ -865,8 +864,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       for (const id of ider) expect(await lagret(pool, id)).toBe(false);
     });
 
-    // Bare vranglåsen gir et nytt forsøk. En avvisning, en versjonskonflikt og en ugyldig
-    // kommando gir samme feil igjen (F0b krav 4), og et usikkert utfall kan være committet.
+    // Kilde: F0b krav 4.
     it.each<[string, number]>([
       ['avvisning', 51403],
       ['versjonskonflikt', 51409],
@@ -894,21 +892,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       expect(kall).toBe(1);
     });
 
-    it('fristen rekker ikke til et nytt forsøk etter 1205: arbeidet kjøres én gang', async () => {
+    it('fristen rekker ikke til et nytt forsøk etter 1205: arbeidet kjøres én gang, og 1205 kastes', async () => {
       let kall = 0;
+      const vranglaas = feilFraBasen(VRANGLAAS);
       const feil = await transaksjon(
         pool,
         KONTEKST,
         async () => {
           kall++;
-          // Det som er igjen av fristen, er under den korteste pausen (20 ms).
-          await new Promise((ok) => setTimeout(ok, 85));
-          throw feilFraBasen(VRANGLAAS);
+          throw vranglaas;
         },
-        { frist: 100 }
+        { frist: MINSTE_RESTTID_MS }
       ).catch((e: unknown) => e);
       expect(kall).toBe(1);
-      expect(feil instanceof FristUtloept || feilnummer(feil) === VRANGLAAS).toBe(true);
+      expect(feil).toBe(vranglaas);
     });
 
     it('fristen utløper før arbeidet kaster 1205: FristUtloept, og arbeidet kjøres én gang', async () => {
