@@ -16,7 +16,6 @@ import { kontrollerSpesifiseringen } from '../../regler/svarkontroll.ts';
 import {
   avvisUkjenteFelt,
   laget,
-  prinsipalt,
   standpunktet,
   virkningerIForholdetOgFristen,
   type Svarinnhold,
@@ -42,7 +41,7 @@ import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Svar, Utfall } fr
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
   const spesifisering = standpunktet(svar, 'spesifisering');
   const maatteForstaa =
-    spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id
+    spesifisering && v.find((p) => p.standpunkt === spesifisering.id)?.virkning === 1
       ? spesifisering.maatteForstaa
       : undefined;
   const dagerI = (d: Extract<Standpunkt, { art: 'dager' }>): number => {
@@ -263,8 +262,8 @@ function regnUtFristen(
  * Utregningen av fristen (§ 33): én rad for hver frist i kravet, uten sum (KA-U74). Lagene er de
  * `virkningerIForholdetOgFristen` gir standpunktene vurderingene blir lagret som (#2242). Lagene
  * leser ikke hvilket varsel rettidigheten etter § 33.4 gjelder, så det står som kravet. De regnes
- * uten forholdet foran sporet: det flytter bare en oppfylt hindring inn i et lag (LV-U85 punkt 11),
- * og den gir ikke dagene (`erInnsigelseIFristen`).
+ * uten forholdet foran sporet, som bare flytter en oppfylt hindring (LV-U85 punkt 11), og den gir
+ * ikke dagene (`erInnsigelseIFristen`).
  */
 function regnUtFrist(
   v: Svarvurdering,

@@ -894,10 +894,46 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
       const punktene = laast(rad);
       const n = punktene.findIndex((p) => /^\d+\. Hindringen/.test(p));
       expect(punktene[n]).toBe(HINDRET(n).replace('\n\n', `\n\n${lagslinje}`));
+      // MM-U9: virkningen regnet på nytt med samme regler er den samme som i brevet.
+      expect(
+        visning(s.u(), KJERNE.regler).spor.frist.etiketter.filter((e) =>
+          e.startsWith('regel_endret')
+        )
+      ).toEqual([]);
       // OV-U42: varselet etter § 33.4 i tide står fortsatt uten lag.
       expect(punktene[n - 1]).toMatch(
         /^\d+\. Varselet om fristforlengelse[^\n]*\n\nByggherren gjør ikke/
       );
+    }
+  );
+
+  it.each([
+    ['avslått', 'avslaatt', true],
+    ['prekludert', 'godkjent', false],
+    ['godkjent (kontrollsak)', 'godkjent', true],
+  ])(
+    'med forholdet %s og spesifiseringen for sent gir aksepten dagene byggherren måtte forstå, også når hindringen står i laget (VS-U4, LV-U85 punkt 11)',
+    (_n, resultat, iTide) => {
+      const s = sakMedKrav();
+      s.send('BH', { type: 'brev', svar: [forhold(s, resultat, iTide)] });
+      s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            s.krav('frist'),
+            { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 5, dager: 15 },
+            { resultat: 'delvis_godkjent', godkjent_dager: 5 }
+          ),
+        ],
+      });
+      s.send('TE', {
+        type: 'aksept',
+        spor: 'frist',
+        svar: s.u().spor.frist.gjeldendeSvar!.id,
+        regelversjon: KJERNE.regler.versjon,
+      });
+      expect(s.u().spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(5);
     }
   );
 

@@ -8300,6 +8300,32 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
   },
+  {
+    id: 'F2438c',
+    feilklasse:
+      'visningen regner virkningene på nytt uten forholdet foran sporet og sier at regelen er endret (MM-U9, LV-U85 punkt 11, #2438)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '    virkninger(g, paaberopelseFor(g, u), regler, forskyvningIBrevet(g, u), staar)',
+        '    virkninger(g, paaberopelseFor(g, u), regler, 0, staar)',
+      ],
+    ],
+    mal: ['LV-U85 punkt 11: med forholdet avslått står hindringen i fristens lag'],
+  },
+  {
+    id: 'F2438d',
+    feilklasse:
+      'aksepten gir de vurderte dagene når en oppfylt hindring står i første lag foran spesifiseringen for sent (VS-U4, LV-U85 punkt 11, #2438)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [
+      [
+        '    spesifisering && v.find((p) => p.standpunkt === spesifisering.id)?.virkning === 1',
+        '    spesifisering && v.find((p) => p.virkning === 1)?.standpunkt === spesifisering.id',
+      ],
+    ],
+    mal: ['med forholdet avslått og spesifiseringen for sent gir aksepten dagene'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

@@ -242,7 +242,7 @@ export function virkningerIForholdetOgFristen(
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      // LV-U85 punkt 11: står forholdet foran sporet, står også en oppfylt hindring i laget.
+      // LV-U85 punkt 11.
       const virkning =
         s.oppfylt && !etterInnsigelseOmTap && forskyvning === 0 ? 'uten_virkning' : iLaget();
       if (!s.oppfylt) lag++;
