@@ -651,6 +651,57 @@ export const TESTSAKER: Record<string, Testsak> = {
       await te.setViewportSize({ width: 1440, height: 900 });
     },
   },
+  'varselsvar-33-4': {
+    tittel: 'Endret trappeløsning i trapperom B',
+    formaal:
+      '#2456: byggherrens svar på varselet om fristforlengelse etter punkt 33.4 som står alene (VS-U96 punkt 32), sendt gjennom serveren, og et nytt svar som erstatter det.',
+    spor: 'frist',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt endret trappeløsning i trapperom B.',
+      },
+      { handling: 'varsel', spor: 'frist', navn: 'V-f1' },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      await bh.getByRole('button', { name: 'Svar på varselet om fristforlengelse' }).click({ timeout: 30_000 });
+      await bh.getByRole('heading', { name: /^Svar på varsel om fristforlengelse/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-334-tomt.png`, fullPage: true });
+      await bh.getByRole('radio', { name: 'Kom for sent' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-334.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/varselsvar-334-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await bh.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      await bh.screenshot({ path: `${ut}/varselsvar-334-brev.png`, fullPage: true });
+      const [svar] = await Promise.all([
+        bh.waitForResponse(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (r: any) => r.url().endsWith('/kommandoer') && r.request().method() === 'POST'
+        ),
+        bh.getByRole('button', { name: 'Send til totalentreprenøren', exact: true }).click(),
+      ]);
+      console.log(`BH  POST kommandoer (svaret på varselet etter punkt 33.4): ${svar.status()}`);
+      if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
+      await bh.getByRole('button', { name: /Tilbake til saken/ }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/varselsvar-334-kvittering.png`, fullPage: true });
+      // Fristen etter sendingen, med svaret i tråden og handlingen for et nytt svar.
+      await bh.goto(saksrute);
+      const nytt = bh.getByRole('button', { name: 'Nytt svar på varselet om fristforlengelse' });
+      await nytt.waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/varselsvar-334-sendt.png`, fullPage: true });
+      // VS-U96 punkt 33 og 34: et nytt svar gjentar innsigelsen til byggherren gir den opp.
+      await nytt.click();
+      await bh.getByText('Svaret gjentar innsigelsen.').waitFor();
+      await bh.screenshot({ path: `${ut}/varselsvar-334-nytt.png`, fullPage: true });
+    },
+  },
 };
 
 /** Testsaken som kjøreren kjører den, uten kontrollpunkter. Et ukjent navn gir en feil med navnene. */

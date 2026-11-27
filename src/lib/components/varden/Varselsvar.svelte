@@ -1,8 +1,8 @@
 <!--
-  BH svarer på et varsel i vederlaget som står alene (G-9 i BF-14, G-7 i BF-37), i samme
-  svarskjema som svaret på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig
-  svar i vederlaget, og `gjelder` er varselet (VS-U79). Et nytt svar erstatter det forrige
-  (VS-U77 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
+  BH svarer på et varsel som står alene (G-9 i BF-14, G-7 i BF-37), i samme svarskjema som svaret
+  på kravet, med bare varselet (designdelen i VS-U77). Svaret er et vanlig svar i sporet varselet
+  står i, og `gjelder` er varselet (VS-U79, VS-U96 punkt 32). Et nytt svar erstatter det forrige
+  (VS-U96 punkt 33). Kjernen lager brevet og avviser det den ikke godtar. Er varselet lagt til
   mellom to krav, viser et kort i høyre kolonne svarene på kravpostene fra forrige brev, bare til
   lesing (VS-U65).
 -->
@@ -17,7 +17,7 @@
     type VarseletAlene,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import type { Kravpost } from '#kjerne/typer.ts';
+  import { VARSELSPOR, type Kravpost } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -82,12 +82,13 @@
   const uid = $props.id();
 
   const hjemmel = $derived(varselet.hjemmel);
+  const spor = $derived(VARSELSPOR[hjemmel]);
   const varselbrevet = $derived(brevMedUtsagn(u, varselet.id));
   const foer = $derived(
     varselet.foer && {
       iTide: varselet.foer.iTide,
       brev: brevet(u, varselet.foer.dokument),
-      ikkeGitt: !erSvarPaaVarsel(u, varselet.foer.dokument),
+      ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, varselet.foer.dokument),
     }
   );
   const utenTekster = (v: Varselsvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
@@ -95,7 +96,7 @@
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
-    const s = etter?.spor.vederlag.svarPaaVarsler.findLast((x) => x.gjelder === varselet.id);
+    const s = etter?.spor[spor].svarPaaVarsler.findLast((x) => x.gjelder === varselet.id);
     // Svaret sendes fra løsningen, så det fryses med det gjeldende svaret på forholdet
     // (`svaretPaaForholdetPaaDagen` uten dag, OV-U32).
     return s && s.id !== varselet.forrigeSvar
@@ -104,7 +105,10 @@
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
-  const varselPaakrevd = $derived(hjemmel === '34.1.2' || hjemmel === '34.1.3');
+  // VS-U87 punkt 32, VS-U96 punkt 32.
+  const varselPaakrevd = $derived(
+    hjemmel === '34.1.2' || hjemmel === '34.1.3' || hjemmel === '33.4'
+  );
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen, også før de er
   // besvart. Som i utfyllingen for kravposten (`lagIVederlaget`) regnes et ubesvart varsel som
   // innsigelse og en ubesvart justering som bestridt.
@@ -194,7 +198,6 @@
         post: null,
         tekst: hjemmel === '34.4' && iTide === null ? VARSELSVARET.manglerInnsigelse : null,
       },
-      // VS-U87 punkt 32: svaret på varselet etter § 34.1.2 og § 34.1.3 har bare standpunktet.
       {
         felt: 'varsel',
         post: null,
@@ -211,6 +214,7 @@
   // Svaret på kravet som gjelder, med brevet og kravpostene, til kortet i høyre kolonne (VS-U65).
   let ikkeBygget = $state(false);
   const forrigeSvar = $derived.by(() => {
+    if (spor !== 'vederlag') return null;
     const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.vederlag;
     if (!krav || !svar || svar.gjelder !== krav.id) return null;
     // Bare et varsel lagt til etter en kravversjon står mellom to krav (#2358).
@@ -295,7 +299,7 @@
 <Svarskjema
   {kjernesak}
   {u}
-  spor="vederlag"
+  {spor}
   tittel={SVARTITTEL_PAA_VARSELET[hjemmel]}
   svarerPaa={varselbrevet}
   {utkast}

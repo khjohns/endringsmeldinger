@@ -631,6 +631,9 @@ EN_VEI = frozenset(
         ("eo-u6", "endrer", "ubegrenset-fullmakt", "passiv"),
         # Ført 27.11 for FO-U10 i #1534: raden 18.09 fikk ankeret, og Følge der sier forholdet.
         ("fo-u6", "endrer", "forsering-utenfor-godkjenning", "passiv"),
+        # Ført 27.11 for VS-U97 i #1534: raden 24.09 fikk ankeret, og Følge der sier forholdene.
+        ("vs-u10", "presiserer", "passivitet-uten-konklusjon", "passiv"),
+        ("vs-u2", "utvider", "passivitet-uten-konklusjon", "passiv"),
         # Ført 05.11 for KA-U52 i #1534: de to radene 05.10 fikk ankrene, og Følge der sier forholdene.
         ("ka-u1", "presiserer", "oppdatert-krav", "passiv"),
         ("ka-u2", "presiserer", "ny-kravversjon", "passiv"),

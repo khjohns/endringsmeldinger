@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { Spor, Svar } from '#kjerne/typer.ts';
+  import { VARSELSPOR, type Spor, type Svar } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { page } from '$app/state';
   import { ChevronLeft } from 'lucide-svelte';
@@ -340,10 +340,16 @@
     );
   }
 
+  /** Sporet svaret på varselet `gjelder` står i, eller `null` når det ikke er et slikt varsel. */
+  const varselsporet = (gjelder: string) => {
+    const h = u && hjemmelenForVarselet(u, gjelder);
+    return h ? VARSELSPOR[h] : null;
+  };
+
   /** Svaret på varselet `gjelder` er sendt eller forkastet. */
   function tomtVarselsutkast(gjelder: string) {
     delete utkastene.varselsvar[gjelder];
-    fjernUtkast('vederlag', 'varselsvar', gjelder);
+    for (const s of ['vederlag', 'frist'] as const) fjernUtkast(s, 'varselsvar', gjelder);
   }
   function fjernSkjemautkast(s: Spor, n: Utkastnavn & Skjemaarbeid['art']) {
     if (n === 'korrigering') {
@@ -773,7 +779,8 @@
       }),
     },
     varselsvar: {
-      // G-9 i BF-14, VS-U79: svaret på et varsel som står alene, og et nytt svar på det.
+      // G-9 i BF-14, VS-U79, VS-U96 punkt 32: svaret på et varsel som står alene, og et nytt
+      // svar på det, i sporet varselet står i.
       noekler: ['svare:*', 'revidere:*'],
       aapne: (n) => {
         const gjelder = kjernesak.tilbudte.find((h) => h.noekkel === n)!.gjelder!;
@@ -781,7 +788,9 @@
         aapneUtkast({ art: 'varselsvar', gjelder });
       },
       vises: (a) =>
-        a.art === 'varselsvar' && valgt === 'vederlag' && kanSvarePaaVarselet(a.gjelder),
+        a.art === 'varselsvar' &&
+        valgt === varselsporet(a.gjelder) &&
+        kanSvarePaaVarselet(a.gjelder),
       skjema: varselsvar,
     },
   } satisfies Record<string, Skjema>;

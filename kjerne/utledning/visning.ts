@@ -143,7 +143,7 @@ export interface Senket {
 
 /**
  * HF-U29 punkt 8: det nye svaret senker beløp eller dager byggherren har godkjent. Visningen viser
- * det tidligere svaret og bestemmelsen med frist, uten å trekke konklusjonen (VS-U2, VS-U10).
+ * det tidligere svaret og bestemmelsen med frist, uten å trekke konklusjonen (VS-U2, VS-U97).
  * Bare et nytt svar på samme kravversjon sammenliknes (HF-U30).
  */
 export interface Senkning {
