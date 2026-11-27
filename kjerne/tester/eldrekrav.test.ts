@@ -355,6 +355,7 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     const { u, journal } = await leggTil([], medP1('regningsarbeid'), '2026-09-21', [
       medP1('regningsarbeid'),
     ]);
+    expect(u ?? null, 'brevet er lagt til').not.toBeNull();
     const brevet = u!.spor.vederlag.kravUtenforRekken[0]!.dokument;
     const p1 = kravposterI(u!.spor.vederlag.gjeldendeKrav!)[0]!.id;
     expect(varseleneIEldreKrav(u!)).toEqual([

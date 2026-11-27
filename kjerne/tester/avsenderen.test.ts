@@ -198,6 +198,16 @@ describe('skjemaet parten avbrøt før brevet ble lagt til som dokumentasjon (D-
   });
 });
 
+/** Meldingen i avvisningen fra totalentreprenøren, eller feilen som tekst. */
+const meldingen = (journal: Journalrad[], kommando: Data): string | null => {
+  try {
+    const u = prov(journal, kommando, 'TE');
+    return u.godtatt ? null : u.avvisning.melding;
+  } catch (e) {
+    return String(e);
+  }
+};
+
 describe('dokumentasjonen lagt til på nytt med valget (D-13 i BF-49, OV-U123 punkt 23, MM-U59 punkt 9)', () => {
   const varselet = (ekstra: Data = {}): Data => ({
     type: 'varsel',
@@ -242,14 +252,14 @@ describe('dokumentasjonen lagt til på nytt med valget (D-13 i BF-49, OV-U123 pu
     const journal = await journalen();
     const rad = godtatt(journal, registrering(), 'TE');
     const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
-    const u = prov([...journal, rad, varsel], varselet({ retter: rad.event_id }), 'TE');
-    expect(u.godtatt ? null : u.avvisning.melding).toBe(
+    expect(meldingen([...journal, rad, varsel], varselet({ retter: rad.event_id }))).toBe(
       'Registreringen er alt rettet. Rett den siste registreringen.'
     );
     // Kontrollsak: rettet bort etter OV-U18.
     const bort = godtatt([...journal, rad], { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
-    const k = prov([...journal, rad, bort], varselet({ retter: rad.event_id }), 'TE');
-    expect(k.godtatt ? null : k.avvisning.melding).toContain('ikke hører til saken');
+    expect(meldingen([...journal, rad, bort], varselet({ retter: rad.event_id }))).toContain(
+      'ikke hører til saken'
+    );
   });
 
   it('et krav fra løsningen med en henvisning til en registrering avvises som form (OV-U80)', async () => {
