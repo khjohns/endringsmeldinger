@@ -150,9 +150,20 @@ describe('svaret bare på varslene i vederlagskravet, per kravpost (VS-U96 punkt
     const sendt = await skjemaet(medVederlagskravet());
     await seBrevet();
     expect(sendt).toHaveLength(0);
-    expect(
-      screen.getByRole('link', { name: 'Ta stilling til varselet for minst én kravpost.' })
-    ).toBeInTheDocument();
+    const lenken = screen.getByRole('link', {
+      name: 'Ta stilling til varselet for minst én kravpost.',
+    });
+    // Lenken i lista fører til beskjeden under innledningen (design-review av #2488).
+    const maal = document.getElementById(lenken.getAttribute('href')!.slice(1));
+    expect(maal?.textContent).toBe('Ta stilling til varselet for minst én kravpost.');
+  });
+
+  it('når byggherren har tatt stilling til varselet for posten etter punkt 34.3.3, er justeringen ikke lenger valgfri (design-review av #2488)', async () => {
+    await skjemaet(medVederlagskravet());
+    const justeringen = () => posten('P2').getByRole('group', { name: /Justeringen/ });
+    expect(within(justeringen()).getByText('Valgfri')).toBeInTheDocument();
+    await fireEvent.click(posten('P2').getByRole('radio', { name: 'Kom for sent' }));
+    expect(within(justeringen()).queryByText('Valgfri')).toBeNull();
   });
 
   it('har byggherren tatt stilling til varselet for posten etter punkt 34.3.3, må justeringen også besvares (VS-U96 punkt 30)', async () => {

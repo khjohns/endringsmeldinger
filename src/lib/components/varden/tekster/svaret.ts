@@ -212,8 +212,12 @@ export const VARSELSVARET = haerdet({
   svaretI: (b: Brevref) => `Svaret i ${brevref(b)}`,
   nyttSvarPaaKravet: 'Nytt svar på kravet',
   // VS-U96 punkt 38 og 39: svaret bare på varslene i vederlagskravet, per kravpost.
-  bareVarslene: 'Du svarer bare på varslene. Du tar stilling til kravet i et senere svar.',
-  manglerPost: 'Ta stilling til varselet for minst én kravpost.',
+  bareVarslene: (poster: number) =>
+    poster === 1
+      ? 'Du svarer bare på varselet. Svaret gjelder ikke kravet.'
+      : 'Du svarer bare på varslene. Svaret gjelder ikke kravet.',
+  manglerPost: (poster: number) =>
+    poster === 1 ? 'Ta stilling til varselet.' : 'Ta stilling til varselet for minst én kravpost.',
   svarPaaVarslene: 'Svar på varslene i kravet',
   /**
    * Tittelen kjernen gir svaret bare på varslene: varselet for én kravpost, ellers varslene i

@@ -163,10 +163,13 @@
     varseletIPosten(valg, p) !== null || postvarselvalget(valg, p.post.id).godtarJustering !== null;
   const mangler = $derived(
     manglene(uid, [
+      // Beskjeden står under innledningen, fordi den gjelder alle postene.
       {
-        felt: `${varslene.poster[0]?.post.id ?? ''}-varsel`,
+        felt: 'poster',
         post: null,
-        tekst: varslene.poster.some(besvart) ? null : VARSELSVARET.manglerPost,
+        tekst: varslene.poster.some(besvart)
+          ? null
+          : VARSELSVARET.manglerPost(varslene.poster.length),
       },
       ...varslene.poster.flatMap((p) => {
         const v = postvarselvalget(valg, p.post.id);
@@ -215,7 +218,12 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
-    <p class="dempet innledning">{VARSELSVARET.bareVarslene}</p>
+    <div class="innledning">
+      <p class="dempet">{VARSELSVARET.bareVarslene(varslene.poster.length)}</p>
+      {#if feil(`${uid}-poster`)}
+        <p class="feilmelding" id={`${uid}-poster`} tabindex="-1">{feil(`${uid}-poster`)}</p>
+      {/if}
+    </div>
     {#each varslene.poster as p (p.post.id)}
       {@const id = `${uid}-${p.post.id}`}
       {@const v = postvarselvalget(valg, p.post.id)}
@@ -265,8 +273,9 @@
             (x) => (valg.poster = { ...valg.poster, [p.post.id]: { ...v, godtarJustering: x } })
           }
           ikkeGitt={false}
+          varselValgfri={!besvart(p)}
           varselFeil={feil(`${id}-varsel`)}
-          justeringValgfri
+          justeringValgfri={!besvart(p)}
           justeringFeil={feil(`${id}-justering`)}
           {foranVarselet}
           {foranJusteringen}
@@ -292,5 +301,11 @@
   /* Med innrykket spørsmålene har (`Spoersmaal`). */
   .innledning {
     padding: var(--spacing-5) var(--spacing-6) 0;
+  }
+  .feilmelding {
+    margin-top: var(--spacing-2);
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
   }
 </style>
