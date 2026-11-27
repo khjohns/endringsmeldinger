@@ -23,6 +23,7 @@ import type { Utfall } from '../kommandoer/skriving.ts';
 import type { Journalrad, Krav } from '../typer.ts';
 import { laast } from './brevsak.ts';
 import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
+import { varseleneIEldreKrav } from '../spor/vederlag/visning.ts';
 
 interface LagtTil {
   utfall: Utfall;
@@ -348,6 +349,18 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     expect(tekst).not.toContain(VARSEL_344);
     expect(tekst).toContain(GITT_344);
     expect(u?.begrensninger).toEqual([]);
+  });
+
+  it('byggherren ser brevet og dagen det ble sendt som varselet for P1 (OV-U120, D-15 og U-15 i BF-49)', async () => {
+    const { u, journal } = await leggTil([], medP1('regningsarbeid'), '2026-09-21', [
+      medP1('regningsarbeid'),
+    ]);
+    const brevet = u!.spor.vederlag.kravUtenforRekken[0]!.dokument;
+    const p1 = kravposterI(u!.spor.vederlag.gjeldendeKrav!)[0]!.id;
+    expect(varseleneIEldreKrav(u!)).toEqual([
+      { gjelder: p1, hjemmel: '34.4', dokument: brevet, sendt: '2026-09-21' },
+    ]);
+    expect(journal.some((r) => r.event_id === brevet)).toBe(true);
   });
 
   it('kontrollsak: har den neste versjonen justerte enhetspriser for P1, er kravet varselet etter punkt 34.3.3 (OV-U120 vilkår 1, VS-U49)', async () => {
