@@ -14,7 +14,7 @@ import {
   type Krav,
   type Kravpost,
   type Kravpostvarselhjemmel,
-  type Vederlagsvarselhjemmel,
+  type SvarbarVarselhjemmel,
 } from '#kjerne/typer.ts';
 import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
 import {
@@ -25,6 +25,7 @@ import {
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
+import { fristvarseletSvaretGjelder } from '#kjerne/spor/frist/kommando.ts';
 
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
@@ -198,13 +199,16 @@ export function varseletFoerBrevet(
   return varseletFoer({ ...u, journal: u.journal.slice(0, i) }, post);
 }
 
-/** Varselet i vederlaget et svar som står alene gjelder (VS-U79, VS-U87 punkt 30–32). */
+/**
+ * Varselet et svar som står alene gjelder: i vederlaget (VS-U79, VS-U87 punkt 30–32) eller
+ * varselet om fristforlengelse etter § 33.4 i fristen (VS-U96 punkt 32).
+ */
 export interface VarseletAlene {
   id: string;
-  hjemmel: Vederlagsvarselhjemmel;
+  hjemmel: SvarbarVarselhjemmel;
   /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
-  foer: StandpunktTilVarselet | null;
-  /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U77 punkt 33). */
+  foer: Pick<StandpunktTilVarselet, 'iTide' | 'dokument'> | null;
+  /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U96 punkt 33). */
   forrigeSvar: string | null;
   /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
   arbeid: string | undefined;
@@ -220,12 +224,15 @@ export const erSvarPaaVarsel = (u: Utledning, dokument: string) =>
 
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
-  varseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
+  (varseletSvaretGjelder(u, gjelder) ?? fristvarseletSvaretGjelder(u, gjelder))?.hjemmel ?? null;
 
-/** Varselet `gjelder` i vederlaget som byggherren kan svare på, eller `null` (`varseletSvaretGjelder`). */
+/**
+ * Varselet `gjelder` byggherren kan svare på alene, eller `null` (`varseletSvaretGjelder` og
+ * `fristvarseletSvaretGjelder`).
+ */
 export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
   const v = varseletSvaretGjelder(u, gjelder);
-  if (!v) return null;
+  if (!v) return fristvarseletSvaretPaa(u, gjelder);
   return {
     ...v,
     foer:
@@ -234,5 +241,33 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
       ) ?? null,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast((s) => s.gjelder === v.id)?.id ?? null,
     arbeid: arbeidetI(u, v.id),
+  };
+}
+
+/**
+ * Varselet etter § 33.4 i fristen, med standpunktet i det siste svaret på det, som revisjonen
+ * erstatter (`kontrollerSvarkjedene`, VS-U96 punkt 33). En innsigelse som er gjentatt, står med
+ * brevet den først ble gjort gjeldende i, som `rettidighetIVarselet` i brevteksten leser det
+ * (VS-U96 punkt 33 og 34).
+ */
+function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
+  const v = fristvarseletSvaretGjelder(u, gjelder);
+  if (!v) return null;
+  const svarene = u.spor.frist.svarPaaVarsler.filter((s) => s.gjelder === v.id);
+  const iTide = (s: (typeof svarene)[number]) => {
+    const p = s.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.4');
+    return p?.art === 'rettidighet' ? p.iTide : null;
+  };
+  const forrige = svarene.at(-1);
+  const standpunkt = forrige ? iTide(forrige) : null;
+  let foerst = forrige;
+  if (standpunkt === false)
+    for (let s = forrige; s && iTide(s) === false; s = svarene.find((x) => x.id === s!.erstatter))
+      foerst = s;
+  return {
+    ...v,
+    foer: foerst && standpunkt !== null ? { iTide: standpunkt, dokument: foerst.dokument } : null,
+    forrigeSvar: forrige?.id ?? null,
+    arbeid: undefined,
   };
 }
