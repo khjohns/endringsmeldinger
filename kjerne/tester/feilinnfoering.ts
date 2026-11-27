@@ -2600,7 +2600,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       [
-        "    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)",
+        "    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(\n      (felt) => felt in kommando\n    )",
         '    false',
       ],
     ],
@@ -2674,7 +2674,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'avvisningen etter en retting om feil sak ber om å rette rettingen (OV-U18)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)', '      false'],
+      [
+        '      [...dokumenterI(u.journal)].some((d) => d.id === brev.rettetAv && d.ikkeISaken)',
+        '      false',
+      ],
     ],
     mal: ['OV-U18: etter en retting om feil sak viser avvisningen'],
   },
@@ -8211,6 +8214,27 @@ const MUTASJONER: Mutasjon[] = [
       ["    else if (![svar].flat().some((s) => s.spor === 'forhold'))", '    else if (false)'],
     ],
     mal: ['avvises som form'],
+  },
+  {
+    id: 'F807n',
+    feilklasse:
+      'en registrering rettet av et varsel lagt til, avvises med meldingen for rettingen etter OV-U18 (D-13 i BF-49)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['(d) => d.id === brev.rettetAv && d.ikkeISaken', '(d) => d.id === brev.rettetAv']],
+    mal: ['en registrering rettet av et varsel lagt til, avvises med meldingen'],
+  },
+  {
+    id: 'F807o',
+    feilklasse:
+      'et krav fra løsningen med en henvisning til en registrering godtas, og henvisningen forsvinner (OV-U80, D-13 i BF-49)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(",
+        "['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some(",
+      ],
+    ],
+    mal: ['et krav fra løsningen med en henvisning til en registrering avvises som form'],
   },
 ];
 

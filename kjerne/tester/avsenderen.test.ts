@@ -238,6 +238,41 @@ describe('dokumentasjonen lagt til på nytt med valget (D-13 i BF-49, OV-U123 pu
     });
   });
 
+  it('en registrering rettet av et varsel lagt til, avvises med meldingen at den alt er rettet, ikke at brevet ikke hører til saken (OV-U18)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    const u = prov([...journal, rad, varsel], varselet({ retter: rad.event_id }), 'TE');
+    expect(u.godtatt ? null : u.avvisning.melding).toBe(
+      'Registreringen er alt rettet. Rett den siste registreringen.'
+    );
+    // Kontrollsak: rettet bort etter OV-U18.
+    const bort = godtatt([...journal, rad], { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
+    const k = prov([...journal, rad, bort], varselet({ retter: rad.event_id }), 'TE');
+    expect(k.godtatt ? null : k.avvisning.melding).toContain('ikke hører til saken');
+  });
+
+  it('et krav fra løsningen med en henvisning til en registrering avvises som form (OV-U80)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const u = prov(
+      [...journal, rad],
+      {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [{ beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 1000 }],
+        },
+        retter: rad.event_id,
+      },
+      'TE'
+    );
+    expect(u.godtatt ? null : u.avvisning).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding: expect.stringContaining('$.retter: bare et brev lagt til med datoen'),
+    });
+  });
+
   it('et brev fra løsningen retter ikke en registrering', async () => {
     const journal = await journalen();
     const rad = godtatt(journal, registrering(), 'TE');

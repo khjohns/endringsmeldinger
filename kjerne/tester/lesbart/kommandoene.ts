@@ -133,10 +133,27 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'tittel utdypning'],
   // MM-U47, designdelen: tittelen parten skrev, fryses i brevet, og ingen regel leser den.
   ['Kommando', 'kommando', 'tittel', ['kommandoer/skriving.ts:skriv']],
-  // MM-U47 punkt 2: innlegget viser til et brev i saken, ikke rettingen etter OV-U18.
-  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
-  ['Utledning', 'utsagn', 'journal', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
-  ['Dokument', 'relasjon', 'id ikkeISaken', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
+  // MM-U47 punkt 2: innlegget viser til et brev i saken, ikke rettingen etter OV-U18. OV-U18 og
+  // D-13 i BF-49: meldingen til en retting av en rettet registrering skiller rettingen etter
+  // OV-U18 fra en ny registrering.
+  [
+    'format/leser.ts',
+    'rad',
+    'dokumenterI',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  [
+    'Utledning',
+    'utsagn',
+    'journal',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  [
+    'Dokument',
+    'relasjon',
+    'id ikkeISaken',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
   ['kommandoer/kommando.ts:formfeil(k)', 'kommando', 'beskrivelse'],
   ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],

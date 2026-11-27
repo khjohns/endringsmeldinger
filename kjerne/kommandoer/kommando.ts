@@ -711,7 +711,9 @@ export function formfeil(kommando: unknown): string[] {
   if (
     type === 'krav' &&
     !feil.length &&
-    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)
+    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(
+      (felt) => felt in kommando
+    )
   )
     feil.push(
       ...registreringensForm(
