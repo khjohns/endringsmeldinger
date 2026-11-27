@@ -46,9 +46,9 @@ describe('korrespondansen lagt til i tråden (BF-49)', () => {
     const rader = screen
       .getAllByRole('heading', { level: 4 })
       .map((h) => h.closest('li')!)
-      .filter((li) => /Lagt til på nytt|Erstattet av/.test(li.textContent ?? ''));
+      .filter((li) => /Lagt til på nytt/.test(li.textContent ?? ''));
     const tekst = rader.map((li) => li.textContent).join('\n');
-    expect(tekst).toMatch(/Erstattet av korrespondansen lagt til på nytt/);
+    expect(tekst).toMatch(/Lagt til på nytt \d+\. \w+ \d{4}\./);
     expect(tekst).toMatch(/Lagt til på nytt i stedet for korrespondansen lagt til/);
     for (const li of rader) {
       expect(within(li).queryByText(LEGG_TIL.ikkeFyltUt)).toBeNull();

@@ -197,7 +197,8 @@ export const LEGG_TIL = haerdet({
   leggTilPaaNyttNavn: (hva: string) => `Legg til på nytt: ${hva}`,
   retter: (lagtTil: string) =>
     `Lagt til på nytt i stedet for korrespondansen lagt til ${dato(lagtTil)}.`,
-  rettet: (lagtTil: string) => `Erstattet av korrespondansen lagt til på nytt ${dato(lagtTil)}.`,
+  // Språkfila, «Brev, ikke versjon»: visningen sier hva som skjedde, ikke «erstattet».
+  rettet: (lagtTil: string) => `Lagt til på nytt ${dato(lagtTil)}.`,
   /** OV-U104 og MM-U50 punkt 8. */
   sammeDag: (brev: readonly Brevref[]) =>
     `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Rekkefølgen er ikke kjent her. Det er ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
