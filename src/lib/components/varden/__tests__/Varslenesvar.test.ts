@@ -221,7 +221,11 @@ describe('handlingen ved kravet i Varden (VS-U96 punkt 38 og 39, U-16 i BF-44)',
     const kjernesak = kjernesakFor(medVederlagskravet());
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    expect(await screen.findByRole('button', { name: 'Svar på kravet' })).toBeInTheDocument();
+    const kravet = await screen.findByRole('button', { name: 'Svar på kravet' });
+    // Samme knappegruppe, så de står vannrett ved siden av hverandre (oppdragsgiver 27.11, #2493).
+    expect(screen.getByRole('button', { name: 'Svar på varslene i kravet' }).parentElement).toBe(
+      kravet.parentElement
+    );
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på varslene i kravet' }));
     expect(
       await screen.findByRole('heading', { name: /^Svar på varslene i krav om vederlagsjustering/ })
