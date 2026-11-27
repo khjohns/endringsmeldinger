@@ -59,6 +59,7 @@ import {
   dagerMaatteForstaa,
   fristkravet,
   fristvurderinger,
+  paaberopelsenSomStaar,
   standpunkterIFristen,
   vurderingenAvFristen,
 } from './frysing.ts';
@@ -221,6 +222,31 @@ export function fristvarseletIKravet(u: Utledning, gjelder: string): Svaretsvars
 }
 
 /**
+ * Byggherrens innsigelse mot varselet etter § 33.4 som står mot et nytt svar på kravet om
+ * fristforlengelse, med brevet den først ble gjort gjeldende i, eller `null` (VS-U96 punkt 34,
+ * samlevedtaket for varslene, versjon 4, punkt 6, 7, 9 og 10). Varselet er det et nytt svar
+ * gjelder (`varseletForNyttSvar`). Et svar lagt til, sendt på dagen `sendt`, leser svarene sendt
+ * til og med den dagen (OV-U104).
+ */
+export function innsigelsenMotFristvarselet(
+  u: Utledning,
+  sendt: string | null
+): { gjelder: string; dokument: string } | null {
+  const gjelder = varseletFoerBrevet(u, '33.4');
+  if (gjelder === undefined) return null;
+  const { svar, svarUtenforRekken, svarPaaVarsler } = u.spor.frist;
+  const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));
+  const svarene = [...dokumenterI(u.journal)].flatMap((d) =>
+    d.svar
+      .filter((s) => medVirkning.has(s.id))
+      .map((s) => ({ dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '', s }))
+      .filter(({ dag }) => sendt === null || !foerDagen(sendt, dag))
+  );
+  const dokument = paaberopelsenSomStaar(svarene, '33.4', gjelder);
+  return dokument === undefined ? null : { gjelder, dokument };
+}
+
+/**
  * VS-U96 punkt 32 og 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 33.4, eller
  * et nytt svar som erstatter det forrige (`hva`). Et svar lagt til, sendt på dagen `sendt`, prøves
  * mot byggherrens svar på kravene sendt til og med den dagen (OV-U98).
@@ -323,9 +349,11 @@ function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
 
 /**
  * Vurderingene i utkastet med hvert ubesvart spørsmål regelsettet stiller (`paakrevdeSpoersmaal`),
- * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
+ * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78). Står
+ * byggherrens innsigelse mot varselet etter § 33.4 før svaret, er spørsmålet om varselet besvart
+ * med innsigelsen (`innsigelsenMotFristvarselet`). `sendt` er dagen et svar lagt til ble sendt.
  */
-function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
+function utfylt(v: Svarutkast['vurderinger'], u: Utledning, sendt: string | null) {
   const paakrevde = paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u))).map(
     ([felt]) => felt
   );
@@ -340,6 +368,9 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
   const utfylt: Record<string, unknown> = { ...v };
   if (!ikkeSvar || !mangler(v.foresporsel_svar_ok)) delete utfylt.begrunnelse_ikke_svar;
   for (const felt of ubesvart) utfylt[felt] = true;
+  // VS-U96 punkt 34.
+  if (ubesvart.has('frist_varsel_ok') && innsigelsenMotFristvarselet(u, sendt))
+    utfylt.frist_varsel_ok = false;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
     utfylt.frister = v.frister.map((r: unknown) =>
       r !== null &&
@@ -355,7 +386,8 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
  * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
  * ubesvart spørsmål om varselet, forespørselen, hindringen eller spesifiseringen regnes som at
  * innsigelsen ikke er gjort gjeldende, så laget kan endre seg når det besvares (S1-A), og
- * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses som i vederlaget
+ * standpunktet står med `besvart: false` (#1925). Unntaket er varselet etter § 33.4 når
+ * byggherrens innsigelse står før svaret: da gjentar svaret den (VS-U96 punkt 34). Lagene fra forholdet leses som i vederlaget
  * (`lageneIUtkastet`). Dagene påvirker ikke lagene, så utregningen har én rad per frist uten
  * dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
  * fristene ikke er én per frist i kravet.
@@ -366,7 +398,7 @@ export function lagIFristen(
   regler: Regelsett,
   sendt: string | null
 ): LagIFristen {
-  const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u);
+  const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u, sendt);
   const krav = u.spor.frist.gjeldendeKrav!;
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);

@@ -8,6 +8,9 @@ import { describe, expect, it } from 'vitest';
 import { elementenesSpor, handlinger } from '../kommandoer/handlinger.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { KJERNE } from '../versjon.ts';
+import { lagForUtkastet } from '../kommandoer/lag.ts';
+import type { Svarutkast } from '../kommandoer/kommando.ts';
+import { innsigelsenMotFristvarselet } from '../spor/frist/kommando.ts';
 import { standpunkterISvaret } from '../format/leser.ts';
 import { Uforstaatt } from '../format/skjema.ts';
 import { FRISTKRAV, laast, medFristen, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
@@ -234,6 +237,93 @@ describe('innsigelsen i svaret på varselet etter punkt 33.4 står mot svaret p�
     s.send('BH', svarPaaKravet(s, true));
     expect(brevet(s)).toContain(`Byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`);
     expect(brevet(s)).not.toContain('gir opp innsigelsen');
+  });
+});
+
+describe('innsigelsen mot varselet etter punkt 33.4 i skjemaet for svaret på kravet (VS-U96 punkt 34)', () => {
+  const lagene = (s: ReturnType<typeof sak>, vurderinger: Data, sendt: string | null = null) =>
+    lagForUtkastet(
+      svar('frist', s.krav('frist'), vurderinger) as Svarutkast & { spor: 'frist' },
+      s.u(),
+      KJERNE.regler,
+      sendt
+    );
+  const varselet = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    lagene(s, vurderinger).standpunkter.find((l) => l.hjemmel === '33.4')!;
+
+  it('innsigelsen i svaret på varselet står mot svaret på kravet, med brevet den ble gjort gjeldende i', () => {
+    const { s, varsel } = medVarselet();
+    s.send('BH', paaVarselet(varsel, { varslet_i_tide: false }));
+    s.send('TE', FRISTKRAVET);
+    const { dokument } = s.u().spor.frist.svarPaaVarsler[0]!;
+    expect(innsigelsenMotFristvarselet(s.u(), null)).toEqual({ gjelder: varsel, dokument });
+  });
+
+  it('svarutkastet gjentar innsigelsen som utgangspunkt: det ubesvarte spørsmålet om varselet står i første lag og rammer dagene', () => {
+    const { s, varsel } = medVarselet();
+    s.send('BH', paaVarselet(varsel, { varslet_i_tide: false }));
+    s.send('TE', FRISTKRAVET);
+    const v = varselet(s, { frister: [{}] });
+    expect(v.besvart, 'byggherren må fortsatt svare på spørsmålet').toBe(false);
+    expect(v.virkning).toBe(1);
+    expect(
+      lagene(s, { frister: [{}] }).standpunkter.find((l) => l.art === 'dager')!.forutsetninger
+    ).toContainEqual({ innsigelse: '33.4' });
+  });
+
+  it('svarutkastet som gir opp innsigelsen, har ikke virkningen (punkt 10)', () => {
+    const { s, varsel } = medVarselet();
+    s.send('BH', paaVarselet(varsel, { varslet_i_tide: false }));
+    s.send('TE', FRISTKRAVET);
+    expect(varselet(s, { frist_varsel_ok: true, frister: [{}] }).virkning).toBe('uten_virkning');
+  });
+
+  it('innsigelsen i et svar på kravet står mot svaret på en ny kravversjon (punkt 7 og 9)', () => {
+    const { s } = medVarselet();
+    s.send('TE', FRISTKRAVET);
+    s.send('BH', svarPaaKravet(s, false));
+    const brev4 = s.u().spor.frist.svar[0]!.dokument;
+    s.send('TE', { ...FRISTKRAVET, utdypning: 'Fem uker.' });
+    expect(innsigelsenMotFristvarselet(s.u(), null)?.dokument).toBe(brev4);
+    expect(varselet(s, { frister: [{}] }).virkning).toBe(1);
+  });
+
+  it('innsigelsen i svaret bare på varselet i kravet står mot svaret på kravet (punkt 34 og 38)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', FRISTKRAVET);
+    const krav = s.u().spor.frist.gjeldendeKrav!.id;
+    s.send('BH', {
+      type: 'brev',
+      svar: [{ ...svar('frist', krav, { varslet_i_tide: false }, {}, null), bare_varselet: true }],
+    });
+    expect(innsigelsenMotFristvarselet(s.u(), null)?.dokument).toBe(
+      s.u().spor.frist.svarPaaVarsler[0]!.dokument
+    );
+    expect(varselet(s, { frister: [{}] }).virkning).toBe(1);
+  });
+
+  it('kontrollsak: uten innsigelse, eller etter «i tide» i svaret på varselet, regnes det ubesvarte spørsmålet som uten innsigelse (S1-A, punkt 8)', () => {
+    for (const foer of [null, true]) {
+      const { s, varsel } = medVarselet();
+      if (foer !== null) s.send('BH', paaVarselet(varsel, { varslet_i_tide: foer }));
+      s.send('TE', FRISTKRAVET);
+      expect(innsigelsenMotFristvarselet(s.u(), null)).toBeNull();
+      expect(varselet(s, { frister: [{}] }).virkning).toBe('uten_virkning');
+    }
+  });
+
+  it('innsigelsen som er gitt opp i et nytt svar på varselet, står ikke (punkt 10 og 33)', () => {
+    const { s, varsel } = medVarselet();
+    s.send('BH', paaVarselet(varsel, { varslet_i_tide: false }));
+    const forrige = s.u().spor.frist.svarPaaVarsler[0]!.id;
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: forrige,
+      svar: svar('frist', varsel, { varslet_i_tide: true }, {}, null),
+    });
+    s.send('TE', FRISTKRAVET);
+    expect(innsigelsenMotFristvarselet(s.u(), null)).toBeNull();
   });
 });
 
