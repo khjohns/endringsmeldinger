@@ -563,11 +563,20 @@ const VARSLENE_I_VARDEN: readonly Varselhjemmel[] = ['33.4', '34.1.2', '34.1.3',
 
 /**
  * Handlingene kjernen tilbyr i sporet, med sporet kjernen gir hver av dem. Saken som helhet
- * (`registrere_brev`) hører ikke til et spor.
+ * (`registrere_brev`) hører ikke til et spor. Svaret bare på varselet i en kravversjon (VS-U96
+ * punkt 38) har ikke skjema i Varden ennå, og holdes utenfor til det er bygget (#2456).
  */
-export function handlingerISporet(tilbudt: TilbudtHandling[], spor: Spor): TilbudtHandling[] {
+export function handlingerISporet(
+  tilbudt: TilbudtHandling[],
+  spor: Spor,
+  u: Pick<Utledning, 'spor'>
+): TilbudtHandling[] {
+  const kravene = new Set(u.spor[spor].krav.map((k) => k.id));
   return tilbudt.filter(
-    (h) => h.spor === spor && (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel))
+    (h) =>
+      h.spor === spor &&
+      (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel)) &&
+      !(h.gjelder !== null && kravene.has(h.gjelder))
   );
 }
 
