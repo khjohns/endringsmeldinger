@@ -60,7 +60,8 @@ export function medFristen(v: Data): Data {
 
 /** Resultatet klienten regnet ut for den ene fristen, som raden for den i utregningen. */
 export function medFristrad(r: Data | undefined, krav: Krav | null): Data | undefined {
-  if (!r || 'frister' in r || !krav) return r;
+  // VS-U96 punkt 32: svaret på varselet etter § 33.4 har ingen utregning.
+  if (!r || 'frister' in r || !krav || !Object.keys(r).length) return r;
   return { frister: [{ gjelder: innholdIFristen(krav).frister[0]!.id, ...r }] };
 }
 

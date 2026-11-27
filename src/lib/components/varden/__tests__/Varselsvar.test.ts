@@ -450,6 +450,22 @@ describe('handlingen står ved hvert varsel som står alene (#2360 punkt 1, U-16
   });
 });
 
+describe('svaret på varselet etter punkt 34.1.2 når saken gjelder en endring (OV-U89 punkt 13)', () => {
+  it.each([
+    ['34.1.2', 0],
+    ['34.1.3', 1],
+  ] as const)(
+    'varselet etter punkt %s gir %i knapp for svaret i vederlaget; punkt 34.1.2 krever ikke varsel ved en endring',
+    async (hjemmel, antall) => {
+      const kjernesak = kjernesakFor(medVarselOmVederlaget(hjemmel, medGrunnlag));
+      await kjernesak.last();
+      render(Vardensak, { kjernesak, spor: 'vederlag' });
+      await screen.findAllByRole('listitem');
+      expect(screen.queryAllByRole('button', { name: /^Svar på varsel/ })).toHaveLength(antall);
+    }
+  );
+});
+
 describe('begrunnelsen under punktet i svarskjemaet (#2359, WCAG 2.4.6 og 2.5.3)', () => {
   it('etiketten sier «Begrunnelse», og navnet sier hvilket punkt den gjelder', async () => {
     await svarskjemaet(medVarsel('34.3.3'));
@@ -698,24 +714,6 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     await radio('Kom i tide');
     await seBrevet();
     expect(svaret(sendt[0]!).svar).toMatchObject([{ vurderinger: { varslet_i_tide: true } }]);
-  });
-
-  it('gjelder saken en endring, tilbys ikke standpunktet til varselet etter punkt 34.1.2, og svaret sendes ikke (OV-U89 punkt 13)', async () => {
-    const journal = medVarselOmVederlaget('34.1.2', medGrunnlag);
-    const sendt = await svarskjemaet(journal);
-    expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
-    expect(screen.queryByRole('radio', { name: 'Kom for sent' })).toBeNull();
-    // Punktet og panelet sier det samme, og panelet sier ikke «Ikke besvart» (system.md).
-    expect(screen.getAllByText(/krever ikke punkt 34\.1\.2 varsel\. Du tar ikke/)).toHaveLength(2);
-    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
-    expect(panelet.queryByText('Ikke besvart')).toBeNull();
-    await seBrevet();
-    expect(sendt).toHaveLength(0);
-    // Mangelen er bare at det ikke er noe å sende, ikke et valg som ikke tilbys.
-    expect(
-      screen.getByRole('link', { name: /^Ingenting å sende\. Punkt.34\.1\.2 krever ikke varsel/ })
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeNull();
   });
 
   it('kontrollsak: gjelder saken en endring, tilbys standpunktet til varselet etter punkt 34.1.3 (OV-U89 punkt 13 gjelder bare punkt 34.1.2)', async () => {

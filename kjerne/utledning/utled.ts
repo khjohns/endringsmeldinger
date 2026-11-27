@@ -46,7 +46,7 @@ import {
   SPOR,
   VARSELSPOR,
   erKravpostvarselhjemmel,
-  erVederlagsvarselhjemmel,
+  erSvarbarVarselhjemmel,
   erVarselhjemmel,
   type Dokument,
   type Domenehendelse,
@@ -1270,8 +1270,8 @@ function kontrollerSvarene(
 /**
  * VS-U79: svaret på et varsel i vederlaget som står alene, er et svar på vederlaget. Standpunktene
  * gjelder varselet: rettidigheten etter varselets bestemmelse og, for § 34.3.3, justeringen
- * (VS-U87 punkt 30–32). Svaret på varselet etter § 34.1.2 eller § 34.1.3 har rettidigheten
- * (punkt 32). Svaret godkjenner ikke noe krav, så det faller ikke sammen med noe (GR-U7).
+ * (VS-U87 punkt 30–32). Svaret på varselet etter § 34.1.2 eller § 34.1.3, og svaret i fristen på
+ * varselet etter § 33.4, har rettidigheten (VS-U96 punkt 32). Svaret godkjenner ikke noe krav, så det faller ikke sammen med noe (GR-U7).
  */
 function kontrollerSvarPaaVarselet(
   s: Svar,
@@ -1279,10 +1279,10 @@ function kontrollerSvarPaaVarselet(
   bakover: Bakover,
   ugyldig: Ugyldig
 ): void {
-  if (s.spor !== 'vederlag' || !erVederlagsvarselhjemmel(varselet.hjemmel))
+  if (!erSvarbarVarselhjemmel(varselet.hjemmel) || VARSELSPOR[varselet.hjemmel] !== s.spor)
     ugyldig(
       s.id,
-      'svaret gjelder et varsel som ikke er etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4'
+      'svaret gjelder et varsel som ikke er etter punkt 33.4, 34.1.2, 34.1.3, 34.3.3 eller 34.4 i samme spor'
     );
   else if (!bakover(s.id, s.gjelder))
     ugyldig(s.id, 'svaret viser til et varsel som ikke står før det');
@@ -1298,7 +1298,9 @@ function kontrollerSvarPaaVarselet(
   else if (varselet.hjemmel === '34.3.3' && !s.standpunkter.some((p) => p.art === 'justering'))
     ugyldig(s.id, 'svaret på varselet etter punkt 34.3.3 har ikke standpunktet til justeringen');
   else if (
-    (varselet.hjemmel === '34.1.2' || varselet.hjemmel === '34.1.3') &&
+    (varselet.hjemmel === '33.4' ||
+      varselet.hjemmel === '34.1.2' ||
+      varselet.hjemmel === '34.1.3') &&
     !s.standpunkter.some((p) => p.art === 'rettidighet')
   )
     ugyldig(

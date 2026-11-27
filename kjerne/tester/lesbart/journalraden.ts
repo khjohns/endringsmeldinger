@@ -185,6 +185,7 @@ export const JOURNALRADEN: Lesbar[] = [
       'spor/frist/utledning.ts',
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],
   [

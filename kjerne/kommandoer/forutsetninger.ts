@@ -11,7 +11,11 @@
 
 import { sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
 import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
-import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
+import {
+  FORUTSETNINGER_I_FRISTEN,
+  fristvarseletSvaretGjelder,
+  hindrerSvaretPaaFristvarselet,
+} from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { PARTEN } from '../frosset/brevdeler.ts';
@@ -102,16 +106,16 @@ function henvisning(
 ) {
   switch (h.type) {
     case 'svare':
-    case 'revidere':
+    case 'revidere': {
+      // VS-U96 punkt 32: varselet etter § 33.4 i fristen, ellers et varsel i vederlaget.
+      const hindrer = fristvarseletSvaretGjelder(u, h.gjelder)
+        ? hindrerSvaretPaaFristvarselet
+        : hindrerSvaretPaaVarselet;
       // HF-U35 punkt 9, som for svaret på kravet.
       return u.forholdAvvist
         ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)
-        : hindrerSvaretPaaVarselet(
-            u,
-            h.gjelder,
-            h.type === 'svare' ? 'Svaret' : 'Revisjonen',
-            sendt
-          );
+        : hindrer(u, h.gjelder, h.type === 'svare' ? 'Svaret' : 'Revisjonen', sendt);
+    }
     case 'svare_paa_foresporsel': {
       // VS-U27: en forespørsel fra appen, i sporet som har den.
       for (const spor of SPOR) {
