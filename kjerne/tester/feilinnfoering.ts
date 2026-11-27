@@ -8332,10 +8332,7 @@ const MUTASJONER: Mutasjon[] = [
       'rettidigheten i et svar kontrolleres mot datoen som gjelder nå, ikke datoen som gjaldt da svaret ble sendt (MM-U59 punkt 8, BF-50)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        'datoEtterRettingene(rettingene, v.id, sendt(v), (r) => bakover(svar, r));',
-        'datoEtterRettingene(rettingene, v.id, sendt(v), () => true);',
-      ],
+      ['(r) => bakover(svar.id, r.id) && !foerDagen(sendt(svar), r.sendt)', '() => true'],
     ],
     mal: ['et svar sendt før rettingen står med varselet det gjaldt'],
   },
@@ -8344,7 +8341,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, MM-U63)',
     fil: `${K}/utledning/rettingen.ts`,
-    endringer: [['foer(r.id)).at(-1)?.dato', 'foer(r.id)).at(0)?.dato']],
+    endringer: [['foer(r)).at(-1)?.dato', 'foer(r)).at(0)?.dato']],
     mal: ['D-4: datoen som gjelder, er den i den siste rettingen'],
   },
   {
@@ -8403,8 +8400,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/rettingen.ts`,
     endringer: [
       [
-        'r.gjelder === gjelder && foer(r.id)',
-        "r.gjelder === gjelder && foer(r.id) && r.dato > (oppgitt ?? '')",
+        'r.gjelder === gjelder && foer(r)',
+        "r.gjelder === gjelder && foer(r) && r.dato > (oppgitt ?? '')",
       ],
     ],
     mal: ['variant B: en tidligere dato gjelder også straks'],
@@ -8475,6 +8472,29 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (varslet !== null && ny < varslet)', 'if (false)']],
     mal: ['påberopelsen rettes ikke til en dag før varselet, og samme dag godtas'],
+  },
+  {
+    id: 'F1309p',
+    feilklasse:
+      'et svar lagt til, oppgitt sendt før rettingen, leser rettingen når det skrives (MM-U59 punkt 8, OV-U98)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'medRettingeneTil(u, erRegistrering(k) ? kalenderdag(k.sendt) : null)',
+        'medRettingeneTil(u, null)',
+      ],
+    ],
+    mal: ['et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen'],
+  },
+  {
+    id: 'F1309q',
+    feilklasse:
+      'leseren lar et svar lagt til, oppgitt sendt før rettingen, stå med datoen etter rettingen (MM-U59 punkt 8, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!foerDagen(sendt(svar), r.sendt)', 'true']],
+    mal: [
+      'et svar lagt til, oppgitt sendt før rettingen, står med kravet som var det første varselet den dagen',
+    ],
   },
 ];
 

@@ -192,6 +192,9 @@ export const UTLEDNINGEN: Lesbar[] = [
   // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
   ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Retting', 'utsagn', 'dato'],
+  // OV-U98: dagen brevet med rettingen ble sendt, mot dagen et svar lagt til oppgir.
+  ['Retting', 'utsagn', 'sendt'],
+  ['utledning/rettingen.ts:medRettingeneTil', 'relasjon', 'rettinger'],
   [
     'utledning/rettingen.ts',
     'utsagn',

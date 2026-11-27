@@ -266,6 +266,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'erRegistrering',
     [
       'kommandoer/skriving.ts:skriv',
+      'kommandoer/skriving.ts:skriv.svarstandpunkter',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
       'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
@@ -323,6 +324,16 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Sakssperre', 'kommando', 'foer', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['LestSak', 'kommando', 'u', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
+  // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59), OV-U98: et svar lagt til står med
+  // rettingene sendt til og med dagen det oppgir.
+  ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:skriv.svarstandpunkter']],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:skriv.svarstandpunkter']],
+  [
+    'utledning/rettingen.ts',
+    'relasjon',
+    'medRettingeneTil',
+    ['kommandoer/skriving.ts:skriv.svarstandpunkter'],
+  ],
   // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.
   [
     'utledning/utled.ts',

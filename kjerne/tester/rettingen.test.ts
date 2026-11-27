@@ -227,6 +227,74 @@ describe('datoen som gjelder (MM-U59 punkt 8 og 18, MM-U63, D-3 og D-4 i BF-50)'
   });
 });
 
+describe('et svar lagt til før rettingen (MM-U59 punkt 8, OV-U98)', () => {
+  it('et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const varselet = utsagnet(s.send('TE', registrer('33.4', '2026-09-28')));
+    s.send('TE', fristkravLagtTil('2026-09-30'));
+    // Rettingen sendes 5. oktober, og varselet er da ikke lenger det første.
+    rett(s, varselet, '2026-10-01');
+    const u = s.u();
+    const krav = u.spor.frist.gjeldendeKrav!;
+    expect(varseletForNyttSvar(u, '33.4'), 'Forutsetning: kravet er det første nå').toBe(krav.id);
+    const v = medFristen({ ...FRIST_FULLT[0], frist_varsel_ok: false });
+    const utregning = regnUtSvar(
+      'frist',
+      v,
+      { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
+      KJERNE.regler
+    );
+    s.send('BH', {
+      type: 'brev',
+      ...SOM_BREV,
+      sendt: '2026-10-03',
+      dokumentasjon: [randomUUID()],
+      svar: [svar('frist', krav.id, v, utregning, null)],
+    });
+    const rettidighet = s
+      .u()
+      .spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'rettidighet');
+    expect(rettidighet).toMatchObject({ hjemmel: '33.4', gjelder: varselet });
+    expect(s.u().begrensninger).toEqual([]);
+  });
+});
+
+describe('et svar lagt til før en retting til en tidligere dato (MM-U59 punkt 8, OV-U98)', () => {
+  it('et svar lagt til, oppgitt sendt før rettingen, står med kravet som var det første varselet den dagen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const varselet = utsagnet(s.send('TE', registrer('33.4', '2026-10-01')));
+    s.send('TE', fristkravLagtTil('2026-09-30'));
+    // Rettingen sendes 5. oktober, og varselet blir da det første.
+    rett(s, varselet, '2026-09-29');
+    const u = s.u();
+    const krav = u.spor.frist.gjeldendeKrav!;
+    expect(varseletForNyttSvar(u, '33.4'), 'Forutsetning: varselet er det første nå').toBe(
+      varselet
+    );
+    const v = medFristen({ ...FRIST_FULLT[0], frist_varsel_ok: false });
+    const utregning = regnUtSvar(
+      'frist',
+      v,
+      { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
+      KJERNE.regler
+    );
+    s.send('BH', {
+      type: 'brev',
+      ...SOM_BREV,
+      sendt: '2026-10-03',
+      dokumentasjon: [randomUUID()],
+      svar: [svar('frist', krav.id, v, utregning, null)],
+    });
+    const rettidighet = s
+      .u()
+      .spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'rettidighet');
+    expect(rettidighet).toMatchObject({ hjemmel: '33.4', gjelder: krav.id });
+    expect(s.u().begrensninger).toEqual([]);
+  });
+});
+
 describe('avvisningene (D-7 i BF-50)', () => {
   it('MM-U63: en retting til datoen som gjelder, avvises og nevner datoen', () => {
     const { s, varselet } = medVarselet();

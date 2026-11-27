@@ -966,7 +966,10 @@ export type Ugyldig = (id: string, grunn: string) => void;
 /** `fra` viser til `til` med lavere saksversjon. */
 export type Bakover = (fra: string, til: string) => boolean;
 /** Dagen som gjaldt for varselet eller kravet `v` da svaret `svar` ble sendt (`datoEtterRettingene`). */
-type GjaldtVedSvaret = (v: Pick<Krav, 'id' | 'dokument'>, svar: string) => string | null;
+type GjaldtVedSvaret = (
+  v: Pick<Krav, 'id' | 'dokument'>,
+  svar: Pick<Krav, 'id' | 'dokument'>
+) => string | null;
 
 /**
  * Lesereglene i 4.2 som er sporets egne, og det utledningen ellers leser av sporet. Hver
@@ -1175,11 +1178,20 @@ function utledSporene(
     dokument: elementer[x.id].hendelse,
     gjelder: x.gjelder,
     dato: x.dato,
+    sendt: sendt({ id: x.id, dokument: elementer[x.id].hendelse }),
   }));
   // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
-  // da det ble sendt.
-  const gjaldtVedSvaret = (v: Pick<Krav, 'id' | 'dokument'>, svar: string): string | null =>
-    datoEtterRettingene(rettingene, v.id, sendt(v), (r) => bakover(svar, r));
+  // da det ble sendt. Et svar lagt til leser rettingene sendt til og med dagen det oppgir (OV-U98).
+  const gjaldtVedSvaret = (
+    v: Pick<Krav, 'id' | 'dokument'>,
+    svar: Pick<Krav, 'id' | 'dokument'>
+  ): string | null =>
+    datoEtterRettingene(
+      rettingene,
+      v.id,
+      sendt(v),
+      (r) => bakover(svar.id, r.id) && !foerDagen(sendt(svar), r.sendt)
+    );
   for (const n of SPOR) {
     const eldre = (k: Krav) =>
       spor[n].kravUtenforRekken
@@ -1421,7 +1433,7 @@ function kontrollerStandpunktet(
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const foer = (v: string) => bakover(s.id, v);
     const krav = kravSomVarsler(p.hjemmel, spor[n], foer);
-    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, (v) => sendt(v, s.id));
+    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, (v) => sendt(v, s));
     const eget = varslene.find((v) => foer(v.id))?.id;
     if (p.gjelder !== tidligste && p.gjelder !== eget)
       ugyldig(

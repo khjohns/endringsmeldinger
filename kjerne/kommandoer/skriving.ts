@@ -42,6 +42,7 @@ import {
 } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { detSomRettes } from './rettingen.ts';
+import { medRettingeneTil } from '../utledning/rettingen.ts';
 import {
   brevtekstI,
   datoForDokumentet,
@@ -717,7 +718,14 @@ function skriv(
     krav: Krav | Svaretsvarsel | VarsleneIKravet,
     paaberopelse: Krav | null
   ) => {
-    const lagret = standpunkter(s, krav, u, kontekst.nyId);
+    // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59): et svar lagt til står med
+    // datoen som gjaldt dagen det oppgir (OV-U98).
+    const lagret = standpunkter(
+      s,
+      krav,
+      medRettingeneTil(u, erRegistrering(k) ? kalenderdag(k.sendt) : null),
+      kontekst.nyId
+    );
     bygde.set(s, { standpunkter: lagret, utregning, paaberopelse });
     try {
       return standpunkterISvaret(s.spor, { standpunkter: lagret, utregning });

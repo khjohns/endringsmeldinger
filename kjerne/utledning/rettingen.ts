@@ -7,6 +7,8 @@
  * ikke (punkt 18, OV-U123 punkt 17).
  */
 
+import { foerDagen } from '../format/leser.ts';
+
 /** En retting av datoen, slik den står i journalen. */
 export interface Retting {
   id: string;
@@ -16,6 +18,8 @@ export interface Retting {
   gjelder: string;
   /** Den nye datoen. */
   dato: string;
+  /** Dagen brevet med rettingen ble sendt (OV-U98). */
+  sendt: string | null;
 }
 
 /**
@@ -27,7 +31,17 @@ export function datoEtterRettingene(
   rettinger: readonly Retting[],
   gjelder: string,
   oppgitt: string | null,
-  foer: (retting: string) => boolean = () => true
+  foer: (retting: Retting) => boolean = () => true
 ): string | null {
-  return rettinger.filter((r) => r.gjelder === gjelder && foer(r.id)).at(-1)?.dato ?? oppgitt;
+  return rettinger.filter((r) => r.gjelder === gjelder && foer(r)).at(-1)?.dato ?? oppgitt;
 }
+
+/**
+ * Utledningen med rettingene sendt til og med dagen `dag`, for et svar lagt til som oppgir at det
+ * ble sendt den dagen (punkt 8 i samlevedtaket for retting av sendt brev, MM-U59, og OV-U98).
+ */
+export const medRettingeneTil = <U extends { rettinger: readonly Retting[] }>(
+  u: U,
+  dag: string | null
+): U =>
+  dag === null ? u : { ...u, rettinger: u.rettinger.filter((r) => !foerDagen(dag, r.sendt)) };
