@@ -1,9 +1,11 @@
-import { liste } from '#kjerne/frosset/brevdeler.ts';
-import type { Korrespondansetype, Sendemaate, Spor } from '#kjerne/typer.ts';
-import type { Brevet, Brevref } from '../lesing';
+import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
+import { KORRESPONDANSETYPEN } from '#kjerne/frosset/tekst.ts';
+import type { Korrespondansetype, Part, Sendemaate, Spor, Varselhjemmel } from '#kjerne/typer.ts';
+import type { Brevet, Brevref, Rettingen } from '../lesing';
 import { GRENSEN_FOR_VEDLEGG, SPORNAVN, brevref, brevrefStor } from './felles';
 import type { Korrespondansehva, Korrespondansekategori } from './typer';
 import { dato, haerdet } from './format';
+import { KRAVSKJEMA } from './kravskjema';
 
 const KORRESPONDANSEORD: Record<
   Korrespondansehva,
@@ -58,12 +60,13 @@ const KORRESPONDANSEORD: Record<
  */
 export const KORRESPONDANSEN = haerdet({
   typen: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].typen,
-  typer: [
-    { verdi: 'brev', tekst: 'Brev' },
-    { verdi: 'e_post', tekst: 'E-post' },
-    { verdi: 'moetereferat', tekst: 'Møtereferat' },
-    { verdi: 'notat', tekst: 'Notat eller annet dokument' },
-  ] satisfies { verdi: Korrespondansetype; tekst: string }[],
+  // G-14 i BF-49: typene og ordene er kjernens, og et notat er «dokument» der (arbeidsvalget 1 A
+  // 16.11 i #807), så valget sier at det gjelder begge.
+  typer: (Object.keys(KORRESPONDANSETYPEN) as Korrespondansetype[]).map((verdi) => ({
+    verdi,
+    tekst:
+      verdi === 'notat' ? 'Notat eller annet dokument' : stor(KORRESPONDANSETYPEN[verdi].ubestemt),
+  })),
   // VS-U39 ved varselet etter punkt 32.2, og VS-U72 ved varsler og krav etter kapittel 33 og 34.
   kapittelB:
     'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
@@ -76,7 +79,11 @@ export const KORRESPONDANSEN = haerdet({
   ] satisfies { verdi: Sendemaate; tekst: string }[],
   dato: 'Datoen det ble sendt',
   // OV-U80: datoen for varselet settes én gang.
-  datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
+  // U-1 i BF-49: i skjemaet for korrespondanse står setningen om varselet ved varslene.
+  datoHjelp: (hva: Korrespondansehva) =>
+    hva === 'korrespondanse'
+      ? 'Datoen avsenderen oppgir.'
+      : 'Datoen avsenderen oppgir. Den settes én gang.',
   dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
   dokumentetHjelp: (hva: Korrespondansehva) =>
     hva === 'korrespondanse'
@@ -94,14 +101,30 @@ export const KORRESPONDANSEN = haerdet({
   }),
 });
 
+/** Korrespondansen en retting gjelder, med beskrivelsen og datoen den ble lagt til (U-12 i BF-49). */
+const rettingen = (r: Rettingen) =>
+  `${r.beskrivelse ? `«${r.beskrivelse}»` : 'korrespondansen'}, lagt til ${dato(r.registrert)}`;
+
 /**
  * Skjemaet for korrespondanse sendt utenfor løsningen og lagt til i saken (OV-U79, OV-U80, OV-U98,
  * prototypen `grunnlagsoversikt.html#reg-skjema`, arbeidsvalget 16.11 i #807).
  */
 export const LEGG_TIL = haerdet({
   tittel: 'Legg til korrespondanse',
-  // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
-  egen: 'Du legger til det du selv har sendt.',
+  tittelPaaNytt: 'Legg til korrespondansen på nytt',
+  /** U-12 i BF-49: skjemaet er utfylt fra dokumentasjonen det retter. */
+  paaNytt: (r: Rettingen) => `Legges til i stedet for ${rettingen(r)}. Endre det som var feil.`,
+  // OV-U80.
+  vurderes: 'Dokumentet legges til slik det er. Innholdet vurderes ikke.',
+  // U-2 og U-3 i BF-49.
+  avsenderen: 'Hvem sendte det?',
+  avsendere: [
+    { verdi: 'TE', tekst: 'Totalentreprenøren' },
+    { verdi: 'BH', tekst: 'Byggherren' },
+  ] satisfies { verdi: Part; tekst: string }[],
+  avsenderMangler: 'Velg hvem som sendte det.',
+  motparten:
+    'Du legger til noe motparten har sendt. Det står som dokumentasjon til avsenderen selv sier hva det er.',
   gjelder: 'Gjelder',
   gjelderHjelp: 'Velger du ingen, står det ved saken.',
   kategorien: 'Hva er det etter kontrakten?',
@@ -115,8 +138,19 @@ export const LEGG_TIL = haerdet({
   kategorienMangler: 'Velg hva det er etter kontrakten.',
   // OV-U80: løsningen utleder ikke noe av dokumentasjonen.
   // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen.
+  // U-5 i BF-49 og #2455: varslene i ett brev, også i flere spor.
+  varslene: 'Hvilke varsler?',
+  varsleneHjelp:
+    'Velg ett eller flere. Datoen over blir datoen for varselet, og den settes én gang.',
+  varsleneMangler: 'Velg minst ett varsel.',
+  varselnavn: {
+    '32.2': 'Varsel om irregulær endring',
+    '33.4': 'Varsel om fristforlengelse',
+    ...KRAVSKJEMA.varselnavn,
+  } as Record<Varselhjemmel, string>,
+  varselvalg: (navn: string, h: Varselhjemmel) => `${navn} (punkt ${h})`,
+  klarOverHjelp: 'Datoen dokumentet oppgir, hvis det oppgir en.',
   neste: {
-    varsel: 'Når du går videre, åpnes skjemaet for varselet med det du har fylt ut her.',
     krav: 'Når du går videre, åpnes kravskjemaet. Det viser til korrespondansen, og du fyller det ut slik kravet står i dokumentet, uten begrunnelsen.',
     svar: 'Når du går videre, åpnes svarskjemaet. Det viser til korrespondansen, og du fyller det ut slik svaret står i dokumentet, uten begrunnelsen.',
   },
@@ -132,6 +166,7 @@ export const LEGG_TIL = haerdet({
   avbryt: 'Avbryt',
   lagtTil: {
     dokumentasjon: 'Korrespondansen er lagt til.',
+    varsel: 'Varselet er lagt til.',
     krav: 'Kravet er lagt til.',
     svar: 'Svaret er lagt til.',
     aksept: 'Aksepten er lagt til.',
@@ -155,6 +190,21 @@ export const LEGG_TIL = haerdet({
   /** OV-U103. */
   svarUtenforRekken:
     'Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.',
+  /** U-10 og U-11 i BF-49: kategorien og merket ved korrespondansen i tråden. */
+  merke: {
+    dokumentasjon: 'Dokumentasjon',
+    varsel: 'Varsel',
+    krav: 'Krav',
+    svar: 'Svar',
+    aksept: 'Aksept',
+  } satisfies Record<Korrespondansekategori, string>,
+  ikkeFyltUt: 'Skjemaet er ikke fylt ut',
+  /** U-12 i BF-49. */
+  leggTilPaaNytt: 'Legg til på nytt',
+  leggTilPaaNyttNavn: (hva: string) => `Legg til på nytt: ${hva}`,
+  retter: (r: Rettingen) => `Lagt til på nytt i stedet for ${rettingen(r)}.`,
+  rettet: (r: Rettingen) =>
+    `Lagt til på nytt ${dato(r.registrert)}. Den nye står i stedet for denne.`,
   /** OV-U104 og MM-U50 punkt 8. */
   sammeDag: (brev: readonly Brevref[]) =>
     `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Rekkefølgen er ikke kjent her. Det er ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,

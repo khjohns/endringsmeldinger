@@ -24,6 +24,7 @@ import {
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
 import Fristkrav from '#lib/components/varden/Fristkrav.svelte';
+import { FRISTKRAV } from '#lib/components/varden/tekster/index.ts';
 import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
 
 const FRISTTABELLEN = [
@@ -690,5 +691,22 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
         screen.getAllByRole('listitem').find((li) => li.classList.contains('frist'))
       ).toHaveTextContent(/Ny dato:\s*Ny datoIkke registrert/);
     });
+  });
+});
+
+describe('veiledningen ved forespørselen etter punkt 33.6.2 regner fra datoen brevet ble sendt (#2485)', () => {
+  // Kjernen tar i dag ikke imot forespørselen lagt til (OV-U113), så tilfellet prøves i teksten.
+  const brevet = { nummer: null, omtale: 'byggherrens brev av 1. oktober 2026' };
+
+  it('et brev lagt til viser datoen det ble sendt og datoen det ble lagt til, uten «mottatt» (designdelen i VS-U97, LV-U86 punkt 1)', () => {
+    const tekst = FRISTKRAV.foresporsel(brevet as never, '2026-10-01', 10, '2026-10-11T08:00:00Z');
+    expect(tekst).toContain('sendt 1. oktober 2026, for 10 dager siden, lagt til 11. oktober 2026');
+    expect(tekst).not.toContain('mottatt');
+  });
+
+  it('kontrollsak: et brev sendt herfra har bare datoen det ble sendt', () => {
+    const tekst = FRISTKRAV.foresporsel(brevet as never, '2026-10-01', 0, null);
+    expect(tekst).toContain('sendt 1. oktober 2026, i dag)');
+    expect(tekst).not.toContain('lagt til');
   });
 });

@@ -1,11 +1,19 @@
 import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
-import type { Part, Spor } from '#kjerne/typer.ts';
+import { KORRESPONDANSETYPEN } from '#kjerne/frosset/tekst.ts';
+import type { Part, Sendemaate, Spor } from '#kjerne/typer.ts';
 import type { Brevet, Brevref } from '../lesing';
 import { FORHOLDET } from './forholdet';
+import { KORRESPONDANSEN } from './korrespondansen';
 import { KRAVET, brevref } from './felles';
 import { SKJEMA } from './svaret';
 import { TIDSLINJE } from './tidslinjen';
 import { dato, kl, haerdet } from './format';
+
+/** Sendemåten for et brev i linja ved korrespondansen, med ordene i skjemaet (OV-U79). */
+const sendemaaten = (s: Sendemaate) => {
+  const tekst = KORRESPONDANSEN.sendemaater.find((x) => x.verdi === s)!.tekst;
+  return tekst.charAt(0).toLowerCase() + tekst.slice(1);
+};
 
 /**
  * Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, U-5, U-8 og U-16 i
@@ -88,10 +96,23 @@ export const TRAADEN = haerdet({
   knappenavn: (tekst: string, b: Pick<Brevet, 'nummer'>, hva: string) =>
     `${tekst}: ${b.nummer === null ? hva : `brev ${b.nummer}, ${hva}`}`,
   dokumentasjon: 'Dokumentasjon',
-  registrert: (part: Part, sendt: string | null, lagtTil: string) =>
-    sendt
-      ? `Sendt ${dato(sendt)}, ifølge ${PARTEN[part]}. Lagt til ${dato(lagtTil)}.`
-      : `Lagt til ${dato(lagtTil)}.`,
+  /**
+   * Linja ved korrespondansen lagt til: typen, avsenderen, datoen og sendemåten parten oppga, og
+   * hvem som la den til og når (U-10 i BF-49).
+   */
+  registrert: (
+    b: Pick<
+      Brevet,
+      'korrespondansetype' | 'sendemaate' | 'avsender' | 'lagtTilAv' | 'sendt' | 'registrert'
+    >
+  ) =>
+    (b.korrespondansetype
+      ? `${stor(KORRESPONDANSETYPEN[b.korrespondansetype].ubestemt)} fra ${PARTEN[b.avsender]}. `
+      : '') +
+    (b.sendt
+      ? `Sendt ${dato(b.sendt)}${b.sendemaate ? ` ${sendemaaten(b.sendemaate)}` : ''}, ifølge ${PARTEN[b.lagtTilAv]}. `
+      : '') +
+    `Lagt til av ${PARTEN[b.lagtTilAv]} ${dato(b.registrert)}.`,
   vedlegg: (b: Pick<Brevet, 'nummer'>) =>
     b.nummer === null ? 'Vedlegg' : `Vedlegg til brev ${b.nummer}`,
   /** Brevet slik det ble sendt, i høyre kolonne og i raden under 1181 px (U-16). */

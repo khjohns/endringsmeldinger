@@ -720,7 +720,9 @@
       // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
       noekler: ['registrere_brev'],
       aapne: () => {
-        if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
+        // Et utkast som legger dokumentasjon til på nytt (U-12), står ikke for ny korrespondanse.
+        if (lagtTil?.spor !== valgt || lagtTil.valg.korrespondanse.retter)
+          lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
         tilArbeid({ art: 'korrespondanse' });
       },
       vises: (a) => a.art === 'korrespondanse' && lagtTil?.spor === valgt,
@@ -850,19 +852,9 @@
    */
   const utenPaaberopelsen = () =>
     !!u?.spor.forhold.trukket && (!!lagtTilI('forhold', 'svar') || harSvarutkast('forhold'));
-  /** Varselet, kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
-  function videreFraKorrespondansen(kategori: 'varsel' | 'krav' | 'svar') {
+  /** Kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
+  function videreFraKorrespondansen(kategori: 'krav' | 'svar') {
     if (!lagtTil || !u) return;
-    if (kategori === 'varsel') {
-      // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
-      if (valgt === 'vederlag') {
-        const hjemmel = foersteVarsel(kjernesak.handlinger, true);
-        if (hjemmel) vederlagsvarsel(hjemmel, true, { ...lagtTil.valg.korrespondanse });
-        aapneUtkast({ art: 'vederlagskrav' });
-      } else fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
-      lagtTil = null;
-      return;
-    }
     if (kategori === 'svar') {
       svaretFra = { ...lagtTil.valg.korrespondanse };
       aapneUtkast({ art: 'svar' });
@@ -890,13 +882,44 @@
     lagtTil = null;
     return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
+  /**
+   * D-13 og U-12 i BF-49: skjemaet for korrespondansen, utfylt fra dokumentasjonen `b` og med
+   * henvisningen til den (`retter`), så parten kan velge det den er etter kontrakten.
+   */
+  function leggTilPaaNytt(u: Utledning, b: Brevet) {
+    const d = u.journal.find((h) => h.art === 'dokument' && h.dokument.id === b.id);
+    if (d?.art !== 'dokument') return;
+    lagtTil = {
+      spor: valgt,
+      valg: {
+        ...tomtLagtTil(valgt),
+        avsender: b.avsender,
+        spor: [...d.dokument.spor],
+        korrespondanse: {
+          type: b.korrespondansetype,
+          sendemaate: b.sendemaate,
+          dato: b.sendt ?? '',
+          // Dokumentet er alt i saken; størrelsen er ikke lagret med det.
+          vedlegg: d.dokument.dokumentasjon.map((v) => ({ ...v, stoerrelse: 0 })),
+          beskrivelse: b.beskrivelse ?? '',
+          retter: b.id,
+        },
+      },
+    };
+    tilArbeid({ art: 'korrespondanse' });
+  }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
     // Korrespondansen for svarutkastet står selv om skjemaet er brukt i et annet spor siden.
     if (svaretFra && valgt === 'forhold' && lagtTil?.spor !== 'forhold')
       lagtTil = {
         spor: 'forhold',
-        valg: { ...tomtLagtTil('forhold'), korrespondanse: { ...svaretFra }, kategori: 'svar' },
+        valg: {
+          ...tomtLagtTil('forhold'),
+          korrespondanse: { ...svaretFra },
+          avsender: kjernesak.part,
+          kategori: 'svar',
+        },
       };
     tilbakeTil({ art: 'korrespondanse' });
   }
@@ -913,24 +936,20 @@
    * «Bare varsle» i skjemaet for vederlaget (U-1 i BF-37), med en rad for `hjemmel` når skjemaet
    * ikke har varsler ennå, og som registrering når `registrer`. Utkastet til kravet står.
    */
-  function vederlagsvarsel(
-    hjemmel: Vederlagsvarselhjemmel,
-    registrer: boolean,
-    utenfor: Korrespondansevalg | null = null
-  ) {
+  function vederlagsvarsel(hjemmel: Vederlagsvarselhjemmel, registrer: boolean) {
     if (!u) return;
     const v = utkastene.vederlagskrav ?? vederlagskravstart(u);
     if (!v.varsling?.rader.length) {
       utkastene.vederlagskrav = {
         ...v,
         hva: 'varsel',
-        varsling: startvarsling(hjemmel, registrer, utenfor),
+        varsling: startvarsling(hjemmel, registrer),
       };
       return;
     }
     const varsling = {
       ...v.varsling,
-      utenfor: registrer ? (utenfor ?? v.varsling.utenfor ?? tomKorrespondanse()) : null,
+      utenfor: registrer ? (v.varsling.utenfor ?? tomKorrespondanse()) : null,
     };
     // Varselet TE åpnet fra handlingene, får en rad når skjemaet ikke har det.
     const tilbudt = tilbudteHjemler(kjernesak.handlinger, registrer);
@@ -961,11 +980,7 @@
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
    * `sende_varsel:frist` registreres varselet (VS-U16).
    */
-  function fristskjema(
-    hva: Fristkravvalg['hva'],
-    registrer = false,
-    utenfor: Korrespondansevalg | null = null
-  ) {
+  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
     if (u) {
       const v = utkastene.fristkrav ?? fristkravstart(u);
       utkastene.fristkrav = {
@@ -973,7 +988,7 @@
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
         utenfor: registrer
-          ? (utenfor ?? v.utenfor ?? tomKorrespondanse())
+          ? (v.utenfor ?? tomKorrespondanse())
           : hva === 'varsel'
             ? null
             : v.utenfor,
@@ -1301,6 +1316,8 @@
       onendre={tilKorrespondansen}
       onleggtil={() => {
         skjemaene.korrespondanse.aapne();
+        // Svaret parten har gitt før, er sendt av parten selv (U-2 i BF-49).
+        lagtTil!.valg.avsender = kjernesak.part;
         lagtTil!.valg.kategori = 'svar';
       }}
       onlagttil={() => {
@@ -1617,6 +1634,10 @@
             onvelg={(n) => {
               melding = null;
               aapne(n);
+            }}
+            onpaanytt={(b) => {
+              melding = null;
+              leggTilPaaNytt(u, b);
             }}
             onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);

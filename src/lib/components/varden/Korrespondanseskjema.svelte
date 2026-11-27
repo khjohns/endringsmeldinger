@@ -1,16 +1,19 @@
 <!--
-  Korrespondanse parten har sendt utenfor løsningen, lagt til i saken (OV-U79, OV-U80, OV-U98),
-  som prototypen `grunnlagsoversikt.html#reg-skjema` (arbeidsvalget 16.11 i #807). Først
-  korrespondansen, så «Hva er det etter kontrakten?». Dokumentasjonen og aksepten legges til
-  herfra. Et varsel, et krav eller et svar åpner skjemaet for det i samme forløp, som viser til
-  korrespondansen. Kjernen avviser det den ikke godtar.
+  Korrespondanse en part har sendt utenfor løsningen, lagt til i saken (OV-U79, OV-U80, OV-U98),
+  som prototypen `grunnlagsoversikt.html#reg-skjema` (arbeidsvalget 16.11 i #807, BF-49). Først
+  korrespondansen med avsenderen, så «Hva er det etter kontrakten?», med kategoriene kjernen tilbyr
+  for datoen og avsenderen (G-1). Dokumentasjonen, varslene og aksepten legges til herfra, også
+  varsler i flere spor i ett brev (#2455). Et krav eller et svar åpner skjemaet for det i samme
+  forløp, som viser til korrespondansen. Kjernen avviser det den ikke godtar.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Spor } from '#kjerne/typer.ts';
+  import type { Part, Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
+  import Datofelt from './Datofelt.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Knapp from './Knapp.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Manglene from './Manglene.svelte';
@@ -21,17 +24,28 @@
   import { aksepten } from './kommandoer';
   import {
     dokumentasjonen,
+    harArbeid,
     kategoriene,
     lagtTil,
     lagttilmangler,
+    tilbudteVarsler,
     tomtLagtTil,
+    varselet,
     type Lagttilvalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { brevet, svareneISporet } from './lesing';
+  import { brevet, sisteKunnskapsdatoen, svareneISporet } from './lesing';
   import type { Mangel } from './mangler';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { LEGG_TIL, SPORNAVN, type Korrespondansekategori } from './tekster';
+  import {
+    dagensDato,
+    KORRESPONDANSEN,
+    KUNNSKAPSDATO,
+    LEGG_TIL,
+    SPORNAVN,
+    VEDERLAGSVARSEL,
+    type Korrespondansekategori,
+  } from './tekster';
 
   let {
     kjernesak,
@@ -48,17 +62,36 @@
     spor: Spor;
     /** Valgene står når parten går videre til krav- eller svarskjemaet og tilbake. */
     valg?: Lagttilvalg;
-    /** Varselet, kravet eller svaret fylles ut i skjemaet for det (OV-U80). */
-    onneste: (kategori: 'varsel' | 'krav' | 'svar') => void;
-    /** Dokumentasjonen eller aksepten er lagt til. */
-    onlagttil: (kategori: 'dokumentasjon' | 'aksept') => void;
+    /** Kravet eller svaret fylles ut i skjemaet for det (OV-U80). */
+    onneste: (kategori: 'krav' | 'svar') => void;
+    /** Dokumentasjonen, varslene eller aksepten er lagt til. */
+    onlagttil: (kategori: 'dokumentasjon' | 'varsel' | 'aksept') => void;
     onavbryt: () => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
 
   const grense = vedleggsgrense((fil) => kjernesak.lastOppVedlegg(fil));
-  const kategorier = $derived(kategoriene(kjernesak.part, spor, u, kjernesak.handlinger));
+  const iDag = dagensDato();
+  // G-1: kjernen tilbyr kategoriene for datoen og avsenderen. Før datoen er oppgitt, leses tilbudet
+  // på dagen i dag, og før avsenderen er valgt, som parten selv (U-2); kjernen avviser ved sendingen.
+  // Bare datoen og avsenderen endrer tilbudet, så kjernen regner ikke på nytt for hvert tegn.
+  const dato = $derived(valg.korrespondanse.dato || iDag);
+  const avsender = $derived(valg.avsender);
+  const tilbudte = $derived(kjernesak.tilbudteLagtTil(dato, avsender));
+  // U-12: dokumentasjonen skjemaet legges til på nytt i stedet for.
+  const retter = $derived(
+    valg.korrespondanse.retter ? brevet(u, valg.korrespondanse.retter) : null
+  );
+  const kategorier = $derived(kategoriene(kjernesak.part, valg.avsender, spor, u, tilbudte));
+  const motparten = $derived(
+    valg.avsender !== null && kjernesak.part !== null && valg.avsender !== kjernesak.part
+  );
+  const varslene = $derived(tilbudteVarsler(tilbudte));
+  // U-11 i BF-48: datoen etter punkt 34.1.3 parten sist oppga, ved feltet.
+  const sisteKunnskapsdato = $derived(sisteKunnskapsdatoen(u));
+  // Et varsel kjernen ikke lenger tilbyr, er ikke valgt.
+  const valgteVarsler = $derived(valg.varsler.filter((x) => varslene.includes(x.hjemmel)));
   // Et valg som ikke lenger står, er ikke valgt.
   const kategori = $derived(
     valg.kategori !== null && kategorier.includes(valg.kategori) ? valg.kategori : null
@@ -77,13 +110,17 @@
   const vedlegg = $derived(vedleggskart(valg.korrespondanse.vedlegg));
   const kommando = $derived(
     kategori === 'dokumentasjon'
-      ? dokumentasjonen(valg)
-      : kategori === 'aksept' && svaret
-        ? lagtTil(aksepten(spor, svaret, kjernesak.regelversjon), valg.korrespondanse)
-        : null
+      ? dokumentasjonen(valg, kjernesak.part)
+      : kategori === 'varsel'
+        ? varselet({ ...valg, varsler: valgteVarsler })
+        : kategori === 'aksept' && svaret
+          ? lagtTil(aksepten(spor, svaret, kjernesak.regelversjon), valg.korrespondanse)
+          : null
   );
 
-  const feltene = $derived(lagttilmangler({ ...valg, kategori, svar: svaret }));
+  const feltene = $derived(
+    lagttilmangler({ ...valg, kategori, svar: svaret, varsler: valgteVarsler })
+  );
   const mangler = $derived(
     Object.entries(feltene).map(
       ([felt, tekst]): Mangel => ({ felt: id(felt), post: null, tekst: tekst! })
@@ -94,14 +131,20 @@
     flyt.forsoekt ? ((feltene as Record<string, string | undefined>)[felt] ?? null) : null;
   let oppsummering = $state<HTMLElement | null>(null);
 
-  const viderekategori = (k: Korrespondansekategori | null): k is 'varsel' | 'krav' | 'svar' =>
-    k === 'varsel' || k === 'krav' || k === 'svar';
+  const viderekategori = (k: Korrespondansekategori | null): k is 'krav' | 'svar' =>
+    k === 'krav' || k === 'svar';
+
+  function velgVarsel(h: (typeof varslene)[number], valgt: boolean) {
+    valg.varsler = valgt
+      ? [...valg.varsler, { hjemmel: h, arbeid: '', klarOver: '' }]
+      : valg.varsler.filter((x) => x.hjemmel !== h);
+  }
 
   async function send() {
     if (!flyt.kontroller(mangler.length ? () => oppsummering : null)) return;
     const k = kategori;
     if (viderekategori(k)) return onneste(k);
-    if (!kommando || (k !== 'dokumentasjon' && k !== 'aksept')) return;
+    if (!kommando || k === null) return;
     if (await flyt.leggTil(kommando, vedlegg, LEGG_TIL.ikkeLagtTilFeil)) onlagttil(k);
   }
 
@@ -124,9 +167,9 @@
     >
       <header>
         <h2 id={id('tittel')}>
-          {LEGG_TIL.tittel}
+          {retter ? LEGG_TIL.tittelPaaNytt : LEGG_TIL.tittel}
         </h2>
-        <p class="dempet">{LEGG_TIL.egen}</p>
+        <p class="dempet">{retter ? LEGG_TIL.paaNytt(retter) : LEGG_TIL.vurderes}</p>
       </header>
 
       {#if flyt.forsoekt && mangler.length}
@@ -134,52 +177,116 @@
       {/if}
 
       <div class="innhold">
-        <Korrespondansen
-          {id}
-          bind:valg={valg.korrespondanse}
-          {feil}
-          {grense}
-          hva="korrespondanse"
-        />
+        <Korrespondansen {id} bind:valg={valg.korrespondanse} {feil} {grense} hva="korrespondanse">
+          {#snippet etterTypen()}
+            <Valg
+              navn={id('avsender')}
+              spoersmaal={LEGG_TIL.avsenderen}
+              valg={LEGG_TIL.avsendere}
+              bind:verdi={() => valg.avsender, (p: Part | null) => (valg.avsender = p)}
+              feil={feil('avsender')}
+              stablet
+              lett
+            />
+          {/snippet}
+          {#snippet foerBeskrivelsen()}
+            <Valg
+              navn={id('kategori')}
+              spoersmaal={LEGG_TIL.kategorien}
+              valg={kategorier.map((k) => ({ verdi: k, tekst: LEGG_TIL.kategorier[k] }))}
+              bind:verdi={() => kategori, (k) => (valg.kategori = k)}
+              feil={feil('kategori')}
+              hjelp={motparten ? LEGG_TIL.motparten : undefined}
+              stablet
+              lett
+            />
 
-        <Valg
-          navn={id('kategori')}
-          spoersmaal={LEGG_TIL.kategorien}
-          valg={kategorier.map((k) => ({ verdi: k, tekst: LEGG_TIL.kategorier[k] }))}
-          bind:verdi={() => kategori, (k) => (valg.kategori = k)}
-          feil={feil('kategori')}
-          stablet
-          lett
-        />
-
-        {#if kategori === 'dokumentasjon'}
-          <fieldset class="gjelder" aria-describedby={id('gjelder-hjelp')}>
-            <legend><Valgfri>{LEGG_TIL.gjelder}</Valgfri></legend>
-            <p class="dempet" id={id('gjelder-hjelp')}>{LEGG_TIL.gjelderHjelp}</p>
-            {#each ['forhold', 'vederlag', 'frist'] as const as s (s)}
-              <label class:valgt={valg.spor.includes(s)}>
-                <input type="checkbox" value={s} bind:group={valg.spor} />
-                {SPORNAVN[s]}
-              </label>
-            {/each}
-          </fieldset>
-        {:else if kategori === 'aksept'}
-          <Valg
-            navn={id('svar')}
-            spoersmaal={LEGG_TIL.svaret}
-            valg={svarene}
-            bind:verdi={() => svaret, (x) => (valg.svar = x)}
-            feil={feil('svar')}
-            hjelp={LEGG_TIL.svaretHjelp}
-            stablet
-            lett
-          />
-        {:else if viderekategori(kategori)}
-          <p class="dempet">{LEGG_TIL.neste[kategori]}</p>
-          {#if kategori !== 'svar'}
-            <p class="dempet">{LEGG_TIL.kravetErVarselet}</p>
-          {/if}
-        {/if}
+            {#if kategori === 'dokumentasjon'}
+              <fieldset class="gruppe" aria-describedby={id('gjelder-hjelp')}>
+                <legend><Valgfri>{LEGG_TIL.gjelder}</Valgfri></legend>
+                <p class="dempet" id={id('gjelder-hjelp')}>{LEGG_TIL.gjelderHjelp}</p>
+                {#each ['forhold', 'vederlag', 'frist'] as const as s (s)}
+                  <label class:valgt={valg.spor.includes(s)}>
+                    <input type="checkbox" value={s} bind:group={valg.spor} />
+                    {SPORNAVN[s]}
+                  </label>
+                {/each}
+              </fieldset>
+            {:else if kategori === 'varsel'}
+              <fieldset
+                class="gruppe"
+                id={id('varsler')}
+                tabindex="-1"
+                aria-describedby={[
+                  id('varsler-hjelp'),
+                  id('kapittel-b'),
+                  ...(feil('varsler') ? [id('varsler-feil')] : []),
+                ].join(' ')}
+              >
+                <legend>{LEGG_TIL.varslene}</legend>
+                <p class="dempet" id={id('varsler-hjelp')}>{LEGG_TIL.varsleneHjelp}</p>
+                <!-- U-5: opplysningen om kapittel B, som ved varselet etter punkt 32.2 (VS-U77 punkt 29). -->
+                <p class="dempet" id={id('kapittel-b')}>{KORRESPONDANSEN.kapittelB}</p>
+                {#each varslene as h (h)}
+                  {@const x = valgteVarsler.find((y) => y.hjemmel === h)}
+                  <label class:valgt={!!x}>
+                    <input
+                      type="checkbox"
+                      checked={!!x}
+                      onchange={(e) => velgVarsel(h, e.currentTarget.checked)}
+                    />
+                    {LEGG_TIL.varselvalg(LEGG_TIL.varselnavn[h], h)}
+                  </label>
+                  {#if x && h === '34.1.3'}
+                    <div class="under">
+                      <Datofelt
+                        id={id('klarOver')}
+                        etikett={KUNNSKAPSDATO.etikett}
+                        hjelp={LEGG_TIL.klarOverHjelp}
+                        maks={valg.korrespondanse.dato || iDag}
+                        bind:verdi={x.klarOver}
+                        feil={feil('klarOver')}
+                        valgfri
+                      />
+                      {#if sisteKunnskapsdato}
+                        <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
+                      {/if}
+                    </div>
+                  {:else if x && harArbeid(h)}
+                    <div class="under">
+                      <Tekstomraade
+                        id={id(`arbeid-${h}`)}
+                        etikett={VEDERLAGSVARSEL.arbeid}
+                        hjelp={VEDERLAGSVARSEL.arbeidHjelpRegistrert}
+                        bind:verdi={x.arbeid}
+                        rader={2}
+                      />
+                    </div>
+                  {/if}
+                {/each}
+                {#if feil('varsler')}<p class="feilmelding" id={id('varsler-feil')}>
+                    {feil('varsler')}
+                  </p>{/if}
+              </fieldset>
+            {:else if kategori === 'aksept'}
+              <Valg
+                navn={id('svar')}
+                spoersmaal={LEGG_TIL.svaret}
+                valg={svarene}
+                bind:verdi={() => svaret, (x) => (valg.svar = x)}
+                feil={feil('svar')}
+                hjelp={LEGG_TIL.svaretHjelp}
+                stablet
+                lett
+              />
+            {:else if viderekategori(kategori)}
+              <p class="dempet">{LEGG_TIL.neste[kategori]}</p>
+              {#if kategori === 'krav'}
+                <p class="dempet">{LEGG_TIL.kravetErVarselet}</p>
+              {/if}
+            {/if}
+          {/snippet}
+        </Korrespondansen>
 
         {#if kategori === 'aksept' && kommando}
           <Lagttilmerknader {kjernesak} {u} {spor} {kommando} {vedlegg} />
@@ -222,7 +329,7 @@
     gap: var(--spacing-5);
     padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
   }
-  .gjelder {
+  .gruppe {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
@@ -230,12 +337,12 @@
     padding: 0;
     margin: 0;
   }
-  .gjelder legend {
+  .gruppe legend {
     font-weight: 600;
     margin-bottom: var(--spacing-1);
   }
   /* Samme høyde og flate som valgkortene i `Valg`, så målet er stort nok (WCAG 2.5.5). */
-  .gjelder label {
+  .gruppe label {
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
@@ -245,8 +352,16 @@
     border-radius: var(--r-felt);
     cursor: pointer;
   }
-  .gjelder label.valgt {
+  .gruppe label.valgt {
     background: var(--surface-selected);
+  }
+  .under {
+    padding-left: var(--spacing-8);
+  }
+  .feilmelding {
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
   }
   .dempet {
     color: var(--ink-3);

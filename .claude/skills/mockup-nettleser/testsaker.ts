@@ -35,6 +35,58 @@ export type Testsak = {
 };
 
 export const TESTSAKER: Record<string, Testsak> = {
+  'korrespondanse-paa-nytt': {
+    tittel: 'Omlegging av overvann i akse B',
+    formaal:
+      'BF-49 PR 1 (#807, #2455): dokumentasjon fra et skjema som ikke er fylt ut, lagt til på nytt som varsel om vederlagsjustering og fristforlengelse i samme brev, og korrespondanse fra motparten.',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt omlegging av overvannet i akse B.',
+      },
+      {
+        handling: 'registrert_brev',
+        part: 'TE',
+        sporene: ['vederlag'],
+        sendt: '2026-09-20',
+        korrespondansetype: 'brev',
+        beskrivelse: 'Varsel om vederlag og frist for omleggingen',
+        ikke_fylt_ut: 'krav',
+        navn: 'R1',
+      },
+    ],
+    async iNettleseren({ te, bh, saksrute, ut }) {
+      const vederlag = `${saksrute}?spor=vederlag`;
+      await te.goto(vederlag);
+      const paaNytt = te.getByRole('button', { name: /^Legg til på nytt/ });
+      await paaNytt.waitFor({ timeout: 30_000 });
+      await te.screenshot({ path: `${ut}/paa-nytt-traad-te.png`, fullPage: true });
+      await paaNytt.click();
+      await te.getByRole('heading', { name: 'Legg til korrespondansen på nytt' }).waitFor();
+      await te.getByRole('radio', { name: 'Et varsel' }).check();
+      await te.getByRole('checkbox', { name: /^Varsel om fristforlengelse/ }).check();
+      await te.getByRole('checkbox', { name: /^Varsel om vederlagsjustering/ }).check();
+      await te.screenshot({ path: `${ut}/paa-nytt-skjema-te.png`, fullPage: true });
+      await te.setViewportSize({ width: 390, height: 844 });
+      await te.screenshot({ path: `${ut}/paa-nytt-skjema-te-390.png`, fullPage: true });
+      await te.setViewportSize({ width: 1440, height: 900 });
+      await te.getByRole('button', { name: 'Legg til', exact: true }).click();
+      await te.getByText('Varselet er lagt til.').waitFor({ timeout: 30_000 });
+      await te.screenshot({ path: `${ut}/paa-nytt-lagt-til-te.png`, fullPage: true });
+
+      await bh.goto(vederlag);
+      await bh.getByRole('button', { name: 'Legg til korrespondanse' }).click({ timeout: 30_000 });
+      await bh.getByRole('radio', { name: 'E-post' }).check();
+      await bh.getByRole('radio', { name: 'Totalentreprenøren' }).check();
+      await bh.getByText('Du legger til noe motparten har sendt.', { exact: false }).waitFor();
+      await bh.screenshot({ path: `${ut}/motparten-bh.png`, fullPage: true });
+    },
+  },
   'to-kravposter-i-senere-lag': {
     tittel: 'Spunt og peler i akse D',
     formaal:
