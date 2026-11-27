@@ -23,6 +23,7 @@
   import {
     harStandpunkt,
     utenTekster,
+    utfyltVarselsvalg,
     varselbrevsvaret,
     varseletISvaret,
     varselvalget,
@@ -95,28 +96,26 @@
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen også før de er besvart.
   // Som i `Varselsvar` regnes et ubesvart varsel som innsigelse og en ubesvart justering som
   // bestridt. Standpunktet etter § 34.4 har ikke noe lag (KA-U64).
-  const utfylt = $derived(
-    nyeSvar(
-      varselbrevsvaret(
-        Object.fromEntries(
-          varslene.map((v) => {
-            const x = utenTekster(varselvalget(valg, v.id));
-            return [
-              v.id,
-              v.hjemmel === '34.4'
-                ? x
-                : {
-                    ...x,
-                    varsletITide: x.varsletITide ?? false,
-                    godtarJustering: x.godtarJustering ?? false,
-                  },
-            ];
-          })
-        ),
-        varslene,
-        kjernesak.regler
-      )
+  const erUtfylt = (v: VarseletAlene) => {
+    const x = varselvalget(valg, v.id);
+    return (
+      v.hjemmel === '34.4' ||
+      (x.varsletITide !== null && (v.hjemmel !== '34.3.3' || x.godtarJustering !== null))
+    );
+  };
+  const utfylteValg = $derived(
+    Object.fromEntries(
+      varslene.map((v) => [
+        v.id,
+        utfyltVarselsvalg(utenTekster(varselvalget(valg, v.id)), v.hjemmel),
+      ])
     )
+  );
+  // Utfylt er det samme svaret når alle spørsmålene er besvart, så kjernen kjøres bare én gang.
+  const utfylt = $derived(
+    varslene.every(erUtfylt)
+      ? nyeStandpunkter
+      : nyeSvar(varselbrevsvaret(utfylteValg, varslene, kjernesak.regler))
   );
   const gjelderHvis = (v: VarseletAlene, art: 'rettidighet' | 'justering'): Innsigelsen[] =>
     v.hjemmel === '34.4'

@@ -293,21 +293,19 @@ export function varsleneIBrevet(
   const svarbare = new Set(
     tilbudte.flatMap((h) => (h.type === 'svare' && h.gjelder ? [h.gjelder] : []))
   );
-  const det = svarbare.has(gjelder) ? varseletSvaretPaa(u, gjelder) : null;
-  if (!det || det.kravversjon !== null || det.forrigeSvar !== null) return null;
   const rad = u.journal.find(
     (r) => r.art === 'dokument' && r.dokument.utsagn.some((x) => x.id === gjelder)
   );
   if (rad?.art !== 'dokument') return null;
-  const varslene = rad.dokument.utsagn.flatMap((x, i) => {
+  // Byggherrens første svar på et varsel som står alene (VS-U96 punkt 32 og 33).
+  const foersteSvar = rad.dokument.utsagn.flatMap((x, i) => {
     const v = svarbare.has(x.id) ? varseletSvaretPaa(u, x.id) : null;
-    return v &&
-      v.kravversjon === null &&
-      v.forrigeSvar === null &&
-      VARSELSPOR[v.hjemmel] === VARSELSPOR[det.hjemmel]
-      ? [{ ...v, nr: i + 1 }]
-      : [];
+    return v && v.kravversjon === null && v.forrigeSvar === null ? [{ ...v, nr: i + 1 }] : [];
   });
+  const det = foersteSvar.find((v) => v.id === gjelder);
+  const varslene = det
+    ? foersteSvar.filter((v) => VARSELSPOR[v.hjemmel] === VARSELSPOR[det.hjemmel])
+    : [];
   return varslene.length > 1 ? varslene : null;
 }
 

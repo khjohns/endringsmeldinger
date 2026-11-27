@@ -25,6 +25,7 @@ import {
   type Spor,
   type Standpunkt,
   type Svar,
+  type SvarbarVarselhjemmel,
 } from '#kjerne/typer.ts';
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
@@ -429,6 +430,17 @@ export const tomtVarselsvar = (): Varselsvalg => ({
   begrunnelser: {},
   forbehold: '',
 });
+
+/**
+ * Valgene med et ubesvart varsel som innsigelse og en ubesvart justering som bestridt, som i
+ * utfyllingen for kravposten (`lagIVederlaget`), så kjernen leser det varselet og justeringen
+ * gjelder hvis før de er besvart (OV-U32, VS-U4). Standpunktet etter § 34.4 har ikke noe lag
+ * (KA-U64), så valgene står.
+ */
+export const utfyltVarselsvalg = (v: Varselsvalg, hjemmel: SvarbarVarselhjemmel): Varselsvalg =>
+  hjemmel === '34.4'
+    ? v
+    : { ...v, varsletITide: v.varsletITide ?? false, godtarJustering: v.godtarJustering ?? false };
 
 /** Standpunktet til varselet i svaret på det, regnet som for kravposten (`varseletIValgene`). */
 export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolean | null =>

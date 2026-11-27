@@ -146,13 +146,16 @@
       : null;
   // M-5 i BF-37: varslene i et brev med flere varsler besvares i ett svar, med handlingen for det
   // første varselet i brevet (`varsleneIBrevet`). De andre står ikke for seg.
-  const iBrevet = (h: TilbudtHandling | undefined) =>
-    h?.type === 'svare' && h.gjelder ? varsleneIBrevet(u, kjernesak.tilbudte, h.gjelder) : null;
-  const iSammeSvar = (n: string) => {
-    const h = handlingen(n);
-    const b = iBrevet(h);
-    return !!b && b[0]!.id !== h!.gjelder;
-  };
+  // Handlingene for varslene i et slikt brev, med brevet, og om handlingen åpner svaret.
+  const brevsvarene = $derived(
+    iSporet.flatMap((h) => {
+      const iBrevet =
+        h.type === 'svare' && h.gjelder ? varsleneIBrevet(u, kjernesak.tilbudte, h.gjelder) : null;
+      const brevet = iBrevet && brevMedUtsagn(u, h.gjelder!);
+      return brevet ? [{ noekkel: h.noekkel, brevet, aapner: iBrevet![0]!.id === h.gjelder }] : [];
+    })
+  );
+  const iSammeSvar = (n: string) => brevsvarene.some((x) => x.noekkel === n && !x.aapner);
   const varselsvarene = $derived(
     iSporet.filter(
       (h) => h.type === 'svare' && (varselhjemmel(h) || varslene(h)) && !iSammeSvar(h.noekkel)
@@ -353,7 +356,7 @@
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
-    const brevet = iBrevet(h) && brevMedUtsagn(u, h!.gjelder!);
+    const brevet = brevsvarene.find((x) => x.noekkel === n && x.aapner)?.brevet;
     if (brevet) return VARSELSVARET.svarPaaVarsleneI(brevet);
     const iKravet = varslene(h);
     if (iKravet) {

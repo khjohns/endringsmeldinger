@@ -860,7 +860,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       const rad = (nr: number) =>
         bh
           .locator('section')
-          .filter({ has: bh.getByRole('heading', { name: new RegExp(`^${nr}\\. `) }) })
+          .filter({ has: bh.getByRole('heading', { name: new RegExp(`^${nr}\\. Varselet`) }) })
           .last();
       await rad(2).getByRole('button', { name: 'Varselet kom for sent' }).click();
       await rad(3).getByRole('radio', { name: 'Kom for sent' }).check();

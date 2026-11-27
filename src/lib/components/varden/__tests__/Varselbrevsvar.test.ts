@@ -73,7 +73,9 @@ const kommandoen = (k: TilBrevkontrollen) =>
   k.kommando as { type: string; svar: Record<string, unknown>[] };
 /** Raden for varsel nummer `nr` i skjemaet. */
 const raden = (nr: number) =>
-  within(screen.getByRole('heading', { name: new RegExp(`^${nr}\\. `) }).closest('section')!);
+  within(
+    screen.getByRole('heading', { name: new RegExp(`^${nr}\\. Varselet`) }).closest('section')!
+  );
 
 afterEach(cleanup);
 
