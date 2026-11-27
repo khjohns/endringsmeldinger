@@ -8019,10 +8019,7 @@ const MUTASJONER: Mutasjon[] = [
         'sporet.gjeldendeKrav;',
       ],
     ],
-    mal: [
-      'et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den',
-      'et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag',
-    ],
+    mal: ['et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den'],
   },
   {
     id: 'F807c',
