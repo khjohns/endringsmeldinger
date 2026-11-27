@@ -68,6 +68,6 @@ export const INNLEGGET = haerdet({
   iAksepten: (svaret: Brevref) => `Innlegg som viser til ${brevref(svaret)}`,
   innleggsrad: (b: Brevet) =>
     `${brevrefStor(b)} · ${stor(PARTEN[b.avsender])} · ${dato(b.registrert)} · ${TRAADEN.hva(b)}`,
-  inngaarIkke: (antall: number) =>
+  leserBareStandpunktene: (antall: number) =>
     `Løsningen leser bare standpunktene i svaret, ikke ${antall === 1 ? 'innlegget' : 'innleggene'}. Aksepten frafaller ikke andre krav eller innsigelser.`,
 });

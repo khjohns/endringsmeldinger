@@ -387,14 +387,14 @@
       kommando,
       kanIkkeLages: STILLING.godta,
       tilBrevkontrollen: (brevet) => {
-        // D-8 i BF-03: innleggene som viser til svaret, uten tolkning. Utfallet leser bare standpunktene.
+        // D-8 i BF-03: innleggene som viser til svaret, uten tolkning.
         const innlegg = svarbrevet ? innleggSomViserTil(alleBrev, svarbrevet.id) : [];
         onakseptbrev({
           kommando,
           ...brevet,
           virkninger: [
             ...akseptensVirkning(kommando),
-            ...(innlegg.length ? [INNLEGGET.inngaarIkke(innlegg.length)] : []),
+            ...(innlegg.length ? [INNLEGGET.leserBareStandpunktene(innlegg.length)] : []),
           ],
           innleggene:
             svarbrevet && innlegg.length
