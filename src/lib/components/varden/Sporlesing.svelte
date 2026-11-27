@@ -201,7 +201,8 @@
           !iSammeSvar(h.noekkel) &&
           h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
-          h.type !== 'oppgi_kunnskapsdato'
+          h.type !== 'oppgi_kunnskapsdato' &&
+          h.type !== 'rette_datoen'
       )
       .map((h) => h.noekkel)
   );
