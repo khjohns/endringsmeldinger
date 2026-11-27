@@ -1,7 +1,7 @@
 import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
 import { KORRESPONDANSETYPEN } from '#kjerne/frosset/tekst.ts';
 import type { Korrespondansetype, Part, Sendemaate, Spor, Varselhjemmel } from '#kjerne/typer.ts';
-import type { Brevet, Brevref } from '../lesing';
+import type { Brevet, Brevref, Rettingen } from '../lesing';
 import { GRENSEN_FOR_VEDLEGG, SPORNAVN, brevref, brevrefStor } from './felles';
 import type { Korrespondansehva, Korrespondansekategori } from './typer';
 import { dato, haerdet } from './format';
@@ -79,7 +79,11 @@ export const KORRESPONDANSEN = haerdet({
   ] satisfies { verdi: Sendemaate; tekst: string }[],
   dato: 'Datoen det ble sendt',
   // OV-U80: datoen for varselet settes én gang.
-  datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
+  // U-1 i BF-49: i skjemaet for korrespondanse står setningen om varselet ved varslene.
+  datoHjelp: (hva: Korrespondansehva) =>
+    hva === 'korrespondanse'
+      ? 'Datoen avsenderen oppgir.'
+      : 'Datoen avsenderen oppgir. Den settes én gang.',
   dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
   dokumentetHjelp: (hva: Korrespondansehva) =>
     hva === 'korrespondanse'
@@ -97,6 +101,10 @@ export const KORRESPONDANSEN = haerdet({
   }),
 });
 
+/** Korrespondansen en retting gjelder, med beskrivelsen og datoen den ble lagt til (U-12 i BF-49). */
+const rettingen = (r: Rettingen) =>
+  `${r.beskrivelse ? `«${r.beskrivelse}»` : 'korrespondansen'}, lagt til ${dato(r.registrert)}`;
+
 /**
  * Skjemaet for korrespondanse sendt utenfor løsningen og lagt til i saken (OV-U79, OV-U80, OV-U98,
  * prototypen `grunnlagsoversikt.html#reg-skjema`, arbeidsvalget 16.11 i #807).
@@ -105,10 +113,9 @@ export const LEGG_TIL = haerdet({
   tittel: 'Legg til korrespondanse',
   tittelPaaNytt: 'Legg til korrespondansen på nytt',
   /** U-12 i BF-49: skjemaet er utfylt fra dokumentasjonen det retter. */
-  paaNytt: (lagtTil: string) =>
-    `Legges til i stedet for korrespondansen lagt til ${dato(lagtTil)}. Endre det som var feil.`,
-  // OV-U80: løsningen vurderer ikke innholdet, og sier ikke hva det betyr for partenes rettigheter.
-  vurderes: 'Løsningen vurderer ikke innholdet i dokumentet.',
+  paaNytt: (r: Rettingen) => `Legges til i stedet for ${rettingen(r)}. Endre det som var feil.`,
+  // OV-U80.
+  vurderes: 'Dokumentet legges til slik det er. Innholdet vurderes ikke.',
   // U-2 og U-3 i BF-49.
   avsenderen: 'Hvem sendte det?',
   avsendere: [
@@ -195,10 +202,9 @@ export const LEGG_TIL = haerdet({
   /** U-12 i BF-49. */
   leggTilPaaNytt: 'Legg til på nytt',
   leggTilPaaNyttNavn: (hva: string) => `Legg til på nytt: ${hva}`,
-  retter: (lagtTil: string) =>
-    `Lagt til på nytt i stedet for korrespondansen lagt til ${dato(lagtTil)}.`,
-  // Språkfila, «Brev, ikke versjon»: visningen sier hva som skjedde, ikke «erstattet».
-  rettet: (lagtTil: string) => `Lagt til på nytt ${dato(lagtTil)}.`,
+  retter: (r: Rettingen) => `Lagt til på nytt i stedet for ${rettingen(r)}.`,
+  rettet: (r: Rettingen) =>
+    `Lagt til på nytt ${dato(r.registrert)}. Den nye står i stedet for denne.`,
   /** OV-U104 og MM-U50 punkt 8. */
   sammeDag: (brev: readonly Brevref[]) =>
     `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Rekkefølgen er ikke kjent her. Det er ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,

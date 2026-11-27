@@ -91,7 +91,6 @@
     (b.avsnitt ?? []).flatMap((a) => a.utdypning?.trim() || []).join('\n\n');
 
   const nyestFoerst = $derived(brev.map((b, n) => ({ b, n })).reverse());
-  const perId = $derived(new Map(brev.map((b) => [b.id, b])));
 </script>
 
 <div class="traadhode">
@@ -171,11 +170,9 @@
           {/if}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b)}</p>
-            {@const retter = b.retter ? perId.get(b.retter) : undefined}
-            {@const rettetAv = b.rettetAv ? perId.get(b.rettetAv) : undefined}
             <!-- U-11 og U-12 i BF-49: hvilken registrering den nye retter, og at den gamle er erstattet. -->
-            {#if retter}<p class="datolinje">{LEGG_TIL.retter(retter.registrert)}</p>{/if}
-            {#if rettetAv}<p class="datolinje">{LEGG_TIL.rettet(rettetAv.registrert)}</p>{/if}
+            {#if b.retter}<p class="datolinje">{LEGG_TIL.retter(b.retter)}</p>{/if}
+            {#if b.rettetAv}<p class="datolinje">{LEGG_TIL.rettet(b.rettetAv)}</p>{/if}
           {/if}
           {#if samme.length}
             <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(samme)}</Melding>
@@ -394,6 +391,9 @@
   .meta .merke {
     color: var(--ink-2);
     font-weight: 600;
+    padding: 1px var(--spacing-2);
+    border: 1px solid var(--rule-strong-color);
+    border-radius: var(--r-merke);
   }
   /* Lenkeknappen står i flukt med teksten over; luften til siden er treffflate. */
   .datolinje :global(.knapp) {

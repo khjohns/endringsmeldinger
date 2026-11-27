@@ -720,7 +720,9 @@
       // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
       noekler: ['registrere_brev'],
       aapne: () => {
-        if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
+        // Et utkast som legger dokumentasjon til på nytt (U-12), står ikke for ny korrespondanse.
+        if (lagtTil?.spor !== valgt || lagtTil.valg.korrespondanse.retter)
+          lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
         tilArbeid({ art: 'korrespondanse' });
       },
       vises: (a) => a.art === 'korrespondanse' && lagtTil?.spor === valgt,

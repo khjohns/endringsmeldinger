@@ -111,10 +111,13 @@ export interface Brevet {
   /** D-12 i BF-49: skjemaet parten avbrøt før korrespondansen ble lagt til som dokumentasjon. */
   ikkeFyltUt: IkkeFyltUt | null;
   /** D-13 i BF-49: dokumentasjonen korrespondansen ble lagt til på nytt i stedet for. */
-  retter: string | null;
+  retter: Rettingen | null;
   /** Korrespondansen som ble lagt til på nytt i stedet for denne dokumentasjonen (OV-U17). */
-  rettetAv: string | null;
+  rettetAv: Rettingen | null;
 }
+
+/** Den andre registreringen i en retting, også når den står i et annet spor (U-11 og U-12 i BF-49). */
+export type Rettingen = Pick<Dokument, 'id' | 'registrert' | 'beskrivelse'>;
 
 /** Kategorien for korrespondanse lagt til, av innholdet i dokumentet (U-10 i BF-49). */
 function kategoriAv(d: Dokument): Korrespondansekategori | null {
@@ -166,9 +169,14 @@ function lesBrevene(u: Utledning): Brevet[] {
   // Innlegget hører til sporene til brevet det viser til, som står før det i journalen (G-7 i BF-03).
   const brevetsSpor = new Map<string, Spor[]>();
   const varselsvar = new Set(SPOR.flatMap((s) => u.spor[s].svarPaaVarsler.map((x) => x.id)));
-  const rettetAv = new Map(
-    u.registrerteBrev.flatMap((r) => (r.rettetAv ? [[r.dokument, r.rettetAv] as const] : []))
+  const dokumentene = new Map(
+    u.journal.flatMap((h) => (h.art === 'dokument' ? [[h.dokument.id, h.dokument] as const] : []))
   );
+  const rettingen = (id: string | null | undefined): Rettingen | null => {
+    const d = id ? dokumentene.get(id) : undefined;
+    return d ? { id: d.id, registrert: d.registrert, beskrivelse: d.beskrivelse } : null;
+  };
+  const rettetAv = new Map(u.registrerteBrev.map((r) => [r.dokument, r.rettetAv]));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -213,8 +221,8 @@ function lesBrevene(u: Utledning): Brevet[] {
         sendemaate: d.sendemaate,
         kategori: kategoriAv(d),
         ikkeFyltUt: d.ikkeFyltUt,
-        retter: d.retter,
-        rettetAv: rettetAv.get(d.id) ?? null,
+        retter: rettingen(d.retter),
+        rettetAv: rettingen(rettetAv.get(d.id)),
       },
     ];
   });

@@ -299,15 +299,18 @@
     }
     return ved;
   });
-  // D-13 og U-12 i BF-49: dokumentasjon lagt til av egen side, som ikke er rettet, kan legges til
-  // på nytt med valget. Kjernen avviser en retting av noe annet (OV-U17).
+  // D-13 og U-12 i BF-49: korrespondanse lagt til som dokumentasjon av egen side, som ikke er
+  // rettet, kan legges til på nytt med valget (OV-U17).
+  const kanRettes = $derived(
+    new Set(
+      u.registrerteBrev.flatMap((r) => (r.lagtTilAv === part && !r.rettetAv ? [r.dokument] : []))
+    )
+  );
   const paaNyttVed = $derived(
     new Map(
       onpaanytt && u.forstaatt
         ? brevITraaden(alleBrev, spor)
-            .filter(
-              (b) => b.kategori === 'dokumentasjon' && b.lagtTilAv === part && b.rettetAv === null
-            )
+            .filter((b) => kanRettes.has(b.id))
             .map((b) => [b.id, b])
         : []
     )

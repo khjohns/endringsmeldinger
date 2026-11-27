@@ -17,6 +17,7 @@ import { definert } from './kommandoer';
 import type { Kjernevedlegg, vedleggskart } from './nysak';
 import {
   KORRESPONDANSEN,
+  KUNNSKAPSDATO,
   LEGG_TIL,
   type Korrespondansehva,
   type Korrespondansekategori,
@@ -236,13 +237,21 @@ export function kategoriene(
 /** Det som mangler i skjemaet, felt for felt, med meldingen ved feltet. */
 export function lagttilmangler(
   v: Lagttilvalg
-): Partial<Record<Korrespondansefelt | 'avsender' | 'kategori' | 'svar' | 'varsler', string>> {
+): Partial<
+  Record<Korrespondansefelt | 'avsender' | 'kategori' | 'svar' | 'varsler' | 'klarOver', string>
+> {
+  const klarOver = v.varsler.find((x) => x.hjemmel === '34.1.3')?.klarOver;
+  const dato = v.korrespondanse.dato;
   return {
     ...korrespondansemangler(v.korrespondanse, { hva: 'korrespondanse' }),
     ...(v.avsender === null ? { avsender: LEGG_TIL.avsenderMangler } : {}),
     ...(v.kategori === null ? { kategori: LEGG_TIL.kategorienMangler } : {}),
     ...(v.kategori === 'aksept' && v.svar === null ? { svar: LEGG_TIL.svaretMangler } : {}),
     ...(v.kategori === 'varsel' && !v.varsler.length ? { varsler: LEGG_TIL.varsleneMangler } : {}),
+    // U-6 i BF-48, VS-U83: datoen i varselet er ikke etter datoen brevet ble sendt.
+    ...(v.kategori === 'varsel' && klarOver && dato && klarOver > dato
+      ? { klarOver: KUNNSKAPSDATO.etterBrevet(klarOver, dato) }
+      : {}),
   };
 }
 

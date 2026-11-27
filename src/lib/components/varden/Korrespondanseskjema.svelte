@@ -169,7 +169,7 @@
         <h2 id={id('tittel')}>
           {retter ? LEGG_TIL.tittelPaaNytt : LEGG_TIL.tittel}
         </h2>
-        <p class="dempet">{retter ? LEGG_TIL.paaNytt(retter.registrert) : LEGG_TIL.vurderes}</p>
+        <p class="dempet">{retter ? LEGG_TIL.paaNytt(retter) : LEGG_TIL.vurderes}</p>
       </header>
 
       {#if flyt.forsoekt && mangler.length}
@@ -240,11 +240,12 @@
                   {#if x && h === '34.1.3'}
                     <div class="under">
                       <Datofelt
-                        id={id('klar-over')}
+                        id={id('klarOver')}
                         etikett={KUNNSKAPSDATO.etikett}
                         hjelp={LEGG_TIL.klarOverHjelp}
                         maks={valg.korrespondanse.dato || iDag}
                         bind:verdi={x.klarOver}
+                        feil={feil('klarOver')}
                         valgfri
                       />
                       {#if sisteKunnskapsdato}

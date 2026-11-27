@@ -75,7 +75,7 @@
   <Datofelt
     id={id('dato')}
     etikett={KORRESPONDANSEN.dato}
-    hjelp={KORRESPONDANSEN.datoHjelp}
+    hjelp={KORRESPONDANSEN.datoHjelp(hva)}
     maks={iDag}
     bind:verdi={valg.dato}
     paakrevd

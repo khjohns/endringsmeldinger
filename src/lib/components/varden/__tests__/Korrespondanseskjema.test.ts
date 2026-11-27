@@ -769,6 +769,28 @@ describe('avsenderen og varslene i korrespondansen lagt til (BF-49)', () => {
     await vi.waitFor(() => expect(lagtTil).toEqual(['varsel']));
   });
 
+  it('datoen etter punkt 34.1.3 etter datoen brevet ble sendt, stoppes ved feltet, og kontrollsaken samme dag legges til (U-6 i BF-48, VS-U83)', async () => {
+    const { tilServeren } = await skjemaet(medGrunnlag, 'TE', 'vederlag');
+    await fyllUt('2026-10-16');
+    await radio(LEGG_TIL.kategorier.varsel);
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: /^Varsel om særskilt vederlagsjustering/ })
+    );
+    const felt = screen.getByLabelText(/^Når ble du klar over at utgiftene ville påløpe\?/);
+    await skriv(felt, '2026-10-17');
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren).toEqual([]);
+    expect(
+      screen.getByText(/^Datoen 17\. oktober 2026 er etter datoen brevet sendes/, { selector: 'a' })
+    ).toBeInTheDocument();
+    await skriv(felt, '2026-10-16');
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren[0]).toMatchObject({
+      type: 'varsel',
+      varsler: [{ hjemmel: '34.1.3', klar_over_utgiftene: '2026-10-16' }],
+    });
+  });
+
   it('uten et valgt varsel legges ingenting til (U-5)', async () => {
     const { tilServeren } = await skjemaet(medGrunnlag, 'TE', 'frist');
     await fyllUt('2026-10-16');
