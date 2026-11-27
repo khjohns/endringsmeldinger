@@ -133,6 +133,9 @@ Ved B bortfaller også setningene om åpne rettinger i S-2.
 **Svaret 25.11.** Oppdragsgiver svarte, ordrett: «11 A, 12 A». S-1: A. Aksepten står, og den
 gjelder også kravdatoen. B er forkastet. Orkestratoren fører vedtaket i en egen vedtaks-PR.
 
+Spørsmålet ble stilt på nytt 27.11, og svaret da var B. Spørsmålet og svaret står i
+[S-1 på nytt 27.11](#s-1-på-nytt-2711).
+
 ## S-2. Hva sier et krav om varseldatoen når totalentreprenøren har rettet den?
 
 **Avhenger av S-1.** Ved S-1 A stilles S-2 som det står. Ved S-1 B står ingen retting åpen og ingen
@@ -214,3 +217,53 @@ og bevis-sakene for teksten. Ved C bygges bare datoen som gjelder med brevet.
 
 **Svaret 25.11.** Oppdragsgiver svarte, ordrett: «11 A, 12 A». S-2: A. B og C er forkastet.
 Orkestratoren fører vedtaket i en egen vedtaks-PR.
+
+## S-1 på nytt 27.11
+
+### MM-U61 på nytt: Skal byggherren måtte godta en rettet dato? (stilt 27.11, runde 10 i #1065)
+
+Oppdragsgiver spurte først, ordrett: «Er det riktig at BH skal akseptere? Følger det av vedtak», og deretter: «Gi meg vurderingen og alternativene rundt MM-U61». Spørsmålet ble lagt fram i tekst slik:
+
+**Hva saken gjelder.** Totalentreprenøren legger til et varsel eller et krav som ble sendt utenfor løsningen, og oppgir datoen det ble sendt. Senere oppdager totalentreprenøren at datoen er feil og retter den i et eget brev (punkt 8 og 18 i samlevedtaket for retting av sendt brev). Spørsmålet er hvilken dato løsningen skal bruke etter rettingen: hvilket varsel som er det første, og hva svar og krav sier om datoen.
+
+**Hva som gjelder nå (MM-U61, ditt svar «11 A» 25.11).** En retting til en senere dato gjelder straks. En retting til en tidligere dato er et tilbud og gjelder først når byggherren har godtatt den i et svar. Til da gjelder den første datoen, også hvis byggherren aldri svarer. I en lukket sak, og i en sak en endringsordre omfatter, kan rettingen ikke godtas.
+
+**Min vurdering.**
+
+1. Kontrakten krever ikke aksepten. NS 8407 har ingen regel om at motparten må godta en rettet opplysning om når et brev ble sendt. Datoen er et faktum. Hvilken dato som er riktig, og om varselet kom i tide, avgjør partene, en oppmann eller domstolene. Løsningen avgjør det ikke (MM-U50 punkt 6, og punkt 8 i samlevedtaket). Aksepten er derfor en modell vi har valgt for løsningen. Den bygger på setningen fra OV-U11: «At datoen settes én gang, betyr at totalentreprenøren ikke kan endre den alene til sin egen fordel.»
+2. Aksepten beskytter mot feil ting. Den første datoen er også bare totalentreprenørens egen opplysning, og den krever ingen aksept. En uriktig første dato står altså uten videre, mens en ærlig retting av en skrivefeil kan bli stående åpen uten ende hvis byggherren ikke svarer.
+3. Regelen er ulik for datoer som ligner hverandre. Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen (punkt 12) gjelder straks, også når de er til totalentreprenørens fordel.
+4. Byggherren mister lite med B. Rettingen kommer som et brev, og et svar byggherren alt har gitt, står med virkningen det hadde. Byggherren gjør gjeldende at datoen er feil i svaret om varselet kom i tide, eller i et innlegg. Visningen viser hver tidligere dato med brevet den står i.
+5. Det B koster byggherren. Totalentreprenøren kan alene flytte datoen løsningen bruker til en tidligere dag, for eksempel innenfor en varslingsfrist. Den nye datoen blir premiss for nye svar og krav, og den kan endre hvilket varsel som er det første løsningen kjenner. Det gjelder også når byggherren har bestridt datoen. Løsningen sier likevel ikke at datoen er riktig.
+
+Kartleggingen anbefalte B 25.11 av de samme grunnene. Du valgte A.
+
+**Alternativene.**
+
+**A. MM-U61 står.** En retting til en tidligere varseldato eller kravdato gjelder først når byggherren har godtatt den i et svar. Bygges som nå, med aksepten i svarskjemaet og åpne rettinger.
+
+**B. Rettingen gjelder straks, uten aksept** (det forkastede alternativet i MM-U61, ordrett i registeret). Kjernen i B:
+- Totalentreprenørens retting av datoen for et varsel (punkt 8) eller et krav (punkt 18) sendt utenfor løsningen gjelder straks som totalentreprenørens siste opplysning, også når den nye datoen er tidligere.
+- Brevet med den første opplysningen står uendret.
+- Et svar byggherren alt har gitt, står med virkningen det hadde. En påberopelse byggherren alt har fremsatt, bevares med tidspunktet.
+- Byggherren tar stilling til den nye datoen i et senere svar, et nytt svar eller et innlegg, og kan der gjøre gjeldende at datoen er feil.
+- Løsningen avgjør ikke hvilken dato som er riktig, om varselet eller kravet kom i tide, eller om totalentreprenøren er bundet av den første datoen.
+- En rettet varseldato før datoen i påberopelsen av forholdet avvises (VS-U58).
+- I en lukket sak, og i en sak en endringsordre omfatter, godtas rettingen, og den nye datoen gjelder straks. Den endrer ikke utfallet.
+
+**Forholdet ved B:**
+- B opphever MM-U61 og punkt 20–23 i samlevedtaket for retting (aksepten og de åpne rettingene).
+- B endrer punkt 8, 18 og 19 der.
+- B endrer LV-U83: setningene om åpne rettinger i kravet faller.
+- B endrer også de andre postene som ble listet 25.11: EO-U39 punkt 68, KA-U52 svar 2 og VS-U38.
+- Rettingen av en feil kategori eller et feil varsel (punkt 9) krever fortsatt aksept. Den forskjellen tas når punkt 9 bygges.
+
+**Anbefaling: B.** Aksepten følger ikke av kontrakten. Den beskytter mot en endring, men ikke mot en uriktig første dato, og den gir en ulik regel for datoer som ligner hverandre. Byggherrens vern ligger i svaret og innlegget, der det hører hjemme etter MM-U50.
+
+**Hva valget styrer.**
+- Ved B: BF-50 bygges som korrigeringen etter punkt 10. Det blir ingen aksept i svarskjemaet og ingen åpne rettinger. Det er mindre kode, og spørsmålet om navnet på aksepten faller bort.
+- Ved A: du velger navnet på aksepten (A, B eller C fra forrige melding).
+
+Svar «A» eller «B», eller rett enkeltsetninger.
+
+**Svaret 27.11, ordrett:** «B»
