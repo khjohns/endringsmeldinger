@@ -11,7 +11,13 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
-import type { Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
+import {
+  avvis,
+  type Avvisning,
+  type Standpunkt,
+  type Standpunktsvirkning,
+  type Virkning,
+} from '../typer.ts';
 import {
   kravversjonenPaaDagen,
   svaretPaaForholdetPaaDagen,
@@ -97,6 +103,14 @@ export function avvisteFelt(kontroller: () => unknown): Record<string, string> {
     if (!(e instanceof UgyldigVurdering)) throw e;
     return e.feil;
   }
+}
+
+/** Avvisningen av vurderingene med feltene `feil` (`avvisteFelt`), eller `null` uten feil. */
+export function avvisteVurderinger(feil: Record<string, string>): Avvisning | null {
+  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
+  return grunner.length
+    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
+    : null;
 }
 
 /**

@@ -78,6 +78,7 @@ import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import {
   avvisteFelt,
+  avvisteVurderinger,
   forutsetningene,
   lageneIUtkastet,
   utenom,
@@ -227,6 +228,7 @@ export function hindrerSvaretPaaFristvarselet(
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
   // VS-U96 punkt 33: hvert krav om fristforlengelse har dager.
   const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+  if (!medVirkning.size) return null;
   const besvart = [...dokumenterI(u.journal)].some((d) =>
     d.svar.some(
       (x) =>
@@ -244,13 +246,9 @@ export function hindrerSvaretPaaFristvarselet(
 
 /** VS-U96 punkt 32: vurderingen i svaret på varselet etter § 33.4 (`kontrollerSvaretPaaFristvarselet`). */
 export function vurderingeneISvaretPaaFristvarselet(s: Svarutkast): Avvisning | null {
-  const feil = avvisteFelt(() =>
-    kontrollerSvaretPaaFristvarselet(s.vurderinger as Record<string, unknown>)
+  return avvisteVurderinger(
+    avvisteFelt(() => kontrollerSvaretPaaFristvarselet(s.vurderinger as Record<string, unknown>))
   );
-  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
-  return grunner.length
-    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
-    : null;
 }
 
 /** VS-U96 punkt 32: standpunktet i svaret på varselet etter § 33.4 som står alene. */

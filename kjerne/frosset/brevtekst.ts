@@ -787,27 +787,20 @@ interface Fastholdt {
 function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
   const { j, nytt, saken } = t;
   let preklusjonen: { gjelder: string; dokument: string } | null = null;
-  for (const d of j.dokumenter) {
-    if (d.avsender !== nytt.avsender || d.id === nytt.id) continue;
-    for (const svar of d.svar) {
-      if (svar.spor !== 'forhold' || saken.utenVirkning.includes(svar.id)) continue;
-      const p = svar.standpunkter.find(
-        (x): x is Extract<Standpunkt, { art: 'rettidighet' }> =>
-          x.art === 'rettidighet' && x.hjemmel === '32.2'
-      );
-      if (p) preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
-    }
-  }
   // VS-U96 punkt 34: påberopelsen etter § 33.4 i svaret på varselet som står alene, med brevet den
   // først ble gjort gjeldende i (punkt 6).
   let etter334: { gjelder: string; dokument: string } | null = null;
   for (const d of j.dokumenter) {
     if (d.avsender !== nytt.avsender || d.id === nytt.id) continue;
-    for (const x of d.svar) {
-      if (x.spor !== 'frist' || saken.utenVirkning.includes(x.id)) continue;
-      for (const p of x.standpunkter)
-        if (p.art === 'rettidighet' && p.hjemmel === '33.4')
+    for (const svar of d.svar) {
+      if (saken.utenVirkning.includes(svar.id)) continue;
+      for (const p of svar.standpunkter) {
+        if (p.art !== 'rettidighet') continue;
+        if (svar.spor === 'forhold' && p.hjemmel === '32.2')
+          preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
+        if (svar.spor === 'frist' && p.hjemmel === '33.4')
           etter334 = p.iTide ? null : (etter334 ?? { gjelder: p.gjelder, dokument: d.id });
+      }
     }
   }
   const ut: Fastholdt[] = [];

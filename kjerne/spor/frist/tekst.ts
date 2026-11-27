@@ -282,11 +282,12 @@ export const LINJEN_I_FRISTEN = {
   // Hvert ledd for dagene nevner fristen, også når kravet har én frist (#1943).
   ledd: (svar, v, kravet) => {
     // VS-U96 punkt 32: «i tide» i svaret på varselet etter § 33.4 er et standpunkt uten lag.
-    const [varselet] = svar.standpunkter;
     if (svaretGjelderFristvarselet(svar))
-      return varselet?.art === 'rettidighet' && varselet.iTide
-        ? [{ tekst: `${SENT_I_LINJEN['33.4']} kom i tide`, virkning: virkningen(v, varselet.id) }]
-        : [];
+      return svar.standpunkter.flatMap((p) =>
+        p.art === 'rettidighet' && p.iTide
+          ? [{ tekst: `${SENT_I_LINJEN['33.4']} kom i tide`, virkning: virkningen(v, p.id) }]
+          : []
+      );
     const dagene = svar.standpunkter.filter((d) => d.art === 'dager');
     if (!dagene.length) return [];
     const krav = kravetMedFristene(

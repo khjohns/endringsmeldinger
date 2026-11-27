@@ -354,7 +354,7 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   // VS-U79: et svar på et varsel gjelder varselet.
-  ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'relasjon', 'spor gjelder'],
+  ['kommandoer/standpunkter.ts:svaretsVarsel', 'relasjon', 'spor gjelder'],
   [
     'spor/vederlag/kommando.ts',
     'relasjon',
@@ -626,6 +626,16 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
       'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
       'spor/forhold/kommando.ts:lagIForholdet',
+    ],
+  ],
+  [
+    'kommandoer/utkastlag.ts',
+    'regelsett',
+    'avvisteVurderinger',
+    [
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
     ],
   ],
   // #2171: svarene på kravposten kontrollen av oppgjørsformen avviser, tas ut før lagene regnes.

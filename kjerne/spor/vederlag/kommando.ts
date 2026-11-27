@@ -105,6 +105,7 @@ import type {
 import type { Utkastlag } from '../poster/kommando.ts';
 import {
   avvisteFelt,
+  avvisteVurderinger,
   forutsetningene,
   lageneIUtkastet,
   utenom,
@@ -423,10 +424,7 @@ export function vurderingeneISvaretPaaVarselet(
     kontrollerSvaretPaaVarselet(varselet.hjemmel, s.vurderinger as Data, staar);
     if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);
   });
-  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
-  return grunner.length
-    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
-    : null;
+  return avvisteVurderinger(feil);
 }
 
 /** VS-U63: kravpostene der byggherrens innsigelse mot varselet etter § 34.4 står. */
@@ -462,10 +460,7 @@ function oppgivelseUtenInnsigelse(
         kontrollerInnsigelsenSomStaar(post.betegnelse, svar, forSent.has(`${hjemmel} ${post.id}`));
     }
   });
-  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
-  return grunner.length
-    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
-    : null;
+  return avvisteVurderinger(feil);
 }
 
 /**

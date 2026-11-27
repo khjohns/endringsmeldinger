@@ -10,7 +10,7 @@
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
-import { VARSELSPOR } from '../typer.ts';
+import { VARSELSPOR, type Spor } from '../typer.ts';
 import { svaretsVarsel } from './standpunkter.ts';
 import { erRegistrering, type Kommando } from './kommando.ts';
 import { kalenderdag } from '../format/leser.ts';
@@ -22,10 +22,7 @@ import type { Avvisning, Part } from '../typer.ts';
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
   // VS-U79, VS-U96 punkt 32: et svar på et varsel som står alene, gjelder varselet.
-  const paaVarselet = (s: { spor: string; gjelder: string }) => {
-    const v = svaretsVarsel(u, s.gjelder);
-    return v !== null && VARSELSPOR[v.hjemmel] === s.spor;
-  };
+  const paaVarselet = (s: { spor: Spor; gjelder: string }) => svaretsVarsel(u, s) !== null;
   switch (k.type) {
     case 'krav':
       return [{ type: 'krav', spor: k.spor }];

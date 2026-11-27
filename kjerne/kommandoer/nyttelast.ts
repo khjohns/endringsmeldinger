@@ -132,9 +132,7 @@ function kontrollerSvar(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor[s.spor];
-  const funnetVarsel = svaretsVarsel(u, s.gjelder);
-  const varselet =
-    funnetVarsel && VARSELSPOR[funnetVarsel.hjemmel] === s.spor ? funnetVarsel : null;
+  const varselet = svaretsVarsel(u, s);
   const funnet =
     sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
   const krav = varselet ? null : funnet;
@@ -219,7 +217,7 @@ function kontrollerSvaretPaaVarselet(
   const feil =
     varselet.hjemmel === '33.4'
       ? vurderingeneISvaretPaaFristvarselet(s)
-      : vurderingeneISvaretPaaVarselet(s, { id: varselet.id, hjemmel: varselet.hjemmel }, u, sendt);
+      : vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});
@@ -577,7 +575,7 @@ export function nyttelastkontroll(
     case 'revisjon': {
       const sporet = u.spor[k.svar.spor];
       // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
-      const forrige = svaretsVarsel(u, k.svar.gjelder)
+      const forrige = svaretsVarsel(u, k.svar)
         ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
         : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)

@@ -106,18 +106,16 @@ function henvisning(
 ) {
   switch (h.type) {
     case 'svare':
-    case 'revidere':
+    case 'revidere': {
+      // VS-U96 punkt 32: varselet etter § 33.4 i fristen, ellers et varsel i vederlaget.
+      const hindrer = fristvarseletSvaretGjelder(u, h.gjelder)
+        ? hindrerSvaretPaaFristvarselet
+        : hindrerSvaretPaaVarselet;
       // HF-U35 punkt 9, som for svaret på kravet.
       return u.forholdAvvist
         ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)
-        : (fristvarseletSvaretGjelder(u, h.gjelder)
-            ? hindrerSvaretPaaFristvarselet
-            : hindrerSvaretPaaVarselet)(
-            u,
-            h.gjelder,
-            h.type === 'svare' ? 'Svaret' : 'Revisjonen',
-            sendt
-          );
+        : hindrer(u, h.gjelder, h.type === 'svare' ? 'Svaret' : 'Revisjonen', sendt);
+    }
     case 'svare_paa_foresporsel': {
       // VS-U27: en forespørsel fra appen, i sporet som har den.
       for (const spor of SPOR) {

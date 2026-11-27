@@ -100,7 +100,8 @@ export function avvikIResultatet(
         ? []
         : [{ sti, serveren: String(server[sti]) }];
     const k = klient[liste!] as Record<string, unknown>[];
-    // VS-U96 punkt 32: svaret på varselet etter § 33.4 har ingen utregning, og da heller ingen liste.
+    // Uten lista hos serveren er det ingen rader å sammenlikne, som i svaret på varselet etter
+    // § 33.4 (VS-U96 punkt 32).
     if (!(liste! in server)) return liste! in klient ? [{ sti, serveren: 'ingen' }] : [];
     const verdier = (server[liste!] as Record<string, unknown>[]).map((rad) => rad[felt]);
     const avviker =

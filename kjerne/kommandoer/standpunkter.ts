@@ -31,17 +31,23 @@ export type Sporsstandpunkter = (
 ) => Data[];
 
 /** Varselet som står alene, et svar gjelder (VS-U79, VS-U87 punkt 30–32). */
-export interface Svaretsvarsel<H extends SvarbarVarselhjemmel = SvarbarVarselhjemmel> {
-  id: string;
-  hjemmel: H;
-}
+export type Svaretsvarsel<H extends SvarbarVarselhjemmel = SvarbarVarselhjemmel> = H extends unknown
+  ? { id: string; hjemmel: H }
+  : never;
 
 /**
- * Varselet som står alene, et svar med `gjelder` gjelder, eller `null` når svaret gjelder et krav:
- * et varsel i vederlaget (VS-U79) eller varselet etter § 33.4 (VS-U96 punkt 32).
+ * Varselet som står alene, et svar med `gjelder` i sporet `spor` gjelder, eller `null` når svaret
+ * gjelder et krav: et varsel i vederlaget (VS-U79) eller varselet etter § 33.4 i fristen (VS-U96
+ * punkt 32).
  */
-export const svaretsVarsel = (u: Utledning, gjelder: string): Svaretsvarsel | null =>
-  varseletSvaretGjelder(u, gjelder) ?? fristvarseletSvaretGjelder(u, gjelder);
+export function svaretsVarsel(
+  u: Utledning,
+  { spor, gjelder }: { spor: Spor; gjelder: string }
+): Svaretsvarsel | null {
+  if (spor === 'vederlag') return varseletSvaretGjelder(u, gjelder);
+  if (spor === 'frist') return fristvarseletSvaretGjelder(u, gjelder);
+  return null;
+}
 
 /**
  * Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er
@@ -55,8 +61,8 @@ export function standpunkter(
 ): Data[] {
   if ('hjemmel' in maal)
     return maal.hjemmel === '33.4'
-      ? standpunkterPaaFristvarselet(s.vurderinger, { id: maal.id, hjemmel: '33.4' }, nyId)
-      : standpunkterPaaVarselet(s.vurderinger, { id: maal.id, hjemmel: maal.hjemmel }, nyId);
+      ? standpunkterPaaFristvarselet(s.vurderinger, maal, nyId)
+      : standpunkterPaaVarselet(s.vurderinger, maal, nyId);
   return iSporet(STANDPUNKTER, s.spor)(s.vurderinger, maal, u, nyId);
 }
 
