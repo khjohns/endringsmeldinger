@@ -554,3 +554,69 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
     expect(vurderingen(sendt)).not.toHaveProperty('begrunnelse_ikke_svar');
   });
 });
+
+describe('innsigelsen mot varselet etter punkt 33.4 i svaret på fristkravet (VS-U96 punkt 34, #2456)', () => {
+  const medVarselet = skrevet(medGrunnlag, 'TE', {
+    type: 'send_varsel',
+    varsler: [{ hjemmel: '33.4' }],
+  });
+  const paaVarselet = (varslet_i_tide: boolean) =>
+    skrevet(medVarselet, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: utledJournal(medVarselet, KJERNE).spor.frist.varsler['33.4']!.id,
+          vurderinger: { varslet_i_tide },
+          resultat: {},
+          regelversjon: KJERNE.regler.versjon,
+        },
+      ],
+    });
+  const kravEtter = (journal: Journalrad[]) =>
+    skrevet(journal, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 10 }] },
+      utdypning: 'Pelingen tar to uker lenger.',
+    });
+  const svarPaaResten = async () => {
+    await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+    await radio('Spesifisert i tide');
+    await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: '10' } });
+  };
+  const standpunktet = () => screen.getByText(/^Du har gjort gjeldende i brev.\d+ at varselet/);
+
+  it('svaret viser innsigelsen fra svaret bare på varselet og gjentar den, uten valget om varselet', async () => {
+    const sendt = await svarskjemaet(kravEtter(paaVarselet(false)));
+    expect(standpunktet().textContent?.trim()).toMatch(
+      /^Du har gjort gjeldende i brev.3 at varselet kom for sent\.\s*Svaret gjentar innsigelsen\.$/
+    );
+    expect(screen.queryByRole('radio', { name: 'Varslet i tide' })).toBeNull();
+    await svarPaaResten();
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(vurderingen(sendt).frist_varsel_ok).toBe(false);
+  });
+
+  it('«Gi opp innsigelsen» sender varselet i tide, og panelet sier at innsigelsen i brevet er gitt opp (punkt 10)', async () => {
+    const sendt = await svarskjemaet(kravEtter(paaVarselet(false)));
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    expect(standpunktet().textContent?.trim()).toMatch(/Du gir opp innsigelsen\.$/);
+    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    const oppgitt =
+      /^Du gir opp innsigelsen i brev.3 om at varselet etter punkt.33\.4 kom for sent/;
+    expect(panelet.getByText(oppgitt)).toBeInTheDocument();
+    await svarPaaResten();
+    expect(panelet.getByText(oppgitt)).toBeInTheDocument();
+    await seBrevet();
+    expect(vurderingen(sendt).frist_varsel_ok).toBe(true);
+  });
+
+  it('kontrollsak: etter «kom i tide» i svaret på varselet står valget om varselet tomt (S1-A, U-14)', async () => {
+    await svarskjemaet(kravEtter(paaVarselet(true)));
+    expect(screen.queryByText(/^Du har gjort gjeldende i brev/)).toBeNull();
+    expect(screen.getByRole('radio', { name: 'Varslet i tide' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+  });
+});
