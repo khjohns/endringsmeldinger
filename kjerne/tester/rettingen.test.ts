@@ -1,7 +1,7 @@
 /**
  * Totalentreprenørens retting av datoen for et varsel eller et krav sendt utenfor løsningen og lagt
  * til som korrespondanse (BF-50, #1309 punkt 8 og 18). Kildene er punkt 8 og 18–24 i samlevedtaket
- * for retting av sendt brev (MM-U59), svaret B 27.11 i #1309 (rettingen gjelder straks, også til en
+ * for retting av sendt brev (MM-U59), MM-U63 (rettingen gjelder straks, også til en
  * tidligere dato), VS-U58, VS-U86 og EO-U39 punkt 68. Avvisningene når
  * datoen er etter brevets dato, og når kravdatoen er før datoen i påberopelsen, er arbeidsvalgene i
  * D-7 i BF-50. Brevet med rettingen er ikke bygget (G-8), så en retting kontrollene godtar, avvises
@@ -130,7 +130,7 @@ describe('rettingen viser til et varsel eller et krav lagt til (MM-U59 punkt 8 o
   });
 });
 
-describe('datoen som gjelder (MM-U59 punkt 8 og 18, svaret B 27.11 i #1309, D-3 og D-4 i BF-50)', () => {
+describe('datoen som gjelder (MM-U59 punkt 8 og 18, MM-U63, D-3 og D-4 i BF-50)', () => {
   it('variant A: en senere dato gjelder straks', () => {
     const { s, varselet } = medVarselet();
     const id = rettingIJournalen(s, varselet, '2026-10-01');
@@ -212,7 +212,7 @@ describe('datoen som gjelder (MM-U59 punkt 8 og 18, svaret B 27.11 i #1309, D-3 
 });
 
 describe('avvisningene (D-7 i BF-50)', () => {
-  it('svaret B 27.11 i #1309: en retting til datoen som gjelder, avvises og nevner datoen', () => {
+  it('MM-U63: en retting til datoen som gjelder, avvises og nevner datoen', () => {
     const { s, varselet } = medVarselet();
     expect(s.avvisning('TE', retting(varselet, '2026-09-28'))).toEqual({
       regel: 'DATOEN_ER_UENDRET',

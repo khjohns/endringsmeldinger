@@ -182,7 +182,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:datoenForVarselet',
     ],
   ],
-  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59) og svaret B 27.11 i #1309: TEs
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59) og MM-U63: TEs
   // retting av datoen for et varsel eller et krav lagt til, og datoen som gjelder, som premiss
   // for nye svar og for det første varselet (VS-U86). Hva som var gjeldende, leser den oppgitte
   // datoen (punkt 18).

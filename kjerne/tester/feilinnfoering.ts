@@ -8286,7 +8286,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F1309b',
     feilklasse:
-      'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, svaret B 27.11 i #1309)',
+      'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, MM-U63)',
     fil: `${K}/utledning/rettingen.ts`,
     endringer: [['foer(r.id)).at(-1)?.dato', 'foer(r.id)).at(0)?.dato']],
     mal: ['D-4: datoen som gjelder, er den i den siste rettingen'],
@@ -8301,7 +8301,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F1309d',
-    feilklasse: 'en retting til datoen som gjelder, godtas (svaret B 27.11 i #1309, D-7 i BF-50)',
+    feilklasse: 'en retting til datoen som gjelder, godtas (MM-U63, D-7 i BF-50)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['  if (ny === gjelder)\n', '  if (false)\n']],
     mal: ['en retting til datoen som gjelder, avvises'],
@@ -8343,7 +8343,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F1309h',
     feilklasse:
-      'en retting til en tidligere dato venter på byggherrens aksept i stedet for å gjelde straks (svaret B 27.11 i #1309)',
+      'en retting til en tidligere dato venter på byggherrens aksept i stedet for å gjelde straks (MM-U63)',
     fil: `${K}/utledning/rettingen.ts`,
     endringer: [
       [

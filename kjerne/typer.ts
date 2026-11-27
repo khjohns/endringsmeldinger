@@ -252,7 +252,7 @@ export type Utsagn =
    * Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): TE retter datoen for
    * varselet eller kravet `gjelder`, lagt til som korrespondanse, i et eget brev. `dato` er den
    * nye datoen, og opplysningen i brevet med varselet eller kravet står uendret. Ikke en
-   * kravversjon. Rettingen gjelder straks (svaret B 27.11 i #1309, `utledning/rettingen.ts`).
+   * kravversjon. Rettingen gjelder straks (MM-U63, `utledning/rettingen.ts`).
    */
   | { id: string; art: 'retting'; gjelder: string; dato: string }
   /**

@@ -1,7 +1,7 @@
 {
   "id": "BF-50",
   "tittel": "Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen",
-  "brukerhistorie": "TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. En senere dato gjelder straks. En tidligere dato er et tilbud som gjelder når BH godtar rettingen i et svar, atskilt fra standpunktet om varselet eller kravet kom i tide. Begge partene ser datoen som gjelder, de tidligere datoene og rettingene som står åpne.",
+  "brukerhistorie": "TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. Den nye datoen gjelder straks som TEs siste opplysning, også når den er tidligere, uten BHs aksept. BH tar stilling til den nye datoen i et senere svar eller i et innlegg. Begge partene ser datoen som gjelder og de tidligere datoene.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
@@ -30,8 +30,7 @@
     "LV-U56"
   ],
   "venter_paa": [
-    "#1309",
-    "#818"
+    "#1309"
   ],
   "bevis_saker": [],
   "visninger": [],
@@ -45,6 +44,11 @@
       "dato": "2026-11-25",
       "forhold": "#1309",
       "hva": "S-1 og S-2 er besvart med A: en retting til en tidligere dato gjelder først når byggherren har godtatt den, også for kravdatoen, og et krav viser til rettingen og nevner hver åpen retting. Ført i D-5, D-7, D-9 og U-10."
+    },
+    {
+      "dato": "2026-11-27",
+      "forhold": "MM-U63",
+      "hva": "Rettingen gjelder straks, også til en tidligere dato, uten byggherrens aksept. M-3, M-5, U-8, D-5, D-6, G-3 og G-4 utgår, og forløpet er skrevet om etter MM-U63."
     }
   ]
 }

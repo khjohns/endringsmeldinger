@@ -1,6 +1,6 @@
 /**
  * Rettingen av datoen for et varsel eller et krav lagt til som korrespondanse (punkt 8 og 18 i
- * samlevedtaket for retting av sendt brev, MM-U59, og svaret B 27.11 i #1309): rettingen gjelder
+ * samlevedtaket for retting av sendt brev, MM-U59, og MM-U63): rettingen gjelder
  * straks som TEs siste opplysning, også når datoen er tidligere. Datoen som gjelder, er premiss for
  * nye svar og for hvilket varsel eller krav som er det første varselet løsningen kjenner (VS-U86).
  * Hvilket krav eller svar som var gjeldende, avgjøres av datoen TE oppga, og rettingen endrer det

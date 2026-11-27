@@ -332,7 +332,7 @@ for nye svar og for det første varselet løsningen kjenner. Et svar byggherren 
 med virkningen det hadde. Godtas også i en lukket sak og i en sak en endringsordre omfatter, og
 endrer ikke utfallet. En retting sendt utenfor løsningen står som dokumentasjon."""
 felt = ["id", "art", "gjelder", "dato"]
-grunnlag = "MM-U59 punkt 8 og 18, svaret B 27.11 i #1309, VS-U58, VS-U86, OV-U123 punkt 17, EO-U39 punkt 68"
+grunnlag = "MM-U59 punkt 8 og 18, MM-U63, VS-U58, VS-U86, OV-U123 punkt 17, EO-U39 punkt 68"
 
 [[utsagn]]
 art = "innlegg"
