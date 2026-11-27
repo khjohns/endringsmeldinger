@@ -92,6 +92,17 @@ export const UTREGNINGEN: Lesbar[] = [
     'sisteStandpunktTilVarslene',
     ['frosset/brevtekst.ts:innsigelsenFoer', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
+  // VS-U96 punkt 34: byggherrens innsigelse mot varselet etter § 33.4 som står, likt i skjemaet og
+  // brevteksten.
+  [
+    'spor/frist/frysing.ts',
+    'relasjon',
+    'paaberopelsenSomStaar',
+    [
+      'frosset/brevtekst.ts:paaberopelsenFoerIFristen',
+      'spor/frist/kommando.ts:innsigelsenMotFristvarselet',
+    ],
+  ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
@@ -385,6 +396,8 @@ export const UTREGNINGEN: Lesbar[] = [
   // de ble sendt.
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil paaVarselet'],
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene', 'relasjon', 'dag'],
+  ['spor/frist/frysing.ts:paaberopelsenSomStaar', 'relasjon', 's dag'],
+  ['spor/frist/kommando.ts:innsigelsenMotFristvarselet', 'relasjon', 'dag'],
   // VS-U79: varselet svaret på et varsel gjelder, og dagen kravene ble sendt.
   [
     'spor/vederlag/kommando.ts',
@@ -500,6 +513,7 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:besvarteVederlagskrav',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
+      'spor/frist/kommando.ts:innsigelsenMotFristvarselet',
     ],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],

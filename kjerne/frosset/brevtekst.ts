@@ -69,6 +69,7 @@ import {
 } from '../spor/vederlag/tekst.ts';
 import { kravposterI, krevdProduktivitet } from '../spor/vederlag/format.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { paaberopelsenSomStaar } from '../spor/frist/frysing.ts';
 import {
   FORBEHOLDET,
   FORHOLDET,
@@ -294,7 +295,10 @@ export function lagBrevtekst(
     const overskrift = medHardeMellomrom(`${++nummer}. ${FORBEHOLDSPUNKTET.overskrift}`);
     forbeholdene.forEach(({ s, tekst }, i) => {
       const foerst = i === 0 ? [overskrift, ...(omForholdet ? [omForholdet.setninger] : [])] : [];
-      const ledetekst = tekst && flere ? [`Forbehold for svaret på ${svaretGjelder(s).del}:`] : [];
+      const ledetekst =
+        tekst && flere
+          ? [`Forbehold for svaret på ${svaretGjelder(s).del}${forArbeidet(s, j)}:`]
+          : [];
       avsnitt.push({
         gjelder: s.id,
         punkt: FORBEHOLDET,
@@ -950,15 +954,9 @@ function paaberopelsenFoerIFristen(
     .flatMap((d) =>
       d.svar
         .filter((x) => x.spor === 'frist' && !saken.utenVirkning.includes(x.id))
-        .map((x): [string, Svar] => [dagenSendt({ id: x.id, dokument: d.id }, d) ?? '', x])
-    )
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  let foerste: string | undefined;
-  for (const [, x] of svarene)
-    for (const q of x.standpunkter)
-      if (q.art === 'rettidighet' && q.hjemmel === p.hjemmel && q.gjelder === p.gjelder)
-        foerste = q.iTide ? undefined : (foerste ?? x.dokument);
-  return foerste;
+        .map((s) => ({ dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '', s }))
+    );
+  return paaberopelsenSomStaar(svarene, p.hjemmel, p.gjelder);
 }
 
 /**
@@ -1042,6 +1040,14 @@ const harTekst = (p: Standpunkt): boolean => !(p.art === 'beloep' && p.godkjent 
 function standpunkttekst(p: Standpunkt, s: Svar, krav: Krav, j: Journalen): string {
   if (!erArtISporene(p)) throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ingen brevtekst`);
   return standpunktetISporet(p.art, p, krav, s, j);
+}
+
+/** VS-U87 punkt 27: arbeidet skiller svarene på varsler etter samme bestemmelse i brevet (#2451). */
+function forArbeidet(s: Pick<Svar, 'gjelder'>, j: Journalen): string {
+  const e = j.element(s.gjelder);
+  return e.art === 'utsagn' && e.utsagn.art === 'varsel' && e.utsagn.arbeid !== undefined
+    ? ` for arbeidet «${e.utsagn.arbeid}»`
+    : '';
 }
 
 /** Det svaret viser til, med brevet det står i (LV-U4 punkt 7). */

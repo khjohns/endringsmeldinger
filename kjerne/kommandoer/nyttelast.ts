@@ -583,6 +583,16 @@ export function nyttelastkontroll(
           );
     }
     case 'brev':
+      // #2451, VS-U96 punkt 33.
+      if (
+        k.svar.some(
+          (s) => k.svar.some((x) => x !== s && x.spor === s.spor) && !svaretsVarsel(u, s, sendt)
+        )
+      )
+        return avvis(
+          'FEIL_KRAVREFERANSE',
+          'To svar i samme spor i ett brev må gjelde hvert sitt varsel som står alene.'
+        );
       for (const s of k.svar) {
         const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves, sendt);
         if (a) return a;

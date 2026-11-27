@@ -6864,7 +6864,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherrens forbehold for et svar står uten navnet på kravet i et brev med flere svar (LV-U81, #2337)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['const ledetekst = tekst && flere ?', 'const ledetekst = tekst && false ?']],
+    endringer: [['        tekst && flere\n', '        tekst && false\n']],
     mal: ['LV-U81: brevet har ett punkt «Forbehold», sist'],
   },
   {
@@ -7994,6 +7994,84 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [['    bare ? x.bareVarselet : x.gjelder === gjelder', '    x.gjelder === gjelder']],
     mal: ['etter en ny kravversjon er det nye svaret bare på varselet en revisjon av det forrige'],
+  },
+  {
+    id: 'F2451a',
+    feilklasse:
+      'to svar på samme varsel i ett brev tas imot, så brevet har to første svar på varselet (#2451)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        '    else if (new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length)',
+        '    else if (false)',
+      ],
+    ],
+    mal: ['to svar på samme varsel i ett brev avvises'],
+  },
+  {
+    id: 'F2451b',
+    feilklasse:
+      'et svar bare på varselet i et krav står ved siden av et annet svar i samme spor i ett brev (#2451)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['    if (iSammeSpor.some((s) => s.bare_varselet))', '    if (false)']],
+    mal: ['et svar bare på varselet i et krav ved siden av et annet svar i sporet også'],
+  },
+  {
+    id: 'F2451c',
+    feilklasse:
+      'et svar på kravet og et svar på et varsel i samme spor i ett brev tas imot (#2451)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '(s) => k.svar.some((x) => x !== s && x.spor === s.spor) && !svaretsVarsel(u, s, sendt)',
+        '(s) => false',
+      ],
+    ],
+    mal: ['et svar på kravet og et svar på et varsel i samme spor i ett brev avvises'],
+  },
+  {
+    id: 'F2451d',
+    feilklasse:
+      'forbeholdene på to svar på varsler etter samme bestemmelse i ett brev har samme ledetekst, uten arbeidet (VS-U87 punkt 27, #2451)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    ? ` for arbeidet «${e.utsagn.arbeid}»`', "    ? ''"]],
+    mal: [
+      'forbeholdet på hvert av to svar på varsler etter samme bestemmelse sier hvilket arbeid det gjelder',
+    ],
+  },
+  {
+    id: 'F2456q',
+    feilklasse:
+      'svarutkastet på kravet om fristforlengelse regner det ubesvarte spørsmålet om varselet som uten innsigelse, også når innsigelsen står (VS-U96 punkt 34, #2456)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['    utfylt.frist_varsel_ok = false;', '    utfylt.frist_varsel_ok = true;']],
+    mal: ['svarutkastet gjentar innsigelsen som utgangspunkt'],
+  },
+  {
+    id: 'F2456r',
+    feilklasse:
+      'innsigelsen mot varselet etter punkt 33.4 i svaret på varselet står ikke mot svaret på kravet (VS-U96 punkt 34, #2456)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        '  const medVirkning = new Set([...svar, ...svarUtenforRekken, ...svarPaaVarsler].map((s) => s.id));',
+        '  const medVirkning = new Set([...svar, ...svarUtenforRekken].map((s) => s.id));',
+      ],
+    ],
+    mal: ['innsigelsen i svaret på varselet står mot svaret på kravet, med brevet'],
+  },
+  {
+    id: 'F2456s',
+    feilklasse:
+      'en innsigelse mot varselet i fristen som byggherren har gitt opp, står fortsatt (VS-U96 punkt 34, punkt 10, #2456)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [
+      [
+        '        foerste = q.iTide ? undefined : (foerste ?? s.dokument);',
+        '        foerste = q.iTide ? foerste : (foerste ?? s.dokument);',
+      ],
+    ],
+    mal: ['innsigelsen som er gitt opp i et nytt svar på varselet, står ikke'],
   },
 ];
 
