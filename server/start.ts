@@ -35,6 +35,9 @@
  *   medlemslisten kan være før den hentes på nytt, og
  *   `AUTH_MEMBERSHIP_ALERT_AGE_SECONDS` (et positivt heltall, valgfri) alderen som gir
  *   driftsvarselet. En ugyldig verdi stopper oppstarten (#2262).
+ * - `KOE_SESJON_LEVETID_MINUTTER` og `KOE_SESJON_INAKTIVITET_MINUTTER` er sesjonens levetid
+ *   og tidsavbruddet ved inaktivitet (`sesjonsvarighet` i `sesjon.ts`, #1806). En ugyldig
+ *   verdi stopper oppstarten.
  * - `CATENDA_NETTADRESSE` er verten for lenken fra saken til topicen i Catenda
  *   (`sakslenkeFraMiljoe` i `catenda.ts`). Uten den har saken ingen lenke.
  */
@@ -61,6 +64,7 @@ import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
 import { webhookFraMiljoe, type Webhook } from './webhook.ts';
 import { startJobbkjoerer, type Jobbkjoerer } from './jobber.ts';
 import { lesMigrasjoner } from './migrering.ts';
+import { sesjonsvarighet, UgyldigSesjonsvarighet } from './sesjon.ts';
 import { hindringer } from './oppstart.ts';
 
 const utenCatenda: Catenda = {
@@ -84,6 +88,14 @@ async function start(): Promise<void> {
   const ugyldig = ugyldigMedlemslisteoppsett();
   if (ugyldig.length) {
     loggAdvarsel('Oppsettet for medlemslisten er ugyldig', { hindringer: ugyldig });
+    process.exitCode = 1;
+    return;
+  }
+  try {
+    sesjonsvarighet();
+  } catch (feil) {
+    if (!(feil instanceof UgyldigSesjonsvarighet)) throw feil;
+    loggAdvarsel('Sesjonens levetid eller tidsavbrudd er ugyldig', { hindringer: [feil.variabel] });
     process.exitCode = 1;
     return;
   }

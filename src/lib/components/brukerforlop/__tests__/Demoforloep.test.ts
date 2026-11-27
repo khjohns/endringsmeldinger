@@ -331,8 +331,10 @@ describe('demoruta for brukerforløpet BF-46', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/ikke bygget/)).toBeNull();
     // Svaret i brev 4: varselet og spesifiseringen kom for sent, og fremdriften er hindret. Dagene
-    // prøves i `fristsvaret.test.ts`.
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    // prøves i `fristsvaret.test.ts`. Innsigelsen mot varselet står og gjentas (VS-U96 punkt 34).
+    expect(
+      screen.getByText(/^Du har gjort gjeldende i brev.4 at varselet kom for sent/).textContent
+    ).toMatch(/Svaret gjentar innsigelsen\.$/);
     expect(screen.getByRole('radio', { name: 'Spesifisert for sent' })).toBeChecked();
     expect(screen.getByRole('radio', { name: /^Ja, fremdriften er hindret/ })).toBeChecked();
   });

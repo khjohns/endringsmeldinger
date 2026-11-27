@@ -32,17 +32,23 @@ export const fast = (sti: string) => ({
   eksempel: () => sti,
 });
 
-/** Hodene ruteren skriver for svaret: `Content-Type` for en JSON-kropp, rutens hoder og svarets. */
+/**
+ * Hodene ruteren skriver for svaret: `Cache-Control: no-store` for hvert svar, siden hvert
+ * svar er bundet til sesjonen eller kallet (#1059), `Content-Type` for en JSON-kropp, og så
+ * rutens hoder og svarets, som går foran uansett skrivemåte av navnet.
+ */
 export function svarhoder(
   [, kropp, hoder]: Svar,
   rute: Record<string, string> | undefined
 ): OutgoingHttpHeaders {
   const json = kropp !== null && !Buffer.isBuffer(kropp);
-  return {
+  const samlet: OutgoingHttpHeaders = {
+    'cache-control': 'no-store',
     ...(json ? { 'content-type': 'application/json; charset=utf-8' } : {}),
-    ...rute,
-    ...hoder,
   };
+  for (const [navn, verdi] of Object.entries({ ...rute, ...hoder }))
+    samlet[navn.toLowerCase()] = verdi;
+  return samlet;
 }
 
 /**

@@ -6,7 +6,7 @@
  */
 
 import type { Loggmottaker } from '../logg.ts';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
@@ -661,6 +661,68 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     ).recordset;
     expect(sekunder).toBeGreaterThanOrEqual(-1);
     expect(sekunder).toBeLessThan(60);
+  });
+
+  it('løkka sletter utløpte sesjoner og innloggingsforsøk og lar gyldige stå (#1059)', async () => {
+    const eier = o.datalag.base.pool;
+    const [utloept, gyldig] = [randomBytes(32).toString('hex'), randomBytes(32).toString('hex')];
+    for (const [h, sekunder] of [
+      [utloept, -1],
+      [gyldig, 3600],
+    ] as const)
+      await eier
+        .request()
+        .input('h', sql.Char(64), h)
+        .input('bruker', sql.UniqueIdentifier, o.te.id)
+        .input('sekunder', sql.Int, sekunder)
+        .query(
+          `INSERT koe.app_sessions (token_hash, user_id, csrf_token, expires_at)
+           VALUES (@h, @bruker, REPLICATE('a', 64), DATEADD(second, @sekunder, SYSUTCDATETIME()))`
+        );
+    let ferdig!: () => void;
+    let feilet!: (feil: Error) => void;
+    const ryddet = new Promise<void>((ok, nei) => ((ferdig = ok), (feilet = nei)));
+    const loekke = startJobbkjoerer(
+      {
+        datalag: o.datalag.kjoeretid.pool,
+        catenda: { opprettTopic: async () => ({ guid: 'ubrukt', nummer: TOPICNUMMER }) },
+        dokumenter: utenDokumenter,
+        saksadresse: () => 'x',
+        logg: {
+          ...logg,
+          info: (linje) => {
+            if (JSON.parse(linje).sted === 'Utløpte sesjoner og innloggingsforsøk er slettet')
+              ferdig();
+          },
+          error: (linje) => {
+            logg.error(linje);
+            if (JSON.parse(linje).sted === 'Utløpte sesjoner og innloggingsforsøk ble ikke slettet')
+              feilet(new Error(linje));
+          },
+        },
+      },
+      60_000
+    );
+    try {
+      await ryddet;
+    } finally {
+      await loekke.stopp();
+    }
+    try {
+      const igjen = await eier
+        .request()
+        .input('a', sql.Char(64), utloept)
+        .input('b', sql.Char(64), gyldig)
+        .query<{
+          h: string;
+        }>('SELECT token_hash AS h FROM koe.app_sessions WHERE token_hash IN (@a, @b)');
+      expect(igjen.recordset.map((r) => r.h)).toEqual([gyldig]);
+    } finally {
+      await eier
+        .request()
+        .input('b', sql.Char(64), gyldig)
+        .query('DELETE koe.app_sessions WHERE token_hash = @b');
+    }
   });
 
   it('løkka gjør en ny jobb når den vekkes, uten å vente på pollingen', async () => {

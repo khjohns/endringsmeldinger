@@ -2,8 +2,9 @@
   BH skriver svar på krav om fristforlengelse (G-4 i BF-20, prototypene `fristsvar.html` og
   `fristkrav-te.html#svar`), i samme oppbygning som svaret på vederlaget: skjemaet vurderer,
   panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt. Ingenting er
-  forhåndsvalgt (U-14). Varselet, forespørselen, hindringen og spesifiseringen besvares én gang for
-  hele kravet, og dagene for hver frist (KA-U74, KA-U80). Kommandoen bygges i `fristsvar.ts`, og
+  forhåndsvalgt (U-14), unntatt innsigelsen mot varselet som står (VS-U96 punkt 34). Varselet,
+  forespørselen, hindringen og spesifiseringen besvares én gang for hele kravet, og dagene for
+  hver frist (KA-U74, KA-U80). Kommandoen bygges i `fristsvar.ts`, og
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
@@ -20,6 +21,7 @@
     foresporselenISvaret,
     fristpunktForSpoersmaal,
     fristspoersmaalForPunkt,
+    innsigelsenMotFristvarselet,
   } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -33,6 +35,7 @@
   import Svarskjema from './Svarskjema.svelte';
   import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
+  import Varselstandpunkt from './Varselstandpunkt.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
     fristsvaret,
@@ -66,6 +69,7 @@
     SVARSKJEMA,
     grunntekst,
     innsigelsenOmVarselet,
+    oppgivelsestekst,
     standpunkttekst,
   } from './tekster';
 
@@ -119,6 +123,10 @@
     valg.begrunnelseIkkeSvar = v === 'ikke_svar';
     valg.foresporselITide = v === 'ikke_svar' ? null : v;
   }
+  // VS-U96 punkt 34. Utgangspunktet står ikke i `valg`, så det faller bort med innsigelsen.
+  const innsigelsen = $derived(innsigelsenMotFristvarselet(u, null));
+  const innsigelsesbrevet = $derived(innsigelsen && brevet(u, innsigelsen.dokument));
+  const varselITide = $derived(valg.varselITide ?? (innsigelsen ? false : null));
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
 
   let valgtFrist = $state<string | null>(null);
@@ -141,7 +149,7 @@
   const brevutkast = $derived(
     fristsvaret(
       {
-        varselITide: valg.varselITide,
+        varselITide,
         foresporselITide: valg.foresporselITide,
         begrunnelseIkkeSvar: valg.begrunnelseIkkeSvar,
         hindret: valg.hindret,
@@ -229,14 +237,19 @@
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
-            : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined) +
-              (l.standpunkt.art === 'spesifisering' && l.standpunkt.maatteForstaa
-                ? FRISTSVAR.maatteForstaaPerFrist(
-                    l.standpunkt.maatteForstaa.map(
-                      (m) => `${dager(m.dager)} for ${fristen(m.frist)?.navn ?? m.frist}`
+            : innsigelsesbrevet &&
+                l.standpunkt.art === 'rettidighet' &&
+                l.standpunkt.hjemmel === '33.4' &&
+                l.standpunkt.iTide
+              ? oppgivelsestekst('33.4', innsigelsesbrevet, true)
+              : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined) +
+                (l.standpunkt.art === 'spesifisering' && l.standpunkt.maatteForstaa
+                  ? FRISTSVAR.maatteForstaaPerFrist(
+                      l.standpunkt.maatteForstaa.map(
+                        (m) => `${dager(m.dager)} for ${fristen(m.frist)?.navn ?? m.frist}`
+                      )
                     )
-                  )
-                : ''),
+                  : ''),
         lag: l.lag,
         vilkaar: l.vilkaar,
         heller: l.heller,
@@ -276,7 +289,9 @@
   const punktstatus = (punkt: string): string[] => {
     switch (punkt) {
       case '33.4':
-        return valg.varselITide === null ? [] : [valg.varselITide ? SKJEMA.iTide : SKJEMA.forSent];
+        if (varselITide && innsigelsesbrevet)
+          return [oppgivelsestekst('33.4', innsigelsesbrevet, true)];
+        return varselITide === null ? [] : [varselITide ? SKJEMA.iTide : SKJEMA.forSent];
       case '33.6.2':
         return valg.begrunnelseIkkeSvar
           ? [FRISTSVAR.begrunnelseIkkeSvar]
@@ -338,7 +353,7 @@
   const forHeleKravet = $derived(
     (
       [
-        ['33.4', valg.varselITide, FRISTSVAR.heleKravetTapt('33.4')],
+        ['33.4', varselITide, FRISTSVAR.heleKravetTapt('33.4')],
         [
           '33.6.2',
           foresporselen && !valg.begrunnelseIkkeSvar ? valg.foresporselITide : null,
@@ -476,7 +491,8 @@
   {#if 'grunn' in f}
     <Forholdsgrunn grunn={f.grunn} brev={grunnlagsbrev!} {onforholdet} />
   {:else if f.innsigelse === '33.4'}
-    <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('33.4')}</a>
+    <a href={`#${uid}-varsel${innsigelsen ? '-standpunkt' : ''}`}>{innsigelsenOmVarselet('33.4')}</a
+    >
   {:else if f.innsigelse === '33.6.2'}
     <a href={`#${uid}-foresporsel`}>{FRISTSVAR.innsigelsenForesporsel}</a>
   {:else if f.innsigelse === 'hindring'}
@@ -496,7 +512,10 @@
   {utkast}
   {forrigeSvar}
   medTekstene={(punktene) =>
-    somNyttSvar(fristsvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
+    somNyttSvar(
+      fristsvaret({ ...valg, varselITide }, u, kjernesak.regler, punktene)!,
+      valg.erstatter
+    )}
   bind:tekster={valg}
   {linjer}
   {virkninger}
@@ -599,17 +618,31 @@
     >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
-      <Valg
-        navn={`${uid}-varsel`}
-        spoersmaal={FRISTSVAR.varselSpoersmaal}
-        beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
-        valg={[
-          { verdi: true, tekst: SKJEMA.iTide },
-          { verdi: false, tekst: SKJEMA.forSent },
-        ]}
-        bind:verdi={valg.varselITide}
-        feil={feil(`${uid}-varsel`)}
-      />
+      {#if innsigelsen}
+        <Varselstandpunkt
+          varselId={`${uid}-varsel`}
+          justeringId={`${uid}-justering`}
+          hjemmel="33.4"
+          foer={{ iTide: false, brev: innsigelsesbrevet, ikkeGitt: false }}
+          bind:varsletITide={valg.varselITide}
+          godtarJustering={null}
+          ikkeGitt={false}
+          justeringValgfri
+          vis="varselet"
+        />
+      {:else}
+        <Valg
+          navn={`${uid}-varsel`}
+          spoersmaal={FRISTSVAR.varselSpoersmaal}
+          beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
+          valg={[
+            { verdi: true, tekst: SKJEMA.iTide },
+            { verdi: false, tekst: SKJEMA.forSent },
+          ]}
+          bind:verdi={valg.varselITide}
+          feil={feil(`${uid}-varsel`)}
+        />
+      {/if}
       {@render begrunnelse('33.4')}
     </Spoersmaal>
 
