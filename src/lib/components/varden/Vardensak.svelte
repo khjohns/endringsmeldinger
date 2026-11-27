@@ -59,11 +59,15 @@
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
   import { eldreKrav } from '#lib/kjernesak/eldrekrav.ts';
   import {
+    leggTilISaken,
+    svaretLagtTilErstatter,
     tomKorrespondanse,
     tomtLagtTil,
+    utenSkjemaet,
     type Korrespondansevalg,
     type Lagttilvalg,
   } from './korrespondansen';
+  import { vedleggskart } from './nysak';
   import Korrespondanseskjema from './Korrespondanseskjema.svelte';
   import Innlegg from './Innlegg.svelte';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
@@ -301,16 +305,18 @@
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
   // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
   let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
-  // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
+  // Svaret i hvert spor er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
-  let svaretFra = $state<Korrespondansevalg | null>(null);
+  const svaretFra = $state<Record<Spor, Korrespondansevalg | null>>({
+    forhold: null,
+    vederlag: null,
+    frist: null,
+  });
   let utenPaaberopelse = $state<HTMLElement | null>(null);
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
     kategori === 'svar'
-      ? s === 'forhold'
-        ? svaretFra
-        : null
+      ? svaretFra[s]
       : 'fraKorrespondansen' in arbeid &&
           arbeid.fraKorrespondansen &&
           lagtTil?.spor === s &&
@@ -500,10 +506,8 @@
     tom(svaretI[s]);
     fjernUtkast(s, 'svar');
     // Et forkastet svar lagt til tar korrespondansen med seg.
-    if (s === 'forhold') {
-      svaretFra = null;
-      if (lagtTil?.spor === 'forhold' && lagtTil.valg.kategori === 'svar') lagtTil = null;
-    }
+    svaretFra[s] = null;
+    if (lagtTil?.spor === s && lagtTil.valg.kategori === 'svar') lagtTil = null;
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
@@ -680,11 +684,17 @@
         // Et påbegynt nytt svar på det gjeldende svaret står. Et annet utkast kan ikke sendes
         // med handlingen, så skjemaet åpner med svaret det erstatter, eller tomt.
         const erstatter = n === `revidere:${spor}` ? forrige?.id : undefined;
-        if (utkastet.erstatter() !== erstatter) utkastet.fyll(erstatter ? forrige! : null);
+        // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
+        if (svaretFra[spor] || utkastet.erstatter() !== erstatter)
+          utkastet.fyll(erstatter ? forrige! : null);
+        svaretFra[spor] = null;
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>
-        a.art === 'svar' && valgt === spor && noekler.some((n) => kjernesak.handlinger.includes(n)),
+        a.art === 'svar' &&
+        valgt === spor &&
+        (noekler.some((n) => kjernesak.handlinger.includes(n)) ||
+          (!!lagtTilI(spor, 'svar') && !!u?.spor[spor].gjeldendeKrav)),
       skjema,
     };
   }
@@ -785,7 +795,7 @@
       noekler: ['svare:forhold'],
       aapne: () => {
         // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
-        svaretFra = null;
+        svaretFra.forhold = null;
         aapneUtkast({ art: 'svar' });
       },
       vises: (a) =>
@@ -856,7 +866,9 @@
   function videreFraKorrespondansen(kategori: 'krav' | 'svar') {
     if (!lagtTil || !u) return;
     if (kategori === 'svar') {
-      svaretFra = { ...lagtTil.valg.korrespondanse };
+      const nytt = !svaretFra[valgt];
+      svaretFra[valgt] = { ...lagtTil.valg.korrespondanse };
+      if (valgt !== 'forhold') svaretLagtTil(u, valgt, lagtTil.valg.korrespondanse.dato, nytt);
       aapneUtkast({ art: 'svar' });
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
@@ -870,6 +882,20 @@
         v.hva = 'krav';
       aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
     }
+  }
+  /**
+   * Utkastet til et svar lagt til i vederlaget eller fristen, sendt `dato` (OV-U98): et svar på
+   * kravversjonen på dagen, eller et nytt svar på byggherrens gjeldende svar når kjernen tilbyr
+   * bare det for datoen (HF-U29). Det starter tomt, så ingenting er forhåndsvalgt fra et svar fra
+   * løsningen (U-7 i BF-49). Går byggherren tilbake til korrespondansen og videre, står valgene
+   * når utkastet erstatter det samme svaret.
+   */
+  function svaretLagtTil(u: Utledning, s: Kravspor, dato: string, nytt: boolean) {
+    const erstatter = svaretLagtTilErstatter(kjernesak, u, s, dato);
+    if (s === 'vederlag' && (nytt || utkastene.vederlagssvar.erstatter !== erstatter))
+      utkastene.vederlagssvar = { ...tomtSvar(), erstatter };
+    if (s === 'frist' && (nytt || utkastene.fristsvar.erstatter !== erstatter))
+      utkastene.fristsvar = { ...tomtFristsvar(), erstatter };
   }
   /**
    * Et krav lagt til, sendt før det siste i sporet, har et eget utkast i skjemaet (OV-U118,
@@ -911,17 +937,37 @@
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
     // Korrespondansen for svarutkastet står selv om skjemaet er brukt i et annet spor siden.
-    if (svaretFra && valgt === 'forhold' && lagtTil?.spor !== 'forhold')
+    const fra = svaretFra[valgt];
+    if (fra && lagtTil?.spor !== valgt)
       lagtTil = {
-        spor: 'forhold',
+        spor: valgt,
         valg: {
-          ...tomtLagtTil('forhold'),
-          korrespondanse: { ...svaretFra },
+          ...tomtLagtTil(valgt),
+          korrespondanse: { ...fra },
           avsender: kjernesak.part,
           kategori: 'svar',
         },
       };
     tilbakeTil({ art: 'korrespondanse' });
+  }
+  /**
+   * U-9 i BF-49: korrespondansen kravet eller svaret i sporet legges til fra, lagt til som
+   * dokumentasjon med merket «Skjemaet er ikke fylt ut» (D-12). Gir det som hindret, eller `null`.
+   */
+  async function leggTilUtenSkjemaet(s: Spor, hva: 'krav' | 'svar'): Promise<string | null> {
+    const v = lagtTilI(s, hva);
+    if (!v) return LEGG_TIL.ikkeLagtTilFeil;
+    const hindring = await leggTilISaken(
+      kjernesak,
+      utenSkjemaet(v, s, hva),
+      vedleggskart(v.vedlegg),
+      LEGG_TIL.ikkeLagtTilFeil
+    );
+    if (hindring) return hindring;
+    if (hva === 'svar') tomtUtkast(s);
+    const kravet = hva === 'krav' && s !== 'forhold' && !utkastetStaar(s) ? s : null;
+    void lagtTilKvittering(LEGG_TIL.avbrudd.lagtTil, kravet);
+    return null;
   }
   function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
     lagtTil = null;
@@ -1252,6 +1298,7 @@
       {kjernesak}
       {u}
       lagtTil={lagtTilI('vederlag', 'krav')}
+      onavbrudd={() => leggTilUtenSkjemaet('vederlag', 'krav')}
       onendre={tilKorrespondansen}
       onlagttil={() =>
         lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('vederlag') ? null : 'vederlag')}
@@ -1276,6 +1323,7 @@
     {u}
     {sakslenke}
     lagtTil={lagtTilI('frist', 'krav')}
+    onavbrudd={() => leggTilUtenSkjemaet('frist', 'krav')}
     onendre={tilKorrespondansen}
     onlagttil={() =>
       lagtTilKvittering(LEGG_TIL.lagtTil.krav, utkastetStaar('frist') ? null : 'frist')}
@@ -1314,6 +1362,7 @@
       {u}
       lagtTil={lagtTilI('forhold', 'svar')}
       onendre={tilKorrespondansen}
+      onavbrudd={() => leggTilUtenSkjemaet('forhold', 'svar')}
       onleggtil={() => {
         skjemaene.korrespondanse.aapne();
         // Svaret parten har gitt før, er sendt av parten selv (U-2 i BF-49).
@@ -1341,6 +1390,13 @@
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
     onforholdet={tilForholdet}
+    lagtTil={lagtTilI('vederlag', 'svar')}
+    onendre={tilKorrespondansen}
+    onavbrudd={() => leggTilUtenSkjemaet('vederlag', 'svar')}
+    onlagttil={() => {
+      tomtUtkast('vederlag');
+      void lagtTilKvittering(LEGG_TIL.lagtTil.svar);
+    }}
   />
 {/snippet}
 
@@ -1353,6 +1409,13 @@
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
     onforholdet={tilForholdet}
+    lagtTil={lagtTilI('frist', 'svar')}
+    onendre={tilKorrespondansen}
+    onavbrudd={() => leggTilUtenSkjemaet('frist', 'svar')}
+    onlagttil={() => {
+      tomtUtkast('frist');
+      void lagtTilKvittering(LEGG_TIL.lagtTil.svar);
+    }}
   />
 {/snippet}
 

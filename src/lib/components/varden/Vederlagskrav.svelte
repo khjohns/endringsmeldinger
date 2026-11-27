@@ -99,6 +99,7 @@
     onforkast,
     onvedsiden,
     lagtTil = null,
+    onavbrudd,
     onendre = () => {},
     onlagttil = () => {},
     onkunnskapsdato,
@@ -116,6 +117,8 @@
      * løsningen. Kravet har da ikke noe forbehold (OV-U80).
      */
     lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
     /** Tilbake til korrespondansen. */
     onendre?: () => void;
     /** Kravet er lagt til. */
@@ -964,6 +967,7 @@
         : null}
   {onvedsiden}
   {lagtTil}
+  avbrudd={onavbrudd ? { hva: 'krav', leggTil: onavbrudd } : null}
   part={kjernesak.part}
   {onendre}
   {flyt}
