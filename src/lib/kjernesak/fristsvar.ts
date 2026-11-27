@@ -16,3 +16,6 @@ export const foresporselenISvaret = (u: Utledning) => foresporselForFristsvar(u)
 
 /** VS-U95, slik kjernen leser det. */
 export { begrunnelsenKanAvvisesSomSvar } from '#kjerne/spor/frist/utledning.ts';
+
+/** VS-U96 punkt 34, slik kjernen leser det. */
+export { innsigelsenMotFristvarselet } from '#kjerne/spor/frist/kommando.ts';
