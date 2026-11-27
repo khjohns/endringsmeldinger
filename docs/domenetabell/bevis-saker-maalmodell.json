@@ -7958,6 +7958,106 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-F-hindring-avslaatt",
+      "forslag": "LV-U85 punkt 11: med forholdet avslått står byggherrens standpunkt om at fremdriften er hindret, i fristens første lag etter forholdet, og varselet etter § 33.4 i tide og spesifiseringen i tide uten lag (OV-U42)",
+      "rader": [
+        "KA-01"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "forhold",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "LV-U85",
+            "OV-U42"
+          ],
+          "forventet": {
+            "avvist": false,
+            "subsidiaer_aarsaker.frist": [
+              "avslaatt"
+            ],
+            "virkning.S-f1.rettidighet": "uten_virkning",
+            "virkning.S-f1.hindring": 1,
+            "virkning.S-f1.spesifisering": "uten_virkning",
+            "virkning.S-f1.dager": 1
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-hindring-prekludert",
+      "forslag": "LV-U85 punkt 11: med preklusjon etter § 32.2 påberopt står byggherrens standpunkt om at fremdriften er hindret, i fristens første lag etter forholdet, og varselet etter § 33.4 i tide og spesifiseringen i tide uten lag (OV-U42)",
+      "rader": [
+        "KA-01"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "forhold",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": false
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "LV-U85",
+            "OV-U42"
+          ],
+          "forventet": {
+            "avvist": false,
+            "subsidiaer_aarsaker.frist": [
+              "prekludert"
+            ],
+            "virkning.S-f1.rettidighet": "uten_virkning",
+            "virkning.S-f1.hindring": 1,
+            "virkning.S-f1.spesifisering": "uten_virkning",
+            "virkning.S-f1.dager": 1
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-F-33-6-1-ja",
       "forslag": "#479, #341: byggherren gjør ikke gjeldende at kravet ble spesifisert for sent",
       "rader": ["KA-18b"],

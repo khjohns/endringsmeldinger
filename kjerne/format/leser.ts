@@ -311,8 +311,14 @@ function lesBeslutningsgrunnlag(
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
   // i sporet eller en innsigelse som rammer bare posten.
   const motPosten = SVARLESING[spor].innsigelserMotPosten?.(standpunkter) ?? new Set();
+  // LV-U85 punkt 11: en oppfylt hindring kan stå i et lag uten å være en påberopelse.
+  const oppfyltHindring = new Set(
+    standpunkter.flatMap((s) => (s.art === 'hindring' && s.oppfylt ? [s.id] : []))
+  );
   const paaberoper = (p: Standpunktsvirkning) =>
-    typeof p.virkning === 'number' && (PAABEROPELSER.has(p.art) || motPosten.has(p.standpunkt));
+    typeof p.virkning === 'number' &&
+    ((PAABEROPELSER.has(p.art) && !oppfyltHindring.has(p.standpunkt)) ||
+      motPosten.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
     (spor === 'forhold' || !virkninger.some(paaberoper))

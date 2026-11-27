@@ -262,7 +262,9 @@ function regnUtFristen(
 /**
  * Utregningen av fristen (§ 33): én rad for hver frist i kravet, uten sum (KA-U74). Lagene er de
  * `virkningerIForholdetOgFristen` gir standpunktene vurderingene blir lagret som (#2242). Lagene
- * leser ikke hvilket varsel rettidigheten etter § 33.4 gjelder, så det står som kravet.
+ * leser ikke hvilket varsel rettidigheten etter § 33.4 gjelder, så det står som kravet. De regnes
+ * uten forholdet foran sporet: det flytter bare en oppfylt hindring inn i et lag (LV-U85 punkt 11),
+ * og den gir ikke dagene (`erInnsigelseIFristen`).
  */
 function regnUtFrist(
   v: Svarvurdering,
@@ -298,7 +300,8 @@ function regnUtFrist(
   const virkninger = virkningerIForholdetOgFristen(
     { spor: 'frist', standpunkter, utregning: {} },
     paaberopelse,
-    regler
+    regler,
+    0
   );
   // Dagene står i kravets rekkefølge (`standpunkterIFristen`).
   const dagene = standpunkter.filter((d) => d.art === 'dager');
