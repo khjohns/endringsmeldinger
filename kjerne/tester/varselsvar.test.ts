@@ -599,10 +599,11 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     ['34.1.2', 'VARSLINGSPLIKT_GJELDER_IKKE'],
     ['34.1.3', null],
   ] as const)(
-    'der saken gjelder en endring, avvises svaret på varselet etter punkt %s når punkt 34.1.2 ikke krever varsel (OV-U89 punkt 13)',
+    'der saken gjelder en endring, tilbys og godtas svaret på varselet etter punkt %s bare når punktet krever varsel (OV-U89 punkt 13, #2464)',
     (hjemmel, kode) => {
       const { s, varsel } = medVarselEtter(hjemmel, 'endring');
       expect(s.avvist('BH', brev(varsel, { varslet_i_tide: false }))).toBe(kode);
+      expect(handlinger(s.u(), 'BH').includes(`svare:${varsel}`)).toBe(kode === null);
     }
   );
 
