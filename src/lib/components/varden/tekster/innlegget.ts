@@ -52,8 +52,10 @@ export const INNLEGGET = haerdet({
   /** TE kan fortsatt godta svaret eller sende et nytt krav (D-4, U-6). */
   fortsattTE: 'Du kan fortsatt godta svaret eller sende en ny versjon av kravet.',
   /** Byggherrens innlegg endrer ikke standpunktene (D-10, U-10). */
-  standpunkteneBH:
-    'Et innlegg endrer ikke standpunktene i svaret, heller ikke når det sier at et varsel kom for sent. Vil du endre standpunktene, sender du et nytt svar.',
+  /** Setningen om et nytt svar står bare når kjernen tilbyr det (`revidere:<spor>`). */
+  standpunkteneBH: (nyttSvar: boolean) =>
+    'Et innlegg endrer ikke standpunktene i svaret, heller ikke når det sier at et varsel kom for sent.' +
+    (nyttSvar ? ' Vil du endre standpunktene, sender du et nytt svar.' : ''),
   kvittering: (mottaker: Part, svaret: Brevref | null, etter: string | null) =>
     [
       `Innlegget er sendt til ${PARTEN[mottaker]}.`,

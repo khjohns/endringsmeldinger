@@ -14,8 +14,13 @@ import { registrerOppsett, sendBrevet } from './vardenOppsett.ts';
 
 registrerOppsett();
 
-async function aapneSaken(part: Part, forloep = 'BF-01') {
-  const demosak = lagDemosak(finnForloep(forloep)!, 'te-har-mottatt-svaret', part);
+async function aapneSaken(
+  part: Part,
+  forloep = 'BF-01',
+  punkt = 'te-har-mottatt-svaret',
+  spor: 'forhold' | 'vederlag' = 'vederlag'
+) {
+  const demosak = lagDemosak(finnForloep(forloep)!, punkt, part);
   const kjernesak = lagKjernesak({
     sakId: demosak.sakId,
     prosjektId: 'demo',
@@ -24,7 +29,7 @@ async function aapneSaken(part: Part, forloep = 'BF-01') {
     send: demosak.send,
   });
   await kjernesak.last();
-  render(Vardensak, { kjernesak, spor: 'vederlag' });
+  render(Vardensak, { kjernesak, spor });
   return { demosak, kjernesak };
 }
 
@@ -184,5 +189,19 @@ describe('innlegget fra byggherren (BF-03 steg 6–7)', () => {
       )
     ).toBeVisible();
     expect(kjernesak.utledning!.spor.vederlag.gjeldendeSvar).toEqual(svaret);
+  });
+
+  it('U-10: etter et godtatt avslag tilbyr kjernen ikke et nytt svar, og teksten nevner det ikke (GR-U27, BF-02D)', async () => {
+    const { kjernesak } = await aapneSaken('BH', 'BF-02D', 'saken-er-lukket', 'forhold');
+    expect(kjernesak.handlinger).not.toContain('revidere:forhold');
+    await skrivInnlegget('Om korrigeringen', 'Byggherren står ved svaret.');
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    await screen.findByRole('article', { name: /^Om korrigeringen i sak / });
+    expect(
+      screen.getByText(
+        'Et innlegg endrer ikke standpunktene i svaret, heller ikke når det sier at et varsel kom for sent.'
+      )
+    ).toBeVisible();
+    expect(screen.queryByText(/sender du et nytt svar/)).toBeNull();
   });
 });

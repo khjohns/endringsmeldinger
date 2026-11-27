@@ -986,15 +986,17 @@
       kjernesak.handlinger.includes(`krav:${spor}`);
     const te = kjernesak.part === 'TE' && svaret && kanGodta;
     const bh = kjernesak.part === 'BH' && svaret;
+    // Et nytt svar nevnes bare når kjernen tilbyr det (U-10 i BF-03).
+    const nyttSvar = kjernesak.handlinger.includes(`revidere:${spor}`);
     return {
       virkninger: [
         INNLEGGET.sendesTil(mottaker, svaret, spor),
-        ...(te ? [INNLEGGET.fortsattTE] : bh ? [INNLEGGET.standpunkteneBH] : []),
+        ...(te ? [INNLEGGET.fortsattTE] : bh ? [INNLEGGET.standpunkteneBH(nyttSvar)] : []),
       ],
       kvittering: INNLEGGET.kvittering(
         mottaker,
         svaret,
-        te ? INNLEGGET.kvitteringTE : bh ? INNLEGGET.kvitteringBH : null
+        te ? INNLEGGET.kvitteringTE : bh && nyttSvar ? INNLEGGET.kvitteringBH : null
       ),
     };
   }
