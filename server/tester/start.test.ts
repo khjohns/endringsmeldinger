@@ -162,7 +162,7 @@ describe('oppstarten med en ugyldig verdi for medlemslisten (#2262)', () => {
   );
 
   it.each([
-    ['KOE_SESJON_LEVETID_MINUTTER', '1441', {}],
+    ['KOE_SESJON_LEVETID_MINUTTER', '43201', {}],
     ['KOE_SESJON_INAKTIVITET_MINUTTER', '0', {}],
     ['KOE_SESJON_INAKTIVITET_MINUTTER', '120', { KOE_SESJON_LEVETID_MINUTTER: '60' }],
   ])(

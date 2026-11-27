@@ -72,8 +72,8 @@ describe.skipIf(!TESTBASE_URL)('sesjonens tidsavbrudd og tilbakekalling (#1806)'
     const ubrukt = await opprettSesjon(kjoeretid(), o.utenTeam.id);
     const brukt = await opprettSesjon(kjoeretid(), o.utenTeam.id);
     for (const [token, minutter] of [
-      [ubrukt.token, 61],
-      [brukt.token, 59],
+      [ubrukt.token, 24 * 60 + 1],
+      [brukt.token, 24 * 60 - 1],
     ] as const)
       await eier()
         .request()
@@ -82,7 +82,7 @@ describe.skipIf(!TESTBASE_URL)('sesjonens tidsavbrudd og tilbakekalling (#1806)'
         .query(
           `UPDATE koe.app_sessions
               SET created_at = DATEADD(minute, -@minutter, SYSUTCDATETIME()),
-                  expires_at = DATEADD(minute, 60 - @minutter, SYSUTCDATETIME())
+                  expires_at = DATEADD(minute, 24 * 60 - @minutter, SYSUTCDATETIME())
             WHERE token_hash = @h`
         );
     expect(await sesjonen(ubrukt.token)).toBe(401);

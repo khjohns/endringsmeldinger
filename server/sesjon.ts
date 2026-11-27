@@ -61,9 +61,10 @@ export interface Sesjonsvarighet {
   inaktivitet: number;
 }
 
-const STANDARD_LEVETID_MINUTTER = 8 * 60;
-const STANDARD_INAKTIVITET_MINUTTER = 60;
-const STOERSTE_LEVETID_MINUTTER = 24 * 60;
+const STANDARD_LEVETID_MINUTTER = 7 * 24 * 60;
+const STANDARD_INAKTIVITET_MINUTTER = 24 * 60;
+/** Grensen for levetiden i konfigurasjonen; basen har et tak over den på ett år. */
+const STOERSTE_LEVETID_MINUTTER = 30 * 24 * 60;
 
 type Sesjonsvariabel = 'KOE_SESJON_LEVETID_MINUTTER' | 'KOE_SESJON_INAKTIVITET_MINUTTER';
 
@@ -88,8 +89,8 @@ function minutter(miljoe: NodeJS.ProcessEnv, variabel: Sesjonsvariabel, standard
 }
 
 /**
- * `KOE_SESJON_LEVETID_MINUTTER` og `KOE_SESJON_INAKTIVITET_MINUTTER`, med 8 timer og 60
- * minutter, eller levetiden når den er kortere, når de mangler. Tidsavbruddet kan ikke være
+ * `KOE_SESJON_LEVETID_MINUTTER` og `KOE_SESJON_INAKTIVITET_MINUTTER`, med 7 døgn og 24
+ * timer, eller levetiden når den er kortere, når de mangler (#1806). Tidsavbruddet kan ikke være
  * lengre enn levetiden.
  */
 export function sesjonsvarighet(miljoe: NodeJS.ProcessEnv = process.env): Sesjonsvarighet {

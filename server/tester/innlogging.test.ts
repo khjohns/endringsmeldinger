@@ -315,7 +315,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     expect(svar.status).toBe(302);
     expect(svar.hoder.get('location')).toBe(`${FRONTEND}/saker/1?fane=frist`);
     const kapsel = svar.kapsler.get(SESJON)!;
-    expect(kapsel).toContain('Max-Age=28800');
+    expect(kapsel).toContain(`Max-Age=${7 * 24 * 3600}`);
     expect(kapsel).toContain('HttpOnly');
     expect(svar.kapsler.get(FORSOEK)).toContain('Max-Age=0');
     expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
@@ -558,13 +558,13 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     const ny = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
     const csrf = () => hent(`${server.url}/api/csrf-token`, { kapsler: { [SESJON]: ny.token } });
     const foerst = await csrf();
-    expect(foerst.kropp?.expiresIn).toBeGreaterThan(3600 - 5);
-    expect(foerst.kropp?.expiresIn).toBeLessThanOrEqual(3600);
+    expect(foerst.kropp?.expiresIn).toBeGreaterThan(24 * 3600 - 5);
+    expect(foerst.kropp?.expiresIn).toBeLessThanOrEqual(24 * 3600);
     await o.datalag.base.pool
       .request()
       .input('h', sha256(ny.token))
       .query(
-        `UPDATE koe.app_sessions SET created_at = DATEADD(minute, -(8 * 60 - 5), SYSUTCDATETIME())
+        `UPDATE koe.app_sessions SET created_at = DATEADD(minute, -(7 * 24 * 60 - 5), SYSUTCDATETIME())
           WHERE token_hash = @h`
       );
     const siden = await csrf();

@@ -2,8 +2,8 @@
 --
 -- Levetiden og tidsavbruddet er konfigurasjon i serveren (`sesjonsvarighet` i
 -- `server/sesjon.ts`) og kommer inn som parametre i sekunder; basen har ingen
--- egen verdi, men avviser en levetid over et døgn, så kjøretiden ikke kan lage en
--- sesjon som varer lenger enn konfigurasjonen tillater. `expires_at` er fortsatt tidspunktet sesjonen slutter å gjelde:
+-- egen verdi, men avviser en levetid over ett år, så kjøretiden ikke kan lage en
+-- sesjon uten ende. Grensen for konfigurasjonen står i serveren og ligger under taket. `expires_at` er fortsatt tidspunktet sesjonen slutter å gjelde:
 -- det tidligste av `created_at` pluss levetiden og siste bruk pluss
 -- tidsavbruddet. `les_sesjon` flytter det fram ved bruk, men skriver bare når det
 -- flytter seg mer enn ett minutt, eller en tidel av tidsavbruddet når det er kortere,
@@ -19,8 +19,8 @@ CREATE OR ALTER PROCEDURE koe.kontroller_sesjonsvarighet
 AS
 BEGIN
   IF @levetid IS NULL OR @inaktivitet IS NULL OR @inaktivitet < 60 OR @levetid < @inaktivitet
-      OR @levetid > 86400
-    THROW 52084, N'Levetiden og tidsavbruddet for sesjonen må være oppgitt, tidsavbruddet minst 60 sekunder og høyst levetiden, og levetiden høyst et døgn', 1;
+      OR @levetid > 31536000
+    THROW 52084, N'Levetiden og tidsavbruddet for sesjonen må være oppgitt, tidsavbruddet minst 60 sekunder og høyst levetiden, og levetiden høyst ett år', 1;
 END
 GO
 

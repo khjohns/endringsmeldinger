@@ -1,11 +1,12 @@
 /**
  * Sesjonen og innloggingsforsøket i SQL Server (B-19, #656), i en base bygget fra
  * `database/migrasjoner/` og kalt som kjøretiden. Forventningene fastholder dagens
- * atferd i Python, som flyttes uendret: `backend/routes/auth_routes.py` (levetidene
- * 8 t og 600 s, utloggingen), `backend/lib/auth/session.py` (bare SHA-256 av
+ * atferd i Python, som flyttes uendret: `backend/routes/auth_routes.py` (forsøkets
+ * levetid på 600 s, utloggingen), `backend/lib/auth/session.py` (bare SHA-256 av
  * tokenet lagres) og `backend/repositories/auth_repository.py` (`consume_attempt`
  * bruker forsøket én gang og bare fra samme nettleser, `cleanup_expired`).
- * Akseptkriteriene står i #656. Krever `KOE_SQLSERVER_TILKOBLING`.
+ * Akseptkriteriene står i #656. Sesjonens levetid og tidsavbrudd har kilden i #1806
+ * (avgjørelsen i 7218329017). Krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
 import { createHash } from 'node:crypto';
@@ -34,10 +35,13 @@ import {
 
 const hash = (t: string) => createHash('sha256').update(t).digest('hex');
 const TIME = 3_600_000;
+/** Standardverdiene (#1806, 7218329017). */
+const LEVETID = 7 * 24 * TIME;
+const INAKTIVITET = 24 * TIME;
 
 describe('sesjonsvarigheten fra miljøet (#1806)', () => {
-  it('er 8 timer og 60 minutter når variablene mangler eller er tomme', () => {
-    const standard = { levetid: 8 * 3600, inaktivitet: 3600 };
+  it('er 7 døgn og 24 timer når variablene mangler eller er tomme (#1806)', () => {
+    const standard = { levetid: 7 * 24 * 3600, inaktivitet: 24 * 3600 };
     expect(sesjonsvarighet({})).toEqual(standard);
     expect(
       sesjonsvarighet({ KOE_SESJON_LEVETID_MINUTTER: '', KOE_SESJON_INAKTIVITET_MINUTTER: '' })
@@ -46,11 +50,14 @@ describe('sesjonsvarigheten fra miljøet (#1806)', () => {
 
   it('leser minuttene og gir sekunder', () => {
     expect(
-      sesjonsvarighet({ KOE_SESJON_LEVETID_MINUTTER: '1440', KOE_SESJON_INAKTIVITET_MINUTTER: '1' })
-    ).toEqual({ levetid: 86_400, inaktivitet: 60 });
+      sesjonsvarighet({
+        KOE_SESJON_LEVETID_MINUTTER: '43200',
+        KOE_SESJON_INAKTIVITET_MINUTTER: '1',
+      })
+    ).toEqual({ levetid: 30 * 24 * 3600, inaktivitet: 60 });
   });
 
-  it('tidsavbruddet er levetiden når den er under 60 minutter og tidsavbruddet ikke er satt', () => {
+  it('tidsavbruddet er levetiden når den er under 24 timer og tidsavbruddet ikke er satt', () => {
     expect(sesjonsvarighet({ KOE_SESJON_LEVETID_MINUTTER: '30' })).toEqual({
       levetid: 1800,
       inaktivitet: 1800,
@@ -58,7 +65,7 @@ describe('sesjonsvarigheten fra miljøet (#1806)', () => {
   });
 
   it.each([
-    ['levetid over 24 timer', { KOE_SESJON_LEVETID_MINUTTER: '1441' }],
+    ['levetid over 30 døgn', { KOE_SESJON_LEVETID_MINUTTER: '43201' }],
     ['levetid i heksadesimal', { KOE_SESJON_LEVETID_MINUTTER: '0x3C' }],
     ['levetid med eksponent', { KOE_SESJON_LEVETID_MINUTTER: '1e3' }],
     ['levetid med mellomrom', { KOE_SESJON_LEVETID_MINUTTER: ' 90 ' }],
@@ -135,8 +142,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       const foer = await klokke();
       const sesjon = await lesSesjon(kjoeretid.pool, ny.token);
       const etter = await klokke();
-      expect(sesjon?.utloeper.getTime()).toBeGreaterThanOrEqual(foer.getTime() + TIME);
-      expect(sesjon?.utloeper.getTime()).toBeLessThanOrEqual(etter.getTime() + TIME);
+      expect(sesjon?.utloeper.getTime()).toBeGreaterThanOrEqual(foer.getTime() + INAKTIVITET);
+      expect(sesjon?.utloeper.getTime()).toBeLessThanOrEqual(etter.getTime() + INAKTIVITET);
       expect(await lagretUtloep(ny.token)).toEqual(sesjon?.utloeper);
     });
 
@@ -148,20 +155,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
 
     it('bruken flytter aldri utløpet forbi levetiden fra opprettelsen', async () => {
       const ny = await opprettSesjon(kjoeretid.pool, bruker);
-      await settTider(ny.token, -(8 * TIME - 10 * 60_000), 60_000);
+      await settTider(ny.token, -(LEVETID - 10 * 60_000), 60_000);
       const sesjon = await lesSesjon(kjoeretid.pool, ny.token);
       const opprettet = await base.pool
         .request()
         .input('h', sql.Char(64), hash(ny.token))
         .query<{ t: Date }>('SELECT created_at AS t FROM koe.app_sessions WHERE token_hash = @h');
-      expect(sesjon?.utloeper).toEqual(new Date(opprettet.recordset[0].t.getTime() + 8 * TIME));
+      expect(sesjon?.utloeper).toEqual(new Date(opprettet.recordset[0].t.getTime() + LEVETID));
     });
 
     it('en sesjon over levetiden avvises selv om utløpet er satt senere med en lengre levetid', async () => {
       const ny = await opprettSesjon(kjoeretid.pool, bruker);
-      await settTider(ny.token, -(8 * TIME + 1000), 30 * 60_000);
+      await settTider(ny.token, -(LEVETID + 1000), 30 * 60_000);
       expect(await lesSesjon(kjoeretid.pool, ny.token)).toBeNull();
-      vi.stubEnv('KOE_SESJON_LEVETID_MINUTTER', String(9 * 60));
+      vi.stubEnv('KOE_SESJON_LEVETID_MINUTTER', String(7 * 24 * 60 + 1));
       expect(await lesSesjon(kjoeretid.pool, ny.token)).not.toBeNull();
     });
 
@@ -190,7 +197,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
 
     it('lesingen skriver ikke utløpet på nytt når det flytter seg under ett minutt', async () => {
       const ny = await opprettSesjon(kjoeretid.pool, bruker);
-      await settTider(ny.token, -30_000, TIME - 30_000);
+      await settTider(ny.token, -30_000, INAKTIVITET - 30_000);
       const foer = await lagretUtloep(ny.token);
       await lesSesjon(kjoeretid.pool, ny.token);
       expect(await lagretUtloep(ny.token)).toEqual(foer);
@@ -201,7 +208,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       ['uten tidsavbrudd', 3600, null],
       ['med tidsavbrudd under ett minutt', 3600, 59],
       ['med tidsavbrudd over levetiden', 3600, 3601],
-      ['med levetid over et døgn', 86401, 3600],
+      ['med levetid over ett år', 31536001, 3600],
     ])('basen avviser opprettelsen og lesingen %s', async (_navn, levetid, inaktivitet) => {
       const med = (r: sql.Request) =>
         r.input('levetid', sql.Int, levetid).input('inaktivitet', sql.Int, inaktivitet);
@@ -243,12 +250,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       expect(ny.csrfToken).not.toBe(ny.token);
     });
 
-    it('utløper etter tidsavbruddet på 60 minutter uten bruk, etter basens klokke (#1806)', async () => {
+    it('utløper etter tidsavbruddet på 24 timer uten bruk, etter basens klokke (#1806)', async () => {
       const foer = await klokke();
       const ny = await opprettSesjon(kjoeretid.pool, bruker);
       const etter = await klokke();
-      expect(ny.utloeper.getTime()).toBeGreaterThanOrEqual(foer.getTime() + TIME);
-      expect(ny.utloeper.getTime()).toBeLessThanOrEqual(etter.getTime() + TIME);
+      expect(ny.utloeper.getTime()).toBeGreaterThanOrEqual(foer.getTime() + INAKTIVITET);
+      expect(ny.utloeper.getTime()).toBeLessThanOrEqual(etter.getTime() + INAKTIVITET);
     });
 
     it('en utløpt sesjon gir ingen bruker, en gyldig ved siden av gjør det', async () => {
