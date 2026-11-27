@@ -759,7 +759,7 @@ Påbegynte innlogginger mot Catenda (OAuth). Lagrer SHA-256 av staten og av nett
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek` sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i `server/innlogging.ts` (F0b-5a, #659), og ryddingen av jobbkjøreren i `server/jobber.ts` hvert kvarter (#1059). Hvor mange innlogginger som kan startes i minuttet, per adresse og samlet, står i `innloggingsgrense` i `server/innlogging.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek` sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i `server/innlogging.ts` (F0b-5a, #659), og ryddingen av jobbkjøreren i `server/jobber.ts` hvert kvarter (#1059). Hvor mange innlogginger som kan startes i minuttet, per adresse og samlet, står i `INNLOGGINGER_PER_ADRESSE` og `INNLOGGINGER_TOTALT` i `server/innlogging.ts`. |
 | Data fra Catenda | Nei, men raden hører til en innlogging hos Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (state_hash). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | nei, men radene er kortlevde. |

@@ -695,6 +695,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
               ferdig();
           },
           error: (linje) => {
+            logg.error(linje);
             if (JSON.parse(linje).sted === 'Utløpte sesjoner og innloggingsforsøk ble ikke slettet')
               feilet(new Error(linje));
           },
@@ -707,18 +708,21 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     } finally {
       await loekke.stopp();
     }
-    const igjen = await eier
-      .request()
-      .input('a', sql.Char(64), utloept)
-      .input('b', sql.Char(64), gyldig)
-      .query<{
-        h: string;
-      }>('SELECT token_hash AS h FROM koe.app_sessions WHERE token_hash IN (@a, @b)');
-    expect(igjen.recordset.map((r) => r.h)).toEqual([gyldig]);
-    await eier
-      .request()
-      .input('b', sql.Char(64), gyldig)
-      .query('DELETE koe.app_sessions WHERE token_hash = @b');
+    try {
+      const igjen = await eier
+        .request()
+        .input('a', sql.Char(64), utloept)
+        .input('b', sql.Char(64), gyldig)
+        .query<{
+          h: string;
+        }>('SELECT token_hash AS h FROM koe.app_sessions WHERE token_hash IN (@a, @b)');
+      expect(igjen.recordset.map((r) => r.h)).toEqual([gyldig]);
+    } finally {
+      await eier
+        .request()
+        .input('b', sql.Char(64), gyldig)
+        .query('DELETE koe.app_sessions WHERE token_hash = @b');
+    }
   });
 
   it('løkka gjør en ny jobb når den vekkes, uten å vente på pollingen', async () => {
