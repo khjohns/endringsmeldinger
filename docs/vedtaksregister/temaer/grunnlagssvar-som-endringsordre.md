@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `ccb9e2b987a90d8316fd176be9df806f70e81156c4b52cc9f9bddc1074c2cced`
+Kontrollsum (SHA-256 over utdraget visningen leser): `8807447e057d3471f1f65b9eca1806f87ac94adbef874e7fa9b357f8c8dc6a6e`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4081,7 +4081,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 27.11, oppdragsgiver (#2507, runde 10 i #1065)
 
-**Følge:** Presiserer [OV-U42](#ov-u42). Endrer [LV-U34](#lv-u34). Forholdet slik det sto i forslaget 27.11, ordrett: «presiserer OV-U42 («foran punktet med fristsporets første lag», også når det laget er prinsipalt). Endrer LV-U34 for rekkefølgen i fristsvaret. I tråd med LV-U78. KA-U78 og LV-U85 punkt 11 står.» Designdelen i LV-U85 viser til OV-U42 for avsnittet uten lag og til LV-U34 for oppbygningen med nummererte punkter. Bygges i #2507. To ting som må avklares når B bygges (ikke del av vedtaket), ordrett fra spørsmålet: «1. Standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 annet ledd b (VS-U95) har ingen lagvirkning i kjernen. Etter B ville det flyttes foran en innsigelse etter punkt 33.4. Det må få lagslinje eller unntas. 2. Nummereringen i svarskjemaet i Varden må følge rekkefølgen.»
+**Følge:** Presiserer [OV-U42](#ov-u42). Endrer [LV-U34](#lv-u34). Forholdet slik det sto i forslaget 27.11, ordrett: «presiserer OV-U42 («foran punktet med fristsporets første lag», også når det laget er prinsipalt). Endrer LV-U34 for rekkefølgen i fristsvaret. I tråd med LV-U78. KA-U78 og LV-U85 punkt 11 står.» Bygges i #2507.
 
 **Regelrader:** —
 
