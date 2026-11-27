@@ -54,7 +54,7 @@ describe('oppsettet av webhooken', () => {
     expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET }).hemmelighet).toBe(HEMMELIGHET);
   });
 
-  it('WEBHOOK_SECRET_PATH_FORRIGE er valgfri og har de samme kravene (#1059)', () => {
+  it('WEBHOOK_SECRET_PATH_FORRIGE er valgfri, og en ugyldig verdi brukes ikke mens den nye gjelder (#1059)', () => {
     expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET }).forrige).toBeUndefined();
     const forrige = 'F'.repeat(32);
     expect(

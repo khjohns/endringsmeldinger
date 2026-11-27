@@ -33,7 +33,7 @@ export interface Kallgrense {
 
 /**
  * Høyst `perMinutt` kall i hvert minutt, som `limit_webhook` i Python (fast vindu, #819).
- * Python teller per adresse. Her telles alle kall med rett hemmelighet samlet, fordi
+ * Python teller per adresse. Her telles alle kall med samme hemmelighet samlet, fordi
  * avsenderens adresse bak en mellomtjener ikke kan prøves.
  */
 export function kallgrense(perMinutt: number): Kallgrense {
@@ -104,10 +104,7 @@ function grenseForHemmelighet(mottatt: string, webhook: Webhook): Kallgrense | n
   const naa = lik(mottatt, webhook.hemmelighet);
   const foer = lik(mottatt, webhook.forrige?.hemmelighet ?? webhook.hemmelighet);
   if (naa) return webhook.grense;
-  if (foer && webhook.forrige) {
-    loggInfo('Webhooken ble kalt med den forrige hemmeligheten');
-    return webhook.forrige.grense;
-  }
+  if (foer && webhook.forrige) return webhook.forrige.grense;
   return null;
 }
 
@@ -172,6 +169,8 @@ async function taImot(
   // Etter hemmeligheten, så kall med feil sti ikke kan stenge ute leveringene fra Catenda.
   if (!grense.tillat())
     return feilsvar(429, 'RATE_LIMITED', 'For mange kall. Prøv igjen om et minutt.');
+  if (grense === webhook.forrige?.grense)
+    loggInfo('Webhooken ble kalt med den forrige hemmeligheten');
   const bytes = await lesInntil(foresporsel, STOERSTE_HENDELSE);
   if (!bytes) return feilsvar(413, ...FOR_STOR);
   let tekst: string;
