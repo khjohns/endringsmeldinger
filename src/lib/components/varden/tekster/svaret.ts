@@ -220,6 +220,11 @@ export const FRISTSVAR = haerdet({
   foresporselSpoersmaal: 'Kom svaret på forespørselen om dagene i tide?',
   foresporselITide: 'Svarte i tide',
   foresporselForSent: 'Svarte for sent',
+  // VS-U95: i stedet for spørsmålet om svaret kom i tide, og spørsmålet dekker alle tre valgene.
+  begrunnelseSpoersmaal: 'Hvordan svarte totalentreprenøren på forespørselen om dagene?',
+  begrunnelseIkkeSvar: 'Begrunnelsen er ikke et svar',
+  begrunnelseIkkeSvarForklaring: (b: Brevref | null) =>
+    `Totalentreprenørens begrunnelse${b ? ` i ${brevref(b)}` : ''} er ikke et svar på forespørselen etter punkt 33.6.2 annet ledd.`,
   // KA-U81: spørsmålet og valgene nevner begge vilkårene.
   hindringTittel: 'Hindringen',
   hindringSpoersmaal:

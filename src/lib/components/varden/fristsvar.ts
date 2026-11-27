@@ -8,7 +8,7 @@ import type { Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import { innholdIFristen, type FristIKravet } from '#kjerne/spor/frist/format.ts';
-import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
+import { begrunnelsenKanAvvisesSomSvar, foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { definert, standpunktet, svarbrevet } from './kommandoer';
 import type { Krav, Svar } from '#kjerne/typer.ts';
@@ -34,6 +34,11 @@ export interface Fristsvarvalg {
   varselITide: boolean | null;
   /** Svaret på forespørselen etter punkt 33.6.2, når svaret har et standpunkt til det. */
   foresporselITide: boolean | null;
+  /**
+   * VS-U95: begrunnelsen etter punkt 33.6.2 annet ledd b er ikke et svar etter annet ledd. Står i
+   * stedet for `foresporselITide` (`begrunnelsenKanAvvisesSomSvar`).
+   */
+  begrunnelseIkkeSvar: boolean;
   /** Hindringen etter punkt 33.1 eller 33.3, med begge vilkårene (KA-U81). */
   hindret: boolean | null;
   /** Spesifiseringen etter punkt 33.6.1. */
@@ -55,6 +60,7 @@ export const tomFrist = (): Fristvalg => ({ dager: null, deldager: '', maatteFor
 export const tomtFristsvar = (): Fristsvarvalg => ({
   varselITide: null,
   foresporselITide: null,
+  begrunnelseIkkeSvar: false,
   hindret: null,
   spesifisertITide: null,
   frister: {},
@@ -117,11 +123,14 @@ export function velgDagene(f: Fristvalg, d: Dagevalg | null, krevd: number): voi
 function vurderingene(
   v: Fristsvarvalg,
   frister: readonly FristIKravet[],
-  medForesporsel: boolean
+  medForesporsel: boolean,
+  ikkeSvar: boolean
 ): Svarvurdering {
   return definert({
     frist_varsel_ok: v.varselITide ?? undefined,
-    foresporsel_svar_ok: medForesporsel ? (v.foresporselITide ?? undefined) : undefined,
+    foresporsel_svar_ok:
+      medForesporsel && !ikkeSvar ? (v.foresporselITide ?? undefined) : undefined,
+    begrunnelse_ikke_svar: ikkeSvar || undefined,
     vilkar_oppfylt: v.hindret ?? undefined,
     spesifisert_krav_ok: v.spesifisertITide ?? undefined,
     frister: frister.map((f) => {
@@ -137,7 +146,8 @@ function vurderingene(
 
 /**
  * BHs svar på gjeldende fristkrav, eller `null` når saken ikke har et krav (`svarbrevet`). Svaret
- * tar stilling til forespørselen etter punkt 33.6.2 når kjernen leser en (VS-U17, VS-U29).
+ * tar stilling til forespørselen etter punkt 33.6.2 når kjernen leser en (VS-U17, VS-U29), eller
+ * gjør gjeldende at begrunnelsen ikke er et svar (VS-U95).
  */
 export function fristsvaret(
   v: Fristsvarvalg,
@@ -148,10 +158,11 @@ export function fristsvaret(
   const krav = u.spor.frist.gjeldendeKrav;
   if (!krav) return null;
   const foresporsel = foresporselenISvaret(u);
+  const ikkeSvar = v.begrunnelseIkkeSvar && begrunnelsenKanAvvisesSomSvar(u);
   return svarbrevet(
     'frist',
     krav,
-    vurderingene(v, innholdIFristen(krav).frister, foresporsel !== null),
+    vurderingene(v, innholdIFristen(krav).frister, foresporsel !== null, ikkeSvar),
     { paaberopelse: u.spor.forhold.gjeldendeKrav, foresporsel },
     v,
     regler,
@@ -184,6 +195,7 @@ export function valgFraFristsvaret(svar: Svar, krav: Krav): Fristsvarvalg {
     erstatter: svar.id,
     varselITide: iTide(HJEMMEL.frist),
     foresporselITide: iTide('33.6.2'),
+    begrunnelseIkkeSvar: standpunktet(svar, 'ikke_svar') !== undefined,
     hindret: standpunktet(svar, 'hindring')?.oppfylt ?? null,
     spesifisertITide: spesifisering?.iTide ?? null,
     frister,
