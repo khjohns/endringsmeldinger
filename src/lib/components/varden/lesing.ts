@@ -13,6 +13,7 @@ import { kravetOgSvaret } from './vederlagsoversikt';
  */
 
 import { omtalen } from '#kjerne/frosset/brevdeler.ts';
+import { svaretGjelder } from '#kjerne/frosset/brevtittel.ts';
 import {
   innholdIForholdet,
   innsigelsenIForholdet,
@@ -41,6 +42,7 @@ import type {
   Utfall,
   Varselhjemmel,
 } from '#kjerne/typer.ts';
+import { SPOR } from '#kjerne/typer.ts';
 import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -88,6 +90,12 @@ export interface Brevet {
   vedlegg: string[];
   /** Bestemmelsene for varslene i brevet, tom for et brev uten varsel (OV-U25, VS-U48, VS-U52). */
   varselhjemler: Varselhjemmel[];
+  /**
+   * Varselet hvert svar i brevet bare på et varsel gjelder, per spor, med ordene i brevtittelen:
+   * `tittel` «varsel om fristforlengelse» og `del` «varselet om fristforlengelse». Et svar på
+   * kravet står ikke her (VS-U96 punkt 39, #2481).
+   */
+  svarPaaVarselet: Partial<Record<Spor, { tittel: string; del: string }>>;
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -117,6 +125,7 @@ export function brevene(u: Utledning): Brevet[] {
         avsnitt: b.avsnitt && Object.freeze([...b.avsnitt]),
         vedlegg: Object.freeze(b.vedlegg),
         varselhjemler: Object.freeze(b.varselhjemler),
+        svarPaaVarselet: Object.freeze(b.svarPaaVarselet),
       })
     )
   ) as Brevet[];
@@ -128,6 +137,7 @@ function lesBrevene(u: Utledning): Brevet[] {
   const spor = elementenesSpor(u);
   // Innlegget hører til sporene til brevet det viser til, som står før det i journalen (G-7 i BF-03).
   const brevetsSpor = new Map<string, Spor[]>();
+  const varselsvar = new Set(SPOR.flatMap((s) => u.spor[s].svarPaaVarsler.map((x) => x.id)));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -165,6 +175,9 @@ function lesBrevene(u: Utledning): Brevet[] {
         beskrivelse: d.beskrivelse,
         vedlegg: d.dokumentasjon.map((v) => v.filnavn),
         varselhjemler: d.utsagn.flatMap((x) => (x.art === 'varsel' ? [x.hjemmel] : [])),
+        svarPaaVarselet: Object.fromEntries(
+          d.svar.filter((s) => varselsvar.has(s.id)).map((s) => [s.spor, svaretGjelder(s)])
+        ),
       },
     ];
   });
@@ -575,24 +588,11 @@ const VARSLENE_I_VARDEN: readonly Varselhjemmel[] = ['33.4', '34.1.2', '34.1.3',
 
 /**
  * Handlingene kjernen tilbyr i sporet, med sporet kjernen gir hver av dem. Saken som helhet
- * (`registrere_brev`) hører ikke til et spor. Svaret bare på varselet i en kravversjon (VS-U96
- * punkt 38) har ikke skjema i Varden ennå, og holdes utenfor til det er bygget (#2456).
+ * (`registrere_brev`) hører ikke til et spor.
  */
-export function handlingerISporet(
-  tilbudt: TilbudtHandling[],
-  spor: Spor,
-  u: Pick<Utledning, 'spor'>
-): TilbudtHandling[] {
-  const kravene = new Set(u.spor[spor].krav.map((k) => k.id));
+export function handlingerISporet(tilbudt: TilbudtHandling[], spor: Spor): TilbudtHandling[] {
   return tilbudt.filter(
-    (h) =>
-      h.spor === spor &&
-      (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel)) &&
-      !(
-        (h.type === 'svare' || h.type === 'revidere') &&
-        h.gjelder !== null &&
-        kravene.has(h.gjelder)
-      )
+    (h) => h.spor === spor && (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel))
   );
 }
 
