@@ -220,7 +220,7 @@ export const LEGG_TIL = haerdet({
     }.`,
   /** U-15 i BF-49: ved det eldre kravet i tråden, i formen fra «Varselet i kravet» i språkfila. */
   varseletGittMedKravet: (poster: readonly string[]) =>
-    `Kravet er varselet for ${liste([...poster])}.`,
+    `Varselet for ${liste([...poster])} ble gitt med dette kravet.`,
   /** U-9 i BF-49: krav- eller svarskjemaet lukkes uten at det er lagt til. */
   avbrudd: {
     tittel: (hva: 'krav' | 'svar') =>

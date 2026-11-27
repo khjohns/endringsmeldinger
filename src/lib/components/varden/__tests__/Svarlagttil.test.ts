@@ -220,7 +220,9 @@ describe('varselet i et eldre krav (U-15, D-15, OV-U120)', () => {
   it('tråden sier ved det eldre kravet at det er varselet for posten', async () => {
     const { kjernesak } = await saken('bh-svarer-etter-det-eldre-kravet', 'BH');
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    expect(await screen.findByText(LEGG_TIL.varseletGittMedKravet(['P1']))).toBeInTheDocument();
+    expect(
+      await screen.findByText('Varselet for P1 ble gitt med dette kravet.')
+    ).toBeInTheDocument();
   });
 });
 
