@@ -727,6 +727,23 @@ FEILINNFOERINGER = [
      "subsidiaert: frister.some((f) => f.subsidiaert),",
      "subsidiaert: frister[0]!.subsidiaert,",
      "fristsvaret er subsidiært når bare én av to frister er subsidiær"),
+    ("S182", "et vranglåsoffer kjøres ikke på nytt (#555)", "server/datalag.ts",
+     "  return feilnummer(feil) === VRANGLAAS;\n}", "  return false;\n}",
+     "vranglåsoffer: transaksjonen kjøres på nytt fra begynnelsen"),
+    ("S183", "hver feil fra basen gir et nytt forsøk, også en avvisning (#555)", "server/datalag.ts",
+     "  return feilnummer(feil) === VRANGLAAS;\n}", "  return feilnummer(feil) !== undefined;\n}",
+     "arbeidet kjøres én gang, og feilen kastes"),
+    ("S184", "et vranglåsoffer som arbeidet fanger, kjøres ikke på nytt (#555)", "server/datalag.ts",
+     "  if (feil instanceof TransaksjonAvbrutt) return feilnummer(feil.cause) === VRANGLAAS;\n", "",
+     "vranglåsoffer som arbeidet fanger"),
+    ("S185", "et nytt forsøk etter en vranglås får en ny frist (#555)", "server/datalag.ts",
+     " || igjen < MINSTE_RESTTID_MS)\n        throw feil;", ")\n        throw feil;",
+     "fristen rekker ikke til et nytt forsøk"),
+    ("S186", "en følgefeil etter en vranglås som arbeidet fanger, erstatter vranglåsen (#555)",
+     "server/datalag.ts",
+     "if (avbruttAvServeren) return { feil: etterVranglaas(tx, feil), avsluttet: true };",
+     "if (avbruttAvServeren) return { feil, avsluttet: true };",
+     "og sender en forespørsel til, som feiler"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

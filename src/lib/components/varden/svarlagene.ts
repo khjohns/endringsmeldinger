@@ -209,7 +209,10 @@ export function lageneISvaret(
   return lagene;
 }
 
-/** Standpunktene uten eget lag, som at fremdriften er hindret (OV-U42), utenom `utenom`. */
+/**
+ * Standpunktene uten eget lag, som at varselet kom i tide (OV-U42), utenom `utenom`. Hindringen står
+ * i laget når forholdet står foran sporet (LV-U85 punkt 11).
+ */
 export const utenLag = (svar: Svar, utenom: Standpunktsart): Standpunkt[] => {
   const virkning = new Map(svar.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v]));
   return svar.standpunkter.filter(
