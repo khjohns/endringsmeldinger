@@ -32968,6 +32968,61 @@ anbefalt = true
 kilde = "hovedplanen"
 tekst = "At datoen settes én gang, betyr at totalentreprenøren ikke kan endre den alene til sin egen fordel."
 
+[[gruppe.vedtak]]
+id = "LV-U89"
+dato = 2026-11-27
+hvem = "oppdragsgiver"
+kilde = ["#2507", "runde 10 i #1065"]
+klasse = "design"
+bindende_i = ["lv-u85"]
+sporsmal = '''
+Spørsmålet om rekkefølgen i byggherrens svarbrev, stilt 27.11 i runde 10 i #1065. Gangen i spørsmålet og forslaget slik det ble lagt fram, ordrett slik orkestratoren førte dem:
+
+## Spørsmålet om rekkefølgen i byggherrens svarbrev (#2507), stilt 27.11 i runde 10 i #1065
+
+Første framlegg (A eller B) står i `sporsmal-2507.md`, med brevene i `sporsmal-2507-brev.md`. Oppdragsgiver svarte, ordrett: «Jeg må se et mer konkret og komplett eksempel på A og B», og fikk de fire hele brevene. Deretter, ordrett: «Jeg heller mot B. Men bakgrunnen for de siste endringene i brevtekst er sparring mellom Fable, Gemini Argon og chatgpt Astra. La oss spørre Carbon medium og Astra medium om hva de tenker mellom A og B - også når det gjelder vederlag.» Og: «Frist kan jo også ha flere poster. Hvorfor ikke samme mønster som for vederlag? Det kan vel spørres dem om også. De kan godt også fo kontraktsteksten som er repevant fra khjohns/kontrakt». Sparringen står i #2507 ([Codex gpt-6.2-astra](https://github.com/khjohns/endringsmeldinger/issues/2507#issuecomment-7227600909), [Gemini 4 Carbon](https://github.com/khjohns/endringsmeldinger/issues/2507#issuecomment-7227850787)).
+
+Det endelige spørsmålet ble lagt fram i tekst slik:
+
+**Forslaget i vedtaksform:**
+
+> I byggherrens svar på et krav om fristforlengelse står punktene med standpunkter uten egen lagvirkning samlet etter forholdets punkt og foran punktet med fristsporets første lag, uten lagslinje og i skjemaets rekkefølge innbyrdes. Hvert tema beholder sitt punkt og sin overskrift. I svaret på et krav om vederlagsjustering står et standpunkt uten etikett først i punktet for posten det gjelder, etter LV-U78.
+
+*Forhold:* presiserer OV-U42 («foran punktet med fristsporets første lag», også når det laget er prinsipalt). Endrer LV-U34 for rekkefølgen i fristsvaret. I tråd med LV-U78. KA-U78 og LV-U85 punkt 11 står.
+
+Forkastet: A, «I brevet står et standpunkt i svaret på et krav om fristforlengelse som ikke gir egen lagvirkning, i punktet for sitt tema, i skjemaets rekkefølge og uten lagslinje, også når et punkt foran har en lagslinje. Punktet oppretter ikke et lag og flytter ikke lagene.» Og C, ett punkt per frist med samme mønster som vederlaget (frarådet av begge verktøyene, fordi varselet, forespørselen, hindringen og spesifiseringen gjelder hele kravet).
+
+To ting som må avklares når B bygges (ikke del av vedtaket):
+1. Standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 annet ledd b (VS-U95) har ingen lagvirkning i kjernen. Etter B ville det flyttes foran en innsigelse etter punkt 33.4. Det må få lagslinje eller unntas.
+2. Nummereringen i svarskjemaet i Varden må følge rekkefølgen.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 27.11, ordrett: «Til brevteksten: ja som anbefalt» ([svaret i #2507](https://github.com/khjohns/endringsmeldinger/issues/2507#issuecomment-7228040430)). Valgt: B.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u42" },
+  { art = "endrer", vedtak = "lv-u34" },
+]
+folge = '''
+Forholdet slik det sto i forslaget 27.11, ordrett: «presiserer OV-U42 («foran punktet med fristsporets første lag», også når det laget er prinsipalt). Endrer LV-U34 for rekkefølgen i fristsvaret. I tråd med LV-U78. KA-U78 og LV-U85 punkt 11 står.» Bygges i #2507.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I brevet står et standpunkt i svaret på et krav om fristforlengelse som ikke gir egen lagvirkning, i punktet for sitt tema, i skjemaets rekkefølge og uten lagslinje, også når et punkt foran har en lagslinje. Punktet oppretter ikke et lag og flytter ikke lagene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+I byggherrens svar på et krav om fristforlengelse står punktene med standpunkter uten egen lagvirkning samlet etter forholdets punkt og foran punktet med fristsporets første lag, uten lagslinje og i skjemaets rekkefølge innbyrdes. Hvert tema beholder sitt punkt og sin overskrift. I svaret på et krav om vederlagsjustering står et standpunkt uten etikett først i punktet for posten det gjelder, etter LV-U78.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+ett punkt per frist med samme mønster som vederlaget (frarådet av begge verktøyene, fordi varselet, forespørselen, hindringen og spesifiseringen gjelder hele kravet)'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 etter = '''
