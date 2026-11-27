@@ -22,6 +22,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
+import { sha256 } from '../bruker.ts';
 import { CatendaUtilgjengelig, catendaFraMiljoe, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
 import { synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
@@ -549,8 +550,26 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
   it('CSRF-tokenet er sesjonens, med no-store', async () => {
     const svar = await hent(`${server.url}/api/csrf-token`, { kapsler: { [SESJON]: o.te.token } });
     expect(svar.status).toBe(200);
-    expect(svar.kropp).toEqual({ csrfToken: o.te.csrf, expiresIn: 3600 });
+    expect(svar.kropp).toMatchObject({ csrfToken: o.te.csrf });
     expect(svar.hoder.get('cache-control')).toBe('no-store');
+  });
+
+  it('expiresIn er tiden til sesjonen løper ut, også når levetiden er nærmere enn tidsavbruddet (#1806)', async () => {
+    const ny = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
+    const csrf = () => hent(`${server.url}/api/csrf-token`, { kapsler: { [SESJON]: ny.token } });
+    const foerst = await csrf();
+    expect(foerst.kropp?.expiresIn).toBeGreaterThan(3600 - 5);
+    expect(foerst.kropp?.expiresIn).toBeLessThanOrEqual(3600);
+    await o.datalag.base.pool
+      .request()
+      .input('h', sha256(ny.token))
+      .query(
+        `UPDATE koe.app_sessions SET created_at = DATEADD(minute, -(8 * 60 - 5), SYSUTCDATETIME())
+          WHERE token_hash = @h`
+      );
+    const siden = await csrf();
+    expect(siden.kropp?.expiresIn).toBeGreaterThan(300 - 5);
+    expect(siden.kropp?.expiresIn).toBeLessThanOrEqual(300);
   });
 
   it('utloggingen sletter sesjonen og tømmer kapselen', async () => {

@@ -161,6 +161,25 @@ describe('oppstarten med en ugyldig verdi for medlemslisten (#2262)', () => {
     30_000
   );
 
+  it.each([
+    ['KOE_SESJON_LEVETID_MINUTTER', '1441', {}],
+    ['KOE_SESJON_INAKTIVITET_MINUTTER', '0', {}],
+    ['KOE_SESJON_INAKTIVITET_MINUTTER', '120', { KOE_SESJON_LEVETID_MINUTTER: '60' }],
+  ])(
+    '%s=%s stopper oppstarten med navnet på variabelen (#1806)',
+    async (navn, verdi, ellers) => {
+      const p = start(skript, rentMiljoe({ ...ellers, [navn]: verdi }));
+      expect((await p.avsluttet).kode).toBe(1);
+      const linje = p
+        .utdata()
+        .split('\n')
+        .find((l) => l.includes('Sesjonens levetid eller tidsavbrudd er ugyldig'));
+      expect(JSON.parse(linje!)).toMatchObject({ hindringer: [navn] });
+      expect(p.utdata()).not.toContain('KOE_DATALAG_TILKOBLING');
+    },
+    30_000
+  );
+
   // Kilde: `server/.env.example` setter begge til tom verdi, og standarden er 900 s.
   it('tomme verdier, som i server/.env.example, går forbi kontrollen og stopper først på tilkoblingen', async () => {
     const p = start(

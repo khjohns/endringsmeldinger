@@ -736,18 +736,18 @@ Visningen kjernen regner ut av journalen, med versjonene den er regnet med (B-10
 
 ### `koe.app_sessions`
 
-Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesjonen utløper, 8 timer etter opprettelsen (B-19, #656). Kjøretiden har ingen rett på tabellen.
+Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesjonen utløper: det tidligste av levetiden fra opprettelsen og tidsavbruddet fra siste bruk, begge konfigurasjon i serveren (B-19, #656, #1806). Kjøretiden har ingen rett på tabellen.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_sesjon` oppretter, `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659). |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk, `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659) og av lesingen i `server/autorisasjon.ts`. Triggerne `koe.app_project_memberships_tilbakekall` og `koe.hr_kopi_tilbakekall` sletter sesjonene til en bruker som mister det siste aktive medlemskapet eller rollen i HR-kopien (#1806). |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
-| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra) |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.les_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261127100000_sesjonens_varighet.sql (triggerne `koe.app_project_memberships_tilbakekall` og `koe.hr_kopi_tilbakekall`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`); database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra) |
 | Funn | — |
 | Belegg | L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700). |
 

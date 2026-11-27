@@ -2,12 +2,14 @@ import { korrelasjonsId } from './logg.ts';
 import type { Innloggingshendelse } from './tilgangslogg.ts';
 /**
  * Sesjonen og innloggingsforsøket i SQL Server (B-19, #656), gjennom prosedyrene
- * i `koe_api` fra `database/migrasjoner/20261016190000_sesjon.sql`. `les_sesjon` og
+ * i `koe_api` fra `database/migrasjoner/20261016190000_sesjon.sql`.
  * `bruk_innloggingsforsoek` er sist definert i `20261016233000_hashparametre.sql`
- * (#700), og `opprett_sesjon` og `slett_sesjon` i `20261119210000_tilgangslogg.sql`
- * (#1804). Tokenene lages
+ * (#700), `slett_sesjon` i `20261119210000_tilgangslogg.sql` (#1804), og
+ * `opprett_sesjon` og `les_sesjon` i `20261127100000_sesjonens_varighet.sql` (#1806).
+ * Tokenene lages
  * her, som `secrets.token_urlsafe(32)` i Python, og basen får bare SHA-256 av
- * sesjonstokenet, staten og nettlesertokenet. Levetidene og klokka er basens.
+ * sesjonstokenet, staten og nettlesertokenet. Sesjonens levetid og tidsavbrudd er
+ * konfigurasjon her (`sesjonsvarighet`); forsøkets levetid og klokka er basens.
  * Kallene er systemkall uten aktør og prosjektkontekst, så de går utenom
  * `transaksjon()`. Innloggingsinngangene i `innlogging.ts` oppretter og sletter
  * sesjonen (#659), og `autorisasjon.ts` leser den for hver inngang som krever den.
@@ -53,6 +55,56 @@ async function kall<T>(arbeid: () => Promise<T>): Promise<T> {
 
 const token = () => randomBytes(32).toString('base64url');
 
+/** Sesjonens levetid og tidsavbruddet ved inaktivitet, i sekunder (#1806). */
+export interface Sesjonsvarighet {
+  levetid: number;
+  inaktivitet: number;
+}
+
+const STANDARD_LEVETID_MINUTTER = 8 * 60;
+const STANDARD_INAKTIVITET_MINUTTER = 60;
+const STOERSTE_LEVETID_MINUTTER = 24 * 60;
+
+type Sesjonsvariabel = 'KOE_SESJON_LEVETID_MINUTTER' | 'KOE_SESJON_INAKTIVITET_MINUTTER';
+
+/** Variabelen som har en ugyldig verdi, for oppstarten. */
+export class UgyldigSesjonsvarighet extends Error {
+  readonly variabel: Sesjonsvariabel;
+  constructor(variabel: Sesjonsvariabel, melding: string) {
+    super(`${variabel} ${melding}`);
+    this.variabel = variabel;
+  }
+}
+
+function minutter(miljoe: NodeJS.ProcessEnv, variabel: Sesjonsvariabel, standard: number): number {
+  const tall = Number(miljoe[variabel] || standard);
+  if (!(Number.isSafeInteger(tall) && tall >= 1 && tall <= STOERSTE_LEVETID_MINUTTER))
+    throw new UgyldigSesjonsvarighet(
+      variabel,
+      `må være et heltall fra 1 til ${STOERSTE_LEVETID_MINUTTER} minutter`
+    );
+  return tall;
+}
+
+/**
+ * `KOE_SESJON_LEVETID_MINUTTER` og `KOE_SESJON_INAKTIVITET_MINUTTER`, med 8 timer og 60
+ * minutter når de mangler. Tidsavbruddet kan ikke være lengre enn levetiden.
+ */
+export function sesjonsvarighet(miljoe: NodeJS.ProcessEnv = process.env): Sesjonsvarighet {
+  const levetid = minutter(miljoe, 'KOE_SESJON_LEVETID_MINUTTER', STANDARD_LEVETID_MINUTTER);
+  const inaktivitet = minutter(
+    miljoe,
+    'KOE_SESJON_INAKTIVITET_MINUTTER',
+    STANDARD_INAKTIVITET_MINUTTER
+  );
+  if (inaktivitet > levetid)
+    throw new UgyldigSesjonsvarighet(
+      'KOE_SESJON_INAKTIVITET_MINUTTER',
+      'kan ikke være lengre enn levetiden'
+    );
+  return { levetid: levetid * 60, inaktivitet: inaktivitet * 60 };
+}
+
 export interface NySesjon {
   /** Verdien i sesjonskapselen. Lagres ikke. */
   token: string;
@@ -71,12 +123,15 @@ export async function opprettSesjon(
   bruker: string,
   innlogging?: { hendelse: Innloggingshendelse; gammel: string }
 ): Promise<NySesjon> {
+  const varighet = sesjonsvarighet();
   const ny = { token: token(), csrfToken: token() };
   const svar = await kall(() =>
     utenKontekst(pool)
       .input('token_hash', sql.NVarChar(4000), sha256(ny.token))
       .input('bruker', sql.UniqueIdentifier, bruker)
       .input('csrf_token', sql.NVarChar(4000), ny.csrfToken)
+      .input('levetid', sql.Int, varighet.levetid)
+      .input('inaktivitet', sql.Int, varighet.inaktivitet)
       .input('innlogging', sql.VarChar(40), innlogging?.hendelse ?? null)
       .input('gammel_hash', sql.NVarChar(64), innlogging?.gammel ? sha256(innlogging.gammel) : null)
       .input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)
@@ -86,16 +141,24 @@ export async function opprettSesjon(
   return { ...ny, utloeper: svar.output.utloeper as Date };
 }
 
-/** Sesjonen for kapselverdien, eller `null` når den ikke finnes eller er utløpt. */
+/**
+ * Sesjonen for kapselverdien, eller `null` når den ikke finnes, er utløpt eller har vært
+ * ubrukt lenger enn tidsavbruddet. Lesingen er bruk og flytter `utloeper` fram.
+ */
 export async function lesSesjon(pool: Pool, sesjonstoken: string): Promise<Sesjon | null> {
+  const varighet = sesjonsvarighet();
   const svar = await kall(() =>
-    utenKontekst(pool).input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken)).execute<{
-      bruker: string;
-      email: string;
-      name: string;
-      csrf_token: string;
-      utloeper: Date;
-    }>('koe_api.les_sesjon')
+    utenKontekst(pool)
+      .input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken))
+      .input('levetid', sql.Int, varighet.levetid)
+      .input('inaktivitet', sql.Int, varighet.inaktivitet)
+      .execute<{
+        bruker: string;
+        email: string;
+        name: string;
+        csrf_token: string;
+        utloeper: Date;
+      }>('koe_api.les_sesjon')
   );
   const rad = svar.recordset[0];
   if (!rad) return null;
