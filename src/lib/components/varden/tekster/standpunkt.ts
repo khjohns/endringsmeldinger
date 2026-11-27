@@ -1,7 +1,7 @@
 import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Kravpost, Standpunkt, Vederlagsvarselhjemmel } from '#kjerne/typer.ts';
+import type { Kravpost, Standpunkt, SvarbarVarselhjemmel } from '#kjerne/typer.ts';
 import {
   forholdstilfellet,
   type Forholdsordene,
@@ -266,7 +266,7 @@ export const leselinjene = haerdet(leselinjeneMedVanligeMellomrom);
  * samme ord som brevet (oppdragsgiver 24.11 i #2314).
  */
 export const oppgivelsestekst = haerdet(
-  (hjemmel: Vederlagsvarselhjemmel, brev: Brevref, du: boolean, post?: string, ikkeGitt = true) =>
+  (hjemmel: SvarbarVarselhjemmel, brev: Brevref, du: boolean, post?: string, ikkeGitt = true) =>
     `${du ? 'Du' : stor(PARTEN.BH)} gir opp innsigelsen i ${brevref(brev)} om at varselet etter punkt ${hjemmel}${post ? ` for ${post}` : ''} ${innsigelsesordene(hjemmel, ikkeGitt)}`
 );
 export const standpunkttekst = haerdet(standpunkttekstMedVanligeMellomrom);

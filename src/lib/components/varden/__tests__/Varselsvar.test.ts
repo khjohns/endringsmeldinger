@@ -750,3 +750,114 @@ describe('svaret på varselet etter punkt 34.1.2 eller 34.1.3 som står alene (V
     });
   });
 });
+
+describe('svaret på varselet om fristforlengelse etter punkt 33.4 som står alene (VS-U96 punkt 32, #2456)', () => {
+  const medFristvarsel = () =>
+    skrevet(medGrunnlag, 'TE', { type: 'send_varsel', varsler: [{ hjemmel: '33.4' }] });
+  const fristvarselI = (journal: Journalrad[]) =>
+    utledJournal(journal, KJERNE).spor.frist.varsler['33.4']!.id;
+  async function fristskjemaet(journal: Journalrad[]) {
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    const u = kjernesak.utledning!;
+    const sendt: TilBrevkontrollen[] = [];
+    render(Varselsvar, {
+      kjernesak,
+      u,
+      varselet: varseletSvaretPaa(u, fristvarselI(journal))!,
+      onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
+      onforkast: () => {},
+    });
+    return sendt;
+  }
+
+  it('svaret må si om varselet kom i tide, og er et svar i fristen på varselet uten resultat (svaret `varslet_i_tide` i #2456)', async () => {
+    const journal = medFristvarsel();
+    const sendt = await fristskjemaet(journal);
+    // Kravene til skjemaet i #2456: tittelen og punktet.
+    expect(
+      screen.getByRole('heading', { name: /^Svar på varsel om fristforlengelse/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Varselet om fristforlengelse \(punkt\s33\.4\)/).length
+    ).toBeGreaterThan(0);
+    expect(screen.queryByRole('radio', { name: 'Godtar justeringen' })).toBeNull();
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    expect(screen.getByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeInTheDocument();
+    await radio('Kom for sent');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(svaret(sendt[0]!)).toMatchObject({
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: fristvarselI(journal),
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    // Kjernen avviser en akseptfrist i svaret på varselet (`AKSEPTFRIST_IKKE_TILLATT`).
+    expect((svaret(sendt[0]!).svar as Record<string, unknown>[])[0]).not.toHaveProperty(
+      'akseptfrist'
+    );
+  });
+
+  it('«Kom i tide» sendes uttrykkelig (VS-U96 punkt 32)', async () => {
+    const sendt = await fristskjemaet(medFristvarsel());
+    await radio('Kom i tide');
+    await seBrevet();
+    expect(svaret(sendt[0]!).svar).toMatchObject([
+      { spor: 'frist', vurderinger: { varslet_i_tide: true } },
+    ]);
+  });
+
+  it('et nytt svar erstatter det forrige, gjentar innsigelsen og kan gi den opp (VS-U96 punkt 33 og 34)', async () => {
+    const journal = medFristvarsel();
+    const varselet = fristvarselI(journal);
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: varselet,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const forrige = utledJournal(besvart, KJERNE).spor.frist.svarPaaVarsler[0]!.id;
+    const sendt = await fristskjemaet(besvart);
+    expect(
+      screen.getByText(/at varselet kom for sent\. Svaret gjentar innsigelsen\.$/)
+    ).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    await seBrevet();
+    expect(svaret(sendt[0]!)).toMatchObject({
+      type: 'revisjon',
+      erstatter: forrige,
+      svar: { spor: 'frist', gjelder: varselet, vurderinger: { varslet_i_tide: true } },
+    });
+  });
+
+  it('i Varden står svaret ved varselet i fristen og åpner skjemaet, ikke «Svar på kravet» (kravene i #2456)', async () => {
+    const kjernesak = kjernesakFor(medFristvarsel());
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'frist' });
+    expect(screen.queryByRole('button', { name: 'Svar på kravet' })).toBeNull();
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Svar på varselet om fristforlengelse' })
+    );
+    expect(
+      await screen.findByRole('heading', { name: /^Svar på varsel om fristforlengelse/ })
+    ).toBeInTheDocument();
+    await radio('Kom for sent');
+    await seBrevet();
+    expect(
+      await screen.findByRole('button', { name: 'Send til totalentreprenøren' })
+    ).toBeInTheDocument();
+  });
+});

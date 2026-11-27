@@ -14,7 +14,7 @@ import {
   type Krav,
   type Kravpost,
   type Kravpostvarselhjemmel,
-  type Vederlagsvarselhjemmel,
+  type SvarbarVarselhjemmel,
 } from '#kjerne/typer.ts';
 import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
 import {
@@ -25,6 +25,7 @@ import {
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
+import { fristvarseletSvaretGjelder } from '#kjerne/spor/frist/kommando.ts';
 
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
@@ -198,17 +199,24 @@ export function varseletFoerBrevet(
   return varseletFoer({ ...u, journal: u.journal.slice(0, i) }, post);
 }
 
-/** Varselet i vederlaget et svar som står alene gjelder (VS-U79, VS-U87 punkt 30–32). */
+/**
+ * Varselet et svar som står alene gjelder: i vederlaget (VS-U79, VS-U87 punkt 30–32) eller
+ * varselet om fristforlengelse etter § 33.4 i fristen (VS-U96 punkt 32).
+ */
 export interface VarseletAlene {
   id: string;
-  hjemmel: Vederlagsvarselhjemmel;
+  hjemmel: SvarbarVarselhjemmel;
   /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
-  foer: StandpunktTilVarselet | null;
-  /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U77 punkt 33). */
+  foer: Pick<StandpunktTilVarselet, 'iTide' | 'dokument'> | null;
+  /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U96 punkt 33). */
   forrigeSvar: string | null;
   /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
   arbeid: string | undefined;
 }
+
+/** Sporet svaret på varselet med `hjemmel` står i. */
+export const sporetForVarselet = (hjemmel: SvarbarVarselhjemmel) =>
+  hjemmel === '33.4' ? ('frist' as const) : ('vederlag' as const);
 
 /**
  * Om brevet `dokument` er et svar på et varsel som står alene. Innsigelsen etter § 34.4 der sa at
@@ -220,12 +228,15 @@ export const erSvarPaaVarsel = (u: Utledning, dokument: string) =>
 
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
-  varseletSvaretGjelder(u, gjelder)?.hjemmel ?? null;
+  (varseletSvaretGjelder(u, gjelder) ?? fristvarseletSvaretGjelder(u, gjelder))?.hjemmel ?? null;
 
-/** Varselet `gjelder` i vederlaget som byggherren kan svare på, eller `null` (`varseletSvaretGjelder`). */
+/**
+ * Varselet `gjelder` byggherren kan svare på alene, eller `null` (`varseletSvaretGjelder` og
+ * `fristvarseletSvaretGjelder`).
+ */
 export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
   const v = varseletSvaretGjelder(u, gjelder);
-  if (!v) return null;
+  if (!v) return fristvarseletSvaretPaa(u, gjelder);
   return {
     ...v,
     foer:
@@ -234,5 +245,24 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
       ) ?? null,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast((s) => s.gjelder === v.id)?.id ?? null,
     arbeid: arbeidetI(u, v.id),
+  };
+}
+
+/**
+ * Varselet etter § 33.4 i fristen. Svarene på varselet er én kjede, og hvert har standpunktet til
+ * varselet (`kontrollerSvaretPaaFristvarselet`), så det siste svaret har byggherrens siste
+ * standpunkt (VS-U96 punkt 33).
+ */
+function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
+  const v = fristvarseletSvaretGjelder(u, gjelder);
+  if (!v) return null;
+  const forrige = u.spor.frist.svarPaaVarsler.findLast((s) => s.gjelder === v.id);
+  const s = forrige?.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.4');
+  return {
+    ...v,
+    foer:
+      forrige && s?.art === 'rettidighet' ? { iTide: s.iTide, dokument: forrige.dokument } : null,
+    forrigeSvar: forrige?.id ?? null,
+    arbeid: undefined,
   };
 }

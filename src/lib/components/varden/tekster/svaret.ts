@@ -1,7 +1,7 @@
 import { opplistet, PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
-import type { Kravpost, Oppgjoersform, Part, Vederlagsvarselhjemmel } from '#kjerne/typer.ts';
+import type { Kravpost, Oppgjoersform, Part, SvarbarVarselhjemmel } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
@@ -64,7 +64,7 @@ export const SKJEMA = haerdet({
   ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
   // VS-U77 punkt 9, 10, 30 og 31: innsigelsen mot varselet for kravposten står fra et tidligere svar.
   varselJustering: 'Varselet om justering av enhetsprisene (punkt 34.3.3).',
-  innsigelsenStaar: (b: Brevref, hjemmel: Vederlagsvarselhjemmel, ikkeGitt = true) =>
+  innsigelsenStaar: (b: Brevref, hjemmel: SvarbarVarselhjemmel, ikkeGitt = true) =>
     `Du har gjort gjeldende i ${brevref(b)} at varselet ${innsigelsesordene(hjemmel, ikkeGitt)}.`,
   gjentarInnsigelsen: 'Svaret gjentar innsigelsen.',
   girOppInnsigelsen: 'Du gir opp innsigelsen.',
@@ -162,24 +162,28 @@ export const SKJEMA = haerdet({
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
 });
 
-/** Varselet i vederlaget med navnet i skjemaene for svaret på det. */
+/** Varselet byggherren kan svare på alene, med navnet i skjemaene for svaret på det. */
 const VARSELNAVNET = {
+  '33.4': 'varselet om fristforlengelse',
   '34.1.2': 'varselet om vederlagsjustering',
   '34.1.3': 'varselet om særskilt vederlagsjustering',
   '34.3.3': 'varselet om justering av enhetsprisene',
   '34.4': 'varselet om regningsarbeid',
-} as const satisfies Record<Vederlagsvarselhjemmel, string>;
+} as const satisfies Record<SvarbarVarselhjemmel, string>;
 
 /**
  * Ordene for innsigelsen mot varselet, med `ikkeGitt` for innsigelsen etter § 34.4 i svaret på
  * kravposten (VS-U77 punkt 31).
  */
-export const innsigelsesordene = (hjemmel: Vederlagsvarselhjemmel, ikkeGitt = true) =>
+export const innsigelsesordene = (hjemmel: SvarbarVarselhjemmel, ikkeGitt = true) =>
   hjemmel === '34.4' && ikkeGitt ? 'ikke ble gitt eller kom for sent' : 'kom for sent';
 
-/** Svaret på et varsel i vederlaget som står alene (G-9 i BF-14, VS-U79, VS-U87 punkt 32). */
+/**
+ * Svaret på et varsel som står alene, i vederlaget (G-9 i BF-14, VS-U79, VS-U87 punkt 32) og i
+ * fristen (VS-U96 punkt 32).
+ */
 export const VARSELSVARET = haerdet({
-  punktet: (h: Vederlagsvarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
+  punktet: (h: SvarbarVarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
   // #2359: ordene brevet bruker (`TEMAENE_I_SVARET_PAA_VARSELET` i `kjerne/frosset/brevtekst.ts`).
   justeringen: 'Justering av enhetsprisene (punkt 34.3.2)',
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
@@ -187,9 +191,9 @@ export const VARSELSVARET = haerdet({
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
   /** Med arbeidet etter VS-U87 punkt 27. */
-  svar: (h: Vederlagsvarselhjemmel, b?: Brevref, arbeid?: string) =>
+  svar: (h: SvarbarVarselhjemmel, b?: Brevref, arbeid?: string) =>
     `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
-  nyttSvar: (h: Vederlagsvarselhjemmel, b?: Brevref, arbeid?: string) =>
+  nyttSvar: (h: SvarbarVarselhjemmel, b?: Brevref, arbeid?: string) =>
     `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
   /** U-8 i BF-37: arbeidet under navnet på varselet. */
   arbeidet: (arbeid: string) => `Arbeidet varselet gjelder: ${arbeid}`,

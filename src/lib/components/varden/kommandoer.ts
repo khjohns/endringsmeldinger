@@ -28,6 +28,7 @@ import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts
 import {
   varseletFoer,
   varselhjemmelFor,
+  sporetForVarselet,
   type VarseletAlene,
 } from '#lib/kjernesak/vederlagskrav.ts';
 
@@ -404,7 +405,7 @@ export function vederlagssvaret(
   );
 }
 
-/** Det BH har valgt i svaret på et varsel etter § 34.3.3 eller § 34.4 som står alene (VS-U79). */
+/** Det BH har valgt i svaret på et varsel som står alene (VS-U79, VS-U96 punkt 32). */
 export interface Varselsvalg {
   varsletITide: boolean | null;
   /** Bare for varselet etter § 34.3.3 (VS-U77 punkt 30). */
@@ -426,8 +427,9 @@ export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolea
 
 /**
  * BHs svar på et varsel som står alene, eller et nytt svar som erstatter det forrige (VS-U79,
- * VS-U77 punkt 33). Svaret har ingen kravposter og ikke noe resultat (arbeidsvalg 1 A i #2177).
- * Begrunnelsen står bare for `punktene` brevet har, som i `svarbrevet`.
+ * VS-U96 punkt 32 og 33), i sporet varselet står i. Svaret har ingen kravposter og ikke noe
+ * resultat (arbeidsvalg 1 A i #2177). Begrunnelsen står bare for `punktene` brevet har, som i
+ * `svarbrevet`.
  */
 export function varselsvaret(
   v: Varselsvalg,
@@ -438,10 +440,11 @@ export function varselsvaret(
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
   const svar: Svarutkast = {
-    spor: 'vederlag',
+    spor: sporetForVarselet(varselet.hjemmel),
     gjelder: varselet.id,
     regelversjon: regler.versjon,
-    // Vurderingene i svaret på varselet står ikke i `Svarvurdering` (`standpunkterPaaVarselet`).
+    // Vurderingene i svaret på varselet står ikke i `Svarvurdering` (`standpunkterPaaVarselet` og
+    // `standpunkterPaaFristvarselet`).
     vurderinger: definert({
       varslet_i_tide: varseletISvaret(v, varselet) ?? undefined,
       godtar_justering:
