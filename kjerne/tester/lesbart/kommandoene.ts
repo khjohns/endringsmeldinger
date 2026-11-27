@@ -366,7 +366,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/skriving.ts:svar',
       'kommandoer/nyttelast.ts:kontrollerSvar',
       'kommandoer/nyttelast.ts:nyttelastkontroll',
-      // #2451, svaret 27.11: et svar bare på varselet i et krav står ikke ved et annet i sporet.
+      // #2451.
       'kommandoer/kommando.ts:formfeil',
     ],
   ],

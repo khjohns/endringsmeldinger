@@ -19,7 +19,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Avvisning, Part } from '../typer.ts';
 
-/** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
+/** Handlingene kommandoen utfører. Et brev med flere svar er én handling per svar. */
 export function handlingsnoekler(k: Kommando, u: Utledning): Handlingsnoekkel[] {
   // VS-U79, VS-U96 punkt 32 og 38: et svar på et varsel som står alene, eller bare på varselet i
   // kravet, gjelder varselet.

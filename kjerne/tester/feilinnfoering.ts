@@ -7998,25 +7998,28 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2451a',
     feilklasse:
-      'to svar på samme varsel i ett brev tas imot, så brevet har to første svar på varselet (#2451, svaret 27.11)',
+      'to svar på samme varsel i ett brev tas imot, så brevet har to første svar på varselet (#2451)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
-      ['      new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length', '      false'],
+      [
+        '    else if (new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length)',
+        '    else if (false)',
+      ],
     ],
     mal: ['to svar på samme varsel i ett brev avvises'],
   },
   {
     id: 'F2451b',
     feilklasse:
-      'et svar bare på varselet i et krav står ved siden av et annet svar i samme spor i ett brev (#2451, svaret 27.11)',
+      'et svar bare på varselet i et krav står ved siden av et annet svar i samme spor i ett brev (#2451)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [['      iSammeSpor.some((s) => s.bare_varselet) ||', '']],
+    endringer: [['    if (iSammeSpor.some((s) => s.bare_varselet))', '    if (false)']],
     mal: ['et svar bare på varselet i et krav ved siden av et annet svar i sporet også'],
   },
   {
     id: 'F2451c',
     feilklasse:
-      'et svar på kravet og et svar på et varsel i samme spor i ett brev tas imot (#2451, svaret 27.11)',
+      'et svar på kravet og et svar på et varsel i samme spor i ett brev tas imot (#2451)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [

@@ -324,13 +324,16 @@ describe('byggherrens svar på flere varsler i ett brev (#2451, svaret 27.11, VS
       ...svar('vederlag', gjelder, { varslet_i_tide: false }, {}, null),
       ...(bare ? { bare_varselet: bare } : {}),
     });
-    for (const svarene of [
-      [paa(graving), paa(graving)],
-      [paa(graving, true), paa(fjernvarme)],
-    ])
+    for (const [svarene, melding] of [
+      [[paa(graving), paa(graving)], '$.svar: to svar i samme spor gjelder det samme'],
+      [
+        [paa(graving, true), paa(fjernvarme)],
+        '$.svar: et svar bare på varselet i et krav står ikke ved et annet svar i sporet',
+      ],
+    ] as const)
       expect(s.avvisning('BH', { type: 'brev', svar: svarene })).toEqual({
         regel: 'UGYLDIG_FORM',
-        melding: '$.svar: to svar i samme spor',
+        melding,
       });
   });
 

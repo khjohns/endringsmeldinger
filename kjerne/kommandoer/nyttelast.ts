@@ -583,7 +583,7 @@ export function nyttelastkontroll(
           );
     }
     case 'brev':
-      // #2451, svaret 27.11: flere svar i samme spor gjelder hvert sitt varsel som står alene.
+      // #2451, VS-U96 punkt 33.
       if (
         k.svar.some(
           (s) => k.svar.some((x) => x !== s && x.spor === s.spor) && !svaretsVarsel(u, s, sendt)

@@ -640,14 +640,12 @@ export function formfeil(kommando: unknown): string[] {
   if (type === 'brev' && !feil.length) {
     const svar = (kommando as { svar: Svarutkast[] }).svar;
     if (!svar.length) feil.push('$.svar: brevet har ingen svar');
-    // #2451, svaret 27.11: flere svar i samme spor gjelder hvert sitt varsel. At hvert varsel står
-    // alene, prøver nyttelasten.
+    // #2451. Nyttelasten prøver at hvert varsel står alene.
     const iSammeSpor = svar.filter((s) => svar.filter((x) => x.spor === s.spor).length > 1);
-    if (
-      iSammeSpor.some((s) => s.bare_varselet) ||
-      new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length
-    )
-      feil.push('$.svar: to svar i samme spor');
+    if (iSammeSpor.some((s) => s.bare_varselet))
+      feil.push('$.svar: et svar bare på varselet i et krav står ikke ved et annet svar i sporet');
+    else if (new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length)
+      feil.push('$.svar: to svar i samme spor gjelder det samme');
   }
   const vedlegg = feil.length ? [] : dokumentasjon;
   if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
