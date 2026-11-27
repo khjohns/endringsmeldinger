@@ -370,7 +370,11 @@
     }
     const v = varselhjemmel(h);
     if (v) {
-      const samme = iSporet.filter((x) => x.type === h!.type && varselhjemmel(x) === v);
+      // Svaret og det nye svaret på varsler etter samme bestemmelse skilles fra hverandre (U-8 i
+      // BF-37), også når bare ett av varslene i brevet er besvart.
+      const samme = iSporet.filter(
+        (x) => (x.type === 'svare' || x.type === 'revidere') && varselhjemmel(x) === v
+      );
       const brev = samme.length > 1 ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
       // VS-U87 punkt 27.
       const iBrevet = samme.filter((x) => brev && brevMedUtsagn(u, x.gjelder!)?.id === brev.id);

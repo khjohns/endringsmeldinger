@@ -128,9 +128,9 @@
       ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, v.foer.dokument),
     };
   const besvart = (v: VarseletAlene) => harStandpunkt(varselvalget(valg, v.id), v);
-  const nummeret = (v: VarseletAlene) => varslene.find((x) => x.id === v.id)!.nr;
+  // I panelet uten nummeret fra totalentreprenørens brev, som ikke er nummeret i svaret (system.md).
   const navnet = (v: VarseletAlene, navn = VARSELSVARET.punktet(v.hjemmel)) =>
-    `${nummeret(v)}. ${navn}${v.arbeid ? `: ${v.arbeid}` : ''}`;
+    `${navn}${v.arbeid ? `: ${v.arbeid}` : ''}`;
 
   /** Linjene i svaret på varselet `v`, med punktet i panelet: varselet eller justeringen. */
   const linjerFor = (v: VarseletAlene) =>

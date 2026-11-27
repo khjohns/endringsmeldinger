@@ -196,8 +196,16 @@ describe('svaret på varslene i Varden (M-5 i BF-37)', () => {
     await kjernesak.last();
     expect(varsleneIBrevet(kjernesak.utledning!, kjernesak.tilbudte, graving)).toBeNull();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
+    // U-8 i BF-37: svaret og det nye svaret sier hvilket arbeid de gjelder.
     expect(
-      await screen.findByRole('button', { name: /^Svar på varselet om regningsarbeid/ })
+      await screen.findByRole('button', {
+        name: new RegExp(`^Svar på varselet om regningsarbeid i brev .*: ${FJERNVARME}$`),
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: new RegExp(`^Nytt svar på varselet om regningsarbeid i brev .*: ${GRAVING}$`),
+      })
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Svar på varslene i brev/ })).toBeNull();
   });
