@@ -47,6 +47,19 @@ describe('oppsettet av webhooken', () => {
     expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET }).hemmelighet).toBe(HEMMELIGHET);
   });
 
+  it('WEBHOOK_SECRET_PATH_FORRIGE er valgfri og har de samme kravene (#1059)', () => {
+    expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET }).forrige).toBeUndefined();
+    const forrige = 'F'.repeat(32);
+    expect(
+      webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET, WEBHOOK_SECRET_PATH_FORRIGE: forrige })
+        .forrige
+    ).toBe(forrige);
+    for (const ugyldig of ['kort', `${'F'.repeat(32)}/`])
+      expect(() =>
+        webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET, WEBHOOK_SECRET_PATH_FORRIGE: ugyldig })
+      ).toThrow(/WEBHOOK_SECRET_PATH_FORRIGE/);
+  });
+
   it('RATE_LIMIT_WEBHOOK er antall kall per minutt, 100 som i Python når den mangler, og må være et heltall ≥ 1', () => {
     const grense = (verdi?: string) => {
       const { grense } = webhookFraMiljoe({
@@ -105,12 +118,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
   let lukket: { pool: Pool; slett(): Promise<void> };
   const servere: { stopp(): Promise<void> }[] = [];
 
-  async function start(pool: Pool, hemmelighet: string | null, grense = kallgrense(10_000)) {
+  async function start(
+    pool: Pool,
+    hemmelighet: string | null,
+    grense = kallgrense(10_000),
+    forrige?: string
+  ) {
     const server = createServer(
       lagServer({
         datalag: pool,
         catenda: {} as Catenda,
-        webhook: hemmelighet === null ? null : { hemmelighet, grense },
+        webhook: hemmelighet === null ? null : { hemmelighet, forrige, grense },
       })
     );
     await new Promise<void>((ok) => server.listen(0, '127.0.0.1', ok));
@@ -205,6 +223,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
     expect(await svar.json()).toMatchObject({ success: false, error: 'RATE_LIMITED' });
     expect(await rader(over)).toEqual([]);
     expect(await rader(a)).toHaveLength(1);
+  });
+
+  it('mens hemmeligheten byttes, godtas både den nye og den forrige, og ingen annen (#1059)', async () => {
+    const ny = 'N'.repeat(40);
+    const adresse = await start(kjoeretid.pool, ny, kallgrense(10_000), HEMMELIGHET);
+    const [a, b] = [nyId(), nyId()];
+    expect((await send(kallMed(a), ny, adresse)).status).toBe(200);
+    expect((await send(kallMed(b), HEMMELIGHET, adresse)).status).toBe(200);
+    expect((await send(kallMed(nyId()), 'M'.repeat(40), adresse)).status).toBe(404);
+    expect(await rader(a)).toHaveLength(1);
+    expect(await rader(b)).toHaveLength(1);
   });
 
   it('en feil hemmelighet gir samme 404 som en ukjent sti, og ingen rad (INT-01)', async () => {
