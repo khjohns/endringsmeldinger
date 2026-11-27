@@ -7677,7 +7677,7 @@ forhold = [
   { art = "presiserer", vedtak = "ka-u87" },
 ]
 folge = '''
-Forholdet slik det sto i alternativet: «presiserer KA-U87 punkt 1. Det løsningen gjør, er det samme som før.» Berørt forløp: BF-03 D-8, som rettes i PR #2472 (svar 9 A).'''
+Forholdet slik det sto i alternativet: «presiserer KA-U87 punkt 1. Det løsningen gjør, er det samme som før.» Berørt forløp: BF-03 D-8.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -32730,7 +32730,7 @@ etter = '''
 
 Teksten under er samlevedtaket [GFK-U29](#gfk-u29), vedtatt 27.11 av oppdragsgiver (#1534, #2479),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md)
-som G2, med svarene 1 A, 3 A, 6 A og 7 A. «s3» er tredje setning i posten.
+som G2, med svarene 1 A, 3 A og 6 A, og punkt 10 etter [GFK-U32](#gfk-u32) (svar 7 A). «s3» er tredje setning i posten.
 
 Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
 

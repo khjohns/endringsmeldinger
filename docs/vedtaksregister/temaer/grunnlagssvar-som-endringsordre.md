@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `d92d3c7934976bc42e4ad77e4fe43c949966ebf1777137a2428614f0feb7e705`
+Kontrollsum (SHA-256 over utdraget visningen leser): `2082857af858786da5344e3511265256091ddd531031895ac4cd2b7b7ff9ddd0`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1450,7 +1450,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 27.11, oppdragsgiver (#1534, #2472, #2479)
 
-**Følge:** Presiserer [KA-U87](#ka-u87). Forholdet slik det sto i alternativet: «presiserer KA-U87 punkt 1. Det løsningen gjør, er det samme som før.» Berørt forløp: BF-03 D-8, som rettes i PR #2472 (svar 9 A).
+**Følge:** Presiserer [KA-U87](#ka-u87). Forholdet slik det sto i alternativet: «presiserer KA-U87 punkt 1. Det løsningen gjør, er det samme som før.» Berørt forløp: BF-03 D-8.
 
 **Regelrader:** —
 
