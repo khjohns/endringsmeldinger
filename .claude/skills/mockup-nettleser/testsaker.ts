@@ -731,6 +731,9 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.goto(saksrute);
       await bh.getByRole('button', { name: 'Svar på varslene i kravet' }).waitFor({ timeout: 30_000 });
       await bh.screenshot({ path: `${ut}/bare-varslene-handlingen.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/bare-varslene-handlingen-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
       await bh.getByRole('button', { name: 'Svar på varslene i kravet' }).click();
       await bh.getByRole('heading', { name: /^Svar på varslene i krav om vederlagsjustering/ }).waitFor();
       await bh.screenshot({ path: `${ut}/bare-varslene-tomt.png`, fullPage: true });

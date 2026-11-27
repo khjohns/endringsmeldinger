@@ -295,7 +295,10 @@ export function lagBrevtekst(
     const overskrift = medHardeMellomrom(`${++nummer}. ${FORBEHOLDSPUNKTET.overskrift}`);
     forbeholdene.forEach(({ s, tekst }, i) => {
       const foerst = i === 0 ? [overskrift, ...(omForholdet ? [omForholdet.setninger] : [])] : [];
-      const ledetekst = tekst && flere ? [`Forbehold for svaret på ${svaretGjelder(s).del}:`] : [];
+      const ledetekst =
+        tekst && flere
+          ? [`Forbehold for svaret på ${svaretGjelder(s).del}${forArbeidet(s, j)}:`]
+          : [];
       avsnitt.push({
         gjelder: s.id,
         punkt: FORBEHOLDET,
@@ -1037,6 +1040,14 @@ const harTekst = (p: Standpunkt): boolean => !(p.art === 'beloep' && p.godkjent 
 function standpunkttekst(p: Standpunkt, s: Svar, krav: Krav, j: Journalen): string {
   if (!erArtISporene(p)) throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ingen brevtekst`);
   return standpunktetISporet(p.art, p, krav, s, j);
+}
+
+/** VS-U87 punkt 27: arbeidet skiller svarene på varsler etter samme bestemmelse i brevet (#2451). */
+function forArbeidet(s: Pick<Svar, 'gjelder'>, j: Journalen): string {
+  const e = j.element(s.gjelder);
+  return e.art === 'utsagn' && e.utsagn.art === 'varsel' && e.utsagn.arbeid !== undefined
+    ? ` for arbeidet «${e.utsagn.arbeid}»`
+    : '';
 }
 
 /** Det svaret viser til, med brevet det står i (LV-U4 punkt 7). */

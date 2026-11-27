@@ -638,9 +638,14 @@ export function formfeil(kommando: unknown): string[] {
   if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
     feil.push(`${sti}sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {
-    const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
-    if (!spor.length) feil.push('$.svar: brevet har ingen svar');
-    if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
+    const svar = (kommando as { svar: Svarutkast[] }).svar;
+    if (!svar.length) feil.push('$.svar: brevet har ingen svar');
+    // #2451. Nyttelasten prøver at hvert varsel står alene.
+    const iSammeSpor = svar.filter((s) => svar.filter((x) => x.spor === s.spor).length > 1);
+    if (iSammeSpor.some((s) => s.bare_varselet))
+      feil.push('$.svar: et svar bare på varselet i et krav står ikke ved et annet svar i sporet');
+    else if (new Set(iSammeSpor.map((s) => s.gjelder)).size !== iSammeSpor.length)
+      feil.push('$.svar: to svar i samme spor gjelder det samme');
   }
   const vedlegg = feil.length ? [] : dokumentasjon;
   if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
