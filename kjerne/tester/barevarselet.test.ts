@@ -5,6 +5,7 @@
  * Innholdet står i VS-U96 punkt 31, 33, 34, 38 og 39.
  */
 
+import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
@@ -236,6 +237,35 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
     // Punkt 30, VS-U4: justeringen står subsidiært til innsigelsen etter § 34.3.3.
     expect(p2).toContain('Subsidiært, hvis innsigelsen mot varselet etter punkt 34.3.3 for P2');
     expect(p2).toContain('Byggherren godtar at enhetsprisene for P2 justeres');
+  });
+
+  it('linja leser innsigelsen som står, for justeringen til hver kravpost (punkt 36 og 38, VS-U81)', () => {
+    const { s, krav, poster } = medVederlagskravet([REGNINGSARBEID, JUSTERT]);
+    s.send(
+      'BH',
+      brev('vederlag', krav, {
+        kravposter: [{ gjelder: poster[1], varslet_i_tide: false, godtar_justering: true }],
+      })
+    );
+    const [forrige] = s.u().spor.vederlag.svarPaaVarsler;
+    // Et svar lagt til som ikke sier noe om varselet for P2, men har standpunktet for P1.
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: forrige.id,
+      svar: bareVarselet('vederlag', krav, {
+        kravposter: [
+          { gjelder: poster[0], varslet_i_tide: false },
+          { gjelder: poster[1], godtar_justering: true },
+        ],
+      }),
+      sendt: s.journal.at(-1)!.tidsstempel.slice(0, 10),
+      korrespondansetype: 'e_post',
+      beskrivelse: 'Svar på varselet',
+      dokumentasjon: [randomUUID()],
+    });
+    expect(s.u().spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag.linje).toContain(
+      'kom for sent, som gjort gjeldende i et tidligere svar'
+    );
   });
 
   it('en kravpost uten varselplikt eller som viser til et varsel i saken, er ikke med (punkt 38 og 23)', () => {

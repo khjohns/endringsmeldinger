@@ -7979,6 +7979,14 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['svaret på kravet etter svaret bare på varselet stenger svaret bare på varselet'],
   },
+  {
+    id: 'F2456o',
+    feilklasse:
+      'linja i svaret bare på varselet leser innsigelsen som står, for hele svaret og ikke for kravposten (VS-U96 punkt 36 og 38, #2456)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["x.art === 'rettidighet' && x.gjelder === s.gjelder", "x.art === 'rettidighet'"]],
+    mal: ['linja leser innsigelsen som står, for justeringen til hver kravpost'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

@@ -805,11 +805,7 @@ function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
         if (p.art !== 'rettidighet') continue;
         if (svar.spor === 'forhold' && p.hjemmel === '32.2')
           preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
-        if (
-          svar.spor === 'frist' &&
-          p.hjemmel === '33.4' &&
-          j.element(svar.gjelder).art === 'utsagn'
-        )
+        if (svar.spor === 'frist' && p.hjemmel === '33.4' && erSvarPaaVarselet(svar, j))
           etter334 = p.iTide ? null : (etter334 ?? { gjelder: p.gjelder, dokument: d.id });
       }
     }

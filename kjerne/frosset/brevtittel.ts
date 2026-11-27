@@ -9,7 +9,6 @@ import {
   type Dokument,
   type Sakskode,
   type Spor,
-  type Standpunkt,
   type Svar,
   type SvarbarVarselhjemmel,
   type Vederlagsvarselhjemmel,
@@ -141,7 +140,8 @@ export const SVARTITTEL_PAA_VARSELET = {
 export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter' | 'bareVarselet'>) =>
   s.spor === 'frist' && svaretGjelderFristvarselet(s)
     ? SVARET_GJELDER['33.4']
-    : s.bareVarselet && new Set(s.standpunkter.map(varseletsHjemmel)).size > 1
+    : s.bareVarselet &&
+        new Set(s.standpunkter.map((p) => ('gjelder' in p ? p.gjelder : undefined))).size > 1
       ? VARSLENE_I_VEDERLAGSKRAVET
       : SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
 
@@ -162,8 +162,8 @@ export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly
  * Bestemmelsen varselet er gitt etter: rettidigheten, ellers justeringen, som står bare etter
  * § 34.3.3.
  */
-const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'> | Standpunkt): Vederlagsvarselhjemmel => {
-  const p = 'standpunkter' in s ? s.standpunkter.find((x) => x.art === 'rettidighet') : s;
+const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): Vederlagsvarselhjemmel => {
+  const p = s.standpunkter.find((x) => x.art === 'rettidighet');
   return p?.art === 'rettidighet' && erVederlagsvarselhjemmel(p.hjemmel) ? p.hjemmel : '34.3.3';
 };
 

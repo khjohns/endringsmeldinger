@@ -576,7 +576,11 @@ export function handlingerISporet(
     (h) =>
       h.spor === spor &&
       (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel)) &&
-      !(h.gjelder !== null && kravene.has(h.gjelder))
+      !(
+        (h.type === 'svare' || h.type === 'revidere') &&
+        h.gjelder !== null &&
+        kravene.has(h.gjelder)
+      )
   );
 }
 
