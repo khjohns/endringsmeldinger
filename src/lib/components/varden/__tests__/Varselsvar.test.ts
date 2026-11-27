@@ -868,6 +868,25 @@ describe('svaret på varselet om fristforlengelse etter punkt 33.4 som står ale
     expect(screen.getAllByText(/gir opp innsigelsen i brev 3 /).length).toBeGreaterThan(0);
   });
 
+  it('tidslinja kaller svaret bare på varselet «Svar på varselet om fristforlengelse», ikke svaret på kravet (VS-U96 punkt 39, #2481)', () => {
+    const journal = medFristvarsel();
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: fristvarselI(journal),
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const brevet = brevene(utledJournal(besvart, KJERNE)).at(-1)!;
+    expect(TIDSLINJE.hva(brevet)).toBe('Svar på varselet om fristforlengelse');
+    expect(TRAADEN.hva(brevet)).toBe('Svar på varsel om fristforlengelse');
+  });
+
   it('i Varden står svaret ved varselet i fristen og åpner skjemaet, ikke «Svar på kravet» (kravene i #2456)', async () => {
     const kjernesak = kjernesakFor(medFristvarsel());
     await kjernesak.last();
@@ -884,5 +903,112 @@ describe('svaret på varselet om fristforlengelse etter punkt 33.4 som står ale
     expect(
       await screen.findByRole('button', { name: 'Send til totalentreprenøren' })
     ).toBeInTheDocument();
+  });
+});
+
+describe('svaret bare på varselet når fristkravet selv er varselet etter punkt 33.4 (VS-U96 punkt 38, K2 i #2456)', () => {
+  /** Fristkravet uten varsel før: kravet er varselet etter § 33.4 (VS-U96 punkt 7). */
+  const medFristkravet = () =>
+    skrevet(medGrunnlag, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+      utdypning: 'Pelingen tar fire uker lenger.',
+    });
+  const kravetI = (journal: Journalrad[]) =>
+    utledJournal(journal, KJERNE).spor.frist.gjeldendeKrav!.id;
+  async function skjemaet(journal: Journalrad[]) {
+    const kjernesak = kjernesakFor(journal);
+    await kjernesak.last();
+    const u = kjernesak.utledning!;
+    const sendt: TilBrevkontrollen[] = [];
+    render(Varselsvar, {
+      kjernesak,
+      u,
+      varselet: varseletSvaretPaa(u, kravetI(journal))!,
+      onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
+      onforkast: () => {},
+    });
+    return sendt;
+  }
+
+  it('svaret har kravversjonen i `gjelder` og `bare_varselet`, og kjernen godtar det (svaret på spørsmål 3 i #2456)', async () => {
+    const journal = medFristkravet();
+    const sendt = await skjemaet(journal);
+    expect(
+      screen.getByRole('heading', { name: /^Svar på varsel om fristforlengelse/ })
+    ).toBeInTheDocument();
+    await radio('Kom for sent');
+    await seBrevet();
+    expect(svaret(sendt[0]!)).toMatchObject({
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: kravetI(journal),
+          bare_varselet: true,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const besvart = skrevet(journal, 'BH', svaret(sendt[0]!));
+    expect(utledJournal(besvart, KJERNE).spor.frist.svarPaaVarsler).toHaveLength(1);
+  });
+
+  it('et nytt svar erstatter det forrige svaret bare på varselet og gjentar innsigelsen (VS-U96 punkt 33, 34 og 38)', async () => {
+    const journal = medFristkravet();
+    const krav = kravetI(journal);
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: krav,
+          bare_varselet: true,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: false },
+          resultat: {},
+        },
+      ],
+    });
+    const forrige = utledJournal(besvart, KJERNE).spor.frist.svarPaaVarsler[0]!.id;
+    const sendt = await skjemaet(besvart);
+    expect(
+      screen.getByText(/at varselet kom for sent\. Svaret gjentar innsigelsen\.$/)
+    ).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    await seBrevet();
+    expect(svaret(sendt[0]!)).toMatchObject({
+      type: 'revisjon',
+      erstatter: forrige,
+      svar: {
+        spor: 'frist',
+        gjelder: krav,
+        bare_varselet: true,
+        vurderinger: { varslet_i_tide: true },
+      },
+    });
+    expect(() => skrevet(besvart, 'BH', svaret(sendt[0]!))).not.toThrow();
+  });
+
+  it('tidslinja kaller svaret «Svar på varselet om fristforlengelse» (VS-U96 punkt 39, #2481)', () => {
+    const journal = medFristkravet();
+    const besvart = skrevet(journal, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'frist',
+          gjelder: kravetI(journal),
+          bare_varselet: true,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { varslet_i_tide: true },
+          resultat: {},
+        },
+      ],
+    });
+    expect(TIDSLINJE.hva(brevene(utledJournal(besvart, KJERNE)).at(-1)!)).toBe(
+      'Svar på varselet om fristforlengelse'
+    );
   });
 });
