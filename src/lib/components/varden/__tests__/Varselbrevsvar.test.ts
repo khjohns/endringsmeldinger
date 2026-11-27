@@ -166,7 +166,7 @@ describe('svaret på varslene i Varden (M-5 i BF-37)', () => {
     const kjernesak = kjernesakFor(toRegningsarbeid());
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    const knapp = await screen.findByRole('button', { name: /^Svar på varslene i brev/ });
+    const knapp = await screen.findByRole('button', { name: 'Svar på varslene' });
     expect(
       screen.queryByRole('button', { name: /^Svar på varselet om regningsarbeid/ })
     ).toBeNull();
@@ -196,17 +196,13 @@ describe('svaret på varslene i Varden (M-5 i BF-37)', () => {
     await kjernesak.last();
     expect(varsleneIBrevet(kjernesak.utledning!, kjernesak.tilbudte, graving)).toBeNull();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    // U-8 i BF-37: svaret og det nye svaret sier hvilket arbeid de gjelder.
+    // Kort tekst: brevet og arbeidet står i skjemaet (oppdragsgiver 27.11 i #2500).
     expect(
-      await screen.findByRole('button', {
-        name: new RegExp(`^Svar på varselet om regningsarbeid i brev .*: ${FJERNVARME}$`),
-      })
+      await screen.findByRole('button', { name: 'Svar på varselet om regningsarbeid' })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', {
-        name: new RegExp(`^Nytt svar på varselet om regningsarbeid i brev .*: ${GRAVING}$`),
-      })
+      screen.getByRole('button', { name: 'Nytt svar på varselet om regningsarbeid' })
     ).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Svar på varslene i brev/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Svar på varslene' })).toBeNull();
   });
 });

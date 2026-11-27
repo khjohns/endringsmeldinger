@@ -197,12 +197,9 @@ export const VARSELSVARET = haerdet({
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
-  // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
-  /** Med arbeidet etter VS-U87 punkt 27. */
-  svar: (h: SvarbarVarselhjemmel, b?: Brevref, arbeid?: string) =>
-    `Svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
-  nyttSvar: (h: SvarbarVarselhjemmel, b?: Brevref, arbeid?: string) =>
-    `Nytt svar på ${VARSELNAVNET[h]}${b ? ` i ${brevref(b)}` : ''}${arbeid ? `: ${arbeid}` : ''}`,
+  // Handlingen står ved brevet, og brevet og arbeidet står i skjemaet (oppdragsgiver 27.11 i #2500).
+  svar: (h: SvarbarVarselhjemmel) => `Svar på ${VARSELNAVNET[h]}`,
+  nyttSvar: (h: SvarbarVarselhjemmel) => `Nytt svar på ${VARSELNAVNET[h]}`,
   /** U-8 i BF-37: arbeidet under navnet på varselet. */
   arbeidet: (arbeid: string) => `Arbeidet varselet gjelder: ${arbeid}`,
   // Kortet med svarene fra forrige brev i høyre kolonne i svaret på varselet (VS-U65).
@@ -236,6 +233,7 @@ export const VARSELSVARET = haerdet({
   nyttSvarPaaVarslene: 'Nytt svar på varslene i kravet',
   // M-5 og U-8 i BF-37: svaret på flere varsler i samme brev, ett svar per varsel (#2451).
   svarPaaVarsleneI: (b: Brevref) => `Svar på varslene i ${brevref(b)}`,
+  svarPaaFlere: 'Svar på varslene',
   hvertVarsel:
     'Ett svar per varsel. Har du ingen innsigelse mot et varsel, trenger du ikke svare på det.',
   manglerVarsel: 'Ta stilling til minst ett varsel.',

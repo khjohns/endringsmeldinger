@@ -250,12 +250,13 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     ).toBeTruthy();
   });
 
-  it('tidslinja kaller brevet med flere varsler «3 varsler», ikke navnet på varselet etter punkt 34.1.2 (U-2 i BF-37)', async () => {
+  it('tidslinja kaller brevet med flere varsler i vederlaget «Varsel om vederlagsjustering» (oppdragsgiver 27.11 i #2500)', async () => {
     await aapneSom('te-har-varslet');
     await fireEvent.click(
       await screen.findByRole('button', { name: 'Send krav om vederlagsjustering' })
     );
-    expect(screen.getAllByText('3 varsler').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Varsel om vederlagsjustering').length).toBeGreaterThan(0);
+    expect(screen.queryByText('3 varsler')).toBeNull();
   });
 
   it('byggherren får svaret på varselet etter punkt 34.1.2 som står alene i samme svarskjema, og varslene i brev 3 besvares i ett svar (#2447, VS-U87 punkt 32, M-5 i BF-37)', async () => {
@@ -273,10 +274,7 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
     // 34.3.3 står i brev 3 og besvares i ett svar (M-5 i BF-37), og varselet etter punkt 34.1.2
     // står i et annet brev.
     expect(knappene.map((k) => k.classList.contains('knapp-primaer'))).toEqual([true, true]);
-    expect(svarene).toEqual([
-      'Svar på varslene i brev 3',
-      'Svar på varselet om vederlagsjustering',
-    ]);
+    expect(svarene).toEqual(['Svar på varslene', 'Svar på varselet om vederlagsjustering']);
     await fireEvent.click(knappene[1]!);
     const skjema = within(await screen.findByRole('form'));
     expect(

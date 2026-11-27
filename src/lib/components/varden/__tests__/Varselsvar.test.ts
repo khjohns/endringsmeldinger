@@ -346,7 +346,7 @@ describe('innsigelsen fra svaret på varselet i svaret på kravposten (VS-U77 pu
 });
 
 describe('flere varsler etter samme bestemmelse (VS-U77 punkt 27 og 33)', () => {
-  it('handlingene sier hvilket brev varselet står i', async () => {
+  it('handlingene står ved brevet med varselet og har en kort tekst (oppdragsgiver 27.11 i #2500)', async () => {
     const journal = skrevet(medVarsel('34.3.3'), 'TE', {
       type: 'send_varsel',
       varsler: [{ hjemmel: '34.3.3', arbeid: 'Graving ved kum 4' }],
@@ -355,13 +355,10 @@ describe('flere varsler etter samme bestemmelse (VS-U77 punkt 27 og 33)', () => 
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     expect(
-      await screen.findByRole('button', {
-        name: /^Svar på varselet om justering av enhetsprisene i brev.2$/,
+      await screen.findAllByRole('button', {
+        name: 'Svar på varselet om justering av enhetsprisene',
       })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/^Svar på varselet om justering av enhetsprisene i brev.3$/)
-    ).toBeInTheDocument();
+    ).toHaveLength(2);
   });
 });
 

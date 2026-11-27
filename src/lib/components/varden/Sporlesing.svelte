@@ -13,7 +13,6 @@
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
   import {
-    arbeidetI,
     hjemmelenForVarselet,
     varsleneIBrevet,
     varsleneIVederlagskravet,
@@ -146,13 +145,12 @@
       : null;
   // M-5 i BF-37: varslene i et brev med flere varsler besvares i ett svar, med handlingen for det
   // første varselet i brevet (`varsleneIBrevet`). De andre står ikke for seg.
-  // Handlingene for varslene i et slikt brev, med brevet, og om handlingen åpner svaret.
+  // Handlingene for varslene i et slikt brev, og om handlingen åpner svaret.
   const brevsvarene = $derived(
     iSporet.flatMap((h) => {
       const iBrevet =
         h.type === 'svare' && h.gjelder ? varsleneIBrevet(u, kjernesak.tilbudte, h.gjelder) : null;
-      const brevet = iBrevet && brevMedUtsagn(u, h.gjelder!);
-      return brevet ? [{ noekkel: h.noekkel, brevet, aapner: iBrevet![0]!.id === h.gjelder }] : [];
+      return iBrevet ? [{ noekkel: h.noekkel, aapner: iBrevet[0]!.id === h.gjelder }] : [];
     })
   );
   const iSammeSvar = (n: string) => brevsvarene.some((x) => x.noekkel === n && !x.aapner);
@@ -356,8 +354,7 @@
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
-    const brevet = brevsvarene.find((x) => x.noekkel === n && x.aapner)?.brevet;
-    if (brevet) return VARSELSVARET.svarPaaVarsleneI(brevet);
+    if (brevsvarene.some((x) => x.noekkel === n && x.aapner)) return VARSELSVARET.svarPaaFlere;
     const iKravet = varslene(h);
     if (iKravet) {
       const [en, ...flere] = iKravet.poster;
@@ -369,20 +366,7 @@
           : VARSELSVARET.nyttSvarPaaVarslene;
     }
     const v = varselhjemmel(h);
-    if (v) {
-      // Svaret og det nye svaret på varsler etter samme bestemmelse skilles fra hverandre (U-8 i
-      // BF-37), også når bare ett av varslene i brevet er besvart.
-      const samme = iSporet.filter(
-        (x) => (x.type === 'svare' || x.type === 'revidere') && varselhjemmel(x) === v
-      );
-      const brev = samme.length > 1 ? (brevMedUtsagn(u, h!.gjelder!) ?? undefined) : undefined;
-      // VS-U87 punkt 27.
-      const iBrevet = samme.filter((x) => brev && brevMedUtsagn(u, x.gjelder!)?.id === brev.id);
-      const arbeid = iBrevet.length > 1 ? arbeidetI(u, h!.gjelder!) : undefined;
-      return h!.type === 'svare'
-        ? VARSELSVARET.svar(v, brev, arbeid)
-        : VARSELSVARET.nyttSvar(v, brev, arbeid);
-    }
+    if (v) return h!.type === 'svare' ? VARSELSVARET.svar(v) : VARSELSVARET.nyttSvar(v);
     return omtalen(n)?.tekst?.() ?? null;
   }
 

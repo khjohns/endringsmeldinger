@@ -855,7 +855,7 @@ export const TESTSAKER: Record<string, Testsak> = {
     ],
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
-      const handlingen = bh.getByRole('button', { name: /^Svar på varslene i brev/ });
+      const handlingen = bh.getByRole('button', { name: 'Svar på varslene', exact: true });
       await handlingen.waitFor({ timeout: 30_000 });
       await bh.screenshot({ path: `${ut}/varselbrev-handlingen.png`, fullPage: true });
       await bh.setViewportSize({ width: 390, height: 844 });
