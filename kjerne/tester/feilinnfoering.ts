@@ -8441,8 +8441,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [
       [
-        "if (e) ut.push({ type: 'rette_datoen', gjelder: e.id });",
-        "if (e && false) ut.push({ type: 'rette_datoen', gjelder: e.id });",
+        "ut.push({ type: 'rette_datoen', gjelder: e.id });",
+        "void { type: 'rette_datoen', gjelder: e.id };",
       ],
     ],
     mal: ['TE får tilbud om å rette datoen for varselet og kravet lagt til'],

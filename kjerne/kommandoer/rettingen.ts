@@ -5,7 +5,7 @@
  */
 
 import { dokumenterI, erRegistrert } from '../format/leser.ts';
-import { avvis, SPOR, type Avvisning, type Krav, type Varselhjemmel } from '../typer.ts';
+import { avvis, SPOR, type Avvisning, type Krav, type Spor, type Varselhjemmel } from '../typer.ts';
 import type { Utledning } from '../utledning/utled.ts';
 
 /** Varselet eller kravet en retting gjelder, med hjemmelen for et varsel. */
@@ -19,20 +19,38 @@ export type DetSomRettes =
  * datoen i et krav sendt fra løsningen rettes ikke (punkt 15 og 18).
  */
 export function detSomRettes(u: Utledning, id: string): DetSomRettes | undefined {
-  const lagtTil = new Set(
-    [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
-  );
   for (const spor of SPOR) {
     const s = u.spor[spor];
     const krav = [...s.krav, ...s.kravUtenforRekken].find((k) => k.id === id);
-    if (krav) return lagtTil.has(krav.dokument) ? { art: 'krav', element: krav } : undefined;
+    if (krav) return lagtTil(u).has(krav.dokument) ? { art: 'krav', element: krav } : undefined;
     const varsel = [...Object.values(s.varsler), ...s.kravpostvarsler].find((v) => v?.id === id);
     if (varsel)
-      return lagtTil.has(varsel.dokument)
+      return lagtTil(u).has(varsel.dokument)
         ? { art: 'varsel', hjemmel: varsel.hjemmel, element: varsel }
         : undefined;
   }
   return undefined;
+}
+
+/** Varslene og kravene i sporet en retting kan gjelde, før forutsetningen (`detSomRettes`). */
+export const varsleneOgKraveneI = (s: Utledning['spor'][Spor]): Pick<Krav, 'id' | 'dokument'>[] => [
+  ...s.krav,
+  ...s.kravUtenforRekken,
+  ...Object.values(s.varsler).flatMap((v) => (v ? [v] : [])),
+  ...s.kravpostvarsler,
+];
+
+/** Dokumentene lagt til som korrespondanse, én gang per utledning. */
+const LAGT_TIL = new WeakMap<Utledning, ReadonlySet<string>>();
+function lagtTil(u: Utledning): ReadonlySet<string> {
+  let ider = LAGT_TIL.get(u);
+  if (!ider) {
+    ider = new Set(
+      [...dokumenterI(u.journal)].filter((d) => erRegistrert(d.opplysninger)).map((d) => d.id)
+    );
+    LAGT_TIL.set(u, ider);
+  }
+  return ider;
 }
 
 /**

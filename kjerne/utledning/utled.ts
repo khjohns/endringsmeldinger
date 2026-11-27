@@ -68,7 +68,7 @@ import {
   type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
-import { datoEtterRettingene, rettingeneI, type Retting } from './rettingen.ts';
+import { datoEtterRettingene, type Retting } from './rettingen.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdetErAvvistVedEnighet,
@@ -1170,7 +1170,12 @@ function utledSporene(
     const oppgitt = datoFor(v, 'sendt', d.opplysninger);
     return kalenderdag(oppgitt ? oppgitt.dato : d.registrert);
   };
-  const rettingene = rettingeneI(journal, rettinger);
+  const rettingene: Retting[] = rettinger.map((x) => ({
+    id: x.id,
+    dokument: elementer[x.id].hendelse,
+    gjelder: x.gjelder,
+    dato: x.dato,
+  }));
   // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
   // da det ble sendt.
   const gjaldtVedSvaret = (v: Pick<Krav, 'id' | 'dokument'>, svar: string): string | null =>

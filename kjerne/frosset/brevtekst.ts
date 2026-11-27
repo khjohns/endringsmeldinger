@@ -1072,7 +1072,7 @@ function beskriv(id: string, j: Journalen): string {
 }
 
 /** Varselet eller kravet en retting gjelder (U-3 i BF-50), uten brevet det står i. */
-function detSomRettes(id: string, j: Journalen): string {
+function omtalenAvDetSomRettes(id: string, j: Journalen): string {
   const e = j.element(id);
   if (e.art === 'utsagn' && e.utsagn.art === 'varsel') return VARSELET_I_SVARET[e.utsagn.hjemmel];
   if (e.art === 'krav') return brevtekstI(e.krav.spor).svaretGjelder(e.krav);
@@ -1204,12 +1204,15 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
       // sendt. Brevet sier ikke virkningen. Ordlyden er design.
       const dokument = j.dokumentetTil(u.gjelder);
       const rettet = saken.rettetDato[u.gjelder];
-      const sendt = dagenSendt({ id: u.gjelder, dokument }, j.dokumentMed(u.gjelder)!);
-      if (sendt === null) throw new KanIkkeUttrykkes(`datoen for ${u.gjelder} kan ikke leses`);
-      const gjaldt = rettet
-        ? `${norskDato(rettet.dato)}, etter rettingen i ${j.brevet(rettet.dokument)}`
-        : norskDato(sendt);
-      return `Totalentreprenøren retter datoen for ${detSomRettes(u.gjelder, j)} i ${j.brevet(dokument)} til ${norskDato(u.dato)}. Datoen som gjaldt, var ${gjaldt}.`;
+      let gjaldt: string;
+      if (rettet)
+        gjaldt = `${norskDato(rettet.dato)}, etter rettingen i ${j.brevet(rettet.dokument)}`;
+      else {
+        const sendt = dagenSendt({ id: u.gjelder, dokument }, j.dokumentMed(u.gjelder)!);
+        if (sendt === null) throw new KanIkkeUttrykkes(`datoen for ${u.gjelder} kan ikke leses`);
+        gjaldt = norskDato(sendt);
+      }
+      return `Totalentreprenøren retter datoen for ${omtalenAvDetSomRettes(u.gjelder, j)} i ${j.brevet(dokument)} til ${norskDato(u.dato)}. Datoen som gjaldt, var ${gjaldt}.`;
     }
     case 'innlegg':
       // MM-U47 punkt 2 og LV-U53: henvisningen, og partens tekst følger som utdypningen.

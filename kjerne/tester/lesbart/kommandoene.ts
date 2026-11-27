@@ -69,9 +69,9 @@ export const KOMMANDOENE: Lesbar[] = [
     ],
   ],
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'dato'],
-  ['Utledning', 'utsagn', 'journal', ['kommandoer/rettingen.ts:detSomRettes']],
-  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/rettingen.ts:detSomRettes']],
-  ['Dokument', 'relasjon', 'id', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['Utledning', 'utsagn', 'journal', ['kommandoer/rettingen.ts:lagtTil']],
+  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/rettingen.ts:lagtTil']],
+  ['Dokument', 'relasjon', 'id', ['kommandoer/rettingen.ts:lagtTil']],
   ['Krav', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
   ['Utsagn', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
   ['DetSomRettes', 'relasjon', 'art hjemmel element'],
@@ -83,6 +83,13 @@ export const KOMMANDOENE: Lesbar[] = [
     ['kommandoer/nyttelast.ts:kontrollerRettingen', 'kommandoer/skriving.ts:rettes'],
   ],
   ['kommandoer/rettingen.ts', 'predikat', 'rettingen', ['kommandoer/forutsetninger.ts:henvisning']],
+  // G-7 i BF-50: varslene og kravene tilbudet prøver forutsetningen for.
+  [
+    'kommandoer/rettingen.ts',
+    'relasjon',
+    'varsleneOgKraveneI',
+    ['kommandoer/handlinger.ts:kandidater'],
+  ],
   [
     'utledning/utled.ts',
     'utsagn',

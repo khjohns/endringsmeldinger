@@ -45,6 +45,7 @@ import {
 } from './klient.ts';
 import type { Kommando } from '../kommandoer/kommando.ts';
 import { SPOR, type Journalrad } from '../typer.ts';
+import { varsleneOgKraveneI } from '../kommandoer/rettingen.ts';
 
 export type Kontroll = {
   etter: number;
@@ -473,15 +474,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder for
     // varselet eller kravet etter TEs rettinger (`datoenSomGjelder`).
     case 'dato_som_gjelder': {
-      const e = SPOR.flatMap((spor) => {
-        const s = u.spor[spor];
-        return [
-          ...s.krav,
-          ...s.kravUtenforRekken,
-          ...Object.values(s.varsler),
-          ...s.kravpostvarsler,
-        ];
-      }).find((x) => x?.id === id(hale[0]));
+      const e = SPOR.flatMap((spor) => varsleneOgKraveneI(u.spor[spor])).find(
+        (x) => x.id === id(hale[0])
+      );
       return e ? datoenSomGjelder(u, e) : null;
     }
     case 'datoopplysninger':

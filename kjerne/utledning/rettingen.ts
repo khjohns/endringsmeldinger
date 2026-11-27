@@ -7,9 +7,6 @@
  * ikke (punkt 18, OV-U123 punkt 17).
  */
 
-import { dokumenterI } from '../format/leser.ts';
-import type { Domenehendelse, Utsagn } from '../typer.ts';
-
 /** En retting av datoen, slik den står i journalen. */
 export interface Retting {
   id: string;
@@ -19,23 +16,6 @@ export interface Retting {
   gjelder: string;
   /** Den nye datoen. */
   dato: string;
-}
-
-type Rettingsutsagn = Extract<Utsagn, { art: 'retting' }>;
-
-/** Rettingene utledningen har lest, i rekkefølgen de står i journalen. */
-export function rettingeneI(
-  journal: readonly Domenehendelse[],
-  lest: readonly Rettingsutsagn[]
-): Retting[] {
-  const ider = new Set(lest.map((r) => r.id));
-  return [...dokumenterI(journal)].flatMap((d) =>
-    d.utsagn.flatMap((x) =>
-      x.art === 'retting' && ider.has(x.id)
-        ? [{ id: x.id, dokument: d.id, gjelder: x.gjelder, dato: x.dato }]
-        : []
-    )
-  );
 }
 
 /**

@@ -186,15 +186,12 @@ export const UTLEDNINGEN: Lesbar[] = [
   // retting av datoen for et varsel eller et krav lagt til, og datoen som gjelder, som premiss
   // for nye svar og for det første varselet (VS-U86). Hva som var gjeldende, leser den oppgitte
   // datoen (punkt 18).
-  ['Utsagn', 'utsagn', 'dato', ['utledning/rettingen.ts:rettingeneI']],
+  ['Utsagn', 'utsagn', 'dato', ['utledning/utled.ts:utledSporene']],
   ['Utledning', 'utsagn', 'rettinger'],
   ['Retting', 'relasjon', 'id gjelder'],
   // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
   ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Retting', 'utsagn', 'dato'],
-  ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/rettingen.ts:rettingeneI']],
-  ['Dokument', 'relasjon', 'id', ['utledning/rettingen.ts:rettingeneI']],
-  ['utledning/rettingen.ts', 'predikat', 'rettingeneI', ['utledning/utled.ts:utledSporene']],
   [
     'utledning/rettingen.ts',
     'utsagn',
@@ -208,6 +205,8 @@ export const UTLEDNINGEN: Lesbar[] = [
     'hendelse part',
     ['utledning/utled.ts:kontrollerRettingene'],
   ],
+  // Brevet rettingen står i (`Retting.dokument`).
+  ['utledning/utled.ts:Element', 'relasjon', 'hendelse', ['utledning/utled.ts:utledSporene']],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
