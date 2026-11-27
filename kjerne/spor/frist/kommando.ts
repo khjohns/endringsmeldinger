@@ -18,6 +18,7 @@ import type { Regelsett } from '../../regler/regelsett.ts';
 import {
   kravversjoneneKravetProevesMot,
   rettedeBrev,
+  varseletFoerBrevet,
   varseletForNyttSvar,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -208,6 +209,18 @@ export function fristvarseletSvaretGjelder(
 }
 
 /**
+ * VS-U96 punkt 38: varselet etter § 33.4 et svar bare på varselet i kravversjonen `gjelder` gjelder,
+ * når kravet selv er varselet (punkt 7), ellers `null`. Varselet er det første kravet som varsler,
+ * som i svaret på kravet (`varseletForNyttSvar`).
+ */
+export function fristvarseletIKravet(u: Utledning, gjelder: string): Svaretsvarsel<'33.4'> | null {
+  const sporet = u.spor.frist;
+  if (!sporet.krav.some((k) => k.id === gjelder)) return null;
+  const v = varseletFoerBrevet(u, '33.4');
+  return v !== undefined && v !== sporet.varsler['33.4']?.id ? { id: v, hjemmel: '33.4' } : null;
+}
+
+/**
  * VS-U96 punkt 32 og 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 33.4, eller
  * et nytt svar som erstatter det forrige (`hva`). Et svar lagt til, sendt på dagen `sendt`, prøves
  * mot byggherrens svar på kravene sendt til og med den dagen (OV-U98).
@@ -220,7 +233,11 @@ export function hindrerSvaretPaaFristvarselet(
 ): Avvisning | null {
   const sporet = u.spor.frist;
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  // VS-U96 punkt 33 og 38: svarene bare på varselet i kravet er én kjede (`svarkjeden`).
+  const bare = sporet.krav.some((k) => k.id === gjelder);
+  const forrige = sporet.svarPaaVarsler.some((x) =>
+    bare ? x.bareVarselet : x.gjelder === gjelder
+  );
   if (hva === 'Svaret' && forrige)
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)

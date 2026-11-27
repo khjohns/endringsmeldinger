@@ -322,6 +322,23 @@ function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
 }
 
 /**
+ * VS-U96 punkt 38: svaret bare på varselet har bare standpunktene til varselet etter § 34.3.3
+ * første ledd eller § 34.4 og til justeringen, og hvert passer til kravposten det gjelder.
+ */
+function kontrollerVarslenePaaPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
+  const poster = new Map(kravposterI(krav).map((p) => [p.id, p]));
+  for (const p of s.standpunkter) {
+    if (!(p.art === 'justering' || (p.art === 'rettidighet' && erKravpostvarselhjemmel(p.hjemmel))))
+      ugyldig(
+        s.id,
+        'svaret bare på varselet har et annet standpunkt enn til varselet for en kravpost'
+      );
+    const grunn = kravpoststandpunktetStrider(p, poster);
+    if (grunn) ugyldig(s.id, grunn);
+  }
+}
+
+/**
  * Hvorfor et standpunkt som gjelder en kravpost, ikke passer til kravposten i kravet, eller
  * `null`: standpunktet til oppgjørsformen har TEs oppgjørsform som hjemmel, rettidigheten etter
  * § 34.3.3 eller § 34.4 gjelder en kravpost som trenger det varselet (KA-U64), justeringen
@@ -367,6 +384,7 @@ export const KONTROLLER_I_VEDERLAGET = {
     saerskiltStrider(k, tidligere),
   kravene: kontrollerKravpostvarslene,
   svaret: kontrollerPostene,
+  svaretBarePaaVarselet: kontrollerVarslenePaaPostene,
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: () => {},

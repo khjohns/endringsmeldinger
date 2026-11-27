@@ -13,6 +13,7 @@ import { sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
 import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
   FORUTSETNINGER_I_FRISTEN,
+  fristvarseletIKravet,
   fristvarseletSvaretGjelder,
   hindrerSvaretPaaFristvarselet,
 } from '../spor/frist/kommando.ts';
@@ -21,6 +22,7 @@ import { iSporet } from '../frosset/byggeklosser.ts';
 import { PARTEN } from '../frosset/brevdeler.ts';
 import {
   FORUTSETNINGER_I_VEDERLAGET,
+  hindrerSvaretBarePaaVarselet,
   hindrerSvaretPaaVarselet,
   kunnskapsdatoen,
 } from '../spor/vederlag/kommando.ts';
@@ -53,7 +55,10 @@ export type Handlingsnoekkel =
   | { type: 'registrere_brev' }
   /** OV-U97, MM-U47: innlegget i fritekst, fra begge parter. Brevet det viser til, står i kommandoen. */
   | { type: 'sende_innlegg' }
-  /** VS-U79: byggherrens svar på et varsel i vederlaget som står alene (VS-U87 punkt 30–32). */
+  /**
+   * VS-U79: byggherrens svar på et varsel som står alene (VS-U96 punkt 30–32), eller bare på
+   * varselet i kravversjonen `gjelder` når kravet selv er varselet (punkt 38).
+   */
   | { type: 'svare' | 'revidere'; gjelder: string }
   | {
       type: 'korrigere' | 'oppgi_kunnskapsdato' | 'svare_paa_foresporsel';
@@ -107,10 +112,14 @@ function henvisning(
   switch (h.type) {
     case 'svare':
     case 'revidere': {
-      // VS-U96 punkt 32: varselet etter § 33.4 i fristen, ellers et varsel i vederlaget.
-      const hindrer = fristvarseletSvaretGjelder(u, h.gjelder)
-        ? hindrerSvaretPaaFristvarselet
-        : hindrerSvaretPaaVarselet;
+      // VS-U96 punkt 32 og 38: varselet etter § 33.4 i fristen, også når kravet selv er varselet,
+      // varselet i et vederlagskrav som selv er varselet, ellers et varsel i vederlaget.
+      const hindrer =
+        fristvarseletSvaretGjelder(u, h.gjelder) || fristvarseletIKravet(u, h.gjelder)
+          ? hindrerSvaretPaaFristvarselet
+          : u.spor.vederlag.krav.some((k) => k.id === h.gjelder)
+            ? hindrerSvaretBarePaaVarselet
+            : hindrerSvaretPaaVarselet;
       // HF-U35 punkt 9, som for svaret på kravet.
       return u.forholdAvvist
         ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)

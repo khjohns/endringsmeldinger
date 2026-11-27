@@ -127,23 +127,32 @@ function virkningerISvaretPaaVarselet(
   svar: Svarinnhold,
   forSentFoer: ReadonlySet<string>
 ): Standpunktsvirkning[] {
-  const varselet = svar.standpunkter.find((s) => s.art === 'rettidighet');
-  const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
-  const lag = lagIKravposten(
-    {
-      godtarRegelen: true,
-      varselForSent: varselet
-        ? varselet.art === 'rettidighet' && varselet.hjemmel === '34.3.3' && !varselet.iTide
-        : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),
-      justering: justeringen !== undefined,
-    },
-    1
-  );
-  return svar.standpunkter.map((s) => ({
-    standpunkt: s.id,
-    art: s.art,
-    virkning: s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
-  }));
+  // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost.
+  const varslene = new Map<string, Standpunkt[]>();
+  for (const s of svar.standpunkter) {
+    const gjelder = ('gjelder' in s ? s.gjelder : undefined) ?? '';
+    varslene.set(gjelder, [...(varslene.get(gjelder) ?? []), s]);
+  }
+  return [...varslene.values()].flatMap((standpunktene) => {
+    const varselet = standpunktene.find((s) => s.art === 'rettidighet');
+    const justeringen = standpunktene.find((s) => s.art === 'justering');
+    const lag = lagIKravposten(
+      {
+        godtarRegelen: true,
+        varselForSent: varselet
+          ? varselet.art === 'rettidighet' && varselet.hjemmel === '34.3.3' && !varselet.iTide
+          : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),
+        justering: justeringen !== undefined,
+      },
+      1
+    );
+    return standpunktene.map((s) => ({
+      standpunkt: s.id,
+      art: s.art,
+      virkning:
+        s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
+    }));
+  });
 }
 
 /**
@@ -326,13 +335,13 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
  * standpunkt til varselet (VS-U77 punkt 9 og 12, VS-U80).
  */
 function tausOmVarselet(svar: Svarinnhold, krav: Krav | null | undefined): VarselIKravet[] {
-  if (svaretGjelderEtVarsel(svar)) {
-    const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
-    return justeringen?.art === 'justering' &&
-      !svar.standpunkter.some((s) => s.art === 'rettidighet')
-      ? [{ gjelder: justeringen.gjelder, hjemmel: '34.3.3' }]
-      : [];
-  }
+  if (svaretGjelderEtVarsel(svar))
+    return svar.standpunkter.flatMap((j): VarselIKravet[] =>
+      j.art === 'justering' &&
+      !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.gjelder === j.gjelder)
+        ? [{ gjelder: j.gjelder, hjemmel: '34.3.3' }]
+        : []
+    );
   if (!krav) return [];
   return kravposterI(krav).flatMap((p) => {
     const hjemmel = varselhjemmel(p);

@@ -355,6 +355,43 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   // VS-U79: et svar på et varsel gjelder varselet.
   ['kommandoer/standpunkter.ts:svaretsVarsel', 'relasjon', 'spor gjelder'],
+  // VS-U96 punkt 38: svaret bare på varselet i kravversjonen, og kravpostene det gjelder.
+  ['kommandoer/standpunkter.ts:svaretsVarsel', 'kommando', 'bare_varselet'],
+  ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'kommando', 'bare_varselet'],
+  [
+    'Svarutkast',
+    'kommando',
+    'bare_varselet',
+    [
+      'kommandoer/skriving.ts:svar',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
+  ],
+  // VS-U96 punkt 33 og 38: kjeden svarene bare på varselet står i.
+  ['utledning/utled.ts', 'relasjon', 'svarkjeden', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
+  [
+    'VarsleneIKravet',
+    'relasjon',
+    'krav poster',
+    [
+      'kommandoer/standpunkter.ts:standpunkter',
+      'kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet',
+    ],
+  ],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'fristvarseletIKravet',
+    ['kommandoer/standpunkter.ts:svaretsVarsel', 'kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'kravposteneSomVarsler ubesvartePoster',
+    ['kommandoer/standpunkter.ts:svaretsVarsel'],
+  ],
+  ['VarseletIKravposten', 'relasjon', 'id hjemmel'],
   [
     'spor/vederlag/kommando.ts',
     'relasjon',
@@ -450,7 +487,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'Sporskontroller',
     'predikat',
-    'kravet kravene svaret leserDatoen svaretKanGodtas saken',
+    'kravet kravene svaret svaretBarePaaVarselet leserDatoen svaretKanGodtas saken',
     ['utledning/utled.ts'],
   ],
   // Skrivingen i sporet (#1783).
@@ -553,6 +590,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/skriving.ts:frysBrev',
       // Leserne i kommandoen før flyttingen til utledningen (VS-U81).
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
       'spor/vederlag/kommando.ts:innsigelseneEtter344',
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/vederlag/kommando.ts:lagIVederlaget',
@@ -624,6 +662,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
       'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
       'spor/forhold/kommando.ts:lagIForholdet',
     ],
@@ -635,6 +674,7 @@ export const KOMMANDOENE: Lesbar[] = [
     [
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
       'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
     ],
   ],

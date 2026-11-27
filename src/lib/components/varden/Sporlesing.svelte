@@ -105,7 +105,7 @@
   const part = $derived(kjernesak.part as Part);
   const alleBrev = $derived(brevene(u));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes(spor)));
-  const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor));
+  const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor, u));
   const noekler = $derived(iSporet.map((h) => h.noekkel));
   const handlingen = (n: string) => iSporet.find((h) => h.noekkel === n);
   const svaret = $derived(u.spor[spor].gjeldendeSvar);

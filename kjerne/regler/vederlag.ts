@@ -616,14 +616,14 @@ export function kontrollerOppgjoersformen(
  * en kravpost med justerte enhetspriser der beregningsregelen er godtatt, og kan si at varselet kom
  * for sent eller uttrykkelig i tide (svar 3 A). Svaret på varselet etter § 34.4 har bare
  * standpunktet til varselet, og «i tide» er oppgivelsen av en innsigelse som står
- * (`kontrollerOppgivelsenEtter344`). Feilene står på `varselet.<felt>`.
+ * (`kontrollerOppgivelsenEtter344`). Feilene står på `<navn>.<felt>`, og `navn` er `varselet` eller kravposten.
  */
 export function kontrollerSvaretPaaVarselet(
   hjemmel: Vederlagsvarselhjemmel,
   v: Record<string, unknown>,
-  innsigelsenStaar: boolean
+  innsigelsenStaar: boolean,
+  navn = 'varselet'
 ): void {
-  const navn = 'varselet';
   const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide' && f !== 'godtar_justering');
   if (ukjent.length)
     throw new UgyldigVurdering(

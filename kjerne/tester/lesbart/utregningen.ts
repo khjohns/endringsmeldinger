@@ -377,6 +377,7 @@ export const UTREGNINGEN: Lesbar[] = [
     [
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
     ],
   ],
   ['regler/vederlag.ts:kontrollerInnsigelsenSomStaar', 'utsagn', 'varslet_i_tide'],
@@ -391,6 +392,30 @@ export const UTREGNINGEN: Lesbar[] = [
     'hindrerSvaretPaaVarselet',
     ['kommandoer/forutsetninger.ts:henvisning'],
   ],
+  // VS-U96 punkt 38 og 33: svaret bare på varselet i vederlagskravet.
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'hindrerSvaretBarePaaVarselet',
+    ['kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'standpunkterBarePaaVarselet',
+    ['kommandoer/standpunkter.ts:standpunkter'],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'relasjon',
+    'vurderingeneISvaretBarePaaVarselet',
+    ['kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet'],
+  ],
+  ['spor/vederlag/kommando.ts:postsvarene(v)', 'utsagn', 'kravposter'],
+  ['spor/vederlag/kommando.ts:postsvarene(p)', 'relasjon', 'gjelder'],
+  ['spor/vederlag/kommando.ts:postsvarene', 'relasjon', 'post svar'],
+  ['spor/vederlag/kommando.ts:postsvarene.post', 'relasjon', 'betegnelse'],
+
   // VS-U96 punkt 32 og 33: svaret på varselet etter § 33.4 som står alene.
   [
     'spor/frist/kommando.ts',
@@ -447,7 +472,10 @@ export const UTREGNINGEN: Lesbar[] = [
     'regler/vederlag.ts',
     'regelsett',
     'kontrollerSvaretPaaVarselet',
-    ['spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet'],
+    [
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
+    ],
   ],
   [
     'regler/vederlag.ts:kontrollerSvaretPaaVarselet(v)',
@@ -470,7 +498,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'id',
     [
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
-      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:besvarteVederlagskrav',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],

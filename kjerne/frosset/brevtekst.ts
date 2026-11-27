@@ -416,7 +416,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
       vilkaar: sporet.vilkaaret(p, krav),
       tekst: stor(
         p.art === 'rettidighet'
-          ? rettidighetstekst(p, krav, j, sporet, t)
+          ? rettidighetstekst(p, krav, j, sporet, t, s.bareVarselet)
           : standpunkttekst(p, s, krav, j)
       ),
     });
@@ -447,13 +447,15 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));
   // OV-U73: tabellen har lagene i sporet, så første og siste kolonne er beløpene i utregningen.
   const iSporet = (plass: number | null) => (plass === null ? null : plass - fra.forskyvning);
-  const oversikten =
-    sporet.oversikt?.(
-      krav,
-      beloepene.map((b) => ({ ...b, plass: iSporet(b.plass) })),
-      lagene - fra.forskyvning,
-      fra.forskyvning
-    ) ?? null;
+  // VS-U96 punkt 38: svaret bare på varselet har ingen utregning og ingen tabell.
+  const oversikten = s.bareVarselet
+    ? null
+    : (sporet.oversikt?.(
+        krav,
+        beloepene.map((b) => ({ ...b, plass: iSporet(b.plass) })),
+        lagene - fra.forskyvning,
+        fra.forskyvning
+      ) ?? null);
   // LV-U33, LV-U38: uten tabell sier punktet om varselet følgen for postene.
   if (!oversikten) {
     const varselet = ledd.find((l) => l.punkt === '34.1.2' && l.vilkaar);
@@ -701,7 +703,12 @@ function utenGjentattNs(tekst: string, ns: { nevnt: boolean }): string {
 
 /** Innledningen i svaret (LV-U34, LV-U41), med setningene om byggherrens forrige svar (LV-U73). */
 function innledningen(s: Svar, krav: Krav, { j }: Tekst): string {
-  return `${brevtekstI(s.spor).innledning(krav, { j })}${forrigeSvar(s, j)}`;
+  const sporet = brevtekstI(s.spor);
+  // VS-U96 punkt 39: brevet sier at byggherren ikke har tatt stilling til kravet. Ordlyden er design.
+  const innledning = s.bareVarselet
+    ? `Byggherren svarer bare på varselet i totalentreprenørens krav om ${sporet.kravetOm} i ${j.brevet(krav.dokument)}. Byggherren har ikke tatt stilling til kravet.`
+    : sporet.innledning(krav, { j });
+  return `${innledning}${forrigeSvar(s, j)}`;
 }
 
 /** LV-U73: setningene om byggherrens forrige svar, med mellomrom foran, eller ingenting. */
@@ -798,11 +805,7 @@ function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
         if (p.art !== 'rettidighet') continue;
         if (svar.spor === 'forhold' && p.hjemmel === '32.2')
           preklusjonen = p.iTide ? null : { gjelder: p.gjelder, dokument: d.id };
-        if (
-          svar.spor === 'frist' &&
-          p.hjemmel === '33.4' &&
-          j.element(svar.gjelder).art === 'utsagn'
-        )
+        if (svar.spor === 'frist' && p.hjemmel === '33.4' && erSvarPaaVarselet(svar, j))
           etter334 = p.iTide ? null : (etter334 ?? { gjelder: p.gjelder, dokument: d.id });
       }
     }
@@ -901,14 +904,16 @@ function rettidighetstekst(
   krav: Krav,
   j: Journalen,
   sporet: Sporsbrevtekst,
-  { saken, nytt }: Pick<Tekst, 'saken' | 'nytt'>
+  { saken, nytt }: Pick<Tekst, 'saken' | 'nytt'>,
+  bareVarselet: boolean
 ): string {
   if (erKravpostvarselhjemmel(p.hjemmel))
     return varseltekst(
       p,
       `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`,
       kravposterI(krav),
-      { j, saken, nytt }
+      { j, saken, nytt },
+      bareVarselet
     );
   // VS-U87 punkt 34: innsigelsen i svaret på varselet etter § 34.1.2 eller § 34.1.3. Står den,
   // viser svaret til den.
@@ -977,7 +982,7 @@ function innsigelsenFoer(
             s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),
             dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
-            paaVarselet: j.element(x.gjelder).art === 'utsagn',
+            paaVarselet: erSvarPaaVarselet(x, j),
           }))
       ),
     poster
@@ -989,26 +994,30 @@ function innsigelsenFoer(
  * svaret på kravposten eller på varselet. `om` er varselet slik brevet nevner det. Innsigelsen
  * fra et tidligere svar på varselet eller kravposten står for posten, og svaret gjentar den
  * eller gir den opp (VS-U77 punkt 9, 10, 33 og 34). Etter § 34.4 sier svaret på kravposten
- * «ikke ble gitt eller kom for sent», og svaret på varselet «kom for sent» (punkt 31).
+ * «ikke ble gitt eller kom for sent», og svaret på varselet «kom for sent» (punkt 31), også svaret
+ * bare på varselet i kravet (`bareVarselet`, VS-U96 punkt 38).
  */
 function varseltekst(
   p: Extract<Standpunkt, { art: 'rettidighet' }>,
   om: string,
   poster: readonly Kravpost[],
-  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>
+  { j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>,
+  bareVarselet = false
 ): string {
   const foer = innsigelsenFoer(p, poster, { j, saken, nytt });
   const brevet = foer && j.brevet(foer.dokument);
   const jf = brevet ? `, jf. innsigelsen i ${brevet}` : '';
   const forSent =
-    p.hjemmel === '34.4' && poster.some((x) => x.id === p.gjelder)
+    p.hjemmel === '34.4' && !bareVarselet && poster.some((x) => x.id === p.gjelder)
       ? 'ikke ble gitt eller kom for sent'
       : 'kom for sent';
   // MM-U50: innsigelsen i svaret på varselet sa «kom for sent» (punkt 31).
   const iSvaretPaaVarselet =
     foer !== undefined &&
     j.dokumenter.some(
-      (d) => d.id === foer.dokument && d.svar.some((x) => j.element(x.gjelder).art === 'utsagn')
+      (d) =>
+        d.id === foer.dokument &&
+        d.svar.some((x) => x.spor === 'vederlag' && erSvarPaaVarselet(x, j))
     );
   // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
   if (p.iTide && p.hjemmel === '34.4')
@@ -1018,6 +1027,10 @@ function varseltekst(
   if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
   return forSentMedFoelgen(brevtekstI('vederlag'), om, p.hjemmel, jf, forSent);
 }
+
+/** Svaret gjelder et varsel som står alene (VS-U79), eller bare varselet i kravet (VS-U96 punkt 38). */
+const erSvarPaaVarselet = (s: Pick<Svar, 'gjelder' | 'bareVarselet'>, j: Journalen): boolean =>
+  s.bareVarselet || j.element(s.gjelder).art === 'utsagn';
 
 /** KA-U72: standpunktet til beløpet for en kravpost der tilbudet ikke er akseptert, står ikke i brevet. */
 const harTekst = (p: Standpunkt): boolean => !(p.art === 'beloep' && p.godkjent === undefined);

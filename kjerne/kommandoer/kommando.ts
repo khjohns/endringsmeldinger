@@ -46,6 +46,8 @@ export interface Svarutkast {
   spor: Spor;
   /** Kravversjonen svaret gjelder. */
   gjelder: string;
+  /** VS-U96 punkt 38: svaret gjelder bare varselet i kravversjonen (`Svar.bareVarselet`). */
+  bare_varselet?: true;
   regelversjon: number;
   vurderinger: Svarvurdering;
   /** Klientens utregning, som serveren regner på nytt (B-13). */
@@ -285,6 +287,7 @@ const SVARUTKAST = objekt(
   {
     spor: SPOR,
     gjelder: ID,
+    bare_varselet: { const: true },
     regelversjon: { type: 'integer' },
     vurderinger: { type: 'object' },
     resultat: { type: 'object' },

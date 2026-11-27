@@ -647,33 +647,35 @@ function leddISvaretPaaVarselet(
   virkning: (id: string) => Virkning,
   forSentFoer: (gjelder: string | undefined) => boolean
 ): Linjeledd[] {
-  const justeringen = svar.standpunkter.find((s) => s.art === 'justering');
-  const foer: Linjeledd[] =
-    justeringen?.art === 'justering' &&
-    !svar.standpunkter.some((s) => s.art === 'rettidighet') &&
-    forSentFoer(justeringen.gjelder)
-      ? [
-          {
-            tekst: `${SENT_I_LINJEN['34.3.3']} kom for sent${SOM_FOER}`,
-            virkning: foranJusteringen(virkning(justeringen.id), true),
-          },
-        ]
-      : [];
-  return foer.concat(
-    svar.standpunkter.flatMap((s): Linjeledd[] => {
-      const tekst =
-        s.art === 'rettidighet'
-          ? !s.iTide
-            ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
-            : s.hjemmel === '34.4'
-              ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
-              : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`
-          : s.art === 'justering'
-            ? `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`
-            : undefined;
-      return tekst === undefined ? [] : [{ tekst, virkning: virkning(s.id) }];
-    })
-  );
+  // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost, så
+  // innsigelsen som står, leses for justeringen til hver post.
+  return svar.standpunkter.flatMap((s): Linjeledd[] => {
+    if (s.art === 'justering') {
+      const staar =
+        !svar.standpunkter.some((x) => x.art === 'rettidighet' && x.gjelder === s.gjelder) &&
+        forSentFoer(s.gjelder);
+      const justeringen = {
+        tekst: `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`,
+        virkning: virkning(s.id),
+      };
+      return staar
+        ? [
+            {
+              tekst: `${SENT_I_LINJEN['34.3.3']} kom for sent${SOM_FOER}`,
+              virkning: foranJusteringen(virkning(s.id), true),
+            },
+            justeringen,
+          ]
+        : [justeringen];
+    }
+    if (s.art !== 'rettidighet') return [];
+    const tekst = !s.iTide
+      ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
+      : s.hjemmel === '34.4'
+        ? `innsigelsen mot ${SENT_I_LINJEN[s.hjemmel]} gitt opp`
+        : `${SENT_I_LINJEN[s.hjemmel]} kom i tide`;
+    return [{ tekst, virkning: virkning(s.id) }];
+  });
 }
 
 /** VS-U81: innsigelsen svaret leses med, står i et tidligere svar. */

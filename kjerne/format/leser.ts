@@ -352,6 +352,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     spor,
     dokument,
     gjelder: e.gjelder as string,
+    bareVarselet: e.bare_varselet === true,
     erstatter: (e.erstatter as string | undefined) ?? null,
     paaberopelse: (e.paaberopelse as string | undefined) ?? null,
     akseptfrist: (e.akseptfrist as string | undefined) ?? null,

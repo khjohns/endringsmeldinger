@@ -6,13 +6,18 @@
 
 import { iSporet, type Svarvurdering } from '../frosset/byggeklosser.ts';
 import {
+  kravposteneSomVarsler,
   STANDPUNKTER_I_VEDERLAGET,
+  standpunkterBarePaaVarselet,
   standpunkterPaaVarselet,
   varseletSvaretGjelder,
+  ubesvartePoster,
+  type VarseletIKravposten,
 } from '../spor/vederlag/kommando.ts';
 import type { Svarutkast } from './kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import {
+  fristvarseletIKravet,
   fristvarseletSvaretGjelder,
   STANDPUNKTER_I_FRISTEN,
   standpunkterPaaFristvarselet,
@@ -36,14 +41,31 @@ export type Svaretsvarsel<H extends SvarbarVarselhjemmel = SvarbarVarselhjemmel>
   : never;
 
 /**
- * Varselet som står alene, et svar med `gjelder` i sporet `spor` gjelder, eller `null` når svaret
- * gjelder et krav: et varsel i vederlaget (VS-U79) eller varselet etter § 33.4 i fristen (VS-U96
- * punkt 32).
+ * VS-U96 punkt 38: kravpostene i vederlagskravet `krav` et svar bare på varselet gjelder, der kravet
+ * selv er varselet (`kravposteneSomVarsler`).
+ */
+export interface VarsleneIKravet {
+  krav: string;
+  poster: readonly VarseletIKravposten[];
+}
+
+/**
+ * Varselet et svar med `gjelder` i sporet `spor` gjelder, eller `null` når svaret gjelder et krav:
+ * et varsel i vederlaget som står alene (VS-U79), varselet etter § 33.4 i fristen (VS-U96 punkt
+ * 32), eller med `bare_varselet` varselet i kravversjonen når kravet selv er varselet (punkt 38).
+ * Uten et slikt varsel er et svar med `bare_varselet` ikke et svar på et varsel.
  */
 export function svaretsVarsel(
   u: Utledning,
-  { spor, gjelder }: { spor: Spor; gjelder: string }
-): Svaretsvarsel | null {
+  { spor, gjelder, bare_varselet: bare }: { spor: Spor; gjelder: string; bare_varselet?: true },
+  sendt: string | null = null
+): Svaretsvarsel | VarsleneIKravet | null {
+  if (bare) {
+    if (spor === 'frist') return fristvarseletIKravet(u, gjelder);
+    const poster =
+      spor === 'vederlag' ? ubesvartePoster(u, kravposteneSomVarsler(u, gjelder), sendt) : [];
+    return poster.length ? { krav: gjelder, poster } : null;
+  }
   if (spor === 'vederlag') return varseletSvaretGjelder(u, gjelder);
   if (spor === 'frist') return fristvarseletSvaretGjelder(u, gjelder);
   return null;
@@ -55,10 +77,14 @@ export function svaretsVarsel(
  */
 export function standpunkter(
   s: Svarutkast,
-  maal: Krav | Svaretsvarsel,
+  maal: Krav | Svaretsvarsel | VarsleneIKravet,
   u: Utledning,
   nyId: () => string
 ): Data[] {
+  if ('poster' in maal) {
+    const krav = u.spor.vederlag.krav.find((k) => k.id === maal.krav)!;
+    return standpunkterBarePaaVarselet(s.vurderinger, maal.poster, krav, nyId);
+  }
   if ('hjemmel' in maal)
     return maal.hjemmel === '33.4'
       ? standpunkterPaaFristvarselet(s.vurderinger, maal, nyId)

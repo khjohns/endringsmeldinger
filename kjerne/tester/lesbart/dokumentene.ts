@@ -87,7 +87,7 @@ export const DOKUMENTENE: Lesbar[] = [
       'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
       'spor/vederlag/kommando.ts:varselvalgetMangler',
       // VS-U96 punkt 23 og 33: uten valg i versjonen står valget i den forrige.
-      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:varseletPostenGjelder',
     ],
   ],
   [
@@ -110,7 +110,7 @@ export const DOKUMENTENE: Lesbar[] = [
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
       'spor/vederlag/utledning.ts:viserTilEtVarsel',
       'spor/vederlag/utledning.ts:sammeValg',
-      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:varseletPostenGjelder',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
       'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],

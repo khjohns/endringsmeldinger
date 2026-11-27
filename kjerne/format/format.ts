@@ -172,6 +172,8 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
           erstatter: ID,
           // HF-U23 punkt 1 og 2: akseptfristen, bare i et svar på vederlag eller frist.
           ...(s === 'forhold' ? {} : { paaberopelse: ID, akseptfrist: KALENDERDAG }),
+          // VS-U96 punkt 38: svaret bare på varselet i kravversjonen.
+          ...(s === 'forhold' ? {} : { bare_varselet: { const: true } }),
           standpunkter: { type: 'array', minItems: 1 },
           ...(utregning ? { utregning } : {}),
           beslutningsgrunnlag: BESLUTNINGSGRUNNLAG,
