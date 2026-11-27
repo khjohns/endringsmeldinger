@@ -52,7 +52,8 @@ med egne ord (`beskrivelse`, OV-U79). Et brev registrert som
 dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
 til (`spor`, uten dem saken), datoen det ble sendt, brevet som vedlegg og
 eventuelt avsenderen, og ikke noe annet. En retting av en slik registrering fra samme side viser til den
-(`retter`): enten en fullstendig ny registrering, eller, når brevet ikke hører
+(`retter`): enten en fullstendig ny registrering, også som et krav, svar, aksept eller
+varsel lagt til (D-13 i BF-49, OV-U123 punkt 23), eller, når brevet ikke hører
 til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står.
 Et krav, et svar eller en aksept i registrert korrespondanse har samme virkning
 som fra appen, med datoen avsenderen oppgir (`opplysninger` med `hva` = `sendt`).

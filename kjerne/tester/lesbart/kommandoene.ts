@@ -173,6 +173,8 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/nyttelast.ts:oppgittDatoI',
       'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
       'kommandoer/avvisning.ts:avvisning',
+      // D-13 i BF-49: en registrering kan rette dokumentasjonen fra samme side.
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
   ],
   // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken. OV-U121, OV-U122: en
@@ -300,7 +302,9 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:skriv']],
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:registreringenStrider.dag']],
   ['Utledning.utenVirkning', 'relasjon', 'hendelse grunn', ['kommandoer/skriving.ts:skriv']],
-  // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen.
+  // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen. D-13 i
+  // BF-49: også fra et krav, svar, aksept eller varsel lagt til.
+  ['Registrering', 'kommando', 'retter', ['kommandoer/skriving.ts:registrering']],
   [
     'Kommando',
     'kommando',

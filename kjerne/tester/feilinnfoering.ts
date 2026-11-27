@@ -8047,6 +8047,29 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en rad der skjemaet står i et brev motparten sendte'],
   },
+  {
+    id: 'F807e',
+    feilklasse:
+      'et varsel lagt til retter en registrering fra den andre siden (D-13 i BF-49, OV-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ["if ((erRegistrering(k) || k.type === 'varsel') && k.retter !== undefined)", 'if (false)'],
+    ],
+    mal: [
+      'bare samme side retter registreringen (OV-U17)',
+      'en registrering som er rettet, rettes ikke igjen',
+    ],
+  },
+  {
+    id: 'F807f',
+    feilklasse:
+      'en rad fra løsningen med en henvisning til en registrering er forstått (D-13 i BF-49, OV-U17, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['  if (data.retter !== undefined && !erRegistrert(dokument.opplysninger))', '  if (false)'],
+    ],
+    mal: ['en rad fra løsningen med en henvisning til en registrering, gjør saken ikke forstått'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

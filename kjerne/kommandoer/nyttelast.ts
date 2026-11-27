@@ -533,6 +533,12 @@ export function nyttelastkontroll(
   sendt: string | null,
   utdypningKreves = true
 ): Avvisning | null {
+  // D-13 i BF-49, OV-U123 punkt 23: et krav, svar, aksept eller varsel lagt til retter
+  // dokumentasjonen fra samme side, som en ny registrering som dokumentasjon (OV-U17).
+  if ((erRegistrering(k) || k.type === 'varsel') && k.retter !== undefined) {
+    const hinder = retting(k.retter, part, u);
+    if (hinder) return hinder;
+  }
   switch (k.type) {
     case 'krav': {
       const sperre = nyttelastI(k.spor).kravsperre(k, u, sendt);

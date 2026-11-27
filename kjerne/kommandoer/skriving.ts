@@ -368,6 +368,8 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
     ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
     ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
     dokumentasjon: bundne,
+    // D-13 i BF-49: registreringen retter dokumentasjonen fra samme side (OV-U17).
+    ...(k.retter ? { retter: k.retter } : {}),
   };
 }
 
@@ -472,6 +474,7 @@ function dokument(
         ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
         ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
         dokumentasjon: bundne,
+        ...(k.retter ? { retter: k.retter } : {}),
       };
     case 'registrert_brev':
       // OV-U4, OV-U16: dokumentasjon, med datoen avsenderen oppgir og brevet som vedlegg.

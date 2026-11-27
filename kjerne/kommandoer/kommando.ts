@@ -98,6 +98,11 @@ export interface Registrering {
   /** OV-U79: den korte beskrivelsen med egne ord, påkrevd med `sendt` (`sendemaatefeil`). */
   beskrivelse?: string;
   dokumentasjon?: string[];
+  /**
+   * D-13 i BF-49, OV-U123 punkt 23: registreringen av brevet som dokumentasjon fra samme side, som
+   * denne registreringen retter med valget (MM-U59 punkt 9).
+   */
+  retter?: string;
 }
 
 /** Kravet, svaret eller aksepten er lagt til med datoen det ble sendt (OV-U98). */
@@ -115,6 +120,7 @@ export const BARE_LAGT_TIL = {
   sendemaate: 'sendemåten',
   beskrivelse: 'beskrivelsen',
   dokumentasjon: 'vedlegg',
+  retter: 'en henvisning til registreringen det retter',
 } as const;
 
 /**
@@ -205,6 +211,8 @@ export type Kommando = (
       sendemaate?: Sendemaate;
       beskrivelse?: string;
       dokumentasjon: string[];
+      /** D-13 i BF-49: dokumentasjonen fra samme side registreringen retter. */
+      retter?: string;
     }
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
@@ -321,6 +329,7 @@ const REGISTRERING = {
   sendemaate: SENDEMAATE,
   beskrivelse: TEKST,
   dokumentasjon: liste(ID),
+  retter: ID,
 };
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
@@ -387,6 +396,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendemaate: SENDEMAATE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
+      retter: ID,
     },
     ['type', 'varsler', 'sendt', 'korrespondansetype', 'dokumentasjon']
   ),

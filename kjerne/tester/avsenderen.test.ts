@@ -197,3 +197,76 @@ describe('skjemaet parten avbrøt før brevet ble lagt til som dokumentasjon (D-
     expect(grunner([...journal, endret])).toContainEqual(expect.stringContaining(grunn));
   });
 });
+
+describe('dokumentasjonen lagt til på nytt med valget (D-13 i BF-49, OV-U123 punkt 23, MM-U59 punkt 9)', () => {
+  const varselet = (ekstra: Data = {}): Data => ({
+    type: 'varsel',
+    ...SOM_BREV,
+    varsler: [{ hjemmel: '34.4' }],
+    sendt: '2026-10-20',
+    dokumentasjon: [brevet],
+    ...ekstra,
+  });
+
+  it('totalentreprenøren legger brevet til på nytt som varsel med henvisning til registreringen, og den er rettet', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    expect(varsel.data.retter).toBe(rad.event_id);
+    const u = utled(lesJournal([...journal, rad, varsel], KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.begrensninger).toEqual([]);
+    expect(u.registrerteBrev.find((b) => b.dokument === rad.event_id)?.rettetAv).toBe(
+      varsel.event_id
+    );
+    expect(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument)).toEqual([varsel.event_id]);
+  });
+
+  it('bare samme side retter registreringen (OV-U17)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering({ avsender: 'TE' }), 'BH');
+    expect(utfallet([...journal, rad], varselet({ retter: rad.event_id }), 'TE')).toEqual({
+      regel: 'FEIL_PART',
+    });
+  });
+
+  it('en registrering som er rettet, rettes ikke igjen', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    expect(utfallet([...journal, rad, varsel], varselet({ retter: rad.event_id }), 'TE')).toEqual({
+      regel: 'REGISTRERINGEN_ER_RETTET',
+    });
+  });
+
+  it('et brev fra løsningen retter ikke en registrering', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    expect(
+      utfallet(
+        [...journal, rad],
+        {
+          type: 'send_varsel',
+          varsler: [{ hjemmel: '34.4', arbeid: 'Graving' }],
+          retter: rad.event_id,
+        },
+        'TE'
+      )
+    ).toEqual({ regel: 'UGYLDIG_FORM' });
+  });
+
+  it('en rad fra løsningen med en henvisning til en registrering, gjør saken ikke forstått (MM-U2)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    const data = varsel.data as Data;
+    const fraLoesningen = Object.fromEntries(
+      Object.entries(data).filter(
+        ([k]) => !['opplysninger', 'korrespondansetype', 'sendemaate', 'beskrivelse'].includes(k)
+      )
+    );
+    expect(grunner([...journal, rad, varsel]), 'kontrollsak').toEqual([]);
+    expect(grunner([...journal, rad, { ...varsel, data: fraLoesningen }])).toContainEqual(
+      expect.stringContaining('en retting er ikke et brev registrert i saken (OV-U17)')
+    );
+  });
+});

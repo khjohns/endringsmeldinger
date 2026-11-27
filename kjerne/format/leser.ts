@@ -429,9 +429,6 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
-  // OV-U17: en retting i saken er en fullstendig ny registrering av brevet som dokumentasjon.
-  if (data.retter !== undefined && (data.krav || data.svar || data.utsagn))
-    throw new Uforstaatt('en retting er ikke et brev registrert som dokumentasjon (OV-U17)');
   const id = h.event_id;
   const lagtTilAv: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
@@ -575,6 +572,10 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (data.avsender === lagtTilAv)
     throw new Uforstaatt('den oppgitte avsenderen er parten som la til brevet');
+  // OV-U17: en retting i saken er en fullstendig ny registrering av brevet. D-13 i BF-49 og
+  // OV-U123 punkt 23: også som et krav, svar, aksept eller varsel lagt til, men ikke fra løsningen.
+  if (data.retter !== undefined && !erRegistrert(dokument.opplysninger))
+    throw new Uforstaatt('en retting er ikke et brev registrert i saken (OV-U17)');
   // D-12 i BF-49, svaret 27.11 i #807: bare avsenderen avbryter skjemaet for kravet eller svaret.
   if (data.ikke_fylt_ut !== undefined && (data.krav || data.svar || data.utsagn))
     throw new Uforstaatt(
