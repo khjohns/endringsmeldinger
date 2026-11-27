@@ -10,6 +10,15 @@ import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Part } from '#kjerne/typer.ts';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import {
+  MERKING,
+  SAK,
+  linje,
+  medTrukketVederlag,
+  skrevet,
+} from '#lib/kjernesak/__tests__/provejournal.ts';
 import { registrerOppsett, sendBrevet } from './vardenOppsett.ts';
 
 registrerOppsett();
@@ -165,6 +174,45 @@ describe('innlegget og sporet til brevet det viser til', () => {
     await fireEvent.click(await screen.findByRole('button', { name: /Tilbake til saken/ }));
     expect(
       screen.getByText(/^Akseptfrist 15\. oktober 2026 · Totalentreprenøren har sendt et innlegg /)
+    ).toBeTruthy();
+  });
+});
+
+describe('innlegget etter et trekk (D-9 i BF-03, MM-U47 punkt 5)', () => {
+  it('linja under betegnelsen nevner både trekket og innlegget etter det (Gemini 27.11)', async () => {
+    const trekket = utledJournal(medTrukketVederlag, KJERNE).journal.findLast(
+      (h) => h.art === 'dokument'
+    )!;
+    const journal = skrevet(medTrukketVederlag, 'TE', {
+      type: 'innlegg',
+      gjelder: trekket.id,
+      tittel: 'Etter trekket',
+      utdypning: 'Totalentreprenøren forbeholder seg retten.',
+    });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => ({
+        versjon: journal.at(-1)!.versjon,
+        part: 'TE',
+        visning: null as never,
+        journal: journal.map(linje),
+        leveringsoppdrag: [],
+        catenda_lenke: null,
+        sakskode: null,
+        kontraktsforkortelse: null,
+        kan_foreslaa_sakskode: false,
+        merking: MERKING,
+      }),
+    });
+    await kjernesak.last();
+    expect(kjernesak.utledning!.spor.vederlag.trukket, 'forutsetning').toBe(true);
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    expect(
+      await screen.findByText(
+        /^Siste: brev \d+ fra totalentreprenøren · Totalentreprenøren har sendt et innlegg /
+      )
     ).toBeTruthy();
   });
 });

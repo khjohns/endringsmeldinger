@@ -427,6 +427,8 @@
     const betegnelser = betegnelsene(kjernesak.saksbilde);
     const linje = (s: Spor) => {
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
+      const sist = brev.filter((x) => x.spor.includes(s)).at(-1);
+      const innlegg = sist?.art === 'innlegg' ? sist : null;
       const kode = betegnelser[s];
       // Akseptfristen i et svar som ikke er godtatt, og en aksept etter den, står i stedet for
       // siste brev (U-11 i BF-44, U-6 i BF-46).
@@ -439,12 +441,12 @@
           : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        // Et innlegg etter siste brev står med parten og datoen, også ved akseptfristen (D-9 og
-        // D-4 i BF-03).
+        // Et innlegg etter siste brev står med parten og datoen, også ved akseptfristen og etter
+        // trekket (D-9 og D-4 i BF-03).
         siste:
           [
             akseptlinje ?? (b && b.art !== 'innlegg' ? SAKEN.siste(b, b.avsender) : null),
-            b?.art === 'innlegg' ? TRAADEN.siste(b) : null,
+            innlegg ? TRAADEN.siste(innlegg) : null,
           ]
             .filter(Boolean)
             .join(' · ') || null,
