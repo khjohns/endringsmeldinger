@@ -274,6 +274,15 @@
     top: var(--spacing-4);
     z-index: 1;
   }
+  /* Dekker stripa over panelet og mellomrommet under stegene, så tidslinja ikke synes der når
+     den ruller under (#2493). Nederst slutter flaten før hjørnene i panelet. */
+  .feste.fast::before {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--spacing-4)) 0 var(--r-kort);
+    z-index: -1;
+    background: var(--canvas);
+  }
   .kompakt {
     position: fixed;
     left: 0;
