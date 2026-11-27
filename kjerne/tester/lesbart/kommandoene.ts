@@ -427,6 +427,8 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/skriving.ts:svar',
       'kommandoer/nyttelast.ts:kontrollerSvar',
       'kommandoer/nyttelast.ts:nyttelastkontroll',
+      // #2451.
+      'kommandoer/kommando.ts:formfeil',
     ],
   ],
   // VS-U96 punkt 33 og 38: kjeden svarene bare på varselet står i.
