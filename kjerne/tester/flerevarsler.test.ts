@@ -258,3 +258,105 @@ describe('varslene i brevet og sporene (beslutningsdelen i VS-U87, D-1–D-4 i B
     expect(paaberopt().avvist('TE', sendVarsler())).toBe('UGYLDIG_FORM');
   });
 });
+
+describe('byggherrens svar på flere varsler i ett brev (#2451, svaret 27.11, VS-U96 punkt 33)', () => {
+  function toVarsler() {
+    const s = paaberopt();
+    const rad = s.send(
+      'TE',
+      sendVarsler({ hjemmel: '34.4', arbeid: GRAVING }, { hjemmel: '34.4', arbeid: FJERNVARME })
+    );
+    const [graving, fjernvarme] = (rad.data.utsagn as Data[]).map((u) => u.id as string);
+    return { s, graving: graving!, fjernvarme: fjernvarme! };
+  }
+
+  it('to svar i vederlaget i ett brev, hvert på et ulikt varsel som står alene, er ett brev med ett svar per varsel', () => {
+    const { s, graving, fjernvarme } = toVarsler();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', graving, { varslet_i_tide: false }, {}, null),
+        svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, null),
+      ],
+    });
+    expect((rad.data.svar as Data[]).map((x) => x.gjelder)).toEqual([graving, fjernvarme]);
+    const svarene = s.u().spor.vederlag.svarPaaVarsler;
+    expect(svarene.map((x) => [x.gjelder, x.dokument])).toEqual([
+      [graving, rad.event_id],
+      [fjernvarme, rad.event_id],
+    ]);
+    // D-6, LV-U4 punkt 7: hvert svar sier hvilket varsel det gjelder, med arbeidet.
+    const tekst = laast(rad);
+    expect(tekst.filter((t) => t.startsWith('Svar på varselet om regningsarbeid'))).toEqual([
+      expect.stringContaining(`for arbeidet «${GRAVING}» i brev K201-KOE-017-02`),
+      expect.stringContaining(`for arbeidet «${FJERNVARME}» i brev K201-KOE-017-02`),
+    ]);
+    expect(tekst.filter((t) => /^\d\. Varselet om regningsarbeid/.test(t))).toHaveLength(2);
+  });
+
+  it('et nytt svar på det ene varselet erstatter bare det forrige svaret på det varselet (VS-U96 punkt 33)', () => {
+    const { s, graving, fjernvarme } = toVarsler();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', graving, { varslet_i_tide: false }, {}, null),
+        svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, null),
+      ],
+    });
+    const [foerGraving, foerFjernvarme] = s.u().spor.vederlag.svarPaaVarsler;
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: foerFjernvarme!.id,
+      svar: svar('vederlag', fjernvarme, { varslet_i_tide: true }, {}, null),
+    });
+    const etter = s.u().spor.vederlag.svarPaaVarsler;
+    expect(etter.map((x) => [x.gjelder, x.erstatter])).toEqual([
+      [graving, null],
+      [fjernvarme, null],
+      [fjernvarme, foerFjernvarme!.id],
+    ]);
+    expect(etter[0]!.id).toBe(foerGraving!.id);
+  });
+
+  it('to svar på samme varsel i ett brev avvises, og et svar bare på varselet i et krav ved siden av et annet svar i sporet også', () => {
+    const { s, graving, fjernvarme } = toVarsler();
+    const paa = (gjelder: string, bare?: true) => ({
+      ...svar('vederlag', gjelder, { varslet_i_tide: false }, {}, null),
+      ...(bare ? { bare_varselet: bare } : {}),
+    });
+    for (const svarene of [
+      [paa(graving), paa(graving)],
+      [paa(graving, true), paa(fjernvarme)],
+    ])
+      expect(s.avvisning('BH', { type: 'brev', svar: svarene })).toEqual({
+        regel: 'UGYLDIG_FORM',
+        melding: '$.svar: to svar i samme spor',
+      });
+  });
+
+  it('et svar på kravet og et svar på et varsel i samme spor i ett brev avvises, og kontrollsaken med to varsler godtas', () => {
+    const { s, graving, fjernvarme } = toVarsler();
+    const paaVarslene = {
+      type: 'brev',
+      svar: [
+        svar('vederlag', graving, { varslet_i_tide: false }, {}, null),
+        svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, null),
+      ],
+    };
+    expect(s.avvist('BH', paaVarslene)).toBeNull();
+    s.send('TE', regningsarbeid({ varsel: { art: 'gitt', varsel: graving } }));
+    const krav = s.u().spor.vederlag.gjeldendeKrav!;
+    expect(
+      s.avvisning('BH', {
+        type: 'brev',
+        svar: [
+          svar('vederlag', krav.id, {}, {}, null),
+          svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, null),
+        ],
+      })
+    ).toEqual({
+      regel: 'FEIL_KRAVREFERANSE',
+      melding: 'To svar i samme spor i ett brev må gjelde hvert sitt varsel som står alene.',
+    });
+  });
+});
