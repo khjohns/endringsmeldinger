@@ -107,9 +107,13 @@ const radio = (navn: string) => fireEvent.click(screen.getByRole('radio', { name
 const skriv = (felt: HTMLElement, verdi: string) =>
   fireEvent.input(felt, { target: { value: verdi } });
 
-/** Fyller ut korrespondansen: et brev per post, datoen, dokumentet og beskrivelsen. */
-async function fyllUt(dato: string) {
+/**
+ * Fyller ut korrespondansen: et brev fra `avsender` per post, datoen, dokumentet og beskrivelsen.
+ * Uten `avsender` står den skjemaet har valgt.
+ */
+async function fyllUt(dato: string, avsender: string | null = 'Totalentreprenøren') {
   await radio('Brev');
+  if (avsender) await radio(avsender);
   await radio('Per post');
   await skriv(screen.getByLabelText('Datoen det ble sendt'), dato);
   const fil = new File(['%PDF-1.4'], 'brevet.pdf', { type: 'application/pdf' });
@@ -169,11 +173,9 @@ describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
     await vi.waitFor(() => expect(lagtTil).toEqual(['dokumentasjon']));
   });
 
-  it('velger totalentreprenøren varselet eller kravet, sier skjemaet at et brev som både varsler og krever, legges til som krav (VS-U74)', async () => {
+  it('velger totalentreprenøren kravet, sier skjemaet at et brev som både varsler og krever, legges til som krav (VS-U74)', async () => {
     await skjemaet(medGrunnlag, 'TE', 'frist');
     expect(screen.queryByText(LEGG_TIL.kravetErVarselet)).toBeNull();
-    await radio(LEGG_TIL.kategorier.varsel);
-    expect(screen.getByText(LEGG_TIL.kravetErVarselet)).toBeInTheDocument();
     await radio(LEGG_TIL.kategorier.krav);
     expect(screen.getByText(LEGG_TIL.kravetErVarselet)).toBeInTheDocument();
     await radio(LEGG_TIL.kategorier.dokumentasjon);
@@ -204,15 +206,12 @@ describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
     await vi.waitFor(() => expect(lagtTil).toEqual(['aksept']));
   });
 
-  it('en aksept sendt før byggherren svarte, avvises av kjernen, og skjemaet viser hvorfor (OV-U98)', async () => {
-    const { tilServeren, lagtTil } = await skjemaet(medDelvisSvar, 'TE', 'vederlag');
+  it('en aksept sendt før byggherren svarte, tilbys ikke, og kontrollsaken samme dag som svaret tilbys (D-9 og U-4 i BF-49)', async () => {
+    await skjemaet(medDelvisSvar, 'TE', 'vederlag');
     await fyllUt('2026-10-15');
-    await radio(LEGG_TIL.kategorier.aksept);
-    await fireEvent.click(screen.getAllByRole('radio').at(-1)!);
-    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
-    expect(tilServeren).toEqual([]);
-    expect(lagtTil).toEqual([]);
-    expect(screen.getByText(/gjeldende svar da aksepten ble sendt/)).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: LEGG_TIL.kategorier.aksept })).toBeNull();
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-16');
+    expect(screen.getByRole('radio', { name: LEGG_TIL.kategorier.aksept })).toBeInTheDocument();
   });
 });
 
@@ -478,7 +477,10 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
       await screen.findByRole('button', { name: 'Legg til et svar du har gitt før' })
     );
     expect(screen.getByRole('radio', { name: LEGG_TIL.kategorier.svar })).toBeChecked();
-    await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
+    await fyllUt(
+      new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()),
+      null
+    );
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
@@ -553,7 +555,10 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     await fireEvent.click(
       await screen.findByRole('button', { name: 'Legg til et svar du har gitt før' })
     );
-    await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
+    await fyllUt(
+      new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()),
+      null
+    );
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
@@ -712,5 +717,104 @@ describe('vederlagskravet lagt til, sendt før det registrerte varselet etter pu
     expect(
       within(rad).getByText(/^Klar over at utgiftene ville påløpe 1\. oktober 2026, oppgitt i/)
     ).toBeTruthy();
+  });
+});
+
+describe('avsenderen og varslene i korrespondansen lagt til (BF-49)', () => {
+  it('uten avsenderen legges ingenting til, og feilmeldingen står i lista (U-2)', async () => {
+    const { tilServeren } = await skjemaet(medVederlag, 'TE', 'vederlag');
+    await fyllUt('2026-10-16', null);
+    await radio(LEGG_TIL.kategorier.dokumentasjon);
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren).toEqual([]);
+    expect(screen.getByText(LEGG_TIL.avsenderMangler, { selector: 'a' })).toBeInTheDocument();
+  });
+
+  it('korrespondanse fra motparten er bare dokumentasjon, med hjelpeteksten, og sendes med avsenderen (D-1, U-3)', async () => {
+    const { tilServeren } = await skjemaet(medDelvisSvar, 'TE', 'vederlag');
+    await fyllUt('2026-10-16', 'Byggherren');
+    const tekster = [...valgene()].map((r) => r.parentElement!.textContent!.trim());
+    expect(tekster).toEqual([LEGG_TIL.kategorier.dokumentasjon]);
+    expect(screen.getByText(LEGG_TIL.motparten)).toBeInTheDocument();
+    await radio(LEGG_TIL.kategorier.dokumentasjon);
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren).toEqual([
+      { type: 'registrert_brev', spor: ['vederlag'], ...KORRESPONDANSEN, avsender: 'BH' },
+    ]);
+  });
+
+  it('kontrollsak: korrespondanse fra parten selv har ikke avsenderen i kommandoen (AK 4 i avsenderen.test.ts)', async () => {
+    const { tilServeren } = await skjemaet(medVederlag, 'TE', 'vederlag');
+    await fyllUt('2026-10-16');
+    await radio(LEGG_TIL.kategorier.dokumentasjon);
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren[0]).not.toHaveProperty('avsender');
+  });
+
+  it('varselet om vederlagsjustering og om fristforlengelse legges til i én kommando for samme brev (#2455, VS-U87, U-5)', async () => {
+    const { tilServeren, lagtTil } = await skjemaet(medGrunnlag, 'TE', 'vederlag');
+    await fyllUt('2026-10-16');
+    await radio(LEGG_TIL.kategorier.varsel);
+    expect(screen.getByText(LEGG_TIL.varsleneHjelp)).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('checkbox', { name: /^Varsel om fristforlengelse/ }));
+    await fireEvent.click(screen.getByRole('checkbox', { name: /^Varsel om vederlagsjustering/ }));
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren).toEqual([
+      {
+        type: 'varsel',
+        varsler: [{ hjemmel: '33.4' }, { hjemmel: '34.1.2' }],
+        ...KORRESPONDANSEN,
+      },
+    ]);
+    await vi.waitFor(() => expect(lagtTil).toEqual(['varsel']));
+  });
+
+  it('uten et valgt varsel legges ingenting til (U-5)', async () => {
+    const { tilServeren } = await skjemaet(medGrunnlag, 'TE', 'frist');
+    await fyllUt('2026-10-16');
+    await radio(LEGG_TIL.kategorier.varsel);
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren).toEqual([]);
+    expect(screen.getByText(LEGG_TIL.varsleneMangler, { selector: 'a' })).toBeInTheDocument();
+  });
+
+  it('dokumentasjonen lagt til på nytt har henvisningen til den første (D-13, U-12)', async () => {
+    const journal = skrevet(
+      medVederlag,
+      'TE',
+      { type: 'registrert_brev', spor: ['vederlag'], ...KORRESPONDANSEN },
+      new Map([['v-1', BREVET]])
+    );
+    const registreringen = journal.at(-1)!.event_id;
+    const { kjernesak, tilServeren } = await saken(journal, 'TE');
+    render(Korrespondanseskjema, {
+      kjernesak,
+      u: kjernesak.utledning!,
+      spor: 'vederlag',
+      retter: '2026-10-20T08:00:00Z',
+      valg: {
+        korrespondanse: {
+          type: 'brev',
+          sendemaate: 'post',
+          dato: '2026-10-16',
+          vedlegg: [{ ...BREVET, stoerrelse: 0 }],
+          beskrivelse: 'Brevet om pelingen.',
+          retter: registreringen,
+        },
+        avsender: 'TE',
+        // Valgene i en vanlig objekt er ikke reaktive her, så kategorien og varselet er valgt.
+        kategori: 'varsel',
+        spor: ['vederlag'],
+        svar: null,
+        varsler: [{ hjemmel: '33.4', arbeid: '', klarOver: '' }],
+      },
+      onneste: () => {},
+      onlagttil: () => {},
+      onavbryt: () => {},
+    });
+    expect(screen.getByRole('heading', { name: LEGG_TIL.tittelPaaNytt })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /^Varsel om fristforlengelse/ })).toBeChecked();
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
+    expect(tilServeren[0]).toMatchObject({ type: 'varsel', retter: registreringen });
   });
 });

@@ -286,10 +286,11 @@ describe('varslene med arbeidet etter brevet med tre varsler (kravene fra #2437 
 });
 
 describe('varselet sendt utenfor løsningen lagt til som korrespondanse (G-8 i BF-37, variant C i BF-48)', () => {
-  it('kategorien varsel i vederlaget går videre til registreringen med det som er fylt ut, og varslene registreres', async () => {
+  it('kategorien varsel i vederlaget legges til fra korrespondansen med varselet parten velger (#2455, U-5 i BF-49)', async () => {
     const demosak = await aapneSom('te-skal-varsle');
     await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Totalentreprenøren' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
     await skriv('Datoen det ble sendt', '2026-09-30');
     const fil = new File(['%PDF-1.4'], 'varselet.pdf', { type: 'application/pdf' });
@@ -301,20 +302,11 @@ describe('varselet sendt utenfor løsningen lagt til som korrespondanse (G-8 i B
       target: { value: 'Brevet om gravingen' },
     });
     await fireEvent.click(screen.getByRole('radio', { name: 'Et varsel' }));
-    await fireEvent.click(knapp('Gå videre'));
-
-    const skjema = within(await screen.findByRole('form'));
-    expect(
-      skjema.getByRole('heading', {
-        level: 2,
-        name: /^Registrer et varsel sendt utenfor løsningen/,
-      })
-    ).toBeTruthy();
-    expect((skjema.getByLabelText('Datoen det ble sendt') as HTMLInputElement).value).toBe(
-      '2026-09-30'
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: /^Varsel før regningsarbeidet settes i gang/ })
     );
-    await fireEvent.click(knapp('Registrer varslene'));
-    await screen.findByText('Varslene er registrert.');
+    await fireEvent.click(knapp('Legg til'));
+    await screen.findByText('Varselet er lagt til.');
     expect(sisteVarsler(demosak().journal())).toEqual([{ hjemmel: '34.4', arbeid: undefined }]);
   });
 });
@@ -380,6 +372,7 @@ describe('valgene i varselutkastet står (Codex-reviewet)', () => {
     await fireEvent.click(screen.getAllByRole('button', { name: /^Vederlagsjustering/ })[0]!);
     await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Totalentreprenøren' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
     await skriv('Datoen det ble sendt', '2026-09-30');
     const fil = new File(['%PDF-1.4'], 'kravet.pdf', { type: 'application/pdf' });
@@ -398,26 +391,16 @@ describe('valgene i varselutkastet står (Codex-reviewet)', () => {
 });
 
 describe('datoen etter punkt 34.1.3 i et varsel som registreres (U-11 og D-1 i BF-48, Codex-reviewet)', () => {
-  it('er datoen alt oppgitt, kan registreringen ha datoen brevet oppga, med den siste opplysningen og lenken ved feltet', async () => {
+  it('er datoen alt oppgitt, kan varselet lagt til ha datoen brevet oppga, med den siste opplysningen ved feltet', async () => {
     await aapneSom('datoen-er-oppgitt', 'TE', 'BF-48');
     await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Totalentreprenøren' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
     await skriv('Datoen det ble sendt', '2026-10-20');
-    const fil = new File(['%PDF-1.4'], 'varselet.pdf', { type: 'application/pdf' });
-    await fireEvent.change(document.querySelector('input[type=file]')!, {
-      target: { files: [fil] },
-    });
-    await screen.findByText('varselet.pdf');
-    await fireEvent.input(screen.getByRole('textbox', { name: /Kort beskrivelse/ }), {
-      target: { value: 'Det særskilte varselet' },
-    });
     await fireEvent.click(screen.getByRole('radio', { name: 'Et varsel' }));
-    await fireEvent.click(knapp('Gå videre'));
-    await screen.findByRole('heading', { name: 'Varslene i brevet' });
-    await fireEvent.click(knapp(/^Endre /));
     await fireEvent.click(
-      screen.getByRole('radio', { name: /^Varsel om særskilt vederlagsjustering/ })
+      screen.getByRole('checkbox', { name: /^Varsel om særskilt vederlagsjustering/ })
     );
     expect(
       screen.getByLabelText('Når ble du klar over at utgiftene ville påløpe?, Valgfri')

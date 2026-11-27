@@ -124,6 +124,12 @@ describe('Tidslinje', () => {
       vedlegg: [],
       varselhjemler: [],
       svarPaaVarselet: {},
+      korrespondansetype: null,
+      sendemaate: null,
+      kategori: null,
+      ikkeFyltUt: null,
+      retter: null,
+      rettetAv: null,
     });
     const { container } = render(Tidslinje, {
       brev: [

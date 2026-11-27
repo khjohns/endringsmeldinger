@@ -346,7 +346,7 @@ punktet. Det juridiske står i vedtakene, ikke her.
   [OV-U97](../docs/plans/vedtak.md#ov-u97)). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
   sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav
   (presiserer [VS-U2](../docs/plans/vedtak.md#vs-u2), [VS-U97](../docs/plans/vedtak.md#vs-u97), [HF-U5](../docs/plans/vedtak.md#hf-u5), [LV-U7](../docs/plans/vedtak.md#lv-u7) og [OV-U4](../docs/plans/vedtak.md#ov-u4); bindende i
-  [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
+  [HF-U11](../docs/plans/vedtak.md#hf-u11) og [HF-U23](../docs/plans/vedtak.md#hf-u23); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
 - <a id="mm-u23"></a>**MM-U23** Ved kravet står partenes standpunkter med part, dato og
   henvisning til brevet, for eksempel «BH: varslet for sent», og hvert tall skal kunne finnes igjen
   i et brev. En vurdering løsningen gjør selv, vises bare der et vedtak krever det, og teksten

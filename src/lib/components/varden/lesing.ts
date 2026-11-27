@@ -34,8 +34,11 @@ import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 import type {
   Avsnitt,
   Dokument,
+  IkkeFyltUt,
+  Korrespondansetype,
   Krav,
   Part,
+  Sendemaate,
   Spor,
   Standpunkt,
   Svar,
@@ -43,6 +46,7 @@ import type {
   Varselhjemmel,
 } from '#kjerne/typer.ts';
 import { SPOR } from '#kjerne/typer.ts';
+import type { Korrespondansekategori } from './tekster/typer';
 import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -96,6 +100,30 @@ export interface Brevet {
    * kravet står ikke her (VS-U96 punkt 39, #2481).
    */
   svarPaaVarselet: Partial<Record<Spor, { tittel: string; del: string }>>;
+  /** Typen og sendemåten for korrespondanse lagt til (OV-U79), og `null` for et brev herfra. */
+  korrespondansetype: Korrespondansetype | null;
+  sendemaate: Sendemaate | null;
+  /**
+   * Det korrespondansen lagt til er etter kontrakten, lest av innholdet kjernen har lagret
+   * (U-10 i BF-49). `null` for et brev herfra.
+   */
+  kategori: Korrespondansekategori | null;
+  /** D-12 i BF-49: skjemaet parten avbrøt før korrespondansen ble lagt til som dokumentasjon. */
+  ikkeFyltUt: IkkeFyltUt | null;
+  /** D-13 i BF-49: dokumentasjonen korrespondansen ble lagt til på nytt i stedet for. */
+  retter: string | null;
+  /** Korrespondansen som ble lagt til på nytt i stedet for denne dokumentasjonen (OV-U17). */
+  rettetAv: string | null;
+}
+
+/** Kategorien for korrespondanse lagt til, av innholdet i dokumentet (U-10 i BF-49). */
+function kategoriAv(d: Dokument): Korrespondansekategori | null {
+  if (d.brevtekst !== null) return null;
+  if (d.krav.length) return 'krav';
+  if (d.svar.length) return 'svar';
+  if (d.utsagn.some((x) => x.art === 'aksept')) return 'aksept';
+  if (d.utsagn.some((x) => x.art === 'varsel')) return 'varsel';
+  return 'dokumentasjon';
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -138,6 +166,9 @@ function lesBrevene(u: Utledning): Brevet[] {
   // Innlegget hører til sporene til brevet det viser til, som står før det i journalen (G-7 i BF-03).
   const brevetsSpor = new Map<string, Spor[]>();
   const varselsvar = new Set(SPOR.flatMap((s) => u.spor[s].svarPaaVarsler.map((x) => x.id)));
+  const rettetAv = new Map(
+    u.registrerteBrev.flatMap((r) => (r.rettetAv ? [[r.dokument, r.rettetAv] as const] : []))
+  );
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -178,6 +209,12 @@ function lesBrevene(u: Utledning): Brevet[] {
         svarPaaVarselet: Object.fromEntries(
           d.svar.filter((s) => varselsvar.has(s.id)).map((s) => [s.spor, svaretGjelder(s)])
         ),
+        korrespondansetype: d.korrespondansetype,
+        sendemaate: d.sendemaate,
+        kategori: kategoriAv(d),
+        ikkeFyltUt: d.ikkeFyltUt,
+        retter: d.retter,
+        rettetAv: rettetAv.get(d.id) ?? null,
       },
     ];
   });

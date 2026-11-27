@@ -1,11 +1,12 @@
 <!--
   Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og
-  vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). Typen, sendemåten for
-  et brev, datoen det ble sendt, dokumentet og den korte beskrivelsen (OV-U79, VS-U34, VS-U38, A1 i
+  vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). Typen, datoen det ble
+  sendt, sendemåten for et brev (U-1 i BF-49), dokumentet og den korte beskrivelsen (OV-U79, VS-U34, VS-U38, A1 i
   #2056). Skjemaet gir ID-en til hvert felt, så
   oppsummeringen av feilene kan flytte fokus dit.
 -->
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import Datofelt from './Datofelt.svelte';
   import Filvalg from './Filvalg.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
@@ -22,6 +23,8 @@
     endret = () => {},
     kapittelB = false,
     hva = 'varsel',
+    etterTypen,
+    foerBeskrivelsen,
   }: {
     /** ID-en til feltet for hver del. */
     id: (felt: Korrespondansefelt) => string;
@@ -39,6 +42,10 @@
     kapittelB?: boolean;
     /** Det korrespondansen er etter kontrakten, som bestemmer ordene (OV-U80). */
     hva?: Korrespondansehva;
+    /** Feltet etter typen, som avsenderen i skjemaet for korrespondanse lagt til (U-1 i BF-49). */
+    etterTypen?: Snippet;
+    /** Det skjemaet spør om før beskrivelsen, som kategorien (prototypen `#reg-skjema`). */
+    foerBeskrivelsen?: Snippet;
   } = $props();
 
   const iDag = dagensDato();
@@ -64,6 +71,18 @@
     }
     feil={feil('type')}
   />
+  {@render etterTypen?.()}
+  <Datofelt
+    id={id('dato')}
+    etikett={KORRESPONDANSEN.dato}
+    hjelp={KORRESPONDANSEN.datoHjelp}
+    maks={iDag}
+    bind:verdi={valg.dato}
+    paakrevd
+    feil={feil('dato')}
+    oninput={() => endret('dato')}
+  />
+
   {#if valg.type === 'brev'}
     <Valg
       navn={id('sendemaate')}
@@ -81,17 +100,6 @@
       feil={feil('sendemaate')}
     />
   {/if}
-
-  <Datofelt
-    id={id('dato')}
-    etikett={KORRESPONDANSEN.dato}
-    hjelp={KORRESPONDANSEN.datoHjelp}
-    maks={iDag}
-    bind:verdi={valg.dato}
-    paakrevd
-    feil={feil('dato')}
-    oninput={() => endret('dato')}
-  />
 
   {#if grense}
     <Filvalg
@@ -114,6 +122,8 @@
       <p class="hjelp">{KORRESPONDANSEN.dokumentetIkkeEnnaa}</p>
     </div>
   {/if}
+
+  {@render foerBeskrivelsen?.()}
 
   <Tekstomraade
     id={id('beskrivelse')}

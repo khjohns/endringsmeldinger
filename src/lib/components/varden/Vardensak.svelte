@@ -300,7 +300,8 @@
   } as const satisfies Record<Kravspor, Utkastnavn>;
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
   // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
-  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
+  /** `retter` er datoen dokumentasjonen skjemaet legges til på nytt i stedet for, ble lagt til (U-12). */
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg; retter?: string } | null>(null);
   // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
   let svaretFra = $state<Korrespondansevalg | null>(null);
@@ -850,19 +851,9 @@
    */
   const utenPaaberopelsen = () =>
     !!u?.spor.forhold.trukket && (!!lagtTilI('forhold', 'svar') || harSvarutkast('forhold'));
-  /** Varselet, kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
-  function videreFraKorrespondansen(kategori: 'varsel' | 'krav' | 'svar') {
+  /** Kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
+  function videreFraKorrespondansen(kategori: 'krav' | 'svar') {
     if (!lagtTil || !u) return;
-    if (kategori === 'varsel') {
-      // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
-      if (valgt === 'vederlag') {
-        const hjemmel = foersteVarsel(kjernesak.handlinger, true);
-        if (hjemmel) vederlagsvarsel(hjemmel, true, { ...lagtTil.valg.korrespondanse });
-        aapneUtkast({ art: 'vederlagskrav' });
-      } else fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
-      lagtTil = null;
-      return;
-    }
     if (kategori === 'svar') {
       svaretFra = { ...lagtTil.valg.korrespondanse };
       aapneUtkast({ art: 'svar' });
@@ -890,13 +881,45 @@
     lagtTil = null;
     return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
+  /**
+   * D-13 og U-12 i BF-49: skjemaet for korrespondansen, utfylt fra dokumentasjonen `b` og med
+   * henvisningen til den (`retter`), så parten kan velge det den er etter kontrakten.
+   */
+  function leggTilPaaNytt(u: Utledning, b: Brevet) {
+    const d = u.journal.find((h) => h.art === 'dokument' && h.dokument.id === b.id);
+    if (d?.art !== 'dokument') return;
+    lagtTil = {
+      spor: valgt,
+      retter: b.registrert,
+      valg: {
+        ...tomtLagtTil(valgt),
+        avsender: b.avsender,
+        spor: [...d.dokument.spor],
+        korrespondanse: {
+          type: b.korrespondansetype,
+          sendemaate: b.sendemaate,
+          dato: b.sendt ?? '',
+          // Dokumentet er alt i saken; størrelsen er ikke lagret med det.
+          vedlegg: d.dokument.dokumentasjon.map((v) => ({ ...v, stoerrelse: 0 })),
+          beskrivelse: b.beskrivelse ?? '',
+          retter: b.id,
+        },
+      },
+    };
+    tilArbeid({ art: 'korrespondanse' });
+  }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
     // Korrespondansen for svarutkastet står selv om skjemaet er brukt i et annet spor siden.
     if (svaretFra && valgt === 'forhold' && lagtTil?.spor !== 'forhold')
       lagtTil = {
         spor: 'forhold',
-        valg: { ...tomtLagtTil('forhold'), korrespondanse: { ...svaretFra }, kategori: 'svar' },
+        valg: {
+          ...tomtLagtTil('forhold'),
+          korrespondanse: { ...svaretFra },
+          avsender: kjernesak.part,
+          kategori: 'svar',
+        },
       };
     tilbakeTil({ art: 'korrespondanse' });
   }
@@ -1171,6 +1194,7 @@
       {u}
       spor={valgt}
       bind:valg={lagtTil.valg}
+      retter={lagtTil.retter ?? null}
       onneste={videreFraKorrespondansen}
       onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
       onavbryt={() => {
@@ -1301,6 +1325,8 @@
       onendre={tilKorrespondansen}
       onleggtil={() => {
         skjemaene.korrespondanse.aapne();
+        // Svaret parten har gitt før, er sendt av parten selv (U-2 i BF-49).
+        lagtTil!.valg.avsender = kjernesak.part;
         lagtTil!.valg.kategori = 'svar';
       }}
       onlagttil={() => {
@@ -1617,6 +1643,10 @@
             onvelg={(n) => {
               melding = null;
               aapne(n);
+            }}
+            onpaanytt={(b) => {
+              melding = null;
+              leggTilPaaNytt(u, b);
             }}
             onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);

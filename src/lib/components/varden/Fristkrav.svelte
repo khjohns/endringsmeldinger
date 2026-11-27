@@ -779,8 +779,9 @@
       <p class="status">
         {FRISTKRAV.foresporsel(
           foresporselsbrev,
-          foresporselsbrev.registrert,
-          kalenderdager(foresporselsbrev.registrert, iDag)
+          foresporselsbrev.sendt ?? foresporselsbrev.registrert,
+          kalenderdager(foresporselsbrev.sendt ?? foresporselsbrev.registrert, iDag),
+          foresporselsbrev.sendt ? foresporselsbrev.registrert : null
         )}
       </p>
       <Valg

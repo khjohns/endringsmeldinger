@@ -105,7 +105,7 @@
           {#each vedlegg as v (v.vedlegg_id)}
             <li>
               <span class="navn">{v.filnavn}</span>
-              <span class="stoerrelse">{stoerrelse(v.stoerrelse)}</span>
+              {#if v.stoerrelse}<span class="stoerrelse">{stoerrelse(v.stoerrelse)}</span>{/if}
               <Knapp
                 variant="lenke"
                 aria-label={NYSAK.fjernVedleggNavn(v.filnavn)}

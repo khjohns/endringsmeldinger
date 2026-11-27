@@ -22,7 +22,7 @@ import {
   type LastetKjernesak,
 } from '#lib/api/kjerne.ts';
 import { utledJournal, type Vedleggsoppslag } from '#kjerne/kommandoer/skriving.ts';
-import { tilbudte } from '#kjerne/kommandoer/handlinger.ts';
+import { tilbudte, tilbudteLagtTil } from '#kjerne/kommandoer/handlinger.ts';
 import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import type { LagIForholdet } from '#kjerne/spor/forhold/kommando.ts';
@@ -34,6 +34,8 @@ import type { Part, Spor } from '#kjerne/typer.ts';
 
 /** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
 export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
+/** G-2 i BF-49: feltene med tekst fra løsningen, som et krav og et svar lagt til ikke har (OV-U80). */
+export { KRAVTEKSTENE, SVARTEKSTENE } from '#kjerne/kommandoer/kommando.ts';
 
 /**
  * Kravversjonen som var gjeldende på dagen et svar lagt til ble sendt, som svaret gjelder (OV-U98),
@@ -282,16 +284,25 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   /**
    * Lagene i et svar BH ennå fyller ut, regnet av kjernen (#1400,
    * M-2 i BF-08 for forholdet og M-8 i BF-20 for fristen).
-   * `spor` gir typen for lagene, og et utkast i et annet spor kaster.
+   * `spor` gir typen for lagene, og et utkast i et annet spor kaster. `sendt` er datoen et svar
+   * lagt til ble sendt, så lagene leses på den dagen, som brevet fryses med (punkt 1 i #2090).
    */
-  function lagene(utkast: Svarutkast, spor: 'forhold'): LagIForholdet | null;
-  function lagene(utkast: Svarutkast, spor: 'vederlag'): LagIVederlaget | null;
-  function lagene(utkast: Svarutkast, spor: 'frist'): LagIFristen | null;
-  function lagene(utkast: Svarutkast, spor: 'forhold' | 'vederlag' | 'frist') {
+  function lagene(utkast: Svarutkast, spor: 'forhold', sendt?: string | null): LagIForholdet | null;
+  function lagene(
+    utkast: Svarutkast,
+    spor: 'vederlag',
+    sendt?: string | null
+  ): LagIVederlaget | null;
+  function lagene(utkast: Svarutkast, spor: 'frist', sendt?: string | null): LagIFristen | null;
+  function lagene(
+    utkast: Svarutkast,
+    spor: 'forhold' | 'vederlag' | 'frist',
+    sendt: string | null = null
+  ) {
     if (!utledning) return null;
     if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
     try {
-      return lagForUtkastet(utkast, utledning, kjerne.regler);
+      return lagForUtkastet(utkast, utledning, kjerne.regler, sendt);
     } catch (e) {
       console.error(e);
       return null;
@@ -478,6 +489,19 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     /** Handlingene med sporet og det hver gjelder, så visningen ikke deler nøkkelen (#1703). */
     get tilbudte() {
       return tilbudt;
+    },
+    /**
+     * Kategoriene og varslene parten får tilbud om for korrespondanse sendt `sendt` av `avsender`
+     * (G-1 i BF-49). Tom før saken er lastet og uten side.
+     */
+    tilbudteLagtTil(sendt: string, avsender: Part) {
+      if (!utledning || !part) return [];
+      try {
+        return tilbudteLagtTil(utledning, part, sendt, avsender, kjerne.regler);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
     },
     /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10, MM-U50). */
     get regelversjon() {

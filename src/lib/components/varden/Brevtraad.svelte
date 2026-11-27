@@ -134,7 +134,15 @@
             )}{/if}
         </span>
         <span class="meta">
-          {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
+          {#if registrert}
+            <!-- U-10 og U-11 i BF-49: kategorien, og merket så lenge den står som dokumentasjon. -->
+            <span
+              >{dokumentasjon.includes(b.id)
+                ? TRAADEN.dokumentasjon
+                : LEGG_TIL.merke[b.kategori ?? 'dokumentasjon']}</span
+            >
+            {#if b.ikkeFyltUt && !b.rettetAv}<span class="merke">{LEGG_TIL.ikkeFyltUt}</span>{/if}
+          {/if}
           {#if b.art === 'innlegg'}<span>{INNLEGGET.merke}</span>{/if}
           {#if b.avsnitt}
             {#if tilHoeyre}
@@ -161,7 +169,12 @@
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
           {/if}
           {#if registrert}
-            <p class="datolinje">{TRAADEN.registrert(b.lagtTilAv, b.sendt, b.registrert)}</p>
+            <p class="datolinje">{TRAADEN.registrert(b)}</p>
+            {@const retter = b.retter ? brev.find((x) => x.id === b.retter) : undefined}
+            {@const rettetAv = b.rettetAv ? brev.find((x) => x.id === b.rettetAv) : undefined}
+            <!-- U-11 og U-12 i BF-49: hvilken registrering den nye retter, og at den gamle er erstattet. -->
+            {#if retter}<p class="datolinje">{LEGG_TIL.retter(retter.registrert)}</p>{/if}
+            {#if rettetAv}<p class="datolinje">{LEGG_TIL.rettet(rettetAv.registrert)}</p>{/if}
           {/if}
           {#if samme.length}
             <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(samme)}</Melding>
@@ -376,6 +389,10 @@
     font-size: 12px;
     color: var(--ink-3);
     white-space: nowrap;
+  }
+  .meta .merke {
+    color: var(--ink-2);
+    font-weight: 600;
   }
   /* Lenkeknappen står i flukt med teksten over; luften til siden er treffflate. */
   .datolinje :global(.knapp) {
