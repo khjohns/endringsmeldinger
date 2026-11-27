@@ -137,7 +137,7 @@ tilstander = "Åpner «enige» og lukker «byggherren har svart»."
 status = "naa"
 noekler = ["godta:forhold", "godta:vederlag", "godta:frist"]
 kommandoer = ["aksept"]
-skjema = []
+skjema = ["godta:forhold", "godta:vederlag", "godta:frist"]
 mangler = "Ingen. Varden åpner aksepten i sporet, ikke fra `skjemaene`."
 
 [[handling]]
@@ -169,8 +169,8 @@ tilstander = "Åpner «spesifisert krav etterspurt», og svaret lukker den."
 status = "naa"
 noekler = ["sende_foresporsel:frist", "svare_paa_foresporsel:*"]
 kommandoer = ["foresporsel", "foresporselssvar"]
-skjema = []
-mangler = "Skjemaet i Varden for forespørselen."
+skjema = ["svare_paa_foresporsel:*"]
+mangler = "Skjemaet i Varden for forespørselen. Svaret på forespørselen åpner skjemaet for fristkravet, utenfor `skjemaene` (U-11 i BF-20)."
 
 [[handling]]
 id = "U5"
@@ -202,7 +202,7 @@ status = "naa"
 noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
 kommandoer = ["varsel", "krav", "brev", "revisjon", "aksept"]
 skjema = ["varsle:frist", "varsle:vederlag", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
-mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3)."
+mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3). Varslene etter punkt 34.3.3 og 34.4 står ikke blant handlingene i sporet. De sendes og legges til i skjemaet for vederlagskravet (`varsle:34.3.3`, `varsle:34.4`, U-1 i BF-37), og totalentreprenøren kan oppgi varselet for en kravpost i kravskjemaet (VS-U96 punkt 23)."
 
 [[handling]]
 id = "U7"
@@ -210,15 +210,15 @@ navn = "Retting av datoene i et sendt brev"
 part = "TE"
 spor = ["forhold", "vederlag", "frist"]
 kilde = ["MM-U59", "OV-U98", "OV-U99"]
-finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) finnes, og i kjernen kunnskapsdatoen etter punkt 34.1.3 (punkt 12)."
+finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen etter punkt 34.1.3 (punkt 12) finnes."
 form = "Strukturert. Den manuelle korrigeringsprosessen tar andre rettinger."
 naar = "Nå for datoene i beslutningsdelen i MM-U59."
 tilstander = "En retting til en tidligere varseldato eller kravdato står som tilbud til byggherren har godtatt den i et svar (MM-U59 punkt 8, 18 og 20–23, designdelen)."
 status = "naa"
 noekler = ["korrigere:*", "oppgi_kunnskapsdato:*"]
 kommandoer = ["korrigering", "kunnskapsdato"]
-skjema = []
-mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18), med aksepten i svaret: kjernen og skjemaene i Varden (BF-50, #1309). Kunnskapsdatoen etter punkt 34.1.3 (punkt 12, VS-U82): skjemaene i Varden (BF-48, #2012); kjernen er bygget. Korrigeringen av datoen i påberopelsen (punkt 10) er bygget."
+skjema = ["korrigere:*", "oppgi_kunnskapsdato:*"]
+mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18), med aksepten i svaret: kjernen og skjemaene i Varden (BF-50, #1309). Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen etter punkt 34.1.3 (punkt 12, VS-U82, #2424) er bygget, og Varden åpner skjemaene utenfor `skjemaene`."
 
 [[handling]]
 id = "U8"
@@ -293,7 +293,7 @@ id = "V2"
 navn = "Forsering"
 part = "TE"
 spor = ["frist"]
-kilde = ["punkt 33.8", "OV-U127", "OV-U99"]
+kilde = ["punkt 33.8", "OV-U127", "OV-U99", "FO-U1"]
 finnes = "Ja."
 form = "Egen sak."
 naar = "Senere."
