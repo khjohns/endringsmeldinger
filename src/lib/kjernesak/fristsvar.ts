@@ -13,3 +13,6 @@ import type { Utledning } from '#kjerne/utledning/utled.ts';
  * standpunkt til den (VS-U17, VS-U29), slik kjernen leser det.
  */
 export const foresporselenISvaret = (u: Utledning) => foresporselForFristsvar(u);
+
+/** VS-U95, slik kjernen leser det. */
+export { begrunnelsenKanAvvisesSomSvar } from '#kjerne/spor/frist/utledning.ts';
