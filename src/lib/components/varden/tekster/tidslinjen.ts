@@ -10,13 +10,20 @@ export const TIDSLINJE = haerdet({
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
   /** Hva brevet gjør, kort, som i prototypen `grunnlagsoversikt.html`: «Krav om fristforlengelse». */
-  hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'varselhjemler'>) => {
+  hva: (
+    b: Pick<
+      Brevet,
+      'art' | 'spor' | 'avsender' | 'brevtittel' | 'varselhjemler' | 'svarPaaVarselet'
+    >
+  ) => {
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     const om = (navn: Record<Spor, string>) => spor.map((s) => navn[s]).join(' og ');
     if (b.art === 'registrert') return FORHOLDET.registrertTittel(b.avsender);
     if (b.art === 'krav' && spor.length)
       return spor.includes('forhold') ? 'Påberopelse av forholdet' : `Krav om ${om(KRAVET)}`;
-    if (b.art === 'svar' && spor.length) return `Svar på ${om(SAKSDELEN)}`;
+    // Et svar bare på et varsel heter etter varselet, som brevtittelen (VS-U96 punkt 39, #2481).
+    if (b.art === 'svar' && spor.length)
+      return `Svar på ${spor.map((s) => b.svarPaaVarselet[s] ?? SAKSDELEN[s]).join(' og ')}`;
     if (b.art === 'trekk' && spor.length)
       return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
     if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;

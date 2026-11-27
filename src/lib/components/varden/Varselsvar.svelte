@@ -13,10 +13,11 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
     erSvarPaaVarsel,
+    kjedenFor,
     varseletFoerBrevet,
     type VarseletAlene,
   } from '#lib/kjernesak/vederlagskrav.ts';
-  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { svarkjeden, type Utledning } from '#kjerne/utledning/utled.ts';
   import { VARSELSPOR, type Kravpost } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
@@ -96,7 +97,9 @@
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
-    const s = etter?.spor[spor].svarPaaVarsler.findLast((x) => x.gjelder === varselet.id);
+    const s = etter?.spor[spor].svarPaaVarsler.findLast(
+      (x) => svarkjeden(x) === kjedenFor(varselet)
+    );
     // Svaret sendes fra løsningen, så det fryses med det gjeldende svaret på forholdet
     // (`svaretPaaForholdetPaaDagen` uten dag, OV-U32).
     return s && s.id !== varselet.forrigeSvar

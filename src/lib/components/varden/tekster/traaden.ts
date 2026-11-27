@@ -16,7 +16,16 @@ export const TRAADEN = haerdet({
     spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
   /** Hva brevet er, kort: «Svar på krav om vederlagsjustering». Et registrert brev har partens beskrivelse. */
   hva: (
-    b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse' | 'varselhjemler'>
+    b: Pick<
+      Brevet,
+      | 'art'
+      | 'spor'
+      | 'avsender'
+      | 'brevtittel'
+      | 'beskrivelse'
+      | 'varselhjemler'
+      | 'svarPaaVarselet'
+    >
   ) => {
     if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
     // MM-U47, designdelen: innlegget har tittelen parten skrev, også når det gjelder flere spor.

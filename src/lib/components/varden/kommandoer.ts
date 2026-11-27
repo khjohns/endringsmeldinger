@@ -448,7 +448,9 @@ export function varselsvaret(
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
   const svar: Svarutkast = {
     spor: VARSELSPOR[varselet.hjemmel],
-    gjelder: varselet.id,
+    gjelder: varselet.kravversjon ?? varselet.id,
+    // VS-U96 punkt 38: svaret bare på varselet i kravversjonen.
+    ...(varselet.kravversjon ? { bare_varselet: true as const } : {}),
     regelversjon: regler.versjon,
     // Vurderingene i svaret på varselet står ikke i `Svarvurdering` (`standpunkterPaaVarselet` og
     // `standpunkterPaaFristvarselet`).
