@@ -6635,8 +6635,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      ...new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder)),',
-        '      ...new Set<string>(),',
+        '    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));',
+        '    const varslene = new Set<string>();',
       ],
     ],
     mal: ['et svar som erstatter et svar som alt er erstattet, gjør saken ikke forstått'],
@@ -7360,7 +7360,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på varselet etter punkt 34.1.2 tas imot etter at byggherren har svart på vederlagskravet (VS-U96 punkt 33, #2409, #2456)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [["        (varselet.hjemmel === '34.1.2' ||", '        (false ||']],
+    endringer: [["      varselet.hjemmel === '34.1.2' ||", '      false ||']],
     mal: ['kan gis etter vederlagskravet, til byggherren har svart på det (VS-U96 punkt 33)'],
   },
   {
@@ -7830,10 +7830,10 @@ const MUTASJONER: Mutasjon[] = [
       'svaret på varselet som står alene avvises når kravversjonen med det varselet gjelder er sendt, ikke når byggherren har svart på den (VS-U96 punkt 33, #2456)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      ['    d.svar.some((x) => {', '    d.krav.some((x) => {'],
+      ['    d.svar.flatMap((x) => {\n      const k', '    d.krav.flatMap((x) => {\n      const k'],
       [
-        '      const k = kravene.get(x.gjelder);\n      return (',
-        '      const k = kravene.get(x.id);\n      return (',
+        '      const k = kravene.get(x.gjelder);\n      return medVirkning',
+        '      const k = kravene.get(x.id);\n      return medVirkning',
       ],
     ],
     mal: [

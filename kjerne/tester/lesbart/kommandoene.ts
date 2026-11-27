@@ -382,7 +382,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'spor/vederlag/kommando.ts',
     'relasjon',
-    'kravposteneSomVarsler',
+    'kravposteneSomVarsler ubesvartePoster',
     ['kommandoer/standpunkter.ts:svaretsVarsel'],
   ],
   ['VarseletIKravposten', 'relasjon', 'id hjemmel'],

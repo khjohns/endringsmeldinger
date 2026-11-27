@@ -389,8 +389,7 @@ export const FORMATET: Lesbar[] = [
       // VS-U88 punkt 9: dagen et tidligere fristsvar med påberopelsen ble sendt.
       'frosset/brevtekst.ts:paaberopelsenFoerIFristen',
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
-      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
-      'spor/vederlag/kommando.ts:kravposteneSomVarsler',
+      'spor/vederlag/kommando.ts:besvarteVederlagskrav',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',

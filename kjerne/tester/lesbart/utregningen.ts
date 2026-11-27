@@ -498,8 +498,7 @@ export const UTREGNINGEN: Lesbar[] = [
     'id',
     [
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
-      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
-      'spor/vederlag/kommando.ts:kravposteneSomVarsler',
+      'spor/vederlag/kommando.ts:besvarteVederlagskrav',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],

@@ -1390,10 +1390,11 @@ function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyld
   for (const n of SPOR) {
     // Kravpostvarslene fylles i sporet etter kontrollene, så varslene leses av svarene. Svarene
     // bare på varselet i en kravversjon er en egen kjede (VS-U96 punkt 38).
+    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));
     const kjedene = [
       ...spor[n].krav.map((k) => ({ gjelder: k.id, svarene: spor[n].svar })),
-      ...new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder)),
-    ].map((x) => (typeof x === 'string' ? { gjelder: x, svarene: spor[n].svarPaaVarsler } : x));
+      ...[...varslene].map((v) => ({ gjelder: v, svarene: spor[n].svarPaaVarsler })),
+    ];
     for (const { gjelder, svarene } of kjedene) {
       const paaKravet = svarene.filter((s) => s.gjelder === gjelder);
       if (!paaKravet.length) continue;

@@ -11,6 +11,7 @@ import {
   standpunkterBarePaaVarselet,
   standpunkterPaaVarselet,
   varseletSvaretGjelder,
+  ubesvartePoster,
   type VarseletIKravposten,
 } from '../spor/vederlag/kommando.ts';
 import type { Svarutkast } from './kommando.ts';
@@ -61,7 +62,8 @@ export function svaretsVarsel(
 ): Svaretsvarsel | VarsleneIKravet | null {
   if (bare) {
     if (spor === 'frist') return fristvarseletIKravet(u, gjelder);
-    const poster = spor === 'vederlag' ? kravposteneSomVarsler(u, gjelder, sendt) : [];
+    const poster =
+      spor === 'vederlag' ? ubesvartePoster(u, kravposteneSomVarsler(u, gjelder), sendt) : [];
     return poster.length ? { krav: gjelder, poster } : null;
   }
   if (spor === 'vederlag') return varseletSvaretGjelder(u, gjelder);

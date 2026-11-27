@@ -128,14 +128,14 @@ function virkningerISvaretPaaVarselet(
   forSentFoer: ReadonlySet<string>
 ): Standpunktsvirkning[] {
   // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost.
-  const iVarselet = (s: Standpunkt) => ('gjelder' in s ? s.gjelder : undefined);
-  return svar.standpunkter.map((s) => {
-    const varselet = svar.standpunkter.find(
-      (x) => x.art === 'rettidighet' && iVarselet(x) === iVarselet(s)
-    );
-    const justeringen = svar.standpunkter.find(
-      (x) => x.art === 'justering' && iVarselet(x) === iVarselet(s)
-    );
+  const varslene = new Map<string, Standpunkt[]>();
+  for (const s of svar.standpunkter) {
+    const gjelder = ('gjelder' in s ? s.gjelder : undefined) ?? '';
+    varslene.set(gjelder, [...(varslene.get(gjelder) ?? []), s]);
+  }
+  return [...varslene.values()].flatMap((standpunktene) => {
+    const varselet = standpunktene.find((s) => s.art === 'rettidighet');
+    const justeringen = standpunktene.find((s) => s.art === 'justering');
     const lag = lagIKravposten(
       {
         godtarRegelen: true,
@@ -146,12 +146,12 @@ function virkningerISvaretPaaVarselet(
       },
       1
     );
-    return {
+    return standpunktene.map((s) => ({
       standpunkt: s.id,
       art: s.art,
       virkning:
         s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
-    };
+    }));
   });
 }
 

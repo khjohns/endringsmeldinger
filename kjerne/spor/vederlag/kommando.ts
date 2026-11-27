@@ -305,7 +305,6 @@ export function hindrerSvaretPaaVarselet(
   hva: 'Svaret' | 'Revisjonen',
   sendt: string | null
 ): Avvisning | null {
-  const sporet = u.spor.vederlag;
   const varselet = varseletSvaretGjelder(u, gjelder);
   if (!varselet)
     return avvis(
@@ -315,29 +314,15 @@ export function hindrerSvaretPaaVarselet(
   // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
   if (varselet.hjemmel === '34.1.2' && varselEtter3412KrevesIkke(u, sendt))
     return VARSLINGSPLIKTEN_GJELDER_IKKE;
-  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
-  if (hva === 'Svaret' && forrige)
-    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
-  if (hva === 'Revisjonen' && !forrige)
-    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  const iKjeden = hindrerSvaretIKjeden(u, gjelder, hva);
+  if (iKjeden) return iKjeden;
   // VS-U96 punkt 33: byggherrens svar med virkning på kravversjonene med det varselet gjelder.
-  const dokumentene = [...dokumenterI(u.journal)];
-  const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
-  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
-  const besvartIKravet = dokumentene.some((d) =>
-    d.svar.some((x) => {
-      const k = kravene.get(x.gjelder);
-      return (
-        medVirkning.has(x.id) &&
-        k?.spor === 'vederlag' &&
-        (varselet.hjemmel === '34.1.2' ||
-          (varselet.hjemmel === '34.1.3'
-            ? harProduktivitetspost(k)
-            : kravposterI(k).some((p) => varseletPostenGjelder(u, k, p.id) === gjelder))) &&
-        (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
-      );
-    })
+  const besvartIKravet = besvarteVederlagskrav(u, sendt).some(
+    (k) =>
+      varselet.hjemmel === '34.1.2' ||
+      (varselet.hjemmel === '34.1.3'
+        ? harProduktivitetspost(k)
+        : kravposterI(k).some((p) => varseletPostenGjelder(u, k, p.id) === gjelder))
   );
   if (!besvartIKravet) return null;
   const ikke = `${hva} kan ikke gjelde varselet, fordi byggherren har svart på`;
@@ -372,44 +357,75 @@ export interface VarseletIKravposten {
 }
 
 /**
- * VS-U96 punkt 38 og 22: kravpostene i kravversjonen `gjelder` der kravet selv er varselet etter
- * § 34.3.3 første ledd eller § 34.4, fordi posten ikke viser til et varsel i saken. Med
- * `aapne` bare postene byggherren ikke har svart på i en kravversjon med posten og samme
- * varselhjemmel (punkt 33), med svarene sendt til og med dagen `sendt` (OV-U98).
+ * Det som hindrer svaret på varselet `gjelder` eller revisjonen av det i kjeden av svar på varselet
+ * (`hva`): kravet er trukket, eller byggherren har svart (VS-U96 punkt 33).
  */
-export function kravposteneSomVarsler(
+function hindrerSvaretIKjeden(
   u: Utledning,
   gjelder: string,
-  sendt: string | null,
-  aapne = true
-): VarseletIKravposten[] {
+  hva: 'Svaret' | 'Revisjonen'
+): Avvisning | null {
+  const sporet = u.spor.vederlag;
+  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  if (hva === 'Svaret' && forrige)
+    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
+  if (hva === 'Revisjonen' && !forrige)
+    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  return null;
+}
+
+/**
+ * VS-U96 punkt 33, OV-U98: vederlagskravene byggherren har svart på med virkning, med svarene sendt
+ * til og med dagen `sendt`. Et krav står én gang per svar.
+ */
+function besvarteVederlagskrav(u: Utledning, sendt: string | null): Krav[] {
+  const sporet = u.spor.vederlag;
+  const dokumentene = [...dokumenterI(u.journal)];
+  const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
+  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+  return dokumentene.flatMap((d) =>
+    d.svar.flatMap((x) => {
+      const k = kravene.get(x.gjelder);
+      return medVirkning.has(x.id) &&
+        k?.spor === 'vederlag' &&
+        (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
+        ? [k]
+        : [];
+    })
+  );
+}
+
+/**
+ * VS-U96 punkt 38 og 22: kravpostene i kravversjonen `gjelder` der kravet selv er varselet etter
+ * § 34.3.3 første ledd eller § 34.4, fordi posten ikke viser til et varsel i saken.
+ */
+export function kravposteneSomVarsler(u: Utledning, gjelder: string): VarseletIKravposten[] {
   const sporet = u.spor.vederlag;
   const krav = sporet.krav.find((k) => k.id === gjelder);
   if (!krav) return [];
   const varslene = new Set(sporet.kravpostvarsler.map((v) => v.id));
-  const poster = kravposterI(krav).flatMap((p): VarseletIKravposten[] => {
+  return kravposterI(krav).flatMap((p): VarseletIKravposten[] => {
     const hjemmel = varselhjemmel(p);
     const viserTil = varseletPostenGjelder(u, krav, p.id);
     return hjemmel && (viserTil === undefined || !varslene.has(viserTil))
       ? [{ id: p.id, hjemmel }]
       : [];
   });
-  if (!aapne) return poster;
-  const dokumentene = [...dokumenterI(u.journal)];
-  const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
-  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+}
+
+/**
+ * VS-U96 punkt 33: postene i `poster` byggherren ikke har svart på i en kravversjon med posten og
+ * samme varselhjemmel, med svarene sendt til og med dagen `sendt` (OV-U98).
+ */
+export function ubesvartePoster(
+  u: Utledning,
+  poster: readonly VarseletIKravposten[],
+  sendt: string | null
+): VarseletIKravposten[] {
   const besvart = new Set(
-    dokumentene.flatMap((d) =>
-      d.svar.flatMap((x) => {
-        const k = kravene.get(x.gjelder);
-        if (
-          !medVirkning.has(x.id) ||
-          k?.spor !== 'vederlag' ||
-          (sendt !== null && foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
-        )
-          return [];
-        return kravposterI(k).map((p) => `${p.id} ${varselhjemmel(p)}`);
-      })
+    besvarteVederlagskrav(u, sendt).flatMap((k) =>
+      kravposterI(k).map((p) => `${p.id} ${varselhjemmel(p)}`)
     )
   );
   return poster.filter((p) => !besvart.has(`${p.id} ${p.hjemmel}`));
@@ -425,24 +441,21 @@ export function hindrerSvaretBarePaaVarselet(
   hva: 'Svaret' | 'Revisjonen',
   sendt: string | null
 ): Avvisning | null {
-  const sporet = u.spor.vederlag;
-  if (!kravposteneSomVarsler(u, gjelder, sendt, false).length)
+  const poster = kravposteneSomVarsler(u, gjelder);
+  if (!poster.length)
     return avvis(
       'INGEN_VARSEL',
       `${hva} kan ikke gjelde bare varselet, fordi kravet ikke selv er varselet etter punkt 34.3.3 eller 34.4 for noen kravpost.`
     );
-  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
-  if (hva === 'Svaret' && forrige)
-    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
-  if (hva === 'Revisjonen' && !forrige)
-    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
-  return kravposteneSomVarsler(u, gjelder, sendt).length
-    ? null
-    : avvis(
-        'KRAVET_ER_BESVART',
-        `${hva} kan ikke gjelde varselet, fordi byggherren har svart på en kravversjon med kravpostene kravet er varselet for. Byggherren tar stilling til varselet i svaret på kravposten.`
-      );
+  return (
+    hindrerSvaretIKjeden(u, gjelder, hva) ??
+    (ubesvartePoster(u, poster, sendt).length
+      ? null
+      : avvis(
+          'KRAVET_ER_BESVART',
+          `${hva} kan ikke gjelde varselet, fordi byggherren har svart på en kravversjon med kravpostene kravet er varselet for. Byggherren tar stilling til varselet i svaret på kravposten.`
+        ))
+  );
 }
 
 /**
