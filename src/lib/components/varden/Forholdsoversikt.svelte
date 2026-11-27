@@ -12,7 +12,7 @@
     brevITraaden,
     brevene,
     forholdetISaken,
-    innleggene,
+    brevinnholdene,
     oppfoelgingene,
     type Sideprops,
     sendtSammeDag,
@@ -31,12 +31,12 @@
     handlingerVed = [],
     handling,
     brevet,
-    leggTilKorrespondanse,
+    traadlenkene,
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
   const traad = $derived(brevITraaden(alle, 'forhold'));
-  const innlegg = $derived(innleggene(u));
+  const innhold = $derived(brevinnholdene(u));
   const fulgtOpp = $derived(oppfoelgingene(u, alle));
   const forholdsbrev = $derived(alle.filter((b) => b.spor.includes('forhold')));
   const forholdet = $derived(forholdetISaken(u));
@@ -53,10 +53,10 @@
     {/if}
   {/snippet}
   <Brevtraad
-    {leggTilKorrespondanse}
+    {traadlenkene}
     brev={traad}
     spor="forhold"
-    {innlegg}
+    {innhold}
     {fulgtOpp}
     dokumentasjon={u.ikkeVurderteBrev}
     sammeDag={sendtSammeDag(u)}

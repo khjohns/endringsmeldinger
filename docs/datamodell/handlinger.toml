@@ -117,8 +117,8 @@ tilstander = "Merket som innlegg etter siste brev."
 status = "grunnsett"
 noekler = ["sende_innlegg"]
 kommandoer = ["innlegg"]
-skjema = []
-mangler = "Skjemaet og visningen i Varden (G-15 i BF-03)."
+skjema = ["sende_innlegg"]
+mangler = "Kontrollpunktet etter en endringsordre (G-13 i BF-03, #1378)."
 
 # ---------------------------------------------------------------------------
 # Utover grunnsettet, beholdt nå (OV-U99 punkt 1)

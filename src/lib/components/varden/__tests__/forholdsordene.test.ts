@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
 import type { Forholdsordene } from '#kjerne/spor/forhold/tekst.ts';
-import type { Innlegget } from '#lib/components/varden/lesing.ts';
+import type { Brevinnholdet } from '#lib/components/varden/lesing.ts';
 import { FORHOLDET } from '#lib/components/varden/tekster/index.ts';
 
 const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({
@@ -70,7 +70,7 @@ describe('ordene for standpunktet til forholdet (GR-U32, LV-U41)', () => {
 
   it('med en innsigelse om varselet sier roten i «Tilknyttede krav» begge lagene, med ordene i tråden (#2040)', () => {
     const ordene = ord({ varslingsplikt: true });
-    const linjer: Innlegget['standpunkter'] = [
+    const linjer: Brevinnholdet['standpunkter'] = [
       {
         standpunkt: { id: 'v', art: 'rettidighet', gjelder: 'k', hjemmel: '32.2', iTide: false },
         lag: 'prinsipalt',

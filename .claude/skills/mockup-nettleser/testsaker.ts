@@ -506,7 +506,7 @@ export const TESTSAKER: Record<string, Testsak> = {
   'varselsvar-34-1-2-endring': {
     tittel: 'Omlegging av overvann ved port 2',
     formaal:
-      '#2447: gjelder saken en endring, tilbys ikke standpunktet til varselet etter punkt 34.1.2 (OV-U89 punkt 13).',
+      '#2447, #2470: gjelder saken en endring, tilbys ikke svaret på varselet etter punkt 34.1.2 (OV-U89 punkt 13).',
     spor: 'vederlag',
     steg: [
       {
@@ -521,12 +521,134 @@ export const TESTSAKER: Record<string, Testsak> = {
     ],
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
-      await bh.getByRole('button', { name: 'Svar på varselet om vederlagsjustering' }).click({ timeout: 30_000 });
-      await bh.getByRole('heading', { name: /^Svar på varsel om vederlagsjustering/ }).waitFor();
+      await bh.getByRole('button', { name: 'Legg til korrespondanse' }).waitFor({ timeout: 30_000 });
+      const knapper = await bh.getByRole('button', { name: /^Svar på varselet/ }).count();
+      if (knapper !== 0) throw new Error(`Svaret på varselet tilbys (${knapper} knapper), OV-U89 punkt 13.`);
       await bh.screenshot({ path: `${ut}/varselsvar-3412-endring.png`, fullPage: true });
-      await bh.getByText(/krever ikke punkt.34\.1\.2 varsel\. Du tar ikke/).first().waitFor({ timeout: 5_000 });
-      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
-      await bh.screenshot({ path: `${ut}/varselsvar-3412-endring-mangler.png`, fullPage: true });
+    },
+  },
+  innlegg: {
+    tittel: 'Endrede tegninger for tunnelportalen',
+    formaal:
+      '#1377: innlegget i Varden fra begge parter (BF-03), fra svaret i BF-01 til et innlegg etter enigheten (G-5). BF-03 gjøres kjørbart i en egen PR.',
+    spor: 'vederlag',
+    // Stegene i BF-01 fram til kontrollpunktet te-har-mottatt-svaret, som utgangspunktet i BF-03.
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'svikt',
+        underkategori: 'medvirkning',
+        navn: 'K-g1',
+        utdypning: 'Byggherren leverte tegningene for tunnelportalen tre uker etter avtalt tid.',
+      },
+      {
+        handling: 'brev',
+        navn: 'D2',
+        svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'godkjent' }],
+      },
+      { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            vurdering: 'delvis',
+            godkjent_belop: 60000,
+            varslet_i_tide: false,
+            utdypning: 'Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.',
+          },
+        ],
+      },
+    ],
+    // Steg 1–7 i BF-03 i skjemaene, og et innlegg etter aksepten (G-5, MM-U47 punkt 12).
+    async iNettleseren({ te, bh, saksrute, ut }) {
+      const bilde = async (side: Side, navn: string) =>
+        side.screenshot({ path: `${ut}/${navn}.png`, fullPage: true });
+      const send = async (side: Side, knapp: string) => {
+        await side.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+        await side.getByRole('button', { name: knapp }).click();
+        await side
+          .getByRole('checkbox', { name: 'Jeg har kontrollert brevet' })
+          .waitFor({ state: 'detached', timeout: 30_000 });
+      };
+      const innlegg = async (side: Side, tittel: string, tekst: string) => {
+        await side.getByRole('button', { name: 'Send innlegg' }).click({ timeout: 30_000 });
+        await side.getByLabel('Tittel').fill(tittel);
+        await side.getByLabel('Tekst').fill(tekst);
+      };
+      const tilBrevet = async (side: Side, tittel: string) => {
+        await side.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+        await side
+          .getByRole('article', { name: new RegExp(`^${tittel} i sak `) })
+          .waitFor({ timeout: 30_000 });
+      };
+
+      // Steg 1–4: totalentreprenøren.
+      await te.goto(saksrute);
+      await te.getByRole('button', { name: /^Godta svaret/ }).waitFor({ timeout: 30_000 });
+      await bilde(te, 'innlegg-te-traad');
+      await te.getByRole('button', { name: 'Send innlegg' }).click();
+      await te.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await te.getByText('Skriv tittelen.').first().waitFor();
+      await bilde(te, 'innlegg-te-mangler');
+      const t1 = 'Varselet om vederlagsjustering kom i tide';
+      await te.getByLabel('Tittel').fill(t1);
+      await te.getByLabel('Tekst').fill('Varselet ble sendt samme dag som tegningene kom.');
+      await te.locator('input[type="file"]').setInputFiles({
+        name: 'Epost med varselet 12.09.2026.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+      });
+      await te.getByText('Epost med varselet 12.09.2026.pdf').first().waitFor({ timeout: 30_000 });
+      await bilde(te, 'innlegg-te-skjema');
+      await tilBrevet(te, t1);
+      await bilde(te, 'innlegg-te-brevet');
+      // U-5: tilbake til utkastet uten å miste teksten.
+      await te.getByRole('link', { name: /Tilbake til utkastet/ }).click();
+      if ((await te.getByLabel('Tittel').inputValue()) !== t1)
+        throw new Error('Tittelen sto ikke i utkastet etter brevkontrollen (U-5)');
+      await tilBrevet(te, t1);
+      await send(te, 'Send til byggherren');
+      await bilde(te, 'innlegg-te-sendt');
+      await te.getByRole('button', { name: /Tilbake til saken/ }).click();
+      await te.getByText('Viser til brev 4').first().waitFor({ timeout: 30_000 });
+      // D-9: linja under betegnelsen, i hodet på siden og i sporlista.
+      if (!(await te.getByText(/^Totalentreprenøren har sendt et innlegg /).count()))
+        throw new Error('Linja under betegnelsen sier ikke at totalentreprenøren har sendt et innlegg (D-9)');
+      await bilde(te, 'innlegg-te-traad-etter');
+
+      // Steg 6–7: byggherren svarer med et innlegg som viser til totalentreprenørens.
+      await bh.goto(saksrute);
+      await bh.getByText('Viser til brev 4').first().waitFor({ timeout: 30_000 });
+      await bilde(bh, 'innlegg-bh-traad');
+      const t2 = 'Begrunnelse for svaret på vederlagskravet';
+      await innlegg(bh, t2, 'Varselet kom tre uker etter at tegningene ble levert.');
+      await bilde(bh, 'innlegg-bh-skjema');
+      await tilBrevet(bh, t2);
+      await bilde(bh, 'innlegg-bh-brevet');
+      await send(bh, 'Send til totalentreprenøren');
+      await bilde(bh, 'innlegg-bh-sendt');
+
+      // Steg 5: aksepten viser innlegget som viser til svaret (D-8). Så et innlegg etter
+      // enigheten, som godtas (G-5).
+      await te.goto(saksrute);
+      await te.getByRole('button', { name: /^Godta svaret/ }).click({ timeout: 30_000 });
+      await te.getByRole('list', { name: 'Innlegg som viser til brev 4' }).waitFor();
+      await bilde(te, 'innlegg-te-godta');
+      await send(te, 'Send til byggherren');
+      await te.getByRole('button', { name: /Tilbake til saken/ }).click();
+      const t3 = 'Merknad etter aksepten';
+      await innlegg(te, t3, 'Totalentreprenøren står ved at varselet kom i tide.');
+      await tilBrevet(te, t3);
+      await send(te, 'Send til byggherren');
+      await te.getByRole('button', { name: /Tilbake til saken/ }).click();
+      await bilde(te, 'innlegg-te-etter-enigheten');
+      await te.setViewportSize({ width: 390, height: 844 });
+      await bilde(te, 'innlegg-te-etter-enigheten-390');
+      await te.setViewportSize({ width: 1440, height: 900 });
     },
   },
 };

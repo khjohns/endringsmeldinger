@@ -38,7 +38,7 @@
     handlingerVed = [],
     handling,
     brevet,
-    leggTilKorrespondanse,
+    traadlenkene,
     merknad,
   }: Sideprops = $props();
 
@@ -82,7 +82,7 @@
 <Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel} siste={traad.at(-1)} {merknad}>
   <Brevtraad
     brev={traad}
-    {leggTilKorrespondanse}
+    {traadlenkene}
     spor="frist"
     fulgtOpp={oppfoelgingene(u, alle)}
     {eldreKrav}

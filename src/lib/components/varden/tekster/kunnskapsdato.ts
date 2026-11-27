@@ -9,7 +9,7 @@ import { dato, haerdet } from './format';
 type Opplysningen = { dato: string; brev: Brevref };
 
 const LUKKET =
-  'Saken står lukket. Brevet endrer ikke utfallet. Byggherren kan ta stilling til datoen i et innlegg. Innlegg kan ikke sendes herfra ennå.';
+  'Saken står lukket. Brevet endrer ikke utfallet. Byggherren kan ta stilling til datoen i et innlegg.';
 
 const KUNNSKAPSDATO_IKKE_OPPGITT = 'Totalentreprenøren har ikke oppgitt når utgiftene ble kjent.';
 
