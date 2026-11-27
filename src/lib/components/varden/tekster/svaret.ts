@@ -236,7 +236,6 @@ export const VARSELSVARET = haerdet({
   nyttSvarPaaVarslene: 'Nytt svar på varslene i kravet',
   // M-5 og U-8 i BF-37: svaret på flere varsler i samme brev, ett svar per varsel (#2451).
   svarPaaVarsleneI: (b: Brevref) => `Svar på varslene i ${brevref(b)}`,
-  varsleneI: (b: Brevref) => `Varslene i ${brevref(b)}`,
   hvertVarsel:
     'Ett svar per varsel. Har du ingen innsigelse mot et varsel, trenger du ikke svare på det.',
   manglerVarsel: 'Ta stilling til minst ett varsel.',

@@ -259,7 +259,7 @@
 </script>
 
 {#snippet forbeholdene(etikett: string | undefined)}
-  <p class="forbehold-tittel">{etikett ?? SKJEMA.forbehold}</p>
+  <h3>{etikett ?? SKJEMA.forbehold}</h3>
   <p class="dempet">{SKJEMA.forbeholdHjelp}</p>
   {#each varslene.filter(besvart) as v (v.id)}
     <Tekstomraade
@@ -405,7 +405,7 @@
     font-size: 14px;
     font-weight: 500;
   }
-  .forbehold-tittel {
+  h3 {
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
