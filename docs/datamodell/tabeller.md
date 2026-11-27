@@ -742,7 +742,7 @@ Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesj
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk, `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659) og av lesingen i `server/autorisasjon.ts`. Triggeren `koe.app_project_memberships_tilbakekall` sletter sesjonene til en bruker som mister det siste aktive medlemskapet, og `koe_api.synkroniser_hr` sesjonene til en person som mister rollen i HR-kopien eller er deaktivert i Entra (#1806). |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk, `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659), av lesingen i `server/autorisasjon.ts` og av ryddingen i `server/jobber.ts` hvert kvarter (#1059). Triggeren `koe.app_project_memberships_tilbakekall` sletter sesjonene til en bruker som mister det siste aktive medlemskapet, og `koe_api.synkroniser_hr` sesjonene til en person som mister rollen i HR-kopien eller er deaktivert i Entra (#1806). |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
@@ -759,7 +759,7 @@ Påbegynte innlogginger mot Catenda (OAuth). Lagrer SHA-256 av staten og av nett
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek` sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek` sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i `server/innlogging.ts` (F0b-5a, #659), og ryddingen av jobbkjøreren i `server/jobber.ts` hvert kvarter (#1059). Hvor mange innlogginger som kan startes i minuttet, per adresse og samlet, står i `INNLOGGINGER_PER_ADRESSE` og `INNLOGGINGER_TOTALT` i `server/innlogging.ts`. |
 | Data fra Catenda | Nei, men raden hører til en innlogging hos Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (state_hash). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | nei, men radene er kortlevde. |

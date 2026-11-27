@@ -57,6 +57,7 @@ import {
 } from './hendelser.ts';
 import { HR_INTERVALL_MS, synkroniserHr, type HrKilde } from './hrdata.ts';
 import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
+import { ryddUtloepte } from './sesjon.ts';
 import { MedlemskapetLaast } from './medlemskap.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
@@ -82,6 +83,8 @@ const RESTTID_FOER_ENDRING_MS = 20_000;
  */
 export const PAUSE_FOER_NY_REGISTRERING_MS = 5_000;
 export const POLLEINTERVALL_MS = 10_000;
+/** Hvor ofte løkka sletter utløpte sesjoner og innloggingsforsøk (#1059). */
+export const RYDDEINTERVALL_MS = 15 * 60_000;
 
 interface Jobbrad {
   korrelasjons_id: string | null;
@@ -632,6 +635,7 @@ export function startJobbkjoerer(
   let vekker: (() => void) | null = null;
   let vekket = false;
   let nesteHr = 0;
+  let nesteRydding = 0;
   const vent = () =>
     new Promise<void>((ok) => {
       if (vekket || stoppet) return ok();
@@ -654,6 +658,19 @@ export function startJobbkjoerer(
           while (!stoppet && (await skrivEnKommentar(avh)));
         } catch (feil) {
           loggFeil('Jobbkjøreren feilet', feil, 'error');
+        }
+        if (!stoppet && Date.now() >= nesteRydding) {
+          nesteRydding = Date.now() + RYDDEINTERVALL_MS;
+          await medLoggkontekst(async () => {
+            try {
+              const { sesjoner, forsoek } = await ryddUtloepte(avh.datalag);
+              loggInfo('Utløpte sesjoner og innloggingsforsøk er slettet', {
+                antall: sesjoner + forsoek,
+              });
+            } catch (feil) {
+              loggFeil('Utløpte sesjoner og innloggingsforsøk ble ikke slettet', feil, 'error');
+            }
+          });
         }
         if (!stoppet && avh.hr && Date.now() >= nesteHr) {
           nesteHr = Date.now() + HR_INTERVALL_MS;
