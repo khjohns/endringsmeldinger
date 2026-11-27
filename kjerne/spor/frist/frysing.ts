@@ -27,7 +27,12 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { lagIGrunnlaget } from '../poster/format.ts';
-import { dagerILaget, innholdIFristen, utregningIFristen } from './format.ts';
+import {
+  dagerILaget,
+  innholdIFristen,
+  svaretGjelderFristvarselet,
+  utregningIFristen,
+} from './format.ts';
 import { HJEMMEL } from '../../format/format.ts';
 import { dagenSendt, standpunkterISvaret } from '../../format/leser.ts';
 import { Uforstaatt, ukjenteFelt } from '../../format/skjema.ts';
@@ -52,6 +57,8 @@ function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert:
 }
 
 function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  // VS-U96 punkt 32: svaret på varselet gjelder ikke et krav.
+  if (svaretGjelderFristvarselet(svar)) return false;
   // Arbeidsvalget i #479: en påberopelse etter § 33.6.1 i et lag gir aldri sammenfall. Leses av
   // standpunktene.
   const spesifisering = standpunktet(svar, 'spesifisering');

@@ -354,11 +354,25 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   // VS-U79: et svar på et varsel gjelder varselet.
-  ['kommandoer/avvisning.ts:handlingsnoekler.paaVarselet', 'relasjon', 'spor gjelder'],
+  ['kommandoer/standpunkter.ts:svaretsVarsel', 'relasjon', 'spor gjelder'],
   [
     'spor/vederlag/kommando.ts',
     'relasjon',
     'varseletSvaretGjelder',
+    ['kommandoer/standpunkter.ts:svaretsVarsel'],
+  ],
+  // VS-U96 punkt 32: varselet etter § 33.4 som står alene, et svar gjelder.
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'fristvarseletSvaretGjelder',
+    ['kommandoer/standpunkter.ts:svaretsVarsel', 'kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  // VS-U79, VS-U96 punkt 32: varselet som står alene, et svar gjelder, i vederlaget eller fristen.
+  [
+    'kommandoer/standpunkter.ts',
+    'relasjon',
+    'svaretsVarsel',
     [
       'kommandoer/avvisning.ts:handlingsnoekler.paaVarselet',
       'kommandoer/nyttelast.ts:kontrollerSvar',
@@ -369,7 +383,7 @@ export const KOMMANDOENE: Lesbar[] = [
   [
     'typer.ts',
     'relasjon',
-    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel erVederlagsvarselhjemmel utenGren',
+    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel erVederlagsvarselhjemmel erSvarbarVarselhjemmel utenGren',
   ],
   // Avvisningen med regelkoden og meldingen, felles for forutsetningene, nyttelasten og skrivingen.
   ['typer.ts', 'predikat', 'avvis'],
@@ -610,7 +624,18 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/vederlag/kommando.ts:feilIOppgjoersformen',
       'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
       'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
       'spor/forhold/kommando.ts:lagIForholdet',
+    ],
+  ],
+  [
+    'kommandoer/utkastlag.ts',
+    'regelsett',
+    'avvisteVurderinger',
+    [
+      'spor/vederlag/kommando.ts:oppgivelseUtenInnsigelse',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet',
     ],
   ],
   // #2171: svarene på kravposten kontrollen av oppgjørsformen avviser, tas ut før lagene regnes.

@@ -30,8 +30,8 @@ export interface TilbudtHandling {
 }
 
 /**
- * Handlingene som kan gjelde saken: hver handling i hvert spor og et svar per varsel i vederlaget
- * (VS-U79, VS-U87 punkt 30–32), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
+ * Handlingene som kan gjelde saken: hver handling i hvert spor, et svar per varsel i vederlaget
+ * og på varselet etter § 33.4 (VS-U79, VS-U96 punkt 30–32), og innlegget. «Ingen krav» tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
@@ -49,7 +49,13 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
     for (const hjemmel of ['34.1.3', '34.3.3', '34.4'] as const)
       ut.push({ type, spor: 'vederlag', hjemmel });
   const { kravpostvarsler, varsler } = u.spor.vederlag;
-  for (const v of [varsler['34.1.2'], varsler['34.1.3'], ...kravpostvarsler])
+  // VS-U96 punkt 32: også varselet om fristforlengelse etter § 33.4.
+  for (const v of [
+    u.spor.frist.varsler['33.4'],
+    varsler['34.1.2'],
+    varsler['34.1.3'],
+    ...kravpostvarsler,
+  ])
     if (v) for (const type of ['svare', 'revidere'] as const) ut.push({ type, gjelder: v.id });
   for (const [id, e] of Object.entries(u.elementer))
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
@@ -78,7 +84,7 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
       ...s.kravUtenforRekken,
       ...s.svar,
       ...s.svarUtenforRekken,
-      // VS-U79: svaret på et varsel som står alene.
+      // VS-U79, VS-U96 punkt 32: svaret på et varsel som står alene.
       ...s.svarPaaVarsler,
       ...Object.values(s.varsler),
       ...s.kravpostvarsler,

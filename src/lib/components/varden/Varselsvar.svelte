@@ -105,12 +105,6 @@
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
   const varselPaakrevd = $derived(hjemmel === '34.1.2' || hjemmel === '34.1.3');
-  // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, tilbys ikke standpunktet. Kjernen
-  // tilbyr handlingen likevel til #2464 er rettet, og da fjernes grenen.
-  const varselKrevesIkke = $derived(
-    hjemmel === '34.1.2' &&
-      !!kjernesak.visning?.spor.vederlag.etiketter.includes('varsel_kreves_ikke')
-  );
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen, også før de er
   // besvart. Som i utfyllingen for kravposten (`lagIVederlaget`) regnes et ubesvart varsel som
   // innsigelse og en ubesvart justering som bestridt.
@@ -180,13 +174,7 @@
     hjemmel === '34.4'
       ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
       : hjemmel !== '34.3.3'
-        ? [
-            punktet(
-              hjemmel,
-              varselpunktet,
-              varselKrevesIkke ? VARSELSVARET.krevesIkkeLinje : SKJEMA.ikkeBesvart
-            ),
-          ]
+        ? [punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart)]
         : [
             punktet(hjemmel, varselpunktet, SKJEMA.ikkeBesvart),
             punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
@@ -204,17 +192,13 @@
       {
         felt: 'varsel-standpunkt',
         post: null,
-        tekst: varselKrevesIkke
-          ? VARSELSVARET.krevesIkke
-          : hjemmel === '34.4' && iTide === null
-            ? VARSELSVARET.manglerInnsigelse
-            : null,
+        tekst: hjemmel === '34.4' && iTide === null ? VARSELSVARET.manglerInnsigelse : null,
       },
       // VS-U87 punkt 32: svaret på varselet etter § 34.1.2 og § 34.1.3 har bare standpunktet.
       {
         felt: 'varsel',
         post: null,
-        tekst: varselPaakrevd && !varselKrevesIkke && iTide === null ? SKJEMA.manglerITide : null,
+        tekst: varselPaakrevd && iTide === null ? SKJEMA.manglerITide : null,
       },
       {
         felt: 'justering',
@@ -384,15 +368,11 @@
        (`system.md`, «Utkastet er brevet mens det skrives»). -->
     <Spoersmaal
       id={`${uid}-sp-varselet`}
-      aktiv={hjemmel !== '34.3.3' && !varselKrevesIkke && iTide === null}
+      aktiv={hjemmel !== '34.3.3' && iTide === null}
       tittel={overskrift(hjemmel) ?? varselpunktet}
     >
       {#if varselet.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(varselet.arbeid)}</p>{/if}
-      {#if varselKrevesIkke}
-        <p class="dempet" id={`${uid}-varsel-standpunkt`}>{VARSELSVARET.krevesIkkeLinje}</p>
-      {:else}
-        {@render standpunktet('varselet')}
-      {/if}
+      {@render standpunktet('varselet')}
     </Spoersmaal>
     {#if hjemmel === '34.3.3'}
       <Spoersmaal

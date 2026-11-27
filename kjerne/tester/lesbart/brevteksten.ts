@@ -333,7 +333,7 @@ export const BREVTEKSTEN: Lesbar[] = [
     'frosset/tekst.ts',
     'brevtekst',
     'kroner SENT_I_LINJEN',
-    ['frosset/linje.ts', 'spor/vederlag/tekst.ts'],
+    ['frosset/linje.ts', 'spor/vederlag/tekst.ts', 'spor/frist/tekst.ts'],
   ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['spor/vederlag/tekst.ts']],

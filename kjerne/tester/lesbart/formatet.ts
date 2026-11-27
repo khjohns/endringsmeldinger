@@ -390,6 +390,7 @@ export const FORMATET: Lesbar[] = [
       'frosset/brevtekst.ts:paaberopelsenFoerIFristen',
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
     ],

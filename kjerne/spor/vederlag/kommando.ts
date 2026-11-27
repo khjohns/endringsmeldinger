@@ -79,6 +79,7 @@ import {
   type Kravpostvarselet,
   type Kravpostvarselhjemmel,
   type Standpunkt,
+  type Vederlagsvarselhjemmel,
 } from '../../typer.ts';
 import {
   datoenDetBleSendt,
@@ -104,6 +105,7 @@ import type {
 import type { Utkastlag } from '../poster/kommando.ts';
 import {
   avvisteFelt,
+  avvisteVurderinger,
   forutsetningene,
   lageneIUtkastet,
   utenom,
@@ -307,7 +309,7 @@ export function hindrerSvaretPaaVarselet(
   if (!varselet)
     return avvis(
       'INGEN_VARSEL',
-      `${hva} må gjelde et varsel etter punkt 34.1.2, 34.1.3, 34.3.3 eller 34.4 fra totalentreprenøren.`
+      `${hva} må gjelde et varsel etter punkt 33.4, 34.1.2, 34.1.3, 34.3.3 eller 34.4 fra totalentreprenøren.`
     );
   // VS-U87 punkt 32, OV-U89 punkt 13: der saken gjelder en endring, krever § 34.1.2 ikke varsel.
   if (varselet.hjemmel === '34.1.2' && varselEtter3412KrevesIkke(u, sendt))
@@ -360,7 +362,10 @@ export function hindrerSvaretPaaVarselet(
  * VS-U79, VS-U87 punkt 30–32: varselet i vederlaget som står alene, et svar med `gjelder` gjelder,
  * eller `null` når svaret gjelder et krav. Kommandoene slår det opp her.
  */
-export function varseletSvaretGjelder(u: Utledning, gjelder: string): Svaretsvarsel | null {
+export function varseletSvaretGjelder(
+  u: Utledning,
+  gjelder: string
+): Svaretsvarsel<Vederlagsvarselhjemmel> | null {
   const { kravpostvarsler, varsler } = u.spor.vederlag;
   const v = [...kravpostvarsler, varsler['34.1.2'], varsler['34.1.3']].find(
     (x) => x?.id === gjelder
@@ -374,7 +379,7 @@ export function varseletSvaretGjelder(u: Utledning, gjelder: string): Svaretsvar
  */
 export function standpunkterPaaVarselet(
   v: Svarvurdering,
-  varselet: Svaretsvarsel,
+  varselet: Svaretsvarsel<Vederlagsvarselhjemmel>,
   nyId: () => string
 ): Data[] {
   const iTide = (v as Data).varslet_i_tide;
@@ -408,7 +413,7 @@ export function standpunkterPaaVarselet(
  */
 export function vurderingeneISvaretPaaVarselet(
   s: Svarutkast,
-  varselet: Svaretsvarsel,
+  varselet: Svaretsvarsel<Vederlagsvarselhjemmel>,
   u: Utledning,
   sendt: string | null
 ): Avvisning | null {
@@ -419,10 +424,7 @@ export function vurderingeneISvaretPaaVarselet(
     kontrollerSvaretPaaVarselet(varselet.hjemmel, s.vurderinger as Data, staar);
     if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);
   });
-  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
-  return grunner.length
-    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
-    : null;
+  return avvisteVurderinger(feil);
 }
 
 /** VS-U63: kravpostene der byggherrens innsigelse mot varselet etter § 34.4 står. */
@@ -458,10 +460,7 @@ function oppgivelseUtenInnsigelse(
         kontrollerInnsigelsenSomStaar(post.betegnelse, svar, forSent.has(`${hjemmel} ${post.id}`));
     }
   });
-  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
-  return grunner.length
-    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
-    : null;
+  return avvisteVurderinger(feil);
 }
 
 /**

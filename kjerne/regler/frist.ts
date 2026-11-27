@@ -135,3 +135,24 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   else if (dager > krav.krevd_dager) feil.godkjent_dager = 'er flere enn de krevde dagene';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
+
+/**
+ * VS-U96 punkt 32: vurderingen i byggherrens svar på varselet etter § 33.4 har bare
+ * `varslet_i_tide`, sann eller usann. Feilene står på `varselet.<felt>`.
+ */
+export function kontrollerSvaretPaaFristvarselet(v: Record<string, unknown>): void {
+  const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide');
+  if (ukjent.length)
+    throw new UgyldigVurdering(
+      Object.fromEntries(
+        ukjent.map((f) => [`varselet.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
+      )
+    );
+  if (typeof v.varslet_i_tide !== 'boolean')
+    throw new UgyldigVurdering({
+      'varselet.varslet_i_tide':
+        v.varslet_i_tide == null
+          ? 'mangler: svaret på varselet etter punkt 33.4 har bare standpunktet til varselet'
+          : 'er verken true eller false',
+    });
+}

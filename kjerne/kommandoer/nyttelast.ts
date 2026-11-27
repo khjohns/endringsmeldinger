@@ -9,10 +9,9 @@ import {
   kontrollerKunnskapsdatoen,
   kunnskapsdatoIVarselet,
   NYTTELAST_I_VEDERLAGET,
-  varseletSvaretGjelder,
   vurderingeneISvaretPaaVarselet,
 } from '../spor/vederlag/kommando.ts';
-import type { Svaretsvarsel } from './standpunkter.ts';
+import { svaretsVarsel, type Svaretsvarsel } from './standpunkter.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
@@ -45,7 +44,10 @@ import {
 } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
-import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
+import {
+  NYTTELAST_I_FRISTEN,
+  vurderingeneISvaretPaaFristvarselet,
+} from '../spor/frist/kommando.ts';
 import { godkjennerDagerIEtLag } from '../spor/frist/format.ts';
 import { godkjennerBeloepIEtLag } from '../spor/vederlag/format.ts';
 import { ugyldigAkseptfrist, utenAkseptfrist } from '../regler/akseptfrist.ts';
@@ -130,7 +132,7 @@ function kontrollerSvar(
   sendt: string | null
 ): Avvisning | null {
   const sporet = u.spor[s.spor];
-  const varselet = s.spor === 'vederlag' ? varseletSvaretGjelder(u, s.gjelder) : null;
+  const varselet = svaretsVarsel(u, s);
   const funnet =
     sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
   const krav = varselet ? null : funnet;
@@ -212,7 +214,10 @@ function kontrollerSvaretPaaVarselet(
   paaberopelse: Krav,
   sendt: string | null
 ): Avvisning | null {
-  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
+  const feil =
+    varselet.hjemmel === '33.4'
+      ? vurderingeneISvaretPaaFristvarselet(s)
+      : vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});
@@ -570,7 +575,7 @@ export function nyttelastkontroll(
     case 'revisjon': {
       const sporet = u.spor[k.svar.spor];
       // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
-      const forrige = varseletSvaretGjelder(u, k.svar.gjelder)
+      const forrige = svaretsVarsel(u, k.svar)
         ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
         : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
