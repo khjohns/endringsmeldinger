@@ -145,12 +145,14 @@ export const foresporselForFristsvar = (u: Utledning): Foresporselsrelasjon | nu
   foresporselsrelasjon(u.spor.frist.foresporsler);
 
 /**
- * VS-U95: svaret på gjeldende fristkrav kan gjøre gjeldende at begrunnelsen etter § 33.6.2 annet
- * ledd b ikke er et svar etter annet ledd. Kravet er det første etter begrunnelsen.
+ * VS-U95: svaret på fristkravet kan gjøre gjeldende at begrunnelsen etter § 33.6.2 annet ledd b
+ * ikke er et svar etter annet ledd. Kravet er det første etter begrunnelsen. `krav` er
+ * kravversjonen svaret gjelder, og uten den den gjeldende (D-7 i BF-49).
  */
-export const begrunnelsenKanAvvisesSomSvar = (u: Utledning): boolean =>
-  foresporselForFristsvar(u)?.art === 'begrunnelse' &&
-  u.spor.frist.gjeldendeKrav?.erstatter === null;
+export const begrunnelsenKanAvvisesSomSvar = (
+  u: Utledning,
+  krav: Pick<Krav, 'erstatter'> | null = u.spor.frist.gjeldendeKrav
+): boolean => foresporselForFristsvar(u)?.art === 'begrunnelse' && krav?.erstatter === null;
 
 /**
  * VS-U19, VS-U88 punkt 3: TE har fremmet et krav om dager, fra løsningen eller lagt til med

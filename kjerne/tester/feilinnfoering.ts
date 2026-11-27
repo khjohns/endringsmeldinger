@@ -8262,6 +8262,14 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['svaret tilbys ikke for en dag da ingen kravversjon'],
   },
+  {
+    id: 'F807r',
+    feilklasse:
+      'forhåndsvisningen av et svar lagt til på en eldre kravversjon leser om begrunnelsen kan avvises som svar, fra det gjeldende kravet (VS-U95, D-7 i BF-49)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['begrunnelsenKanAvvisesSomSvar(u, krav)', 'begrunnelsenKanAvvisesSomSvar(u)']],
+    mal: ['også etter en ny kravversjon'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

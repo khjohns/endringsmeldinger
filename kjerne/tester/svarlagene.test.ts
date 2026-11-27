@@ -919,6 +919,35 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(ugyldig(s, 'frist', begge)).toEqual(['foresporsel_svar_ok']);
   });
 
+  it('fristen: et svar lagt til på det første kravet etter begrunnelsen kan si at begrunnelsen ikke er et svar, også etter en ny kravversjon (VS-U95, D-7 i BF-49)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    const f = s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    const foresporsel = ((f.data.utsagn as Data[])[0] as Data).id;
+    s.send('TE', { type: 'foresporselssvar', gjelder: foresporsel, utdypning: 'Ikke kjent ennå.' });
+    const foerste = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const dagen = foerste.tidsstempel.slice(0, 10);
+    const kravet = s.krav('frist');
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(s.krav('frist'), 'forutsetning: en ny kravversjon').not.toBe(kravet);
+    const v = {
+      frist_varsel_ok: true,
+      begrunnelse_ikke_svar: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: true,
+      frister: [{ dager: 20 }],
+    };
+    const utkast = { ...(utkastet(s, 'frist', v) as Svarutkast), gjelder: kravet };
+    const lag = lagForUtkastet(utkast, s.u(), KJERNE.regler, dagen);
+    expect(lag.standpunkter.find((x) => x.art === 'ikke_svar')).toMatchObject({ besvart: true });
+  });
+
   it('fristen: når kravet svarte på forespørselen, besvarer standpunktet om at begrunnelsen ikke er et svar, ikke spørsmålet etter § 33.6.2 (VS-U95)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
