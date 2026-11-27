@@ -3,13 +3,13 @@
  * varselet etter § 34.1.2. `utledning/visning.ts` slår opp i sporet gjennom `VISNING` (#1783).
  */
 
-import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { tilTall } from '../../regler/beloep.ts';
 import type { Vederlagsresultat } from '../../regler/typer.ts';
 import {
   enighetensVirkning,
   standpunktetErSubsidiaert,
+  varselEtter3412KrevesIkke,
   vurdertVedRegistreringen,
   type Utledning,
 } from '../../utledning/utled.ts';
@@ -104,11 +104,7 @@ const SENKNING_I_VEDERLAGET: Sporssenkning = {
 
 export const VISNING_I_VEDERLAGET = {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
-  varseletikett: (u, regler) =>
-    u.spor.forhold.gjeldendeKrav &&
-    !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
-      ? 'varsel_kreves_ikke'
-      : null,
+  varseletikett: (u) => (varselEtter3412KrevesIkke(u, null) ? 'varsel_kreves_ikke' : null),
   paaleggFrafalt: () => false,
   kravetErEtterspurt: () => false,
   senkning: SENKNING_I_VEDERLAGET,

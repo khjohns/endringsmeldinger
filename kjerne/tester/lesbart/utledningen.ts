@@ -184,6 +184,19 @@ export const UTLEDNINGEN: Lesbar[] = [
     ['utledning/utled.ts:enighetensVirkning', 'spor/frist/utledning.ts:forlengelseneISaken'],
   ],
   ['utledning/utled.ts', 'relasjon', 'paaberopelseFor'],
+  // OV-U89 punkt 13: svaret på varselet etter § 34.1.2 der saken gjelder en endring (#2464).
+  [
+    'Utledning',
+    'predikat',
+    'paaberopelserUtenVarsel3412',
+    ['utledning/utled.ts:varselEtter3412KrevesIkke'],
+  ],
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'varselEtter3412KrevesIkke',
+    ['spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet'],
+  ],
   ['utledning/utled.ts:paaberopelseFor', 'relasjon', 'paaberopelse'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
   ['utledning/utled.ts:utledSporene', 'relasjon', 'hendelse versjon'],

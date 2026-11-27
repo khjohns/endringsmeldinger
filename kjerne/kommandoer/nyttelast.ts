@@ -156,15 +156,7 @@ function kontrollerSvar(
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
   if (varselet)
-    return kontrollerSvaretPaaVarselet(
-      s,
-      varselet,
-      u,
-      svarstandpunkter,
-      paaberopelse!,
-      sendt,
-      regler
-    );
+    return kontrollerSvaretPaaVarselet(s, varselet, u, svarstandpunkter, paaberopelse!, sendt);
   if (!krav) throw new Error('Svaret gjelder verken et krav eller et varsel.');
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
@@ -209,8 +201,8 @@ function kontrollerSvar(
 /**
  * VS-U79: svaret på et varsel som står alene, regnes mot påberopelsen
  * som et svar på kravet, men har ingen utregning. Vurderingene prøves etter VS-U77 punkt 30 og 31
- * og VS-U87 punkt 32 (`vurderingeneISvaretPaaVarselet`). Når svaret kan gis, prøver forutsetningene
- * (punkt 33).
+ * og VS-U87 punkt 32 (`vurderingeneISvaretPaaVarselet`). Om svaret kan gis, også der saken gjelder
+ * en endring (OV-U89 punkt 13), prøver forutsetningene (punkt 33, `hindrerSvaretPaaVarselet`).
  */
 function kontrollerSvaretPaaVarselet(
   s: Svarutkast,
@@ -218,10 +210,9 @@ function kontrollerSvaretPaaVarselet(
   u: Utledning,
   svarstandpunkter: Svarstandpunkter,
   paaberopelse: Krav,
-  sendt: string | null,
-  regler: Regelsett
+  sendt: string | null
 ): Avvisning | null {
-  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt, paaberopelse, regler);
+  const feil = vurderingeneISvaretPaaVarselet(s, varselet, u, sendt);
   if (feil) return feil;
   svarstandpunkter(s, {}, varselet, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, {});
