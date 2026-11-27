@@ -212,7 +212,7 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil, begrunnelse, overskrift)}
-    <p class="dempet">{VARSELSVARET.bareVarslene}</p>
+    <p class="dempet innledning">{VARSELSVARET.bareVarslene}</p>
     {#each varslene.poster as p (p.post.id)}
       {@const id = `${uid}-${p.post.id}`}
       {@const v = postvarselvalget(valg, p.post.id)}
@@ -285,5 +285,9 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
+  }
+  /* Med innrykket spørsmålene har (`Spoersmaal`). */
+  .innledning {
+    padding: var(--spacing-5) var(--spacing-6) 0;
   }
 </style>
