@@ -22,7 +22,7 @@
   import Tidslinje from './Tidslinje.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
   import { brevetVedSiden } from './medie.svelte';
-  import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
+  import { brevene, datoerISporet, brevinnholdene, type Brevet } from './lesing';
   import Tekstomraade from './Tekstomraade.svelte';
   import { HOVEDLINJER, KRAVSKJEMA, NYVERSJON, brevtittel, dato } from './tekster';
 
@@ -66,7 +66,7 @@
 
   // Teksten står slik den sist ble sendt (S-3 B i BF-10).
   $effect.pre(() => {
-    if (tekst === null) tekst = innleggene(u).get(kravet.dokument)?.utdypning ?? '';
+    if (tekst === null) tekst = brevinnholdene(u).get(kravet.dokument)?.utdypning ?? '';
   });
 
   const kommando = $derived(nyVersjonAvPaaberopelsen(u, tekst ?? ''));

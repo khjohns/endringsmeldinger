@@ -16,6 +16,7 @@ import {
 } from '#kjerne/regler/vederlag.ts';
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import type { Kjernevedlegg } from './nysak';
 import type { Krav, Kravpost, Oppgjoersform, Spor, Standpunkt, Svar } from '#kjerne/typer.ts';
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
@@ -534,3 +535,24 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     ...(utdypning ? { utdypning } : {}),
   };
 }
+
+/** Innlegget parten skriver (BF-03). Det står mens parten går til brevkontrollen og tilbake (G-3). */
+export interface Innleggsvalg {
+  /** Brevet innlegget viser til (MM-U47 punkt 2). */
+  gjelder: string;
+  tittel: string;
+  tekst: string;
+  vedlegg: Kjernevedlegg[];
+}
+
+/**
+ * Innlegget i fritekst (MM-U47 punkt 1–2, G-1 i BF-03): brevet det viser til, tittelen, teksten
+ * som følger henvisningen, og vedleggene (G-6). Kjernen avviser et brev som ikke er i saken.
+ */
+export const innlegget = (v: Innleggsvalg) => ({
+  type: 'innlegg' as const,
+  gjelder: v.gjelder,
+  tittel: v.tittel.trim(),
+  utdypning: v.tekst.trim(),
+  ...(v.vedlegg.length ? { dokumentasjon: v.vedlegg.map((x) => x.vedlegg_id) } : {}),
+});

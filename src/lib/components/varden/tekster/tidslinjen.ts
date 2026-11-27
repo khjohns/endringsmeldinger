@@ -20,6 +20,7 @@ export const TIDSLINJE = haerdet({
     if (b.art === 'trekk' && spor.length)
       return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
     if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;
+    if (b.art === 'innlegg') return 'Innlegg';
     // Brevet med varselet har ingen frossen tittel (BF-45 U-8). Et brev med ett varsel fra
     // kravskjemaet heter som varselet der (prototype v4, #2360).
     // Et brev med flere varsler heter etter antallet, så det ikke forveksles med navnet på

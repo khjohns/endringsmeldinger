@@ -7,7 +7,7 @@ import {
   type Forholdsordene,
   type Forholdstilfelle,
 } from '#kjerne/spor/forhold/tekst.ts';
-import type { Brevref, Innlegget, Standpunktet } from '../lesing';
+import type { Brevref, Brevinnholdet, Standpunktet } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
 import { innsigelsesordene, SKJEMA } from './svaret';
 import { brevref, metodenavn, oppgjoersformEtter } from './felles';
@@ -241,7 +241,7 @@ const medLaget = (lag: string | null, u: Utsagnet) =>
   lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
 
 /** Radene i svaret som statuslinjen og roten i «Tilknyttede krav» sier (oppdragsgiver 15.11 i #2038: «B»). */
-function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
+function radeneSomSies(rader: Brevinnholdet['standpunkter']): Brevinnholdet['standpunkter'] {
   const begge = rader.some(
     (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
   );
@@ -252,7 +252,7 @@ function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkte
  * Hver rad som en setning uten punktum. Den første står uten «prinsipalt», fordi resten sier
  * laget sitt.
  */
-export const setningene = (rader: Innlegget['standpunkter']): string[] =>
+export const setningene = (rader: Brevinnholdet['standpunkter']): string[] =>
   radeneSomSies(rader).map((r, i) => {
     const u = iSvaretPaaForholdet(r.standpunkt, null, r.ordene);
     if (!u) return standpunkttekst(r.standpunkt, false);
