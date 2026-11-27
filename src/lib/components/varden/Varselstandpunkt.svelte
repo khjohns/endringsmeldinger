@@ -80,7 +80,7 @@
   );
 </script>
 
-{#snippet innsigelsenSomStaar()}
+{#snippet gjentarInnsigelsen()}
   <!-- VS-U77 punkt 9, 10 og 12: svaret gjentar innsigelsen til byggherren gir den opp. -->
   <div class="setning">
     <p id={`${varselId}-standpunkt`} aria-live="polite">
@@ -124,8 +124,12 @@
   />
 {/snippet}
 
+{#snippet innsigelsenSomStaar()}
+  {#if lagtTil}{@render tauseValget()}{:else}{@render gjentarInnsigelsen()}{/if}
+{/snippet}
+
 {#if hjemmel === '34.4' && staar}
-  {#if lagtTil}{@render tauseValget()}{:else}{@render innsigelsenSomStaar()}{/if}
+  {@render innsigelsenSomStaar()}
   {@render etterVarselet?.()}
 {:else if hjemmel === '34.4'}
   <div class="setning">
@@ -153,9 +157,7 @@
   {#if vis !== 'justeringen'}
     <div class="betinget">
       {@render foranVarselet?.()}
-      {#if staar && lagtTil}
-        {@render tauseValget()}
-      {:else if staar}
+      {#if staar}
         {@render innsigelsenSomStaar()}
       {:else}
         <Valg

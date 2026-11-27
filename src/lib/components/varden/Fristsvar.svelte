@@ -50,10 +50,15 @@
     type Fristsvarvalg,
     velgDagene,
   } from './fristsvar';
-  import { brevet, brevMedElement, brevMedUtsagn, standpunktene } from './lesing';
+  import {
+    brevet,
+    brevMedElement,
+    brevMedUtsagn,
+    nyttSvarIUtkastet,
+    standpunktene,
+  } from './lesing';
   import { kravetSvaretGjelder, somNyttSvar } from './kommandoer';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
-  import { vedleggskart } from './nysak';
+  import { forhaandsvistSvar, type Korrespondansevalg } from './korrespondansen';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -185,12 +190,7 @@
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
-  const etter = $derived(
-    kjernesak.forhaandsvist(
-      lagtTil ? kommandoenLagtTil(utkast, lagtTil) : utkast,
-      lagtTil ? vedleggskart(lagtTil.vedlegg) : undefined
-    )
-  );
+  const etter = $derived(forhaandsvistSvar(kjernesak, utkast, lagtTil));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(brevutkast.svar[0], 'frist', sendt));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
@@ -238,16 +238,7 @@
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
   });
-  // Svaret utkastet gir, også et svar lagt til som ikke blir gjeldende (OV-U103).
-  const nyttSvar = $derived.by(() => {
-    const f = etter?.spor.frist;
-    const kjent = new Set(
-      [...u.spor.frist.svar, ...u.spor.frist.svarUtenforRekken].map((x) => x.id)
-    );
-    return (
-      [...(f?.svar ?? []), ...(f?.svarUtenforRekken ?? [])].find((x) => !kjent.has(x.id)) ?? null
-    );
-  });
+  const nyttSvar = $derived(nyttSvarIUtkastet(u, etter, 'frist'));
   const fristen = (id: string) => frister.find((f) => f.id === id);
   // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);

@@ -37,7 +37,6 @@ import { KRAVSKJEMA } from './tekster';
 import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import {
   innsigelseneSomStaar,
-  varseletFoer,
   varselhjemmelFor,
   type VarseletAlene,
   type VarseletIPosten,
@@ -146,16 +145,22 @@ export const varseletIValgene = (
   u: Utledning,
   post: Kravpost,
   v: Postvalg,
-  sendt: string | null = null
+  sendt: string | null = null,
+  innsigelsene = innsigelseneSomStaar(u, sendt)
 ): boolean | null => {
-  const staar = innsigelsenStaar(u, post, sendt);
+  const staar = innsigelsenStaar(innsigelsene, post);
   if (sendt !== null && staar) return v.tausOmVarselet ? null : v.varsletITide;
   return standpunktetIValget(v.varsletITide, staar, regelen(post) === 'regningsarbeid');
 };
 
-/** Byggherrens innsigelse mot varselet for kravposten står mot svaret sendt `sendt` (VS-U80). */
-export const innsigelsenStaar = (u: Utledning, post: Kravpost, sendt: string | null = null) =>
-  varseletFoer(u, post, sendt)?.iTide === false;
+/**
+ * Byggherrens innsigelse mot varselet for kravposten står blant `innsigelsene` svaret leses med
+ * (`innsigelseneSomStaar`, VS-U80).
+ */
+export const innsigelsenStaar = (
+  innsigelsene: readonly { gjelder: string; hjemmel: string }[],
+  post: Kravpost
+) => innsigelsene.some((x) => x.gjelder === post.id && x.hjemmel === varselhjemmelFor(post));
 
 /**
  * Standpunktet til et varsel etter § 34.3.3 eller § 34.4 i valget: en innsigelse som `staar`,
@@ -230,11 +235,19 @@ export const definert = <T extends object>(felt: T): T =>
  * Svaret på én kravpost. Et felt skjemaet ikke spør om i valgene, sendes ikke, så et valg som
  * står igjen etter et endret standpunkt, ikke gir et svar kjernen avviser (KA-U71, KA-U72).
  */
-function kravpostsvaret(post: Kravpost, p: Postvalg, u: Utledning, sendt: string | null) {
+function kravpostsvaret(
+  post: Kravpost,
+  p: Postvalg,
+  u: Utledning,
+  sendt: string | null,
+  innsigelsene: ReturnType<typeof innsigelseneSomStaar>
+) {
   const beloep = beloepsvalget(p, post);
   const stilt = stiltIPosten(p, post);
   const kreverTilbud = stilt.includes('krever_tilbud') && p.kreverTilbud;
-  const varslet = stilt.includes('varslet_i_tide') ? varseletIValgene(u, post, p, sendt) : null;
+  const varslet = stilt.includes('varslet_i_tide')
+    ? varseletIValgene(u, post, p, sendt, innsigelsene)
+    : null;
   return definert({
     gjelder: post.id,
     vurdering: beloep ? VURDERING[beloep] : undefined,
@@ -297,7 +310,8 @@ function vurderingene(
   krav: Krav,
   hovedvarselet: boolean,
   u: Utledning,
-  sendt: string | null
+  sendt: string | null,
+  innsigelsene: ReturnType<typeof innsigelseneSomStaar>
 ): Svarvurdering {
   const poster = kravposterI(krav);
   const krevd = krevdSaerskilt(krav);
@@ -305,7 +319,9 @@ function vurderingene(
     hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
     ...(krevd === null ? {} : saerskiltsvaret(v.saerskilt ?? tomtSaerskilt(), krevd)),
     kravposter: poster.length
-      ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse), u, sendt))
+      ? poster.map((post) =>
+          kravpostsvaret(post, postvalget(v, post.betegnelse), u, sendt, innsigelsene)
+        )
       : undefined,
   });
 }
@@ -448,14 +464,12 @@ export function vederlagssvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const { krav, paaberopelse } = kravetSvaretGjelder(u, 'vederlag', sendt);
   if (!krav) return null;
+  const staar = innsigelseneSomStaar(u, sendt);
   return svarbrevet(
     'vederlag',
     krav,
-    vurderingene(v, krav, spoerOmHovedvarselet(u, regler, paaberopelse), u, sendt),
-    {
-      paaberopelse,
-      staar: innsigelseneSomStaar(u, sendt),
-    },
+    vurderingene(v, krav, spoerOmHovedvarselet(u, regler, paaberopelse), u, sendt, staar),
+    { paaberopelse, staar },
     v,
     regler,
     punktene

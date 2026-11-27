@@ -39,6 +39,12 @@
   let hindring = $state<string | null>(null);
   let opptatt = $state(false);
 
+  function forkast() {
+    forkastet = true;
+    dialog?.close();
+    onforkast();
+  }
+
   async function leggTil(a: NonNullable<typeof avbrudd>) {
     opptatt = true;
     hindring = await a.leggTil();
@@ -68,13 +74,7 @@
       <Knapp variant="primaer" {opptatt} onclick={() => leggTil(avbrudd)}
         >{LEGG_TIL.avbrudd.ja}</Knapp
       >
-      <Knapp
-        onclick={() => {
-          forkastet = true;
-          dialog?.close();
-          onforkast();
-        }}>{LEGG_TIL.avbrudd.nei}</Knapp
-      >
+      <Knapp onclick={forkast}>{LEGG_TIL.avbrudd.nei}</Knapp>
       <Knapp variant="lenke" onclick={() => dialog?.close()}>{LEGG_TIL.avbrudd.tilbake}</Knapp>
     </div>
   {:else}
@@ -82,14 +82,7 @@
     <p id={`${uid}-tekst`}>{tekst}</p>
     <div class="knapper">
       <Knapp onclick={() => dialog?.close()}>{SKJEMA.behold}</Knapp>
-      <Knapp
-        variant="fare"
-        onclick={() => {
-          forkastet = true;
-          dialog?.close();
-          onforkast();
-        }}>{SKJEMA.forkast}</Knapp
-      >
+      <Knapp variant="fare" onclick={forkast}>{SKJEMA.forkast}</Knapp>
     </div>
   {/if}
 </dialog>

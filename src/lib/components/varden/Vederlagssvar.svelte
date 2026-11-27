@@ -19,6 +19,7 @@
   import type { Forutsetning, Vederlagsspoersmaal } from '#kjerne/spor/vederlag/kommando.ts';
   import {
     erSvarPaaVarsel,
+    innsigelseneSomStaar,
     varseleneIEldreKrav,
     varseletFoer as varseletFoerIdag,
     varselhjemmelFor,
@@ -57,9 +58,14 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, brevMedElement, brevene, sisteKunnskapsdatoen, standpunktene } from './lesing';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
-  import { vedleggskart } from './nysak';
+  import {
+    brevet,
+    brevMedElement,
+    nyttSvarIUtkastet,
+    sisteKunnskapsdatoen,
+    standpunktene,
+  } from './lesing';
+  import { forhaandsvistSvar, type Korrespondansevalg } from './korrespondansen';
   import {
     type Skjemalinje,
     begrunnelserForTemaene,
@@ -126,12 +132,20 @@
   );
   const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
   // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
-  const iEldreKrav = $derived(varseleneIEldreKrav(u));
+  const iEldreKrav = $derived(
+    new Map<string, { b: NonNullable<ReturnType<typeof brevet>>; sendt: string | null }>(
+      varseleneIEldreKrav(u).flatMap((v) => {
+        const b = brevet(u, v.dokument);
+        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt }] as const] : [];
+      })
+    )
+  );
   const varseletIEldreKrav = (p: Kravpost) => {
-    const v = iEldreKrav.find((x) => x.gjelder === p.id && x.hjemmel === varselhjemmelFor(p));
-    const b = v && brevene(u).find((x) => x.id === v.dokument);
-    return v && b ? LEGG_TIL.varseletErEldreKrav(b, v.sendt, navnet(p)) : null;
+    const v = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
+    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, navnet(p)) : null;
   };
+  // Innsigelsene svaret leses med, for valget etter U-7 i BF-49.
+  const innsigelsene = $derived(innsigelseneSomStaar(u, sendt));
   const poster = $derived(kravposterI(krav));
   const flere = $derived(poster.length > 1);
   const navnet = (p: Kravpost) => (flere ? p.betegnelse : undefined);
@@ -196,12 +210,7 @@
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
-  const etter = $derived(
-    kjernesak.forhaandsvist(
-      lagtTil ? kommandoenLagtTil(utkast, lagtTil) : utkast,
-      lagtTil ? vedleggskart(lagtTil.vedlegg) : undefined
-    )
-  );
+  const etter = $derived(forhaandsvistSvar(kjernesak, utkast, lagtTil));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
   const lagene = $derived(
     stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag', sendt)
@@ -253,16 +262,7 @@
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
   });
-  // Svaret utkastet gir, også et svar lagt til som ikke blir gjeldende (OV-U103).
-  const nyttSvar = $derived.by(() => {
-    const v = etter?.spor.vederlag;
-    const kjent = new Set(
-      [...u.spor.vederlag.svar, ...u.spor.vederlag.svarUtenforRekken].map((x) => x.id)
-    );
-    return (
-      [...(v?.svar ?? []), ...(v?.svarUtenforRekken ?? [])].find((x) => !kjent.has(x.id)) ?? null
-    );
-  });
+  const nyttSvar = $derived(nyttSvarIUtkastet(u, etter, 'vederlag'));
   // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const postenFor = (s: Standpunkt) =>
@@ -538,7 +538,7 @@
             tekst: i(
               lagtTil &&
                 stilt(lagene, 'varslet_i_tide', p.id) &&
-                innsigelsenStaar(u, p, sendt) &&
+                innsigelsenStaar(innsigelsene, p) &&
                 !postvalget(valg, p.betegnelse).tausOmVarselet &&
                 postvalget(valg, p.betegnelse).varsletITide === null
                 ? LEGG_TIL.svaretOmVarseletMangler

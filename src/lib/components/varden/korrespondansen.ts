@@ -22,7 +22,8 @@ import {
   type Kjernesakkontekst,
 } from '#lib/kjernesak/kontekst.svelte.ts';
 import { definert } from './kommandoer';
-import type { Kjernevedlegg, vedleggskart } from './nysak';
+import { vedleggskart, type Kjernevedlegg } from './nysak';
+import { svareneISporet } from './lesing';
 import {
   KORRESPONDANSEN,
   KUNNSKAPSDATO,
@@ -154,6 +155,17 @@ export async function leggTilISaken(
   return (await kjernesak.send(kommando, undefined, vedlegg)) ? null : (kjernesak.feil ?? annet);
 }
 
+/**
+ * Saken med svaret i `utkast`, lagt til med korrespondansen når `lagtTil` er satt, så kjernen
+ * regner det mot saken slik den var den dagen (OV-U98).
+ */
+export const forhaandsvistSvar = (
+  kjernesak: Kjernesakkontekst,
+  utkast: Parameters<typeof lagtTil>[0],
+  v: Korrespondansevalg | null
+) =>
+  kjernesak.forhaandsvist(v ? lagtTil(utkast, v) : utkast, v ? vedleggskart(v.vedlegg) : undefined);
+
 /** Et varsel parten har valgt i skjemaet, med feltene for bestemmelsen (U-5 i BF-49). */
 export interface Varselvalg {
   hjemmel: Varselhjemmel;
@@ -215,9 +227,7 @@ export const fyllesUtISkjemaet = (
  * på dagen `dag` (`svaretGjaldt`). Før datoen er oppgitt, står alle svarene i sporet.
  */
 export const svareneSomGjaldt = (u: Utledning, spor: Spor, dag: string) =>
-  [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].filter(
-    (s) => !dag || svaretGjaldt(u, s, dag)
-  );
+  svareneISporet(u, spor).filter((s) => !dag || svaretGjaldt(u, s, dag));
 
 /** VS-U87 punkt 27: varselet etter § 34.3.3 og § 34.4 har arbeidet det gjelder. */
 export const harArbeid = (h: Varselhjemmel) => h === '34.3.3' || h === '34.4';

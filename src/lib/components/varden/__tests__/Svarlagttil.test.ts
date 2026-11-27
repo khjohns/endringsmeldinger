@@ -31,10 +31,11 @@ async function saken(punkt: string, part: Part) {
       return demosak.send(...a);
     },
     // jsdom har ikke `File.arrayBuffer`, som demosaken regner summen av.
-    lastOppVedlegg: (sak, fil) =>
+    lastOppVedlegg: (sak, fil, prosjekt) =>
       demosak.lastOppVedlegg(
         sak,
-        Object.assign(fil, { arrayBuffer: async () => new ArrayBuffer(8) })
+        Object.assign(fil, { arrayBuffer: async () => new ArrayBuffer(8) }),
+        prosjekt
       ),
   });
   await kjernesak.last();

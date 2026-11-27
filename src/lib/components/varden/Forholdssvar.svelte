@@ -24,7 +24,7 @@
   import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
-    lagtTil as kommandoenLagtTil,
+    forhaandsvistSvar,
     svaretLagtTilErstatter,
     type Korrespondansevalg,
   } from './korrespondansen';
@@ -49,8 +49,7 @@
     type Forholdssvarvalg,
   } from './forholdssvar';
   import { kanFrafalle } from '#kjerne/regler/forhold.ts';
-  import { brevene, standpunktene, underOverskriften } from './lesing';
-  import { vedleggskart } from './nysak';
+  import { brevene, nyttSvarIUtkastet, standpunktene, underOverskriften } from './lesing';
   import {
     begrunnelserForTemaene,
     kravbrevetI,
@@ -207,20 +206,9 @@
   );
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
   const etter = $derived(
-    kjernesak.forhaandsvist(
-      lagtTil ? kommandoenLagtTil(somLagtTil(utkast), lagtTil) : utkast,
-      lagtTil ? vedleggskart(lagtTil.vedlegg) : undefined
-    )
+    forhaandsvistSvar(kjernesak, lagtTil ? somLagtTil(utkast) : utkast, lagtTil)
   );
-  const nyttSvar = $derived.by(() => {
-    const f = etter?.spor.forhold;
-    const kjent = new Set(
-      [...u.spor.forhold.svar, ...u.spor.forhold.svarUtenforRekken].map((x) => x.id)
-    );
-    return (
-      [...(f?.svar ?? []), ...(f?.svarUtenforRekken ?? [])].find((x) => !kjent.has(x.id)) ?? null
-    );
-  });
+  const nyttSvar = $derived(nyttSvarIUtkastet(u, etter, 'forhold'));
   const endringsordre = $derived(
     nyttSvar ? blirEndringsordre(nyttSvar.beslutningsgrunnlag) : false
   );
@@ -330,10 +318,10 @@
   {u}
   spor="forhold"
   {utkast}
-  medTekstene={(punktene) =>
-    lagtTil
-      ? somLagtTil(forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!)
-      : forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!}
+  medTekstene={(punktene) => {
+    const svaret = forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!;
+    return lagtTil ? somLagtTil(svaret) : svaret;
+  }}
   {lagtTil}
   {onavbrudd}
   svarerPaa={lagtTil ? kravbrevet : null}
