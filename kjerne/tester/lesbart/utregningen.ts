@@ -254,7 +254,8 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/tekst.ts',
       // LV-U78: beløpet etter begrensningen står i punktet for den særskilte justeringen.
       'frosset/brevtekst.ts',
-      // VS-U87 punkt 33: svaret på varselet etter § 34.1.3 sperres av en sendt kravversjon med posten.
+      // VS-U96 punkt 33: svaret på varselet etter § 34.1.3 sperres av byggherrens svar på en
+      // kravversjon med posten.
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],

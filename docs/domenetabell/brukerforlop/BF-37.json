@@ -140,6 +140,11 @@
       "dato": "2026-11-26",
       "forhold": "#2010",
       "hva": "Forløpet er kjørbart: stegene til kontrollpunktet før varslene og brevet med de tre varslene, for skjemaet «Bare varsle» i Varden."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#2456",
+      "hva": "Tidsrommet for svaret på et varsel som står alene følger VS-U96 punkt 33: byggherren kan svare fram til byggherren har svart på en kravversjon med det varselet gjelder, ikke bare til kravversjonen er sendt (D-6)."
     }
   ],
   "steg": [

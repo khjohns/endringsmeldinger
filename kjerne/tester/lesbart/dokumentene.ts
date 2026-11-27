@@ -86,6 +86,8 @@ export const DOKUMENTENE: Lesbar[] = [
       'spor/vederlag/utledning.ts:valgetRettes',
       'frosset/standpunkt.ts:sisteStandpunktTilVarslene',
       'spor/vederlag/kommando.ts:varselvalgetMangler',
+      // VS-U96 punkt 23 og 33: uten valg i versjonen står valget i den forrige.
+      'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
     ],
   ],
   [
