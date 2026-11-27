@@ -5,6 +5,7 @@ import type { Brevet, Brevref } from '../lesing';
 import { GRENSEN_FOR_VEDLEGG, SPORNAVN, brevref, brevrefStor } from './felles';
 import type { Korrespondansehva, Korrespondansekategori } from './typer';
 import { dato, haerdet } from './format';
+import { KRAVSKJEMA } from './kravskjema';
 
 const KORRESPONDANSEORD: Record<
   Korrespondansehva,
@@ -138,11 +139,8 @@ export const LEGG_TIL = haerdet({
   varselnavn: {
     '32.2': 'Varsel om irregulær endring',
     '33.4': 'Varsel om fristforlengelse',
-    '34.1.2': 'Varsel om vederlagsjustering',
-    '34.1.3': 'Varsel om særskilt vederlagsjustering',
-    '34.3.3': 'Varsel om justering av enhetsprisene',
-    '34.4': 'Varsel før regningsarbeidet settes i gang',
-  } satisfies Record<Varselhjemmel, string>,
+    ...KRAVSKJEMA.varselnavn,
+  } as Record<Varselhjemmel, string>,
   varselvalg: (navn: string, h: Varselhjemmel) => `${navn} (punkt ${h})`,
   klarOverHjelp: 'Datoen dokumentet oppgir, hvis det oppgir en.',
   neste: {

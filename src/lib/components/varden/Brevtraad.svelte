@@ -91,6 +91,7 @@
     (b.avsnitt ?? []).flatMap((a) => a.utdypning?.trim() || []).join('\n\n');
 
   const nyestFoerst = $derived(brev.map((b, n) => ({ b, n })).reverse());
+  const perId = $derived(new Map(brev.map((b) => [b.id, b])));
 </script>
 
 <div class="traadhode">
@@ -170,8 +171,8 @@
           {/if}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b)}</p>
-            {@const retter = b.retter ? brev.find((x) => x.id === b.retter) : undefined}
-            {@const rettetAv = b.rettetAv ? brev.find((x) => x.id === b.rettetAv) : undefined}
+            {@const retter = b.retter ? perId.get(b.retter) : undefined}
+            {@const rettetAv = b.rettetAv ? perId.get(b.rettetAv) : undefined}
             <!-- U-11 og U-12 i BF-49: hvilken registrering den nye retter, og at den gamle er erstattet. -->
             {#if retter}<p class="datolinje">{LEGG_TIL.retter(retter.registrert)}</p>{/if}
             {#if rettetAv}<p class="datolinje">{LEGG_TIL.rettet(rettetAv.registrert)}</p>{/if}

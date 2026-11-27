@@ -300,8 +300,7 @@
   } as const satisfies Record<Kravspor, Utkastnavn>;
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
   // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
-  /** `retter` er datoen dokumentasjonen skjemaet legges til på nytt i stedet for, ble lagt til (U-12). */
-  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg; retter?: string } | null>(null);
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
   // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
   let svaretFra = $state<Korrespondansevalg | null>(null);
@@ -890,7 +889,6 @@
     if (d?.art !== 'dokument') return;
     lagtTil = {
       spor: valgt,
-      retter: b.registrert,
       valg: {
         ...tomtLagtTil(valgt),
         avsender: b.avsender,
@@ -936,24 +934,20 @@
    * «Bare varsle» i skjemaet for vederlaget (U-1 i BF-37), med en rad for `hjemmel` når skjemaet
    * ikke har varsler ennå, og som registrering når `registrer`. Utkastet til kravet står.
    */
-  function vederlagsvarsel(
-    hjemmel: Vederlagsvarselhjemmel,
-    registrer: boolean,
-    utenfor: Korrespondansevalg | null = null
-  ) {
+  function vederlagsvarsel(hjemmel: Vederlagsvarselhjemmel, registrer: boolean) {
     if (!u) return;
     const v = utkastene.vederlagskrav ?? vederlagskravstart(u);
     if (!v.varsling?.rader.length) {
       utkastene.vederlagskrav = {
         ...v,
         hva: 'varsel',
-        varsling: startvarsling(hjemmel, registrer, utenfor),
+        varsling: startvarsling(hjemmel, registrer),
       };
       return;
     }
     const varsling = {
       ...v.varsling,
-      utenfor: registrer ? (utenfor ?? v.varsling.utenfor ?? tomKorrespondanse()) : null,
+      utenfor: registrer ? (v.varsling.utenfor ?? tomKorrespondanse()) : null,
     };
     // Varselet TE åpnet fra handlingene, får en rad når skjemaet ikke har det.
     const tilbudt = tilbudteHjemler(kjernesak.handlinger, registrer);
@@ -984,11 +978,7 @@
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
    * `sende_varsel:frist` registreres varselet (VS-U16).
    */
-  function fristskjema(
-    hva: Fristkravvalg['hva'],
-    registrer = false,
-    utenfor: Korrespondansevalg | null = null
-  ) {
+  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
     if (u) {
       const v = utkastene.fristkrav ?? fristkravstart(u);
       utkastene.fristkrav = {
@@ -996,7 +986,7 @@
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
         utenfor: registrer
-          ? (utenfor ?? v.utenfor ?? tomKorrespondanse())
+          ? (v.utenfor ?? tomKorrespondanse())
           : hva === 'varsel'
             ? null
             : v.utenfor,
@@ -1194,7 +1184,6 @@
       {u}
       spor={valgt}
       bind:valg={lagtTil.valg}
-      retter={lagtTil.retter ?? null}
       onneste={videreFraKorrespondansen}
       onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
       onavbryt={() => {

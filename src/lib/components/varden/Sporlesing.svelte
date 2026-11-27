@@ -302,17 +302,21 @@
   // D-13 og U-12 i BF-49: dokumentasjon lagt til av egen side, som ikke er rettet, kan legges til
   // på nytt med valget. Kjernen avviser en retting av noe annet (OV-U17).
   const paaNyttVed = $derived(
-    onpaanytt && u.forstaatt
-      ? brevITraaden(alleBrev, spor).filter(
-          (b) => b.kategori === 'dokumentasjon' && b.lagtTilAv === part && b.rettetAv === null
-        )
-      : []
+    new Map(
+      onpaanytt && u.forstaatt
+        ? brevITraaden(alleBrev, spor)
+            .filter(
+              (b) => b.kategori === 'dokumentasjon' && b.lagtTilAv === part && b.rettetAv === null
+            )
+            .map((b) => [b.id, b])
+        : []
+    )
   );
   const handlingerVed = $derived([
     ...new Set([
       ...(handlingVed === null ? [] : [handlingVed]),
       ...Object.keys(varselVed),
-      ...paaNyttVed.map((b) => b.id),
+      ...paaNyttVed.keys(),
     ]),
   ]);
   const vedVarslene = $derived(Object.values(varselVed).flat());
@@ -535,7 +539,7 @@
 
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
-  {@const paaNytt = paaNyttVed.find((b) => b.id === id)}
+  {@const paaNytt = paaNyttVed.get(id)}
   {#if id === handlingVed}{@render vedBrevet(id)}
   {:else if varselVed[id]?.length}<div class="knapper">{@render varselknapper(id)}</div>{/if}
   {#if paaNytt}

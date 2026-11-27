@@ -791,7 +791,6 @@ describe('avsenderen og varslene i korrespondansen lagt til (BF-49)', () => {
       kjernesak,
       u: kjernesak.utledning!,
       spor: 'vederlag',
-      retter: '2026-10-20T08:00:00Z',
       valg: {
         korrespondanse: {
           type: 'brev',

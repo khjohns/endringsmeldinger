@@ -24,6 +24,7 @@
   import { aksepten } from './kommandoer';
   import {
     dokumentasjonen,
+    harArbeid,
     kategoriene,
     lagtTil,
     lagttilmangler,
@@ -51,7 +52,6 @@
     u,
     spor,
     valg = $bindable(tomtLagtTil(spor)),
-    retter = null,
     onneste,
     onlagttil,
     onavbryt,
@@ -62,8 +62,6 @@
     spor: Spor;
     /** Valgene står når parten går videre til krav- eller svarskjemaet og tilbake. */
     valg?: Lagttilvalg;
-    /** Datoen dokumentasjonen skjemaet legges til på nytt i stedet for, ble lagt til (U-12). */
-    retter?: string | null;
     /** Kravet eller svaret fylles ut i skjemaet for det (OV-U80). */
     onneste: (kategori: 'krav' | 'svar') => void;
     /** Dokumentasjonen, varslene eller aksepten er lagt til. */
@@ -77,11 +75,13 @@
   const iDag = dagensDato();
   // G-1: kjernen tilbyr kategoriene for datoen og avsenderen. Før datoen er oppgitt, leses tilbudet
   // på dagen i dag, og før avsenderen er valgt, som parten selv (U-2); kjernen avviser ved sendingen.
-  const tilbudte = $derived(
-    kjernesak.tilbudteLagtTil(
-      valg.korrespondanse.dato || iDag,
-      valg.avsender ?? kjernesak.part ?? 'TE'
-    )
+  // Bare datoen og avsenderen endrer tilbudet, så kjernen regner ikke på nytt for hvert tegn.
+  const dato = $derived(valg.korrespondanse.dato || iDag);
+  const avsender = $derived(valg.avsender);
+  const tilbudte = $derived(kjernesak.tilbudteLagtTil(dato, avsender));
+  // U-12: dokumentasjonen skjemaet legges til på nytt i stedet for.
+  const retter = $derived(
+    valg.korrespondanse.retter ? brevet(u, valg.korrespondanse.retter) : null
   );
   const kategorier = $derived(kategoriene(kjernesak.part, valg.avsender, spor, u, tilbudte));
   const motparten = $derived(
@@ -169,7 +169,7 @@
         <h2 id={id('tittel')}>
           {retter ? LEGG_TIL.tittelPaaNytt : LEGG_TIL.tittel}
         </h2>
-        <p class="dempet">{retter ? LEGG_TIL.paaNytt(retter) : LEGG_TIL.vurderes}</p>
+        <p class="dempet">{retter ? LEGG_TIL.paaNytt(retter.registrert) : LEGG_TIL.vurderes}</p>
       </header>
 
       {#if flyt.forsoekt && mangler.length}
@@ -251,7 +251,7 @@
                         <p class="dempet">{KUNNSKAPSDATO.fast(sisteKunnskapsdato)}</p>
                       {/if}
                     </div>
-                  {:else if x && (h === '34.3.3' || h === '34.4')}
+                  {:else if x && harArbeid(h)}
                     <div class="under">
                       <Tekstomraade
                         id={id(`arbeid-${h}`)}

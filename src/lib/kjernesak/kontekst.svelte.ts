@@ -491,13 +491,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return tilbudt;
     },
     /**
-     * Kategoriene og varslene parten får tilbud om for korrespondanse sendt `sendt` av `avsender`
-     * (G-1 i BF-49). Tom før saken er lastet og uten side.
+     * Kategoriene og varslene parten får tilbud om for korrespondanse sendt `sendt` av `avsender`,
+     * eller parten selv før avsenderen er valgt (G-1 i BF-49). Tom før saken er lastet og uten side.
      */
-    tilbudteLagtTil(sendt: string, avsender: Part) {
+    tilbudteLagtTil(sendt: string, avsender: Part | null) {
       if (!utledning || !part) return [];
       try {
-        return tilbudteLagtTil(utledning, part, sendt, avsender, kjerne.regler);
+        return tilbudteLagtTil(utledning, part, sendt, avsender ?? part, kjerne.regler);
       } catch (e) {
         console.error(e);
         return [];

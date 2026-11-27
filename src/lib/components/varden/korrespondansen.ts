@@ -13,6 +13,7 @@ import {
   SVARTEKSTENE,
   type Kjernesakkontekst,
 } from '#lib/kjernesak/kontekst.svelte.ts';
+import { definert } from './kommandoer';
 import type { Kjernevedlegg, vedleggskart } from './nysak';
 import {
   KORRESPONDANSEN,
@@ -176,6 +177,20 @@ export const tomtLagtTil = (spor: Spor): Lagttilvalg => ({
   varsler: [],
 });
 
+/** VS-U87 punkt 27: varselet etter § 34.3.3 og § 34.4 har arbeidet det gjelder. */
+export const harArbeid = (h: Varselhjemmel) => h === '34.3.3' || h === '34.4';
+
+/**
+ * Varselet slik kommandoen bærer det: arbeidet bare etter § 34.3.3 og § 34.4, og datoen bare
+ * etter § 34.1.3 (`varselfeil` i kjernen).
+ */
+export const varselposten = (r: Pick<Varselvalg, 'hjemmel' | 'arbeid' | 'klarOver'>) =>
+  definert({
+    hjemmel: r.hjemmel,
+    arbeid: harArbeid(r.hjemmel) ? r.arbeid.trim() || undefined : undefined,
+    klar_over_utgiftene: r.hjemmel === '34.1.3' ? r.klarOver || undefined : undefined,
+  }) as Varselposten;
+
 /** Rekkefølgen varslene står i, som i prototypen (U-5 i BF-49). */
 const VARSELREKKEFOELGEN: readonly Varselhjemmel[] = [
   '32.2',
@@ -246,24 +261,15 @@ export function dokumentasjonen(v: Lagttilvalg, part: Part | null) {
 
 /**
  * Varslene i korrespondansen i én kommando, også i flere spor (#2455, beslutningsdelen i VS-U87).
- * Arbeidet står bare etter § 34.3.3 og § 34.4, og datoen bare etter § 34.1.3 (`varselfeil` i
- * kjernen). Kjernen avviser det den ikke godtar.
+ * Kjernen avviser det den ikke godtar.
  */
 export function varselet(v: Lagttilvalg) {
   const r = registreringen(v.korrespondanse);
   return {
     type: 'varsel' as const,
-    varsler: VARSELREKKEFOELGEN.flatMap((h): Varselposten[] => {
+    varsler: VARSELREKKEFOELGEN.flatMap((h) => {
       const x = v.varsler.find((y) => y.hjemmel === h);
-      if (!x) return [];
-      const arbeid = x.arbeid.trim();
-      return [
-        {
-          hjemmel: h,
-          ...((h === '34.3.3' || h === '34.4') && arbeid ? { arbeid } : {}),
-          ...(h === '34.1.3' && x.klarOver ? { klar_over_utgiftene: x.klarOver } : {}),
-        },
-      ];
+      return x ? [varselposten(x)] : [];
     }),
     ...r,
     korrespondansetype: r.korrespondansetype!,
