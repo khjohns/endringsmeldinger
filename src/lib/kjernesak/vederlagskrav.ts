@@ -14,7 +14,9 @@ import {
   type Krav,
   type Kravpost,
   type Kravpostvarselhjemmel,
+  type Svar,
   type SvarbarVarselhjemmel,
+  VARSELSPOR,
 } from '#kjerne/typer.ts';
 import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
 import {
@@ -25,7 +27,9 @@ import {
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
-import { fristvarseletSvaretGjelder } from '#kjerne/spor/frist/kommando.ts';
+import { fristvarseletIKravet, fristvarseletSvaretGjelder } from '#kjerne/spor/frist/kommando.ts';
+import { svarkjeden } from '#kjerne/utledning/utled.ts';
+import { svaretsVarsel } from '#kjerne/kommandoer/standpunkter.ts';
 
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
@@ -212,7 +216,31 @@ export interface VarseletAlene {
   forrigeSvar: string | null;
   /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
   arbeid: string | undefined;
+  /**
+   * Kravversjonen svaret bare på varselet gjelder, når kravet selv er varselet (VS-U96 punkt 38),
+   * ellers `null`.
+   */
+  kravversjon: string | null;
 }
+
+type Kjedesvar = Pick<Svar, 'spor' | 'gjelder' | 'bareVarselet'>;
+
+/** Om svaret `s` er i samme kjede som `nytt`, som kjernen leser den (`svarkjeden`, VS-U96 punkt 33). */
+const iKjeden = (nytt: Kjedesvar) => (s: Kjedesvar) => svarkjeden(s) === svarkjeden(nytt);
+
+/**
+ * Om svaret `s` er i kjeden av svar et nytt svar på varselet hører til (VS-U96 punkt 33 og 38).
+ */
+export const iKjedenTil = (varselet: Pick<VarseletAlene, 'id' | 'hjemmel' | 'kravversjon'>) =>
+  iKjeden({
+    spor: VARSELSPOR[varselet.hjemmel],
+    gjelder: varselet.kravversjon ?? varselet.id,
+    bareVarselet: varselet.kravversjon !== null,
+  });
+
+/** Om svaret `s` er i kjeden av svar bare på varslene i vederlagskravet `kravversjon`. */
+export const iKjedenTilVarslene = (kravversjon: string) =>
+  iKjeden({ spor: 'vederlag', gjelder: kravversjon, bareVarselet: true });
 
 /**
  * Om brevet `dokument` er et svar på et varsel som står alene. Innsigelsen etter § 34.4 der sa at
@@ -224,7 +252,11 @@ export const erSvarPaaVarsel = (u: Utledning, dokument: string) =>
 
 /** Bestemmelsen for varselet `gjelder`, når byggherren kan svare på det alene, ellers `null`. */
 export const hjemmelenForVarselet = (u: Utledning, gjelder: string) =>
-  (varseletSvaretGjelder(u, gjelder) ?? fristvarseletSvaretGjelder(u, gjelder))?.hjemmel ?? null;
+  (
+    varseletSvaretGjelder(u, gjelder) ??
+    fristvarseletSvaretGjelder(u, gjelder) ??
+    fristvarseletIKravet(u, gjelder)
+  )?.hjemmel ?? null;
 
 /**
  * Varselet `gjelder` byggherren kan svare på alene, eller `null` (`varseletSvaretGjelder` og
@@ -241,19 +273,24 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
       ) ?? null,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast((s) => s.gjelder === v.id)?.id ?? null,
     arbeid: arbeidetI(u, v.id),
+    kravversjon: null,
   };
 }
 
 /**
  * Varselet etter § 33.4 i fristen, med standpunktet i det siste svaret på det, som revisjonen
- * erstatter (`kontrollerSvarkjedene`, VS-U96 punkt 33). En innsigelse som er gjentatt, står med
- * brevet den først ble gjort gjeldende i, som `rettidighetIVarselet` i brevteksten leser det
- * (VS-U96 punkt 33 og 34).
+ * erstatter (`kontrollerSvarkjedene`, VS-U96 punkt 33): varselet som står alene (punkt 32), eller
+ * varselet i kravversjonen `gjelder` når kravet selv er varselet (punkt 38). En innsigelse som er
+ * gjentatt, står med brevet den først ble gjort gjeldende i, som `rettidighetIVarselet` i
+ * brevteksten leser det (VS-U96 punkt 33 og 34).
  */
 function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
-  const v = fristvarseletSvaretGjelder(u, gjelder);
+  const alene = fristvarseletSvaretGjelder(u, gjelder);
+  const v = alene ?? fristvarseletIKravet(u, gjelder);
   if (!v) return null;
-  const svarene = u.spor.frist.svarPaaVarsler.filter((s) => s.gjelder === v.id);
+  const svarene = u.spor.frist.svarPaaVarsler.filter(
+    iKjeden({ spor: 'frist', gjelder, bareVarselet: !alene })
+  );
   const iTide = (s: (typeof svarene)[number]) => {
     const p = s.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.4');
     return p?.art === 'rettidighet' ? p.iTide : null;
@@ -269,5 +306,53 @@ function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | 
     foer: foerst && standpunkt !== null ? { iTide: standpunkt, dokument: foerst.dokument } : null,
     forrigeSvar: forrige?.id ?? null,
     arbeid: undefined,
+    kravversjon: alene ? null : gjelder,
+  };
+}
+
+/** En kravpost i vederlagskravet der kravet selv er varselet (VS-U96 punkt 38). */
+export interface VarseletIPosten {
+  post: Kravpost;
+  hjemmel: Kravpostvarselhjemmel;
+  /** Byggherrens siste standpunkt til varselet for posten, slik kjernen leser det. */
+  foer: StandpunktTilVarselet | null;
+}
+
+/** Varslene i vederlagskravet byggherren kan svare bare på (`varsleneIVederlagskravet`). */
+export interface VarsleneIVederlagskravet {
+  kravversjon: string;
+  poster: VarseletIPosten[];
+  forrigeSvar: string | null;
+}
+
+/**
+ * Kravpostene i vederlagskravet `gjelder` byggherren kan svare bare på varselet for, i rekkefølgen
+ * i kravet, og det forrige svaret bare på varselet, som et nytt svar erstatter (VS-U96 punkt 33 og
+ * 38, `svaretsVarsel` i kjernen), eller `null` når kravet ikke er varselet for noen post.
+ */
+export function varsleneIVederlagskravet(
+  u: Utledning,
+  gjelder: string
+): VarsleneIVederlagskravet | null {
+  const v = svaretsVarsel(u, { spor: 'vederlag', gjelder, bare_varselet: true });
+  const krav = u.spor.vederlag.krav.find((k) => k.id === gjelder);
+  if (!v || !('poster' in v) || !krav) return null;
+  const foer = standpunkteneTilVarslene(u, null);
+  const poster = kravposterI(krav).flatMap((post) => {
+    const p = v.poster.find((x) => x.id === post.id);
+    return p
+      ? [
+          {
+            post,
+            hjemmel: p.hjemmel,
+            foer: foer.find((x) => x.gjelder === post.id && x.hjemmel === p.hjemmel) ?? null,
+          },
+        ]
+      : [];
+  });
+  return {
+    kravversjon: gjelder,
+    poster,
+    forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast(iKjedenTilVarslene(gjelder))?.id ?? null,
   };
 }

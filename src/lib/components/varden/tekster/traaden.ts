@@ -16,7 +16,16 @@ export const TRAADEN = haerdet({
     spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
   /** Hva brevet er, kort: «Svar på krav om vederlagsjustering». Et registrert brev har partens beskrivelse. */
   hva: (
-    b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse' | 'varselhjemler'>
+    b: Pick<
+      Brevet,
+      | 'art'
+      | 'spor'
+      | 'avsender'
+      | 'brevtittel'
+      | 'beskrivelse'
+      | 'varselhjemler'
+      | 'svarPaaVarselet'
+    >
   ) => {
     if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
     // MM-U47, designdelen: innlegget har tittelen parten skrev, også når det gjelder flere spor.
@@ -24,12 +33,16 @@ export const TRAADEN = haerdet({
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     if (b.brevtittel && spor.length <= 1) return b.brevtittel.replace(/ i sak \S+$/, '');
     const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
+    // Et svar bare på et varsel heter etter varselet, som brevtittelen (VS-U96 punkt 39, #2481).
+    const besvart = spor
+      .filter((s) => s !== 'forhold')
+      .map((s) => b.svarPaaVarselet[s]?.tittel ?? `krav om ${KRAVET[s]}`);
     if (b.art === 'krav' && spor.length)
       return spor.includes('forhold')
         ? ['Påberopelse av forholdet', ...krav].join(' og ')
         : stor(krav.join(' og '));
     if (b.art === 'svar' && spor.length)
-      return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...krav].join(' og ')}`;
+      return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...besvart].join(' og ')}`;
     // Den frosne tittelen nevner saken, som tråden står i («Korrigering av datoen i sak KOE-17»).
     return TIDSLINJE.hva(b).replace(/ i sak \S+$/, '');
   },

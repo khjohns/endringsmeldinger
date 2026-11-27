@@ -83,6 +83,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:besvarteVederlagskrav',
       'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
+      'spor/frist/kommando.ts:innsigelsenMotFristvarselet',
     ],
   ],
   // VS-U79: om svaret gjelder et varsel, og om det står alene.
@@ -135,6 +136,8 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:kravetErDetFoersteVarselet',
       // VS-U96 punkt 38: varselet etter § 33.4 når kravet selv er varselet.
       'spor/frist/kommando.ts:fristvarseletIKravet',
+      // VS-U96 punkt 34: varselet innsigelsen som står mot et nytt svar på kravet, gjelder.
+      'spor/frist/kommando.ts:innsigelsenMotFristvarselet',
     ],
   ],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
