@@ -24,6 +24,7 @@
   import {
     hjemmelenForVarselet,
     varseletSvaretPaa,
+    varsleneIBrevet,
     varsleneIVederlagskravet,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
@@ -37,6 +38,7 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Varselsvar from './Varselsvar.svelte';
   import Varslenesvar from './Varslenesvar.svelte';
+  import Varselbrevsvar from './Varselbrevsvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar, valgFraFristsvaret } from './fristsvar';
   import Forholdssvar from './Forholdssvar.svelte';
@@ -84,6 +86,7 @@
     type Korrigeringsvalg,
     type Varselsvalg,
     type Varslenesvalg,
+    type Varselbrevvalg,
   } from './kommandoer';
   import {
     kontraktFraProsjektet,
@@ -273,6 +276,8 @@
     varselsvar: (): Record<string, Varselsvalg> => ({}),
     // Ett utkast per vederlagskrav for svaret bare på varslene i det (VS-U96 punkt 38).
     varslenesvar: (): Record<string, Varslenesvalg> => ({}),
+    // Ett utkast per brev med flere varsler, med det første varselet som nøkkel (M-5 i BF-37).
+    varselbrevsvar: (): Record<string, Varselbrevvalg> => ({}),
     innlegg: (): Innleggsvalg | null => null,
   };
   type Utkastnavn = keyof typeof tommeUtkast;
@@ -361,6 +366,7 @@
   function tomtVarselsutkast(gjelder: string) {
     delete utkastene.varselsvar[gjelder];
     delete utkastene.varslenesvar[gjelder];
+    delete utkastene.varselbrevsvar[gjelder];
     for (const s of ['vederlag', 'frist'] as const) fjernUtkast(s, 'varselsvar', gjelder);
   }
   function fjernSkjemautkast(s: Spor, n: Utkastnavn & Skjemaarbeid['art']) {
@@ -387,6 +393,9 @@
     })[utkast.art];
   function varselsvartittel(utkast: Skjemaarbeid) {
     if (utkast.art !== 'varselsvar' || !u) return '';
+    const iBrevet = varsleneIBrevet(u, kjernesak.tilbudte, utkast.gjelder);
+    const brevet = iBrevet && brevMedUtsagn(u, utkast.gjelder);
+    if (brevet) return VARSELSVARET.svarPaaVarsleneI(brevet);
     const h = hjemmelenForVarselet(u, utkast.gjelder);
     const varslene = h ? null : varsleneIVederlagskravet(u, utkast.gjelder);
     return h
@@ -611,7 +620,10 @@
 
   /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
   function forkastUtkast(
-    n: Exclude<Utkastnavn, (typeof svaretI)[Spor] | 'varselsvar' | 'varslenesvar'>
+    n: Exclude<
+      Utkastnavn,
+      (typeof svaretI)[Spor] | 'varselsvar' | 'varslenesvar' | 'varselbrevsvar'
+    >
   ) {
     tom(n);
     fjernSkjemautkast(valgt, n);
@@ -808,9 +820,15 @@
       // svar på det, i sporet varselet står i.
       noekler: ['svare:*', 'revidere:*'],
       aapne: (n) => {
-        const gjelder = kjernesak.tilbudte.find((h) => h.noekkel === n)!.gjelder!;
+        let gjelder = kjernesak.tilbudte.find((h) => h.noekkel === n)!.gjelder!;
+        // M-5 i BF-37: varslene i et brev med flere varsler besvares i ett svar.
+        const iBrevet = u && varsleneIBrevet(u, kjernesak.tilbudte, gjelder);
+        if (iBrevet) {
+          gjelder = iBrevet[0]!.id;
+          utkastene.varselbrevsvar[gjelder] ??= {};
+        }
         // VS-U96 punkt 38: svaret bare på varslene i vederlagskravet `gjelder`.
-        if (u && varsleneIVederlagskravet(u, gjelder))
+        else if (u && varsleneIVederlagskravet(u, gjelder))
           utkastene.varslenesvar[gjelder] ??= tomtVarslenesvar();
         else utkastene.varselsvar[gjelder] ??= tomtVarselsvar();
         aapneUtkast({ art: 'varselsvar', gjelder });
@@ -1326,7 +1344,24 @@
     {@const gjelder = arbeid.gjelder}
     {@const varselet = varseletSvaretPaa(u, gjelder)}
     {@const varslene = varselet ? null : varsleneIVederlagskravet(u, gjelder)}
-    {#if varslene && utkastene.varslenesvar[gjelder]}
+    {@const iBrevet = varsleneIBrevet(u, kjernesak.tilbudte, gjelder)}
+    {#if iBrevet && utkastene.varselbrevsvar[gjelder]}
+      {#key gjelder}
+        <Varselbrevsvar
+          {kjernesak}
+          {u}
+          varslene={iBrevet}
+          bind:valg={utkastene.varselbrevsvar[gjelder]}
+          onforkast={() => {
+            tomtVarselsutkast(gjelder);
+            return tilSaken(MOTTATT.forkastet, 'forkastet');
+          }}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => tilVarselsvarkontroll(gjelder, k)}
+          onforholdet={tilForholdet}
+        />
+      {/key}
+    {:else if varslene && utkastene.varslenesvar[gjelder]}
       {#key gjelder}
         <Varslenesvar
           {kjernesak}

@@ -73,6 +73,8 @@
     onlagttil = () => {},
     tittel = SVARTITTEL[spor],
     forrigeSvar = null,
+    forbeholdene,
+    egnePunkter = false,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -131,6 +133,16 @@
     tittel?: string;
     /** Brevet med byggherrens forrige svar, når svaret er et nytt svar på kravet (HF-U29). */
     forrigeSvar?: Brevet | null;
+    /**
+     * Ett felt for forbeholdet per svar i brevet, i stedet for feltet for hele svaret, når brevet
+     * har flere svar (LV-U81, #2451). `tekster.forbehold` sier da bare om et forbehold er skrevet.
+     */
+    forbeholdene?: Snippet<[etikett: string | undefined]>;
+    /**
+     * Panelet viser `skjemapunkter` og forbeholdet, ikke punktene i brevet, når brevet har flere
+     * svar med samme punkt (#2451).
+     */
+    egnePunkter?: boolean;
   } = $props();
   const uid = $props.id();
 
@@ -174,7 +186,7 @@
               ],
             },
           ],
-      overskriftene
+      egnePunkter ? new Map() : overskriftene
     )
   );
   const tidligereForhold = $derived(skjemapunkter.find((p) => p.punkt === FORHOLDET));
@@ -374,13 +386,17 @@
           {/each}
         {/if}
         <div class="forbehold">
-          <Tekstomraade
-            id={`${uid}-forbehold`}
-            etikett={overskrift(FORBEHOLDET) ?? SKJEMA.forbehold}
-            valgfri
-            hjelp={SKJEMA.forbeholdHjelp}
-            bind:verdi={tekster.forbehold}
-          />
+          {#if forbeholdene}
+            {@render forbeholdene(overskrift(FORBEHOLDET))}
+          {:else}
+            <Tekstomraade
+              id={`${uid}-forbehold`}
+              etikett={overskrift(FORBEHOLDET) ?? SKJEMA.forbehold}
+              valgfri
+              hjelp={SKJEMA.forbeholdHjelp}
+              bind:verdi={tekster.forbehold}
+            />
+          {/if}
         </div>
       </section>
     {/if}

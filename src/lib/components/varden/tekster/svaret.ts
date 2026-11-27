@@ -234,6 +234,15 @@ export const VARSELSVARET = haerdet({
           } as unknown as Pick<Svar, 'spor' | 'standpunkter' | 'bareVarselet'>).tittel
         }`,
   nyttSvarPaaVarslene: 'Nytt svar på varslene i kravet',
+  // M-5 og U-8 i BF-37: svaret på flere varsler i samme brev, ett svar per varsel (#2451).
+  svarPaaVarsleneI: (b: Brevref) => `Svar på varslene i ${brevref(b)}`,
+  varsleneI: (b: Brevref) => `Varslene i ${brevref(b)}`,
+  hvertVarsel:
+    'Ett svar per varsel. Har du ingen innsigelse mot et varsel, trenger du ikke svare på det.',
+  manglerVarsel: 'Ta stilling til minst ett varsel.',
+  /** Ledeteksten kjernen gir forbeholdet når brevet har flere svar (LV-U81). */
+  forbeholdFor: (h: SvarbarVarselhjemmel, arbeid?: string) =>
+    `Forbehold for svaret på ${VARSELNAVNET[h]}${arbeid ? ` for arbeidet «${arbeid}»` : ''}`,
 });
 
 /**

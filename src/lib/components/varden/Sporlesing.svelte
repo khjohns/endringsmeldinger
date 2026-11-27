@@ -15,6 +15,7 @@
   import {
     arbeidetI,
     hjemmelenForVarselet,
+    varsleneIBrevet,
     varsleneIVederlagskravet,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -143,8 +144,19 @@
     h?.gjelder && (h.type === 'svare' || h.type === 'revidere')
       ? varsleneIVederlagskravet(u, h.gjelder)
       : null;
+  // M-5 i BF-37: varslene i et brev med flere varsler besvares i ett svar, med handlingen for det
+  // første varselet i brevet (`varsleneIBrevet`). De andre står ikke for seg.
+  const iBrevet = (h: TilbudtHandling | undefined) =>
+    h?.type === 'svare' && h.gjelder ? varsleneIBrevet(u, kjernesak.tilbudte, h.gjelder) : null;
+  const iSammeSvar = (n: string) => {
+    const h = handlingen(n);
+    const b = iBrevet(h);
+    return !!b && b[0]!.id !== h!.gjelder;
+  };
   const varselsvarene = $derived(
-    iSporet.filter((h) => h.type === 'svare' && (varselhjemmel(h) || varslene(h)))
+    iSporet.filter(
+      (h) => h.type === 'svare' && (varselhjemmel(h) || varslene(h)) && !iSammeSvar(h.noekkel)
+    )
   );
   // Et svar uten skjema står under «Andre handlinger», også det første.
   const svarPaaVarselet = $derived(
@@ -185,6 +197,7 @@
       .filter(
         (h) =>
           h.noekkel !== primaer &&
+          !iSammeSvar(h.noekkel) &&
           h.noekkel !== varselVedSiden &&
           h.type !== 'korrigere' &&
           h.type !== 'oppgi_kunnskapsdato'
@@ -340,6 +353,8 @@
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
+    const brevet = iBrevet(h) && brevMedUtsagn(u, h!.gjelder!);
+    if (brevet) return VARSELSVARET.svarPaaVarsleneI(brevet);
     const iKravet = varslene(h);
     if (iKravet) {
       const [en, ...flere] = iKravet.poster;
