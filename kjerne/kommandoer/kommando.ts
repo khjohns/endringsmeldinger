@@ -591,6 +591,17 @@ function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): s
   return feil;
 }
 
+/** OV-U80: feltene med tekst fra løsningen, som et krav lagt til ikke har. */
+export const KRAVTEKSTENE = [
+  'brevtekst',
+  'utdypning',
+  'utdypninger',
+  'forbehold',
+  'varsel',
+] as const;
+/** OV-U80: feltene med tekst fra løsningen, som et svar lagt til ikke har. */
+export const SVARTEKSTENE = ['utdypning', 'utdypninger'] as const;
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -676,9 +687,9 @@ export function formfeil(kommando: unknown): string[] {
       ...registreringensForm(
         kommando,
         () =>
-          ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
-            .filter((felt) => felt in kommando)
-            .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`),
+          KRAVTEKSTENE.filter((felt) => felt in kommando).map(
+            (felt) => `$.${felt}: et krav lagt til har ikke feltet`
+          ),
         true
       )
     );
@@ -689,7 +700,7 @@ export function formfeil(kommando: unknown): string[] {
     feil.push(
       ...registreringensForm(kommando, () => [
         ...('brevtekst' in kommando ? ['$.brevtekst: en registrering har ingen brevtekst'] : []),
-        ...(utkast.some((s) => s.utdypning !== undefined || s.utdypninger !== undefined)
+        ...(utkast.some((s) => SVARTEKSTENE.some((felt) => s[felt] !== undefined))
           ? ['$.svar: et registrert svar har ingen utdypning']
           : []),
       ])

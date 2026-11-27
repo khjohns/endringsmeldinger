@@ -19,6 +19,8 @@ import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import { SOM_BREV } from './brevet.ts';
+import { svar } from './brevsak.ts';
+import { formfeil, KRAVTEKSTENE, SVARTEKSTENE } from '../kommandoer/kommando.ts';
 
 async function prov(id: string, steg: Handling[], kontroller: Kontroll[]): Promise<void> {
   const forloep: Forloep = { id, rader: [], start: 'krav_irreg', steg, kontroller };
@@ -504,6 +506,36 @@ describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U1
       godtatt: false,
       avvisning: { regel: 'UGYLDIG_FORM' },
     });
+  });
+});
+
+describe('feltene med tekst fra løsningen, som visningen leser fra kjernen (OV-U80, G-2 i BF-49)', () => {
+  const vederlagskrav: Handling = { handling: 'krav', spor: 'vederlag', belop: 90000 };
+
+  it.each(KRAVTEKSTENE)('et krav lagt til med feltet %s avvises som feil form', async (felt) => {
+    const utfall = await provRegistrering([], vederlagskrav, '2026-09-23', {
+      ...SOM_BREV,
+      dokumentasjon: [VEDLEGG],
+      [felt]: felt === 'utdypninger' ? {} : felt === 'varsel' ? { sendt: '2026-09-20' } : 'Tekst',
+    });
+    expect(utfall).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+    expect(utfall.godtatt ? '' : utfall.avvisning.melding).toContain(`$.${felt}`);
+  });
+
+  const svarLagtTil = (felt: Record<string, unknown>) => ({
+    type: 'brev',
+    svar: [{ ...svar('forhold', 'K-1', { resultat: 'avslaatt' }, {}, null), ...felt }],
+    ...SOM_BREV,
+    sendt: '2026-09-23',
+    dokumentasjon: [VEDLEGG],
+  });
+
+  it.each(SVARTEKSTENE)('et svar lagt til med feltet %s avvises som feil form', async (felt) => {
+    const kommando = svarLagtTil(felt === 'utdypninger' ? { [felt]: {} } : { [felt]: 'Tekst' });
+    expect(formfeil(kommando).join('; ')).toContain(
+      '$.svar: et registrert svar har ingen utdypning'
+    );
+    expect(formfeil(svarLagtTil({})), 'kontrollsak uten feltet').toEqual([]);
   });
 });
 
