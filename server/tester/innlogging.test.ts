@@ -287,6 +287,31 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
   });
 
+  it('innlogginger over grensen i minuttet gir 429 uten å skrive et forsøk (#1059)', async () => {
+    const tellForsoek = async () =>
+      (
+        await o.datalag.base.pool
+          .request()
+          .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.app_oauth_attempts')
+      ).recordset[0].n;
+    let antall = 0;
+    const begrenset = await startServer(o, {
+      innlogging: { frontend: FRONTEND, oauth, grense: { tillat: () => antall++ < 2 } },
+    });
+    try {
+      for (let i = 0; i < 2; i++)
+        expect((await hent(`${begrenset.url}/api/auth/catenda/login`)).status).toBe(302);
+      const foer = await tellForsoek();
+      const svar = await hent(`${begrenset.url}/api/auth/catenda/login`);
+      expect(svar.status).toBe(429);
+      expect(svar.kropp?.error).toBe('RATE_LIMITED');
+      expect(svar.hoder.get('cache-control')).toBe('no-store');
+      expect(await tellForsoek()).toBe(foer);
+    } finally {
+      await begrenset.stopp();
+    }
+  });
+
   it('et hode Node ikke godtar, gir 500 og tar ikke ned serveren (#716 punkt 2)', async () => {
     const galt = await startServer(o, {
       innlogging: {

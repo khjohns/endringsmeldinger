@@ -32,7 +32,8 @@ import { informasjonskapsel, sesjonsnavn, uuidMedBindestreker } from './autorisa
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
-import { fast, svarhoder } from './inngang.ts';
+import { fast, feilsvar, svarhoder } from './inngang.ts';
+import { kallgrense, type Kallgrense } from './webhook.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -62,12 +63,29 @@ export interface Innlogging {
   oauth: Innloggingsleverandoer;
   /** Entra-innloggingen (#831). Uten den svarer Entra-inngangene 503. */
   entra?: EntraLeverandoer | null;
+  /** Grensen for innlogginger som startes; uten den `INNLOGGINGER_PER_MINUTT` (#1059). */
+  grense?: Kallgrense;
 }
 
 const FORSOEKETS_LEVETID = 600;
 const STOERSTE_RETURSTI = 2048;
 
 const PRIVAT = { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+
+/**
+ * Hvor mange innlogginger som kan startes i minuttet, for Catenda og Entra samlet. Hver start
+ * skriver et innloggingsforsøk, og inngangen er åpen (#1059). Kallene telles samlet, som for
+ * webhooken (`kallgrense` i `webhook.ts`), fordi adressen bak nginx ikke kan prøves. Med
+ * levetiden på 600 s står det høyst 3000 forsøk i basen.
+ */
+export const INNLOGGINGER_PER_MINUTT = 300;
+const grenser = new WeakMap<Innlogging, Kallgrense>();
+function innloggingsgrense(innlogging: Innlogging): Kallgrense {
+  if (innlogging.grense) return innlogging.grense;
+  let grense = grenser.get(innlogging);
+  if (!grense) grenser.set(innlogging, (grense = kallgrense(INNLOGGINGER_PER_MINUTT)));
+  return grense;
+}
 
 /** `validate_config` i `AuthService`: statiske HTTPS-adresser, HTTP bare mot localhost i utvikling. */
 function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
@@ -293,6 +311,8 @@ async function loggInn(
     await avvist();
     return utilgjengelig();
   }
+  if (!innloggingsgrense(avh.innlogging).tillat())
+    return feilsvar(429, 'RATE_LIMITED', 'For mange innlogginger. Prøv igjen om et minutt.');
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   try {
     const forsoek = await opprettInnloggingsforsoek(

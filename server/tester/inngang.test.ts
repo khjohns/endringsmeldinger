@@ -18,8 +18,8 @@ describe('hodene ruteren skriver (#854 punkt 2)', () => {
       })
     ).toEqual({
       'content-type': 'application/json; charset=utf-8',
-      'Cache-Control': 'private',
-      'Referrer-Policy': 'no-referrer',
+      'cache-control': 'private',
+      'referrer-policy': 'no-referrer',
     });
   });
 
@@ -27,7 +27,15 @@ describe('hodene ruteren skriver (#854 punkt 2)', () => {
     ['uten kropp', null],
     ['med en fil', Buffer.from('pdf')],
   ])('et svar %s får ikke Content-Type fra ruteren', (_navn, kropp) => {
-    expect(svarhoder([302, kropp, { Location: '/x' }], undefined)).toEqual({ Location: '/x' });
+    expect(svarhoder([302, kropp, { Location: '/x' }], undefined)).toEqual({
+      'cache-control': 'no-store',
+      location: '/x',
+    });
+  });
+
+  it('hvert svar får Cache-Control: no-store uten at ruten setter det (#1059)', () => {
+    expect(svarhoder([200, { sak: 'data' }], undefined)['cache-control']).toBe('no-store');
+    expect(svarhoder([200, Buffer.from('pdf')], {})['cache-control']).toBe('no-store');
   });
 });
 

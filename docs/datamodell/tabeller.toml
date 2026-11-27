@@ -904,8 +904,8 @@ siste bruk, begge konfigurasjon i serveren (B-19, #656, #1806). Kjøretiden har 
 lagres_fra = """
 `koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk,
 `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra
-`server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)
-og av lesingen i `server/autorisasjon.ts`. Triggeren `koe.app_project_memberships_tilbakekall`
+`server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659),
+av lesingen i `server/autorisasjon.ts` og av ryddingen i `server/jobber.ts` hvert kvarter (#1059). Triggeren `koe.app_project_memberships_tilbakekall`
 sletter sesjonene til en bruker som mister det siste aktive medlemskapet, og
 `koe_api.synkroniser_hr` sesjonene til en person som mister rollen i HR-kopien eller er
 deaktivert i Entra (#1806)."""
@@ -929,7 +929,9 @@ lagres_fra = """
 `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek`
 sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader.
 Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i
-`server/innlogging.ts` (F0b-5a, #659)."""
+`server/innlogging.ts` (F0b-5a, #659), og ryddingen av jobbkjøreren i `server/jobber.ts`
+hvert kvarter (#1059). Hvor mange innlogginger som kan startes i minuttet, står i
+`INNLOGGINGER_PER_MINUTT` i `server/innlogging.ts`."""
 fra_catenda = "Nei, men raden hører til en innlogging hos Catenda."
 kan_gjenoppbygges = "nei, men radene er kortlevde."
 personopplysninger = "Ingen kjente; bare hasher og en returadresse."

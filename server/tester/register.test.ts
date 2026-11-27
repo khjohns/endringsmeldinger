@@ -554,6 +554,20 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   });
 
+  it.each(hver.filter(([, r]) => r.metode === 'GET'))(
+    '%s: svaret har Cache-Control: no-store, også når det ikke finnes (#1059)',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(sak), {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        kropp: kropp(r),
+        metode: r.metode,
+      });
+      expect(svar.status).toBeLessThan(500);
+      expect(svar.hoder.get('cache-control')).toBe('no-store');
+    }
+  );
+
   // `.claude/rules/tilgang.md`: prosjektgrensen avgjøres før kontraktsrollen, som i Flask (#1106).
   it.each(hver)(
     '%s: et medlem uten kontraktsteam mot en sak i et annet prosjekt gir FORBIDDEN, ikke kontraktsrollen (#1106)',
