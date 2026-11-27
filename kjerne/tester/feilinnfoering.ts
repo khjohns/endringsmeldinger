@@ -2600,7 +2600,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       [
-        "    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)",
+        "    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(\n      (felt) => felt in kommando\n    )",
         '    false',
       ],
     ],
@@ -2674,7 +2674,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'avvisningen etter en retting om feil sak ber om å rette rettingen (OV-U18)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)', '      false'],
+      [
+        '      [...dokumenterI(u.journal)].some((d) => d.id === brev.rettetAv && d.ikkeISaken)',
+        '      false',
+      ],
     ],
     mal: ['OV-U18: etter en retting om feil sak viser avvisningen'],
   },
@@ -4674,8 +4677,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '          (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, k.sendt, u) : null);',
-        '          null;',
+        '    (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, sendt, u) : null)',
+        '    null',
       ],
     ],
     mal: ['et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet'],
@@ -8040,6 +8043,103 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F807a',
+    feilklasse:
+      'korrespondanse lagt til med et nummer er forstått og teller med i nummeret til neste brev (G-15 i BF-49, #807)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '  if (data.brevnummer !== undefined && erRegistrert(dokument.opplysninger))',
+        '  if (false)',
+      ],
+    ],
+    mal: ['korrespondanse lagt til med et nummer er ikke forstått'],
+  },
+  {
+    id: 'F807b',
+    feilklasse:
+      'forhåndsvisningen av et svar lagt til leser det gjeldende kravet, ikke kravversjonen svaret gjelder (OV-U98, D-7 i BF-49, #807)',
+    fil: `${K}/kommandoer/utkastlag.ts`,
+    endringer: [
+      [
+        'sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === utkast.gjelder);',
+        'sporet.gjeldendeKrav;',
+      ],
+    ],
+    mal: ['et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den'],
+  },
+  {
+    id: 'F807c',
+    feilklasse:
+      'skjemaet som ikke er fylt ut, tas imot i et brev motparten sendte (D-12 i BF-49, svaret 27.11 i #807)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'if (k.ikke_fylt_ut !== undefined && k.avsender !== undefined && k.avsender !== part)',
+        'if (false)',
+      ],
+    ],
+    mal: ['«ikke_fylt_ut» avvises i brevet motparten sendte'],
+  },
+  {
+    id: 'F807d',
+    feilklasse:
+      'en rad med skjemaet som ikke er fylt ut i et brev motparten sendte, er forstått (D-12 i BF-49, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['  if (data.ikke_fylt_ut !== undefined && data.avsender !== undefined)', '  if (false)'],
+    ],
+    mal: ['en rad der skjemaet står i et brev motparten sendte'],
+  },
+  {
+    id: 'F807e',
+    feilklasse:
+      'et varsel lagt til retter en registrering fra den andre siden (D-13 i BF-49, OV-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ["if ((erRegistrering(k) || k.type === 'varsel') && k.retter !== undefined)", 'if (false)'],
+    ],
+    mal: [
+      'bare samme side retter registreringen (OV-U17)',
+      'en registrering som er rettet, rettes ikke igjen',
+    ],
+  },
+  {
+    id: 'F807f',
+    feilklasse:
+      'en rad fra løsningen med en henvisning til en registrering er forstått (D-13 i BF-49, OV-U17, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['  if (data.retter !== undefined && !erRegistrert(dokument.opplysninger))', '  if (false)'],
+    ],
+    mal: ['en rad fra løsningen med en henvisning til en registrering, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F807g',
+    feilklasse:
+      'korrespondanse motparten sendte, får tilbud om kategoriene, ikke bare dokumentasjon (D-1 i BF-49)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['    avsender === part', '    true']],
+    mal: ['korrespondanse motparten sendte, legges bare til som dokumentasjon'],
+  },
+  {
+    id: 'F807h',
+    feilklasse:
+      'varselet etter punkt 32.2 sendt etter påberopelsen tilbys, men avvises (VS-U38, INV-MM-1, G-1 i BF-49)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      ["(h.type !== 'varsle' || varseletsDato(h.hjemmel!, sendt, u, regler) === null)", 'true'],
+    ],
+    mal: ['varselet etter punkt 32.2 sendt etter påberopelsen tilbys ikke'],
+  },
+  {
+    id: 'F807i',
+    feilklasse: 'aksepten lagt til tilbys uten et svar som gjaldt på dagen (D-9 i BF-49, OV-U98)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["(h.type !== 'godta' || svarSomKanGodtas(u, h.spor!, sendt))", 'true']],
+    mal: ['aksepten tilbys bare når et svar i sporet var byggherrens gjeldende svar på dagen'],
+  },
+  {
     id: 'F2456q',
     feilklasse:
       'svarutkastet på kravet om fristforlengelse regner det ubesvarte spørsmålet om varselet som uten innsigelse, også når innsigelsen står (VS-U96 punkt 34, #2456)',
@@ -8072,6 +8172,103 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['innsigelsen som er gitt opp i et nytt svar på varselet, står ikke'],
+  },
+  {
+    id: 'F807j',
+    feilklasse:
+      'endringsordren lagt til godtas som svar på forholdet når svaret ikke blir en endringsordre (OV-U6, D-11 i BF-49)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (krav && !svaretBlirEndringsordre(s.vurderinger, kategori(krav), regler))',
+        '  if (krav && false)',
+      ],
+    ],
+    mal: ['et avslag med endringsordren avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F807k',
+    feilklasse:
+      'endringsordren som svar på et krav som står som dokumentasjon, avvises uten beskjeden etter OV-U124',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (u.registrerteBrev.some((b) => b.dokument === s.gjelder))', '  if (false)']],
+    mal: ['endringsordren som svar på et krav som står som dokumentasjon'],
+  },
+  {
+    id: 'F807l',
+    feilklasse: 'endringsordren lagt til lagres uten opplysningen om § 31.3 (OV-U6, D-11 i BF-49)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "      ...(k.endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),",
+        '      ...[],',
+      ],
+    ],
+    mal: ['lagres med opplysningen om § 31.3', 'nytt svar etter et svar byggherren har lagt til'],
+  },
+  {
+    id: 'F807m',
+    feilklasse: 'endringsordren godtas i et brev uten svar på forholdet (D-11 i BF-49)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      ["    else if (![svar].flat().some((s) => s.spor === 'forhold'))", '    else if (false)'],
+    ],
+    mal: ['avvises som form'],
+  },
+  {
+    id: 'F807n',
+    feilklasse:
+      'en registrering rettet av et varsel lagt til, avvises med meldingen for rettingen etter OV-U18 (D-13 i BF-49)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['(d) => d.id === brev.rettetAv && d.ikkeISaken', '(d) => d.id === brev.rettetAv']],
+    mal: ['en registrering rettet av et varsel lagt til, avvises med meldingen'],
+  },
+  {
+    id: 'F807o',
+    feilklasse:
+      'et krav fra løsningen med en henvisning til en registrering godtas, og henvisningen forsvinner (OV-U80, D-13 i BF-49)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(",
+        "['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some(",
+      ],
+    ],
+    mal: ['et krav fra løsningen med en henvisning til en registrering avvises som form'],
+  },
+  {
+    id: 'F807p',
+    feilklasse:
+      'aksepten lagt til tilbys for et svar partene er enige om (D-9 i BF-49, GR-U8, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        'svaretGjaldt(u, s, dag) && akseptenStrider(s, s.id, u, utenVirkning) === null',
+        'svaretGjaldt(u, s, dag)',
+      ],
+    ],
+    mal: ['aksepten tilbys ikke for et svar partene er enige om'],
+  },
+  {
+    id: 'F807q',
+    feilklasse:
+      'svaret lagt til tilbys for en dag da ingen kravversjon i sporet var gjeldende (D-7 i BF-49, OV-U98, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        "(h.type !== 'svare' && h.type !== 'revidere') || kravversjonGjaldt(u, h.spor!, sendt)",
+        'true',
+      ],
+    ],
+    mal: ['svaret tilbys ikke for en dag da ingen kravversjon'],
+  },
+  {
+    id: 'F807r',
+    feilklasse:
+      'forhåndsvisningen av et svar lagt til på en eldre kravversjon leser om begrunnelsen kan avvises som svar, fra det gjeldende kravet (VS-U95, D-7 i BF-49)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['begrunnelsenKanAvvisesSomSvar(u, krav)', 'begrunnelsenKanAvvisesSomSvar(u)']],
+    mal: ['også etter en ny kravversjon'],
   },
 ];
 

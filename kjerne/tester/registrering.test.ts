@@ -13,12 +13,14 @@ import { minnebane } from './bane.ts';
 import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import { dagklokke } from './testmiljoe.ts';
-import { varseletFoerSvaret } from '../utledning/utled.ts';
+import { svaretGjaldt, varseletFoerSvaret, type Utledning } from '../utledning/utled.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import { SOM_BREV } from './brevet.ts';
+import { dagenEtterSisteRad, PAABEROPELSE, sak, svar } from './brevsak.ts';
+import { formfeil, KRAVTEKSTENE, SVARTEKSTENE } from '../kommandoer/kommando.ts';
 
 async function prov(id: string, steg: Handling[], kontroller: Kontroll[]): Promise<void> {
   const forloep: Forloep = { id, rader: [], start: 'krav_irreg', steg, kontroller };
@@ -504,6 +506,36 @@ describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U1
       godtatt: false,
       avvisning: { regel: 'UGYLDIG_FORM' },
     });
+  });
+});
+
+describe('feltene med tekst fra løsningen, som visningen leser fra kjernen (OV-U80, G-2 i BF-49)', () => {
+  const vederlagskrav: Handling = { handling: 'krav', spor: 'vederlag', belop: 90000 };
+
+  it.each(KRAVTEKSTENE)('et krav lagt til med feltet %s avvises som feil form', async (felt) => {
+    const utfall = await provRegistrering([], vederlagskrav, '2026-09-23', {
+      ...SOM_BREV,
+      dokumentasjon: [VEDLEGG],
+      [felt]: felt === 'utdypninger' ? {} : felt === 'varsel' ? { sendt: '2026-09-20' } : 'Tekst',
+    });
+    expect(utfall).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+    expect(utfall.godtatt ? '' : utfall.avvisning.melding).toContain(`$.${felt}`);
+  });
+
+  const svarLagtTil = (felt: Record<string, unknown>) => ({
+    type: 'brev',
+    svar: [{ ...svar('forhold', 'K-1', { resultat: 'avslaatt' }, {}, null), ...felt }],
+    ...SOM_BREV,
+    sendt: '2026-09-23',
+    dokumentasjon: [VEDLEGG],
+  });
+
+  it.each(SVARTEKSTENE)('et svar lagt til med feltet %s avvises som feil form', async (felt) => {
+    const kommando = svarLagtTil(felt === 'utdypninger' ? { [felt]: {} } : { [felt]: 'Tekst' });
+    expect(formfeil(kommando).join('; ')).toContain(
+      '$.svar: et registrert svar har ingen utdypning'
+    );
+    expect(formfeil(svarLagtTil({})), 'kontrollsak uten feltet').toEqual([]);
   });
 });
 
@@ -1343,6 +1375,51 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
   });
 });
 
+describe('forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder (OV-U98, D-7 i BF-49)', () => {
+  // Prefikset sender vederlagskravet med P1 22.09, og steget en ny versjon med P1 og P2 24.09.
+  const toPoster: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    kravposter: [{ post: 'P1', belop: 50000 }, { belop: 40000 }],
+  };
+  const saken = () =>
+    kjoer(
+      { id: 'lag-paa-dagen', rader: [], start: 'krav_irreg', steg: [toPoster], kontroller: [] },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    ).then((k) => k.utledning());
+  const lagene = (u: Utledning, sendt: string | null, gjelder: string) =>
+    lagForUtkastet(
+      {
+        spor: 'vederlag',
+        gjelder,
+        regelversjon: KJERNE.regler.versjon,
+        vurderinger: {},
+        resultat: {},
+      },
+      u,
+      KJERNE.regler,
+      sendt
+    ).standpunkter.filter((x) => x.art === 'beloep').length;
+
+  it('et svar sendt 23.09 på den første versjonen har lagene for kravpostene i den, ikke i den nye', async () => {
+    const u = await saken();
+    expect(lagene(u, '2026-09-23', u.spor.vederlag.krav[0]!.id)).toBe(1);
+  });
+
+  it('kontrollsak: et svar fra løsningen har lagene for kravpostene i det gjeldende kravet', async () => {
+    const u = await saken();
+    expect(lagene(u, null, u.spor.vederlag.gjeldendeKrav!.id)).toBe(2);
+  });
+
+  it('et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag', async () => {
+    const u = await saken();
+    expect(() => lagene(u, '2026-09-23', 'ukjent')).toThrow(
+      'Svarutkastet gjelder ikke en kravversjon i vederlag.'
+    );
+  });
+});
+
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
   const varselet: Handling = { handling: 'varsel', spor: 'frist', sendt: '2026-09-20' };
   const felt = {
@@ -1555,4 +1632,23 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
         },
       ]
     ));
+});
+
+describe('svaret som gjaldt på dagen, som visningen leser for aksepten lagt til (OV-U98, G-7 i BF-49)', () => {
+  it('svaret gjaldt fra dagen det ble sendt, og ikke etter revisjonen som erstattet det', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const krav = s.u().spor.forhold.gjeldendeKrav!.id;
+    const v = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+    const forste = s.send('BH', { type: 'brev', svar: [svar('forhold', krav, v)] });
+    const foerste = s.u().spor.forhold.gjeldendeSvar!;
+    s.send('BH', { type: 'revisjon', erstatter: foerste.id, svar: svar('forhold', krav, v) });
+    const u = s.u();
+    const nytt = u.spor.forhold.gjeldendeSvar!;
+    const etter = dagenEtterSisteRad(s);
+    expect(svaretGjaldt(u, foerste, forste.tidsstempel.slice(0, 10))).toBe(true);
+    expect(svaretGjaldt(u, foerste, etter)).toBe(false);
+    expect(svaretGjaldt(u, nytt, etter), 'kontrollsak: revisjonen gjelder').toBe(true);
+    expect(svaretGjaldt(u, foerste, '2026-01-01'), 'før svaret ble sendt').toBe(false);
+  });
 });

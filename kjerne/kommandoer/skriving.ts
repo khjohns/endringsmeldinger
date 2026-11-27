@@ -21,6 +21,7 @@ import {
   vedleggI,
   type Kommando,
   type Varselposten,
+  type Endringsordren,
   type Registrering,
   type Svarutkast,
 } from './kommando.ts';
@@ -360,14 +361,24 @@ const UTEN_VIRKNING_MELDING = (grunn: string) =>
  * OV-U80, OV-U98: et krav, et svar eller en aksept lagt til med datoen avsenderen oppgir, typen
  * og brevet som vedlegg. Tomt for et brev fra løsningen.
  */
-function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): Data {
+function registrering(
+  k: Registrering & Endringsordren,
+  nyId: () => string,
+  bundne: Vedlegg[]
+): Data {
   if (k.sendt === undefined) return {};
   return {
-    opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+    opplysninger: [
+      { id: nyId(), hva: 'sendt', dato: k.sendt },
+      // OV-U6, D-11 i BF-49: opplysningen om § 31.3 i brevet med endringsordren.
+      ...(k.endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),
+    ],
     korrespondansetype: k.korrespondansetype,
     ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
     ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
     dokumentasjon: bundne,
+    // D-13 i BF-49: registreringen retter dokumentasjonen fra samme side (OV-U17).
+    ...(k.retter ? { retter: k.retter } : {}),
   };
 }
 
@@ -472,6 +483,7 @@ function dokument(
         ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
         ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
         dokumentasjon: bundne,
+        ...(k.retter ? { retter: k.retter } : {}),
       };
     case 'registrert_brev':
       // OV-U4, OV-U16: dokumentasjon, med datoen avsenderen oppgir og brevet som vedlegg.
@@ -486,6 +498,7 @@ function dokument(
         ...(k.retter ? { retter: k.retter } : {}),
         // OV-U79, OV-U80: avsenderen står bare når det er motparten (`leser.ts`).
         ...(k.avsender && k.avsender !== kontekst.part ? { avsender: k.avsender } : {}),
+        ...(k.ikke_fylt_ut ? { ikke_fylt_ut: k.ikke_fylt_ut } : {}),
       };
     case 'ikke_i_saken':
       // OV-U18: rettingen har bare henvisningen.
@@ -819,7 +832,7 @@ function skriv(
     if (tegn) return ugyldigForm(tegn);
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
-    // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
+    // LV-U44: nummeret etter det høyeste i saken.
     const brevnummer = nesteBrevnummer(lest);
     data.brevnummer = brevnummer;
     // LV-U44: merkingen fryses i brevet, så en senere henvisning viser til den som

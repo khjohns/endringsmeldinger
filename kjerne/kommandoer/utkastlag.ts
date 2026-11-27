@@ -11,9 +11,11 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
+import type { Svarutkast } from './kommando.ts';
 import {
   avvis,
   type Avvisning,
+  type Krav,
   type Standpunkt,
   type Standpunktsvirkning,
   type Virkning,
@@ -30,10 +32,11 @@ import {
  * standpunkt er flyttet ned med dem. `sendt` er dagen et svar lagt til ble sendt, og `null` for et
  * svar fra løsningen. Svaret på forholdet og påberopelsen er de som gjaldt den dagen, som når svaret
  * fryses og kontrolleres (#2057, #2011). Svaret leses med innsigelsene fra svarene før som det
- * ikke sier noe om, som når det fryses (VS-U81), mot det gjeldende kravet i sporet.
+ * ikke sier noe om, som når det fryses (VS-U81), mot kravversjonen `krav` svaret gjelder.
  */
 export function lageneIUtkastet(
   svar: Svarinnhold,
+  krav: Krav,
   u: Utledning,
   regler: Regelsett,
   sendt: string | null
@@ -42,7 +45,7 @@ export function lageneIUtkastet(
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const staar = innsigelserSvaretLesesMed(
     svar,
-    u.spor[svar.spor].gjeldendeKrav,
+    krav,
     svar.spor === 'vederlag' ? standpunkteneTilVarslene(u, sendt, true) : []
   );
   const virket: Standpunktsvirkning[] = virkninger(
@@ -63,6 +66,22 @@ export function lageneIUtkastet(
     lag,
     etikett: lag.map((l) => (l !== null && flereLag ? etikett(l) : null)),
   };
+}
+
+/**
+ * Kravversjonen svarutkastet gjelder: det gjeldende kravet for et svar fra løsningen, og for et svar
+ * lagt til kravversjonen i `gjelder`, som kontrollen av svaret leser (OV-U98, D-7 i BF-49).
+ */
+export function kravetUtkastetGjelder(
+  u: Utledning,
+  utkast: Pick<Svarutkast, 'spor' | 'gjelder'>,
+  sendt: string | null
+): Krav {
+  const sporet = u.spor[utkast.spor];
+  const krav =
+    sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === utkast.gjelder);
+  if (!krav) throw new Error(`Svarutkastet gjelder ikke en kravversjon i ${utkast.spor}.`);
+  return krav;
 }
 
 /**

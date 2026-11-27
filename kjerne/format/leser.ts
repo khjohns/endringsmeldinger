@@ -68,6 +68,7 @@ import type {
   Virkning,
   Korrespondansetype,
   Sendemaate,
+  IkkeFyltUt,
 } from '../typer.ts';
 
 /**
@@ -407,6 +408,7 @@ function lesDokument(h: Journalrad): Dokument {
     retter?: string;
     ikke_i_saken?: true;
     avsender?: Part;
+    ikke_fylt_ut?: IkkeFyltUt;
   };
   if (data.ikke_i_saken) return ikkeISaken(h, data);
   // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
@@ -427,9 +429,6 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
-  // OV-U17: en retting i saken er en fullstendig ny registrering av brevet som dokumentasjon.
-  if (data.retter !== undefined && (data.krav || data.svar || data.utsagn))
-    throw new Uforstaatt('en retting er ikke et brev registrert som dokumentasjon (OV-U17)');
   const id = h.event_id;
   const lagtTilAv: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
@@ -505,6 +504,7 @@ function lesDokument(h: Journalrad): Dokument {
     spor: data.spor ?? [],
     retter: data.retter ?? null,
     ikkeISaken: false,
+    ikkeFyltUt: data.ikke_fylt_ut ?? null,
     utsagn: (data.utsagn ?? []).map((v, i): Utsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
@@ -572,6 +572,17 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (data.avsender === lagtTilAv)
     throw new Uforstaatt('den oppgitte avsenderen er parten som la til brevet');
+  // OV-U17: en retting i saken er en fullstendig ny registrering av brevet. D-13 i BF-49 og
+  // OV-U123 punkt 23: også som et krav, svar, aksept eller varsel lagt til, men ikke fra løsningen.
+  if (data.retter !== undefined && !erRegistrert(dokument.opplysninger))
+    throw new Uforstaatt('en retting er ikke et brev registrert i saken (OV-U17)');
+  // D-12 i BF-49, svaret 27.11 i #807: bare avsenderen avbryter skjemaet for kravet eller svaret.
+  if (data.ikke_fylt_ut !== undefined && (data.krav || data.svar || data.utsagn))
+    throw new Uforstaatt(
+      'bare et brev registrert som dokumentasjon har et skjema som ikke er fylt ut'
+    );
+  if (data.ikke_fylt_ut !== undefined && data.avsender !== undefined)
+    throw new Uforstaatt('skjemaet som ikke er fylt ut, står i et brev motparten sendte');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme registrerte dokument, og
   // aldri i et dokument fra løsningen (VS-U34, C1 i #2056).
   const registrert = erRegistrert(dokument.opplysninger);
@@ -593,6 +604,9 @@ function lesDokument(h: Journalrad): Dokument {
         ? 'registrert korrespondanse har ingen korrespondansetype (LV-U45)'
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
+  // G-15 i BF-49, kravet 11.11 i #807: nummeret avsenderen ga korrespondansen, venter på LV-U45.
+  if (data.brevnummer !== undefined && erRegistrert(dokument.opplysninger))
+    throw new Uforstaatt('korrespondanse lagt til har ikke noe nummer i saken ennå (LV-U45)');
   if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')
     throw new Uforstaatt('sendemåten står i et dokument som ikke er et registrert brev (OV-U79)');
   if (data.brevtittel !== undefined && !data.brevtekst)
@@ -726,6 +740,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     spor: [],
     retter: data.retter,
     ikkeISaken: true,
+    ikkeFyltUt: null,
   };
 }
 

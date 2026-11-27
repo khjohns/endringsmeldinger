@@ -58,6 +58,40 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
+  // G-1 i BF-49: kategoriene lagt til, med datokontrollene for varselet og aksepten (D-3, D-9).
+  [
+    'TilbudtHandling',
+    'kommando',
+    'type spor hjemmel',
+    ['kommandoer/handlinger.ts:tilbudteLagtTil'],
+  ],
+  [
+    'kommandoer/nyttelast.ts',
+    'predikat',
+    'varseletsDato',
+    ['kommandoer/handlinger.ts:tilbudteLagtTil'],
+  ],
+  ['utledning/utled.ts', 'relasjon', 'svaretGjaldt', ['kommandoer/handlinger.ts:svarSomKanGodtas']],
+  // D-7 og D-9 i BF-49, INV-MM-1: tilbudet av korrespondanse lagt til leser det samme som
+  // utledningen: aksepten (GR-U8, GR-U9) og kravversjonen og påberopelsen på dagen (OV-U98).
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'akseptenStrider',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas'],
+  ],
+  [
+    'Utledning',
+    'relasjon',
+    'utenVirkning',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas.utenVirkning'],
+  ],
+  [
+    'Utledning.utenVirkning',
+    'relasjon',
+    'element',
+    ['kommandoer/handlinger.ts:svarSomKanGodtas.utenVirkning'],
+  ],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   // VS-U51, VS-U53: dokumentet kravskjemaet legger til som varselet for en kravpost, skrives
@@ -119,10 +153,27 @@ export const KOMMANDOENE: Lesbar[] = [
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'tittel utdypning'],
   // MM-U47, designdelen: tittelen parten skrev, fryses i brevet, og ingen regel leser den.
   ['Kommando', 'kommando', 'tittel', ['kommandoer/skriving.ts:skriv']],
-  // MM-U47 punkt 2: innlegget viser til et brev i saken, ikke rettingen etter OV-U18.
-  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
-  ['Utledning', 'utsagn', 'journal', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
-  ['Dokument', 'relasjon', 'id ikkeISaken', ['kommandoer/nyttelast.ts:henvisningenIInnlegget']],
+  // MM-U47 punkt 2: innlegget viser til et brev i saken, ikke rettingen etter OV-U18. OV-U18 og
+  // D-13 i BF-49: meldingen til en retting av en rettet registrering skiller rettingen etter
+  // OV-U18 fra en ny registrering.
+  [
+    'format/leser.ts',
+    'rad',
+    'dokumenterI',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  [
+    'Utledning',
+    'utsagn',
+    'journal',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  [
+    'Dokument',
+    'relasjon',
+    'id ikkeISaken',
+    ['kommandoer/nyttelast.ts:henvisningenIInnlegget', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
   ['kommandoer/kommando.ts:formfeil(k)', 'kommando', 'beskrivelse'],
   ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],
@@ -131,7 +182,21 @@ export const KOMMANDOENE: Lesbar[] = [
   // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
   ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
   // OV-U79, OV-U80: avsenderen av korrespondanse motparten har sendt.
-  ['Kommando', 'kommando', 'avsender', ['kommandoer/skriving.ts:dokument']],
+  // D-12 i BF-49, svaret 27.11 i #807: nyttelasten avviser skjemaet som ikke er fylt ut, i et
+  // brev motparten sendte.
+  [
+    'Kommando',
+    'kommando',
+    'avsender',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
+  // D-12 i BF-49: skjemaet parten avbrøt lagres for merket, og ingen regel leser det.
+  [
+    'Kommando',
+    'kommando',
+    'ikke_fylt_ut',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // LV-U42: typen registrert korrespondanse lagres slik avsenderen oppga den.
@@ -159,6 +224,8 @@ export const KOMMANDOENE: Lesbar[] = [
       'kommandoer/nyttelast.ts:oppgittDatoI',
       'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
       'kommandoer/avvisning.ts:avvisning',
+      // D-13 i BF-49: en registrering kan rette dokumentasjonen fra samme side.
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
   ],
   // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken. OV-U121, OV-U122: en
@@ -226,7 +293,20 @@ export const KOMMANDOENE: Lesbar[] = [
     'utledning/utled.ts',
     'relasjon',
     'kravversjonenPaaDagen',
-    ['kommandoer/nyttelast.ts:kontrollerSvar', 'kommandoer/utkastlag.ts:lageneIUtkastet'],
+    [
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
+      // D-7 i BF-49: forhåndsvisningen leser påberopelsen på dagen, som kontrollen.
+      'spor/vederlag/kommando.ts:lagIVederlaget',
+      'kommandoer/handlinger.ts:kravversjonGjaldt',
+    ],
+  ],
+  // OV-U98, D-7 i BF-49: forhåndsvisningen av et svar lagt til leser kravversjonen det gjelder.
+  [
+    'kommandoer/utkastlag.ts',
+    'relasjon',
+    'kravetUtkastetGjelder',
+    ['spor/vederlag/kommando.ts:lagIVederlaget', 'spor/frist/kommando.ts:lagIFristen'],
   ],
   // OV-U98, #2057: et svar lagt til fryses med lagene i svaret på forholdet som gjaldt da.
   [
@@ -274,7 +354,9 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:skriv']],
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:registreringenStrider.dag']],
   ['Utledning.utenVirkning', 'relasjon', 'hendelse grunn', ['kommandoer/skriving.ts:skriv']],
-  // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen.
+  // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen. D-13 i
+  // BF-49: også fra et krav, svar, aksept eller varsel lagt til.
+  ['Registrering', 'kommando', 'retter', ['kommandoer/skriving.ts:registrering']],
   [
     'Kommando',
     'kommando',
@@ -324,6 +406,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'utledning/utled.ts:utled',
       'kommandoer/vedlegg.ts:kravetErVarselet',
       'spor/frist/kommando.ts:varseldokumentetISaken',
+      'kommandoer/nyttelast.ts:endringsordren',
     ],
   ],
   [
@@ -331,6 +414,22 @@ export const KOMMANDOENE: Lesbar[] = [
     'relasjon',
     'dokument lagtTilAv rettetAv',
     ['utledning/utled.ts:registreringer', 'kommandoer/nyttelast.ts:retting'],
+  ],
+  // OV-U124: endringsordren avvises som svar på et krav som står som dokumentasjon.
+  ['RegistrertBrev', 'relasjon', 'dokument', ['kommandoer/nyttelast.ts:endringsordren']],
+  // OV-U6, D-11 i BF-49: byggherrens opplysning om at svaret lagt til er en endringsordre, og
+  // kontrollen av at svaret blir en endringsordre, som utledningen leser.
+  [
+    'Endringsordren',
+    'kommando',
+    'endringsordre',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:registrering'],
+  ],
+  [
+    'frosset/frysing.ts',
+    'frosset',
+    'svaretBlirEndringsordre',
+    ['kommandoer/nyttelast.ts:endringsordren'],
   ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
@@ -774,7 +873,7 @@ export const KOMMANDOENE: Lesbar[] = [
     ['utledning/utled.ts'],
   ],
   // GR-U9: en aksept av et frafall, også i et svar som ikke er gjeldende (#2022 punkt 3).
-  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:utsagnetStrider']],
+  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:akseptenStrider']],
   [
     'spor/forhold/format.ts',
     'utsagn',
@@ -789,6 +888,7 @@ export const KOMMANDOENE: Lesbar[] = [
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'spor/forhold/kommando.ts:lagIForholdet',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
+      'kommandoer/nyttelast.ts:endringsordren',
     ],
   ],
   [
@@ -919,6 +1019,8 @@ export const KOMMANDOENE: Lesbar[] = [
     'KORRESPONDANSETYPER',
     ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
+  // D-12 i BF-49: skjemaet parten avbrøt, i skjemaene.
+  ['typer.ts', 'skjema', 'IKKE_FYLT_UT', ['format/format.ts', 'kommandoer/kommando.ts']],
   // OV-U79: sendemåten for et brev, i skjemaene.
   [
     'typer.ts',

@@ -7,6 +7,7 @@ import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { tilTall } from '../../regler/beloep.ts';
 import type { Vederlagsresultat } from '../../regler/typer.ts';
 import {
+  datoenDetBleSendt,
   enighetensVirkning,
   standpunktetErSubsidiaert,
   varselEtter3412KrevesIkke,
@@ -22,6 +23,8 @@ import {
   type FasteBeloep,
 } from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
+import type { VarselIEtEldreKrav } from '../../frosset/standpunkt.ts';
+import { varslerIEldreKrav } from './utledning.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
 /**
@@ -101,6 +104,22 @@ const SENKNING_I_VEDERLAGET: Sporssenkning = {
       ? '34.3.3'
       : null,
 };
+
+/** Varselet i et eldre krav for en kravpost, med dagen brevet med det eldre kravet ble sendt. */
+export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
+  sendt: string | null;
+}
+
+/**
+ * OV-U120, G-18 i BF-49: kravpostene som har et krav utenfor rekken som varsel, med brevet og
+ * dagen det ble sendt, så byggherren ser hvilket brev som er varselet for posten (D-15, U-15).
+ */
+export function varseleneIEldreKrav(u: Utledning): VarseletIEtEldreKrav[] {
+  return varslerIEldreKrav(u).map((v) => {
+    const krav = u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === v.dokument)!;
+    return { ...v, sendt: datoenDetBleSendt(u, krav) };
+  });
+}
 
 export const VISNING_I_VEDERLAGET = {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).

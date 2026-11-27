@@ -82,6 +82,7 @@ import {
   avvisteFelt,
   avvisteVurderinger,
   forutsetningene,
+  kravetUtkastetGjelder,
   lageneIUtkastet,
   utenom,
 } from '../../kommandoer/utkastlag.ts';
@@ -353,7 +354,7 @@ function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
  * byggherrens innsigelse mot varselet etter § 33.4 før svaret, er spørsmålet om varselet besvart
  * med innsigelsen (`innsigelsenMotFristvarselet`). `sendt` er dagen et svar lagt til ble sendt.
  */
-function utfylt(v: Svarutkast['vurderinger'], u: Utledning, sendt: string | null) {
+function utfylt(v: Svarutkast['vurderinger'], u: Utledning, sendt: string | null, krav: Krav) {
   const paakrevde = paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u))).map(
     ([felt]) => felt
   );
@@ -361,7 +362,7 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning, sendt: string | null
   // VS-U95: standpunktet om at begrunnelsen ikke er et svar, besvarer spørsmålet etter § 33.6.2.
   // Står begge, gjelder svaret på spørsmålet i lagene, og kontrollen avviser standpunktet
   // (`ugyldigIFristen`).
-  const ikkeSvar = v.begrunnelse_ikke_svar === true && begrunnelsenKanAvvisesSomSvar(u);
+  const ikkeSvar = v.begrunnelse_ikke_svar === true && begrunnelsenKanAvvisesSomSvar(u, krav);
   const ubesvart = new Set(
     ikkeSvar ? manglende.filter((felt) => felt !== 'foresporsel_svar_ok') : manglende
   );
@@ -398,8 +399,8 @@ export function lagIFristen(
   regler: Regelsett,
   sendt: string | null
 ): LagIFristen {
-  const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u, sendt);
-  const krav = u.spor.frist.gjeldendeKrav!;
+  const krav = kravetUtkastetGjelder(u, utkast, sendt);
+  const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u, sendt, krav);
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
   const utregning = {
@@ -414,7 +415,7 @@ export function lagIFristen(
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, krav, u, regler, sendt);
   const fristene = fristvurderinger(utkast.vurderinger, krav);
   const utenDager = new Set(
     fristene.filter((f) => typeof f.dager !== 'number').map((f) => f.gjelder)

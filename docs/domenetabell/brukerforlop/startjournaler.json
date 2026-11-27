@@ -4284,6 +4284,1212 @@
       ]
     },
     {
+      "id": "BF-49",
+      "tittel": "Partene legger til korrespondanse sendt utenfor løsningen",
+      "brukerhistorie": "En part legger til i saken et brev, en e-post, et møtereferat eller et annet dokument partene har sendt hverandre utenfor løsningen, med typen, avsenderen, datoen, dokumentet og beskrivelsen, og sier hva det er etter kontrakten: dokumentasjon, varsel, krav, svar eller aksept. Avsenderen får samme virkning som om det var sendt fra løsningen, med datoen det ble sendt. BH legger til et svar på vederlaget som ikke sier noe om varselet der BHs innsigelse står, uten at svaret får innsigelsen som eget utsagn.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "8a1d7401",
+      "kontrollpunkter": [
+        {
+          "id": "bh-legger-til-fra-motparten",
+          "beskrivelse": "TE har påberopt forholdet i brev 1, BH har avslått i brev 2, og TE har krevd justerte enhetspriser for P1 i brev 3. BH legger til møtereferatet TE sendte (variant A).",
+          "versjon": 4,
+          "forstaaelse": [
+            "BH finner feltene i rekkefølgen i prototypen: typen, hvem som sendte det, datoen, sendemåten for et brev, hva det gjelder, dokumentet og beskrivelsen. Datoen er datoen avsenderen oppgir (U-1).",
+            "BH må velge hvem som sendte det, uten forhåndsvalg (U-2).",
+            "Når BH har valgt TE som avsender, kan møtereferatet bare stå som dokumentasjon til TE selv sier hva det er (U-3). Et avbrutt skjema kan ikke merkes på motpartens brev."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "registrert_brev"
+          }
+        },
+        {
+          "id": "te-har-lagt-til-varselet",
+          "beskrivelse": "BH har lagt til møtereferatet som dokumentasjon. TE har lagt til e-posten 25.09.2026 som varsel etter punkt 34.3.3 (variant B).",
+          "versjon": 6,
+          "forstaaelse": [
+            "TE ser bare kategoriene og varslene kjernen tilbyr i saken (U-4). En forespørsel etter punkt 33.6.2 sendt utenfor løsningen er dokumentasjon, og en påberopelse sendt før den siste tas imot etter vilkårene for den.",
+            "TE finner varslene etter punkt 34.3.3 og 34.4 for kravpostene der de gjelder, og ser at datoen e-posten ble sendt, blir datoen for varselet og settes én gang (U-5).",
+            "I tråden står varselet med typen, avsenderen, datoen avsenderen oppgir, hvem som la det til og når, kategorien og beskrivelsen (U-10)."
+          ],
+          "neste": {
+            "handling": "tiden_gaar"
+          }
+        },
+        {
+          "id": "bh-svarer-med-innsigelsen-som-staar",
+          "beskrivelse": "BH har i brev 4 gjort gjeldende at varselet etter punkt 34.3.3 kom for sent. TE har sendt et nytt krav i brev 5, der den nye kravposten viser til varselet. BH legger til e-posten 10.10.2026 som svar (variant C).",
+          "versjon": 8,
+          "forstaaelse": [
+            "BH ser svarskjemaet med e-posten i et kort, uten begrunnelsen og utdypningen (U-6).",
+            "For kravposten med varselet har BH tre valg uten forhåndsvalg: at varselet kom for sent, at det kom i tide, og «Svaret sier ikke noe om varselet». Valget viser brevet innsigelsen sto i (U-7)."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          },
+          "klokke": "2026-10-12T08:00:00.000Z"
+        },
+        {
+          "id": "svaret-er-lagt-til",
+          "beskrivelse": "BH har lagt til svaret uten å si noe om varselet.",
+          "versjon": 9,
+          "forstaaelse": [
+            "BH ser i lagslinjen at varselet kom for sent, som gjort gjeldende i et tidligere svar (U-7).",
+            "Kvitteringen sier at svaret går til godkjenning, og at det står som dokumentasjon til det er godkjent (U-14)."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          },
+          "klokke": "2026-10-12T08:01:00.000Z"
+        },
+        {
+          "id": "svaret-med-tidligere-dato",
+          "beskrivelse": "BH har lagt til en e-post datert 03.10.2026 som svar på kravet i brev 3 (variant D).",
+          "versjon": 10,
+          "forstaaelse": [
+            "BH ser ingen valg om varselet, fordi innsigelsen ikke sto på datoen, og ser før svaret legges til at det ikke blir gjeldende, i samme form som advarselen for et eldre krav (U-7, U-8)."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "registrert_brev"
+          },
+          "klokke": "2026-10-12T08:02:00.000Z"
+        },
+        {
+          "id": "skjemaet-er-ikke-fylt-ut",
+          "beskrivelse": "TE lukket kravskjemaet uten å fylle det ut, og dokumentet er lagt til som dokumentasjon (variant E).",
+          "versjon": 11,
+          "forstaaelse": [
+            "TE blir spurt om dokumentet skal legges til uten skjemaet, og ser merket «Skjemaet er ikke fylt ut» i tråden (U-9, U-11)."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          },
+          "klokke": "2026-10-12T08:03:00.000Z"
+        },
+        {
+          "id": "kravet-retter-dokumentasjonen",
+          "beskrivelse": "TE har lagt til det samme dokumentet på nytt som krav, med henvisning til det første (variant E).",
+          "versjon": 12,
+          "forstaaelse": [
+            "TE finner «Legg til på nytt» ved dokumentasjonen, og tråden viser hvilken registrering kravet retter (U-12)."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "revisjon"
+          },
+          "klokke": "2026-10-12T08:04:00.000Z"
+        },
+        {
+          "id": "endringsordren-er-lagt-til",
+          "beskrivelse": "BH har lagt til sin egen endringsordre etter punkt 31.3 som nytt svar på påberopelsen, i en underkategori der punkt 32.2 gjelder (variant F).",
+          "versjon": 13,
+          "forstaaelse": [
+            "BH finner valget «Brevet er en endringsordre etter punkt 31.3» bare med standpunktet «godkjent», og skjemaet sier at godkjenningen er byggherrens valgte standpunkt (U-13).",
+            "Opplysningen om punkt 31.3 gis bare i brevet med endringsordren. En senere avklaring kan ikke legges til, og et senere svar sier at det tidligere svaret er en endringsordre lagt til som svar."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "varsel"
+          },
+          "klokke": "2026-10-12T08:05:00.000Z"
+        },
+        {
+          "id": "te-aapner-traaden",
+          "beskrivelse": "TE har lagt til e-posten 20.09.2026 som varsel etter punkt 32.2 (variant B), og åpner tråden.",
+          "versjon": 14,
+          "forstaaelse": [
+            "TE legger til varselet etter punkt 32.2 med en dato før påberopelsen, på de samme vilkårene som i skjemaet for ny sak, og ser opplysningen om kapittel B (U-5).",
+            "Ved hver korrespondanse står typen, avsenderen, datoene, sendemåten, hvem som la den til og når, og kategorien. Et brev fra løsningen omtaler korrespondansen med parten, typen og datoen (U-10, U-11).",
+            "Saken er forstått etter alt som er lagt til. En hendelse kjernen ikke forstår, ville gjort saken ikke forstått."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          },
+          "klokke": "2026-10-12T08:06:00.000Z"
+        },
+        {
+          "id": "bh-svarer-etter-det-eldre-kravet",
+          "beskrivelse": "TE har lagt til et vederlagskrav sendt med e-post 28.09.2026, før kravet i brev 3, med P1 med justerte enhetspriser. Kravet er varselet for P1 (variant G).",
+          "versjon": 15,
+          "forstaaelse": [
+            "BH ser ved P1 i svarskjemaet og i tråden at varselet er det eldre kravet, med brevet omtalt med parten, typen og datoen og datoen det ble sendt. Innsigelsen fra brev 4 står ved brevet den sto i, ikke ved P1 (U-15)."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          },
+          "klokke": "2026-10-12T08:07:00.000Z"
+        },
+        {
+          "id": "bh-har-svart-paa-kravet",
+          "beskrivelse": "BH har svart på kravet i brev 5 fra løsningen, med varselet for P1 i tide og innsigelsen mot varselet for den andre kravposten.",
+          "versjon": 16,
+          "forstaaelse": [
+            "TE ser at byggherren har tatt stilling til varselet for P1, som er det eldre kravet, og at innsigelsen mot det andre varselet fortsatt står."
+          ],
+          "neste": null,
+          "klokke": "2026-10-12T08:08:00.000Z"
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000002",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "Partene legger til korrespondanse sendt utenfor løsningen",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000005",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «Partene legger til korrespondanse sendt utenfor løsningen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren har pålagt en annen fundamentering i akse C–F."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-00000000000d",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000000e",
+                "spor": "forhold",
+                "gjelder": "996bfbf3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000000b",
+                    "art": "rettidighet",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000000c",
+                    "art": "forhold",
+                    "resultat": "avslaatt"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: avslått.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000000c",
+                      "lag": 1
+                    }
+                  ],
+                  "uten_virkning": [
+                    "996bfbf3-0000-4000-8000-00000000000b"
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000000e",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000000e",
+                "punkt": "32.2",
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nByggherren gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000000e",
+                "punkt": "forhold",
+                "overskrift": "2. Forholdet",
+                "laast": "2. Forholdet\n\nByggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).",
+                "utdypning": "Fundamenteringen følger av kontrakten."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000012",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000013",
+                "spor": "vederlag",
+                "kravposter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000014",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true
+                  }
+                ]
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000013",
+                "punkt": "P1",
+                "overskrift": "1. Vederlagsjustering",
+                "laast": "1. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever at P1 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000013",
+                "punkt": "tilbud",
+                "laast": "P1 gjøres opp etter en beregningsregel, og kravet for den er ikke et tilbud."
+              }
+            ],
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000019",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:05:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "beskrivelse": "Referat fra byggemøte 7",
+            "spor": [
+              "vederlag"
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000001a",
+                "hva": "sendt",
+                "dato": "2026-09-30"
+              }
+            ],
+            "korrespondansetype": "moetereferat",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000016",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000016.pdf",
+                "innhold_sha256": "3127d394517a11d89656454df0a99315d805a21507d598cf5d7ab52948d1ec28"
+              }
+            ],
+            "avsender": "TE"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-00000000001f",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-01T08:06:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000020",
+                "art": "varsel",
+                "hjemmel": "34.3.3"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000021",
+                "hva": "sendt",
+                "dato": "2026-09-25"
+              }
+            ],
+            "korrespondansetype": "e_post",
+            "beskrivelse": "Varsel om justering av enhetsprisene",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-00000000001b",
+                "filnavn": "996bfbf3-0000-4000-8000-00000000001b.pdf",
+                "innhold_sha256": "4935f9416874fb99e861c1ffdc45de9685a127b1d71cdba27ef0e76d7f71df14"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000028",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 7,
+          "tidsstempel": "2026-10-05T08:01:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000029",
+                "spor": "vederlag",
+                "gjelder": "996bfbf3-0000-4000-8000-000000000020",
+                "paaberopelse": "996bfbf3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000026",
+                    "art": "rettidighet",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000020",
+                    "hjemmel": "34.3.3",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000027",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000020",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  }
+                ],
+                "utregning": {},
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene godtatt (punkt 34.3.2).",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000026",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000027",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000029",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd i totalentreprenørens e-post av 25. september 2026."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000029",
+                "punkt": "forholdet",
+                "overskrift": "1. Forholdet",
+                "laast": "1. Forholdet\n\nPrinsipalt\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-02 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000029",
+                "punkt": "34.3.3",
+                "overskrift": "2. Varselet om justering av enhetsprisene (punkt 34.3.3)",
+                "laast": "2. Varselet om justering av enhetsprisene (punkt 34.3.3)\n\nSubsidiært, hvis innsigelsen mot forholdet ikke fører frem\n\nByggherren gjør gjeldende at varselet kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000029",
+                "punkt": "justering",
+                "overskrift": "3. Justering av enhetsprisene (punkt 34.3.2)",
+                "laast": "3. Justering av enhetsprisene (punkt 34.3.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen mot varselet etter punkt 34.3.3 fører frem\n\nByggherren godtar at enhetsprisene justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-000000000029",
+                "punkt": "forbehold",
+                "overskrift": "4. Forbehold",
+                "laast": "4. Forbehold",
+                "utdypning": "Varselet etter punkt 34.3.3 kom for sent."
+              }
+            ],
+            "brevtittel": "Svar på varsel om justering av enhetsprisene i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-00000000002d",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 8,
+          "tidsstempel": "2026-10-08T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000002e",
+                "spor": "vederlag",
+                "erstatter": "996bfbf3-0000-4000-8000-000000000013",
+                "kravposter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000014",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true,
+                    "betegnelse": "P1"
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000002f",
+                    "betegnelse": "P2",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true,
+                    "varsel": {
+                      "art": "gitt",
+                      "varsel": "996bfbf3-0000-4000-8000-000000000020"
+                    }
+                  }
+                ]
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000002e",
+                "punkt": "innledning",
+                "laast": "Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-03 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000002e",
+                "punkt": "P1",
+                "overskrift": "1. Vederlagsjustering",
+                "laast": "1. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever at P1 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000002e",
+                "punkt": "P2",
+                "laast": "P2 Kravposten i bevis-saken. Totalentreprenøren krever at P2 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 ble gitt i totalentreprenørens e-post av 25. september 2026."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000002e",
+                "punkt": "tilbud",
+                "laast": "P1 og P2 gjøres opp etter en beregningsregel, og kravet for dem er ikke et tilbud."
+              }
+            ],
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000040",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 9,
+          "tidsstempel": "2026-10-12T08:01:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000041",
+                "spor": "vederlag",
+                "gjelder": "996bfbf3-0000-4000-8000-00000000002e",
+                "paaberopelse": "996bfbf3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003a",
+                    "art": "oppgjoersform",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003b",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003c",
+                    "art": "beloep",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014"
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003d",
+                    "art": "oppgjoersform",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                    "hjemmel": "34.3",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003e",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000003f",
+                    "art": "beloep",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f"
+                  }
+                ],
+                "utregning": {
+                  "resultat": "delvis_godkjent",
+                  "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                      "lag": [
+                        {
+                          "lag": 1
+                        },
+                        {
+                          "lag": 2
+                        }
+                      ]
+                    },
+                    {
+                      "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                      "lag": [
+                        {
+                          "lag": 1
+                        },
+                        {
+                          "lag": 2
+                        }
+                      ]
+                    }
+                  ],
+                  "subsidiaert_resultat": "delvis_godkjent",
+                  "subsidiaert_godkjent_beloep": 0
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.3.3 for P2 kom for sent, som gjort gjeldende i et tidligere svar.",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003a",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003b",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003c",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003d",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003e",
+                      "lag": 2
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000003f",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000042",
+                "hva": "sendt",
+                "dato": "2026-10-10"
+              }
+            ],
+            "korrespondansetype": "e_post",
+            "beskrivelse": "Svar på kravet om justerte enhetspriser",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000030",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000030.pdf",
+                "innhold_sha256": "8b59948f01a95fceec0055b7faf1266ca8a275ac6f3e221a2aee56c178bff85c"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-00000000004d",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 10,
+          "tidsstempel": "2026-10-12T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000004e",
+                "spor": "vederlag",
+                "gjelder": "996bfbf3-0000-4000-8000-000000000013",
+                "paaberopelse": "996bfbf3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000004a",
+                    "art": "oppgjoersform",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000004b",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000004c",
+                    "art": "beloep",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014"
+                  }
+                ],
+                "utregning": {
+                  "resultat": "godkjent",
+                  "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                      "lag": [
+                        {
+                          "lag": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: .",
+                  "sammenfall": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000004a",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000004b",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-00000000004c",
+                      "lag": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000004f",
+                "hva": "sendt",
+                "dato": "2026-10-03"
+              }
+            ],
+            "korrespondansetype": "e_post",
+            "beskrivelse": "Svar på kravet i brev 3",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000043",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000043.pdf",
+                "innhold_sha256": "cb79a9231d5cb854c449047b0b3f2a328e96bbc541ae14ca598594f3fba424ad"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000053",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 11,
+          "tidsstempel": "2026-10-12T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "beskrivelse": "Krav om justerte enhetspriser for omleggingen",
+            "spor": [
+              "vederlag"
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000054",
+                "hva": "sendt",
+                "dato": "2026-10-11"
+              }
+            ],
+            "korrespondansetype": "brev",
+            "sendemaate": "post",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000050",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000050.pdf",
+                "innhold_sha256": "b5a5beb63ebc3e85badf7b5a2e0f2db2670408037a847220f173bb953239ac88"
+              }
+            ],
+            "ikke_fylt_ut": "krav"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000059",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 12,
+          "tidsstempel": "2026-10-12T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000005a",
+                "spor": "vederlag",
+                "erstatter": "996bfbf3-0000-4000-8000-00000000002e",
+                "kravposter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000014",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true,
+                    "betegnelse": "P1"
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-00000000002f",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true,
+                    "varsel": {
+                      "art": "gitt",
+                      "varsel": "996bfbf3-0000-4000-8000-000000000020"
+                    },
+                    "betegnelse": "P2"
+                  }
+                ]
+              }
+            ],
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000055",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000055.pdf",
+                "innhold_sha256": "74daff0785a478547dbd8378e7a42dea7326fae9a688a035a43203b56a38a233"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000005b",
+                "hva": "sendt",
+                "dato": "2026-10-11"
+              }
+            ],
+            "korrespondansetype": "brev",
+            "sendemaate": "post",
+            "beskrivelse": "Brevet ble sendt utenfor løsningen.",
+            "retter": "996bfbf3-0000-4000-8000-000000000053"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000065",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 13,
+          "tidsstempel": "2026-10-12T08:05:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000066",
+                "spor": "forhold",
+                "gjelder": "996bfbf3-0000-4000-8000-000000000006",
+                "erstatter": "996bfbf3-0000-4000-8000-00000000000e",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000063",
+                    "art": "rettidighet",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000064",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: godkjent.",
+                  "sammenfall": true,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000064",
+                      "lag": 1
+                    }
+                  ],
+                  "uten_virkning": [
+                    "996bfbf3-0000-4000-8000-000000000063"
+                  ]
+                }
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000067",
+                "hva": "sendt",
+                "dato": "2026-10-12"
+              },
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000068",
+                "hva": "endringsordre",
+                "oppfylt": true
+              }
+            ],
+            "korrespondansetype": "brev",
+            "sendemaate": "post",
+            "beskrivelse": "Endringsordre EO-3",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-00000000005c",
+                "filnavn": "996bfbf3-0000-4000-8000-00000000005c.pdf",
+                "innhold_sha256": "4789872812ec7f9996397050eb80aa5e379c8735cbaf9895eb420c2a7b21874d"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-00000000006d",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 14,
+          "tidsstempel": "2026-10-12T08:06:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000006e",
+                "art": "varsel",
+                "hjemmel": "32.2"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000006f",
+                "hva": "sendt",
+                "dato": "2026-09-20"
+              }
+            ],
+            "korrespondansetype": "e_post",
+            "beskrivelse": "Varsel om endret fundamentering",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000069",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000069.pdf",
+                "innhold_sha256": "2408a7f394ed219965ea77ab2ea61fa93b09c8e82c5cf6d3a8feb2fd77c11cfd"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000074",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 15,
+          "tidsstempel": "2026-10-12T08:07:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000075",
+                "spor": "vederlag",
+                "kravposter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000014",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "enhetspriser",
+                    "justert": true,
+                    "betegnelse": "P1"
+                  }
+                ]
+              }
+            ],
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "996bfbf3-0000-4000-8000-000000000070",
+                "filnavn": "996bfbf3-0000-4000-8000-000000000070.pdf",
+                "innhold_sha256": "1cf54c343adf6733af9a475ba47a06a4d0adbc0b44ff65b3c3b43f8c2893f205"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "996bfbf3-0000-4000-8000-000000000076",
+                "hva": "sendt",
+                "dato": "2026-09-28"
+              }
+            ],
+            "korrespondansetype": "e_post",
+            "beskrivelse": "Krav om justerte enhetspriser for pelingen"
+          }
+        },
+        {
+          "event_id": "996bfbf3-0000-4000-8000-000000000089",
+          "sak_id": "996bfbf3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 16,
+          "tidsstempel": "2026-10-12T08:08:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "996bfbf3-0000-4000-8000-00000000008a",
+                "spor": "vederlag",
+                "gjelder": "996bfbf3-0000-4000-8000-00000000005a",
+                "paaberopelse": "996bfbf3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000081",
+                    "art": "oppgjoersform",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000082",
+                    "art": "rettidighet",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3.3",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000083",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000084",
+                    "art": "beloep",
+                    "gjelder": "996bfbf3-0000-4000-8000-000000000014"
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000085",
+                    "art": "oppgjoersform",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                    "hjemmel": "34.3",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000086",
+                    "art": "rettidighet",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                    "hjemmel": "34.3.3",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000087",
+                    "art": "justering",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                    "hjemmel": "34.3.2",
+                    "godtar": true
+                  },
+                  {
+                    "id": "996bfbf3-0000-4000-8000-000000000088",
+                    "art": "beloep",
+                    "gjelder": "996bfbf3-0000-4000-8000-00000000002f"
+                  }
+                ],
+                "utregning": {
+                  "resultat": "delvis_godkjent",
+                  "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "996bfbf3-0000-4000-8000-000000000014",
+                      "lag": [
+                        {
+                          "lag": 1
+                        },
+                        {
+                          "lag": 2
+                        }
+                      ]
+                    },
+                    {
+                      "gjelder": "996bfbf3-0000-4000-8000-00000000002f",
+                      "lag": [
+                        {
+                          "lag": 1
+                        },
+                        {
+                          "lag": 2
+                        }
+                      ]
+                    }
+                  ],
+                  "subsidiaert_resultat": "delvis_godkjent",
+                  "subsidiaert_godkjent_beloep": 0
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: varselet etter punkt 34.3.3 for P2 kom for sent.",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000086",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000087",
+                      "lag": 2
+                    },
+                    {
+                      "standpunkt": "996bfbf3-0000-4000-8000-000000000088",
+                      "lag": 2
+                    }
+                  ],
+                  "upaavirket": [
+                    "996bfbf3-0000-4000-8000-000000000081",
+                    "996bfbf3-0000-4000-8000-000000000083",
+                    "996bfbf3-0000-4000-8000-000000000084",
+                    "996bfbf3-0000-4000-8000-000000000085"
+                  ],
+                  "uten_virkning": [
+                    "996bfbf3-0000-4000-8000-000000000082"
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000008a",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens krav om justering av vederlaget i totalentreprenørens brev av 11. oktober 2026. Beløpene i brevet er eks. mva."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000008a",
+                "punkt": "P1",
+                "overskrift": "1. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.1)",
+                "laast": "1. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.1)\n\nByggherren godtar at vederlaget for P1 justeres etter enhetspriser (NS 8407 punkt 34.3). Det godkjenner ikke mengder, priser, kostnader eller noe beløp. Byggherren gjør ikke gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P1 kom for sent. Byggherren godtar at enhetsprisene for P1 justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000008a",
+                "punkt": "P2",
+                "overskrift": "2. Vederlagsjustering for P2 Kravposten i bevis-saken (punkt 34.1.1)",
+                "laast": "2. Vederlagsjustering for P2 Kravposten i bevis-saken (punkt 34.1.1)\n\nByggherren godtar at vederlaget for P2 justeres etter enhetspriser (punkt 34.3). Det godkjenner ikke mengder, priser, kostnader eller noe beløp.\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P2 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.3.3 for P2 ikke fører frem\n\nByggherren godtar at enhetsprisene for P2 justeres (punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp."
+              },
+              {
+                "gjelder": "996bfbf3-0000-4000-8000-00000000008a",
+                "punkt": "forbehold",
+                "overskrift": "3. Forbehold",
+                "laast": "3. Forbehold",
+                "utdypning": "Varselet for den andre kravposten kom for sent, som gjort gjeldende i brev 4."
+              }
+            ],
+            "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 6,
+            "merking": "K201-KOE-017-06"
+          }
+        }
+      ]
+    },
+    {
       "id": "BF-51",
       "tittel": "Vederlag og frist uten varsel eller krav fra totalentreprenøren",
       "brukerhistorie": "Byggherren har svart på påberopelsen av forholdet. Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse. TE ser at sporene ikke har varsel eller krav, og sender det første varselet eller kravet som hovedvalg. BH ser i saken at TE ikke har sendt eller lagt til et varsel eller krav i sporet, uten at løsningen sier hva som er sendt utenfor den. Når kravene er avgjort og fristsporet fortsatt er tomt, kan TE sende det første fristkravet.",

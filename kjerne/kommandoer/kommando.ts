@@ -37,6 +37,8 @@ import {
   SENDEMAATER,
   type Korrespondansetype,
   type Sendemaate,
+  IKKE_FYLT_UT,
+  type IkkeFyltUt,
 } from '../typer.ts';
 import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 import { KRAVFORM_I_FRISTEN } from '../spor/frist/kommando.ts';
@@ -96,6 +98,19 @@ export interface Registrering {
   /** OV-U79: den korte beskrivelsen med egne ord, påkrevd med `sendt` (`sendemaatefeil`). */
   beskrivelse?: string;
   dokumentasjon?: string[];
+  /**
+   * D-13 i BF-49, OV-U123 punkt 23: registreringen av brevet som dokumentasjon fra samme side, som
+   * denne registreringen retter med valget (MM-U59 punkt 9).
+   */
+  retter?: string;
+}
+
+/**
+ * OV-U6, OV-U124, D-11 i BF-49: byggherren oppgir at svaret på forholdet lagt til er sin egen
+ * endringsordre etter § 31.3. Lagres som opplysningen `endringsordre` i journalen.
+ */
+export interface Endringsordren {
+  endringsordre?: true;
 }
 
 /** Kravet, svaret eller aksepten er lagt til med datoen det ble sendt (OV-U98). */
@@ -113,6 +128,7 @@ export const BARE_LAGT_TIL = {
   sendemaate: 'sendemåten',
   beskrivelse: 'beskrivelsen',
   dokumentasjon: 'vedlegg',
+  retter: 'en henvisning til registreringen det retter',
 } as const;
 
 /**
@@ -179,8 +195,8 @@ export type Kommando = (
       /** Forbeholdet i kravet om fristforlengelse eller vederlagsjustering (KA-U82, LV-U74). */
       forbehold?: string;
     } & Registrering)
-  | ({ type: 'brev'; svar: Svarutkast[] } & Registrering)
-  | ({ type: 'revisjon'; erstatter: string; svar: Svarutkast } & Registrering)
+  | ({ type: 'brev'; svar: Svarutkast[] } & Registrering & Endringsordren)
+  | ({ type: 'revisjon'; erstatter: string; svar: Svarutkast } & Registrering & Endringsordren)
   | ({
       type: 'aksept';
       spor: Spor;
@@ -203,6 +219,8 @@ export type Kommando = (
       sendemaate?: Sendemaate;
       beskrivelse?: string;
       dokumentasjon: string[];
+      /** D-13 i BF-49: dokumentasjonen fra samme side registreringen retter. */
+      retter?: string;
     }
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
@@ -220,6 +238,8 @@ export type Kommando = (
       dokumentasjon: string[];
       retter?: string;
       avsender?: Part;
+      /** D-12 i BF-49: skjemaet parten avbrøt før brevet ble lagt til. Bare fra avsenderen. */
+      ikke_fylt_ut?: IkkeFyltUt;
     }
   /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
   | { type: 'ikke_i_saken'; retter: string }
@@ -317,6 +337,7 @@ const REGISTRERING = {
   sendemaate: SENDEMAATE,
   beskrivelse: TEKST,
   dokumentasjon: liste(ID),
+  retter: ID,
 };
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
@@ -349,6 +370,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       svar: { type: 'array', items: SVARUTKAST },
       ...BREVTEKST,
       ...REGISTRERING,
+      endringsordre: { const: true },
     },
     ['type', 'svar']
   ),
@@ -359,6 +381,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       svar: SVARUTKAST,
       ...BREVTEKST,
       ...REGISTRERING,
+      endringsordre: { const: true },
     },
     ['type', 'erstatter', 'svar']
   ),
@@ -383,6 +406,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendemaate: SENDEMAATE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
+      retter: ID,
     },
     ['type', 'varsler', 'sendt', 'korrespondansetype', 'dokumentasjon']
   ),
@@ -397,6 +421,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       dokumentasjon: liste(ID),
       retter: ID,
       avsender: { enum: ['TE', 'BH'] },
+      ikke_fylt_ut: { enum: [...IKKE_FYLT_UT] },
     },
     ['type', 'sendt', 'korrespondansetype', 'beskrivelse', 'dokumentasjon']
   ),
@@ -591,6 +616,17 @@ function varselfeil(k: Extract<Kommando, { type: 'varsel' | 'send_varsel' }>): s
   return feil;
 }
 
+/** OV-U80: feltene med tekst fra løsningen, som et krav lagt til ikke har. */
+export const KRAVTEKSTENE = [
+  'brevtekst',
+  'utdypning',
+  'utdypninger',
+  'forbehold',
+  'varsel',
+] as const;
+/** OV-U80: feltene med tekst fra løsningen, som et svar lagt til ikke har. */
+export const SVARTEKSTENE = ['utdypning', 'utdypninger'] as const;
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -675,15 +711,17 @@ export function formfeil(kommando: unknown): string[] {
   if (
     type === 'krav' &&
     !feil.length &&
-    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)
+    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse', 'retter'].some(
+      (felt) => felt in kommando
+    )
   )
     feil.push(
       ...registreringensForm(
         kommando,
         () =>
-          ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
-            .filter((felt) => felt in kommando)
-            .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`),
+          KRAVTEKSTENE.filter((felt) => felt in kommando).map(
+            (felt) => `$.${felt}: et krav lagt til har ikke feltet`
+          ),
         true
       )
     );
@@ -694,11 +732,21 @@ export function formfeil(kommando: unknown): string[] {
     feil.push(
       ...registreringensForm(kommando, () => [
         ...('brevtekst' in kommando ? ['$.brevtekst: en registrering har ingen brevtekst'] : []),
-        ...(utkast.some((s) => s.utdypning !== undefined || s.utdypninger !== undefined)
+        ...(utkast.some((s) => SVARTEKSTENE.some((felt) => s[felt] !== undefined))
           ? ['$.svar: et registrert svar har ingen utdypning']
           : []),
       ])
     );
+  }
+  // OV-U6, D-11 i BF-49: endringsordren er et svar på forholdet lagt til.
+  if ((type === 'brev' || type === 'revisjon') && !feil.length && 'endringsordre' in kommando) {
+    const svar = (kommando as { svar: Svarutkast | Svarutkast[] }).svar;
+    if (!('sendt' in kommando))
+      feil.push(
+        '$.endringsordre: bare et svar lagt til med datoen det ble sendt (`sendt`), kan være byggherrens endringsordre'
+      );
+    else if (![svar].flat().some((s) => s.spor === 'forhold'))
+      feil.push('$.endringsordre: brevet har ikke noe svar på forholdet');
   }
   if (!feil.length) feil.push(...korrespondansefeil(kommando));
   if (type === 'krav' && !feil.length && erObjekt(kommando.varsel))

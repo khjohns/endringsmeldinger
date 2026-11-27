@@ -1027,6 +1027,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       spor: [],
       retter: null,
       ikkeISaken: false,
+      ikkeFyltUt: null,
     };
     const saken = {
       sakskode: { kode: 'koe' as const, loepenummer: 17 },

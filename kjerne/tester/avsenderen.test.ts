@@ -1,6 +1,7 @@
 /**
  * Avsenderen av korrespondanse motparten legger til (OV-U79, OV-U80, #2069): den som legger til
  * brevet, er aktøren, og avsenderen er en opplysning om brevet. Akseptkriteriene står i #2069.
+ * Skjemaet parten avbrøt før brevet ble lagt til, står i D-12 i BF-49.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -134,5 +135,183 @@ describe('avsenderen av korrespondanse motparten har sendt (OV-U79, OV-U80, #206
     expect(grunner([...journal, rad]), 'kontrollsak').toEqual([]);
     const endret = { ...rad, data: endre(rad.data as Data) };
     expect(grunner([...journal, endret])).toContainEqual(expect.stringContaining(grunn));
+  });
+});
+
+describe('skjemaet parten avbrøt før brevet ble lagt til som dokumentasjon (D-12 i BF-49, svaret 27.11 i #807)', () => {
+  it.each(['krav', 'svar'])(
+    'brevet med «ikke_fylt_ut: %s» står som dokumentasjon med skjemaet, og ingen regel leser det',
+    async (skjema) => {
+      const journal = await journalen();
+      const rad = godtatt(journal, registrering({ ikke_fylt_ut: skjema }), 'TE');
+      expect(rad.data.ikke_fylt_ut).toBe(skjema);
+      expect(dokumentet(rad).ikkeFyltUt).toBe(skjema);
+      const u = utled(lesJournal([...journal, rad], KJERNE.leserformat), GJELDENDE_REGLER);
+      expect(u.begrensninger).toEqual([]);
+      expect(u.registrerteBrev.at(-1)).toMatchObject({
+        dokument: rad.event_id,
+        ikkeFyltUt: skjema,
+      });
+    }
+  );
+
+  it('svaret 27.11: «ikke_fylt_ut» avvises i brevet motparten sendte, og kontrollsaken fra avsenderen godtas', async () => {
+    const journal = await journalen();
+    expect(utfallet(journal, registrering({ avsender: 'BH', ikke_fylt_ut: 'svar' }), 'TE')).toEqual(
+      { regel: 'FEIL_PART' }
+    );
+    expect(
+      utfallet(journal, registrering({ avsender: 'TE', ikke_fylt_ut: 'svar' }), 'TE')
+    ).toHaveProperty('rad');
+  });
+
+  it('svaret 27.11: verdien prøves bare mot krav og svar, ikke mot siden', async () => {
+    const journal = await journalen();
+    expect(utfallet(journal, registrering({ ikke_fylt_ut: 'svar' }), 'TE')).toHaveProperty('rad');
+    expect(utfallet(journal, registrering({ ikke_fylt_ut: 'aksept' }), 'TE')).toEqual({
+      regel: 'UGYLDIG_FORM',
+    });
+  });
+
+  it.each<[string, (data: Data) => Data, string]>([
+    [
+      'skjemaet står i et brev motparten sendte',
+      (data) => ({ ...data, avsender: 'BH' }),
+      'skjemaet som ikke er fylt ut, står i et brev motparten sendte',
+    ],
+    [
+      'skjemaet står i et dokument med et varsel',
+      (data) => ({
+        ...Object.fromEntries(
+          Object.entries(data).filter(([k]) => k !== 'spor' && k !== 'beskrivelse')
+        ),
+        utsagn: [{ id: randomUUID(), art: 'varsel', hjemmel: '33.4' }],
+      }),
+      'bare et brev registrert som dokumentasjon har et skjema som ikke er fylt ut',
+    ],
+  ])('en rad der %s, gjør saken ikke forstått (MM-U2)', async (_n, endre, grunn) => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering({ ikke_fylt_ut: 'krav' }), 'TE');
+    expect(grunner([...journal, rad]), 'kontrollsak').toEqual([]);
+    const endret = { ...rad, data: endre(rad.data as Data) };
+    expect(grunner([...journal, endret])).toContainEqual(expect.stringContaining(grunn));
+  });
+});
+
+/** Meldingen i avvisningen fra totalentreprenøren, eller feilen som tekst. */
+const meldingen = (journal: Journalrad[], kommando: Data): string | null => {
+  try {
+    const u = prov(journal, kommando, 'TE');
+    return u.godtatt ? null : u.avvisning.melding;
+  } catch (e) {
+    return String(e);
+  }
+};
+
+describe('dokumentasjonen lagt til på nytt med valget (D-13 i BF-49, OV-U123 punkt 23, MM-U59 punkt 9)', () => {
+  const varselet = (ekstra: Data = {}): Data => ({
+    type: 'varsel',
+    ...SOM_BREV,
+    varsler: [{ hjemmel: '34.4' }],
+    sendt: '2026-10-20',
+    dokumentasjon: [brevet],
+    ...ekstra,
+  });
+
+  it('totalentreprenøren legger brevet til på nytt som varsel med henvisning til registreringen, og den er rettet', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    expect(varsel.data.retter).toBe(rad.event_id);
+    const u = utled(lesJournal([...journal, rad, varsel], KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.begrensninger).toEqual([]);
+    expect(u.registrerteBrev.find((b) => b.dokument === rad.event_id)?.rettetAv).toBe(
+      varsel.event_id
+    );
+    expect(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument)).toEqual([varsel.event_id]);
+  });
+
+  it('bare samme side retter registreringen (OV-U17)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering({ avsender: 'TE' }), 'BH');
+    expect(utfallet([...journal, rad], varselet({ retter: rad.event_id }), 'TE')).toEqual({
+      regel: 'FEIL_PART',
+    });
+  });
+
+  it('en registrering som er rettet, rettes ikke igjen', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    expect(utfallet([...journal, rad, varsel], varselet({ retter: rad.event_id }), 'TE')).toEqual({
+      regel: 'REGISTRERINGEN_ER_RETTET',
+    });
+  });
+
+  it('en registrering rettet av et varsel lagt til, avvises med meldingen at den alt er rettet, ikke at brevet ikke hører til saken (OV-U18)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    expect(meldingen([...journal, rad, varsel], varselet({ retter: rad.event_id }))).toBe(
+      'Registreringen er alt rettet. Rett den siste registreringen.'
+    );
+    // Kontrollsak: rettet bort etter OV-U18.
+    const bort = godtatt([...journal, rad], { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
+    expect(meldingen([...journal, rad, bort], varselet({ retter: rad.event_id }))).toContain(
+      'ikke hører til saken'
+    );
+  });
+
+  it('et krav fra løsningen med en henvisning til en registrering avvises som form (OV-U80)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const u = prov(
+      [...journal, rad],
+      {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [{ beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 1000 }],
+        },
+        retter: rad.event_id,
+      },
+      'TE'
+    );
+    expect(u.godtatt ? null : u.avvisning).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding: expect.stringContaining('$.retter: bare et brev lagt til med datoen'),
+    });
+  });
+
+  it('et brev fra løsningen retter ikke en registrering', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    expect(
+      utfallet(
+        [...journal, rad],
+        {
+          type: 'send_varsel',
+          varsler: [{ hjemmel: '34.4', arbeid: 'Graving' }],
+          retter: rad.event_id,
+        },
+        'TE'
+      )
+    ).toEqual({ regel: 'UGYLDIG_FORM' });
+  });
+
+  it('en rad fra løsningen med en henvisning til en registrering, gjør saken ikke forstått (MM-U2)', async () => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const varsel = godtatt([...journal, rad], varselet({ retter: rad.event_id }), 'TE');
+    const data = varsel.data as Data;
+    const fraLoesningen = Object.fromEntries(
+      Object.entries(data).filter(
+        ([k]) => !['opplysninger', 'korrespondansetype', 'sendemaate', 'beskrivelse'].includes(k)
+      )
+    );
+    expect(grunner([...journal, rad, varsel]), 'kontrollsak').toEqual([]);
+    expect(grunner([...journal, rad, { ...varsel, data: fraLoesningen }])).toContainEqual(
+      expect.stringContaining('en retting er ikke et brev registrert i saken (OV-U17)')
+    );
   });
 });

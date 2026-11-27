@@ -65,6 +65,7 @@ import {
   type Kravpostvarselhjemmel,
   type Varselhjemmel,
   type Vedlegg,
+  type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
@@ -241,6 +242,8 @@ export interface RegistrertBrev {
   spor: Spor[];
   dokumentasjon: Vedlegg[];
   rettetAv: string | null;
+  /** D-12 i BF-49: skjemaet parten avbrøt, for merket i visningen. Ingen regel leser det. */
+  ikkeFyltUt: IkkeFyltUt | null;
 }
 
 export interface Utledning {
@@ -455,6 +458,7 @@ function registreringer(journal: Domenehendelse[]): {
         spor: d.spor,
         dokumentasjon: d.dokumentasjon,
         rettetAv: null,
+        ikkeFyltUt: d.ikkeFyltUt,
       });
   }
   return { brev, feil };
@@ -694,9 +698,15 @@ function kravversjonenGjaldt(
 
 /**
  * OV-U98: svaret `s` var byggherrens gjeldende svar på dagen `dag`: det gjaldt en kravversjon som
- * var gjeldende den dagen, og svaret sto da (`svaretStod`).
+ * var gjeldende den dagen, og svaret sto da (`svaretStod`). Visningen tilbyr en aksept lagt til
+ * bare for et slikt svar (G-7 i BF-49). `samme` får elementet som ble sendt samme dag (OV-U104).
  */
-function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) => void): boolean {
+export function svaretGjaldt(
+  u: Utledning,
+  s: Svar,
+  dag: string,
+  samme: (med: string) => void = () => {}
+): boolean {
   const { krav: kjede, svar: rekken, svarUtenforRekken: utenforRekken } = u.spor[s.spor];
   const krav = kjede.find((k) => k.id === s.gjelder);
   return (
@@ -863,10 +873,23 @@ function utsagnetStrider(
   const gjelder = 'gjelder' in x ? x.gjelder : null;
   /** Svaret en aksept gjelder, også et svar utenfor rekken (OV-U103). */
   const svaret = x.art === 'aksept' ? u.svar[x.gjelder]?.svar : undefined;
-  const sporet = svaret?.spor;
   const l = lukket(u);
   if (l) return `${x.art} etter at ${l}`;
   if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
+  return akseptenStrider(svaret, gjelder, u, utenVirkning);
+}
+
+/**
+ * Hvorfor en aksept av svaret strider mot journalen, eller `null`. Tilbudet av en aksept lagt
+ * til leser det samme (`tilbudteLagtTil`, D-9 i BF-49).
+ */
+export function akseptenStrider(
+  svaret: Svar | undefined,
+  gjelder: string | null,
+  u: Utledning,
+  utenVirkning: (id: string | null) => boolean
+): string | null {
+  const sporet = svaret?.spor;
   if (sporet && u.spor[sporet].trukket)
     return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)';
   // GR-U9 også for et frafall i et svar som ikke lenger er gjeldende (#2022 punkt 3).

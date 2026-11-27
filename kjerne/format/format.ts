@@ -43,6 +43,7 @@ import {
   type Utsagnsart,
   KORRESPONDANSETYPER,
   SENDEMAATER,
+  IKKE_FYLT_UT,
 } from '../typer.ts';
 
 /** Formatversjonen kjernen skriver. Står i kolonnen `format`. */
@@ -320,6 +321,8 @@ export const VEDLEGG: Skjema = objekt(
  * `retter` er registreringen en retting viser til (OV-U17, OV-U18), og `ikke_i_saken` sier at
  * brevet ikke hører til saken (OV-U18); navnene er arbeidsvalget 22.10 i #1045. `avsender` er
  * parten som sendte et brev registrert som dokumentasjon, når det er motparten (OV-U79, OV-U80).
+ * `ikke_fylt_ut` er skjemaet for kravet eller svaret parten avbrøt før brevet ble lagt til som
+ * dokumentasjon (D-12 i BF-49, svaret 27.11 i #807).
  */
 export const DOKUMENT: Skjema = objekt(
   {
@@ -340,6 +343,7 @@ export const DOKUMENT: Skjema = objekt(
     retter: ID,
     ikke_i_saken: { const: true },
     avsender: { enum: ['TE', 'BH'] },
+    ikke_fylt_ut: { enum: [...IKKE_FYLT_UT] },
   },
   []
 );

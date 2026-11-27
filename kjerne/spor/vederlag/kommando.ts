@@ -85,7 +85,7 @@ import {
 import {
   datoenDetBleSendt,
   kravversjoneneKravetProevesMot,
-  paaberopelseFor,
+  kravversjonenPaaDagen,
   varseletFoerBrevet,
   varselEtter3412KrevesIkke,
   varseletForNyttSvar,
@@ -108,6 +108,7 @@ import {
   avvisteFelt,
   avvisteVurderinger,
   forutsetningene,
+  kravetUtkastetGjelder,
   lageneIUtkastet,
   utenom,
 } from '../../kommandoer/utkastlag.ts';
@@ -1294,7 +1295,7 @@ export function lagIVederlaget(
   regler: Regelsett,
   sendt: string | null
 ): LagIVederlaget {
-  const krav = u.spor.vederlag.gjeldendeKrav!;
+  const krav = kravetUtkastetGjelder(u, utkast, sendt);
   const iOppgjoersformen = feilIOppgjoersformen(utkast.vurderinger, krav, u, sendt);
   const v = utenAvvisteSvar(utkast.vurderinger, krav, iOppgjoersformen);
   const svarene = kravpostvurderinger(v, krav);
@@ -1316,7 +1317,7 @@ export function lagIVederlaget(
                 : denAndreRegelen(post.oppgjoersform),
           }
         : svar;
-  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler, sendt);
+  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, krav, u, regler, sendt);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
     utfylt((_, post) =>
@@ -1349,7 +1350,7 @@ export function lagIVederlaget(
   ).filter(({ s }) => s.art !== 'oppgjoersform' && iKravposten(s));
   const iPosten = (liste: typeof formene, gjelder: string) =>
     liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
-  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
+  const { hovedkategori } = kategori(kravversjonenPaaDagen(u, 'forhold', sendt));
   const besvart = utkast.vurderinger;
   const svaret = svaretFraVurderingene(
     besvart,
@@ -1387,13 +1388,14 @@ const iKravposten = (s: Standpunkt) =>
 function lagIUtfyllingen(
   v: Svarvurdering,
   utkast: Svarutkast,
+  krav: Krav,
   u: Utledning,
   regler: Regelsett,
   sendt: string | null
 ): { s: Standpunkt; lag: LagIVederlaget['standpunkter'][number] }[] {
   const utenBeloep: Svarvurdering = {
     ...v,
-    kravposter: kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).map(({ post, svar }) => ({
+    kravposter: kravpostvurderinger(v, krav).map(({ post, svar }) => ({
       gjelder: post.id,
       aksepterer: svar.aksepterer,
       oensket_oppgjoersform: svar.oensket_oppgjoersform,
@@ -1406,12 +1408,7 @@ function lagIUtfyllingen(
     produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
   };
   let n = 0;
-  const lagret = STANDPUNKTER_I_VEDERLAGET(
-    utenBeloep,
-    u.spor.vederlag.gjeldendeKrav!,
-    u,
-    () => `utkast-${n++}`
-  );
+  const lagret = STANDPUNKTER_I_VEDERLAGET(utenBeloep, krav, u, () => `utkast-${n++}`);
   const svar = {
     spor: 'vederlag' as const,
     standpunkter: standpunkterISvaret('vederlag', {
@@ -1420,11 +1417,9 @@ function lagIUtfyllingen(
     }),
     utregning: {},
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, u, regler, sendt);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, krav, u, regler, sendt);
   const svaretPaaKravpostene = new Map(
-    kravpostvurderinger(utkast.vurderinger, u.spor.vederlag.gjeldendeKrav!).map(
-      ({ post, svar }) => [post.id, svar]
-    )
+    kravpostvurderinger(utkast.vurderinger, krav).map(({ post, svar }) => [post.id, svar])
   );
   const forutsetninger = forutsetningene<Forutsetning>(
     svar.standpunkter,
@@ -1444,7 +1439,7 @@ function lagIUtfyllingen(
       s.gjelder !== undefined
         ? { gjelder: s.gjelder }
         : {}),
-      besvart: besvart(svaretPaaKravpostene, utkast.vurderinger, u, s),
+      besvart: besvart(svaretPaaKravpostene, utkast.vurderinger, krav, s),
       virkning: virkning[i]!,
       etikett: etikett[i]!,
       forutsetninger: forutsetninger[i]!,
@@ -1468,19 +1463,19 @@ const VURDERINGEN_AV_SAERSKILT = {
 function besvart(
   svaret: ReadonlyMap<string, Kravpostvurdering>,
   v: Svarvurdering,
-  u: Utledning,
+  krav: Krav,
   s: Standpunkt
 ): boolean {
   if (s.art === 'beloep' && s.saerskilt)
     return typeof v[VURDERINGEN_AV_SAERSKILT[s.saerskilt]] === 'string';
   const gjelder = 'gjelder' in s ? s.gjelder : undefined;
-  if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
+  if (s.art === 'beloep' && utenFastBeloepIKravposten(krav, gjelder)) return true;
   const svar = gjelder === undefined ? undefined : svaret.get(gjelder);
   if (s.art === 'beloep') return typeof svar?.vurdering === 'string';
   if (s.art === 'oppgjoersform')
     return (
       typeof svar?.aksepterer === 'boolean' &&
-      !ubesvartIKravposten(svar, kravposten(u, gjelder)!).includes('oensket_oppgjoersform')
+      !ubesvartIKravposten(svar, kravposten(krav, gjelder)!).includes('oensket_oppgjoersform')
     );
   if (s.art === 'justering') return typeof svar?.godtar_justering === 'boolean';
   if (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
@@ -1488,10 +1483,10 @@ function besvart(
   return true;
 }
 
-/** Kravposten `gjelder` i gjeldende krav. */
-const kravposten = (u: Utledning, gjelder: string | undefined): Kravpost | undefined =>
-  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder);
+/** Kravposten `gjelder` i kravversjonen `krav`. */
+const kravposten = (krav: Krav, gjelder: string | undefined): Kravpost | undefined =>
+  kravposterI(krav).find((p) => p.id === gjelder);
 
 /** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U115 punkt 5). */
-const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>
-  gjelder !== undefined && kravposten(u, gjelder)?.oppgjoersform !== 'tilbud';
+const utenFastBeloepIKravposten = (krav: Krav, gjelder: string | undefined): boolean =>
+  gjelder !== undefined && kravposten(krav, gjelder)?.oppgjoersform !== 'tilbud';

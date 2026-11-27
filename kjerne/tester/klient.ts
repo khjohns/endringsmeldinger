@@ -17,6 +17,7 @@ import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import { varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
 import type {
   Korrespondansetype,
@@ -201,16 +202,42 @@ function svarutkast(
   h: Record<string, unknown>,
   u: Utledning,
   regler: Regelsett,
-  navn: Navn
+  navn: Navn,
+  sendt: string | null = null
 ): Svarutkast {
   const spor = h.spor as Spor;
-  const krav = u.spor[spor].gjeldendeKrav;
-  const v = vurderinger(spor, h, krav);
+  // OV-U98: et svar lagt til kan gjelde en eldre kravversjon, og regnes mot den.
+  const krav =
+    (typeof h.gjelder === 'string'
+      ? u.spor[spor].krav.find((k) => k.id === navn.id(h.gjelder as string))
+      : undefined) ?? u.spor[spor].gjeldendeKrav;
+  // VS-U79: et svar på et varsel som står alene, har bare standpunktet til varselet.
+  const paaVarselet =
+    typeof h.gjelder === 'string' &&
+    !u.spor[spor].krav.some((k) => k.id === navn.id(h.gjelder as string));
+  const v = paaVarselet
+    ? ({
+        varslet_i_tide: h.varslet_i_tide,
+        ...(h.godtar_justering === undefined ? {} : { godtar_justering: h.godtar_justering }),
+      } as Svarvurdering)
+    : vurderinger(spor, h, krav);
   let resultat: Record<string, unknown> = {};
   try {
     // Rigg og drift er ikke i kjernens svar; serveren avviser (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
-    if (krav && (spor !== 'vederlag' || hindrerSvarPaaKravet(krav) === null))
-      resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
+    if (krav && !paaVarselet && (spor !== 'vederlag' || hindrerSvarPaaKravet(krav) === null))
+      resultat = regnUtSvar(
+        spor,
+        v,
+        {
+          krav,
+          paaberopelse: u.spor.forhold.gjeldendeKrav,
+          // VS-U80, VS-U81: innsigelsene som står, som serveren regner med (`kontrollerSvar`).
+          ...(spor === 'vederlag'
+            ? { staar: standpunkteneTilVarslene(u, sendt, true).filter((x) => !x.iTide) }
+            : {}),
+        },
+        regler
+      );
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.
     if (!(feil instanceof UgyldigVurdering)) throw feil;
@@ -221,7 +248,8 @@ function svarutkast(
     regelversjon: regler.versjon,
     vurderinger: v,
     resultat,
-    ...svarutdypning(spor, h, krav),
+    // OV-U80: et svar lagt til har ingen tekst fra løsningen.
+    ...(sendt === null ? svarutdypning(spor, h, krav) : {}),
     ...(typeof h.akseptfrist === 'string' ? { akseptfrist: h.akseptfrist } : {}),
   };
 }
@@ -429,6 +457,27 @@ function lagtTil(h: Handling) {
   };
 }
 
+const erLagtTil = (h: Handling) => typeof h.sendt === 'string';
+const sendtI = (h: Handling) => (erLagtTil(h) ? (h.sendt as string) : null);
+
+/**
+ * OV-U80, OV-U98: et krav, svar eller en aksept lagt til med datoen det ble sendt, med brevet som
+ * vedlegg. D-13 i BF-49: `retter` er registreringen som dokumentasjon det retter.
+ */
+const registreringI = (h: Handling, navn: Navn) =>
+  erLagtTil(h)
+    ? {
+        sendt: h.sendt as string,
+        ...lagtTil(h),
+        dokumentasjon: [navn.nyId()],
+        ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
+      }
+    : {};
+
+/** OV-U6, D-11 i BF-49: byggherrens egen endringsordre lagt til som svar på forholdet. */
+const endringsordreI = (h: Handling) =>
+  h.endringsordre === true ? { endringsordre: true as const } : {};
+
 /** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
 export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: Navn): Kommando {
   const spor = h.spor as Spor;
@@ -445,16 +494,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
               : INNHOLD.frist(h, u),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         // OV-U80, OV-U98: med `sendt` er kravet lagt til, uten tekst fra løsningen.
-        ...(typeof h.sendt === 'string'
-          ? { sendt: h.sendt, ...lagtTil(h), dokumentasjon: [navn.nyId()] }
-          : spor === 'vederlag'
-            ? {}
-            : utdypning(h)),
+        ...(erLagtTil(h) ? registreringI(h, navn) : spor === 'vederlag' ? {} : utdypning(h)),
       };
     case 'brev':
       return {
         type: 'brev',
-        svar: (h.svar as Handling[]).map((s) => svarutkast(s, u, regler, navn)),
+        svar: (h.svar as Handling[]).map((s) => svarutkast(s, u, regler, navn, sendtI(h))),
+        ...registreringI(h, navn),
+        ...endringsordreI(h),
       };
     case 'revisjon':
       return {
@@ -463,7 +510,9 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
           typeof h.erstatter === 'string'
             ? navn.id(h.erstatter)
             : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen'),
-        svar: svarutkast(h, u, regler, navn),
+        svar: svarutkast(h, u, regler, navn, sendtI(h)),
+        ...registreringI(h, navn),
+        ...endringsordreI(h),
       };
     case 'aksept': {
       // TE godtar svaret TE har sett: gjeldende svar, ellers det siste i sporet (KA-07).
@@ -471,7 +520,13 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         typeof h.svar === 'string'
           ? navn.id(h.svar)
           : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen');
-      return { type: 'aksept', spor, svar, regelversjon: regler.versjon };
+      return {
+        type: 'aksept',
+        spor,
+        svar,
+        regelversjon: regler.versjon,
+        ...registreringI(h, navn),
+      };
     }
     case 'trekk':
       return { type: 'trekk', spor };
@@ -480,9 +535,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52), og `arbeid` er arbeidet etter
       // VS-U87 punkt 27. Ett varsel i brevet.
       const varselet = {
+        // Svaret A 26.11 i #1823: varselet etter § 32.2 lagt til i forholdet.
         hjemmel: (spor === 'vederlag'
           ? ((h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2')
-          : '33.4') as Kravvarselhjemmel,
+          : spor === 'forhold'
+            ? '32.2'
+            : '33.4') as Kravvarselhjemmel,
         ...(typeof h.arbeid === 'string' ? { arbeid: h.arbeid } : {}),
         ...kunnskapsdatoI(h),
       };
@@ -512,6 +570,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         beskrivelse: h.beskrivelse as string,
         dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
+        // OV-U79: parten som sendte brevet, når det er motparten. D-12 i BF-49: skjemaet parten
+        // avbrøt.
+        ...(h.avsender === 'TE' || h.avsender === 'BH' ? { avsender: h.avsender } : {}),
+        ...(h.ikke_fylt_ut === 'krav' || h.ikke_fylt_ut === 'svar'
+          ? { ikke_fylt_ut: h.ikke_fylt_ut }
+          : {}),
       };
     case 'ikke_i_saken':
       return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };

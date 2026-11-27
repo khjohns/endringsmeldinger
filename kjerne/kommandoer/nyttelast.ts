@@ -35,6 +35,7 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
+import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import {
   datoenDetBleSendt,
   kravSomVarsler,
@@ -65,6 +66,7 @@ import {
   type Part,
   type Spor,
   type Standpunkt,
+  type Varselhjemmel,
 } from '../typer.ts';
 import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts';
 
@@ -264,6 +266,23 @@ const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;
 type VarselOmForholdet = (typeof VARSLER_OM_FORHOLDET)[number];
 const erVarselOmForholdet = (hjemmel: string): hjemmel is VarselOmForholdet =>
   (VARSLER_OM_FORHOLDET as readonly string[]).includes(hjemmel);
+
+/**
+ * Det som hindrer et varsel etter `hjemmel` lagt til med datoen `sendt`, eller `null`: varselet
+ * etter § 32.2 før påberopelsen (VS-U38–VS-U40), og et varsel om forholdet ikke før datoen i
+ * påberopelsen (VS-U58). Tilbudet av varselet leser det samme (G-1 i BF-49, INV-MM-1).
+ */
+export function varseletsDato(
+  hjemmel: Varselhjemmel,
+  sendt: string,
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  return (
+    (hjemmel === '32.2' ? varseletEtter322(sendt, u, regler) : null) ??
+    (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, sendt, u) : null)
+  );
+}
 
 /**
  * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U86 punkt 1–5), med en korrigering
@@ -496,8 +515,9 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
   if (brev.rettetAv !== null)
     return avvis(
       'REGISTRERINGEN_ER_RETTET',
-      // En retting som ikke er en ny registrering, sier at brevet ikke hører til saken (OV-U18).
-      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)
+      // OV-U18: rettingen sier at brevet ikke hører til saken. D-13 i BF-49: et krav, svar, en
+      // aksept eller et varsel lagt til retter også.
+      [...dokumenterI(u.journal)].some((d) => d.id === brev.rettetAv && d.ikkeISaken)
         ? 'Registreringen er rettet bort fordi brevet ikke hører til saken. Hører det til saken likevel, registreres brevet på nytt.'
         : 'Registreringen er alt rettet. Rett den siste registreringen.'
     );
@@ -520,6 +540,32 @@ function henvisningenIInnlegget(gjelder: string, u: Utledning): Avvisning | null
 }
 
 /**
+ * OV-U6, OV-U124, D-11 i BF-49: endringsordren byggherren legger til, er svaret på forholdet når
+ * svaret blir en endringsordre etter § 31.3 (`svaretBlirEndringsordre`, som utledningen leser i
+ * `erRegistrertEndringsordre`). Avvisningen bruker de eksisterende kodene (#807, 7218847960).
+ */
+function endringsordren(
+  svar: readonly Svarutkast[],
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  const s = svar.find((x) => x.spor === 'forhold');
+  if (!s) return null;
+  if (u.registrerteBrev.some((b) => b.dokument === s.gjelder))
+    return avvis(
+      'FEIL_KRAVREFERANSE',
+      'Endringsordren kan ikke legges til som svar på et krav som står som dokumentasjon. Totalentreprenøren må ha sendt kravet fra løsningen eller lagt det til som krav. Brevet kan legges til som dokumentasjon.'
+    );
+  const krav = u.spor.forhold.krav.find((x) => x.id === s.gjelder);
+  if (krav && !svaretBlirEndringsordre(s.vurderinger, kategori(krav), regler))
+    return avvis(
+      'UGYLDIG_VURDERING',
+      'Svaret er ikke en endringsordre etter punkt 31.3: byggherren må godkjenne forholdet uten å påberope preklusjon, og forholdet må være i en underkategori der punkt 32.2 gjelder.'
+    );
+  return null;
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1). `sendt` er dagen et
  * brev lagt til ble sendt, og `null` for et brev fra løsningen (OV-U98).
@@ -533,6 +579,16 @@ export function nyttelastkontroll(
   sendt: string | null,
   utdypningKreves = true
 ): Avvisning | null {
+  // D-13 i BF-49, OV-U123 punkt 23: et krav, svar, aksept eller varsel lagt til retter
+  // dokumentasjonen fra samme side, som en ny registrering som dokumentasjon (OV-U17).
+  if ((erRegistrering(k) || k.type === 'varsel') && k.retter !== undefined) {
+    const hinder = retting(k.retter, part, u);
+    if (hinder) return hinder;
+  }
+  if ((k.type === 'brev' || k.type === 'revisjon') && k.endringsordre) {
+    const hinder = endringsordren([k.svar].flat(), u, regler);
+    if (hinder) return hinder;
+  }
   switch (k.type) {
     case 'krav': {
       const sperre = nyttelastI(k.spor).kravsperre(k, u, sendt);
@@ -635,13 +691,18 @@ export function nyttelastkontroll(
       return null;
     }
     case 'registrert_brev':
+      // D-12 i BF-49, svaret 27.11 i #807: det var ikke noe skjema å avbryte for motpartens brev.
+      if (k.ikke_fylt_ut !== undefined && k.avsender !== undefined && k.avsender !== part)
+        return avvis(
+          'FEIL_PART',
+          'Brevet motparten sendte, legges til som dokumentasjon uten skjemaet for et krav eller svar.'
+        );
+      return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'varsel':
       for (const { hjemmel } of k.varsler) {
-        const hinder =
-          (hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
-          (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, k.sendt, u) : null);
+        const hinder = varseletsDato(hjemmel, k.sendt, u, regler);
         if (hinder) return hinder;
       }
       return null;
