@@ -2,11 +2,314 @@
   "id": "BF-03",
   "tittel": "TE er uenig i svaret og sender et innlegg, og byggherren svarer med et innlegg",
   "brukerhistorie": "TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godkjenner et beløp. TE er uenig og sender et innlegg som viser til svaret, med tittel, tekst og vedlegg. Innlegget endrer ikke svaret, og TE kan fortsatt godta det. BH ser innlegget og sender et innlegg med den senere begrunnelsen, uten å endre svaret.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Samme sak som BF-01 ved kontrollpunktet te-har-mottatt-svaret."
+    "beskrivelse": "Samme sak som BF-01 fram til kontrollpunktet te-har-mottatt-svaret: forholdet er godkjent, TE har krevd 100 000 kr, og BH har svart med punkt 34.1.2 påberopt og 60 000 kr subsidiært."
   },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "medvirkning",
+      "navn": "K-g1",
+      "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "utdypning": "Byggherren erkjenner at tegningene kom for sent."
+        }
+      ]
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "belop": 100000,
+      "navn": "K-v1"
+    },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        {
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "vurdering": "delvis",
+          "godkjent_belop": 60000,
+          "varslet_i_tide": false,
+          "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
+        }
+      ]
+    },
+    {
+      "handling": "innlegg",
+      "part": "TE",
+      "gjelder": "D4",
+      "navn": "D5",
+      "tittel": "Varselet om vederlagsjustering kom i tide",
+      "utdypning": "Varselet ble sendt samme dag som tegningene kom."
+    },
+    {
+      "handling": "innlegg",
+      "part": "BH",
+      "gjelder": "D5",
+      "navn": "D6",
+      "tittel": "Begrunnelse for svaret på vederlagskravet",
+      "utdypning": "Varselet kom tre uker etter at tegningene ble levert."
+    },
+    {
+      "handling": "aksept",
+      "spor": "vederlag",
+      "navn": "D7"
+    },
+    {
+      "handling": "innlegg",
+      "part": "TE",
+      "gjelder": "D4",
+      "navn": "D8",
+      "tittel": "Merknad etter aksepten",
+      "utdypning": "Totalentreprenøren står ved at varselet kom i tide."
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 4,
+      "beskrivelse": "BH har sendt svaret: punkt 34.1.2 påberopt, subsidiært 60 000 kr. Som BF-01 ved samme kontrollpunkt.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "MM-U47",
+            "OV-U97"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:vederlag",
+                "sende_innlegg"
+              ]
+            },
+            "handlinger.BH": {
+              "inneholder": [
+                "sende_innlegg"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner «Send innlegg» øverst i tråden og ser at innlegget viser til byggherrens svar.",
+          "kilde": [
+            "MM-U47",
+            "OV-U97"
+          ]
+        },
+        {
+          "tekst": "TE forstår før aksepten at den gjelder hele svaret, også påberopelsen av at varselet kom for sent, og at beløpet etter svaret da er 0 kr.",
+          "kilde": [
+            "KA-U87",
+            "KA-U1",
+            "MM-U60"
+          ]
+        },
+        {
+          "tekst": "TE forstår at veien for å endre beløpet er en ny versjon av kravet, som erstatter den tidligere, og at svaret på den tidligere versjonen da ikke kan godtas her.",
+          "kilde": [
+            "KA-U52",
+            "LV-U75",
+            "LV-U52",
+            "HF-U23"
+          ]
+        },
+        {
+          "tekst": "Den egne innsigelsen og påberopelsen av passivitet er ikke egne handlinger. Parten fremmer dem i et innlegg.",
+          "kilde": [
+            "VS-U89",
+            "VS-U90",
+            "OV-U99",
+            "OV-U7",
+            "KA-U45"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-sendt-innlegg",
+      "etter": 5,
+      "beskrivelse": "TE har sendt et innlegg som viser til svaret. Svaret står uendret.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:vederlag",
+                "sende_innlegg"
+              ]
+            },
+            "deres_ref.D5": [
+              "04"
+            ]
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser innlegget øverst i tråden, at svaret står uendret, og at TE fortsatt kan godta det.",
+          "kilde": [
+            "MM-U47",
+            "OV-U99"
+          ]
+        },
+        {
+          "tekst": "TE ser at brevet har tittelen med sakens kode som overskrift, og at det sier hvilket brev det viser til.",
+          "kilde": [
+            "LV-U27",
+            "LV-U53"
+          ]
+        },
+        {
+          "tekst": "TE forstår at innlegget er partens eget brev, at løsningen ikke tolker det, og at påberopelsen i svaret og virkningen av den står som før.",
+          "kilde": [
+            "MM-U47",
+            "VS-U87",
+            "MM-U44",
+            "MM-U56"
+          ]
+        },
+        {
+          "tekst": "TE forstår at et innlegg ikke er sendt før det er sendt fra brevkontrollen, og at utkastet står som før om sendingen avbrytes.",
+          "kilde": [
+            "HF-U3",
+            "HF-U1"
+          ]
+        },
+        {
+          "tekst": "TE ser merknaden om innlegget under betegnelsen, og at betegnelsen ikke er endret.",
+          "kilde": [
+            "MM-U30",
+            "OV-U99"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-sendt-innlegg",
+      "etter": 6,
+      "beskrivelse": "BH har sendt et innlegg med den senere begrunnelsen, som viser til TEs innlegg.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "KA-U46",
+            "MM-U47"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:vederlag"
+              ]
+            },
+            "deres_ref.D6": [
+              "05"
+            ]
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH forstår at innlegget ikke endrer standpunktene i svaret, og at et nytt svar er veien for å endre dem.",
+          "kilde": [
+            "KA-U46",
+            "KA-U87"
+          ]
+        },
+        {
+          "tekst": "Protest, bestridelse, totalentreprenørens utdyping og byggherrens senere begrunnelse sendes som innlegg, og innleggene står i brevkontrollen for aksepten.",
+          "kilde": [
+            "MM-U48",
+            "MM-U34",
+            "MM-U35",
+            "MM-U36"
+          ]
+        },
+        {
+          "tekst": "Arbeidsvalg (G-8, står til review): BH sender innlegget uten godkjenning etter fullmakten, og innlegget stopper ikke sendingen.",
+          "kilde": [
+            "GFK-U2",
+            "EO-U25"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "innlegg-etter-enigheten",
+      "etter": 8,
+      "beskrivelse": "TE har godtatt svaret og sendt et innlegg etter enigheten. Enigheten står uendret. Et innlegg etter en endringsordre prøves ikke her (G-5, #1378). Et innlegg etter et godtatt avslag av grunnlaget prøves i kjernen (`kjerne/tester/innlegget.test.ts`), ikke i dette forløpet, som har et godkjent grunnlag.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U47"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "enighet.vederlag": "finnes",
+            "handlinger.TE": {
+              "inneholder": [
+                "sende_innlegg"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at innlegget etter aksepten står i tråden, og at enigheten om svaret står.",
+          "kilde": [
+            "MM-U47"
+          ]
+        },
+        {
+          "tekst": "Ikke prøvd av stegene: et innlegg godtas også etter en endringsordre som omfatter saken (G-5, #1378), og etter at totalentreprenøren har godtatt avslaget av grunnlaget (kjernen, innlegget.test.ts).",
+          "kilde": [
+            "EO-U39",
+            "GR-U27",
+            "MM-U47"
+          ]
+        },
+        {
+          "tekst": "Ikke prøvd av stegene: et forslag om å rette betegnelsen på endringsordren i grunnlaget sendes som innlegg.",
+          "kilde": [
+            "MM-U59"
+          ]
+        },
+        {
+          "tekst": "Har en part sagt fra i et brev utenfor løsningen, legger parten det til som korrespondanse, og løsningen utleder ingenting av det.",
+          "kilde": [
+            "OV-U123",
+            "OV-U79",
+            "OV-U81"
+          ]
+        }
+      ]
+    }
+  ],
   "bestilling": "BF-03.md",
   "prototype": {
     "fil": "../../design/prototyper/innlegget.html",
@@ -219,53 +522,12 @@
       }
     ]
   },
-  "kilder": [
-    "OV-U97",
-    "OV-U99",
-    "MM-U47",
-    "MM-U48",
-    "MM-U56",
-    "MM-U59",
-    "MM-U60",
-    "MM-U43",
-    "KA-U1",
-    "KA-U46",
-    "KA-U52",
-    "KA-U87",
-    "VS-U87",
-    "VS-U89",
-    "HF-U23",
-    "HF-U3",
-    "GR-U27",
-    "EO-U39",
-    "EO-U25",
-    "GFK-U2",
-    "LV-U53",
-    "LV-U75",
-    "OV-U123",
-    "OV-U7",
-    "B-17",
-    "HF-U1",
-    "KA-U45",
-    "LV-U52",
-    "MM-U30",
-    "MM-U34",
-    "MM-U35",
-    "MM-U36",
-    "OV-U79",
-    "OV-U81",
-    "MM-U44",
-    "LV-U27",
-    "VS-U90"
-  ],
-  "venter_paa": [
-    "#1377",
-    "#1657",
-    "#1379",
-    "#807"
-  ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "saksruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-10-27",
@@ -321,6 +583,11 @@
       "dato": "2026-11-26",
       "forhold": "#1377",
       "hva": "LV-U27 og VS-U90 står i kildene, etter G-1 og S-5 i bestillingen. S-5 er ført som VS-U90 i #2457."
+    },
+    {
+      "dato": "2026-11-26",
+      "forhold": "#1377",
+      "hva": "Forløpet er kjørbart med stegene fra BF-01, innleggene fra begge parter og et innlegg etter enigheten (G-5)."
     }
   ]
 }
