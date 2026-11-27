@@ -3,7 +3,8 @@
   (`Svarskjema.svelte`): oppgjørsformen, beløpet, varselet og justeringen for hver kravpost, og
   varselet, begrensningen og beløpet for posten etter punkt 34.1.3 annet ledd (VS-U5).
   Ingenting er forhåndsvalgt. Kommandoen bygges i `kommandoer.ts`, og kjernen regner resultatet,
-  lager brevet og avviser det den ikke godtar.
+  lager brevet og avviser det den ikke godtar. Et svar lagt til (OV-U80, OV-U98) gjelder
+  kravversjonen og leses med innsigelsene på dagen det ble sendt (D-7 og D-8 i BF-49).
 -->
 <script lang="ts">
   import { denAndreRegelen, kravposterI } from '#kjerne/spor/vederlag/format.ts';
@@ -16,7 +17,13 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning, Vederlagsspoersmaal } from '#kjerne/spor/vederlag/kommando.ts';
-  import { erSvarPaaVarsel, varseletFoer, varselhjemmelFor } from '#lib/kjernesak/vederlagskrav.ts';
+  import {
+    erSvarPaaVarsel,
+    innsigelseneSomStaar,
+    varseleneIEldreKrav,
+    varseletFoer as varseletFoerIdag,
+    varselhjemmelFor,
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -29,11 +36,14 @@
   import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
   import Stoettekort from './Stoettekort.svelte';
+  import Datoer from './Datoer.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
     beloepsvalget,
     etterRegel,
+    innsigelsenStaar,
+    kravetSvaretGjelder,
     krevdSaerskilt,
     kravetIKortform,
     postvalget,
@@ -48,7 +58,14 @@
     type Regel,
     type Svarvalg,
   } from './kommandoer';
-  import { brevet, brevMedElement, sisteKunnskapsdatoen, standpunktene } from './lesing';
+  import {
+    brevet,
+    brevMedElement,
+    nyttSvarIUtkastet,
+    sisteKunnskapsdatoen,
+    standpunktene,
+  } from './lesing';
+  import { forhaandsvistSvar, type Korrespondansevalg } from './korrespondansen';
   import {
     type Skjemalinje,
     begrunnelserForTemaene,
@@ -70,6 +87,7 @@
     leselinjene,
     oppgivelsestekst,
     KUNNSKAPSDATO,
+    LEGG_TIL,
     VEDERLAGET,
     standpunkttekst,
   } from './tekster';
@@ -82,6 +100,10 @@
     onforkast,
     onvedsiden,
     onforholdet,
+    lagtTil = null,
+    onavbrudd,
+    onendre,
+    onlagttil,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -94,10 +116,43 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Åpner siden for forholdet uten å forkaste svarutkastet. */
     onforholdet?: () => void;
+    /** Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null`. */
+    lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
+    onendre?: () => void;
+    onlagttil?: () => void;
   } = $props();
   const uid = $props.id();
 
-  const krav = $derived(u.spor.vederlag.gjeldendeKrav!);
+  // D-7 i BF-49: et svar lagt til gjelder kravversjonen og leses med innsigelsene på dagen.
+  const sendt = $derived(lagtTil?.dato || null);
+  const krav = $derived(
+    kravetSvaretGjelder(u, 'vederlag', sendt).krav ?? u.spor.vederlag.gjeldendeKrav!
+  );
+  const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
+  // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
+  const iEldreKrav = $derived(
+    new Map<string, { b: NonNullable<ReturnType<typeof brevet>>; sendt: string | null }>(
+      varseleneIEldreKrav(u).flatMap((v) => {
+        const b = brevet(u, v.dokument);
+        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt }] as const] : [];
+      })
+    )
+  );
+  const varseletIEldreKrav = (p: Kravpost) => {
+    const v = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
+    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, navnet(p)) : null;
+  };
+  // Innsigelsene svaret leses med, for valget etter U-7 i BF-49.
+  const innsigelsene = $derived(innsigelseneSomStaar(u, sendt));
+  // U-7: svaret lagt til som ikke sier noe om varselet, leses med innsigelsen fra brevet den sto i.
+  const tausMedInnsigelsen = (p: Kravpost): string | null => {
+    if (!lagtTil || !postvalget(valg, p.betegnelse).tausOmVarselet) return null;
+    const foer = varseletFoer(u, p);
+    const b = foer?.iTide === false ? brevet(u, foer.dokument) : null;
+    return b ? LEGG_TIL.forSentSomFoer(b, navnet(p)) : null;
+  };
   const poster = $derived(kravposterI(krav));
   const flere = $derived(poster.length > 1);
   const navnet = (p: Kravpost) => (flere ? p.betegnelse : undefined);
@@ -151,7 +206,9 @@
         forbehold: '',
       },
       u,
-      kjernesak.regler
+      kjernesak.regler,
+      [],
+      sendt
     )!
   );
   // Revisjonen av det gjeldende svaret når kravversjonen har et (HF-U29).
@@ -159,10 +216,11 @@
   const forrigeSvar = $derived(
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
-  const etter = $derived(kjernesak.forhaandsvist(utkast));
+  // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
+  const etter = $derived(forhaandsvistSvar(kjernesak, utkast, lagtTil));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
   const lagene = $derived(
-    stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag')
+    stoppet ? null : kjernesak.lagForUtkastet(brevutkast.svar[0], 'vederlag', sendt)
   );
   const foerstePunkt = $derived.by(() => {
     const sporsmaalene = lagene?.ubesvart ?? [];
@@ -211,10 +269,7 @@
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
   });
-  const nyttSvar = $derived.by(() => {
-    const s = etter?.spor.vederlag.gjeldendeSvar;
-    return s && !u.spor.vederlag.svar.some((x) => x.id === s.id) ? s : null;
-  });
+  const nyttSvar = $derived(nyttSvarIUtkastet(u, etter, 'vederlag'));
   // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const postenFor = (s: Standpunkt) =>
@@ -445,14 +500,20 @@
                         ? leselinje(post)
                         : []
                     ).map((tekst) => ({ tekst, lag: null }));
+              const taus = post ? tausMedInnsigelsen(post) : null;
               return {
                 ...p,
                 aktiv: foerstePunkt === p.punkt,
-                linjer: fraBrevet.length
-                  ? fraBrevet
-                  : status.length
-                    ? status
-                    : [{ tekst: SKJEMA.ikkeBesvart, lag: null }],
+                linjer: [
+                  ...(taus ? [{ tekst: taus, lag: null }] : []),
+                  ...(fraBrevet.length
+                    ? fraBrevet
+                    : status.length
+                      ? status
+                      : taus
+                        ? []
+                        : [{ tekst: SKJEMA.ikkeBesvart, lag: null }]),
+                ],
               };
             }),
         ]
@@ -480,6 +541,20 @@
               ubesvart(lagene, 'aksepterer', p.id) ||
                 ubesvart(lagene, 'oensket_oppgjoersform', p.id)
                 ? SKJEMA.manglerForm(p.oppgjoersform)
+                : null
+            ),
+          },
+          {
+            // U-7 i BF-49: svaret lagt til sier noe eller ingenting om varselet der innsigelsen står.
+            felt: `varsel-${p.betegnelse}`,
+            post: p.id,
+            tekst: i(
+              lagtTil &&
+                stilt(lagene, 'varslet_i_tide', p.id) &&
+                innsigelsenStaar(innsigelsene, p) &&
+                !postvalget(valg, p.betegnelse).tausOmVarselet &&
+                postvalget(valg, p.betegnelse).varsletITide === null
+                ? LEGG_TIL.svaretOmVarseletMangler
                 : null
             ),
           },
@@ -537,7 +612,7 @@
   {:else if f.innsigelse === '34.3.3'}
     <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
     <a
-      href={`#${uid}-varsel-${post!.betegnelse}${varseletFoer(u, post!)?.iTide === false ? '-standpunkt' : ''}`}
+      href={`#${uid}-varsel-${post!.betegnelse}${!lagtTil && varseletFoer(u, post!)?.iTide === false ? '-standpunkt' : ''}`}
       >{innsigelsenOmVarselet('34.3.3')}</a
     >
   {:else if f.innsigelse === '34.1.3'}
@@ -561,7 +636,12 @@
   {utkast}
   {forrigeSvar}
   medTekstene={(punktene) =>
-    somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
+    somNyttSvar(vederlagssvaret(valg, u, kjernesak.regler, punktene, sendt)!, valg.erstatter)}
+  {lagtTil}
+  {onavbrudd}
+  svarerPaa={lagtTil ? brevMedElement(u, krav.id) : null}
+  {onendre}
+  {onlagttil}
   bind:tekster={valg}
   {linjer}
   {alternativer}
@@ -688,6 +768,8 @@
         {@const varselet = forutsetningene(p, 'rettidighet')}
         {@const justeringen = forutsetningene(p, 'justering')}
         {#snippet foranVarselet()}
+          {@const eldre = varseletIEldreKrav(p)}
+          {#if eldre}<Datoer linjer={[{ tekst: eldre }]} />{/if}
           <Gjelderhvis
             id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
             liste={varselet}
@@ -711,6 +793,9 @@
             ikkeGitt: !erSvarPaaVarsel(u, foer.dokument),
           }}
           bind:varsletITide={v.varsletITide}
+          bind:taus={v.tausOmVarselet}
+          lagtTil={!!lagtTil}
+          varselFeil={feil(`${uid}-varsel-${p.betegnelse}`)}
           bind:godtarJustering={v.godtarJustering}
           ikkeGitt
           justeringValgfri={v.form !== 'godtar'}

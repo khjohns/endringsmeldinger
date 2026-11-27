@@ -171,15 +171,32 @@ export const varselhjemmelFor = (post: Kravpost): Kravpostvarselhjemmel | null =
 
 /**
  * Byggherrens siste standpunkt til varselet kravposten trenger, i svarene før dette, slik kjernen
- * leser det (`standpunkteneTilVarslene`, VS-U77 punkt 8–12), eller `null`.
+ * leser det (`standpunkteneTilVarslene`, VS-U77 punkt 8–12), eller `null`. For et svar lagt til,
+ * sendt på dagen `sendt`, er det svarene før den dagen, og samme dag i journalens rekkefølge, som
+ * kjernen leser svaret med (VS-U80, VS-U81).
  */
-export const varseletFoer = (u: Utledning, post: Kravpost): StandpunktTilVarselet | null => {
+export const varseletFoer = (
+  u: Utledning,
+  post: Kravpost,
+  sendt: string | null = null
+): StandpunktTilVarselet | null => {
   const hjemmel = varselhjemmel(post);
   return (
-    standpunkteneTilVarslene(u, null).find((x) => x.gjelder === post.id && x.hjemmel === hjemmel) ??
-    null
+    standpunkteneTilVarslene(u, sendt, sendt !== null).find(
+      (x) => x.gjelder === post.id && x.hjemmel === hjemmel
+    ) ?? null
   );
 };
+
+/**
+ * Byggherrens innsigelser mot varslene for kravpostene som et svar sendt `sendt` leses med, som
+ * kjernen regner svaret med (VS-U80, VS-U81). `null` er et svar fra løsningen.
+ */
+export const innsigelseneSomStaar = (u: Utledning, sendt: string | null) =>
+  standpunkteneTilVarslene(u, sendt, true).filter((x) => !x.iTide);
+
+/** U-15 i BF-49, OV-U120: kravpostene et eldre krav er varselet for, med brevet og datoen. */
+export { varseleneIEldreKrav } from '#kjerne/spor/vederlag/visning.ts';
 
 /**
  * Det første varselet etter § 34.1.3 i saken, registrert eller et krav, også et krav utenfor

@@ -10,7 +10,7 @@ import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import { innholdIFristen, type FristIKravet } from '#kjerne/spor/frist/format.ts';
 import { begrunnelsenKanAvvisesSomSvar, foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { definert, standpunktet, svarbrevet } from './kommandoer';
+import { definert, kravetSvaretGjelder, standpunktet, svarbrevet } from './kommandoer';
 import type { Krav, Svar } from '#kjerne/typer.ts';
 import { HJEMMEL } from '#kjerne/format/format.ts';
 
@@ -153,9 +153,10 @@ export function fristsvaret(
   v: Fristsvarvalg,
   u: Utledning,
   regler: Regelsett,
-  punktene: readonly string[] = []
+  punktene: readonly string[] = [],
+  sendt: string | null = null
 ): { type: 'brev'; svar: Svarutkast[] } | null {
-  const krav = u.spor.frist.gjeldendeKrav;
+  const { krav, paaberopelse } = kravetSvaretGjelder(u, 'frist', sendt);
   if (!krav) return null;
   const foresporsel = foresporselenISvaret(u);
   const ikkeSvar = v.begrunnelseIkkeSvar && begrunnelsenKanAvvisesSomSvar(u);
@@ -163,7 +164,7 @@ export function fristsvaret(
     'frist',
     krav,
     vurderingene(v, innholdIFristen(krav).frister, foresporsel !== null, ikkeSvar),
-    { paaberopelse: u.spor.forhold.gjeldendeKrav, foresporsel },
+    { paaberopelse, foresporsel },
     v,
     regler,
     punktene
