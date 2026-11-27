@@ -58,6 +58,20 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
+  // G-1 i BF-49: kategoriene lagt til, med datokontrollene for varselet og aksepten (D-3, D-9).
+  [
+    'TilbudtHandling',
+    'kommando',
+    'type spor hjemmel',
+    ['kommandoer/handlinger.ts:tilbudteLagtTil'],
+  ],
+  [
+    'kommandoer/nyttelast.ts',
+    'predikat',
+    'varseletsDato',
+    ['kommandoer/handlinger.ts:tilbudteLagtTil'],
+  ],
+  ['utledning/utled.ts', 'relasjon', 'svaretGjaldt', ['kommandoer/handlinger.ts:svarSomGjaldt']],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   // VS-U51, VS-U53: dokumentet kravskjemaet legger til som varselet for en kravpost, skrives

@@ -4674,8 +4674,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '          (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, k.sendt, u) : null);',
-        '          null;',
+        '    (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, sendt, u) : null)',
+        '    null',
       ],
     ],
     mal: ['et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet'],
@@ -8069,6 +8069,31 @@ const MUTASJONER: Mutasjon[] = [
       ['  if (data.retter !== undefined && !erRegistrert(dokument.opplysninger))', '  if (false)'],
     ],
     mal: ['en rad fra løsningen med en henvisning til en registrering, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F807g',
+    feilklasse:
+      'korrespondanse motparten sendte, får tilbud om kategoriene, ikke bare dokumentasjon (D-1 i BF-49)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['    avsender === part', '    true']],
+    mal: ['korrespondanse motparten sendte, legges bare til som dokumentasjon'],
+  },
+  {
+    id: 'F807h',
+    feilklasse:
+      'varselet etter punkt 32.2 sendt etter påberopelsen tilbys, men avvises (VS-U38, INV-MM-1, G-1 i BF-49)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      ["(h.type !== 'varsle' || varseletsDato(h.hjemmel!, sendt, u, regler) === null)", 'true'],
+    ],
+    mal: ['varselet etter punkt 32.2 sendt etter påberopelsen tilbys ikke'],
+  },
+  {
+    id: 'F807i',
+    feilklasse: 'aksepten lagt til tilbys uten et svar som gjaldt på dagen (D-9 i BF-49, OV-U98)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["(h.type !== 'godta' || svarSomGjaldt(u, h.spor!, sendt))", 'true']],
+    mal: ['aksepten tilbys bare når et svar i sporet var byggherrens gjeldende svar på dagen'],
   },
 ];
 

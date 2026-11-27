@@ -11,7 +11,9 @@ import {
   VARSEL_I_SPORET,
   type Handlingsnoekkel,
 } from './forutsetninger.ts';
-import { varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
+import { svaretGjaldt, varseletFoerBrevet, type Utledning } from '../utledning/utled.ts';
+import { varseletsDato } from './nyttelast.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
 import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typer.ts';
 
 /**
@@ -134,6 +136,58 @@ export function tilbudte(u: Utledning, part: Part): TilbudtHandling[] {
     .filter((h) => forutsetninger(h, part, u, null) === null)
     .map((h) => handling(h, sporTil));
 }
+
+/**
+ * Handlingstypene korrespondansen kan legges til som (OV-U80, OV-U98): krav, svar, nytt svar,
+ * aksept, varsel og dokumentasjon. Trekket, forespørselen, begrunnelsen og innlegget legges til
+ * som dokumentasjon (OV-U113, D-6 i BF-03).
+ */
+const LAGT_TIL: ReadonlySet<Handlingsnoekkel['type']> = new Set([
+  'krav',
+  'svare',
+  'revidere',
+  'godta',
+  'varsle',
+  'registrere_brev',
+]);
+
+/**
+ * G-1 i BF-49: kategoriene parten får tilbud om for korrespondanse sendt `sendt` av `avsender`, én
+ * handling per kategori og varsel, også varselet etter § 32.2 (D-6). Tilbudet leser de samme
+ * forutsetningene og datokontrollene for varselet som avvisningen (D-3, INV-MM-1). Korrespondanse
+ * motparten sendte, legges bare til som dokumentasjon (D-1).
+ */
+export function tilbudteLagtTil(
+  u: Utledning,
+  part: Part,
+  sendt: string,
+  avsender: Part,
+  regler: Regelsett
+): TilbudtHandling[] {
+  const sporTil = elementenesSpor(u);
+  const kandidatene: Handlingsnoekkel[] =
+    avsender === part
+      ? [
+          ...kandidater(u).filter((h) => LAGT_TIL.has(h.type)),
+          { type: 'varsle', spor: 'forhold', hjemmel: '32.2' },
+        ]
+      : [{ type: 'registrere_brev' }];
+  return kandidatene
+    .map((h) => handling(h, sporTil))
+    .filter(
+      (h, i) =>
+        forutsetninger(kandidatene[i]!, part, u, sendt) === null &&
+        (h.type !== 'varsle' || varseletsDato(h.hjemmel!, sendt, u, regler) === null) &&
+        (h.type !== 'godta' || svarSomGjaldt(u, h.spor!, sendt))
+    );
+}
+
+/**
+ * D-9 i BF-49, OV-U98: et svar i sporet var byggherrens gjeldende svar på dagen `dag`, så en aksept
+ * lagt til kan gjelde det. Kontrollen av registreringen leser det samme (`registreringenStrider`).
+ */
+const svarSomGjaldt = (u: Utledning, spor: Spor, dag: string): boolean =>
+  [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].some((s) => svaretGjaldt(u, s, dag));
 
 export function handlinger(u: Utledning, part: Part): string[] {
   return tilbudte(u, part).map((h) => h.noekkel);

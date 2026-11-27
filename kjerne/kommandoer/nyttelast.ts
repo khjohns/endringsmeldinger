@@ -65,6 +65,7 @@ import {
   type Part,
   type Spor,
   type Standpunkt,
+  type Varselhjemmel,
 } from '../typer.ts';
 import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts';
 
@@ -264,6 +265,23 @@ const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;
 type VarselOmForholdet = (typeof VARSLER_OM_FORHOLDET)[number];
 const erVarselOmForholdet = (hjemmel: string): hjemmel is VarselOmForholdet =>
   (VARSLER_OM_FORHOLDET as readonly string[]).includes(hjemmel);
+
+/**
+ * Det som hindrer et varsel etter `hjemmel` lagt til med datoen `sendt`, eller `null`: varselet
+ * etter § 32.2 før påberopelsen (VS-U38–VS-U40), og et varsel om forholdet ikke før datoen i
+ * påberopelsen (VS-U58). Tilbudet av varselet leser det samme (G-1 i BF-49, INV-MM-1).
+ */
+export function varseletsDato(
+  hjemmel: Varselhjemmel,
+  sendt: string,
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  return (
+    (hjemmel === '32.2' ? varseletEtter322(sendt, u, regler) : null) ??
+    (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, sendt, u) : null)
+  );
+}
 
 /**
  * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U86 punkt 1–5), med en korrigering
@@ -642,9 +660,7 @@ export function nyttelastkontroll(
       return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'varsel':
       for (const { hjemmel } of k.varsler) {
-        const hinder =
-          (hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
-          (erVarselOmForholdet(hjemmel) ? varseletFoerGrunnlagsdatoen(hjemmel, k.sendt, u) : null);
+        const hinder = varseletsDato(hjemmel, k.sendt, u, regler);
         if (hinder) return hinder;
       }
       return null;
