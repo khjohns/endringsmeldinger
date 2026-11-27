@@ -30,6 +30,7 @@
   import {
     kravetIKortform,
     tomtVarselsvar,
+    utenTekster,
     varselsvaret,
     varseletISvaret,
     type Varselsvalg,
@@ -92,8 +93,6 @@
       ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, varselet.foer.dokument),
     }
   );
-  const utenTekster = (v: Varselsvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
-  // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn (#1925).
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);

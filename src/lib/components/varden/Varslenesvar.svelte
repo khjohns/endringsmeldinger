@@ -25,6 +25,7 @@
     kravetIKortform,
     postvarselvalget,
     tomtVarslenesvar,
+    utenTekster,
     varseletIPosten,
     varslenesvaret,
     type Varslenesvalg,
@@ -67,8 +68,6 @@
   const uid = $props.id();
 
   const kravbrevet = $derived(brevMedUtsagn(u, varslene.kravversjon));
-  const utenTekster = (v: Varslenesvalg) => ({ ...v, begrunnelser: {}, forbehold: '' });
-  // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn (#1925).
   const utkast = $derived(varslenesvaret(utenTekster(valg), varslene, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
@@ -84,30 +83,34 @@
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen også før de er
   // besvart. Som i `Varselsvar` regnes et ubesvart varsel etter § 34.3.3 som innsigelse og en
   // ubesvart justering som bestridt.
-  const utfylt = $derived(
-    nyttSvarI(
-      varslenesvaret(
-        utenTekster({
-          ...valg,
-          poster: Object.fromEntries(
-            varslene.poster.map((p) => {
-              const v = postvarselvalget(valg, p.post.id);
-              return [
-                p.post.id,
-                p.hjemmel === '34.4'
-                  ? v
-                  : {
-                      varsletITide: v.varsletITide ?? false,
-                      godtarJustering: v.godtarJustering ?? false,
-                    },
-              ];
-            })
-          ),
-        }),
-        varslene,
-        kjernesak.regler
-      )
+  const utfylteValg = $derived(
+    Object.fromEntries(
+      varslene.poster.map((p) => {
+        const v = postvarselvalget(valg, p.post.id);
+        return [
+          p.post.id,
+          p.hjemmel === '34.4'
+            ? v
+            : {
+                varsletITide: v.varsletITide ?? false,
+                godtarJustering: v.godtarJustering ?? false,
+              },
+        ];
+      })
     )
+  );
+  // Utfylt er det samme svaret når alle spørsmålene er besvart, så kjernen kjøres bare én gang.
+  const utfylt = $derived(
+    varslene.poster.every(
+      (p) =>
+        p.hjemmel === '34.4' ||
+        (postvarselvalget(valg, p.post.id).varsletITide !== null &&
+          postvarselvalget(valg, p.post.id).godtarJustering !== null)
+    )
+      ? nyeStandpunkter
+      : nyttSvarI(
+          varslenesvaret(utenTekster({ ...valg, poster: utfylteValg }), varslene, kjernesak.regler)
+        )
   );
   const gjelderHvis = (p: VarseletIPosten, art: 'rettidighet' | 'justering'): Innsigelsen[] =>
     p.hjemmel === '34.4'

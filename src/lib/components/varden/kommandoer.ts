@@ -464,10 +464,22 @@ export function varselsvaret(
     resultat: {},
     ...utdypningene(v, punktene),
   };
-  return varselet.forrigeSvar
-    ? { type: 'revisjon', erstatter: varselet.forrigeSvar, svar }
-    : { type: 'brev', svar: [svar] };
+  return brevEllerRevisjon(svar, varselet.forrigeSvar);
 }
+
+/** Svaret i et nytt brev, eller som revisjon av det forrige svaret i kjeden (VS-U96 punkt 33). */
+const brevEllerRevisjon = (
+  svar: Svarutkast,
+  forrigeSvar: string | null
+):
+  | { type: 'brev'; svar: Svarutkast[] }
+  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } =>
+  forrigeSvar ? { type: 'revisjon', erstatter: forrigeSvar, svar } : { type: 'brev', svar: [svar] };
+
+/** Valgene uten begrunnelsene og forbeholdet, så svaret ikke regnes på nytt for hvert tegn (#1925). */
+export const utenTekster = <V extends { begrunnelser: Record<string, string>; forbehold: string }>(
+  v: V
+): V => ({ ...v, begrunnelser: {}, forbehold: '' });
 
 /** Det BH har valgt for varselet i én kravpost i svaret bare på varslene (VS-U96 punkt 38). */
 export interface Postvarselvalg {
@@ -537,9 +549,7 @@ export function varslenesvaret(
     resultat: {},
     ...utdypningene(v, punktene),
   };
-  return varslene.forrigeSvar
-    ? { type: 'revisjon', erstatter: varslene.forrigeSvar, svar }
-    : { type: 'brev', svar: [svar] };
+  return brevEllerRevisjon(svar, varslene.forrigeSvar);
 }
 
 /** TEs aksept av svaret `svar`, med regelversjonen brevet forhåndsvises med (KA-U10, MM-U50). */
