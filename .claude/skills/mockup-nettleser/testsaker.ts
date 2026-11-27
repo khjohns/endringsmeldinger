@@ -506,7 +506,7 @@ export const TESTSAKER: Record<string, Testsak> = {
   'varselsvar-34-1-2-endring': {
     tittel: 'Omlegging av overvann ved port 2',
     formaal:
-      '#2447: gjelder saken en endring, tilbys ikke standpunktet til varselet etter punkt 34.1.2 (OV-U89 punkt 13).',
+      '#2447, #2470: gjelder saken en endring, tilbys ikke svaret på varselet etter punkt 34.1.2 (OV-U89 punkt 13).',
     spor: 'vederlag',
     steg: [
       {
@@ -521,12 +521,10 @@ export const TESTSAKER: Record<string, Testsak> = {
     ],
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
-      await bh.getByRole('button', { name: 'Svar på varselet om vederlagsjustering' }).click({ timeout: 30_000 });
-      await bh.getByRole('heading', { name: /^Svar på varsel om vederlagsjustering/ }).waitFor();
+      await bh.getByRole('button', { name: 'Legg til korrespondanse' }).waitFor({ timeout: 30_000 });
+      const knapper = await bh.getByRole('button', { name: /^Svar på varselet/ }).count();
+      if (knapper !== 0) throw new Error(`Svaret på varselet tilbys (${knapper} knapper), OV-U89 punkt 13.`);
       await bh.screenshot({ path: `${ut}/varselsvar-3412-endring.png`, fullPage: true });
-      await bh.getByText(/krever ikke punkt.34\.1\.2 varsel\. Du tar ikke/).first().waitFor({ timeout: 5_000 });
-      await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
-      await bh.screenshot({ path: `${ut}/varselsvar-3412-endring-mangler.png`, fullPage: true });
     },
   },
   innlegg: {
