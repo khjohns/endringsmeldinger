@@ -31,6 +31,7 @@
     kravetIKortform,
     tomtVarselsvar,
     utenTekster,
+    utfyltVarselsvalg,
     varselsvaret,
     varseletISvaret,
     type Varselsvalg,
@@ -111,21 +112,12 @@
     hjemmel === '34.1.2' || hjemmel === '34.1.3' || hjemmel === '33.4'
   );
   // OV-U32, VS-U4: det varselet og justeringen gjelder hvis, lest av kjernen, også før de er
-  // besvart. Som i utfyllingen for kravposten (`lagIVederlaget`) regnes et ubesvart varsel som
-  // innsigelse og en ubesvart justering som bestridt.
+  // besvart (`utfyltVarselsvalg`).
   const utfylt = $derived(
     hjemmel !== '34.4' &&
       (valg.varsletITide === null || (hjemmel === '34.3.3' && valg.godtarJustering === null))
       ? nyttSvarI(
-          varselsvaret(
-            utenTekster({
-              ...valg,
-              varsletITide: valg.varsletITide ?? false,
-              godtarJustering: valg.godtarJustering ?? false,
-            }),
-            varselet,
-            kjernesak.regler
-          )
+          varselsvaret(utenTekster(utfyltVarselsvalg(valg, hjemmel)), varselet, kjernesak.regler)
         )
       : nyeStandpunkter
   );

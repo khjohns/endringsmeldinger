@@ -25,6 +25,7 @@ import {
   type Spor,
   type Standpunkt,
   type Svar,
+  type SvarbarVarselhjemmel,
 } from '#kjerne/typer.ts';
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
@@ -430,6 +431,17 @@ export const tomtVarselsvar = (): Varselsvalg => ({
   forbehold: '',
 });
 
+/**
+ * Valgene med et ubesvart varsel som innsigelse og en ubesvart justering som bestridt, som i
+ * utfyllingen for kravposten (`lagIVederlaget`), så kjernen leser det varselet og justeringen
+ * gjelder hvis før de er besvart (OV-U32, VS-U4). Standpunktet etter § 34.4 har ikke noe lag
+ * (KA-U64), så valgene står.
+ */
+export const utfyltVarselsvalg = (v: Varselsvalg, hjemmel: SvarbarVarselhjemmel): Varselsvalg =>
+  hjemmel === '34.4'
+    ? v
+    : { ...v, varsletITide: v.varsletITide ?? false, godtarJustering: v.godtarJustering ?? false };
+
 /** Standpunktet til varselet i svaret på det, regnet som for kravposten (`varseletIValgene`). */
 export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolean | null =>
   standpunktetIValget(v.varsletITide, varselet.foer?.iTide === false, varselet.hjemmel === '34.4');
@@ -440,15 +452,24 @@ export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolea
  * resultat (arbeidsvalg 1 A i #2177). Begrunnelsen står bare for `punktene` brevet har, som i
  * `svarbrevet`.
  */
-export function varselsvaret(
+export const varselsvaret = (
   v: Varselsvalg,
   varselet: VarseletAlene,
   regler: Regelsett,
   punktene: readonly string[] = []
 ):
   | { type: 'brev'; svar: Svarutkast[] }
-  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
-  const svar: Svarutkast = {
+  | { type: 'revisjon'; erstatter: string; svar: Svarutkast } =>
+  brevEllerRevisjon(svaretPaaVarselet(v, varselet, regler, punktene), varselet.forrigeSvar);
+
+/** Svaret på varselet i `varselsvaret` og `varselbrevsvaret`. */
+function svaretPaaVarselet(
+  v: Varselsvalg,
+  varselet: VarseletAlene,
+  regler: Regelsett,
+  punktene: readonly string[]
+): Svarutkast {
+  return {
     spor: VARSELSPOR[varselet.hjemmel],
     gjelder: varselet.kravversjon ?? varselet.id,
     // VS-U96 punkt 38: svaret bare på varselet i kravversjonen.
@@ -464,7 +485,37 @@ export function varselsvaret(
     resultat: {},
     ...utdypningene(v, punktene),
   };
-  return brevEllerRevisjon(svar, varselet.forrigeSvar);
+}
+
+/** Det BH har valgt i svaret på varslene i et brev, per varsel (M-5 og U-8 i BF-37, #2451). */
+export type Varselbrevvalg = Record<string, Varselsvalg>;
+
+export const varselvalget = (v: Varselbrevvalg, varsel: string): Varselsvalg =>
+  v[varsel] ?? tomtVarselsvar();
+
+/** Om BH har tatt stilling til varselet i svaret på varslene i brevet. */
+export const harStandpunkt = (v: Varselsvalg, varselet: VarseletAlene): boolean =>
+  varseletISvaret(v, varselet) !== null ||
+  (varselet.hjemmel === '34.3.3' && v.godtarJustering !== null);
+
+/**
+ * BHs svar på varslene i et brev som står alene, ett svar per varsel BH har tatt stilling til
+ * (svaret 27.11 i #2451, VS-U96 punkt 32). Begrunnelsen
+ * for et varsel står bare for punktene svaret på det har i brevet (`punktene`), som i
+ * `svarbrevet`.
+ */
+export function varselbrevsvaret(
+  v: Varselbrevvalg,
+  varslene: readonly VarseletAlene[],
+  regler: Regelsett,
+  punktene: (varsel: string) => readonly string[] = () => []
+): { type: 'brev'; svar: Svarutkast[] } {
+  return {
+    type: 'brev',
+    svar: varslene
+      .filter((x) => harStandpunkt(varselvalget(v, x.id), x))
+      .map((x) => svaretPaaVarselet(varselvalget(v, x.id), x, regler, punktene(x.id))),
+  };
 }
 
 /** Svaret i et nytt brev, eller som revisjon av det forrige svaret i kjeden (VS-U96 punkt 33). */

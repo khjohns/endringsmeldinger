@@ -34,6 +34,7 @@ import { svaretsVarsel } from '#kjerne/kommandoer/standpunkter.ts';
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
+import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
 export type Kravpostutkast = Pick<Kravpost, 'oppgjoersform' | 'justert'> & { id?: string };
@@ -275,6 +276,36 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
     arbeid: arbeidetI(u, v.id),
     kravversjon: null,
   };
+}
+
+/**
+ * Varslene som står alene i brevet med varselet `gjelder`, i brevets rekkefølge og i samme spor, når
+ * kjernen tilbyr byggherrens første svar på flere av dem (M-5 i BF-37, svaret 27.11 i #2451, VS-U96
+ * punkt 33). Ellers `null`, og svaret på varselet har sitt eget skjema. `nr` er nummeret varselet
+ * har i brevet (U-6 i BF-37).
+ */
+export function varsleneIBrevet(
+  u: Utledning,
+  tilbudte: readonly Pick<TilbudtHandling, 'type' | 'gjelder'>[],
+  gjelder: string
+): (VarseletAlene & { nr: number })[] | null {
+  const svarbare = new Set(
+    tilbudte.flatMap((h) => (h.type === 'svare' && h.gjelder ? [h.gjelder] : []))
+  );
+  const rad = u.journal.find(
+    (r) => r.art === 'dokument' && r.dokument.utsagn.some((x) => x.id === gjelder)
+  );
+  if (rad?.art !== 'dokument') return null;
+  // Byggherrens første svar på et varsel som står alene (VS-U96 punkt 32 og 33).
+  const foersteSvar = rad.dokument.utsagn.flatMap((x, i) => {
+    const v = svarbare.has(x.id) ? varseletSvaretPaa(u, x.id) : null;
+    return v && v.kravversjon === null && v.forrigeSvar === null ? [{ ...v, nr: i + 1 }] : [];
+  });
+  const det = foersteSvar.find((v) => v.id === gjelder);
+  const varslene = det
+    ? foersteSvar.filter((v) => VARSELSPOR[v.hjemmel] === VARSELSPOR[det.hjemmel])
+    : [];
+  return varslene.length > 1 ? varslene : null;
 }
 
 /**

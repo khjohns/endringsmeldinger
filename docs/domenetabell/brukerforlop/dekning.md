@@ -398,4 +398,5 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U89](../../plans/vedtak.md#vs-u89) | — | BF-03 te-har-mottatt-svaret | — |
 | [VS-U90](../../plans/vedtak.md#vs-u90) | — | BF-03 te-har-mottatt-svaret | — |
 | [VS-U91](../../plans/vedtak.md#vs-u91) | — | BF-49 bh-svarer-etter-det-eldre-kravet | — |
+| [VS-U96](../../plans/vedtak.md#vs-u96) | — | — | BF-14, BF-20 |
 | [VS-U97](../../plans/vedtak.md#vs-u97) | — | — | BF-20 |
