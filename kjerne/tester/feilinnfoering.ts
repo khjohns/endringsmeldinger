@@ -7839,6 +7839,19 @@ const MUTASJONER: Mutasjon[] = [
       'kan sendes til byggherren har svart på vederlagskravet (VS-U96 punkt 33)',
     ],
   },
+  {
+    id: 'F2456b',
+    feilklasse:
+      'et svar på varselet lagt til, sendt før byggherren svarte på kravversjonen, prøves mot svarene sendt senere (VS-U96 punkt 33, OV-U98, #2456)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "        (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))",
+        '        true',
+      ],
+    ],
+    mal: ['til byggherren har svart på den (VS-U96 punkt 33)'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

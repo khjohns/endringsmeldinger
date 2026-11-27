@@ -318,15 +318,15 @@ export function hindrerSvaretPaaVarselet(
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
-  // VS-U96 punkt 33: byggherren kan svare på varselet fram til byggherren har svart på en
-  // kravversjon med det varselet gjelder: kravposten som viser til varselet etter § 34.3.3 eller
-  // § 34.4, vederlagskravet for § 34.1.2 og den særskilte vederlagsjusteringen for § 34.1.3.
+  // VS-U96 punkt 33: byggherrens svar med virkning på kravversjonene med det varselet gjelder.
   const dokumentene = [...dokumenterI(u.journal)];
   const kravene = new Map(dokumentene.flatMap((d) => d.krav.map((k) => [k.id, k] as const)));
+  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
   const besvartIKravet = dokumentene.some((d) =>
     d.svar.some((x) => {
       const k = kravene.get(x.gjelder);
       return (
+        medVirkning.has(x.id) &&
         k?.spor === 'vederlag' &&
         (varselet.hjemmel === '34.1.2' ||
           (varselet.hjemmel === '34.1.3'

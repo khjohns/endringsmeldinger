@@ -154,18 +154,24 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
         },
       ])
     );
-    const svaret = () =>
+    const svaret = (sendt: string) =>
       s.avvist(
         'BH',
-        lagtTil(dagen(s), [
+        lagtTil(sendt, [
           svar('vederlag', varsel, { varslet_i_tide: false, godtar_justering: false }, {}, null),
         ])
       );
+    const foerSvaretPaaKravet = dagen(s);
     expect(handlinger(s.u(), 'BH')).toContain(`svare:${varsel}`);
-    expect(svaret()).toBeNull();
+    expect(svaret(foerSvaretPaaKravet)).toBeNull();
     s.send('BH', svarPaaKravet(s, {}, { aksepterer: true, godtar_justering: true }));
     expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
-    expect(svaret()).toBe('KRAVET_ER_BESVART');
+    expect(svaret(dagen(s))).toBe('KRAVET_ER_BESVART');
+    // OV-U98: et svar lagt til, sendt før byggherren svarte på kravet, prøves mot svarene da.
+    expect(dagen(s) > foerSvaretPaaKravet, 'forutsetning: svaret på kravet er sendt senere').toBe(
+      true
+    );
+    expect(svaret(foerSvaretPaaKravet)).toBeNull();
   });
 });
 
