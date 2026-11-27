@@ -4,7 +4,13 @@
  * `regler/frist.ts`.
  */
 
-import { erRegistrert, standpunkterISvaret } from '../../format/leser.ts';
+import {
+  dagenSendt,
+  dokumenterI,
+  erRegistrert,
+  foerDagen,
+  standpunkterISvaret,
+} from '../../format/leser.ts';
 import { omtalen } from '../../frosset/brevdeler.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
@@ -26,7 +32,7 @@ import {
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
-import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
+import type { Sporsstandpunkter, Svaretsvarsel } from '../../kommandoer/standpunkter.ts';
 import type {
   Kontekst,
   Skrivesteg,
@@ -57,10 +63,12 @@ import {
 } from './frysing.ts';
 import {
   kontroller as kontrollerFristen,
+  kontrollerSvaretPaaFristvarselet,
   paakrevdeSpoersmaal,
   type Fristspoersmaal,
 } from '../../regler/frist.ts';
 import { mangler } from '../../regler/typer.ts';
+import type { Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   innholdetIDokumentet,
   innholdetIVedleggene,
@@ -185,6 +193,77 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) =>
     foresporselForFristsvar(u),
     nyId
   );
+
+/**
+ * VS-U96 punkt 32: varselet om fristforlengelse etter § 33.4 som står alene, et svar med `gjelder`
+ * gjelder, eller `null`. Et krav som selv er varselet, er ikke et varsel som står alene.
+ */
+export function fristvarseletSvaretGjelder(
+  u: Utledning,
+  gjelder: string
+): Svaretsvarsel<'33.4'> | null {
+  const v = u.spor.frist.varsler['33.4'];
+  return v?.id === gjelder ? { id: v.id, hjemmel: '33.4' } : null;
+}
+
+/**
+ * VS-U96 punkt 32 og 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 33.4 som
+ * står alene, eller et nytt svar som erstatter det forrige (`hva`). Byggherren kan svare til
+ * byggherren har svart på et krav om fristforlengelse med dager. Et svar lagt til, sendt på dagen
+ * `sendt`, prøves mot byggherrens svar på kravene sendt til og med den dagen (OV-U98).
+ */
+export function hindrerSvaretPaaFristvarselet(
+  u: Utledning,
+  gjelder: string,
+  hva: 'Svaret' | 'Revisjonen',
+  sendt: string | null
+): Avvisning | null {
+  const sporet = u.spor.frist;
+  if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  if (hva === 'Svaret' && forrige)
+    return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
+  if (hva === 'Revisjonen' && !forrige)
+    return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
+  // VS-U96 punkt 33: hvert krav om fristforlengelse har dager.
+  const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
+  const besvart = [...dokumenterI(u.journal)].some((d) =>
+    d.svar.some(
+      (x) =>
+        medVirkning.has(x.id) &&
+        (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
+    )
+  );
+  return besvart
+    ? avvis(
+        'KRAVET_ER_BESVART',
+        `${hva} kan ikke gjelde varselet, fordi byggherren har svart på kravet om fristforlengelse. Byggherren tar stilling til varselet i svaret på kravet.`
+      )
+    : null;
+}
+
+/** VS-U96 punkt 32: vurderingen i svaret på varselet etter § 33.4 (`kontrollerSvaretPaaFristvarselet`). */
+export function vurderingeneISvaretPaaFristvarselet(s: Svarutkast): Avvisning | null {
+  const feil = avvisteFelt(() =>
+    kontrollerSvaretPaaFristvarselet(s.vurderinger as Record<string, unknown>)
+  );
+  const grunner = Object.entries(feil).map(([felt, grunn]) => `${felt}: ${grunn}`);
+  return grunner.length
+    ? avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke godtas: ${grunner.join('; ')}.`)
+    : null;
+}
+
+/** VS-U96 punkt 32: standpunktet i svaret på varselet etter § 33.4 som står alene. */
+export function standpunkterPaaFristvarselet(
+  v: Svarvurdering,
+  varselet: Svaretsvarsel<'33.4'>,
+  nyId: () => string
+): Record<string, unknown>[] {
+  const iTide = (v as Record<string, unknown>).varslet_i_tide;
+  return typeof iTide === 'boolean'
+    ? [{ id: nyId(), art: 'rettidighet', gjelder: varselet.id, hjemmel: '33.4', i_tide: iTide }]
+    : [];
+}
 
 /**
  * Det i et foregående lag som rammer standpunktet (OV-U32): en grunn fra forholdet, en innsigelse

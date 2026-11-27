@@ -20,7 +20,13 @@ import {
 } from '../../frosset/brevdeler.ts';
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
-import { dager, FORHOLDET, INNLEDNINGEN, INNSIGELSEN_MOT } from '../../frosset/tekst.ts';
+import {
+  dager,
+  FORHOLDET,
+  INNLEDNINGEN,
+  INNSIGELSEN_MOT,
+  SENT_I_LINJEN,
+} from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
 import {
   betegnelsen,
@@ -28,6 +34,7 @@ import {
   innsigelsenIFristen,
   type InnsigelseIFristen,
   innholdIFristen,
+  svaretGjelderFristvarselet,
   type FristIKravet,
 } from './format.ts';
 import { svarPaaForesporsler } from './frysing.ts';
@@ -274,6 +281,12 @@ export const LINJEN_I_FRISTEN = {
   egetLedd: () => undefined,
   // Hvert ledd for dagene nevner fristen, også når kravet har én frist (#1943).
   ledd: (svar, v, kravet) => {
+    // VS-U96 punkt 32: «i tide» i svaret på varselet etter § 33.4 er et standpunkt uten lag.
+    const [varselet] = svar.standpunkter;
+    if (svaretGjelderFristvarselet(svar))
+      return varselet?.art === 'rettidighet' && varselet.iTide
+        ? [{ tekst: `${SENT_I_LINJEN['33.4']} kom i tide`, virkning: virkningen(v, varselet.id) }]
+        : [];
     const dagene = svar.standpunkter.filter((d) => d.art === 'dager');
     if (!dagene.length) return [];
     const krav = kravetMedFristene(

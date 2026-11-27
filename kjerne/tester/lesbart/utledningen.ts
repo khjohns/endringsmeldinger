@@ -82,6 +82,7 @@ export const UTLEDNINGEN: Lesbar[] = [
       // OV-U104: om svaret med standpunktet etter § 34.4 er lagt til.
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],
   // VS-U79: om svaret gjelder et varsel, og om det står alene.

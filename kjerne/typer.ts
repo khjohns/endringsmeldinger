@@ -71,6 +71,13 @@ export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostva
 export type Vederlagsvarselhjemmel = '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
 export const erVederlagsvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Vederlagsvarselhjemmel =>
   hjemmel === '34.1.2' || hjemmel === '34.1.3' || erKravpostvarselhjemmel(hjemmel);
+/**
+ * Varslene byggherren kan svare på når de står alene: varslene i vederlaget og varselet om
+ * fristforlengelse etter § 33.4 (VS-U96 punkt 30–34).
+ */
+export type SvarbarVarselhjemmel = '33.4' | Vederlagsvarselhjemmel;
+export const erSvarbarVarselhjemmel = (hjemmel: Hjemmel): hjemmel is SvarbarVarselhjemmel =>
+  hjemmel === '33.4' || erVederlagsvarselhjemmel(hjemmel);
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
 export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
 export const VARSELSPOR = {

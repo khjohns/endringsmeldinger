@@ -391,6 +391,40 @@ export const UTREGNINGEN: Lesbar[] = [
     'hindrerSvaretPaaVarselet',
     ['kommandoer/forutsetninger.ts:henvisning'],
   ],
+  // VS-U96 punkt 32 og 33: svaret på varselet etter § 33.4 som står alene.
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'hindrerSvaretPaaFristvarselet',
+    ['kommandoer/forutsetninger.ts:henvisning'],
+  ],
+  ['spor/frist/kommando.ts:standpunkterPaaFristvarselet(v)', 'utsagn', 'varslet_i_tide'],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'standpunkterPaaFristvarselet',
+    ['kommandoer/standpunkter.ts:standpunkter'],
+  ],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'vurderingeneISvaretPaaFristvarselet',
+    ['kommandoer/nyttelast.ts:kontrollerSvaretPaaVarselet'],
+  ],
+  [
+    'regler/frist.ts',
+    'regelsett',
+    'kontrollerSvaretPaaFristvarselet',
+    ['spor/frist/kommando.ts:vurderingeneISvaretPaaFristvarselet'],
+  ],
+  ['regler/frist.ts:kontrollerSvaretPaaFristvarselet(v)', 'utsagn', 'varslet_i_tide'],
+  [
+    'spor/frist/format.ts',
+    'predikat',
+    'svaretGjelderFristvarselet',
+    // VS-U96 punkt 32: tittelen på svaret på varselet etter § 33.4.
+    ['spor/frist/frysing.ts', 'spor/frist/tekst.ts', 'frosset/brevtittel.ts'],
+  ],
   // VS-U79, VS-U77 punkt 30 og 31: standpunktene i svaret på et varsel som står alene.
   [
     'spor/vederlag/kommando.ts:standpunkterPaaVarselet(v)',
@@ -437,6 +471,7 @@ export const UTREGNINGEN: Lesbar[] = [
     [
       'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
       'spor/vederlag/kommando.ts:hindrerSvaretPaaVarselet',
+      'spor/frist/kommando.ts:hindrerSvaretPaaFristvarselet',
     ],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],

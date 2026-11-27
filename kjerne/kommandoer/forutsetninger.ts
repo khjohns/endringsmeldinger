@@ -11,7 +11,11 @@
 
 import { sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
 import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
-import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
+import {
+  FORUTSETNINGER_I_FRISTEN,
+  fristvarseletSvaretGjelder,
+  hindrerSvaretPaaFristvarselet,
+} from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { PARTEN } from '../frosset/brevdeler.ts';
@@ -106,7 +110,9 @@ function henvisning(
       // HF-U35 punkt 9, som for svaret på kravet.
       return u.forholdAvvist
         ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT)
-        : hindrerSvaretPaaVarselet(
+        : (fristvarseletSvaretGjelder(u, h.gjelder)
+            ? hindrerSvaretPaaFristvarselet
+            : hindrerSvaretPaaVarselet)(
             u,
             h.gjelder,
             h.type === 'svare' ? 'Svaret' : 'Revisjonen',

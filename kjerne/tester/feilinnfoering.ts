@@ -7865,6 +7865,41 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['sporet.krav.slice(0, i + 1).reverse()', '[k]']],
     mal: ['der kravposten beholder varselet fra den forrige uten valg'],
   },
+  {
+    id: 'F2456d',
+    feilklasse:
+      'byggherren får ikke tilbud om å svare på varselet etter punkt 33.4 som står alene (VS-U96 punkt 32, #2456)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["    u.spor.frist.varsler['33.4'],", '']],
+    mal: ['byggherren får tilbud om å svare på varselet, ikke om å erstatte'],
+  },
+  {
+    id: 'F2456e',
+    feilklasse:
+      'svaret på varselet etter punkt 33.4 tas imot etter at byggherren har svart på kravet om fristforlengelse (VS-U96 punkt 33, #2456)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['        medVirkning.has(x.id) &&', '        false &&']],
+    mal: [
+      'svaret kan gis etter kravet om fristforlengelse, til byggherren har svart på det (punkt 33)',
+      'det nye svaret på varselet kan sendes til byggherren har svart på kravet (punkt 33)',
+    ],
+  },
+  {
+    id: 'F2456f',
+    feilklasse:
+      'forespørselen etter punkt 33.6.2 fastholder ikke påberopelsen i svaret på varselet etter punkt 33.4 (VS-U96 punkt 34, LV-U84 punkt 18, #2456)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  if (etter334)', '  if (false)']],
+    mal: ['forespørselen sier at byggherren fastholder innsigelsen'],
+  },
+  {
+    id: 'F2456g',
+    feilklasse:
+      'svaret på varselet etter punkt 33.4 tas imot uten standpunktet til varselet (VS-U96 punkt 32, #2456)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [["  if (typeof v.varslet_i_tide !== 'boolean')", '  if (false)']],
+    mal: ['svaret uten standpunktet til varselet avvises (punkt 32)'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

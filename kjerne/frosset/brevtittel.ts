@@ -10,10 +10,12 @@ import {
   type Sakskode,
   type Spor,
   type Svar,
+  type SvarbarVarselhjemmel,
   type Vederlagsvarselhjemmel,
 } from '../typer.ts';
 import { liste } from './brevdeler.ts';
 import { svaretGjelderEtVarsel } from '../spor/vederlag/format.ts';
+import { svaretGjelderFristvarselet } from '../spor/frist/format.ts';
 import { medHardeMellomrom, sakensKode } from './tekst.ts';
 import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
@@ -101,7 +103,7 @@ export const KRAVTITTEL: Record<Spor, string> = {
  * brevet svarer på flere krav, «kravet om …» (LV-U80, LV-U81). Svaret på et varsel som står alene,
  * nevner varselet (VS-U87 punkt 30–32, VS-U79).
  */
-const SVARET_GJELDER: Record<Spor | Vederlagsvarselhjemmel, { tittel: string; del: string }> = {
+const SVARET_GJELDER: Record<Spor | SvarbarVarselhjemmel, { tittel: string; del: string }> = {
   forhold: { tittel: 'forholdet', del: 'forholdet' },
   vederlag: { tittel: 'krav om vederlagsjustering', del: 'kravet om vederlagsjustering' },
   frist: { tittel: 'krav om fristforlengelse', del: 'kravet om fristforlengelse' },
@@ -115,6 +117,7 @@ const SVARET_GJELDER: Record<Spor | Vederlagsvarselhjemmel, { tittel: string; de
     del: 'varselet om justering av enhetsprisene',
   },
   '34.4': { tittel: 'varsel om regningsarbeid', del: 'varselet om regningsarbeid' },
+  '33.4': { tittel: 'varsel om fristforlengelse', del: 'varselet om fristforlengelse' },
 };
 
 const svartittel = (hva: keyof typeof SVARET_GJELDER) => `Svar på ${SVARET_GJELDER[hva].tittel}`;
@@ -131,10 +134,13 @@ export const SVARTITTEL_PAA_VARSELET = {
   '34.1.3': svartittel('34.1.3'),
   '34.3.3': svartittel('34.3.3'),
   '34.4': svartittel('34.4'),
+  '33.4': svartittel('33.4'),
 } as const;
 
 export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter'>) =>
-  SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
+  s.spor === 'frist' && svaretGjelderFristvarselet(s)
+    ? SVARET_GJELDER['33.4']
+    : SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
 
 /** Svarene i rekkefølgen de står i brevet og i tittelen: forholdet først (LV-U34, LV-U80). */
 export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly S[]): S[] =>
