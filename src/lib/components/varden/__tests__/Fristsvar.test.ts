@@ -20,6 +20,8 @@ import {
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
 import { tomtFristsvar, type Fristsvarvalg } from '#lib/components/varden/fristsvar.ts';
 import { reaktiv } from './reaktiv.svelte.ts';
+import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
 import Fristsvar from '#lib/components/varden/Fristsvar.svelte';
 
 const medFristkrav = skrevet(medGrunnlag, 'TE', {
@@ -37,6 +39,27 @@ const medFristkrav = skrevet(medGrunnlag, 'TE', {
 /** Kravet om dager svarer på byggherrens forespørsel etter punkt 33.6.2 (HF-U1, LV-U18 punkt 3). */
 const medSvarPaaForesporsel = skrevet(
   skrevet(medFristvarsel, 'BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' }),
+  'TE',
+  {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { frister: [{ navn: 'Sluttfristen', dager: 10 }] },
+    utdypning: 'Pelingen tar to uker lenger.',
+  }
+);
+
+/** Totalentreprenøren begrunner etter punkt 33.6.2 annet ledd b, og sender så kravet (VS-U88 punkt 8). */
+const medForesporsel = skrevet(medFristvarsel, 'BH', {
+  type: 'foresporsel',
+  spor: 'frist',
+  hjemmel: '33.6.2',
+});
+const medKravEtterBegrunnelsen = skrevet(
+  skrevet(medForesporsel, 'TE', {
+    type: 'foresporselssvar',
+    gjelder: utledJournal(medForesporsel, KJERNE).spor.frist.foresporsler[0]!.foresporsel,
+    utdypning: 'Omfanget av omprosjekteringen er ikke kjent ennå.',
+  }),
   'TE',
   {
     type: 'krav',
@@ -450,5 +473,84 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       expect(vurderingen(sendt)).not.toHaveProperty('spesifisert_krav_ok');
       expect(vurderingen(sendt).frister).toEqual([{ dager: 10 }]);
     });
+  });
+});
+
+describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS-U95, #2462)', () => {
+  const ikkeSvar = () => screen.queryByRole('radio', { name: /^Begrunnelsen er ikke et svar/ });
+  const svarPaaResten = async () => {
+    await radio('Varslet i tide');
+    await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+    await radio('Spesifisert i tide');
+    await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: '10' } });
+  };
+
+  it('i svaret på det første kravet etter begrunnelsen sender valget `begrunnelse_ikke_svar` og ikke `foresporsel_svar_ok`', async () => {
+    const sendt = await svarskjemaet(medKravEtterBegrunnelsen);
+    expect(ikkeSvar()).toBeInTheDocument();
+    // Valget nevner totalentreprenørens begrunnelse og brevet, som brevteksten (VS-U95).
+    expect(ikkeSvar()!.closest('label')?.textContent).toMatch(
+      /Totalentreprenørens begrunnelse i brev.3 er ikke et svar på forespørselen/
+    );
+    expect(
+      screen.getByRole('group', {
+        name: /Hvordan svarte totalentreprenøren på forespørselen om dagene/,
+      })
+    ).toBeInTheDocument();
+    await svarPaaResten();
+    await fireEvent.click(ikkeSvar()!);
+    const panelet = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(
+      panelet.getByText(/gjeldende at begrunnelsen ikke er et svar etter punkt.33\.6\.2 annet ledd/)
+    ).toBeInTheDocument();
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    const v = vurderingen(sendt);
+    expect(v.begrunnelse_ikke_svar).toBe(true);
+    expect(v).not.toHaveProperty('foresporsel_svar_ok');
+  });
+
+  it('kontrollsak: «Svarte for sent» etter valget sender `foresporsel_svar_ok` og ikke standpunktet', async () => {
+    const sendt = await svarskjemaet(medKravEtterBegrunnelsen);
+    await svarPaaResten();
+    await fireEvent.click(ikkeSvar()!);
+    await radio('Svarte for sent');
+    await seBrevet();
+    const v = vurderingen(sendt);
+    expect(v.foresporsel_svar_ok).toBe(false);
+    expect(v).not.toHaveProperty('begrunnelse_ikke_svar');
+  });
+
+  it('står ikke når kravet svarer på forespørselen (VS-U95)', async () => {
+    await svarskjemaet(medSvarPaaForesporsel);
+    expect(screen.getByRole('radio', { name: 'Svarte i tide' })).toBeInTheDocument();
+    expect(ikkeSvar()).toBeNull();
+    expect(
+      screen.getByRole('group', { name: /Kom svaret på forespørselen om dagene i tide/ })
+    ).toBeInTheDocument();
+  });
+
+  it('står ikke i svaret på en senere kravversjon etter begrunnelsen (VS-U88 punkt 9)', async () => {
+    const senere = skrevet(medKravEtterBegrunnelsen, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 12 }] },
+      utdypning: 'Pelingen tar litt lenger.',
+    });
+    expect(
+      utledJournal(senere, KJERNE).spor.frist.gjeldendeKrav!.erstatter,
+      'forutsetning'
+    ).not.toBeNull();
+    const valg = reaktiv({ ...tomtFristsvar(), begrunnelseIkkeSvar: true });
+    const sendt = await svarskjemaet(senere, valg);
+    expect(screen.getByRole('radio', { name: 'Svarte i tide' })).toBeInTheDocument();
+    expect(ikkeSvar()).toBeNull();
+    // Valget fra utkastet nullstilles og sendes ikke.
+    expect(valg.begrunnelseIkkeSvar).toBe(false);
+    await svarPaaResten();
+    await radio('Svarte i tide');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(vurderingen(sendt)).not.toHaveProperty('begrunnelse_ikke_svar');
   });
 });
