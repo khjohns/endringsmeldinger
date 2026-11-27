@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1e71d3177df4933227a637763676d74f4f4cf1522b29846437d0b5a9082a9185`
+Kontrollsum (SHA-256 over utdraget visningen leser): `0148013a4059301aaa57b67173f224667573f6538cb11fce0e36a900d51c39ff`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4042,7 +4042,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-F-hindring-avslaatt (målmodellen), F-MM-F-hindring-prekludert (målmodellen)
 
 ### <a id="lv-u88"></a>LV-U88
 
@@ -4582,7 +4582,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-F-hindring-avslaatt (målmodellen), F-MM-F-hindring-prekludert (målmodellen)
 
 ### <a id="ov-u43"></a>OV-U43
 

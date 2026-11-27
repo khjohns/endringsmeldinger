@@ -6102,8 +6102,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
-        "      const virkning = s.oppfylt && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();",
-        "      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();",
+        "        s.oppfylt && !etterInnsigelseOmTap && forskyvning === 0 ? 'uten_virkning' : iLaget();",
+        "        s.oppfylt && forskyvning === 0 ? 'uten_virkning' : iLaget();",
       ],
     ],
     mal: ['KA-U84: bekreftet hindring får vilkåret', 'KA-U84: hindringen i utkastet får vilkåret'],
@@ -8269,6 +8269,62 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [['begrunnelsenKanAvvisesSomSvar(u, krav)', 'begrunnelsenKanAvvisesSomSvar(u)']],
     mal: ['også etter en ny kravversjon'],
+  },
+  {
+    id: 'F2438a',
+    feilklasse:
+      'en oppfylt hindring står uten lag også når forholdet er avslått eller prekludert (LV-U85 punkt 11, #2438)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "        s.oppfylt && !etterInnsigelseOmTap && forskyvning === 0 ? 'uten_virkning' : iLaget();",
+        "        s.oppfylt && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();",
+      ],
+    ],
+    mal: [
+      'LV-U85 punkt 11: med forholdet avslått står en oppfylt hindring',
+      'LV-U85 punkt 11: med forholdet prekludert står hindringen i fristens lag',
+      'F-MM-F-hindring-avslaatt',
+    ],
+  },
+  {
+    id: 'F2438b',
+    feilklasse:
+      'leseren regner en oppfylt hindring i et lag som en påberopelse, så et upåvirket standpunkt ved siden av godtas (LV-U85 punkt 11, OV-U33, #2438)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '    ((PAABEROPELSER.has(p.art) && !oppfyltHindring.has(p.standpunkt)) ||',
+        '    (PAABEROPELSER.has(p.art) ||',
+      ],
+    ],
+    mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
+  },
+  {
+    id: 'F2438c',
+    feilklasse:
+      'visningen regner virkningene på nytt uten forholdet foran sporet og sier at regelen er endret (MM-U9, LV-U85 punkt 11, #2438)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '    virkninger(g, paaberopelseFor(g, u), regler, forskyvningIBrevet(g, u), staar)',
+        '    virkninger(g, paaberopelseFor(g, u), regler, 0, staar)',
+      ],
+    ],
+    mal: ['LV-U85 punkt 11: med forholdet avslått står hindringen i fristens lag'],
+  },
+  {
+    id: 'F2438d',
+    feilklasse:
+      'aksepten gir de vurderte dagene når en oppfylt hindring står i første lag foran spesifiseringen for sent (VS-U4, LV-U85 punkt 11, #2438)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [
+      [
+        '    spesifisering && v.find((p) => p.standpunkt === spesifisering.id)?.virkning === 1',
+        '    spesifisering && v.find((p) => p.virkning === 1)?.standpunkt === spesifisering.id',
+      ],
+    ],
+    mal: ['med forholdet avslått og spesifiseringen for sent gir aksepten dagene'],
   },
   {
     id: 'F1309a',

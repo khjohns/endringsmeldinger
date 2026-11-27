@@ -240,6 +240,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U76](../../plans/vedtak.md#lv-u76) | — | — | BF-47 |
 | [LV-U77](../../plans/vedtak.md#lv-u77) | — | — | BF-47 |
 | [LV-U83](../../plans/vedtak.md#lv-u83) | — | — | BF-50 |
+| [LV-U85](../../plans/vedtak.md#lv-u85) | — | BF-45 te-har-mottatt-svaret | — |
 | [MM-U1](../../plans/vedtak.md#mm-u1) | — | — | BF-20 |
 | [MM-U2](../../plans/vedtak.md#mm-u2) | BF-49 te-aapner-traaden | BF-49 te-aapner-traaden | — |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-08 bh-har-mottatt-paaberopelsen | BF-01V, BF-07 |

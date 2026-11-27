@@ -75,6 +75,8 @@ export const UGYLDIG = 51422;
 export const BLOKKERT = 33504;
 export const UNIK_INDEKS = 2601;
 export const UNIK_NOEKKEL = 2627;
+/** Serveren valgte transaksjonen som vranglåsoffer og rullet den tilbake. */
+export const VRANGLAAS = 1205;
 
 /** Forespørslene i én transaksjon, med konteksten satt. */
 export type Foresp = () => sql.Request;
@@ -321,7 +323,15 @@ interface Frist {
  * en pågående forespørsel avbrytes, serveren ruller tilbake, og `FristUtloept`
  * kastes, også når arbeidet returnerer en `Tilbakerulling`. COMMIT som er sendt,
  * avbrytes ikke, for da ville et kjent utfall blitt usikkert; den har grensen til
- * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`.
+ * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`, og den
+ * gjelder alle forsøkene samlet, fra første lån.
+ *
+ * Velger serveren transaksjonen som vranglåsoffer (`VRANGLAAS`), er den rullet
+ * tilbake, og hele transaksjonen kjøres på nytt med `arbeid` fra begynnelsen, høyst
+ * `VRANGLAASFORSOEK` ganger i alt. `arbeid` skal derfor ikke ha virkninger utenfor
+ * transaksjonen. Etter siste forsøk, eller når mindre enn `MINSTE_RESTTID_MS` av
+ * fristen er igjen etter pausen, kastes feilen fra det. Ingen annen feil gir et
+ * nytt forsøk: en avvisning, en versjonskonflikt og et usikkert utfall kastes straks.
  */
 export async function transaksjon<T>(
   pool: Pool,
@@ -332,8 +342,62 @@ export async function transaksjon<T>(
   kontroller(kontekst);
   if (!(frist > 0 && frist <= TRANSAKSJONSFRIST_MS))
     throw new RangeError(`Fristen ${frist} ms er ikke over 0 og høyst ${TRANSAKSJONSFRIST_MS} ms.`);
+  let slutt: number | undefined;
+  // Etter lånet, så ventingen på en forbindelse til et nytt forsøk regnes med.
+  const fristEtterLaan = () => (slutt ??= Date.now() + frist) - Date.now();
+  for (let forsoek = 1; ; forsoek++) {
+    try {
+      return await ettForsoek(pool, kontekst, arbeid, fristEtterLaan);
+    } catch (feil) {
+      const pause = 20 + Math.random() * 80 * forsoek;
+      const igjen = (slutt ?? Date.now()) - Date.now() - pause;
+      if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil) || igjen < MINSTE_RESTTID_MS)
+        throw feil;
+      loggFeil('Datalaget: transaksjonen var vranglåsoffer og kjøres på nytt', feil, 'warn', {
+        antall: forsoek,
+      });
+      await new Promise((ok) => setTimeout(ok, pause));
+    }
+  }
+}
+
+/** Antall forsøk i alt når transaksjonen er vranglåsoffer. */
+export const VRANGLAASFORSOEK = 3;
+
+/** Det som må være igjen av fristen etter pausen for at et nytt forsøk startes. */
+export const MINSTE_RESTTID_MS = 1_000;
+
+/**
+ * Feilen fra arbeidet, eller årsaken når arbeidet fanget den og serveren rullet
+ * tilbake, er 1205. `FristUtloept` har ikke noe nummer, så den prøves ikke.
+ */
+function vranglaasoffer(feil: unknown): boolean {
+  if (feil instanceof TransaksjonAvbrutt) return feilnummer(feil.cause) === VRANGLAAS;
+  return feilnummer(feil) === VRANGLAAS;
+}
+
+/**
+ * Fanget arbeidet en vranglås og fikk en følgefeil fra `mssql` (`ENOTBEGUN`) på neste
+ * forespørsel, er vranglåsen årsaken: den gis som `TransaksjonAvbrutt`, så
+ * transaksjonen prøves på nytt.
+ */
+function etterVranglaas(tx: sql.Transaction, feil: unknown): unknown {
+  const aarsak = (tx as unknown as { _abortReason?: unknown })._abortReason;
+  if (feilnummer(feil) === VRANGLAAS || feilnummer(aarsak) !== VRANGLAAS) return feil;
+  return new TransaksjonAvbrutt('Serveren valgte transaksjonen som vranglåsoffer.', {
+    cause: aarsak,
+  });
+}
+
+async function ettForsoek<T>(
+  pool: Pool,
+  kontekst: Kontekst,
+  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>,
+  fristEtterLaan: () => number
+): Promise<T> {
   const utlaan = pool as unknown as Utlaan;
   const forbindelse = await utlaan.acquire(pool);
+  const frist = fristEtterLaan();
   const forelder = reservasjon(pool, forbindelse);
   const tilstand: Frist = { utloept: false, commitSendt: false };
   const tidtaker = setTimeout(() => {
@@ -412,7 +476,7 @@ async function iTransaksjon<T>(
     svar = await arbeid(foresp);
   } catch (feil) {
     // Med XACT_ABORT har serveren alt rullet tilbake; kontrollen etter nullstillingen bekrefter det.
-    if (avbruttAvServeren) return { feil, avsluttet: true };
+    if (avbruttAvServeren) return { feil: etterVranglaas(tx, feil), avsluttet: true };
     try {
       await tx.rollback();
       return { feil, avsluttet: true };

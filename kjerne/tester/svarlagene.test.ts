@@ -188,6 +188,32 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
     ]);
   });
 
+  it.each([
+    ['avslått', { resultat: 'avslaatt' }, [{ grunn: 'avslaatt' }]],
+    [
+      'prekludert',
+      { resultat: 'godkjent', grunnlag_varslet_i_tide: false },
+      [{ grunn: 'prekludert' }],
+    ],
+  ])(
+    'LV-U85 punkt 11: med forholdet %s står en oppfylt hindring i sporets første lag, og varselet i tide uten lag (OV-U42)',
+    (_n, forhold, forutsetninger) => {
+      const s = saken(forhold);
+      const lag = lagene(s, {
+        frist_varsel_ok: true,
+        vilkar_oppfylt: true,
+        spesifisert_krav_ok: true,
+        frister: [{ dager: 20 }],
+      });
+      expect(lag.map((l) => [l.standpunkt, l.virkning, l.etikett, l.forutsetninger])).toEqual([
+        ['rettidighet 33.4', 'uten_virkning', null, []],
+        ['hindring', 2, 'subsidiært', forutsetninger],
+        ['spesifisering', 'uten_virkning', null, []],
+        ['dager', 2, 'subsidiært', forutsetninger],
+      ]);
+    }
+  );
+
   // Fristen kan stå uten feltet eller med null, og begge fylles med 0 dager (#1971). Testen
   // ser at `lagene` ikke kaster, så feilinnføringene feiler på en assertion.
   it.each([

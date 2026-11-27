@@ -207,11 +207,16 @@ export function iSporet<T extends Record<Spor, unknown>, S extends Spor>(tabell:
 export const virkningen = (v: Standpunktsvirkning[], id: string): Virkning =>
   v.find((p) => p.standpunkt === id)!.virkning;
 
-/** Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`). */
+/**
+ * Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`).
+ * `forskyvning` er lagene svaret på forholdet opptar foran sporet (`lagFraForholdet`), og 0 for
+ * forholdet selv.
+ */
 export function virkningerIForholdetOgFristen(
   svar: Svarinnhold,
   paaberopelse: Krav | null | undefined,
-  regler: Regelsett
+  regler: Regelsett,
+  forskyvning: number
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
   let lag = 1;
@@ -237,7 +242,9 @@ export function virkningerIForholdetOgFristen(
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt && !etterInnsigelseOmTap ? 'uten_virkning' : iLaget();
+      // LV-U85 punkt 11.
+      const virkning =
+        s.oppfylt && !etterInnsigelseOmTap && forskyvning === 0 ? 'uten_virkning' : iLaget();
       if (!s.oppfylt) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (

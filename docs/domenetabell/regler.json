@@ -566,6 +566,20 @@
       "radetikett": "GR-U26: Når byggherren svarer på vederlag eller frist mens gjeldende versjon av grunnlaget ikke er besvart"
     },
     {
+      "id": "LV-U85",
+      "type": "vedtak",
+      "dato": "2026-11-26",
+      "ref": "../plans/vedtak.md#lv-u85",
+      "radetikett": "LV-U85: Utkastet til E2 gjelder som samlevedtaket for oppbygningen og lagene i byggherrens svar"
+    },
+    {
+      "id": "OV-U42",
+      "type": "vedtak",
+      "dato": "2026-10-24",
+      "ref": "../plans/vedtak.md#ov-u42",
+      "radetikett": "OV-U42: Standpunkter i fristsvaret som ikke gir egen lagvirkning, står samlet i et eget avsnitt uten etikett"
+    },
+    {
       "id": "LV-U31",
       "type": "vedtak",
       "dato": "2026-10-24",
