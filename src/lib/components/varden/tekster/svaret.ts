@@ -185,11 +185,6 @@ export const VARSELSVARET = haerdet({
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
   manglerInnsigelse:
     'Ingenting å sende. Varselet krever ikke svar. Gjør gjeldende at det kom for sent, eller forkast utkastet.',
-  // VS-U87 punkt 32, OV-U89 punkt 13.
-  krevesIkke: 'Ingenting å sende. Punkt 34.1.2 krever ikke varsel. Forkast utkastet.',
-  /** Punktet og panelet, uten noe å velge. */
-  krevesIkkeLinje:
-    'Saken gjelder en endring, og da krever ikke punkt 34.1.2 varsel. Du tar ikke stilling til om varselet kom i tide.',
   // Med brevet når saken har flere varsler etter samme bestemmelse (VS-U77 punkt 27).
   /** Med arbeidet etter VS-U87 punkt 27. */
   svar: (h: Vederlagsvarselhjemmel, b?: Brevref, arbeid?: string) =>
