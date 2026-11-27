@@ -47,15 +47,25 @@
 
   async function leggTil(a: NonNullable<typeof avbrudd>) {
     opptatt = true;
-    hindring = await a.leggTil();
-    opptatt = false;
+    try {
+      hindring = await a.leggTil();
+    } finally {
+      opptatt = false;
+    }
     if (hindring) return;
     forkastet = true;
     dialog?.close();
   }
 </script>
 
-<Knapp variant="lenke" id={`${uid}-forkast`} onclick={() => dialog?.showModal()}>{knapp}</Knapp>
+<Knapp
+  variant="lenke"
+  id={`${uid}-forkast`}
+  onclick={() => {
+    hindring = null;
+    dialog?.showModal();
+  }}>{knapp}</Knapp
+>
 
 <dialog
   class="bekreft"
