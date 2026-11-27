@@ -28,6 +28,7 @@ import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
 import { varseletSvaretGjelder } from '#kjerne/spor/vederlag/kommando.ts';
 import { fristvarseletIKravet, fristvarseletSvaretGjelder } from '#kjerne/spor/frist/kommando.ts';
 import { svarkjeden } from '#kjerne/utledning/utled.ts';
+import { svaretsVarsel } from '#kjerne/kommandoer/standpunkter.ts';
 
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
@@ -293,5 +294,47 @@ function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | 
     forrigeSvar: forrige?.id ?? null,
     arbeid: undefined,
     kravversjon: alene ? null : gjelder,
+  };
+}
+
+/** En kravpost i vederlagskravet der kravet selv er varselet (VS-U96 punkt 38). */
+export interface VarseletIPosten {
+  post: Kravpost;
+  hjemmel: Kravpostvarselhjemmel;
+  /** Byggherrens siste standpunkt til varselet for posten, slik kjernen leser det. */
+  foer: StandpunktTilVarselet | null;
+}
+
+/**
+ * Kravpostene i vederlagskravet `gjelder` byggherren kan svare bare på varselet for, i rekkefølgen
+ * i kravet, og det forrige svaret bare på varselet, som et nytt svar erstatter (VS-U96 punkt 33 og
+ * 38, `svaretsVarsel` i kjernen), eller `null` når kravet ikke er varselet for noen post.
+ */
+export function varsleneIVederlagskravet(
+  u: Utledning,
+  gjelder: string
+): { kravversjon: string; poster: VarseletIPosten[]; forrigeSvar: string | null } | null {
+  const v = svaretsVarsel(u, { spor: 'vederlag', gjelder, bare_varselet: true });
+  const krav = u.spor.vederlag.krav.find((k) => k.id === gjelder);
+  if (!v || !('poster' in v) || !krav) return null;
+  const foer = standpunkteneTilVarslene(u, null);
+  const poster = kravposterI(krav).flatMap((post) => {
+    const p = v.poster.find((x) => x.id === post.id);
+    return p
+      ? [
+          {
+            post,
+            hjemmel: p.hjemmel,
+            foer: foer.find((x) => x.gjelder === post.id && x.hjemmel === p.hjemmel) ?? null,
+          },
+        ]
+      : [];
+  });
+  const kjeden = svarkjeden({ spor: 'vederlag', gjelder, bareVarselet: true });
+  return {
+    kravversjon: gjelder,
+    poster,
+    forrigeSvar:
+      u.spor.vederlag.svarPaaVarsler.findLast((s) => svarkjeden(s) === kjeden)?.id ?? null,
   };
 }
