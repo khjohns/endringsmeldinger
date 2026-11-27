@@ -210,6 +210,8 @@ export const LEGG_TIL = haerdet({
   somI: (b: Brevref) => `Som i ${brevref(b)}`,
   tausOmVarselet: 'Svaret sier ikke noe om varselet',
   svaretOmVarseletMangler: 'Velg hva svaret sier om varselet.',
+  forSentSomFoer: (b: Brevref, post?: string) =>
+    `Varselet${post ? ` for ${post}` : ''} kom for sent, som gjort gjeldende i et tidligere svar (${brevref(b)}).`,
   /** U-15 i BF-49, OV-U120: et eldre krav er varselet for kravposten. */
   varseletErEldreKrav: (b: Brevref, sendt: string | null, post?: string) =>
     `Varselet${post ? ` for ${post}` : ''} er kravet i ${brevref(b)}${

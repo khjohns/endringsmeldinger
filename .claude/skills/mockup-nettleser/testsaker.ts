@@ -143,7 +143,6 @@ export const TESTSAKER: Record<string, Testsak> = {
     // svaret sier ikke noe om det. Så lukker BH et nytt svarskjema og legger e-posten til som
     // dokumentasjon uten svaret.
     async iNettleseren({ bh, saksrute, ut }) {
-      const vederlag = `${saksrute}?spor=vederlag`;
       const korrespondanse = async (dato: string, fil: string) => {
         await bh.getByRole('button', { name: 'Legg til korrespondanse' }).click({ timeout: 30_000 });
         await bh.getByRole('radio', { name: 'E-post' }).check();
@@ -159,7 +158,7 @@ export const TESTSAKER: Record<string, Testsak> = {
         await bh.getByRole('radio', { name: 'Et svar' }).check();
         await bh.getByRole('button', { name: 'Gå videre' }).click();
       };
-      await bh.goto(vederlag);
+      await bh.goto(saksrute);
       await korrespondanse('2026-09-10', 'svaret.pdf');
       await bh.getByRole('button', { name: /^Godta oppgjørsformen/ }).click({ timeout: 30_000 });
       await bh.getByRole('radio', { name: 'Godtar justeringen' }).first().check();

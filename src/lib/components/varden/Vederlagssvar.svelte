@@ -146,6 +146,13 @@
   };
   // Innsigelsene svaret leses med, for valget etter U-7 i BF-49.
   const innsigelsene = $derived(innsigelseneSomStaar(u, sendt));
+  // U-7: svaret lagt til som ikke sier noe om varselet, leses med innsigelsen fra brevet den sto i.
+  const tausMedInnsigelsen = (p: Kravpost): string | null => {
+    if (!lagtTil || !postvalget(valg, p.betegnelse).tausOmVarselet) return null;
+    const foer = varseletFoer(u, p);
+    const b = foer?.iTide === false ? brevet(u, foer.dokument) : null;
+    return b ? LEGG_TIL.forSentSomFoer(b, navnet(p)) : null;
+  };
   const poster = $derived(kravposterI(krav));
   const flere = $derived(poster.length > 1);
   const navnet = (p: Kravpost) => (flere ? p.betegnelse : undefined);
@@ -493,14 +500,20 @@
                         ? leselinje(post)
                         : []
                     ).map((tekst) => ({ tekst, lag: null }));
+              const taus = post ? tausMedInnsigelsen(post) : null;
               return {
                 ...p,
                 aktiv: foerstePunkt === p.punkt,
-                linjer: fraBrevet.length
-                  ? fraBrevet
-                  : status.length
-                    ? status
-                    : [{ tekst: SKJEMA.ikkeBesvart, lag: null }],
+                linjer: [
+                  ...(taus ? [{ tekst: taus, lag: null }] : []),
+                  ...(fraBrevet.length
+                    ? fraBrevet
+                    : status.length
+                      ? status
+                      : taus
+                        ? []
+                        : [{ tekst: SKJEMA.ikkeBesvart, lag: null }]),
+                ],
               };
             }),
         ]

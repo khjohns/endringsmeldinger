@@ -123,6 +123,12 @@ describe('svaret lagt til der byggherrens innsigelse mot varselet står (U-7, D-
     );
     await svarPaaPostene();
     await radio(LEGG_TIL.tausOmVarselet);
+    // U-7: panelet sier at varselet kom for sent, som gjort gjeldende i brev 4.
+    expect(
+      screen.getByText(
+        'Varselet for P2 kom for sent, som gjort gjeldende i et tidligere svar (brev 4).'
+      )
+    ).toBeInTheDocument();
     await leggTil();
     await vi.waitFor(() => expect(lagtTil()).toBe(true));
     const k = sendt[0] as {

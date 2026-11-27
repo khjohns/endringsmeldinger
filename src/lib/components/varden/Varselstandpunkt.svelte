@@ -113,6 +113,7 @@
       { verdi: 'i_tide', tekst: SKJEMA.komITide },
       { verdi: 'taus', tekst: LEGG_TIL.tausOmVarselet },
     ]}
+    stablet
     bind:verdi={
       () => (taus ? 'taus' : varsletITide === null ? null : varsletITide ? 'i_tide' : 'for_sent'),
       (x) => {
