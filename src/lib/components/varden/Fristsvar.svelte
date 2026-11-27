@@ -123,7 +123,7 @@
     valg.begrunnelseIkkeSvar = v === 'ikke_svar';
     valg.foresporselITide = v === 'ikke_svar' ? null : v;
   }
-  // VS-U96 punkt 34: en innsigelse mot varselet som står, gjentas som utgangspunkt.
+  // VS-U96 punkt 34.
   const innsigelsen = $derived(innsigelsenMotFristvarselet(u, null));
   const innsigelsesbrevet = $derived(innsigelsen && brevet(u, innsigelsen.dokument));
   $effect.pre(() => {
