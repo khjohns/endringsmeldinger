@@ -21,6 +21,7 @@ import {
   vedleggI,
   type Kommando,
   type Varselposten,
+  type Endringsordren,
   type Registrering,
   type Svarutkast,
 } from './kommando.ts';
@@ -361,17 +362,16 @@ const UTEN_VIRKNING_MELDING = (grunn: string) =>
  * og brevet som vedlegg. Tomt for et brev fra løsningen.
  */
 function registrering(
-  k: Registrering,
+  k: Registrering & Endringsordren,
   nyId: () => string,
-  bundne: Vedlegg[],
-  endringsordre?: true
+  bundne: Vedlegg[]
 ): Data {
   if (k.sendt === undefined) return {};
   return {
     opplysninger: [
       { id: nyId(), hva: 'sendt', dato: k.sendt },
       // OV-U6, D-11 i BF-49: opplysningen om § 31.3 i brevet med endringsordren.
-      ...(endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),
+      ...(k.endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),
     ],
     korrespondansetype: k.korrespondansetype,
     ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
@@ -452,7 +452,7 @@ function dokument(
           kjerne,
           sendt
         ),
-        ...registrering(k, nyId, bundne, k.endringsordre),
+        ...registrering(k, nyId, bundne),
       };
     case 'revisjon': {
       // OV-U103: et svar lagt til, sendt før det gjeldende, står utenfor rekken og erstatter ikke det.
@@ -464,7 +464,7 @@ function dokument(
           kjerne,
           sendt
         ),
-        ...registrering(k, nyId, bundne, k.endringsordre),
+        ...registrering(k, nyId, bundne),
       };
     }
     case 'aksept':

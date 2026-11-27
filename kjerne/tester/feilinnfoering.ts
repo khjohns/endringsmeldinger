@@ -8153,7 +8153,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        "      ...(endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),",
+        "      ...(k.endringsordre ? [{ id: nyId(), hva: 'endringsordre', oppfylt: true }] : []),",
         '      ...[],',
       ],
     ],

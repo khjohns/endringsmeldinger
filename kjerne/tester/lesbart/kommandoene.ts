@@ -385,7 +385,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'Endringsordren',
     'kommando',
     'endringsordre',
-    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:dokument'],
+    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:registrering'],
   ],
   [
     'frosset/frysing.ts',
