@@ -85,7 +85,7 @@
   {#if n !== undefined}<p class="kravtall">
       {VEDERLAGET.kravbeloep(n, varslene.get(b.id))}
     </p>{/if}
-  {#if poster}<p class="kravtall">{LEGG_TIL.kravetErVarseletFor(poster)}</p>{/if}
+  {#if poster}<p class="kravtall">{LEGG_TIL.varseletGittMedKravet(poster)}</p>{/if}
   {#if levert !== undefined && (levert === null || akseptfrist?.brev === b.id)}
     <p class="levering">{TRAADEN.levering(b.registrert, levert)}</p>
   {/if}

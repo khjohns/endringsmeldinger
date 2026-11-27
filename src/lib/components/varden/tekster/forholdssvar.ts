@@ -58,5 +58,5 @@ export const FORHOLDSSVAR = haerdet({
   egenEndringsordreSpoersmaal: 'Endringsordre',
   egenEndringsordre: 'Brevet er en endringsordre etter punkt 31.3',
   egenEndringsordreHjelp:
-    'Godkjenningen over er standpunktet du har valgt. Resten av brevet legges til slik det er, og innholdet vurderes ikke.',
+    'Godkjenningen over er standpunktet du har valgt. Resten av brevet legges til slik det er. Innholdet vurderes ikke.',
 } as const);

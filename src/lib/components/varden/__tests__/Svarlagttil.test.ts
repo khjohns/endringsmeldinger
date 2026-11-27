@@ -189,7 +189,7 @@ describe('varselet i et eldre krav (U-15, D-15, OV-U120)', () => {
   it('byggherren ser ved kravposten at varselet er det eldre kravet, og får ikke valget om innsigelsen for posten', async () => {
     await vederlagssvaret('bh-svarer-etter-det-eldre-kravet', '2026-10-13');
     expect(
-      screen.getByText(/^Varselet for P1 er kravet i .*28\. september 2026/)
+      screen.getByText(/^Varselet for P1 ble gitt med kravet i .*28\. september 2026/)
     ).toBeInTheDocument();
     expect(omVarselet()).toHaveLength(0);
     // Kontrollsak: innsigelsen mot varselet for P2 står fortsatt.
@@ -200,7 +200,7 @@ describe('varselet i et eldre krav (U-15, D-15, OV-U120)', () => {
   it('tråden sier ved det eldre kravet at det er varselet for posten', async () => {
     const { kjernesak } = await saken('bh-svarer-etter-det-eldre-kravet', 'BH');
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    expect(await screen.findByText(LEGG_TIL.kravetErVarseletFor(['P1']))).toBeInTheDocument();
+    expect(await screen.findByText(LEGG_TIL.varseletGittMedKravet(['P1']))).toBeInTheDocument();
   });
 });
 

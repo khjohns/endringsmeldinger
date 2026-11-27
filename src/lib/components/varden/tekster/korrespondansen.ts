@@ -213,12 +213,13 @@ export const LEGG_TIL = haerdet({
   forSentSomFoer: (b: Brevref, post?: string) =>
     `Varselet${post ? ` for ${post}` : ''} kom for sent, som gjort gjeldende i et tidligere svar (${brevref(b)}).`,
   /** U-15 i BF-49, OV-U120: et eldre krav er varselet for kravposten. */
+  // Språkfila, «Varselet i kravet»: hvor varselet ble gitt, ikke at kravet er varselet.
   varseletErEldreKrav: (b: Brevref, sendt: string | null, post?: string) =>
-    `Varselet${post ? ` for ${post}` : ''} er kravet i ${brevref(b)}${
+    `Varselet${post ? ` for ${post}` : ''} ble gitt med kravet i ${brevref(b)}${
       sendt && b.nummer !== null ? `, sendt ${dato(sendt)}` : ''
     }.`,
-  /** U-15 i BF-49: ved det eldre kravet i tråden. */
-  kravetErVarseletFor: (poster: readonly string[]) =>
+  /** U-15 i BF-49: ved det eldre kravet i tråden, i formen fra «Varselet i kravet» i språkfila. */
+  varseletGittMedKravet: (poster: readonly string[]) =>
     `Kravet er varselet for ${liste([...poster])}.`,
   /** U-9 i BF-49: krav- eller svarskjemaet lukkes uten at det er lagt til. */
   avbrudd: {
