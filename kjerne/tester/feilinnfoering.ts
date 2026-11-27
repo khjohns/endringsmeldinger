@@ -8024,6 +8024,29 @@ const MUTASJONER: Mutasjon[] = [
       'et svar lagt til på en kravversjon som ikke er i sporet, har ingen lag',
     ],
   },
+  {
+    id: 'F807c',
+    feilklasse:
+      'skjemaet som ikke er fylt ut, tas imot i et brev motparten sendte (D-12 i BF-49, svaret 27.11 i #807)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'if (k.ikke_fylt_ut !== undefined && k.avsender !== undefined && k.avsender !== part)',
+        'if (false)',
+      ],
+    ],
+    mal: ['«ikke_fylt_ut» avvises i brevet motparten sendte'],
+  },
+  {
+    id: 'F807d',
+    feilklasse:
+      'en rad med skjemaet som ikke er fylt ut i et brev motparten sendte, er forstått (D-12 i BF-49, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['  if (data.ikke_fylt_ut !== undefined && data.avsender !== undefined)', '  if (false)'],
+    ],
+    mal: ['en rad der skjemaet står i et brev motparten sendte'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

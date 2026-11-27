@@ -131,7 +131,21 @@ export const KOMMANDOENE: Lesbar[] = [
   // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
   ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
   // OV-U79, OV-U80: avsenderen av korrespondanse motparten har sendt.
-  ['Kommando', 'kommando', 'avsender', ['kommandoer/skriving.ts:dokument']],
+  // D-12 i BF-49, svaret 27.11 i #807: nyttelasten avviser skjemaet som ikke er fylt ut, i et
+  // brev motparten sendte.
+  [
+    'Kommando',
+    'kommando',
+    'avsender',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
+  // D-12 i BF-49: skjemaet parten avbrøt lagres for merket, og ingen regel leser det.
+  [
+    'Kommando',
+    'kommando',
+    'ikke_fylt_ut',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // LV-U42: typen registrert korrespondanse lagres slik avsenderen oppga den.
@@ -929,6 +943,8 @@ export const KOMMANDOENE: Lesbar[] = [
     'KORRESPONDANSETYPER',
     ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
+  // D-12 i BF-49: skjemaet parten avbrøt, i skjemaene.
+  ['typer.ts', 'skjema', 'IKKE_FYLT_UT', ['format/format.ts', 'kommandoer/kommando.ts']],
   // OV-U79: sendemåten for et brev, i skjemaene.
   [
     'typer.ts',

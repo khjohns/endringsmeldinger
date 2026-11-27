@@ -68,6 +68,7 @@ import type {
   Virkning,
   Korrespondansetype,
   Sendemaate,
+  IkkeFyltUt,
 } from '../typer.ts';
 
 /**
@@ -407,6 +408,7 @@ function lesDokument(h: Journalrad): Dokument {
     retter?: string;
     ikke_i_saken?: true;
     avsender?: Part;
+    ikke_fylt_ut?: IkkeFyltUt;
   };
   if (data.ikke_i_saken) return ikkeISaken(h, data);
   // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
@@ -505,6 +507,7 @@ function lesDokument(h: Journalrad): Dokument {
     spor: data.spor ?? [],
     retter: data.retter ?? null,
     ikkeISaken: false,
+    ikkeFyltUt: data.ikke_fylt_ut ?? null,
     utsagn: (data.utsagn ?? []).map((v, i): Utsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
@@ -572,6 +575,13 @@ function lesDokument(h: Journalrad): Dokument {
     );
   if (data.avsender === lagtTilAv)
     throw new Uforstaatt('den oppgitte avsenderen er parten som la til brevet');
+  // D-12 i BF-49, svaret 27.11 i #807: bare avsenderen avbryter skjemaet for kravet eller svaret.
+  if (data.ikke_fylt_ut !== undefined && (data.krav || data.svar || data.utsagn))
+    throw new Uforstaatt(
+      'bare et brev registrert som dokumentasjon har et skjema som ikke er fylt ut'
+    );
+  if (data.ikke_fylt_ut !== undefined && data.avsender !== undefined)
+    throw new Uforstaatt('skjemaet som ikke er fylt ut, står i et brev motparten sendte');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme registrerte dokument, og
   // aldri i et dokument fra løsningen (VS-U34, C1 i #2056).
   const registrert = erRegistrert(dokument.opplysninger);
@@ -729,6 +739,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     spor: [],
     retter: data.retter,
     ikkeISaken: true,
+    ikkeFyltUt: null,
   };
 }
 

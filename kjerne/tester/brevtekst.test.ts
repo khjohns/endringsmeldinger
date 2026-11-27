@@ -766,6 +766,7 @@ describe('vedleggene står i teksten (A4)', () => {
     spor: [],
     retter: null,
     ikkeISaken: false,
+    ikkeFyltUt: null,
   });
   const saken = {
     sakskode: { kode: 'koe' as const, loepenummer: 17 },

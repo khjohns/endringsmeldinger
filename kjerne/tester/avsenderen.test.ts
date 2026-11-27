@@ -1,6 +1,7 @@
 /**
  * Avsenderen av korrespondanse motparten legger til (OV-U79, OV-U80, #2069): den som legger til
  * brevet, er aktøren, og avsenderen er en opplysning om brevet. Akseptkriteriene står i #2069.
+ * Skjemaet parten avbrøt før brevet ble lagt til, står i D-12 i BF-49.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -131,6 +132,66 @@ describe('avsenderen av korrespondanse motparten har sendt (OV-U79, OV-U80, #206
   ])('en rad der %s, gjør saken ikke forstått (AK 4, MM-U2)', async (_n, endre, grunn) => {
     const journal = await journalen();
     const rad = godtatt(journal, registrering({ avsender: 'BH' }), 'TE');
+    expect(grunner([...journal, rad]), 'kontrollsak').toEqual([]);
+    const endret = { ...rad, data: endre(rad.data as Data) };
+    expect(grunner([...journal, endret])).toContainEqual(expect.stringContaining(grunn));
+  });
+});
+
+describe('skjemaet parten avbrøt før brevet ble lagt til som dokumentasjon (D-12 i BF-49, svaret 27.11 i #807)', () => {
+  it.each(['krav', 'svar'])(
+    'brevet med «ikke_fylt_ut: %s» står som dokumentasjon med skjemaet, og ingen regel leser det',
+    async (skjema) => {
+      const journal = await journalen();
+      const rad = godtatt(journal, registrering({ ikke_fylt_ut: skjema }), 'TE');
+      expect(rad.data.ikke_fylt_ut).toBe(skjema);
+      expect(dokumentet(rad).ikkeFyltUt).toBe(skjema);
+      const u = utled(lesJournal([...journal, rad], KJERNE.leserformat), GJELDENDE_REGLER);
+      expect(u.begrensninger).toEqual([]);
+      expect(u.registrerteBrev.at(-1)).toMatchObject({
+        dokument: rad.event_id,
+        ikkeFyltUt: skjema,
+      });
+    }
+  );
+
+  it('svaret 27.11: «ikke_fylt_ut» avvises i brevet motparten sendte, og kontrollsaken fra avsenderen godtas', async () => {
+    const journal = await journalen();
+    expect(utfallet(journal, registrering({ avsender: 'BH', ikke_fylt_ut: 'svar' }), 'TE')).toEqual(
+      { regel: 'FEIL_PART' }
+    );
+    expect(
+      utfallet(journal, registrering({ avsender: 'TE', ikke_fylt_ut: 'svar' }), 'TE')
+    ).toHaveProperty('rad');
+  });
+
+  it('svaret 27.11: verdien prøves bare mot krav og svar, ikke mot siden', async () => {
+    const journal = await journalen();
+    expect(utfallet(journal, registrering({ ikke_fylt_ut: 'svar' }), 'TE')).toHaveProperty('rad');
+    expect(utfallet(journal, registrering({ ikke_fylt_ut: 'aksept' }), 'TE')).toEqual({
+      regel: 'UGYLDIG_FORM',
+    });
+  });
+
+  it.each<[string, (data: Data) => Data, string]>([
+    [
+      'skjemaet står i et brev motparten sendte',
+      (data) => ({ ...data, avsender: 'BH' }),
+      'skjemaet som ikke er fylt ut, står i et brev motparten sendte',
+    ],
+    [
+      'skjemaet står i et dokument med et varsel',
+      (data) => ({
+        ...Object.fromEntries(
+          Object.entries(data).filter(([k]) => k !== 'spor' && k !== 'beskrivelse')
+        ),
+        utsagn: [{ id: randomUUID(), art: 'varsel', hjemmel: '33.4' }],
+      }),
+      'bare et brev registrert som dokumentasjon har et skjema som ikke er fylt ut',
+    ],
+  ])('en rad der %s, gjør saken ikke forstått (MM-U2)', async (_n, endre, grunn) => {
+    const journal = await journalen();
+    const rad = godtatt(journal, registrering({ ikke_fylt_ut: 'krav' }), 'TE');
     expect(grunner([...journal, rad]), 'kontrollsak').toEqual([]);
     const endret = { ...rad, data: endre(rad.data as Data) };
     expect(grunner([...journal, endret])).toContainEqual(expect.stringContaining(grunn));

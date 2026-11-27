@@ -11,6 +11,8 @@ const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
 export const DOKUMENTENE: Lesbar[] = [
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
+  // D-12 i BF-49: skjemaet parten avbrøt, for merket i visningen. Ingen regel leser det.
+  ['Dokument', 'utsagn', 'ikkeFyltUt', ['utledning/utled.ts:registreringer']],
   // OV-U17, OV-U79: parten som la til brevet, eier registreringen og opplysningen om datoen.
   [
     'Dokument',

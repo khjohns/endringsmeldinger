@@ -65,6 +65,7 @@ import {
   type Kravpostvarselhjemmel,
   type Varselhjemmel,
   type Vedlegg,
+  type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
@@ -241,6 +242,8 @@ export interface RegistrertBrev {
   spor: Spor[];
   dokumentasjon: Vedlegg[];
   rettetAv: string | null;
+  /** D-12 i BF-49: skjemaet parten avbrøt, for merket i visningen. Ingen regel leser det. */
+  ikkeFyltUt: IkkeFyltUt | null;
 }
 
 export interface Utledning {
@@ -455,6 +458,7 @@ function registreringer(journal: Domenehendelse[]): {
         spor: d.spor,
         dokumentasjon: d.dokumentasjon,
         rettetAv: null,
+        ikkeFyltUt: d.ikkeFyltUt,
       });
   }
   return { brev, feil };

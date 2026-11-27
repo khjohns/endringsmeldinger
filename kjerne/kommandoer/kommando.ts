@@ -37,6 +37,8 @@ import {
   SENDEMAATER,
   type Korrespondansetype,
   type Sendemaate,
+  IKKE_FYLT_UT,
+  type IkkeFyltUt,
 } from '../typer.ts';
 import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 import { KRAVFORM_I_FRISTEN } from '../spor/frist/kommando.ts';
@@ -220,6 +222,8 @@ export type Kommando = (
       dokumentasjon: string[];
       retter?: string;
       avsender?: Part;
+      /** D-12 i BF-49: skjemaet parten avbrøt før brevet ble lagt til. Bare fra avsenderen. */
+      ikke_fylt_ut?: IkkeFyltUt;
     }
   /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
   | { type: 'ikke_i_saken'; retter: string }
@@ -397,6 +401,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       dokumentasjon: liste(ID),
       retter: ID,
       avsender: { enum: ['TE', 'BH'] },
+      ikke_fylt_ut: { enum: [...IKKE_FYLT_UT] },
     },
     ['type', 'sendt', 'korrespondansetype', 'beskrivelse', 'dokumentasjon']
   ),

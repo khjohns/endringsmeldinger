@@ -483,7 +483,16 @@ export interface Dokument {
   retter: string | null;
   /** OV-U18: rettingen sier at brevet ikke hører til saken, og har ellers ingenting. */
   ikkeISaken: boolean;
+  /**
+   * D-12 i BF-49: skjemaet for kravet eller svaret parten valgte, før parten avbrøt det og la
+   * brevet til som dokumentasjon. Ingen regel leser det. `null` ellers.
+   */
+  ikkeFyltUt: IkkeFyltUt | null;
 }
+
+/** D-12 i BF-49, svaret 27.11 i #807: skjemaet parten avbrøt. */
+export const IKKE_FYLT_UT = ['krav', 'svar'] as const;
+export type IkkeFyltUt = (typeof IKKE_FYLT_UT)[number];
 
 /**
  * Én rad i `hendelse`, med feltene API-et bruker. `format` er kolonnen med

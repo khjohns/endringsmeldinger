@@ -625,6 +625,13 @@ export function nyttelastkontroll(
       return null;
     }
     case 'registrert_brev':
+      // D-12 i BF-49, svaret 27.11 i #807: det var ikke noe skjema å avbryte for motpartens brev.
+      if (k.ikke_fylt_ut !== undefined && k.avsender !== undefined && k.avsender !== part)
+        return avvis(
+          'FEIL_PART',
+          'Brevet motparten sendte, legges til som dokumentasjon uten skjemaet for et krav eller svar.'
+        );
+      return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'varsel':
