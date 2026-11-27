@@ -319,7 +319,14 @@ og stilles som nummerert liste.
 
 ## Svarene
 
-Ikke kommet.
+Oppdragsgiver 27.11, ordrett, videresendt av orkestratoren og ført i #1534
+([7214405650](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7214405650)):
+«9 A, 10 A, og A på alle i G». Det er A på spørsmål 1–7. Ført som FO-U10, GFK-U29, GFK-U30, GFK-U31
+(svar 5 A) og GFK-U32 (svar 7 A). GFK-U29 punkt 4 og beslutningsdelen har svar 6 A, og punkt 10 viser
+til GFK-U32. Svar 10 A gjelder KA-U87 punkt 1 og er ført som KA-U89 i samme PR. Radene 18.09, 23.09 og
+24.09 fikk ankrene `forsering-utenfor-godkjenning`, `fullmakt-ansvarsgrunnlaget` og
+`fullmakt-per-spor`, ikke de foreløpige i K9. Ankeret `gfk-06` ville ha samme form som funn-ID-en GFK-06
+i hovedplanen.
 
 ## Kontrollene
 
@@ -360,5 +367,6 @@ Den uavhengige kontrollen av klassen (13 funn) og prøvingen av kildene og alter
 - **Kontrollene:** se «Kontrollene». Rettingene er ikke prøvd på nytt (vedtaksskillen).
 - **Lest av subagentene:** HF-U23 punkt 6 og EO-U39 punkt 3–4 og beslutningsdelen er slått opp av
   subagenten og ikke lest av økta.
+- **Lengden:** fila er over om lag 250 linjer, fordi den har tre samlevedtak og sju spørsmål.
 - **Ikke kontrollert:** koden, at ID-ene i K9 er ledige når postene føres, og om forløpene bør vise
   til samlevedtakene.
