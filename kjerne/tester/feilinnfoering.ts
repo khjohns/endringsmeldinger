@@ -8270,6 +8270,81 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['begrunnelsenKanAvvisesSomSvar(u, krav)', 'begrunnelsenKanAvvisesSomSvar(u)']],
     mal: ['også etter en ny kravversjon'],
   },
+  {
+    id: 'F1309a',
+    feilklasse:
+      'rettidigheten i et svar kontrolleres mot datoen som gjelder nå, ikke datoen som gjaldt da svaret ble sendt (MM-U59 punkt 8 og 19, BF-50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'datoEtterRettingene(rettingene, v.id, sendt(v), (r) => bakover(svar, r));',
+        'datoEtterRettingene(rettingene, v.id, sendt(v), () => true);',
+      ],
+    ],
+    mal: ['et svar sendt før rettingen står med varselet det gjaldt'],
+  },
+  {
+    id: 'F1309b',
+    feilklasse:
+      'en retting til en tidligere dato gjelder straks, uten byggherrens aksept (MM-U61, D-3 i BF-50)',
+    fil: `${K}/utledning/rettingen.ts`,
+    endringer: [
+      [
+        'const senere = gjaldt !== null && x.dato > gjaldt;',
+        'const senere = gjaldt !== null && x.dato !== gjaldt;',
+      ],
+    ],
+    mal: ['en tidligere dato står åpen', 'skifter ikke det første varselet'],
+  },
+  {
+    id: 'F1309c',
+    feilklasse:
+      'det første varselet leses av datoen først oppgitt, ikke datoen som gjelder etter rettingen (MM-U59 punkt 19, VS-U86)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    (v) => datoenSomGjelder(u, v)\n', '    (v) => datoenDetBleSendt(u, v)\n']],
+    mal: ['det første varselet skifter når varselet rettes'],
+  },
+  {
+    id: 'F1309d',
+    feilklasse: 'en retting til datoen som gjelder, godtas (MM-U61, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (ny === gjelder)\n', '  if (false)\n']],
+    mal: ['en retting til datoen som gjelder, avvises'],
+  },
+  {
+    id: 'F1309e',
+    feilklasse:
+      'rettingen godtas for et varsel eller krav sendt fra løsningen (MM-U59 punkt 15 og 18, D-2 i BF-50)',
+    fil: `${K}/kommandoer/rettingen.ts`,
+    endringer: [['  return detSomRettes(u, gjelder)\n', '  return true\n']],
+    mal: ['et varsel sendt fra løsningen rettes ikke'],
+  },
+  {
+    id: 'F1309f',
+    feilklasse:
+      'en kravdato før datoen i påberopelsen godtas når kravet er det første varselet (arbeidsvalget i D-7 i BF-50, VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (grunnlag === null || ny >= grunnlag.dag) return null;',
+        '  if (grunnlag === null || true) return null;',
+      ],
+    ],
+    mal: ['en kravdato før datoen i påberopelsen avvises'],
+  },
+  {
+    id: 'F1309g',
+    feilklasse:
+      'leseren godtar en retting som viser til et varsel sendt fra løsningen (MM-U59 punkt 8 og 18, D-2 i BF-50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      !erRegistrert(d.opplysninger)\n    )\n      ugyldig(\n        x.id,',
+        '      false\n    )\n      ugyldig(\n        x.id,',
+      ],
+    ],
+    mal: ['en retting som viser til et varsel sendt fra løsningen, gjør saken ikke forstått'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
