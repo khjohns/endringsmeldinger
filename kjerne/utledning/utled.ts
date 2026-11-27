@@ -694,9 +694,15 @@ function kravversjonenGjaldt(
 
 /**
  * OV-U98: svaret `s` var byggherrens gjeldende svar på dagen `dag`: det gjaldt en kravversjon som
- * var gjeldende den dagen, og svaret sto da (`svaretStod`).
+ * var gjeldende den dagen, og svaret sto da (`svaretStod`). Visningen tilbyr en aksept lagt til
+ * bare for et slikt svar (G-7 i BF-49). `samme` får elementet som ble sendt samme dag (OV-U104).
  */
-function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) => void): boolean {
+export function svaretGjaldt(
+  u: Utledning,
+  s: Svar,
+  dag: string,
+  samme: (med: string) => void = () => {}
+): boolean {
   const { krav: kjede, svar: rekken, svarUtenforRekken: utenforRekken } = u.spor[s.spor];
   const krav = kjede.find((k) => k.id === s.gjelder);
   return (

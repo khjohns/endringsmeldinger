@@ -13,13 +13,13 @@ import { minnebane } from './bane.ts';
 import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import { dagklokke } from './testmiljoe.ts';
-import { varseletFoerSvaret } from '../utledning/utled.ts';
+import { svaretGjaldt, varseletFoerSvaret } from '../utledning/utled.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { KJERNE } from '../versjon.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 import { SOM_BREV } from './brevet.ts';
-import { svar } from './brevsak.ts';
+import { dagenEtterSisteRad, PAABEROPELSE, sak, svar } from './brevsak.ts';
 import { formfeil, KRAVTEKSTENE, SVARTEKSTENE } from '../kommandoer/kommando.ts';
 
 async function prov(id: string, steg: Handling[], kontroller: Kontroll[]): Promise<void> {
@@ -1587,4 +1587,23 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
         },
       ]
     ));
+});
+
+describe('svaret som gjaldt på dagen, som visningen leser for aksepten lagt til (OV-U98, G-7 i BF-49)', () => {
+  it('svaret gjaldt fra dagen det ble sendt, og ikke etter revisjonen som erstattet det', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const krav = s.u().spor.forhold.gjeldendeKrav!.id;
+    const v = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+    const forste = s.send('BH', { type: 'brev', svar: [svar('forhold', krav, v)] });
+    const foerste = s.u().spor.forhold.gjeldendeSvar!;
+    s.send('BH', { type: 'revisjon', erstatter: foerste.id, svar: svar('forhold', krav, v) });
+    const u = s.u();
+    const nytt = u.spor.forhold.gjeldendeSvar!;
+    const etter = dagenEtterSisteRad(s);
+    expect(svaretGjaldt(u, foerste, forste.tidsstempel.slice(0, 10))).toBe(true);
+    expect(svaretGjaldt(u, foerste, etter)).toBe(false);
+    expect(svaretGjaldt(u, nytt, etter), 'kontrollsak: revisjonen gjelder').toBe(true);
+    expect(svaretGjaldt(u, foerste, '2026-01-01'), 'før svaret ble sendt').toBe(false);
+  });
 });
