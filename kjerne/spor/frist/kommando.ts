@@ -196,8 +196,8 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) =>
   );
 
 /**
- * VS-U96 punkt 32: varselet om fristforlengelse etter § 33.4 som står alene, et svar med `gjelder`
- * gjelder, eller `null`. Et krav som selv er varselet, er ikke et varsel som står alene.
+ * VS-U96 punkt 32: det registrerte varselet etter § 33.4 et svar med `gjelder` gjelder, eller
+ * `null`. Et svar på et krav som selv er varselet, gjelder kravet (VS-U96 punkt 38).
  */
 export function fristvarseletSvaretGjelder(
   u: Utledning,
@@ -208,10 +208,9 @@ export function fristvarseletSvaretGjelder(
 }
 
 /**
- * VS-U96 punkt 32 og 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 33.4 som
- * står alene, eller et nytt svar som erstatter det forrige (`hva`). Byggherren kan svare til
- * byggherren har svart på et krav om fristforlengelse med dager. Et svar lagt til, sendt på dagen
- * `sendt`, prøves mot byggherrens svar på kravene sendt til og med den dagen (OV-U98).
+ * VS-U96 punkt 32 og 33: det som hindrer byggherrens svar på varselet `gjelder` etter § 33.4, eller
+ * et nytt svar som erstatter det forrige (`hva`). Et svar lagt til, sendt på dagen `sendt`, prøves
+ * mot byggherrens svar på kravene sendt til og med den dagen (OV-U98).
  */
 export function hindrerSvaretPaaFristvarselet(
   u: Utledning,
@@ -226,7 +225,7 @@ export function hindrerSvaretPaaFristvarselet(
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)
     return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på varselet å erstatte.');
-  // VS-U96 punkt 33: hvert krav om fristforlengelse har dager.
+  // VS-U96 punkt 33: ethvert svar med virkning på et krav i fristen.
   const medVirkning = new Set([...sporet.svar, ...sporet.svarUtenforRekken].map((x) => x.id));
   if (!medVirkning.size) return null;
   const besvart = [...dokumenterI(u.journal)].some((d) =>

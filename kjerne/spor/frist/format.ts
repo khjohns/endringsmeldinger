@@ -248,15 +248,22 @@ export const utregningIFristen = (utregning: Record<string, unknown>): Fristutre
 export const dageneILagene = (utregning: Record<string, unknown>): Map<string, number[]> =>
   new Map(utregningIFristen(utregning).frister.map((f) => [f.gjelder, f.lag.map((l) => l.dager)]));
 
-/** Svaret godkjenner dager for en frist i et av lagene (HF-U23 punkt 1). */
+/**
+ * Svaret godkjenner dager for en frist i et av lagene (HF-U23 punkt 1). Svaret på varselet etter
+ * § 33.4 har ingen utregning og godkjenner ingen dager (VS-U96 punkt 32).
+ */
 export const godkjennerDagerIEtLag = (utregning: Record<string, unknown>): boolean =>
+  'frister' in utregning &&
   [...dageneILagene(utregning).values()].some((lagene) => lagene.some((d) => d > 0));
 
 type Data = Record<string, unknown>;
 
 /** Raden for fristen `gjelder` i utregningen. */
 const radenFor = (utregning: Data, gjelder: string, sti: string): Fristrad => {
-  const rad = utregningIFristen(utregning).frister.find((r) => r.gjelder === gjelder);
+  const rad =
+    'frister' in utregning
+      ? utregningIFristen(utregning).frister.find((r) => r.gjelder === gjelder)
+      : undefined;
   if (!rad) throw new Uforstaatt(`${sti}: utregningen har ingen rad for fristen ${gjelder}`);
   return rad;
 };
@@ -315,6 +322,8 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
   }
   if (!ut.some((s) => s.art === 'dager'))
     throw new Uforstaatt(`${sti}: svaret på frist mangler standpunktet dager`);
+  if (!('frister' in utregning))
+    throw new Uforstaatt(`${sti}: svaret på kravet om fristforlengelse har ingen utregning`);
   const rekkefoelge = ['rettidighet', 'ikke_svar', 'hindring', 'spesifisering', 'dager'];
   let forrige = 0;
   for (const s of ut) {

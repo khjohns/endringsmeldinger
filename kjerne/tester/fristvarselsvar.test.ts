@@ -8,6 +8,8 @@ import { describe, expect, it } from 'vitest';
 import { elementenesSpor, handlinger } from '../kommandoer/handlinger.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { KJERNE } from '../versjon.ts';
+import { standpunkterISvaret } from '../format/leser.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import { FRISTKRAV, laast, medFristen, PAABEROPELSE, sak, svar, type Data } from './brevsak.ts';
 
 const brev2 = 'brev K201-KOE-017-02 av 3. oktober 2026';
@@ -163,6 +165,31 @@ describe('svaret på varselet etter punkt 33.4 som står alene (VS-U96 punkt 32 
     s.send('BH', svarPaaKravet(s, false));
     expect(handlinger(s.u(), 'BH')).not.toContain(`revidere:${varsel}`);
     expect(s.avvist('BH', nytt)).toBe('KRAVET_ER_BESVART');
+  });
+
+  it('svaret på varselet med en akseptfrist avvises, fordi det ikke godkjenner dager (HF-U23, punkt 32)', () => {
+    const { s, varsel } = medVarselet();
+    const medFrist = paaVarselet(varsel, { varslet_i_tide: false });
+    (medFrist.svar[0] as Data).akseptfrist = '2026-12-15';
+    expect(s.avvist('BH', medFrist)).toBe('AKSEPTFRIST_IKKE_TILLATT');
+  });
+
+  it('et lagret svar på kravet uten utregning er ikke forstått (MM-U2); bare svaret på varselet har ingen utregning', () => {
+    const rettidighet = {
+      id: 'r',
+      art: 'rettidighet',
+      gjelder: 'v',
+      hjemmel: '33.4',
+      i_tide: false,
+    };
+    const dager = { id: 'd', art: 'dager', gjelder: 'f' };
+    expect(() =>
+      standpunkterISvaret('frist', { standpunkter: [rettidighet, dager], utregning: {} })
+    ).toThrow(Uforstaatt);
+    expect(
+      standpunkterISvaret('frist', { standpunkter: [rettidighet], utregning: {} }),
+      'kontrollsak: svaret på varselet'
+    ).toHaveLength(1);
   });
 
   it('svaret kan ikke gis i vederlaget (VS-U79)', () => {

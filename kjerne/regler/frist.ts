@@ -137,9 +137,8 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
 }
 
 /**
- * VS-U96 punkt 32: vurderingen i byggherrens svar på varselet om fristforlengelse etter § 33.4 som
- * står alene. Svaret har bare standpunktet til varselet, at det kom i tide eller for sent. Feilene
- * står på `varselet.<felt>`.
+ * VS-U96 punkt 32: vurderingen i byggherrens svar på varselet etter § 33.4 har bare
+ * `varslet_i_tide`, sann eller usann. Feilene står på `varselet.<felt>`.
  */
 export function kontrollerSvaretPaaFristvarselet(v: Record<string, unknown>): void {
   const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide');
