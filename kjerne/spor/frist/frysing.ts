@@ -36,7 +36,7 @@ import {
 import { HJEMMEL } from '../../format/format.ts';
 import { dagenSendt, standpunkterISvaret } from '../../format/leser.ts';
 import { Uforstaatt, ukjenteFelt } from '../../format/skjema.ts';
-import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
+import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Svar, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
@@ -400,4 +400,24 @@ export function foresporselsrelasjon(
   if (krav) return { art: 'svar', gjelder: krav };
   const begrunnelse = uten.filter((s) => s.svar !== null).at(-1)?.svar;
   return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
+}
+
+/**
+ * Brevet med den første påberopelsen etter `hjemmel` mot varselet `gjelder` som ikke er gitt opp
+ * siden, i `svarene` i fristen med dagen hvert ble sendt, eller `undefined` (VS-U96 punkt 34,
+ * VS-U88 punkt 9, samlevedtaket for varslene, versjon 4, punkt 6, 9 og 10). Svarene leses i
+ * rekkefølgen de ble sendt, og svar fra samme dag i journalens rekkefølge. Brevteksten og
+ * svarskjemaet leser innsigelsen herfra.
+ */
+export function paaberopelsenSomStaar(
+  svarene: readonly { dag: string; s: Pick<Svar, 'dokument' | 'standpunkter'> }[],
+  hjemmel: '33.4' | '33.6.2',
+  gjelder: string
+): string | undefined {
+  let foerste: string | undefined;
+  for (const { s } of [...svarene].sort((a, b) => (a.dag < b.dag ? -1 : a.dag > b.dag ? 1 : 0)))
+    for (const q of s.standpunkter)
+      if (q.art === 'rettidighet' && q.hjemmel === hjemmel && q.gjelder === gjelder)
+        foerste = q.iTide ? undefined : (foerste ?? s.dokument);
+  return foerste;
 }
