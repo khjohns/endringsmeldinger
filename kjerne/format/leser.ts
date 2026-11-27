@@ -593,6 +593,9 @@ function lesDokument(h: Journalrad): Dokument {
         ? 'registrert korrespondanse har ingen korrespondansetype (LV-U45)'
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
+  // G-15 i BF-49, kravet 11.11 i #807: nummeret avsenderen ga korrespondansen, venter på LV-U45.
+  if (data.brevnummer !== undefined && erRegistrert(dokument.opplysninger))
+    throw new Uforstaatt('korrespondanse lagt til har ikke noe nummer i saken ennå (LV-U45)');
   if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')
     throw new Uforstaatt('sendemåten står i et dokument som ikke er et registrert brev (OV-U79)');
   if (data.brevtittel !== undefined && !data.brevtekst)

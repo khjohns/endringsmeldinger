@@ -819,7 +819,7 @@ function skriv(
     if (tegn) return ugyldigForm(tegn);
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
-    // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
+    // LV-U44: nummeret etter det høyeste i saken.
     const brevnummer = nesteBrevnummer(lest);
     data.brevnummer = brevnummer;
     // LV-U44: merkingen fryses i brevet, så en senere henvisning viser til den som

@@ -1237,7 +1237,7 @@ describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
     expect(lest.art === 'dokument' && lest.dokument.brevnummer).toBe(2);
   });
 
-  // LV-U45: avsenderens eget nummer telles, og et nummer kan stå to ganger.
+  // LV-U44: et nummer kan stå to ganger, så det neste regnes fra det høyeste.
   it('et høyere nummer i journalen gir det neste, og to brev kan ha samme nummer', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -1250,6 +1250,23 @@ describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
     expect(neste.data.brevnummer).toBe(6);
     Object.assign(s.journal.at(-1)!.data, { brevnummer: 5, merking: 'K201-KOE-017-05' });
     expect(lesJournal(s.journal, KJERNE.leserformat).every((h) => h.art !== 'ukjent')).toBe(true);
+  });
+
+  // G-15 i BF-49 og kravet 11.11 i #807: nummeret avsenderen oppgir, venter på LV-U45.
+  it('korrespondanse lagt til med et nummer er ikke forstått, og kontrollsaken uten nummer er det', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', {
+      type: 'registrert_brev',
+      sendt: '2026-10-02',
+      korrespondansetype: 'e_post',
+      beskrivelse: 'Referat fra byggemøte',
+      dokumentasjon: [randomUUID()],
+    });
+    const med = (data: Record<string, unknown>) =>
+      lesJournal([...s.journal.slice(0, -1), { ...rad, data }], KJERNE.leserformat).at(-1)!.art;
+    expect(med(rad.data), 'kontrollsak').toBe('dokument');
+    expect(med({ ...rad.data, brevnummer: 7 })).toBe('ukjent');
   });
 
   it('et brevnummer som ikke er et positivt heltall, er ikke forstått', () => {

@@ -39,7 +39,7 @@ som dokumentasjon er sendt av motparten (OV-U79). Et brev appen sender, har brev
 (`brevtekst`); et registrert brev har ingen. Et brev appen sender med krav, svar,
 aksept, trekk eller innlegg, har også tittelen på brevet, frosset med teksten
 (`brevtittel`, MM-U3, #1536), og hvert brev appen sender, har nummeret sitt i saken
-(`brevnummer`, LV-U44, LV-U45) og merkingen, frosset da brevet ble skrevet
+(`brevnummer`, LV-U44; korrespondanse lagt til har ikke noe nummer før LV-U45 bygges, G-15 i BF-49) og merkingen, frosset da brevet ble skrevet
 (`merking`, for eksempel K201-KOE-017-03, LV-U53, LV-U24). Med merkingen står Deres ref.:
 merkingen på hvert av motpartens brev som brevet svarer på, godtar, bestrider eller viser til i et innlegg,
 frosset da brevet ble skrevet (`deres_ref`, LV-U27, LV-U49, LV-U50, LV-U51); uten slike brev

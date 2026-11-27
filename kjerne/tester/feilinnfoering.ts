@@ -7995,6 +7995,19 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    bare ? x.bareVarselet : x.gjelder === gjelder', '    x.gjelder === gjelder']],
     mal: ['etter en ny kravversjon er det nye svaret bare på varselet en revisjon av det forrige'],
   },
+  {
+    id: 'F807a',
+    feilklasse:
+      'korrespondanse lagt til med et nummer er forstått og teller med i nummeret til neste brev (G-15 i BF-49, #807)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '  if (data.brevnummer !== undefined && erRegistrert(dokument.opplysninger))',
+        '  if (false)',
+      ],
+    ],
+    mal: ['korrespondanse lagt til med et nummer er ikke forstått'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

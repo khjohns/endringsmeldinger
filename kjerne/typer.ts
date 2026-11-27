@@ -447,8 +447,8 @@ export interface Dokument {
   /** Tittelen på et brev løsningen sendte, frosset med teksten (LV-U2, LV-U25, MM-U9, MM-U50, #1536). `null` ellers. */
   brevtittel: string | null;
   /**
-   * Brevets nummer i saken (LV-U44, N3 i #1497): satt av kjernen for et brev fra løsningen, og
-   * oppgitt av avsenderen for registrert korrespondanse (LV-U45). Ikke unikt i saken.
+   * Brevets nummer i saken (LV-U44, N3 i #1497), satt av kjernen for et brev fra løsningen.
+   * Korrespondanse lagt til har ikke noe nummer før LV-U45 bygges (G-15 i BF-49). Ikke unikt i saken.
    */
   brevnummer: number | null;
   /**
