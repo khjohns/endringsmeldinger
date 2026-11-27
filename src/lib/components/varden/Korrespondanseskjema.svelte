@@ -21,20 +21,22 @@
   import Valg from './Valg.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
   import Valgfri from './Valgfri.svelte';
-  import { aksepten } from './kommandoer';
+  import { aksepten, nyVersjonAvPaaberopelsen } from './kommandoer';
   import {
     dokumentasjonen,
+    fyllesUtISkjemaet,
     harArbeid,
     kategoriene,
     lagtTil,
     lagttilmangler,
+    svareneSomGjaldt,
     tilbudteVarsler,
     tomtLagtTil,
     varselet,
     type Lagttilvalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { brevet, sisteKunnskapsdatoen, svareneISporet } from './lesing';
+  import { brevet, sisteKunnskapsdatoen } from './lesing';
   import type { Mangel } from './mangler';
   import { vedleggsgrense, vedleggskart } from './nysak';
   import {
@@ -64,8 +66,8 @@
     valg?: Lagttilvalg;
     /** Kravet eller svaret fylles ut i skjemaet for det (OV-U80). */
     onneste: (kategori: 'krav' | 'svar') => void;
-    /** Dokumentasjonen, varslene eller aksepten er lagt til. */
-    onlagttil: (kategori: 'dokumentasjon' | 'varsel' | 'aksept') => void;
+    /** Dokumentasjonen, varslene, aksepten eller kravet om forholdet er lagt til. */
+    onlagttil: (kategori: 'dokumentasjon' | 'varsel' | 'krav' | 'aksept') => void;
     onavbryt: () => void;
   } = $props();
   const uid = $props.id();
@@ -97,9 +99,10 @@
     valg.kategori !== null && kategorier.includes(valg.kategori) ? valg.kategori : null
   );
 
-  // Byggherrens svar i sporet, med brevet hvert står i (arbeidsvalget 16.11, punkt 6).
+  // Byggherrens svar i sporet som gjaldt på dagen, med brevet hvert står i (arbeidsvalget 16.11,
+  // punkt 6, D-9 i BF-49).
   const svarene = $derived(
-    svareneISporet(u, spor).flatMap((s) => {
+    svareneSomGjaldt(u, spor, valg.korrespondanse.dato).flatMap((s) => {
       const b = brevet(u, s.dokument);
       return b ? [{ verdi: s.id, tekst: LEGG_TIL.svaretValg(b) }] : [];
     })
@@ -115,7 +118,13 @@
         ? varselet({ ...valg, varsler: valgteVarsler })
         : kategori === 'aksept' && svaret
           ? lagtTil(aksepten(spor, svaret, kjernesak.regelversjon), valg.korrespondanse)
-          : null
+          : kategori === 'krav' && spor === 'forhold'
+            ? lagtTil(nyVersjonAvPaaberopelsen(u, ''), valg.korrespondanse)
+            : null
+  );
+  // Merknadene etter OV-U102–OV-U104 for det som legges til herfra (`Lagttilmerknader`).
+  const merknader = $derived(
+    (kategori === 'aksept' || kategori === 'krav') && kommando ? kommando : null
   );
 
   const feltene = $derived(
@@ -132,7 +141,7 @@
   let oppsummering = $state<HTMLElement | null>(null);
 
   const viderekategori = (k: Korrespondansekategori | null): k is 'krav' | 'svar' =>
-    k === 'krav' || k === 'svar';
+    fyllesUtISkjemaet(k, spor);
 
   function velgVarsel(h: (typeof varslene)[number], valgt: boolean) {
     valg.varsler = valgt
@@ -288,8 +297,8 @@
           {/snippet}
         </Korrespondansen>
 
-        {#if kategori === 'aksept' && kommando}
-          <Lagttilmerknader {kjernesak} {u} {spor} {kommando} {vedlegg} />
+        {#if merknader}
+          <Lagttilmerknader {kjernesak} {u} {spor} kommando={merknader} {vedlegg} />
         {/if}
 
         {#snippet knapprad(knappen: Snippet)}

@@ -56,6 +56,52 @@ export const KOMMANDOENE: Lesbar[] = [
     ],
   ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59), D-1, D-2 og D-7 i BF-50: den
+  // nye datoen i TEs retting, varselet eller kravet den viser til, og datoen som gjelder.
+  [
+    'Kommando',
+    'kommando',
+    'dato',
+    [
+      'kommandoer/nyttelast.ts:kontrollerRettingen',
+      'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/skriving.ts:dokument',
+    ],
+  ],
+  ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'dato'],
+  ['Utledning', 'utsagn', 'journal', ['kommandoer/rettingen.ts:lagtTil']],
+  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/rettingen.ts:lagtTil']],
+  ['Dokument', 'relasjon', 'id', ['kommandoer/rettingen.ts:lagtTil']],
+  ['Krav', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['Utsagn', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['DetSomRettes', 'relasjon', 'art hjemmel element'],
+  [
+    'kommandoer/rettingen.ts',
+    'predikat',
+    'detSomRettes',
+    // U-3 i BF-50: om rettingen gjelder et varsel eller et krav, for tittelen.
+    ['kommandoer/nyttelast.ts:kontrollerRettingen', 'kommandoer/skriving.ts:rettes'],
+  ],
+  ['kommandoer/rettingen.ts', 'predikat', 'rettingen', ['kommandoer/forutsetninger.ts:henvisning']],
+  // G-7 i BF-50: varslene og kravene tilbudet prøver forutsetningen for.
+  [
+    'kommandoer/rettingen.ts',
+    'relasjon',
+    'varsleneOgKraveneI',
+    ['kommandoer/handlinger.ts:kandidater'],
+  ],
+  [
+    'utledning/utled.ts',
+    'utsagn',
+    'datoenSomGjelder',
+    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+  ],
+  [
+    'frosset/brevdeler.ts',
+    'kontekst',
+    'norskDato',
+    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+  ],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
   // G-1 i BF-49: kategoriene lagt til, med datokontrollene for varselet og aksepten (D-3, D-9).
@@ -220,6 +266,7 @@ export const KOMMANDOENE: Lesbar[] = [
     'erRegistrering',
     [
       'kommandoer/skriving.ts:skriv',
+      'kommandoer/skriving.ts:skriv.svarstandpunkter',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
       'kommandoer/nyttelast.ts:kunnskapsdatoEtterBrevet',
@@ -277,6 +324,16 @@ export const KOMMANDOENE: Lesbar[] = [
   ['Sakssperre', 'kommando', 'foer', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['LestSak', 'kommando', 'u', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
+  // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59), OV-U98: et svar lagt til står med
+  // rettingene sendt til og med dagen det oppgir.
+  ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:skriv.svarstandpunkter']],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:skriv.svarstandpunkter']],
+  [
+    'utledning/rettingen.ts',
+    'relasjon',
+    'medRettingeneTil',
+    ['kommandoer/skriving.ts:skriv.svarstandpunkter'],
+  ],
   // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.
   [
     'utledning/utled.ts',

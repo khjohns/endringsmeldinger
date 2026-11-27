@@ -29,6 +29,8 @@ export interface Forholdssvarvalg {
   begrunnelser: Record<string, string>;
   /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet. */
   forbehold: string;
+  /** U-13 i BF-49, OV-U6: svaret lagt til er byggherrens egen endringsordre etter § 31.3. */
+  egenEndringsordre?: boolean;
 }
 
 export const tomtForholdssvar = (): Forholdssvarvalg => ({

@@ -21,6 +21,7 @@ import {
 import { varseletsDato } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typer.ts';
+import { varsleneOgKraveneI } from './rettingen.ts';
 
 /**
  * En tilbudt handling med nøkkelen og det den gjelder, så visningen ikke deler nøkkelen
@@ -80,6 +81,11 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   // VS-U86 punkt 14 (VS-U85): det egne utsagnet viser til det første varselet etter § 34.1.3.
   const varselet = varseletFoerBrevet(u, '34.1.3');
   if (varselet !== undefined) ut.push({ type: 'oppgi_kunnskapsdato', gjelder: varselet });
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): rettingen viser til et
+  // varsel eller et krav, og forutsetningen avgjør hvilke (D-1 og D-2 i BF-50).
+  for (const spor of SPOR)
+    for (const e of varsleneOgKraveneI(u.spor[spor]))
+      ut.push({ type: 'rette_datoen', gjelder: e.id });
   return ut;
 }
 

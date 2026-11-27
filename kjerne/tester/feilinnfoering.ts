@@ -1907,7 +1907,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'return registrert === kalenderdag(k.varsel.sendt)',
+        'return datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(k.varsel.sendt)',
         'return varseletSendt.dato === k.varsel.sendt',
       ],
     ],
@@ -8325,6 +8325,204 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['med forholdet avslått og spesifiseringen for sent gir aksepten dagene'],
+  },
+  {
+    id: 'F1309a',
+    feilklasse:
+      'rettidigheten i et svar kontrolleres mot datoen som gjelder nå, ikke datoen som gjaldt da svaret ble sendt (MM-U59 punkt 8, BF-50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['(r) => bakover(svar.id, r.id) && !foerDagen(sendt(svar), r.sendt)', '() => true'],
+    ],
+    mal: ['et svar sendt før rettingen står med varselet det gjaldt'],
+  },
+  {
+    id: 'F1309b',
+    feilklasse:
+      'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, MM-U63)',
+    fil: `${K}/utledning/rettingen.ts`,
+    endringer: [['foer(r)).at(-1)?.dato', 'foer(r)).at(0)?.dato']],
+    mal: ['D-4: datoen som gjelder, er den i den siste rettingen'],
+  },
+  {
+    id: 'F1309c',
+    feilklasse:
+      'det første varselet leses av datoen først oppgitt, ikke datoen som gjelder etter rettingen (MM-U59 punkt 8 og 18, VS-U86)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    (v) => datoenSomGjelder(u, v)\n', '    (v) => datoenDetBleSendt(u, v)\n']],
+    mal: ['det første varselet skifter når varselet rettes'],
+  },
+  {
+    id: 'F1309d',
+    feilklasse: 'en retting til datoen som gjelder, godtas (MM-U63, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (ny === gjelder)\n', '  if (false)\n']],
+    mal: ['en retting til datoen som gjelder, avvises'],
+  },
+  {
+    id: 'F1309e',
+    feilklasse:
+      'rettingen godtas for et varsel eller krav sendt fra løsningen (MM-U59 punkt 15 og 18, D-2 i BF-50)',
+    fil: `${K}/kommandoer/rettingen.ts`,
+    endringer: [['  return detSomRettes(u, gjelder)\n', '  return true\n']],
+    mal: ['et varsel sendt fra løsningen rettes ikke'],
+  },
+  {
+    id: 'F1309f',
+    feilklasse:
+      'en kravdato før datoen i påberopelsen godtas når kravet er det første varselet (arbeidsvalget i D-7 i BF-50, VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (grunnlag === null || ny >= grunnlag.dag) return null;',
+        '  if (grunnlag === null || true) return null;',
+      ],
+    ],
+    mal: ['en kravdato før datoen i påberopelsen avvises'],
+  },
+  {
+    id: 'F1309g',
+    feilklasse:
+      'leseren godtar en retting som viser til et varsel sendt fra løsningen (MM-U59 punkt 8 og 18, D-2 i BF-50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      !erRegistrert(d.opplysninger)\n    )\n      ugyldig(\n        x.id,',
+        '      false\n    )\n      ugyldig(\n        x.id,',
+      ],
+    ],
+    mal: ['en retting som viser til et varsel sendt fra løsningen, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F1309h',
+    feilklasse:
+      'en retting til en tidligere dato venter på byggherrens aksept i stedet for å gjelde straks (MM-U63)',
+    fil: `${K}/utledning/rettingen.ts`,
+    endringer: [
+      [
+        'r.gjelder === gjelder && foer(r)',
+        "r.gjelder === gjelder && foer(r) && r.dato > (oppgitt ?? '')",
+      ],
+    ],
+    mal: ['variant B: en tidligere dato gjelder også straks'],
+  },
+  {
+    id: 'F1309i',
+    feilklasse:
+      'brevet med rettingen nevner den første rettingen som datoen som gjaldt, ikke den siste (D-4 og D-9 i BF-50)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['u.rettinger.map((r) => [r.gjelder', 'u.rettinger.toReversed().map((r) => [r.gjelder'],
+    ],
+    mal: ['D-4: etter to rettinger nevner brevet datoen i den siste, med rettingen den kom fra'],
+  },
+  {
+    id: 'F1309j',
+    feilklasse:
+      'et krav fra løsningen sier ikke datoen som gjelder for et rettet varsel og viser ikke til rettingen (LV-U83, endret av MM-U63)',
+    fil: `${K}/frosset/brevdeler.ts`,
+    endringer: [['const rettet = saken.rettetDato[varsel];', 'const rettet = undefined;']],
+    mal: ['kravet oppgir datoen som gjelder og viser til rettingen'],
+  },
+  {
+    id: 'F1309k',
+    feilklasse: 'rettingen av en kravdato får tittelen for varseldatoen (U-3 i BF-50)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['RETTINGSTITTEL[rettes(x.gjelder)]', 'RETTINGSTITTEL.varsel']],
+    mal: ['variant C: tittelen på rettingen av et krav sier kravdatoen'],
+  },
+  {
+    id: 'F1309l',
+    feilklasse:
+      'TE får ikke tilbud om å rette datoen for et varsel eller et krav lagt til (G-7 i BF-50, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      [
+        "ut.push({ type: 'rette_datoen', gjelder: e.id });",
+        "void { type: 'rette_datoen', gjelder: e.id };",
+      ],
+    ],
+    mal: ['TE får tilbud om å rette datoen for varselet og kravet lagt til'],
+  },
+  {
+    id: 'F1309m',
+    feilklasse:
+      'leseren godtar en retting som står sammen med andre utsagn, krav eller svar i brevet (U-3 i BF-50)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "    dokument.utsagn.some((u) => u.art === 'retting') &&\n    (dokument.utsagn.length > 1",
+        '    false &&\n    (dokument.utsagn.length > 1',
+      ],
+    ],
+    mal: ['leseren: en retting som ikke står alene i brevet, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F1309n',
+    feilklasse:
+      'varseldatoen etter punkt 32.2 kan rettes til en dag etter påberopelsen (VS-U38, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["(d.hjemmel === '32.2' ? varseletEtter322(ny, u, regler) : null)", 'null']],
+    mal: ['varseldatoen rettes ikke til en dag etter påberopelsen, og samme dag godtas'],
+  },
+  {
+    id: 'F1309o',
+    feilklasse:
+      'en påberopelse lagt til kan rettes til en dag før varselet etter punkt 32.2 (VS-U38, D-7 i BF-50)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (varslet !== null && ny < varslet)', 'if (false)']],
+    mal: ['påberopelsen rettes ikke til en dag før varselet, og samme dag godtas'],
+  },
+  {
+    id: 'F1309p',
+    feilklasse:
+      'et svar lagt til, oppgitt sendt før rettingen, leser rettingen når det skrives (MM-U59 punkt 8, OV-U98)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'medRettingeneTil(u, erRegistrering(k) ? kalenderdag(k.sendt) : null)',
+        'medRettingeneTil(u, null)',
+      ],
+    ],
+    mal: ['et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen'],
+  },
+  {
+    id: 'F1309q',
+    feilklasse:
+      'leseren lar et svar lagt til, oppgitt sendt før rettingen, stå med datoen etter rettingen (MM-U59 punkt 8, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!foerDagen(sendt(svar), r.sendt)', 'true']],
+    mal: [
+      'et svar lagt til, oppgitt sendt før rettingen, står med kravet som var det første varselet den dagen',
+    ],
+  },
+  {
+    id: 'F1309r',
+    feilklasse:
+      'et fristkrav må oppgi datoen først oppgitt for et rettet varsel, ikke datoen som gjelder (LV-U83, OV-U123 punkt 12)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(',
+        'registrert === kalenderdag(',
+      ],
+    ],
+    mal: ['fristkravet oppgir datoen som gjelder for varselet, ikke datoen først oppgitt'],
+  },
+  {
+    id: 'F1309s',
+    feilklasse:
+      'brevet med rettingen sier ikke hvilket arbeid varselet gjelder (VS-U87 punkt 27, U-3 i BF-50)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        ': `${VARSELET_I_SVARET[hjemmel]} for arbeidet «${arbeid}»`;',
+        ': VARSELET_I_SVARET[hjemmel];',
+      ],
+    ],
+    mal: [
+      'brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse',
+    ],
   },
 ];
 

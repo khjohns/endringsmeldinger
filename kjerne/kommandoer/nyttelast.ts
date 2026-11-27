@@ -16,6 +16,8 @@ import { svaretsVarsel, type Svaretsvarsel, type VarsleneIKravet } from './stand
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
+import { datoEtterRettingene } from '../utledning/rettingen.ts';
+import { detSomRettes, type DetSomRettes } from './rettingen.ts';
 import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, dokumenterI, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
@@ -37,7 +39,7 @@ import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
 import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import {
-  datoenDetBleSendt,
+  datoenSomGjelder,
   kravSomVarsler,
   kravversjonenPaaDagen,
   rettedeBrev,
@@ -342,7 +344,7 @@ function korrigeringEtterVarslene(
   if (ny === null) return null;
   for (const hjemmel of VARSLER_OM_FORHOLDET) {
     const [sendt = null] = varslerOmForholdet(hjemmel, u, regler)
-      .map((v) => datoenDetBleSendt(u, v))
+      .map((v) => datoenSomGjelder(u, v))
       .filter((d) => d !== null)
       .sort();
     if (sendt !== null && sendt < ny)
@@ -352,6 +354,69 @@ function korrigeringEtterVarslene(
       );
   }
   return null;
+}
+
+/** Varselet eller kravet en retting gjelder, i meldingen. */
+const DET_SOM_RETTES: Record<Spor, string> = {
+  forhold: 'påberopelsen av forholdet',
+  vederlag: 'kravet om vederlagsjustering',
+  frist: 'kravet om fristforlengelse',
+};
+const detSomRettesHeter = (d: DetSomRettes): string =>
+  d.art === 'varsel' ? `varselet etter punkt ${d.hjemmel}` : DET_SOM_RETTES[d.element.spor];
+
+/**
+ * D-7 i BF-50: rettingen av datoen avvises når datoen er den som gjelder, når en varseldato for
+ * et varsel om forholdet er før datoen i påberopelsen (MM-U63, VS-U58), og når varselet etter
+ * § 32.2 da blir senere enn påberopelsen (VS-U38). Arbeidsvalget i D-7:
+ * det samme gjelder en kravdato for et krav som er det første varselet løsningen kjenner (VS-U86).
+ * Datoen etter brevets dato avvises i `oppgittDatoEtterBrevet`.
+ */
+function kontrollerRettingen(
+  k: Extract<Kommando, { type: 'retting' }>,
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  const d = detSomRettes(u, k.gjelder);
+  // Forutsetningene avviser en retting uten noe å rette (`rettingen`).
+  if (!d) return null;
+  const ny = kalenderdag(k.dato);
+  const gjelder = datoenSomGjelder(u, d.element);
+  const hva = detSomRettesHeter(d);
+  if (ny === null || gjelder === null)
+    return avvis(
+      'DATO_KAN_IKKE_LESES',
+      `Datoen for ${hva} kan ikke leses, så rettingen kan ikke sammenlignes med den.`
+    );
+  if (ny === gjelder)
+    return avvis(
+      'DATOEN_ER_UENDRET',
+      `Datoen som gjelder for ${hva}, er alt ${norskDato(ny)}. Rettingen må oppgi en annen dato.`
+    );
+  if (d.art === 'varsel')
+    return erVarselOmForholdet(d.hjemmel)
+      ? (varseletFoerGrunnlagsdatoen(d.hjemmel, ny, u) ??
+          (d.hjemmel === '32.2' ? varseletEtter322(ny, u, regler) : null))
+      : null;
+  // VS-U38: varselet etter § 32.2 kan ikke være senere enn påberopelsen, også etter rettingen.
+  const varselet = d.element.spor === 'forhold' ? u.spor.forhold.varsler['32.2'] : undefined;
+  const varslet = varselet ? datoenSomGjelder(u, varselet) : null;
+  if (varslet !== null && ny < varslet)
+    return avvis(
+      'VARSEL_ETTER_PAABEROPELSEN',
+      `Den nye datoen for ${hva}, ${norskDato(ny)}, er før varselet etter punkt 32.2, som er oppgitt sendt ${norskDato(varslet)}. Varselet kan ikke være sendt etter påberopelsen.`
+    );
+  const grunnlag = grunnlagsdatoen(u);
+  if (grunnlag === null || ny >= grunnlag.dag) return null;
+  const varsler = VARSLER_OM_FORHOLDET.find((h) =>
+    varslerOmForholdet(h, u, regler).some((v) => v.id === d.element.id)
+  );
+  return varsler
+    ? avvis(
+        'VARSEL_FOER_GRUNNLAGSDATOEN',
+        `Den nye datoen for ${hva}, ${norskDato(ny)}, er før datoen ${DATOEN_GJELDER[grunnlag.felt]}, ${norskDato(grunnlag.dag)}, slik totalentreprenøren har oppgitt den i påberopelsen. Kravet er det første varselet etter punkt ${varsler} løsningen kjenner.`
+      )
+    : null;
 }
 
 export type OppgittDato = {
@@ -386,6 +451,9 @@ function oppgittDatoI(k: Kommando): OppgittDato[] {
     const { felt, dato } = korrigertDato(k);
     return [{ dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' }];
   }
+  // Arbeidsvalget i D-7 i BF-50, som U-3 i BF-02A.
+  if (k.type === 'retting')
+    return [{ dato: k.dato, gjelder: 'varselet eller kravet ble sendt', av: 'Totalentreprenøren' }];
   const iKravet = k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
   return [...registrering, ...(iKravet ? [iKravet] : [])];
 }
@@ -630,8 +698,9 @@ export function nyttelastkontroll(
           'VARSEL_REGISTRERT',
           'Datoen varselet er registrert med, kan ikke leses som en dato, så kravet kan ikke kontrolleres mot den.'
         );
-      // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return registrert === kalenderdag(k.varsel.sendt)
+      // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19). LV-U83: «en
+      // annen dato» er en annen enn datoen som gjelder etter en retting (MM-U59 punkt 19).
+      return datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(k.varsel.sendt)
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
@@ -719,5 +788,7 @@ export function nyttelastkontroll(
       return henvisningenIInnlegget(k.gjelder, u);
     case 'korrigering':
       return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u, regler);
+    case 'retting':
+      return kontrollerRettingen(k, u, regler);
   }
 }

@@ -18,7 +18,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Brevsteg`](../src/lib/components/varden/Brevsteg.svelte) | 2 | Stegviseren for skjemaet og brevkontrollen (#2190). |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
 | [`Datobrev`](../src/lib/components/varden/Datobrev.svelte) | 2 | Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A) og datoen etter punkt 34.1.3 (BF-48). |
-| [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 2 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
+| [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 3 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
 | [`Datofelt`](../src/lib/components/varden/Datofelt.svelte) | 6 | Et datofelt i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
 | [`Datolinjer`](../src/lib/components/varden/Datolinjer.svelte) | 2 | Datoene under et brev i tråden på siden for et krav: datoen TE oppgir og avstanden til varselet under brevet med varselet (U-8 i BF-44 og BF-45, uten vurdering av fristen, MM-U50), og akseptfristen over handlingene ved byggherrens svar (U-11, HF-U23 punkt 4). |
 | [`Felt`](../src/lib/components/varden/Felt.svelte) | 4 | Rammen rundt et felt i skjemaene: labelen over, hjelpeteksten under labelen, feltet og feilmeldingen under (system.md, «Feltene står under hverandre», #2119). |
@@ -39,7 +39,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Linjefelt`](../src/lib/components/varden/Linjefelt.svelte) | 7 | Et felt i skjemaene med labelen over, hjelpeteksten under labelen, feltet med enheten og feilmeldingen under (system.md, «Feltene står under hverandre», #1925). |
 | [`Maalrad`](../src/lib/components/varden/Maalrad.svelte) | 2 | Én rad på målestokken i kortet «Kravet og svaret» (BF-44 og BF-45, U-2): navnet og verdien, og målet under, åpent for kravet og fylt for et lag i svaret. |
 | [`Manglene`](../src/lib/components/varden/Manglene.svelte) | 3 | Oppsummeringen øverst i et krav- eller svarskjema av det som mangler før brevet kan lages, med en lenke til hvert felt (MM-U32). |
-| [`Melding`](../src/lib/components/varden/Melding.svelte) | 13 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
+| [`Melding`](../src/lib/components/varden/Melding.svelte) | 14 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
 | [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
 | [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 5 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |

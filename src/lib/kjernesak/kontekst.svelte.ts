@@ -43,6 +43,12 @@ export { KRAVTEKSTENE, SVARTEKSTENE } from '#kjerne/kommandoer/kommando.ts';
  */
 export { kravversjonenPaaDagen } from '#kjerne/utledning/utled.ts';
 
+/**
+ * D-9 i BF-49, OV-U98: svaret var byggherrens gjeldende svar på dagen, så en aksept lagt til kan
+ * gjelde det (G-7).
+ */
+export { svaretGjaldt } from '#kjerne/utledning/utled.ts';
+
 /** Akseptfristen i byggherrens gjeldende svar så lenge TE kan godta det (HF-U23), for Varden (#2120). */
 export { akseptfristen } from '#kjerne/utledning/visning.ts';
 

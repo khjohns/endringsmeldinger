@@ -381,6 +381,7 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   foresporselssvar: 'TE',
   korrigering: 'TE',
   kunnskapsdato: 'TE',
+  retting: 'TE',
   // MM-U47 punkt 1, MM-U56: begge parter sender innlegg.
   innlegg: null,
 };
@@ -557,6 +558,17 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'et registrert brev har en opplysning om datoen utgiftene etter § 34.1.3 ble kjent'
     );
+  // Punkt 2 i samlevedtaket for retting av sendt brev (MM-U59): rettingen sendes fra løsningen, og
+  // en retting sendt utenfor løsningen står som dokumentasjon (OV-U4).
+  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'retting'))
+    throw new Uforstaatt('et registrert brev har en retting av datoen for et varsel eller et krav');
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): rettingen er et eget brev
+  // (U-3 i BF-50), så tittelen er tittelen på rettingen (`avvikITittelen`).
+  if (
+    dokument.utsagn.some((u) => u.art === 'retting') &&
+    (dokument.utsagn.length > 1 || dokument.krav.length || dokument.svar.length)
+  )
+    throw new Uforstaatt('rettingen av datoen står ikke alene i brevet');
   const innlegg = erInnlegg(dokument);
   // D-6 i BF-03: et innlegg sendt utenfor løsningen legges til som korrespondanse (OV-U4).
   if (innlegg && erRegistrert(dokument.opplysninger))

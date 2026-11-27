@@ -5,7 +5,8 @@
   forhåndsvalgt (U-14), unntatt innsigelsen mot varselet som står (VS-U96 punkt 34). Varselet,
   forespørselen, hindringen og spesifiseringen besvares én gang for hele kravet, og dagene for
   hver frist (KA-U74, KA-U80). Kommandoen bygges i `fristsvar.ts`, og
-  kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
+  kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar. Et svar lagt
+  til (OV-U80, OV-U98) gjelder kravversjonen og påberopelsen på dagen det ble sendt (D-7 i BF-49).
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
@@ -49,8 +50,15 @@
     type Fristsvarvalg,
     velgDagene,
   } from './fristsvar';
-  import { brevet, brevMedElement, brevMedUtsagn, standpunktene } from './lesing';
-  import { somNyttSvar } from './kommandoer';
+  import {
+    brevet,
+    brevMedElement,
+    brevMedUtsagn,
+    nyttSvarIUtkastet,
+    standpunktene,
+  } from './lesing';
+  import { kravetSvaretGjelder, somNyttSvar } from './kommandoer';
+  import { forhaandsvistSvar, type Korrespondansevalg } from './korrespondansen';
   import {
     begrunnelserForTemaene,
     temanavn,
@@ -81,6 +89,10 @@
     onforkast,
     onvedsiden,
     onforholdet,
+    lagtTil = null,
+    onavbrudd,
+    onendre,
+    onlagttil,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -93,12 +105,20 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Åpner siden for forholdet uten å forkaste svarutkastet. */
     onforholdet?: () => void;
+    /** Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null`. */
+    lagtTil?: Korrespondansevalg | null;
+    /** U-9 i BF-49: korrespondansen lagt til som dokumentasjon uten skjemaet, og det som hindret. */
+    onavbrudd?: () => Promise<string | null>;
+    onendre?: () => void;
+    onlagttil?: () => void;
   } = $props();
   const uid = $props.id();
 
   type Fristpost = { id: string; navn: string; dager: number };
 
-  const krav = $derived(u.spor.frist.gjeldendeKrav!);
+  const sendt = $derived(lagtTil?.dato || null);
+  const paaDagen = $derived(kravetSvaretGjelder(u, 'frist', sendt));
+  const krav = $derived(paaDagen.krav ?? u.spor.frist.gjeldendeKrav!);
   const frister = $derived(
     innholdIFristen(krav).frister.map(
       (f): Fristpost => ({ id: f.id, navn: betegnelsen(f), dager: f.dager })
@@ -124,10 +144,10 @@
     valg.foresporselITide = v === 'ikke_svar' ? null : v;
   }
   // VS-U96 punkt 34. Utgangspunktet står ikke i `valg`, så det faller bort med innsigelsen.
-  const innsigelsen = $derived(innsigelsenMotFristvarselet(u, null));
+  const innsigelsen = $derived(innsigelsenMotFristvarselet(u, sendt));
   const innsigelsesbrevet = $derived(innsigelsen && brevet(u, innsigelsen.dokument));
   const varselITide = $derived(valg.varselITide ?? (innsigelsen ? false : null));
-  const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
+  const hindringPunkt = $derived(hindringenEtter(paaDagen.paaberopelse));
 
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);
@@ -159,7 +179,9 @@
         forbehold: '',
       },
       u,
-      kjernesak.regler
+      kjernesak.regler,
+      [],
+      sendt
     )!
   );
   // Revisjonen av det gjeldende svaret når skjemaet er et nytt svar (HF-U29, G-8 i BF-46).
@@ -167,9 +189,10 @@
   const forrigeSvar = $derived(
     utkast.type === 'revisjon' ? brevMedElement(u, utkast.erstatter) : null
   );
-  const etter = $derived(kjernesak.forhaandsvist(utkast));
+  // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
+  const etter = $derived(forhaandsvistSvar(kjernesak, utkast, lagtTil));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
-  const lagene = $derived(kjernesak.lagForUtkastet(brevutkast.svar[0], 'frist'));
+  const lagene = $derived(kjernesak.lagForUtkastet(brevutkast.svar[0], 'frist', sendt));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   const foerstePunkt = $derived(
     lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
@@ -215,10 +238,7 @@
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
   });
-  const nyttSvar = $derived.by(() => {
-    const s = etter?.spor.frist.gjeldendeSvar;
-    return s && !u.spor.frist.svar.some((x) => x.id === s.id) ? s : null;
-  });
+  const nyttSvar = $derived(nyttSvarIUtkastet(u, etter, 'frist'));
   const fristen = (id: string) => frister.find((f) => f.id === id);
   // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
   const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
@@ -513,9 +533,14 @@
   {forrigeSvar}
   medTekstene={(punktene) =>
     somNyttSvar(
-      fristsvaret({ ...valg, varselITide }, u, kjernesak.regler, punktene)!,
+      fristsvaret({ ...valg, varselITide }, u, kjernesak.regler, punktene, sendt)!,
       valg.erstatter
     )}
+  {lagtTil}
+  {onavbrudd}
+  svarerPaa={lagtTil ? brevMedElement(u, krav.id) : null}
+  {onendre}
+  {onlagttil}
   bind:tekster={valg}
   {linjer}
   {virkninger}

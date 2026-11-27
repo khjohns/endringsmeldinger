@@ -54,4 +54,9 @@ export const FORHOLDSSVAR = haerdet({
     'Svarene på vederlag og frist gjelder subsidiært. Godtar totalentreprenøren svaret, er dere enige om at varselet etter punkt 32.2 kom for sent. Enigheten om vederlag og frist får da ingen virkning, og saken avsluttes ikke.',
   /** U-14 og OV-U101: et svar gitt utenfor løsningen legges til som korrespondanse. */
   leggTilSvar: 'Legg til et svar du har gitt før',
+  /** U-13 i BF-49, OV-U6: byggherrens egen endringsordre lagt til som svar. */
+  egenEndringsordreSpoersmaal: 'Endringsordre',
+  egenEndringsordre: 'Brevet er en endringsordre etter punkt 31.3',
+  egenEndringsordreHjelp:
+    'Godkjenningen over er standpunktet du har valgt. Resten av brevet legges til slik det er. Innholdet vurderes ikke.',
 } as const);

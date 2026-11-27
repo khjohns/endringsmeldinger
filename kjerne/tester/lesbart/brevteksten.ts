@@ -370,6 +370,22 @@ export const BREVTEKSTEN: Lesbar[] = [
   // egne utsagnet og i svaret (`sisteKunnskapsdato`).
   ['Saken', 'utsagn', 'sisteKunnskapsdato sisteKunnskapsdato.dato', ['frosset/brevtekst.ts']],
   ['Saken', 'relasjon', 'sisteKunnskapsdato.dokument', ['frosset/brevtekst.ts']],
+  // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59), D-9 i BF-50 og LV-U83, endret av
+  // MM-U63: den siste rettingen av datoen før brevet, i brevet med rettingen og i varselsetningen.
+  [
+    'Saken',
+    'utsagn',
+    'rettetDato rettetDato.* rettetDato.dato',
+    ['frosset/brevtekst.ts', 'frosset/brevdeler.ts:gitt'],
+  ],
+  [
+    'Saken',
+    'relasjon',
+    'rettetDato.dokument',
+    ['frosset/brevtekst.ts', 'frosset/brevdeler.ts:gitt'],
+  ],
+  // U-3 i BF-50: tittelen på brevet med rettingen.
+  ['RETTINGSTITTEL', 'brevtekst', 'varsel krav', ['frosset/brevtittel.ts']],
   [
     'frosset/brevdeler.ts',
     'brevtekst',

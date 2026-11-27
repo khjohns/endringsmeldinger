@@ -87,6 +87,104 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.screenshot({ path: `${ut}/motparten-bh.png`, fullPage: true });
     },
   },
+  'svar-lagt-til-innsigelsen': {
+    tittel: 'Peling i akse C–F',
+    formaal:
+      'BF-49 PR 2 (#807, #2347): byggherrens svar lagt til der innsigelsen mot varselet for kravposten står (U-7), og spørsmålet når svarskjemaet lukkes (U-9).',
+    spor: 'vederlag',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        sendt: '2026-08-20',
+        dato: '2026-08-15',
+      },
+      {
+        handling: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.3.3',
+        sendt: '2026-08-25',
+        korrespondansetype: 'e_post',
+        beskrivelse: 'Varsel om justering av enhetsprisene',
+        navn: 'V-v',
+      },
+      // Byggherren gjorde gjeldende at varselet kom for sent, i en e-post lagt til.
+      {
+        handling: 'brev',
+        navn: 'D3',
+        sendt: '2026-09-01',
+        korrespondansetype: 'e_post',
+        beskrivelse: 'Svar på varselet om justering av enhetsprisene',
+        svar: [
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            gjelder: 'V-v#varsel',
+            varslet_i_tide: false,
+            godtar_justering: true,
+          },
+        ],
+      },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        sendt: '2026-09-05',
+        kravposter: [
+          { oppgjoersform: 'enhetspriser', justert: true, varsel: 'kravet' },
+          { oppgjoersform: 'enhetspriser', justert: true, varsel: 'V-v' },
+        ],
+      },
+    ],
+    // BH legger til e-posten 10.09 som svar på kravet. P2 viser til varselet med innsigelsen, og
+    // svaret sier ikke noe om det. Så lukker BH et nytt svarskjema og legger e-posten til som
+    // dokumentasjon uten svaret.
+    async iNettleseren({ bh, saksrute, ut }) {
+      const korrespondanse = async (dato: string, fil: string) => {
+        await bh.getByRole('button', { name: 'Legg til korrespondanse' }).click({ timeout: 30_000 });
+        await bh.getByRole('radio', { name: 'E-post' }).check();
+        await bh.getByRole('radio', { name: 'Byggherren' }).check();
+        await bh.getByLabel('Datoen det ble sendt').fill(dato);
+        await bh.locator('input[type=file]').setInputFiles({
+          name: fil,
+          mimeType: 'application/pdf',
+          buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+        });
+        await bh.getByText(fil).waitFor({ timeout: 30_000 });
+        await bh.getByRole('textbox', { name: /Kort beskrivelse/ }).fill('Svar på kravet om justerte enhetspriser');
+        await bh.getByRole('radio', { name: 'Et svar' }).check();
+        await bh.getByRole('button', { name: 'Gå videre' }).click();
+      };
+      await bh.goto(saksrute);
+      await korrespondanse('2026-09-10', 'svaret.pdf');
+      await bh.getByRole('button', { name: /^Godta oppgjørsformen/ }).click({ timeout: 30_000 });
+      await bh.getByRole('radio', { name: 'Godtar justeringen' }).first().check();
+      await bh.getByRole('button', { name: /P2$/ }).click();
+      await bh.getByRole('radio', { name: 'Godtar justeringen' }).first().check();
+      await bh.getByRole('button', { name: 'Legg til svaret' }).first().click();
+      await bh.getByText('Velg hva svaret sier om varselet.').first().waitFor();
+      await bh.screenshot({ path: `${ut}/svar-mangler-bh.png`, fullPage: true });
+      await bh.getByRole('radio', { name: 'Svaret sier ikke noe om varselet' }).check();
+      await bh.screenshot({ path: `${ut}/svar-skjema-bh.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/svar-skjema-bh-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await bh.getByRole('button', { name: 'Legg til svaret' }).first().click();
+      await bh.getByText('Svaret er lagt til.').waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/svar-lagt-til-bh.png`, fullPage: true });
+
+      await korrespondanse('2026-09-12', 'avbrutt.pdf');
+      await bh.getByRole('button', { name: 'Forkast utkast' }).first().click();
+      await bh.getByRole('heading', { name: 'Legge til korrespondansen uten svaret?' }).waitFor();
+      await bh.screenshot({ path: `${ut}/avbrudd-bh.png` });
+      await bh.getByRole('button', { name: 'Legg til som dokumentasjon' }).click();
+      await bh.getByText('Korrespondansen er lagt til som dokumentasjon.', { exact: false }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/avbrudd-lagt-til-bh.png`, fullPage: true });
+    },
+  },
   'to-kravposter-i-senere-lag': {
     tittel: 'Spunt og peler i akse D',
     formaal:

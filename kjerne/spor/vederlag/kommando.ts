@@ -84,6 +84,7 @@ import {
 } from '../../typer.ts';
 import {
   datoenDetBleSendt,
+  datoenSomGjelder,
   kravversjoneneKravetProevesMot,
   kravversjonenPaaDagen,
   varseletFoerBrevet,
@@ -705,7 +706,7 @@ function datoenForVarselet(u: Utledning, varselet: string): string | null {
   const v = u.spor.vederlag;
   const kandidater = [v.varsler['34.1.3'], ...v.krav, ...v.kravUtenforRekken];
   const funnet = kandidater.find((x) => x?.id === varselet);
-  return funnet ? datoenDetBleSendt(u, funnet) : null;
+  return funnet ? datoenSomGjelder(u, funnet) : null;
 }
 
 /** VS-U85: et særskilt varsel sendt fra løsningen etter at datoen er oppgitt, oppgir ikke en ny dato. */

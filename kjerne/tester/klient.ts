@@ -134,6 +134,7 @@ export const PART: Record<string, Part> = {
   varsel: 'TE',
   korrigering: 'TE',
   kunnskapsdato: 'TE',
+  retting: 'TE',
   brev: 'BH',
   revisjon: 'BH',
 };
@@ -605,6 +606,15 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
             ? navn.id(h.gjelder)
             : (varseletFoerBrevet(u, '34.1.3') ?? 'ingen'),
         klar_over_utgiftene: h.klar_over_utgiftene as string,
+        ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
+      };
+    case 'retting':
+      // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): `gjelder` er etiketten
+      // til varselet eller kravet lagt til.
+      return {
+        type: 'retting',
+        gjelder: navn.id(h.gjelder as string),
+        dato: h.dato as string,
         ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
       };
     case 'innlegg':
