@@ -613,6 +613,15 @@ describe('innsigelsen mot varselet etter punkt 33.4 i svaret på fristkravet (VS
     expect(vurderingen(sendt).frist_varsel_ok).toBe(true);
   });
 
+  it('utgangspunktet står ikke i valgene, så valget er tomt når innsigelsen er gitt opp mens utkastet ligger (U-14)', async () => {
+    const valg = reaktiv(tomtFristsvar());
+    await svarskjemaet(kravEtter(paaVarselet(false)), valg);
+    expect(valg.varselITide).toBeNull();
+    cleanup();
+    await svarskjemaet(kravEtter(paaVarselet(true)), valg);
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+  });
+
   it('kontrollsak: etter «kom i tide» i svaret på varselet står valget om varselet tomt (S1-A, U-14)', async () => {
     await svarskjemaet(kravEtter(paaVarselet(true)));
     expect(screen.queryByText(/^Du har gjort gjeldende i brev/)).toBeNull();

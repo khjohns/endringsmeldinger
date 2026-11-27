@@ -123,12 +123,10 @@
     valg.begrunnelseIkkeSvar = v === 'ikke_svar';
     valg.foresporselITide = v === 'ikke_svar' ? null : v;
   }
-  // VS-U96 punkt 34.
+  // VS-U96 punkt 34. Utgangspunktet står ikke i `valg`, så det faller bort med innsigelsen.
   const innsigelsen = $derived(innsigelsenMotFristvarselet(u, null));
   const innsigelsesbrevet = $derived(innsigelsen && brevet(u, innsigelsen.dokument));
-  $effect.pre(() => {
-    if (innsigelsen && valg.varselITide === null) valg.varselITide = false;
-  });
+  const varselITide = $derived(valg.varselITide ?? (innsigelsen ? false : null));
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
 
   let valgtFrist = $state<string | null>(null);
@@ -151,7 +149,7 @@
   const brevutkast = $derived(
     fristsvaret(
       {
-        varselITide: valg.varselITide,
+        varselITide,
         foresporselITide: valg.foresporselITide,
         begrunnelseIkkeSvar: valg.begrunnelseIkkeSvar,
         hindret: valg.hindret,
@@ -291,9 +289,9 @@
   const punktstatus = (punkt: string): string[] => {
     switch (punkt) {
       case '33.4':
-        if (valg.varselITide && innsigelsesbrevet)
+        if (varselITide && innsigelsesbrevet)
           return [oppgivelsestekst('33.4', innsigelsesbrevet, true)];
-        return valg.varselITide === null ? [] : [valg.varselITide ? SKJEMA.iTide : SKJEMA.forSent];
+        return varselITide === null ? [] : [varselITide ? SKJEMA.iTide : SKJEMA.forSent];
       case '33.6.2':
         return valg.begrunnelseIkkeSvar
           ? [FRISTSVAR.begrunnelseIkkeSvar]
@@ -355,7 +353,7 @@
   const forHeleKravet = $derived(
     (
       [
-        ['33.4', valg.varselITide, FRISTSVAR.heleKravetTapt('33.4')],
+        ['33.4', varselITide, FRISTSVAR.heleKravetTapt('33.4')],
         [
           '33.6.2',
           foresporselen && !valg.begrunnelseIkkeSvar ? valg.foresporselITide : null,
@@ -514,7 +512,10 @@
   {utkast}
   {forrigeSvar}
   medTekstene={(punktene) =>
-    somNyttSvar(fristsvaret(valg, u, kjernesak.regler, punktene)!, valg.erstatter)}
+    somNyttSvar(
+      fristsvaret({ ...valg, varselITide }, u, kjernesak.regler, punktene)!,
+      valg.erstatter
+    )}
   bind:tekster={valg}
   {linjer}
   {virkninger}
