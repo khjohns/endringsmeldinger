@@ -494,7 +494,7 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
     );
     expect(
       screen.getByRole('group', {
-        name: /Hva gjør du gjeldende om totalentreprenørens begrunnelse/,
+        name: /Hvordan svarte totalentreprenøren på forespørselen om dagene/,
       })
     ).toBeInTheDocument();
     await svarPaaResten();
