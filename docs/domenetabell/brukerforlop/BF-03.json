@@ -249,7 +249,7 @@
           ]
         },
         {
-          "tekst": "BH sender innlegget uten godkjenning etter fullmakten, og innlegget stopper ikke sendingen.",
+          "tekst": "Arbeidsvalg (G-8, står til review): BH sender innlegget uten godkjenning etter fullmakten, og innlegget stopper ikke sendingen.",
           "kilde": [
             "GFK-U2",
             "EO-U25"
@@ -260,7 +260,7 @@
     {
       "id": "innlegg-etter-enigheten",
       "etter": 8,
-      "beskrivelse": "TE har godtatt svaret og sendt et innlegg etter enigheten. Enigheten står uendret.",
+      "beskrivelse": "TE har godtatt svaret og sendt et innlegg etter enigheten. Enigheten står uendret. Et innlegg etter en endringsordre prøves ikke her (G-5, #1378). Et innlegg etter et godtatt avslag av grunnlaget prøves i kjernen (`kjerne/tester/innlegget.test.ts`), ikke i dette forløpet, som har et godkjent grunnlag.",
       "kontroller": [
         {
           "rolle": "mal",
@@ -286,7 +286,7 @@
           ]
         },
         {
-          "tekst": "Et innlegg godtas også etter en endringsordre som omfatter saken, og etter at totalentreprenøren har godtatt avslaget av grunnlaget.",
+          "tekst": "Ikke prøvd av stegene: et innlegg godtas også etter en endringsordre som omfatter saken (G-5, #1378), og etter at totalentreprenøren har godtatt avslaget av grunnlaget (kjernen, innlegget.test.ts).",
           "kilde": [
             "EO-U39",
             "GR-U27",
@@ -294,7 +294,7 @@
           ]
         },
         {
-          "tekst": "Et forslag om å rette betegnelsen på endringsordren i grunnlaget sendes som innlegg.",
+          "tekst": "Ikke prøvd av stegene: et forslag om å rette betegnelsen på endringsordren i grunnlaget sendes som innlegg.",
           "kilde": [
             "MM-U59"
           ]

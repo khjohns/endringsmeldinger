@@ -1079,7 +1079,7 @@
           "forstaaelse": [
             "BH forstår at innlegget ikke endrer standpunktene i svaret, og at et nytt svar er veien for å endre dem.",
             "Protest, bestridelse, totalentreprenørens utdyping og byggherrens senere begrunnelse sendes som innlegg, og innleggene står i brevkontrollen for aksepten.",
-            "BH sender innlegget uten godkjenning etter fullmakten, og innlegget stopper ikke sendingen."
+            "Arbeidsvalg (G-8, står til review): BH sender innlegget uten godkjenning etter fullmakten, og innlegget stopper ikke sendingen."
           ],
           "neste": {
             "part": "TE",
@@ -1088,12 +1088,12 @@
         },
         {
           "id": "innlegg-etter-enigheten",
-          "beskrivelse": "TE har godtatt svaret og sendt et innlegg etter enigheten. Enigheten står uendret.",
+          "beskrivelse": "TE har godtatt svaret og sendt et innlegg etter enigheten. Enigheten står uendret. Et innlegg etter en endringsordre prøves ikke her (G-5, #1378). Et innlegg etter et godtatt avslag av grunnlaget prøves i kjernen (`kjerne/tester/innlegget.test.ts`), ikke i dette forløpet, som har et godkjent grunnlag.",
           "versjon": 9,
           "forstaaelse": [
             "TE ser at innlegget etter aksepten står i tråden, og at enigheten om svaret står.",
-            "Et innlegg godtas også etter en endringsordre som omfatter saken, og etter at totalentreprenøren har godtatt avslaget av grunnlaget.",
-            "Et forslag om å rette betegnelsen på endringsordren i grunnlaget sendes som innlegg.",
+            "Ikke prøvd av stegene: et innlegg godtas også etter en endringsordre som omfatter saken (G-5, #1378), og etter at totalentreprenøren har godtatt avslaget av grunnlaget (kjernen, innlegget.test.ts).",
+            "Ikke prøvd av stegene: et forslag om å rette betegnelsen på endringsordren i grunnlaget sendes som innlegg.",
             "Har en part sagt fra i et brev utenfor løsningen, legger parten det til som korrespondanse, og løsningen utleder ingenting av det."
           ],
           "neste": null
