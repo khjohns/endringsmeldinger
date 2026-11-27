@@ -16,6 +16,7 @@ import { svaretsVarsel, type Svaretsvarsel, type VarsleneIKravet } from './stand
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
+import { datoEtterRettingene } from '../utledning/rettingen.ts';
 import { detSomRettes, type DetSomRettes } from './rettingen.ts';
 import { klarOverUtgiftene, norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, dokumenterI, kalenderdag } from '../format/leser.ts';
@@ -697,8 +698,9 @@ export function nyttelastkontroll(
           'VARSEL_REGISTRERT',
           'Datoen varselet er registrert med, kan ikke leses som en dato, så kravet kan ikke kontrolleres mot den.'
         );
-      // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return registrert === kalenderdag(k.varsel.sendt)
+      // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19). LV-U83: «en
+      // annen dato» er en annen enn datoen som gjelder etter en retting (MM-U59 punkt 19).
+      return datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(k.varsel.sendt)
         ? null
         : avvis(
             'VARSEL_REGISTRERT',

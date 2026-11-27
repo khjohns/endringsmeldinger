@@ -199,7 +199,12 @@ export const UTLEDNINGEN: Lesbar[] = [
     'utledning/rettingen.ts',
     'utsagn',
     'datoEtterRettingene',
-    ['utledning/utled.ts:utledSporene.gjaldtVedSvaret', 'utledning/utled.ts:datoenSomGjelder'],
+    [
+      'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
+      'utledning/utled.ts:datoenSomGjelder',
+      // LV-U83: datoen som gjelder for varselet i fristkravet.
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
   ],
   ['utledning/utled.ts:kontrollerRettingene(elementer)', 'relasjon', '*'],
   [

@@ -1074,7 +1074,13 @@ function beskriv(id: string, j: Journalen): string {
 /** Varselet eller kravet en retting gjelder (U-3 i BF-50), uten brevet det står i. */
 function omtalenAvDetSomRettes(id: string, j: Journalen): string {
   const e = j.element(id);
-  if (e.art === 'utsagn' && e.utsagn.art === 'varsel') return VARSELET_I_SVARET[e.utsagn.hjemmel];
+  // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
+  if (e.art === 'utsagn' && e.utsagn.art === 'varsel') {
+    const { hjemmel, arbeid } = e.utsagn;
+    return arbeid === undefined
+      ? VARSELET_I_SVARET[hjemmel]
+      : `${VARSELET_I_SVARET[hjemmel]} for arbeidet «${arbeid}»`;
+  }
   if (e.art === 'krav') return brevtekstI(e.krav.spor).svaretGjelder(e.krav);
   throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
 }

@@ -1907,7 +1907,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'return registrert === kalenderdag(k.varsel.sendt)',
+        'return datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(k.varsel.sendt)',
         'return varseletSendt.dato === k.varsel.sendt',
       ],
     ],
@@ -8494,6 +8494,34 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['!foerDagen(sendt(svar), r.sendt)', 'true']],
     mal: [
       'et svar lagt til, oppgitt sendt før rettingen, står med kravet som var det første varselet den dagen',
+    ],
+  },
+  {
+    id: 'F1309r',
+    feilklasse:
+      'et fristkrav må oppgi datoen først oppgitt for et rettet varsel, ikke datoen som gjelder (LV-U83, OV-U123 punkt 12)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'datoEtterRettingene(u.rettinger, varsel.id, registrert) === kalenderdag(',
+        'registrert === kalenderdag(',
+      ],
+    ],
+    mal: ['fristkravet oppgir datoen som gjelder for varselet, ikke datoen først oppgitt'],
+  },
+  {
+    id: 'F1309s',
+    feilklasse:
+      'brevet med rettingen sier ikke hvilket arbeid varselet gjelder (VS-U87 punkt 27, U-3 i BF-50)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        ': `${VARSELET_I_SVARET[hjemmel]} for arbeidet «${arbeid}»`;',
+        ': VARSELET_I_SVARET[hjemmel];',
+      ],
+    ],
+    mal: [
+      'brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse',
     ],
   },
 ];

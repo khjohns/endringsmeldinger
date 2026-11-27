@@ -520,3 +520,32 @@ describe('VS-U38: varselet etter punkt 32.2 er ikke senere enn påberopelsen ett
     expect(s.avvist('TE', retting(paaberopelsen, '2026-09-28'))).toBeNull();
   });
 });
+
+describe('varselet i et fristkrav etter en retting (LV-U83, OV-U123 punkt 12)', () => {
+  it('fristkravet oppgir datoen som gjelder for varselet, ikke datoen først oppgitt', () => {
+    const { s, varselet } = medVarselet();
+    rett(s, varselet, '2026-10-01');
+    expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt: '2026-09-28' } })).toBe(
+      'VARSEL_REGISTRERT'
+    );
+    expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt: '2026-10-01' } })).toBeNull();
+  });
+});
+
+describe('arbeidet i brevet med rettingen (VS-U87 punkt 27, U-3 i BF-50)', () => {
+  it('brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', {
+      ...registrer('34.3.3', '2026-09-28'),
+      varsler: [
+        { hjemmel: '34.3.3', arbeid: 'Graving' },
+        { hjemmel: '34.3.3', arbeid: 'Peling' },
+      ],
+    });
+    const graving = utsagnet(rad);
+    expect(laastTekst(s.send('TE', retting(graving, '2026-09-30')))).toEqual([
+      'Totalentreprenøren retter datoen for varselet om justering av enhetsprisene etter NS 8407 punkt\u00a034.3.3 første ledd for arbeidet «Graving» i totalentreprenørens brev av 28. september 2026 til 30. september 2026. Datoen som gjaldt, var 28. september 2026.',
+    ]);
+  });
+});
