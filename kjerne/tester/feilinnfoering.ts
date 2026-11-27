@@ -8447,6 +8447,19 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['TE får tilbud om å rette datoen for varselet og kravet lagt til'],
   },
+  {
+    id: 'F1309m',
+    feilklasse:
+      'leseren godtar en retting som står sammen med andre utsagn, krav eller svar i brevet (U-3 i BF-50)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "    dokument.utsagn.some((u) => u.art === 'retting') &&\n    (dokument.utsagn.length > 1",
+        '    false &&\n    (dokument.utsagn.length > 1',
+      ],
+    ],
+    mal: ['leseren: en retting som ikke står alene i brevet, gjør saken ikke forstått'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

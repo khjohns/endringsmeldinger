@@ -240,7 +240,7 @@ export function avvikITittelen(
 ): string | null {
   // MM-U47, designdelen: innlegget har tittelen parten skriver.
   if (erInnlegg(d)) return null;
-  // U-3 i BF-50: brevet med rettingen har en tittel uansett hva det retter.
+  // U-3 i BF-50: rettingen står alene i brevet (`leser.ts`) og har en tittel uansett hva den retter.
   if (d.utsagn.some((x) => x.art === 'retting')) return null;
   if (lagBrevtittel(d) === null)
     return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U50)';

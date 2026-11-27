@@ -469,8 +469,6 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     }
     case 'handlinger':
       return handlinger(u, hale[0] as 'TE');
-    // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen,
-    // med datoen, og opplysningen som var TEs siste da svaret ble gitt (designdelen).
     // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder for
     // varselet eller kravet etter TEs rettinger (`datoenSomGjelder`).
     case 'dato_som_gjelder': {
@@ -479,6 +477,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       );
       return e ? datoenSomGjelder(u, e) : null;
     }
+    // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen,
+    // med datoen, og opplysningen som var TEs siste da svaret ble gitt (designdelen).
     case 'datoopplysninger':
       return u.datoopplysninger.map((o) => `${o.id}:${o.dato}`);
     case 'datoopplysning':

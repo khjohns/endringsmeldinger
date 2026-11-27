@@ -125,6 +125,20 @@ describe('rettingen viser til et varsel eller et krav lagt til (MM-U59 punkt 8 o
     );
   });
 
+  it('leseren: en retting som ikke står alene i brevet, gjør saken ikke forstått (U-3 i BF-50)', () => {
+    const { s, varselet } = medVarselet();
+    s.rad('TE', {
+      utsagn: [
+        { id: randomUUID(), art: 'retting', gjelder: varselet, dato: '2026-10-01' },
+        { id: randomUUID(), art: 'retting', gjelder: varselet, dato: '2026-10-02' },
+      ],
+    });
+    expect(s.u().forstaatt).toBe(false);
+    expect(s.u().begrensninger.map((b) => b.grunn)).toContain(
+      'rettingen av datoen står ikke alene i brevet'
+    );
+  });
+
   it('kontrollsak for leseren: en retting av varselet lagt til gjør saken forstått', () => {
     const { s, varselet } = medVarselet();
     rett(s, varselet, '2026-10-01');
