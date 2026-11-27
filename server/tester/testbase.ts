@@ -487,7 +487,6 @@ export function sendMedTekst(
 export interface Svar {
   status: number;
   kropp: Record<string, unknown> & { error?: string; rule?: string };
-  hoder: Headers;
 }
 
 /** Forespørsel som en innlogget nettleser sender den. `bruker: null` er uten sesjon. */
@@ -518,7 +517,7 @@ export async function kall(
     headers: hoder,
     body: kropp === undefined ? undefined : JSON.stringify(kropp),
   });
-  return { status: svar.status, kropp: (await svar.json()) as Svar['kropp'], hoder: svar.headers };
+  return { status: svar.status, kropp: (await svar.json()) as Svar['kropp'] };
 }
 
 export interface KjorendeServer {

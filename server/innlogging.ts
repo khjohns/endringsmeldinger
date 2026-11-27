@@ -70,7 +70,8 @@ export interface Innlogging {
 const FORSOEKETS_LEVETID = 600;
 const STOERSTE_RETURSTI = 2048;
 
-const PRIVAT = { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+/** `Cache-Control: no-store` settes av ruteren for hvert svar (`svarhoder`). */
+const PRIVAT = { 'Referrer-Policy': 'no-referrer' };
 
 /**
  * Hvor mange innlogginger som kan startes i minuttet, for Catenda og Entra samlet. Hver start
@@ -478,7 +479,6 @@ export const INNLOGGINGSRUTER: readonly Rute[] = [
     metode: 'GET',
     ...fast('/api/csrf-token'),
     tilgang: { utenProsjekt: 'CSRF-tokenet hører til sesjonen, ikke til et prosjekt.' },
-    hoder: { 'Cache-Control': 'no-store' },
     behandle: csrfToken,
   },
 ];

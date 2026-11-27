@@ -557,14 +557,11 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   it.each(hver.filter(([, r]) => r.metode === 'GET'))(
     '%s: svaret har Cache-Control: no-store, også når det ikke finnes (#1059)',
     async (_n, r) => {
-      const svar = await kall(server.url, r.eksempel(sak), {
-        bruker: o.te,
-        prosjektId: o.prosjekt.id,
-        kropp: kropp(r),
-        metode: r.metode,
+      const svar = await fetch(`${server.url}${r.eksempel(sak)}`, {
+        headers: { 'X-Project-ID': o.prosjekt.id, Cookie: `__Host-koe_session=${o.te.token}` },
       });
       expect(svar.status).toBeLessThan(500);
-      expect(svar.hoder.get('cache-control')).toBe('no-store');
+      expect(svar.headers.get('cache-control')).toBe('no-store');
     }
   );
 
@@ -877,8 +874,8 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       spion.mockRestore();
     }
     expect(skrevet).toHaveLength(3);
-    expect(skrevet[1].at(-1)).toHaveProperty('Referrer-Policy');
-    expect(skrevet[2].at(-1)).not.toHaveProperty('Referrer-Policy');
+    expect(skrevet[1].at(-1)).toHaveProperty('referrer-policy');
+    expect(skrevet[2].at(-1)).not.toHaveProperty('referrer-policy');
   });
 
   it('en sti new URL ikke kan lese, gir 404 og tar ikke ned serveren (#754)', async () => {
