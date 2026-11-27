@@ -899,17 +899,22 @@ type = ["teknisk"]
 status = "i bruk"
 beskrivelse = """
 Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når
-sesjonen utløper, 8 timer etter opprettelsen (B-19, #656). Kjøretiden har ingen rett på tabellen."""
+sesjonen utløper: det tidligste av levetiden fra opprettelsen og tidsavbruddet fra
+siste bruk, begge konfigurasjon i serveren (B-19, #656, #1806). Kjøretiden har ingen rett på tabellen."""
 lagres_fra = """
-`koe_api.opprett_sesjon` oppretter, `koe_api.slett_sesjon` sletter og
-`koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av
-tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)."""
+`koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk,
+`koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra
+`server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)
+og av lesingen i `server/autorisasjon.ts`. Triggeren `koe.app_project_memberships_tilbakekall`
+sletter sesjonene til en bruker som mister det siste aktive medlemskapet, og
+`koe_api.synkroniser_hr` sesjonene til en person som mister rollen i HR-kopien eller er
+deaktivert i Entra (#1806)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
-skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
+skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.les_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (triggeren `koe.app_project_memberships_tilbakekall`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.synkroniser_hr`, som sletter sesjonene til en person som mister rollen eller er deaktivert)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
 funn = []
-belegg = "L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700)."
+belegg = "L 16.10: migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700). K 27.11: `server/tester/sesjon.test.ts` og `server/tester/sesjonens_varighet.test.ts` for levetiden, tidsavbruddet og tilbakekallingen (#1806)."
 
 [[tabell]]
 navn = "koe.app_oauth_attempts"

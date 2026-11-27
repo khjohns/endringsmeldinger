@@ -43,6 +43,7 @@ import {
   brukInnloggingsforsoek,
   opprettInnloggingsforsoek,
   opprettSesjon,
+  sesjonsvarighet,
   slettSesjon,
 } from './sesjon.ts';
 
@@ -63,7 +64,6 @@ export interface Innlogging {
   entra?: EntraLeverandoer | null;
 }
 
-const SESJONENS_LEVETID = 8 * 3600;
 const FORSOEKETS_LEVETID = 600;
 const STOERSTE_RETURSTI = 2048;
 
@@ -357,7 +357,7 @@ async function tilbakekall(
     // Basen gir den lagrede stien tilbake uten ny kontroll.
     const innlogget = (token: string) =>
       omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
-        kapsel(navn, token, SESJONENS_LEVETID, naa),
+        kapsel(navn, token, sesjonsvarighet().levetid, naa),
         ryddForsoek,
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
@@ -394,8 +394,9 @@ async function loggUt({ token }: Innlogget, avh: Required<Avhengigheter>): Promi
   ];
 }
 
+/** `expiresIn` er sekundene til sesjonen løper ut uten ny bruk, etter lesingen i denne forespørselen. */
 async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
-  return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
+  return [200, { csrfToken: sesjon.csrfToken, expiresIn: sesjon.sekunderIgjen }];
 }
 
 const TILBAKEKALLET: Rute = {
