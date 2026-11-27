@@ -141,6 +141,20 @@ describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 3
     ).toBeNull();
   });
 
+  it('svaret kan ikke gis etter svaret på en ny kravversjon der kravposten beholder varselet fra den forrige uten valg (VS-U96 punkt 23 og 33)', () => {
+    const { s, varsel } = medVarsel('34.3.3');
+    const post = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
+    s.send('TE', vederlagskrav([{ ...post, varsel: { art: 'gitt', varsel } }]));
+    s.send('TE', vederlagskrav([{ ...post, betegnelse: 'P1' }]));
+    expect(
+      kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0].varsel,
+      'forutsetning: ingen valg i den nye versjonen'
+    ).toBeUndefined();
+    expect(handlinger(s.u(), 'BH'), 'kontrollsaken: ikke besvart').toContain(`svare:${varsel}`);
+    s.send('BH', svarPaaKravet(s, {}, { aksepterer: true, godtar_justering: true }));
+    expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${varsel}`);
+  });
+
   it('svaret kan gis etter kravversjonen med en kravpost som gjelder varselet, til byggherren har svart på den (VS-U96 punkt 33)', () => {
     const { s, varsel } = medVarsel('34.3.3');
     s.send(

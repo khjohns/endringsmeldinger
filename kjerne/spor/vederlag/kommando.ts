@@ -331,7 +331,15 @@ export function hindrerSvaretPaaVarselet(
         (varselet.hjemmel === '34.1.2' ||
           (varselet.hjemmel === '34.1.3'
             ? harProduktivitetspost(k)
-            : kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder))) &&
+            : kravposterI(k).some((p) => {
+                // VS-U96 punkt 23: uten valg i versjonen står valget i den forrige.
+                const i = sporet.krav.findIndex((v) => v.id === k.id);
+                for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
+                  const q = kravposterI(v).find((x) => x.id === p.id);
+                  if (q?.varsel !== undefined) return varseletPostenViserTil(q) === gjelder;
+                }
+                return false;
+              }))) &&
         (sendt === null || !foerDagen(sendt, dagenSendt({ id: x.id, dokument: d.id }, d) ?? ''))
       );
     })

@@ -6560,7 +6560,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherren kan svare på varselet alene også etter svaret på en kravversjon med en kravpost som gjelder det (VS-U96 punkt 33, #2177, #2456)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['kravposterI(k).some((p) => varseletPostenViserTil(p) === gjelder)', 'false']],
+    endringer: [
+      [
+        '                  if (q?.varsel !== undefined) return varseletPostenViserTil(q) === gjelder;',
+        '                  if (q?.varsel !== undefined) return false;',
+      ],
+    ],
     mal: [
       'svaret kan gis etter kravversjonen med en kravpost som gjelder varselet, til byggherren har svart på den',
     ],
@@ -7851,6 +7856,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['til byggherren har svart på den (VS-U96 punkt 33)'],
+  },
+  {
+    id: 'F2456c',
+    feilklasse:
+      'kravposten uten valg i den besvarte versjonen regnes ikke med valget i den forrige, så svaret på varselet kan gis etter svaret på kravet (VS-U96 punkt 23 og 33, #2456)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['sporet.krav.slice(0, i + 1).reverse()', '[k]']],
+    mal: ['der kravposten beholder varselet fra den forrige uten valg'],
   },
 ];
 
