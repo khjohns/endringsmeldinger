@@ -113,6 +113,7 @@ describe('Tidslinje', () => {
       sendt: null,
       spor,
       art,
+      viserTil: null,
       forhold: null,
       merking: `K201-KOE-017-0${nummer}`,
       deresRef: [],

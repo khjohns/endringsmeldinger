@@ -58,6 +58,7 @@
     type Lagttilvalg,
   } from './korrespondansen';
   import Korrespondanseskjema from './Korrespondanseskjema.svelte';
+  import Innlegg from './Innlegg.svelte';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
   // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
   const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
@@ -72,6 +73,7 @@
     tomtSvar,
     tomtVarselsvar,
     valgFraSvaret,
+    type Innleggsvalg,
     type Korrigeringsvalg,
     type Varselsvalg,
   } from './kommandoer';
@@ -87,6 +89,7 @@
     brevMedUtsagn,
     brevene,
     brevet,
+    brevITraaden,
     type Brevet,
     datoopplysningene,
     forholdetISaken,
@@ -105,9 +108,11 @@
     NYVERSJON,
     NYSAK,
     FORHOLDET,
+    INNLEGGET,
     SAKEN,
     SAKSLISTE,
     SPORNAVN,
+    TRAADEN,
   } from './tekster';
   import { SAKSDELEN } from './tekster/felles';
 
@@ -178,6 +183,7 @@
     | { art: 'vederlagskrav'; fraKorrespondansen?: true }
     | { art: 'fristkrav'; fraKorrespondansen?: true }
     | { art: 'korrespondanse' }
+    | { art: 'innlegg' }
     | ({ art: 'kontroll' } & Kontroll);
 
   type Skjemaarbeid = Exclude<Arbeid, { art: 'les' | 'kontroll' }>;
@@ -256,6 +262,7 @@
     nyversjon: (): string | null => null,
     // Ett utkast per varsel som står alene, med varselet som nøkkel (G-9 i BF-14).
     varselsvar: (): Record<string, Varselsvalg> => ({}),
+    innlegg: (): Innleggsvalg | null => null,
   };
   type Utkastnavn = keyof typeof tommeUtkast;
   type Utkastene = { [N in Utkastnavn]: ReturnType<(typeof tommeUtkast)[N]> };
@@ -357,6 +364,7 @@
             : VEDERLAGSVARSEL.tittel,
       fristkrav: KRAVTITTEL.frist,
       korrespondanse: LEGG_TIL.tittel,
+      innlegg: utkastene.innlegg?.tittel.trim() || INNLEGGET.tittel,
       varselsvar: varselsvartittel(utkast),
     })[utkast.art];
   function varselsvartittel(utkast: Skjemaarbeid) {
@@ -419,6 +427,8 @@
     const betegnelser = betegnelsene(kjernesak.saksbilde);
     const linje = (s: Spor) => {
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
+      const sist = brev.filter((x) => x.spor.includes(s)).at(-1);
+      const innlegg = sist?.art === 'innlegg' ? sist : null;
       const kode = betegnelser[s];
       // Akseptfristen i et svar som ikke er godtatt, og en aksept etter den, står i stedet for
       // siste brev (U-11 i BF-44, U-6 i BF-46).
@@ -431,7 +441,15 @@
           : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        siste: akseptlinje ?? (b ? SAKEN.siste(b, b.avsender) : null),
+        // Et innlegg etter siste brev står med parten og datoen, også ved akseptfristen og etter
+        // trekket (D-9 og D-4 i BF-03).
+        siste:
+          [
+            akseptlinje ?? (b && b.art !== 'innlegg' ? SAKEN.siste(b, b.avsender) : null),
+            innlegg ? TRAADEN.siste(innlegg) : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || null,
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
@@ -664,6 +682,22 @@
       },
       vises: (a) => a.art === 'korrespondanse' && lagtTil?.spor === valgt,
       skjema: korrespondanse,
+    },
+    innlegg: {
+      // OV-U97, MM-U47: innlegget i fritekst fra begge parter, fra hodet til tråden (BF-03).
+      noekler: ['sende_innlegg'],
+      aapne: () => {
+        utkastene.innlegg ??= nyttInnlegg();
+        // Utkastet er ett i saken, og står på siden det sist ble åpnet fra.
+        for (const s of ['forhold', 'vederlag', 'frist'] as const)
+          if (s !== valgt) fjernUtkast(s, 'innlegg');
+        aapneUtkast({ art: 'innlegg' });
+      },
+      vises: (a) =>
+        a.art === 'innlegg' &&
+        !!utkastene.innlegg &&
+        kjernesak.handlinger.includes('sende_innlegg'),
+      skjema: innlegg,
     },
     vederlagskrav: {
       // U-1 i BF-37: varselet uten krav står i skjemaet for kravet.
@@ -930,6 +964,45 @@
     !!u &&
     datoopplysningene(u).some((o) => o.id === gjelder);
 
+  /**
+   * Et nytt innlegg viser til motpartens siste brev på siden, ellers i saken (U-2 i BF-03). Parten
+   * kan velge et annet brev i skjemaet.
+   */
+  function nyttInnlegg(): Innleggsvalg {
+    const motpart = kjernesak.part === 'TE' ? 'BH' : 'TE';
+    const fraMotparten = (liste: Brevet[]) => liste.findLast((b) => b.avsender === motpart);
+    const b = fraMotparten(brevITraaden(brev, valgt)) ?? fraMotparten(brev) ?? brev.at(-1);
+    return { gjelder: b?.id ?? '', tittel: '', tekst: '', vedlegg: [] };
+  }
+
+  /**
+   * Svaret innlegget ikke endrer, og det parten fortsatt kan gjøre (U-3, D-4, D-10). Svaret er det
+   * gjeldende i sporet til brevet innlegget viser til (G-7), det første sporet som har et svar.
+   */
+  function innleggetsVirkning(viserTil: Brevet) {
+    const mottaker = kjernesak.part === 'TE' ? 'BH' : 'TE';
+    const spor = viserTil.spor.find((s) => u?.spor[s].gjeldendeSvar) ?? viserTil.spor[0] ?? valgt;
+    const svaret = brev.find((b) => b.id === u?.spor[spor].gjeldendeSvar?.dokument) ?? null;
+    const kanGodta =
+      kjernesak.handlinger.includes(`godta:${spor}`) &&
+      kjernesak.handlinger.includes(`krav:${spor}`);
+    const te = kjernesak.part === 'TE' && svaret && kanGodta;
+    const bh = kjernesak.part === 'BH' && svaret;
+    // Et nytt svar nevnes bare når kjernen tilbyr det (U-10 i BF-03).
+    const nyttSvar = kjernesak.handlinger.includes(`revidere:${spor}`);
+    return {
+      virkninger: [
+        INNLEGGET.sendesTil(mottaker, svaret, spor),
+        ...(te ? [INNLEGGET.fortsattTE] : bh ? [INNLEGGET.standpunkteneBH(nyttSvar)] : []),
+      ],
+      kvittering: INNLEGGET.kvittering(
+        mottaker,
+        svaret,
+        te ? INNLEGGET.kvitteringTE : bh && nyttSvar ? INNLEGGET.kvitteringBH : null
+      ),
+    };
+  }
+
   function forkast() {
     tomtUtkast(valgt);
     return tilSaken(MOTTATT.forkastet, 'forkastet');
@@ -1048,6 +1121,35 @@
       onavbryt={() => {
         lagtTil = null;
         tilbakeTil(harSvarutkast(valgt) ? { art: 'svar' } : { art: 'les' });
+      }}
+    />
+  {/if}
+{/snippet}
+
+{#snippet innlegg(u: Utledning)}
+  {#if utkastene.innlegg}
+    <Innlegg
+      {kjernesak}
+      {u}
+      spor={valgt}
+      bind:valg={utkastene.innlegg}
+      virkninger={(b) => innleggetsVirkning(b).virkninger}
+      onforkast={() => forkastUtkast('innlegg')}
+      onvedsiden={(v) => (vedSiden = v)}
+      onbrevkontroll={({ viserTil, ...k }) => {
+        melding = null;
+        tilArbeid({
+          art: 'kontroll',
+          versjon: kjernesak.versjon,
+          ...k,
+          sendTekst: INNLEGGET.sendTil(kjernesak.part === 'TE' ? 'BH' : 'TE'),
+          tilbakeTil: INNLEGGET.tilbakeTil,
+          svarerPaa: viserTil,
+          henvisning: BREVKONTROLL.viserTil,
+          kvittering: innleggetsVirkning(viserTil).kvittering,
+          tilbake: { art: 'innlegg' },
+          utkastet: null,
+        });
       }}
     />
   {/if}
