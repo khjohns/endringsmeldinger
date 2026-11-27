@@ -80,9 +80,10 @@ export interface Innloggingsgrense {
 /**
  * Hver start skriver et innloggingsforsøk, og inngangen er åpen (#1059). Startene telles per
  * klientadresse i faste minuttvinduer, så én kilde ikke kan stenge ute de andre, og samlet
- * under et tak for mange kilder. Adressen er `X-Real-IP`, som nginx overskriver med
- * `$remote_addr` (`nginx.conf`), når forespørselen kommer fra maskinen selv, ellers
- * forbindelsens. Med taket og levetiden på 600 s står det om lag 6000 forsøk i basen, pluss
+ * under et tak for mange kilder og for en kilde som når serveren utenom nginx og setter
+ * adressen selv. Adressen er `X-Real-IP`, som nginx overskriver med `$remote_addr`
+ * (`nginx.conf`), ellers forbindelsens. nginx og serveren går i hver sin container
+ * (`Dockerfile.ts-serveren`), så forbindelsen er nginx sin og kan ikke skille kildene. Med taket og levetiden på 600 s står det om lag 6000 forsøk i basen, pluss
  * det som venter på ryddingen.
  */
 export const INNLOGGINGER_PER_ADRESSE = 30;
@@ -120,12 +121,9 @@ function grenseFor(innlogging: Innlogging): Innloggingsgrense {
   return grense;
 }
 
-const LOKAL = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
-
 function klientadresse(foresporsel: IncomingMessage): string {
-  const forbindelsen = foresporsel.socket.remoteAddress ?? '';
   const hode = foresporsel.headers['x-real-ip'];
-  return LOKAL.has(forbindelsen) && typeof hode === 'string' && hode ? hode : forbindelsen;
+  return (typeof hode === 'string' && hode) || foresporsel.socket.remoteAddress || '';
 }
 
 /** `validate_config` i `AuthService`: statiske HTTPS-adresser, HTTP bare mot localhost i utvikling. */
