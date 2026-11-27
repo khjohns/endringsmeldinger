@@ -7662,7 +7662,7 @@ klasse = "vedtak"
 id = "KA-U89"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#2472", "#PRNR"]
+kilde = ["#1534", "#2472", "#2479"]
 sporsmal = '''
 Spørsmål 10 slik det ble lagt fram 27.11 og er ført ordrett i #1534 ([7214405650](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-7214405650)). Det kom fra oppdragsgivers gjennomgang av skjermbildene i PR #2472. Oppdragsgiver skrev, ordrett: «Ellers om innlegget - for visningen "Kontroller og send" står det "Innlegget inngår ikke i aksepten". Det kan være forvirrende. Ja, løsningen registrer det ikke slik. Men partene seg i mellm kan ha en forståelse om at korrespondanse og innlegg ellers "inngår" i svar på krav og nye krav.»
 
@@ -19412,7 +19412,7 @@ leses ‹grunnlaget› og ‹ansvarsgrunnlaget›, der de gjelder det totalentre
 
 ##### <a id="samlevedtak-forsering"></a>Samlevedtaket for forseringen (FO-U10)
 
-Teksten under er samlevedtaket [FO-U10](#fo-u10), vedtatt 27.11 av oppdragsgiver (#1534, #PRNR),
+Teksten under er samlevedtaket [FO-U10](#fo-u10), vedtatt 27.11 av oppdragsgiver (#1534, #2479),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md)
 som G1, med svarene 1 A og 2 A. «s3» er tredje setning i posten.
 
@@ -21672,7 +21672,7 @@ beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "FO-U10"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#PRNR"]
+kilde = ["#1534", "#2479"]
 sporsmal = '''
 Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/35ee9d8/docs/vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md#spørsmålene), med utkastet i samme fil under «Utkastet til G1».
 
@@ -32728,7 +32728,7 @@ tittel = "Fullmakt og intern godkjenning"
 etter = '''
 ##### <a id="samlevedtak-verdien"></a>Samlevedtaket for verdien fullmakten og 30 %-grensen regnes av (GFK-U29)
 
-Teksten under er samlevedtaket [GFK-U29](#gfk-u29), vedtatt 27.11 av oppdragsgiver (#1534, #PRNR),
+Teksten under er samlevedtaket [GFK-U29](#gfk-u29), vedtatt 27.11 av oppdragsgiver (#1534, #2479),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md)
 som G2, med svarene 1 A, 3 A, 6 A og 7 A. «s3» er tredje setning i posten.
 
@@ -32797,7 +32797,7 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
 
 ##### <a id="samlevedtak-godkjenningskjeden"></a>Samlevedtaket for fullmakten og godkjenningskjeden (GFK-U30)
 
-Teksten under er samlevedtaket [GFK-U30](#gfk-u30), vedtatt 27.11 av oppdragsgiver (#1534, #PRNR),
+Teksten under er samlevedtaket [GFK-U30](#gfk-u30), vedtatt 27.11 av oppdragsgiver (#1534, #2479),
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md)
 som G3, med svarene 1 A og 4 A. «s3» er tredje setning i posten.
 
@@ -34090,7 +34090,7 @@ beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "GFK-U29"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#PRNR"]
+kilde = ["#1534", "#2479"]
 sporsmal = '''
 Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/35ee9d8/docs/vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md#spørsmålene), med utkastet i samme fil under «Utkastet til G2».
 
@@ -34182,7 +34182,7 @@ beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "GFK-U30"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#PRNR"]
+kilde = ["#1534", "#2479"]
 sporsmal = '''
 Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/35ee9d8/docs/vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md#spørsmålene), med utkastet i samme fil under «Utkastet til G3».
 
@@ -34243,7 +34243,7 @@ klasse = "vedtak"
 id = "GFK-U31"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#PRNR"]
+kilde = ["#1534", "#2479"]
 sporsmal = '''
 Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/35ee9d8/docs/vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md#spørsmålene).
 
@@ -34288,7 +34288,7 @@ klasse = "vedtak"
 id = "GFK-U32"
 dato = 2026-11-27
 hvem = "oppdragsgiver"
-kilde = ["#1534", "#PRNR"]
+kilde = ["#1534", "#2479"]
 sporsmal = '''
 Spørsmålene ordrett slik de ble stilt 27.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/35ee9d8/docs/vedtaksregister/vurdering-samlevedtak-g-forsering-og-fullmakt-2026-11-27.md#spørsmålene).
 

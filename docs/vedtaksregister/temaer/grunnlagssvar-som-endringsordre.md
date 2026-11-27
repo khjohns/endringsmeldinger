@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `f2a3aab2a413b281677989bcf784f38d619ac1e88ea848f777aa1823f87a04e6`
+Kontrollsum (SHA-256 over utdraget visningen leser): `d92d3c7934976bc42e4ad77e4fe43c949966ebf1777137a2428614f0feb7e705`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1448,7 +1448,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «KA-U87 punkt 1 står som i dag, og bare teksten i visningen endres.»
 
-**Vedtatt:** 27.11, oppdragsgiver (#1534, #2472, #PRNR)
+**Vedtatt:** 27.11, oppdragsgiver (#1534, #2472, #2479)
 
 **Følge:** Presiserer [KA-U87](#ka-u87). Forholdet slik det sto i alternativet: «presiserer KA-U87 punkt 1. Det løsningen gjør, er det samme som før.» Berørt forløp: BF-03 D-8, som rettes i PR #2472 (svar 9 A).
 
@@ -4104,7 +4104,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «To samlevedtak: G1 med G2, og G3.»; «Som A, med rettelsene oppdragsgiver gir per punkt.»; «Driften registrerer satsen for hver delfrist i kroner, uten standardverdier og uten verdien av delen. Forhold: endrer GFK-U18 s2.»
 
-**Vedtatt:** 27.11, oppdragsgiver (#1534, #PRNR)
+**Vedtatt:** 27.11, oppdragsgiver (#1534, #2479)
 
 **Følge:** Samler [Godkjenning av ansvarsgrunnlaget (GFK-06)](../../plans/vedtak.md#fullmakt-ansvarsgrunnlaget). Samler [GFK-06 presisert](../../plans/vedtak.md#fullmakt-per-spor). Samler [Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes](../../plans/vedtak.md#ubegrenset-fullmakt). Samler [GFK-U3](../../plans/vedtak.md#gfk-u3). Samler [GFK-U4](../../plans/vedtak.md#gfk-u4). Samler [GFK-U16](../../plans/vedtak.md#gfk-u16). Samler [GFK-U17](../../plans/vedtak.md#gfk-u17). Samler [GFK-U18](../../plans/vedtak.md#gfk-u18). Samler [GFK-U19](../../plans/vedtak.md#gfk-u19). Samler [GFK-U20](../../plans/vedtak.md#gfk-u20). Samler [GFK-U21](../../plans/vedtak.md#gfk-u21). Samler [GFK-U22](../../plans/vedtak.md#gfk-u22). Samler [GFK-U23](../../plans/vedtak.md#gfk-u23). Samler [GFK-U24](../../plans/vedtak.md#gfk-u24). Samler [GFK-U25](../../plans/vedtak.md#gfk-u25). Samler [GFK-U26](../../plans/vedtak.md#gfk-u26). Samler [GFK-U27](#gfk-u27). Samler [GFK-U28](#gfk-u28). Snevret inn 27.11 av [GFK-U32](#gfk-u32). Teksten står under tabellen, i [Samlevedtaket for verdien fullmakten og 30 %-grensen regnes av](../../plans/vedtak.md#samlevedtak-verdien). Punkt 4 og beslutningsdelen er skrevet med svar 6 A, og punkt 10 viser til [GFK-U32](#gfk-u32) etter svar 7 A. Svar 6 A sa «utvider GFK-U16 til delfristene; presiserer GFK-U18»; begge er samlet her. Står: GR-U39, EO-U40 og EO-U41, som punkt 8 viser til.
 
@@ -4118,7 +4118,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «To samlevedtak: G1 med G2, og G3.»; «Som A, med rettelsene oppdragsgiver gir per punkt.»
 
-**Vedtatt:** 27.11, oppdragsgiver (#1534, #PRNR)
+**Vedtatt:** 27.11, oppdragsgiver (#1534, #2479)
 
 **Følge:** Samler [GFK-U1](../../plans/vedtak.md#gfk-u1). Samler [GFK-U2](#gfk-u2). Samler [GFK-U6](../../plans/vedtak.md#gfk-u6). Samler [GFK-U8](../../plans/vedtak.md#gfk-u8). Samler [GFK-U9](../../plans/vedtak.md#gfk-u9). Samler [GFK-U10](../../plans/vedtak.md#gfk-u10). Samler [GFK-U11](../../plans/vedtak.md#gfk-u11). Samler [GFK-U12](../../plans/vedtak.md#gfk-u12). Samler [GFK-U13](../../plans/vedtak.md#gfk-u13). Samler [GFK-U14](#gfk-u14). Samler [GFK-U15](../../plans/vedtak.md#gfk-u15). Teksten står under tabellen, i [Samlevedtaket for fullmakten og godkjenningskjeden](../../plans/vedtak.md#samlevedtak-godkjenningskjeden). Står: GFK-U5 og GFK-U7 (beslutning), «B-02 punkt 3» og «Policy nøkles på `user_id`».
 
@@ -4132,7 +4132,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «Godkjenningen begynner på nytt hos den første lederen i kjeden, fordi brevet de godkjente, har fått et annet nummer. Forhold: presiserer LV-U88 punkt 4; endrer EO-U39, beslutningsdelen, og DL-U17 for dette tilfellet.»
 
-**Vedtatt:** 27.11, oppdragsgiver (#1534, #PRNR)
+**Vedtatt:** 27.11, oppdragsgiver (#1534, #2479)
 
 **Følge:** Presiserer [LV-U88](#lv-u88). Presiserer [EO-U39](#eo-u39). Forholdet slik det sto i alternativet: «presiserer LV-U88 punkt 4 og EO-U39, beslutningsdelen; i tråd med DL-U17 om at en gitt godkjenning står.» «G3 punkt 5» er punkt 5 i [GFK-U30](../../plans/vedtak.md#samlevedtak-godkjenningskjeden). Gjelder en endringsordre eller en registrering i en EO-sak (P15 i #1534).
 
@@ -4146,7 +4146,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «Et svar i KOE-saken som er en endringsordre, følger fullmakten som andre svar i KOE-saken. Kan verdien ikke regnes, kan den som har ubegrenset fullmakt, sende det alene med én underskrift. Forhold: avgjør det GR-U42 punkt 2 lot stå; EO-U39 punkt 3 gjelder bare endringsordren i en EO-sak.»
 
-**Vedtatt:** 27.11, oppdragsgiver (#1534, #PRNR)
+**Vedtatt:** 27.11, oppdragsgiver (#1534, #2479)
 
 **Følge:** Snevrer inn [GFK-U29](#gfk-u29). Forholdet slik det sto i alternativet: «snevrer inn G2 punkt 10 for dette svaret; avgjør det GR-U42 punkt 2 lot stå; i tråd med EO-U39 punkt 3.» G2 er [GFK-U29](../../plans/vedtak.md#samlevedtak-verdien).
 
