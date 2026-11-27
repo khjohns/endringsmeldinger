@@ -56,6 +56,44 @@ export const KOMMANDOENE: Lesbar[] = [
     ],
   ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
+  // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59), D-1, D-2 og D-7 i BF-50: den
+  // nye datoen i TEs retting, varselet eller kravet den viser til, og datoen som gjelder (punkt 19).
+  [
+    'Kommando',
+    'kommando',
+    'dato',
+    [
+      'kommandoer/nyttelast.ts:kontrollerRettingen',
+      'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/skriving.ts:dokument',
+    ],
+  ],
+  ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'dato'],
+  ['Utledning', 'utsagn', 'journal', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['format/leser.ts', 'rad', 'dokumenterI', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['Dokument', 'relasjon', 'id', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['Krav', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['Utsagn', 'relasjon', 'dokument', ['kommandoer/rettingen.ts:detSomRettes']],
+  ['DetSomRettes', 'relasjon', 'art hjemmel element'],
+  [
+    'kommandoer/rettingen.ts',
+    'predikat',
+    'detSomRettes',
+    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+  ],
+  ['kommandoer/rettingen.ts', 'predikat', 'rettingen', ['kommandoer/forutsetninger.ts:henvisning']],
+  [
+    'utledning/utled.ts',
+    'utsagn',
+    'datoenSomGjelder',
+    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+  ],
+  [
+    'frosset/brevdeler.ts',
+    'kontekst',
+    'norskDato',
+    ['kommandoer/nyttelast.ts:kontrollerRettingen'],
+  ],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
   // G-1 i BF-49: kategoriene lagt til, med datokontrollene for varselet og aksepten (D-3, D-9).

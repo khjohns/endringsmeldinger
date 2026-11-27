@@ -1190,6 +1190,8 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
           : []),
       ].join(' ');
     }
+    case 'retting':
+      throw new KanIkkeUttrykkes('brevet med rettingen av datoen er ikke bygget (G-8 i BF-50)');
     case 'innlegg':
       // MM-U47 punkt 2 og LV-U53: henvisningen, og partens tekst følger som utdypningen.
       return `${part} viser til ${j.brevet(u.gjelder)}:`;

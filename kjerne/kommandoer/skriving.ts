@@ -539,6 +539,14 @@ function dokument(
         ],
       };
     }
+    case 'retting': {
+      // Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): et eget utsagn med
+      // henvisning til varselet eller kravet.
+      const id = nyId();
+      // D-9 i BF-50, etter MM-U53: TEs forklaring følger som utdypningen.
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
+      return { utsagn: [{ id, art: 'retting', gjelder: k.gjelder, dato: k.dato }] };
+    }
     case 'innlegg': {
       // MM-U47 punkt 2: henvisningen er den låste teksten, og partens tekst følger som utdypningen.
       const id = nyId();

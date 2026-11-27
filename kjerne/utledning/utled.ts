@@ -68,6 +68,7 @@ import {
   type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
+import { datoEtterRettingene, rettingeneI, type Retting } from './rettingen.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdetErAvvistVedEnighet,
@@ -272,6 +273,12 @@ export interface Utledning {
    */
   kunnskapsdatoer: Kunnskapsopplysning[];
   /**
+   * Punkt 8 og 18–23 i samlevedtaket for retting av sendt brev (MM-U59): TEs rettinger av datoen
+   * for et varsel eller et krav lagt til som korrespondanse, i rekkefølgen i journalen. Datoen
+   * som gjelder, står i `datoenSomGjelder`.
+   */
+  rettinger: Retting[];
+  /**
    * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
@@ -368,6 +375,7 @@ function tom(
     elementer: {},
     datoopplysninger: [],
     kunnskapsdatoer: [],
+    rettinger: [],
     utenVirkning: [],
     spor: tommeSpor(),
     forholdAvklart: false,
@@ -957,6 +965,8 @@ export type Henvisning = Utsagn<'foresporselssvar' | 'innlegg'>;
 export type Ugyldig = (id: string, grunn: string) => void;
 /** `fra` viser til `til` med lavere saksversjon. */
 export type Bakover = (fra: string, til: string) => boolean;
+/** Dagen som gjaldt for varselet eller kravet `v` da svaret `svar` ble sendt (`datoEtterRettingene`). */
+type GjaldtVedSvaret = (v: Pick<Krav, 'id' | 'dokument'>, svar: string) => string | null;
 
 /**
  * Lesereglene i 4.2 som er sporets egne, og det utledningen ellers leser av sporet. Hver
@@ -1044,6 +1054,7 @@ function utledSporene(
   const foresporsler: Utsagn<'foresporsel'>[] = [];
   const korrigeringer: Utsagn<'korrigering'>[] = [];
   const kunnskapsdatoer: Utsagn<'kunnskapsdato'>[] = [];
+  const rettinger: Utsagn<'retting'>[] = [];
   const opplysninger: Opplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
@@ -1070,6 +1081,8 @@ function utledSporene(
         return korrigeringer.push(u);
       case 'kunnskapsdato':
         return kunnskapsdatoer.push(u);
+      case 'retting':
+        return rettinger.push(u);
       default:
         return henvisninger.push(u);
     }
@@ -1157,6 +1170,11 @@ function utledSporene(
     const oppgitt = datoFor(v, 'sendt', d.opplysninger);
     return kalenderdag(oppgitt ? oppgitt.dato : d.registrert);
   };
+  const rettingene = rettingeneI(journal, rettinger);
+  // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
+  // da det ble sendt.
+  const gjaldtVedSvaret = (v: Pick<Krav, 'id' | 'dokument'>, svar: string): string | null =>
+    datoEtterRettingene(rettingene, v.id, sendt(v), (r) => bakover(svar, r));
   for (const n of SPOR) {
     const eldre = (k: Krav) =>
       spor[n].kravUtenforRekken
@@ -1171,7 +1189,7 @@ function utledSporene(
     varsler,
     besvart,
     bakover,
-    sendt,
+    gjaldtVedSvaret,
     ugyldig
   );
   kontrollerSvarkjedene(spor, ugyldig);
@@ -1190,6 +1208,7 @@ function utledSporene(
   for (const n of SPOR) kontrollerI(n).saken(saken, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
   kontrollerKorrigeringene(korrigeringer, kravMedUten, elementer, bakover, ugyldig);
+  kontrollerRettingene(rettinger, elementer, dokumenter, bakover, ugyldig);
   kontrollerKunnskapsdatoene(
     kunnskapsdatoer,
     spor.vederlag,
@@ -1239,6 +1258,7 @@ function utledSporene(
     elementer,
     datoopplysninger,
     kunnskapsdatoer: kunnskapsopplysninger,
+    rettinger: rettingene,
     utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
     opplysninger: opplysninger.map((o) => ({ opplysning: o })),
     spor,
@@ -1271,7 +1291,7 @@ function kontrollerSvarene(
   varsler: readonly LestVarsel[],
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
-  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
+  sendt: GjaldtVedSvaret,
   ugyldig: Ugyldig
 ): void {
   for (const s of alleSvar.values()) {
@@ -1360,7 +1380,7 @@ function kontrollerStandpunktet(
   varsler: readonly LestVarsel[],
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
-  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
+  sendt: GjaldtVedSvaret,
   ugyldig: Ugyldig
 ): void {
   // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
@@ -1396,7 +1416,7 @@ function kontrollerStandpunktet(
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const foer = (v: string) => bakover(s.id, v);
     const krav = kravSomVarsler(p.hjemmel, spor[n], foer);
-    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, sendt);
+    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, (v) => sendt(v, s.id));
     const eget = varslene.find((v) => foer(v.id))?.id;
     if (p.gjelder !== tidligste && p.gjelder !== eget)
       ugyldig(
@@ -1505,6 +1525,35 @@ function kanGjelde(art: Henvisning['art'], maal: Element) {
     case 'innlegg':
       // MM-U47 punkt 2: et brev i saken.
       return maal.art === 'dokument';
+  }
+}
+
+/**
+ * Punkt 8 og 18 i samlevedtaket for retting av sendt brev (MM-U59): rettingen viser til et varsel
+ * eller et krav TE har lagt til som korrespondanse før den (D-1 og D-2 i BF-50).
+ */
+function kontrollerRettingene(
+  rettinger: readonly Utsagn<'retting'>[],
+  elementer: Record<string, Element>,
+  dokumenter: ReadonlyMap<string, Dokument>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  for (const x of rettinger) {
+    const maal = elementer[x.gjelder];
+    const d = maal && dokumenter.get(maal.hendelse);
+    if (
+      !maal ||
+      !d ||
+      !bakover(x.id, x.gjelder) ||
+      (maal.art !== 'krav' && maal.art !== 'varsel') ||
+      maal.part !== 'TE' ||
+      !erRegistrert(d.opplysninger)
+    )
+      ugyldig(
+        x.id,
+        'rettingen viser ikke til et varsel eller et krav totalentreprenøren har lagt til før den'
+      );
   }
 }
 
@@ -1768,6 +1817,16 @@ export function datoenDetBleSendt(
 }
 
 /**
+ * Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): dagen som gjelder for kravet eller
+ * varselet etter TEs rettinger, som premiss for nye svar og for det første varselet løsningen
+ * kjenner (VS-U86). Uten en retting som har begynt å gjelde, er det `datoenDetBleSendt`.
+ */
+export const datoenSomGjelder = (
+  u: Pick<Utledning, 'journal' | 'rettinger'>,
+  utsagn: Pick<Krav, 'id' | 'dokument'>
+): string | null => datoEtterRettingene(u.rettinger, utsagn.id, datoenDetBleSendt(u, utsagn));
+
+/**
  * Påberopelsen et svar vurderes mot: kravet et svar på påberopelsen gjelder, ellers
  * påberopelsesversjonen svaret viser til (#342), eller gjeldende påberopelse for
  * et svar som ennå ikke er skrevet.
@@ -1912,7 +1971,7 @@ export function varseletFoerSvaret(
  * så regelen står ett sted (#766).
  */
 export function varseletForNyttSvar(
-  u: Pick<Utledning, 'spor' | 'journal'>,
+  u: Pick<Utledning, 'spor' | 'journal' | 'rettinger'>,
   hjemmel: Enkeltvarselhjemmel
 ): string {
   const varsel = varseletFoerBrevet(u, hjemmel);
@@ -1926,7 +1985,7 @@ export function varseletForNyttSvar(
  * `undefined` når saken ikke har noe. Brevteksten for vederlagskravet viser til det (#1824).
  */
 export function varseletFoerBrevet(
-  u: Pick<Utledning, 'spor' | 'journal'>,
+  u: Pick<Utledning, 'spor' | 'journal' | 'rettinger'>,
   hjemmel: Enkeltvarselhjemmel
 ): string | undefined {
   const s = u.spor[VARSELSPOR[hjemmel]];
@@ -1937,6 +1996,6 @@ export function varseletFoerBrevet(
     registrert ? [registrert] : [],
     krav,
     () => true,
-    (v) => datoenDetBleSendt(u, v)
+    (v) => datoenSomGjelder(u, v)
   );
 }

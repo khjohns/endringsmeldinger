@@ -165,13 +165,53 @@ export const UTLEDNINGEN: Lesbar[] = [
     'relasjon',
     'datoenDetBleSendt',
     [
+      // VS-U87 punkt 23: varslene et krav lagt til kan vise til.
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
+    ],
+  ],
+  // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): datoen som gjelder etter en
+  // retting, for de samme kontrollene.
+  [
+    'utledning/utled.ts',
+    'utsagn',
+    'datoenSomGjelder',
+    [
       'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
       // VS-U86 punkt 9: et vederlagskrav lagt til, sendt før varselet etter § 34.1.3.
       'spor/vederlag/kommando.ts:datoenForVarselet',
-      // VS-U87 punkt 23: varslene et krav lagt til kan vise til.
-      'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
+  ],
+  // Punkt 8 og 18–23 i samlevedtaket for retting av sendt brev (MM-U59) og MM-U61: TEs retting av
+  // datoen for et varsel eller et krav lagt til, og datoen som gjelder etter punkt 19, som premiss
+  // for nye svar og for det første varselet (VS-U86). Hva som var gjeldende, leser den oppgitte
+  // datoen (punkt 18).
+  ['Utsagn', 'utsagn', 'dato', ['utledning/rettingen.ts:rettingeneI']],
+  ['Utledning', 'utsagn', 'rettinger'],
+  ['Retting', 'relasjon', 'gjelder'],
+  ['Retting', 'utsagn', 'dato'],
+  ['Retting', 'predikat', 'gjaldt begynte'],
+  ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/rettingen.ts:rettingeneI']],
+  ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/rettingen.ts:rettingeneI.oppgitt']],
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    ['utledning/rettingen.ts:rettingeneI', 'utledning/rettingen.ts:rettingeneI.oppgitt'],
+  ],
+  ['utledning/rettingen.ts', 'predikat', 'rettingeneI', ['utledning/utled.ts:utledSporene']],
+  [
+    'utledning/rettingen.ts',
+    'utsagn',
+    'datoEtterRettingene',
+    ['utledning/utled.ts:utledSporene.gjaldtVedSvaret', 'utledning/utled.ts:datoenSomGjelder'],
+  ],
+  ['utledning/utled.ts:kontrollerRettingene(elementer)', 'relasjon', '*'],
+  [
+    'utledning/utled.ts:Element',
+    'relasjon',
+    'hendelse part',
+    ['utledning/utled.ts:kontrollerRettingene'],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
