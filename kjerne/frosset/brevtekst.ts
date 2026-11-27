@@ -69,6 +69,7 @@ import {
 } from '../spor/vederlag/tekst.ts';
 import { kravposterI, krevdProduktivitet } from '../spor/vederlag/format.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { paaberopelsenSomStaar } from '../spor/frist/frysing.ts';
 import {
   FORBEHOLDET,
   FORHOLDET,
@@ -950,15 +951,9 @@ function paaberopelsenFoerIFristen(
     .flatMap((d) =>
       d.svar
         .filter((x) => x.spor === 'frist' && !saken.utenVirkning.includes(x.id))
-        .map((x): [string, Svar] => [dagenSendt({ id: x.id, dokument: d.id }, d) ?? '', x])
-    )
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  let foerste: string | undefined;
-  for (const [, x] of svarene)
-    for (const q of x.standpunkter)
-      if (q.art === 'rettidighet' && q.hjemmel === p.hjemmel && q.gjelder === p.gjelder)
-        foerste = q.iTide ? undefined : (foerste ?? x.dokument);
-  return foerste;
+        .map((s) => ({ dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '', s }))
+    );
+  return paaberopelsenSomStaar(svarene, p.hjemmel, p.gjelder);
 }
 
 /**
