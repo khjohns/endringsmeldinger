@@ -30,13 +30,12 @@ import {
 import {
   CommitIkkeSendt,
   FristUtloept,
-  sql,
   TransaksjonAvbrutt,
   transaksjon,
   type Forbindelse,
   type Pool,
 } from '../datalag.ts';
-import { enGang, tidsavbrudd } from './forbindelse.ts';
+import { enGang, feilFraBasen, tidsavbrudd } from './forbindelse.ts';
 import {
   behandle,
   nesteInnkommende,
@@ -56,9 +55,6 @@ import {
 } from './testbase.ts';
 
 const INTEGRASJONEN = randomUUID().replaceAll('-', '');
-/** En feil fra basen med nummeret, som `mssql` gir den. */
-const feilFraBasen = (nummer: number) =>
-  Object.assign(new sql.RequestError('feil fra basen', 'EREQUEST'), { number: nummer });
 const INTEGRASJONENS_EPOST = 'integrasjonen@test.example';
 
 interface Utfall {
