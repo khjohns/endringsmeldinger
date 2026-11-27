@@ -474,7 +474,8 @@
 {/snippet}
 
 <!-- Handlingen står ved brevet den svarer på (U-16 i BF-44). -->
-{#snippet vedBrevet()}
+<!-- `ved` er brevet handlingene står ved, så svarene på varslene i det står i samme gruppe. -->
+{#snippet vedBrevet(ved: string | null = null)}
   <div class="knapper">
     {#if primaer}{@render primaerknapp(primaer)}{/if}
     {#if revidere}
@@ -498,6 +499,7 @@
         >{HANDLINGENE.godta(avslag)}</Knapp
       >
     {/if}
+    {#if ved}{@render varselknapper(ved)}{/if}
   </div>
   {@render ikkeBygget()}
   {#if flyt.hindring}
@@ -512,18 +514,18 @@
 
 <!-- Handlingene ved brevet `id`: primærhandlingen og svaret på varselet i brevet. -->
 {#snippet vedBrevene(id: string)}
-  {#if id === handlingVed}{@render vedBrevet()}{/if}
-  {#if varselVed[id]?.length}
-    <div class="knapper">
-      <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
-      {#each varselVed[id] as n, i (n)}
-        <Knapp
-          variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
-          onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
-        >
-      {/each}
-    </div>
-  {/if}
+  {#if id === handlingVed}{@render vedBrevet(id)}
+  {:else if varselVed[id]?.length}<div class="knapper">{@render varselknapper(id)}</div>{/if}
+{/snippet}
+
+{#snippet varselknapper(id: string)}
+  <!-- Én primærknapp per brev (system.md), også når brevet har flere varsler (BF-37). -->
+  {#each varselVed[id] ?? [] as n, i (n)}
+    <Knapp
+      variant={utkast || i > 0 || id === handlingVed ? 'sekundaer' : 'primaer'}
+      onclick={() => velg(n)}>{innsigelsestekst(n)}</Knapp
+    >
+  {/each}
 {/snippet}
 
 {#snippet lestBrevet(b: Brevet)}
