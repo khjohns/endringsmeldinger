@@ -6864,7 +6864,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherrens forbehold for et svar står uten navnet på kravet i et brev med flere svar (LV-U81, #2337)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['const ledetekst = tekst && flere ?', 'const ledetekst = tekst && false ?']],
+    endringer: [['        tekst && flere\n', '        tekst && false\n']],
     mal: ['LV-U81: brevet har ett punkt «Forbehold», sist'],
   },
   {
@@ -8028,6 +8028,16 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et svar på kravet og et svar på et varsel i samme spor i ett brev avvises'],
+  },
+  {
+    id: 'F2451d',
+    feilklasse:
+      'forbeholdene på to svar på varsler etter samme bestemmelse i ett brev har samme ledetekst, uten arbeidet (VS-U87 punkt 27, #2451)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    ? ` for arbeidet «${e.utsagn.arbeid}»`', "    ? ''"]],
+    mal: [
+      'forbeholdet på hvert av to svar på varsler etter samme bestemmelse sier hvilket arbeid det gjelder',
+    ],
   },
   {
     id: 'F2456q',

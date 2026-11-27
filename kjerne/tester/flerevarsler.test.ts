@@ -294,6 +294,23 @@ describe('byggherrens svar på flere varsler i ett brev (#2451, svaret 27.11, VS
     expect(tekst.filter((t) => /^\d\. Varselet om regningsarbeid/.test(t))).toHaveLength(2);
   });
 
+  it('forbeholdet på hvert av to svar på varsler etter samme bestemmelse sier hvilket arbeid det gjelder (VS-U87 punkt 27, LV-U81)', () => {
+    const { s, graving, fjernvarme } = toVarsler();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', graving, { varslet_i_tide: false }, {}, 'Forbehold A.'),
+        svar('vederlag', fjernvarme, { varslet_i_tide: false }, {}, 'Forbehold B.'),
+      ],
+    });
+    expect(laast(rad).filter((t) => t.includes('Forbehold for svaret på'))).toEqual([
+      expect.stringContaining(
+        `Forbehold for svaret på varselet om regningsarbeid for arbeidet «${GRAVING}»:`
+      ),
+      `Forbehold for svaret på varselet om regningsarbeid for arbeidet «${FJERNVARME}»:`,
+    ]);
+  });
+
   it('et nytt svar på det ene varselet erstatter bare det forrige svaret på det varselet (VS-U96 punkt 33)', () => {
     const { s, graving, fjernvarme } = toVarsler();
     s.send('BH', {
