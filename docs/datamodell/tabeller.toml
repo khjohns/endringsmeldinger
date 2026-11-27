@@ -905,13 +905,13 @@ lagres_fra = """
 `koe_api.opprett_sesjon` oppretter, `koe_api.les_sesjon` flytter utløpet fram ved bruk,
 `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra
 `server/sesjon.ts`, av tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)
-og av lesingen i `server/autorisasjon.ts`. Triggerne `koe.app_project_memberships_tilbakekall`
-og `koe.hr_kopi_tilbakekall` sletter sesjonene til en bruker som mister det siste aktive
-medlemskapet eller rollen i HR-kopien (#1806)."""
+og av lesingen i `server/autorisasjon.ts`. Triggeren `koe.app_project_memberships_tilbakekall`
+sletter sesjonene til en bruker som mister det siste aktive medlemskapet, og
+`koe_api.synkroniser_hr` sesjonene til en person som er deaktivert i Entra (#1806)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
-skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.les_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (triggerne `koe.app_project_memberships_tilbakekall` og `koe.hr_kopi_tilbakekall`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
+skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.rydd_utloepte`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.opprett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.les_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (triggeren `koe.app_project_memberships_tilbakekall`)", "database/migrasjoner/20261127100000_sesjonens_varighet.sql (`koe_api.synkroniser_hr`, som sletter sesjonene til en deaktivert person)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)", "database/migrasjoner/20261119210000_tilgangslogg.sql (`koe_drift.koble_catenda_identitet`, som sletter sesjonene til brukeren identiteten flyttes fra)"]
 funn = []
 belegg = "L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700)."
 

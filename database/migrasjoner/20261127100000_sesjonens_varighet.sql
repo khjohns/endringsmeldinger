@@ -7,9 +7,9 @@
 -- tidsavbruddet. `les_sesjon` flytter det fram ved bruk, men skriver bare når det
 -- flytter seg mer enn ett minutt, så ikke hver forespørsel blir en skriving.
 --
--- Tilbakekallingen er triggere, så hver vei som gjør et medlemskap inaktivt eller
--- tar rollen fra HR-kopien, sletter sesjonene: synkroniseringen, innloggingen og
--- driftens prosedyrer.
+-- Tilbakekallingen ved tap av medlemskap er en trigger, så hver vei som gjør et
+-- medlemskap inaktivt, sletter sesjonene: synkroniseringen, innloggingen og driftens
+-- prosedyrer. HR-synkroniseringen sletter sesjonene til en person som er deaktivert.
 
 CREATE OR ALTER PROCEDURE koe.kontroller_sesjonsvarighet
   @levetid int, @inaktivitet int
@@ -102,17 +102,76 @@ BEGIN
 END
 GO
 
--- Sesjonene til en bruker som mister rollen i HR-kopien. `koe_api.synkroniser_hr`
--- tar rollen fra en person som er deaktivert i Entra, er borte fra bildet fra Graph
--- eller ikke lenger har en stillingstittel som gir rolle.
-CREATE TRIGGER koe.hr_kopi_tilbakekall ON koe.hr_kopi
-AFTER UPDATE, DELETE AS
+-- Sesjonene til en person bildet fra Graph sier er deaktivert (`aktiv` er ikke
+-- `true`), for hver av brukerens sesjoner, også når brukeren har medlemskap. Ellers
+-- som i `20261119210000_tilgangslogg.sql`.
+CREATE OR ALTER PROCEDURE koe_api.synkroniser_hr
+  @tenant uniqueidentifier, @personer nvarchar(max),
+  @korrelasjon uniqueidentifier = NULL
+AS
 BEGIN
   SET NOCOUNT ON;
+  SET XACT_ABORT ON;
+  IF @tenant IS NULL OR NOT EXISTS (SELECT 1 FROM koe.entra_tenant WHERE tenant_id = @tenant)
+    THROW 52024, N'Tenanten er ikke godkjent', 1;
+  IF @personer IS NULL OR ISJSON(@personer, ARRAY) = 0
+    THROW 52060, N'Personene fra Graph er ikke en JSON-liste', 1;
+  IF EXISTS (SELECT 1 FROM OPENJSON(@personer) WITH (oid uniqueidentifier '$.oid')
+              WHERE oid IS NOT NULL GROUP BY oid HAVING COUNT(*) > 1)
+    THROW 52068, N'Samme oid står to ganger i bildet fra Graph', 1;
+  DECLARE @issuer nvarchar(400) =
+    N'https://login.microsoftonline.com/' + LOWER(CONVERT(nvarchar(36), @tenant)) + N'/v2.0';
+  DECLARE @hentet datetime2(3) = DATETRUNC(millisecond, SYSUTCDATETIME());
+  DECLARE @person TABLE (
+    oid uniqueidentifier NOT NULL PRIMARY KEY,
+    rolle nvarchar(100) NOT NULL,
+    leder uniqueidentifier NULL,
+    epost nvarchar(320) NULL,
+    navn nvarchar(400) NULL,
+    bruker uniqueidentifier NULL,
+    ny bit NOT NULL DEFAULT 0
+  );
+  INSERT @person (oid, rolle, leder, epost, navn)
+  SELECT p.oid, s.rolle, p.leder, p.epost, p.navn
+    FROM OPENJSON(@personer) WITH (
+           oid uniqueidentifier '$.oid',
+           stillingstittel nvarchar(400) '$.stillingstittel',
+           leder uniqueidentifier '$.leder',
+           aktiv bit '$.aktiv',
+           epost nvarchar(320) '$.epost',
+           navn nvarchar(400) '$.navn') p
+    JOIN koe.stillingstittel s ON s.noekkel = CAST(HASHBYTES('SHA2_256', p.stillingstittel) AS binary(32))
+   WHERE p.oid IS NOT NULL AND p.aktiv = 1;
+
+  BEGIN TRANSACTION;
+  UPDATE p SET bruker = i.user_id
+    FROM @person p
+    JOIN koe.app_identities i WITH (UPDLOCK, HOLDLOCK)
+      ON i.provider = N'entra' AND i.issuer = @issuer AND i.subject = LOWER(CONVERT(nvarchar(36), p.oid));
+  DELETE @person WHERE bruker IN
+    (SELECT bruker FROM @person WHERE bruker IS NOT NULL GROUP BY bruker HAVING COUNT(*) > 1);
+  UPDATE @person SET bruker = NEWID(), ny = 1 WHERE bruker IS NULL;
+  INSERT koe.app_users (id, email, name)
+  SELECT bruker, ISNULL(epost, N''), ISNULL(navn, N'') FROM @person WHERE ny = 1;
+  INSERT koe.app_identities (id, user_id, provider, issuer, subject)
+  SELECT NEWID(), bruker, N'entra', @issuer, LOWER(CONVERT(nvarchar(36), oid)) FROM @person WHERE ny = 1;
+
+  UPDATE h SET rolle = NULL, leder_oid = NULL, hentet = @hentet
+    FROM koe.hr_kopi h WITH (UPDLOCK, HOLDLOCK)
+   WHERE h.tenant_id = @tenant AND NOT EXISTS (SELECT 1 FROM @person p WHERE p.bruker = h.bruker_id);
+  UPDATE h SET tenant_id = @tenant, oid = p.oid, rolle = p.rolle, leder_oid = p.leder, hentet = @hentet
+    FROM koe.hr_kopi h JOIN @person p ON p.bruker = h.bruker_id;
+  INSERT koe.hr_kopi (bruker_id, tenant_id, oid, rolle, leder_oid, hentet)
+  SELECT p.bruker, @tenant, p.oid, p.rolle, p.leder, @hentet
+    FROM @person p
+   WHERE NOT EXISTS (SELECT 1 FROM koe.hr_kopi h WHERE h.bruker_id = p.bruker);
   DELETE s FROM koe.app_sessions s
-   WHERE s.user_id IN (
-     SELECT d.bruker_id FROM deleted d
-       LEFT JOIN inserted i ON i.bruker_id = d.bruker_id
-      WHERE d.rolle IS NOT NULL AND i.rolle IS NULL);
+    JOIN koe.app_identities i ON i.user_id = s.user_id
+     AND i.provider = N'entra' AND i.issuer = @issuer
+    JOIN OPENJSON(@personer) WITH (oid uniqueidentifier '$.oid', aktiv bit '$.aktiv') p
+      ON i.subject = LOWER(CONVERT(nvarchar(36), p.oid))
+   WHERE p.aktiv IS NULL OR p.aktiv = 0;
+  EXEC koe.skriv_tilgangslogg 'hr_synk', @korrelasjon;
+  COMMIT;
 END
 GO
