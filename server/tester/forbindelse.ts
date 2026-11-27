@@ -3,7 +3,7 @@
  * ikke når serveren, eller som lykkes mens klienten får feil (#419, #418).
  */
 
-import type { Forbindelse, Pool } from '../datalag.ts';
+import { sql, type Forbindelse, type Pool } from '../datalag.ts';
 
 /** Endrer forbindelsen poolen gir ut ved neste lån, før `transaksjon` får den. */
 export function vedNesteLaan(pool: Pool, endre: (f: Forbindelse) => void): void {
@@ -32,6 +32,10 @@ export function enGang(
     return erstatning(ekte)(...a);
   };
 }
+
+/** En feil fra basen med nummeret, som `mssql` gir den. */
+export const feilFraBasen = (nummer: number) =>
+  Object.assign(new sql.RequestError('feil fra basen', 'EREQUEST'), { number: nummer });
 
 export const tidsavbrudd = () =>
   Object.assign(new Error('Timeout: Request failed to complete in 60000ms'), { code: 'ETIMEOUT' });

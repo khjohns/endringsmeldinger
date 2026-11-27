@@ -736,6 +736,9 @@ FEILINNFOERINGER = [
     ("S184", "et vranglåsoffer som arbeidet fanger, kjøres ikke på nytt (#555)", "server/datalag.ts",
      "  if (feil instanceof TransaksjonAvbrutt) return feilnummer(feil.cause) === VRANGLAAS;\n", "",
      "vranglåsoffer som arbeidet fanger"),
+    ("S185", "et nytt forsøk etter en vranglås får en ny frist (#555)", "server/datalag.ts",
+     " || !vranglaasoffer(feil) || igjen <= 0) throw feil;", " || !vranglaasoffer(feil)) throw feil;",
+     "fristen rekker ikke til et nytt forsøk"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

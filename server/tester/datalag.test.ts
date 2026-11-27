@@ -33,7 +33,7 @@ import {
   type Kontekst,
   type Pool,
 } from '../datalag.ts';
-import { enGang, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
+import { enGang, feilFraBasen, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
 import { opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const KONTEKST: Kontekst = {
@@ -761,10 +761,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       return r.recordset.map((rad) => rad.n);
     }
 
-    /** En feil med nummeret fra SQL Server, slik `feilnummer` leser den. */
-    const medNummer = (nummer: number) =>
-      Object.assign(new Error(`Feil ${nummer}`), { number: nummer });
-
     /**
      * Gjør transaksjonen i `arbeid` til vranglåsoffer: den oppdaterer rad 1 og venter på
      * rad 2, mens en annen transaksjon holder rad 2 og venter på rad 1. Den andre legger
@@ -857,47 +853,38 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
 
     it('vranglåsoffer i hvert forsøk: arbeidet kjøres VRANGLAASFORSOEK ganger, og feilen fra siste forsøk kastes', async () => {
       const ider: string[] = [];
-      const feilene: Error[] = [];
+      let siste: Error | undefined;
       const feil = await transaksjon(pool, KONTEKST, async (f) => {
         const id = randomUUID();
         ider.push(id);
         await skriv(f, id);
-        feilene.push(medNummer(VRANGLAAS));
-        throw feilene.at(-1);
+        throw (siste = feilFraBasen(VRANGLAAS));
       }).catch((e: unknown) => e);
       expect(ider).toHaveLength(VRANGLAASFORSOEK);
-      expect(feil).toBe(feilene.at(-1));
+      expect(feil).toBe(siste);
       for (const id of ider) expect(await lagret(pool, id)).toBe(false);
     });
 
     // Bare vranglåsen gir et nytt forsøk. En avvisning, en versjonskonflikt og en ugyldig
     // kommando gir samme feil igjen (F0b krav 4), og et usikkert utfall kan være committet.
-    it.each<[string, string, (e: unknown) => void]>([
-      ['avvisning (51403)', `THROW 51403, N'Nektet', 1`, (e) => expect(feilnummer(e)).toBe(51403)],
-      [
-        'versjonskonflikt (51409)',
-        `THROW 51409, N'Versjonskonflikt: journalen har versjon 3', 1`,
-        (e) => expect(feilnummer(e)).toBe(51409),
-      ],
-      ['ugyldig (51422)', `THROW 51422, N'Ugyldig', 1`, (e) => expect(feilnummer(e)).toBe(51422)],
-      [
-        'kommando-ID-en er brukt (51410)',
-        `THROW 51410, N'Brukt', 1`,
-        (e) => expect(feilnummer(e)).toBe(51410),
-      ],
-    ])('%s: arbeidet kjøres én gang, og feilen kastes', async (_navn, sats, sjekk) => {
+    it.each<[string, number]>([
+      ['avvisning', 51403],
+      ['versjonskonflikt', 51409],
+      ['kommando-ID-en er brukt', 51410],
+      ['ugyldig', 51422],
+    ])('%s (%i): arbeidet kjøres én gang, og feilen kastes', async (_navn, nummer) => {
       let kall = 0;
       const feil = await transaksjon(pool, KONTEKST, async (f) => {
         kall++;
-        await f().batch(sats);
+        await f().batch(`THROW ${nummer}, N'Fra basen', 1`);
       }).catch((e: unknown) => e);
       expect(kall).toBe(1);
-      sjekk(feil);
+      expect(feilnummer(feil)).toBe(nummer);
     });
 
     it('usikkert utfall: arbeidet kjøres én gang, selv om COMMIT feilet med 1205', async () => {
       vedNesteLaan(pool, (f) =>
-        enGang(f, 'commitTransaction', () => (cb) => setImmediate(cb, medNummer(VRANGLAAS)))
+        enGang(f, 'commitTransaction', () => (cb) => setImmediate(cb, feilFraBasen(VRANGLAAS)))
       );
       let kall = 0;
       const feil = await transaksjon(pool, KONTEKST, async () => {
@@ -907,6 +894,23 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       expect(kall).toBe(1);
     });
 
+    it('fristen rekker ikke til et nytt forsøk etter 1205: arbeidet kjøres én gang', async () => {
+      let kall = 0;
+      const feil = await transaksjon(
+        pool,
+        KONTEKST,
+        async () => {
+          kall++;
+          // Det som er igjen av fristen, er under den korteste pausen (20 ms).
+          await new Promise((ok) => setTimeout(ok, 85));
+          throw feilFraBasen(VRANGLAAS);
+        },
+        { frist: 100 }
+      ).catch((e: unknown) => e);
+      expect(kall).toBe(1);
+      expect(feil instanceof FristUtloept || feilnummer(feil) === VRANGLAAS).toBe(true);
+    });
+
     it('fristen utløper før arbeidet kaster 1205: FristUtloept, og arbeidet kjøres én gang', async () => {
       let kall = 0;
       const feil = await transaksjon(
@@ -914,8 +918,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
         KONTEKST,
         async () => {
           kall++;
-          await new Promise((ok) => setTimeout(ok, 300));
-          throw medNummer(VRANGLAAS);
+          await new Promise((ok) => setTimeout(ok, 150));
+          throw feilFraBasen(VRANGLAAS);
         },
         { frist: 100 }
       ).catch((e: unknown) => e);

@@ -324,12 +324,13 @@ interface Frist {
  * kastes, også når arbeidet returnerer en `Tilbakerulling`. COMMIT som er sendt,
  * avbrytes ikke, for da ville et kjent utfall blitt usikkert; den har grensen til
  * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`, og den
- * gjelder hvert forsøk.
+ * gjelder alle forsøkene samlet.
  *
  * Velger serveren transaksjonen som vranglåsoffer (`VRANGLAAS`), er den rullet
  * tilbake, og hele transaksjonen kjøres på nytt med `arbeid` fra begynnelsen, høyst
  * `VRANGLAASFORSOEK` ganger i alt. `arbeid` skal derfor ikke ha virkninger utenfor
- * transaksjonen. Etter siste forsøk kastes feilen fra det. Ingen annen feil gir et
+ * transaksjonen. Etter siste forsøk, eller når fristen ikke rekker til et nytt, kastes
+ * feilen fra det. Ingen annen feil gir et
  * nytt forsøk: en avvisning, en versjonskonflikt og et usikkert utfall kastes straks.
  */
 export async function transaksjon<T>(
@@ -341,15 +342,18 @@ export async function transaksjon<T>(
   kontroller(kontekst);
   if (!(frist > 0 && frist <= TRANSAKSJONSFRIST_MS))
     throw new RangeError(`Fristen ${frist} ms er ikke over 0 og høyst ${TRANSAKSJONSFRIST_MS} ms.`);
+  const slutt = Date.now() + frist;
   for (let forsoek = 1; ; forsoek++) {
     try {
-      return await ettForsoek(pool, kontekst, arbeid, frist);
+      return await ettForsoek(pool, kontekst, arbeid, slutt - Date.now());
     } catch (feil) {
-      if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil)) throw feil;
+      const pause = 20 + Math.random() * 80 * forsoek;
+      const igjen = slutt - Date.now() - pause;
+      if (forsoek >= VRANGLAASFORSOEK || !vranglaasoffer(feil) || igjen <= 0) throw feil;
       loggFeil('Datalaget: transaksjonen var vranglåsoffer og kjøres på nytt', feil, 'warn', {
         antall: forsoek,
       });
-      await new Promise((ok) => setTimeout(ok, 20 + Math.random() * 80 * forsoek));
+      await new Promise((ok) => setTimeout(ok, pause));
     }
   }
 }
@@ -359,10 +363,9 @@ export const VRANGLAASFORSOEK = 3;
 
 /**
  * Feilen fra arbeidet, eller årsaken når arbeidet fanget den og serveren rullet
- * tilbake, er 1205. `FristUtloept` gjelder fristen, ikke vranglåsen, og prøves ikke.
+ * tilbake, er 1205. `FristUtloept` har ikke noe nummer, så den prøves ikke.
  */
 function vranglaasoffer(feil: unknown): boolean {
-  if (feil instanceof FristUtloept) return false;
   if (feil instanceof TransaksjonAvbrutt) return feilnummer(feil.cause) === VRANGLAAS;
   return feilnummer(feil) === VRANGLAAS;
 }
