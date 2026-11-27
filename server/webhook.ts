@@ -9,7 +9,7 @@
  * Stien står aldri i en logg.
  */
 
-import { korrelasjonsId } from './logg.ts';
+import { korrelasjonsId, loggAdvarsel, loggInfo } from './logg.ts';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { AapenRute, Svar } from './rutetyper.ts';
@@ -18,8 +18,11 @@ import { feilsvar, FOR_STOR, lesInntil, ugyldig } from './inngang.ts';
 
 export interface Webhook {
   hemmelighet: string;
-  /** Den forrige hemmeligheten, som gjelder ved siden av mens den byttes i Catenda (#1059). */
-  forrige?: string;
+  /**
+   * Den forrige hemmeligheten, som gjelder ved siden av mens den byttes i Catenda, med en egen
+   * grense, så kall med den ikke kan stenge ute leveringene på den nye (#1059).
+   */
+  forrige?: { hemmelighet: string; grense: Kallgrense };
   grense: Kallgrense;
 }
 
@@ -53,7 +56,6 @@ export function kallgrense(perMinutt: number): Kallgrense {
 /** Kortere enn dette kan gjettes; da er mottaket ikke satt opp. */
 const KORTESTE_HEMMELIGHET = 32;
 
-/** Variabelen er den samme som i Python, så adressen registrert i Catenda gjelder for begge. */
 function hemmelighetFra(miljoe: NodeJS.ProcessEnv, variabel: string): string {
   const hemmelighet = miljoe[variabel] ?? '';
   if (hemmelighet.length < KORTESTE_HEMMELIGHET)
@@ -64,17 +66,28 @@ function hemmelighetFra(miljoe: NodeJS.ProcessEnv, variabel: string): string {
 }
 
 /**
- * `WEBHOOK_SECRET_PATH_FORRIGE` er valgfri: den forrige hemmeligheten, som også godtas til
- * den er byttet i Catenda og variabelen fjernes (#1059).
+ * `WEBHOOK_SECRET_PATH` er variabelen fra Python, så adressen registrert i Catenda gjelder for
+ * begge. `WEBHOOK_SECRET_PATH_FORRIGE` er valgfri: den forrige hemmeligheten, som også godtas
+ * til den er byttet i Catenda og variabelen fjernes (#1059). En ugyldig forrige hemmelighet
+ * brukes ikke, med en advarsel, og slår ikke av mottaket for den nye.
  */
 export function webhookFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Webhook {
   const hemmelighet = hemmelighetFra(miljoe, 'WEBHOOK_SECRET_PATH');
-  const forrige = miljoe.WEBHOOK_SECRET_PATH_FORRIGE
-    ? hemmelighetFra(miljoe, 'WEBHOOK_SECRET_PATH_FORRIGE')
-    : undefined;
   const perMinutt = Number(miljoe.RATE_LIMIT_WEBHOOK ?? '100');
   if (!Number.isInteger(perMinutt) || perMinutt < 1)
     throw new Error('RATE_LIMIT_WEBHOOK må være et heltall ≥ 1');
+  let forrige: Webhook['forrige'];
+  if (miljoe.WEBHOOK_SECRET_PATH_FORRIGE)
+    try {
+      forrige = {
+        hemmelighet: hemmelighetFra(miljoe, 'WEBHOOK_SECRET_PATH_FORRIGE'),
+        grense: kallgrense(perMinutt),
+      };
+    } catch {
+      loggAdvarsel('Den forrige webhook-hemmeligheten er ugyldig og brukes ikke', {
+        hindringer: ['WEBHOOK_SECRET_PATH_FORRIGE'],
+      });
+    }
   return { hemmelighet, ...(forrige ? { forrige } : {}), grense: kallgrense(perMinutt) };
 }
 
@@ -83,11 +96,19 @@ const sum = (tekst: string) => createHash('sha256').update(tekst, 'utf8').digest
 /** Like summer har lik lengde, så sammenligningen tar like lang tid uansett hva som er sendt. */
 const lik = (mottatt: string, forventet: string) => timingSafeEqual(sum(mottatt), sum(forventet));
 
-/** Begge sammenligningene gjøres, så tiden ikke sier hvilken hemmelighet som traff. */
-function rettHemmelighet(mottatt: string, { hemmelighet, forrige }: Webhook): boolean {
-  const naa = lik(mottatt, hemmelighet);
-  const foer = lik(mottatt, forrige ?? hemmelighet);
-  return naa || foer;
+/**
+ * Grensen for hemmeligheten kallet har, eller `null` for en feil hemmelighet. Begge
+ * sammenligningene gjøres, så tiden ikke sier hvilken hemmelighet som traff.
+ */
+function grenseForHemmelighet(mottatt: string, webhook: Webhook): Kallgrense | null {
+  const naa = lik(mottatt, webhook.hemmelighet);
+  const foer = lik(mottatt, webhook.forrige?.hemmelighet ?? webhook.hemmelighet);
+  if (naa) return webhook.grense;
+  if (foer && webhook.forrige) {
+    loggInfo('Webhooken ble kalt med den forrige hemmeligheten');
+    return webhook.forrige.grense;
+  }
+  return null;
 }
 
 /** Catendas hendelser er noen få kilobyte. */
@@ -146,9 +167,10 @@ async function taImot(
   webhook: Webhook | null,
   mottatt: string
 ): Promise<Svar> {
-  if (!webhook || !rettHemmelighet(mottatt, webhook)) return ukjent();
+  const grense = webhook && grenseForHemmelighet(mottatt, webhook);
+  if (!grense) return ukjent();
   // Etter hemmeligheten, så kall med feil sti ikke kan stenge ute leveringene fra Catenda.
-  if (!webhook.grense.tillat())
+  if (!grense.tillat())
     return feilsvar(429, 'RATE_LIMITED', 'For mange kall. Prøv igjen om et minutt.');
   const bytes = await lesInntil(foresporsel, STOERSTE_HENDELSE);
   if (!bytes) return feilsvar(413, ...FOR_STOR);
