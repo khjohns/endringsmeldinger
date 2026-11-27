@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { Spor, Svar } from '#kjerne/typer.ts';
+  import { VARSELSPOR, type Spor, type Svar } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { page } from '$app/state';
   import { ChevronLeft } from 'lucide-svelte';
@@ -21,11 +21,7 @@
     SVARTITTEL_PAA_VARSELET,
     UTSAGNSTITTEL,
   } from '#kjerne/frosset/brevtittel.ts';
-  import {
-    hjemmelenForVarselet,
-    sporetForVarselet,
-    varseletSvaretPaa,
-  } from '#lib/kjernesak/vederlagskrav.ts';
+  import { hjemmelenForVarselet, varseletSvaretPaa } from '#lib/kjernesak/vederlagskrav.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
   import Brevkvittering from './Brevkvittering.svelte';
   import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -347,7 +343,7 @@
   /** Sporet svaret på varselet `gjelder` står i, eller `null` når det ikke er et slikt varsel. */
   const varselsporet = (gjelder: string) => {
     const h = u && hjemmelenForVarselet(u, gjelder);
-    return h ? sporetForVarselet(h) : null;
+    return h ? VARSELSPOR[h] : null;
   };
 
   /** Svaret på varselet `gjelder` er sendt eller forkastet. */

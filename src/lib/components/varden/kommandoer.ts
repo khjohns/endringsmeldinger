@@ -17,7 +17,15 @@ import {
 import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import type { Kjernevedlegg } from './nysak';
-import type { Krav, Kravpost, Oppgjoersform, Spor, Standpunkt, Svar } from '#kjerne/typer.ts';
+import {
+  VARSELSPOR,
+  type Krav,
+  type Kravpost,
+  type Oppgjoersform,
+  type Spor,
+  type Standpunkt,
+  type Svar,
+} from '#kjerne/typer.ts';
 import { KRAVINNHOLD } from '#kjerne/format/format.ts';
 import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -28,7 +36,6 @@ import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts
 import {
   varseletFoer,
   varselhjemmelFor,
-  sporetForVarselet,
   type VarseletAlene,
 } from '#lib/kjernesak/vederlagskrav.ts';
 
@@ -440,7 +447,7 @@ export function varselsvaret(
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast } {
   const svar: Svarutkast = {
-    spor: sporetForVarselet(varselet.hjemmel),
+    spor: VARSELSPOR[varselet.hjemmel],
     gjelder: varselet.id,
     regelversjon: regler.versjon,
     // Vurderingene i svaret på varselet står ikke i `Svarvurdering` (`standpunkterPaaVarselet` og

@@ -13,12 +13,11 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import {
     erSvarPaaVarsel,
-    sporetForVarselet,
     varseletFoerBrevet,
     type VarseletAlene,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import type { Kravpost } from '#kjerne/typer.ts';
+  import { VARSELSPOR, type Kravpost } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -83,7 +82,7 @@
   const uid = $props.id();
 
   const hjemmel = $derived(varselet.hjemmel);
-  const spor = $derived(sporetForVarselet(hjemmel));
+  const spor = $derived(VARSELSPOR[hjemmel]);
   const varselbrevet = $derived(brevMedUtsagn(u, varselet.id));
   const foer = $derived(
     varselet.foer && {
@@ -106,7 +105,7 @@
   };
   const nyeStandpunkter = $derived(nyttSvarI(utkast));
   const iTide = $derived(varseletISvaret(valg, varselet));
-  // VS-U87 punkt 32 og VS-U96 punkt 32: svaret har bare standpunktet til varselet.
+  // VS-U87 punkt 32, VS-U96 punkt 32.
   const varselPaakrevd = $derived(
     hjemmel === '34.1.2' || hjemmel === '34.1.3' || hjemmel === '33.4'
   );

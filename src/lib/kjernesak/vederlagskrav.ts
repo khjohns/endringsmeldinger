@@ -214,10 +214,6 @@ export interface VarseletAlene {
   arbeid: string | undefined;
 }
 
-/** Sporet svaret på varselet med `hjemmel` står i. */
-export const sporetForVarselet = (hjemmel: SvarbarVarselhjemmel) =>
-  hjemmel === '33.4' ? ('frist' as const) : ('vederlag' as const);
-
 /**
  * Om brevet `dokument` er et svar på et varsel som står alene. Innsigelsen etter § 34.4 der sa at
  * varselet kom for sent, ikke at det ikke ble gitt (VS-U77 punkt 31, MM-U50), som brevteksten
@@ -249,9 +245,8 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
 }
 
 /**
- * Varselet etter § 33.4 i fristen. Svarene på varselet er én kjede, og hvert har standpunktet til
- * varselet (`kontrollerSvaretPaaFristvarselet`), så det siste svaret har byggherrens siste
- * standpunkt (VS-U96 punkt 33).
+ * Varselet etter § 33.4 i fristen, med standpunktet i det siste svaret på det, som revisjonen
+ * erstatter (`kontrollerSvarkjedene`, `kontrollerSvaretPaaFristvarselet`, VS-U96 punkt 33).
  */
 function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
   const v = fristvarseletSvaretGjelder(u, gjelder);

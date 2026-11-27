@@ -691,11 +691,15 @@ export const TESTSAKER: Record<string, Testsak> = {
       ]);
       console.log(`BH  POST kommandoer (svaret på varselet etter punkt 33.4): ${svar.status()}`);
       if (svar.status() !== 201) throw new Error(`Svaret ble ikke sendt: ${await svar.text()}`);
-      await bh.waitForLoadState('networkidle');
+      await bh.getByRole('button', { name: /Tilbake til saken/ }).waitFor({ timeout: 30_000 });
+      await bh.screenshot({ path: `${ut}/varselsvar-334-kvittering.png`, fullPage: true });
+      // Fristen etter sendingen, med svaret i tråden og handlingen for et nytt svar.
+      await bh.goto(saksrute);
+      const nytt = bh.getByRole('button', { name: 'Nytt svar på varselet om fristforlengelse' });
+      await nytt.waitFor({ timeout: 30_000 });
       await bh.screenshot({ path: `${ut}/varselsvar-334-sendt.png`, fullPage: true });
       // VS-U96 punkt 33 og 34: et nytt svar gjentar innsigelsen til byggherren gir den opp.
-      await bh.goto(saksrute);
-      await bh.getByRole('button', { name: 'Nytt svar på varselet om fristforlengelse' }).click({ timeout: 30_000 });
+      await nytt.click();
       await bh.getByText('Svaret gjentar innsigelsen.').waitFor();
       await bh.screenshot({ path: `${ut}/varselsvar-334-nytt.png`, fullPage: true });
     },
