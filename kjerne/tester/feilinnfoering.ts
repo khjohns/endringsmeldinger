@@ -5674,7 +5674,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en revisjon lagt til kan gjelde en annen kravversjon enn svaret den erstatter (OV-U98, #2011)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['if (k.svar.gjelder !== forrige.gjelder)', 'if (false)']],
+    endringer: [['&& k.svar.gjelder !== forrige.gjelder)', '&& false)']],
     mal: ['en revisjon lagt til avvises når den gjelder en annen kravversjon'],
   },
   {
@@ -6635,7 +6635,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));',
+        '    const varslene = new Set(spor[n].svarPaaVarsler.map(svarkjeden));',
         '    const varslene = new Set<string>();',
       ],
     ],
@@ -7986,6 +7986,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [["x.art === 'rettidighet' && x.gjelder === s.gjelder", "x.art === 'rettidighet'"]],
     mal: ['linja leser innsigelsen som står, for justeringen til hver kravpost'],
+  },
+  {
+    id: 'F2456p',
+    feilklasse:
+      'svaret bare på varselet etter en ny kravversjon er et nytt første svar, ikke en revisjon av det forrige (VS-U96 punkt 33 og 38, #2456)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['    bare ? x.bareVarselet : x.gjelder === gjelder', '    x.gjelder === gjelder']],
+    mal: ['etter en ny kravversjon er det nye svaret bare på varselet en revisjon av det forrige'],
   },
 ];
 

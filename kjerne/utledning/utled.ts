@@ -214,6 +214,13 @@ export interface Element {
  * (VS-U96 punkt 38 og 39). At varselet kan besvares alene, kontrollerer `kontrollerSvarPaaVarselet`
  * og `Sporskontroller.svaretBarePaaVarselet`.
  */
+/**
+ * Kjeden et svar står i: kravversjonen eller varselet det gjelder, og for svarene bare på varselet i
+ * et spor én kjede på tvers av kravversjonene, fordi varselet er det samme (VS-U96 punkt 33 og 38).
+ */
+export const svarkjeden = (s: Pick<Svar, 'spor' | 'gjelder' | 'bareVarselet'>): string =>
+  s.bareVarselet ? `bare_varselet ${s.spor}` : s.gjelder;
+
 const erSvarPaaVarselet = (
   s: Pick<Svar, 'gjelder' | 'bareVarselet'>,
   elementer: Record<string, Element>
@@ -1251,12 +1258,7 @@ function kontrollerSvarene(
       ugyldig(s.id, 'svaret viser til et krav som ikke står før det i sporet');
     if (s.erstatter !== null) {
       const forrige = alleSvar.get(s.erstatter);
-      if (
-        !forrige ||
-        forrige.gjelder !== s.gjelder ||
-        forrige.bareVarselet !== s.bareVarselet ||
-        !bakover(s.id, s.erstatter)
-      )
+      if (!forrige || svarkjeden(forrige) !== svarkjeden(s) || !bakover(s.id, s.erstatter))
         ugyldig(s.id, 'revisjonen erstatter et svar som ikke står før den på samme krav');
     }
     // #342, HF-U1: et svar på vederlag eller frist viser til påberopelsesversjonen det ble regnet mot.
@@ -1390,13 +1392,13 @@ function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyld
   for (const n of SPOR) {
     // Kravpostvarslene fylles i sporet etter kontrollene, så varslene leses av svarene. Svarene
     // bare på varselet i en kravversjon er en egen kjede (VS-U96 punkt 38).
-    const varslene = new Set(spor[n].svarPaaVarsler.map((s) => s.gjelder));
+    const varslene = new Set(spor[n].svarPaaVarsler.map(svarkjeden));
     const kjedene = [
       ...spor[n].krav.map((k) => ({ gjelder: k.id, svarene: spor[n].svar })),
       ...[...varslene].map((v) => ({ gjelder: v, svarene: spor[n].svarPaaVarsler })),
     ];
     for (const { gjelder, svarene } of kjedene) {
-      const paaKravet = svarene.filter((s) => s.gjelder === gjelder);
+      const paaKravet = svarene.filter((s) => svarkjeden(s) === gjelder);
       if (!paaKravet.length) continue;
       const foerste = paaKravet.filter((s) => s.erstatter === null);
       const kjede = new Set<string>();

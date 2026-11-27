@@ -41,6 +41,7 @@ import {
   kravversjonenPaaDagen,
   rettedeBrev,
   sendtFoerGjeldendeSvar,
+  svarkjeden,
   type Utledning,
 } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
@@ -590,12 +591,14 @@ export function nyttelastkontroll(
     case 'revisjon': {
       const sporet = u.spor[k.svar.spor];
       // VS-U77 punkt 33: det nye svaret på et varsel erstatter det forrige på samme varsel.
+      // VS-U96 punkt 33 og 38: svarene bare på varselet er én kjede på tvers av kravversjonene.
+      const kjeden = svarkjeden({ ...k.svar, bareVarselet: k.svar.bare_varselet === true });
       const forrige = svaretsVarsel(u, k.svar, sendt)
-        ? sporet.svarPaaVarsler.filter((x) => x.gjelder === k.svar.gjelder).at(-1)
+        ? sporet.svarPaaVarsler.filter((x) => svarkjeden(x) === kjeden).at(-1)
         : sporet.gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      if (k.svar.gjelder !== forrige.gjelder)
+      if (!k.svar.bare_varselet && k.svar.gjelder !== forrige.gjelder)
         return avvis(
           'FEIL_SVARREFERANSE',
           'Revisjonen gjelder en annen versjon av kravet enn svaret den erstatter.'

@@ -367,7 +367,11 @@ function hindrerSvaretIKjeden(
 ): Avvisning | null {
   const sporet = u.spor.vederlag;
   if (sporet.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  const forrige = sporet.svarPaaVarsler.some((x) => x.gjelder === gjelder);
+  // VS-U96 punkt 33 og 38: svarene bare på varselet i kravet er én kjede (`svarkjeden`).
+  const bare = sporet.krav.some((k) => k.id === gjelder);
+  const forrige = sporet.svarPaaVarsler.some((x) =>
+    bare ? x.bareVarselet : x.gjelder === gjelder
+  );
   if (hva === 'Svaret' && forrige)
     return avvis('ALLEREDE_SVART', 'Du har allerede svart på varselet. Send et nytt svar.');
   if (hva === 'Revisjonen' && !forrige)

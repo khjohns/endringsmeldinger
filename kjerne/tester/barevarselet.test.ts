@@ -116,6 +116,30 @@ describe('svaret bare på varselet etter punkt 33.4 når kravet er varselet (VS-
     );
   });
 
+  it('etter en ny kravversjon er det nye svaret bare på varselet en revisjon av det forrige (punkt 33 og 38, LV-U73)', () => {
+    const { s, krav } = medFristkravet();
+    s.send('BH', brev('frist', krav, { varslet_i_tide: false }));
+    expect(s.u().spor.frist.svarPaaVarsler).toHaveLength(1);
+    const [forrige] = s.u().spor.frist.svarPaaVarsler;
+    s.send('TE', { ...FRISTKRAVET, innhold: { frister: [{ navn: 'Sluttfristen', dager: 25 }] } });
+    const v2 = s.u().spor.frist.gjeldendeKrav!.id;
+    expect(v2).not.toBe(krav);
+    expect(handlinger(s.u(), 'BH')).toContain(`revidere:${v2}`);
+    expect(handlinger(s.u(), 'BH')).not.toContain(`svare:${v2}`);
+    expect(s.avvist('BH', brev('frist', v2, { varslet_i_tide: true }))).toBe('ALLEREDE_SVART');
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: forrige.id,
+      svar: bareVarselet('frist', v2, { varslet_i_tide: true }),
+    });
+    expect(s.u().forstaatt).toBe(true);
+    expect(s.u().spor.frist.svarPaaVarsler.map((x) => [x.gjelder, x.erstatter])).toEqual([
+      [krav, null],
+      [v2, forrige.id],
+    ]);
+    expect(brevet(s)[0]).toContain('Dette er byggherrens nye svar.');
+  });
+
   it('en revisjon av svaret bare på varselet uten feltet er en revisjon av svaret på kravet, som ikke finnes', () => {
     const { s, krav } = medFristkravet();
     s.send('BH', brev('frist', krav, { varslet_i_tide: false }));
@@ -247,6 +271,7 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
         kravposter: [{ gjelder: poster[1], varslet_i_tide: false, godtar_justering: true }],
       })
     );
+    expect(s.u().spor.vederlag.svarPaaVarsler).toHaveLength(1);
     const [forrige] = s.u().spor.vederlag.svarPaaVarsler;
     // Et svar lagt til som ikke sier noe om varselet for P2, men har standpunktet for P1.
     s.send('BH', {

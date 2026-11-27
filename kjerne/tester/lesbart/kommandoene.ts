@@ -362,8 +362,14 @@ export const KOMMANDOENE: Lesbar[] = [
     'Svarutkast',
     'kommando',
     'bare_varselet',
-    ['kommandoer/skriving.ts:svar', 'kommandoer/nyttelast.ts:kontrollerSvar'],
+    [
+      'kommandoer/skriving.ts:svar',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
   ],
+  // VS-U96 punkt 33 og 38: kjeden svarene bare på varselet står i.
+  ['utledning/utled.ts', 'relasjon', 'svarkjeden', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
   [
     'VarsleneIKravet',
     'relasjon',

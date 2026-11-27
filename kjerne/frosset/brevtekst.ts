@@ -1014,7 +1014,11 @@ function varseltekst(
   // MM-U50: innsigelsen i svaret på varselet sa «kom for sent» (punkt 31).
   const iSvaretPaaVarselet =
     foer !== undefined &&
-    j.dokumenter.some((d) => d.id === foer.dokument && d.svar.some((x) => erSvarPaaVarselet(x, j)));
+    j.dokumenter.some(
+      (d) =>
+        d.id === foer.dokument &&
+        d.svar.some((x) => x.spor === 'vederlag' && erSvarPaaVarselet(x, j))
+    );
   // VS-U63: etter § 34.4 er «i tide» at byggherren gir opp innsigelsen (`kontrollerOppgivelsenEtter344`).
   if (p.iTide && p.hjemmel === '34.4')
     return `byggherren gir opp innsigelsen${brevet ? ` i ${brevet}` : ''} om at ${om} ${iSvaretPaaVarselet ? 'kom for sent' : forSent}.`;
