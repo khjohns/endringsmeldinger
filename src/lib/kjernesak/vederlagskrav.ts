@@ -246,17 +246,27 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
 
 /**
  * Varselet etter § 33.4 i fristen, med standpunktet i det siste svaret på det, som revisjonen
- * erstatter (`kontrollerSvarkjedene`, `kontrollerSvaretPaaFristvarselet`, VS-U96 punkt 33).
+ * erstatter (`kontrollerSvarkjedene`, VS-U96 punkt 33). En innsigelse som er gjentatt, står med
+ * brevet den først ble gjort gjeldende i, som `rettidighetIVarselet` i brevteksten leser det
+ * (VS-U96 punkt 33 og 34).
  */
 function fristvarseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene | null {
   const v = fristvarseletSvaretGjelder(u, gjelder);
   if (!v) return null;
-  const forrige = u.spor.frist.svarPaaVarsler.findLast((s) => s.gjelder === v.id);
-  const s = forrige?.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.4');
+  const svarene = u.spor.frist.svarPaaVarsler.filter((s) => s.gjelder === v.id);
+  const iTide = (s: (typeof svarene)[number]) => {
+    const p = s.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.4');
+    return p?.art === 'rettidighet' ? p.iTide : null;
+  };
+  const forrige = svarene.at(-1);
+  const standpunkt = forrige ? iTide(forrige) : null;
+  let foerst = forrige;
+  if (standpunkt === false)
+    for (let s = forrige; s && iTide(s) === false; s = svarene.find((x) => x.id === s!.erstatter))
+      foerst = s;
   return {
     ...v,
-    foer:
-      forrige && s?.art === 'rettidighet' ? { iTide: s.iTide, dokument: forrige.dokument } : null,
+    foer: foerst && standpunkt !== null ? { iTide: standpunkt, dokument: foerst.dokument } : null,
     forrigeSvar: forrige?.id ?? null,
     arbeid: undefined,
   };

@@ -843,6 +843,31 @@ describe('svaret på varselet om fristforlengelse etter punkt 33.4 som står ale
     });
   });
 
+  it('en innsigelse som er gjentatt i et nytt svar, står med brevet den først ble gjort gjeldende i (VS-U96 punkt 33, `rettidighetIVarselet`, Gemini-reviewet)', async () => {
+    const journal = medFristvarsel();
+    const varselet = fristvarselI(journal);
+    const svaret = {
+      spor: 'frist',
+      gjelder: varselet,
+      regelversjon: KJERNE.regler.versjon,
+      vurderinger: { varslet_i_tide: false },
+      resultat: {},
+    };
+    const brev3 = skrevet(journal, 'BH', { type: 'brev', svar: [svaret] });
+    const foerste = utledJournal(brev3, KJERNE).spor.frist.svarPaaVarsler[0]!.id;
+    const brev4 = skrevet(brev3, 'BH', {
+      type: 'revisjon',
+      erstatter: foerste,
+      svar: { ...svaret, utdypning: 'Varselet kom fem uker etter pålegget.' },
+    });
+    await fristskjemaet(brev4);
+    expect(
+      screen.getByText(/^Du har gjort gjeldende i brev 3 at varselet kom for sent\./)
+    ).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Gi opp innsigelsen' }));
+    expect(screen.getAllByText(/gir opp innsigelsen i brev 3 /).length).toBeGreaterThan(0);
+  });
+
   it('i Varden står svaret ved varselet i fristen og åpner skjemaet, ikke «Svar på kravet» (kravene i #2456)', async () => {
     const kjernesak = kjernesakFor(medFristvarsel());
     await kjernesak.last();
