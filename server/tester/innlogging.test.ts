@@ -22,8 +22,14 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
+import { sha256 } from '../bruker.ts';
 import { CatendaUtilgjengelig, catendaFraMiljoe, type CatendaBruker } from '../catenda.ts';
-import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
+import {
+  innloggingFraMiljoe,
+  innloggingsgrense,
+  tryggRetursti,
+  type Innloggingsleverandoer,
+} from '../innlogging.ts';
 import { synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
 import { basensKlokkeEtter, settInn } from './sqlserver_migrert.ts';
@@ -286,6 +292,54 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
   });
 
+  it('grensen teller adressen nginx setter i X-Real-IP (#1059)', async () => {
+    const adresser: string[] = [];
+    const begrenset = await startServer(o, {
+      innlogging: {
+        frontend: FRONTEND,
+        oauth,
+        grense: { tillat: (adresse) => (adresser.push(adresse), true) },
+      },
+    });
+    try {
+      await fetch(`${begrenset.url}/api/auth/catenda/login`, {
+        headers: { 'X-Real-IP': '203.0.113.7' },
+        redirect: 'manual',
+      });
+      await fetch(`${begrenset.url}/api/auth/catenda/login`, { redirect: 'manual' });
+      expect(adresser[0]).toBe('203.0.113.7');
+      expect(adresser[1]).toMatch(/127\.0\.0\.1|::1/);
+    } finally {
+      await begrenset.stopp();
+    }
+  });
+
+  it('innlogginger over grensen i minuttet gir 429 uten å skrive et forsøk (#1059)', async () => {
+    const tellForsoek = async () =>
+      (
+        await o.datalag.base.pool
+          .request()
+          .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.app_oauth_attempts')
+      ).recordset[0].n;
+    let antall = 0;
+    const begrenset = await startServer(o, {
+      innlogging: { frontend: FRONTEND, oauth, grense: { tillat: () => antall++ < 2 } },
+    });
+    try {
+      for (let i = 0; i < 2; i++)
+        expect((await hent(`${begrenset.url}/api/auth/catenda/login`)).status).toBe(302);
+      const foer = await tellForsoek();
+      const svar = await hent(`${begrenset.url}/api/auth/catenda/login`);
+      expect(svar.status).toBe(429);
+      expect(svar.kropp?.error).toBe('RATE_LIMITED');
+      expect(svar.hoder.get('cache-control')).toBe('no-store');
+      expect(svar.hoder.get('retry-after')).toBe('60');
+      expect(await tellForsoek()).toBe(foer);
+    } finally {
+      await begrenset.stopp();
+    }
+  });
+
   it('et hode Node ikke godtar, gir 500 og tar ikke ned serveren (#716 punkt 2)', async () => {
     const galt = await startServer(o, {
       innlogging: {
@@ -314,7 +368,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     expect(svar.status).toBe(302);
     expect(svar.hoder.get('location')).toBe(`${FRONTEND}/saker/1?fane=frist`);
     const kapsel = svar.kapsler.get(SESJON)!;
-    expect(kapsel).toContain('Max-Age=28800');
+    expect(kapsel).toContain(`Max-Age=${7 * 24 * 3600}`);
     expect(kapsel).toContain('HttpOnly');
     expect(svar.kapsler.get(FORSOEK)).toContain('Max-Age=0');
     expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
@@ -549,8 +603,26 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
   it('CSRF-tokenet er sesjonens, med no-store', async () => {
     const svar = await hent(`${server.url}/api/csrf-token`, { kapsler: { [SESJON]: o.te.token } });
     expect(svar.status).toBe(200);
-    expect(svar.kropp).toEqual({ csrfToken: o.te.csrf, expiresIn: 3600 });
+    expect(svar.kropp).toMatchObject({ csrfToken: o.te.csrf });
     expect(svar.hoder.get('cache-control')).toBe('no-store');
+  });
+
+  it('expiresIn er tiden til sesjonen løper ut, også når levetiden er nærmere enn tidsavbruddet (#1806)', async () => {
+    const ny = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
+    const csrf = () => hent(`${server.url}/api/csrf-token`, { kapsler: { [SESJON]: ny.token } });
+    const foerst = await csrf();
+    expect(foerst.kropp?.expiresIn).toBeGreaterThan(24 * 3600 - 5);
+    expect(foerst.kropp?.expiresIn).toBeLessThanOrEqual(24 * 3600);
+    await o.datalag.base.pool
+      .request()
+      .input('h', sha256(ny.token))
+      .query(
+        `UPDATE koe.app_sessions SET created_at = DATEADD(minute, -(7 * 24 * 60 - 5), SYSUTCDATETIME())
+          WHERE token_hash = @h`
+      );
+    const siden = await csrf();
+    expect(siden.kropp?.expiresIn).toBeGreaterThan(300 - 5);
+    expect(siden.kropp?.expiresIn).toBeLessThanOrEqual(300);
   });
 
   it('utloggingen sletter sesjonen og tømmer kapselen', async () => {
@@ -579,5 +651,27 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     const tilbake = await hent(`${utenOppsett.url}/api/auth/catenda/callback?state=x&code=y`);
     expect(tilbake.status).toBe(503);
     expect(tilbake.kropp).toEqual({ error: 'AUTH_UNAVAILABLE' });
+  });
+});
+
+describe('grensen for innloggingene (#1059)', () => {
+  const MINUTT = 60_000;
+
+  it('én adresse over sin grense stenger ikke ute en annen', () => {
+    const grense = innloggingsgrense(2, 10);
+    expect([1, 2, 3].map(() => grense.tillat('a', 5))).toEqual([true, true, false]);
+    expect(grense.tillat('b', 5)).toBe(true);
+  });
+
+  it('taket gjelder alle adressene samlet', () => {
+    const grense = innloggingsgrense(2, 3);
+    expect(['a', 'b', 'c', 'd'].map((a) => grense.tillat(a, 5))).toEqual([true, true, true, false]);
+  });
+
+  it('et nytt minutt nullstiller tellingen', () => {
+    const grense = innloggingsgrense(1, 1);
+    expect(grense.tillat('a', 5)).toBe(true);
+    expect(grense.tillat('a', 6)).toBe(false);
+    expect(grense.tillat('a', MINUTT + 5)).toBe(true);
   });
 });
