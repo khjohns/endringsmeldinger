@@ -175,7 +175,9 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   rekkefølgen primær, sekundær, tertiær, også i dialoger. Er det ikke plass, for eksempel
   på smal skjerm, brytes de til neste linje i samme rekkefølge (oppdragsgiver 27.11,
   #2493). Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen følger
-  den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme gruppe.
+  den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme gruppe. I en
+  dialog som ber om bekreftelse, står den røde knappen etter den trygge handlingen, som «Behold
+  utkastet» før «Forkast utkast» (oppdragsgiver 27.11, #2493).
 - **Knappeteksten sier hva som skjer**, med et verb i imperativ og helst høyst tre
   ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
 - **Feltene står under hverandre**, med label over feltet og hjelpeteksten under

@@ -737,6 +737,15 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.getByRole('button', { name: 'Svar på varslene i kravet' }).click();
       await bh.getByRole('heading', { name: /^Svar på varslene i krav om vederlagsjustering/ }).waitFor();
       await bh.screenshot({ path: `${ut}/bare-varslene-tomt.png`, fullPage: true });
+      // Dialogen «Forkast utkastet?»: venstrestilt med «Behold utkastet» først (#2493).
+      await bh.getByRole('button', { name: 'Forkast utkast' }).click();
+      const dialogen = bh.getByRole('dialog');
+      await dialogen.waitFor();
+      await dialogen.screenshot({ path: `${ut}/forkastdialog.png` });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await dialogen.screenshot({ path: `${ut}/forkastdialog-390.png` });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+      await dialogen.getByRole('button', { name: 'Behold utkastet' }).click();
       await bh.getByRole('button', { name: 'Se brevet før sending' }).first().click();
       await bh.screenshot({ path: `${ut}/bare-varslene-mangler.png`, fullPage: true });
       await bh.getByRole('button', { name: 'Varselet kom for sent' }).click();

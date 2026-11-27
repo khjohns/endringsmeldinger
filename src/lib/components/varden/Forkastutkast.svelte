@@ -2,8 +2,8 @@
   «Forkast utkast» nederst i utkastet, med en dialog som spør først (oppdragsgiver 06.11 og 07.11,
   PR 1650). Den trygge knappen heter «Behold utkastet», og «Forkast utkast» er rød, fordi
   handlingen ikke kan gjøres om. Fokus går tilbake til lenken når dialogen lukkes uten forkasting.
-  Knappene står ved siden av hverandre, og alle skjemaene har de samme knappene (designvalget 17.11
-  i #2119). Skjemaet for ny sak har «Avbryt» på lenken (S2 i #1414) og sin egen tittel og tekst.
+  Knappene står ved siden av hverandre, venstrestilt med «Behold utkastet» først, og alle
+  skjemaene har de samme knappene (designvalget 17.11 i #2119, oppdragsgiver 27.11 i #2493). Skjemaet for ny sak har «Avbryt» på lenken (S2 i #1414) og sin egen tittel og tekst.
 -->
 <script lang="ts">
   import Knapp from './Knapp.svelte';
@@ -80,7 +80,6 @@
   .knapper {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
     gap: var(--spacing-3);
     margin-top: var(--spacing-5);
   }
