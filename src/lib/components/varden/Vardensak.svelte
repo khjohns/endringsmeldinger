@@ -866,8 +866,9 @@
   function videreFraKorrespondansen(kategori: 'krav' | 'svar') {
     if (!lagtTil || !u) return;
     if (kategori === 'svar') {
+      const nytt = !svaretFra[valgt];
       svaretFra[valgt] = { ...lagtTil.valg.korrespondanse };
-      if (valgt !== 'forhold') svaretLagtTil(u, valgt, lagtTil.valg.korrespondanse.dato);
+      if (valgt !== 'forhold') svaretLagtTil(u, valgt, lagtTil.valg.korrespondanse.dato, nytt);
       aapneUtkast({ art: 'svar' });
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
@@ -885,13 +886,15 @@
   /**
    * Utkastet til et svar lagt til i vederlaget eller fristen, sendt `dato` (OV-U98): et svar på
    * kravversjonen på dagen, eller et nytt svar på byggherrens gjeldende svar når kjernen tilbyr
-   * bare det for datoen (HF-U29). Valgene står når utkastet erstatter det samme svaret.
+   * bare det for datoen (HF-U29). Det starter tomt, så ingenting er forhåndsvalgt fra et svar fra
+   * løsningen (U-7 i BF-49). Går byggherren tilbake til korrespondansen og videre, står valgene
+   * når utkastet erstatter det samme svaret.
    */
-  function svaretLagtTil(u: Utledning, s: Kravspor, dato: string) {
+  function svaretLagtTil(u: Utledning, s: Kravspor, dato: string, nytt: boolean) {
     const erstatter = svaretLagtTilErstatter(kjernesak, u, s, dato);
-    if (s === 'vederlag' && utkastene.vederlagssvar.erstatter !== erstatter)
+    if (s === 'vederlag' && (nytt || utkastene.vederlagssvar.erstatter !== erstatter))
       utkastene.vederlagssvar = { ...tomtSvar(), erstatter };
-    if (s === 'frist' && utkastene.fristsvar.erstatter !== erstatter)
+    if (s === 'frist' && (nytt || utkastene.fristsvar.erstatter !== erstatter))
       utkastene.fristsvar = { ...tomtFristsvar(), erstatter };
   }
   /**

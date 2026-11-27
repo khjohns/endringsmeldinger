@@ -87,6 +87,26 @@ async function svarPaaPostene() {
   await radio('Godtar justeringen');
 }
 
+/** Fyller ut e-posten fra byggherren 10.10.2026 som svar i «Legg til korrespondanse» og går videre. */
+async function eposteneSomSvar() {
+  await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+  await radio('E-post');
+  await radio('Byggherren');
+  await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
+    target: { value: '2026-10-10' },
+  });
+  const fil = new File(['%PDF-1.4'], 'eposten.pdf', { type: 'application/pdf' });
+  await fireEvent.change(document.querySelector('input[type=file]')!, {
+    target: { files: [fil] },
+  });
+  await screen.findByText('eposten.pdf');
+  await fireEvent.input(screen.getByRole('textbox', { name: /Kort beskrivelse/ }), {
+    target: { value: 'Svar på kravet' },
+  });
+  await radio(LEGG_TIL.kategorier.svar);
+  await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
+}
+
 afterEach(cleanup);
 
 describe('svaret lagt til der byggherrens innsigelse mot varselet står (U-7, D-8, VS-U80)', () => {
@@ -234,22 +254,7 @@ describe('skjemaet lukkes uten at svaret er lagt til (U-9, D-12)', () => {
   it('Vardensak sender dokumentasjonen med `ikke_fylt_ut`, og kjernen tar den imot', async () => {
     const { kjernesak, sendt } = await saken('bh-svarer-med-innsigelsen-som-staar', 'BH');
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
-    await radio('E-post');
-    await radio('Byggherren');
-    await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
-      target: { value: '2026-10-10' },
-    });
-    const fil = new File(['%PDF-1.4'], 'eposten.pdf', { type: 'application/pdf' });
-    await fireEvent.change(document.querySelector('input[type=file]')!, {
-      target: { files: [fil] },
-    });
-    await screen.findByText('eposten.pdf');
-    await fireEvent.input(screen.getByRole('textbox', { name: /Kort beskrivelse/ }), {
-      target: { value: 'Svar på kravet' },
-    });
-    await radio(LEGG_TIL.kategorier.svar);
-    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
+    await eposteneSomSvar();
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.avbrudd.ja, hidden: true }));
     await vi.waitFor(() =>
@@ -262,6 +267,23 @@ describe('skjemaet lukkes uten at svaret er lagt til (U-9, D-12)', () => {
     );
     expect(await screen.findByText(LEGG_TIL.avbrudd.lagtTil)).toBeInTheDocument();
     expect(kjernesak.utledning!.registrerteBrev.at(-1)).toBeDefined();
+  });
+});
+
+describe('utkastet til svaret lagt til (U-7, code-review i #2508)', () => {
+  it('starter tomt, også når byggherren har valgt noe i et svar fra løsningen', async () => {
+    const { kjernesak } = await saken('bh-svarer-med-innsigelsen-som-staar', 'BH');
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
+    await radio('Godtar justeringen');
+    expect(screen.getAllByRole('radio', { name: 'Godtar justeringen' })[0]).toBeChecked();
+    await fireEvent.click(screen.getByRole('link', { name: /Tilbake til vederlagsjusteringen/ }));
+    await eposteneSomSvar();
+    expect(
+      screen
+        .getAllByRole('radio', { name: 'Godtar justeringen' })
+        .some((r) => (r as HTMLInputElement).checked)
+    ).toBe(false);
   });
 });
 
