@@ -81,7 +81,7 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     // U-3: innlegget endrer ikke svaret, og TE kan fortsatt godta det (MM-U47 punkt 4).
     expect(
       screen.getByText(
-        'Innlegget sendes til byggherren. Det står i saken. Det endrer ikke svaret i brev 4 eller beløpet etter svaret.'
+        'Innlegget sendes til byggherren og står i saken. Det endrer ikke svaret i brev 4 eller beløpet etter svaret.'
       )
     ).toBeVisible();
     expect(
@@ -130,7 +130,11 @@ describe('innlegget fra totalentreprenøren (BF-03 steg 1–5)', () => {
     await fireEvent.click(screen.getByRole('button', { name: /^Godta svaret/ }));
     const liste = await screen.findByRole('list', { name: 'Innlegg som viser til brev 4' });
     expect(within(liste).getByText(/^Brev 5 · Totalentreprenøren · .* · Varselet kom i tide$/));
-    expect(screen.getByText('Innlegget inngår ikke i aksepten.')).toBeVisible();
+    expect(
+      screen.getByText(
+        'Innlegget inngår ikke i aksepten. Aksepten frafaller ikke andre krav eller innsigelser.'
+      )
+    ).toBeVisible();
   });
 });
 
@@ -147,7 +151,7 @@ describe('innlegget og sporet til brevet det viser til', () => {
     await screen.findByRole('article', { name: 'Om forholdet i sak KOE-17' });
     expect(
       screen.getByText(
-        'Innlegget sendes til byggherren. Det står i saken. Det endrer ikke svaret i brev 2 eller utfallet av det.'
+        'Innlegget sendes til byggherren og står i saken. Det endrer ikke svaret i brev 2 eller utfallet av det.'
       )
     ).toBeVisible();
   });

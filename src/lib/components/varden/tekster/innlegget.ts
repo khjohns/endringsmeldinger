@@ -45,7 +45,7 @@ export const INNLEGGET = haerdet({
   viserTilBrev: (b: Brevref) => `Viser til ${brevref(b)}`,
   /** «Når du sender»: innlegget er et eget brev og endrer ikke svaret (U-3, D-2, D-4). */
   sendesTil: (mottaker: Part, svaret: Brevref | null, spor: Spor) =>
-    `Innlegget sendes til ${PARTEN[mottaker]}. Det står i saken. ` +
+    `Innlegget sendes til ${PARTEN[mottaker]} og står i saken. ` +
     (svaret
       ? `Det endrer ikke svaret i ${brevref(svaret)} eller ${ETTER_SVARET[spor]}.`
       : 'Det endrer ingen krav eller svar i saken.'),
@@ -64,10 +64,10 @@ export const INNLEGGET = haerdet({
     ].join(' '),
   kvitteringTE: 'Du kan fortsatt godta det eller sende en ny versjon av kravet.',
   kvitteringBH: 'Vil du endre standpunktene, sender du et nytt svar.',
-  /** Innleggene i brevkontrollen for aksepten (D-8, U-7). */
+  /** Innleggene i brevkontrollen for aksepten (D-8, U-7), og at aksepten ikke frafaller noe (D-1). */
   iAksepten: (svaret: Brevref) => `Innlegg som viser til ${brevref(svaret)}`,
   innleggsrad: (b: Brevet) =>
     `${brevrefStor(b)} · ${stor(PARTEN[b.avsender])} · ${dato(b.registrert)} · ${TRAADEN.hva(b)}`,
   inngaarIkke: (antall: number) =>
-    antall === 1 ? 'Innlegget inngår ikke i aksepten.' : 'Innleggene inngår ikke i aksepten.',
+    `${antall === 1 ? 'Innlegget inngår' : 'Innleggene inngår'} ikke i aksepten. Aksepten frafaller ikke andre krav eller innsigelser.`,
 });
