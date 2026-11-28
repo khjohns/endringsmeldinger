@@ -30,7 +30,7 @@
     varseletIEldreKrav,
     varsleneIKravene,
   } from './vederlagsoversikt';
-  import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { akseptfristen, avsluttetAvTe } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
     u,
@@ -105,7 +105,7 @@
         opplysningene={kunnskapsdatoer}
         varselbrev={saerskiltvarselet}
         vedSvaret={svaretI.get(b.id)}
-        lukket={u.forholdAvvist}
+        lukket={avsluttetAvTe(u)}
         onkunnskapsdato={kunnskapsdatoVarselet && onkunnskapsdato
           ? () => onkunnskapsdato(kunnskapsdatoVarselet)
           : undefined}
