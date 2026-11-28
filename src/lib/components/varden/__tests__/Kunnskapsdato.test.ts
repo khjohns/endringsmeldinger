@@ -389,11 +389,16 @@ describe('det egne brevet etter at påberopelsen er trukket (BF-48E med trekket,
   it('TE oppgir datoen etter trekket, og skjemaet, brevkontrollen og kvitteringen sier at saken står lukket (GR-U27, GR-U5, VS-U84)', async () => {
     // BF-48E med trekket av påberopelsen i stedet for avslaget og aksepten.
     const BF = finn('BF-48E');
-    const [krav, vederlag] = BF.steg!;
+    const steg = (h: string, spor: string) =>
+      BF.steg!.find((x) => x.handling === h && 'spor' in x && x.spor === spor)!;
     const sj = await startjournal({
       ...BF,
       id: 'BF-48E-trekk',
-      steg: [krav!, vederlag!, { handling: 'trekk', spor: 'forhold' }],
+      steg: [
+        steg('krav', 'forhold'),
+        steg('krav', 'vederlag'),
+        { handling: 'trekk', spor: 'forhold' },
+      ],
       kontrollpunkter: [
         {
           id: 'paaberopelsen-er-trukket',
