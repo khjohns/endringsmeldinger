@@ -107,8 +107,11 @@ it.each(['34.1.3', '34.4'] as const)(
     );
     await seBrevet();
     expect(sendt).toHaveLength(0);
-    const feil = screen.getByRole('link', { name: 'Velg om varselet kom i tide.' });
-    expect(document.getElementById(feil.getAttribute('href')!.slice(1))).toBeInTheDocument();
+    const feil = screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' });
+    expect(feil).not.toBeNull();
+    const felt = feil!.getAttribute('href')!.slice(1);
+    expect(document.getElementById(felt)).toBeInTheDocument();
+    expect(felt).toMatch(/-varsel$/);
   }
 );
 
