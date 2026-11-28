@@ -8925,6 +8925,15 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['linjen i varselsvaret nevner standpunktet etter punkt 34.1.2 én gang'],
   },
+  {
+    id: 'F2529v',
+    feilklasse: 'et varselsvar leser det første kravet selv om det sto etter svaret i journalen (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));', 'const [foerste] = s.krav.filter(varsler);'],
+    ],
+    mal: ['et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

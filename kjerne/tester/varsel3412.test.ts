@@ -373,6 +373,19 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     }
   });
 
+  it('et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning (VS-U98, VS-U86 punkt 10)', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', leggTilVarsel('2026-10-02', '34.4')))[0].id;
+    s.send('BH', svarPaa(gjelder, '34.4', false));
+    const [foer] = s.u().spor.vederlag.svarPaaVarsler;
+
+    s.send('TE', eldreKrav('2026-10-01'));
+    const etter = s.u();
+    expect(etter.forstaatt).toBe(true);
+    expect(varseletFoerBrevet(etter, '34.1.2')).toBe(s.krav('vederlag'));
+    expect(etter.spor.vederlag.svarPaaVarsler).toEqual([foer]);
+  });
+
   it('standpunktet etter punkt 34.1.2 må være en boolsk verdi', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', sendVarsel('34.1.3')))[0].id;

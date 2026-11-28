@@ -2025,7 +2025,7 @@ export function kravSomVarsler(
   foer: (krav: string) => boolean
 ): readonly Krav[] {
   const varsler = (k: Krav) => varslerEtter(hjemmel, k);
-  const [foerste] = s.krav.filter(varsler);
+  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));
   return [
     ...(foerste ? [foerste] : []),
     ...s.kravUtenforRekken.filter((k) => varsler(k) && foer(k.id)),
