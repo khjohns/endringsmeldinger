@@ -35,7 +35,7 @@ export const SKJEMA = haerdet({
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
   varselPunktTittel: 'Varselet om vederlagsjustering',
-  // Samme spørsmål og valg for varselet i alle svarskjemaene (#2443).
+  // #2443: også i svaret på fristen og på varselet som står alene.
   varselSpoersmaal: 'Kom varselet i tide?',
   komITide: 'Kom i tide',
   komForSent: 'Kom for sent',

@@ -75,13 +75,13 @@ async function svarskjemaet() {
 const radio = (navn: string) => screen.getByRole('radio', { name: navn });
 // Varselet etter punkt 34.1.2 og varselet for kravposten har de samme valgene (#2443).
 const hovedvarselet = (navn: string) =>
-  within(screen.getByRole('group', { name: 'Kom varselet i tide?' })).getByRole('radio', {
-    name: navn,
-  });
-const kravpostvarselet = (navn: string) => {
-  const hoved = screen.queryByRole('group', { name: 'Kom varselet i tide?' });
-  return screen.queryAllByRole('radio', { name: navn }).find((r) => !hoved?.contains(r));
-};
+  within(
+    document.querySelector<HTMLElement>('fieldset[id$="-itide"]:not([id$="saerskilt-itide"])')!
+  ).getByRole('radio', { name: navn });
+const kravpostvarselet = (navn: string) =>
+  screen
+    .queryAllByRole('group', { name: /^Varselet om justering av enhetsprisene/ })
+    .flatMap((g) => within(g).queryAllByRole('radio', { name: navn }))[0];
 const aapne = (post: string) =>
   fireEvent.click(screen.getByRole('button', { name: `Svar på ${post}` }));
 const ferdig = () => fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));

@@ -1003,7 +1003,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       const svaret = bh.getByRole('button', { name: 'Svar på kravet' });
       await svaret.waitFor({ timeout: 30_000 });
       await svaret.click();
-      await bh.getByRole('radio', { name: 'Kom i tide' }).check();
+      await bh.getByRole('radio', { name: 'Kom i tide', exact: true }).check();
       await bh.getByRole('radio', { name: 'Spesifisert i tide' }).check();
       await bh
         .getByRole('radio', { name: 'Ja, fremdriften er hindret, og hindringen skyldes forholdet' })

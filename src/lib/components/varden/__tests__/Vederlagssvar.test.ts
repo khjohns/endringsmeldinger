@@ -110,7 +110,9 @@ const godkjennHele = async () => {
 };
 const seBrevet = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
-const spoersmaalet = () => screen.queryByRole('group', { name: 'Kom varselet i tide?' });
+// Varselet etter punkt 34.1.2, ikke det særskilte etter punkt 34.1.3, som har samme spørsmål (#2443).
+const spoersmaalet = () =>
+  document.querySelector<HTMLElement>('fieldset[id$="-itide"]:not([id$="saerskilt-itide"])');
 const vurderingen = (sendt: { kommando: Record<string, unknown> }[]) =>
   (sendt[0]!.kommando as { svar: { vurderinger: Record<string, unknown> }[] }).svar[0]!.vurderinger;
 
