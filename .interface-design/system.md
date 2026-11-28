@@ -198,7 +198,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   (#1492).
 - **Valgene står under hverandre**, i kort med lik bredde, så de leses som en liste
   (#1492). Unntaket er to korte svar som speiler hverandre, som «Ja» og «Nei» eller
-  «Varslet i tide» og «Varslet for sent». De står ved siden av hverandre. Tre valg, og
+  «Kom i tide» og «Kom for sent». De står ved siden av hverandre. Tre valg, og
   valg med komma i teksten, står alltid under hverandre. «Ja» står før «Nei»
   (oppdragsgiver 17.11, #2163).
 - **Formen på et valg følger hva svaret betyr** (oppdragsgiver 17.11, #2163):

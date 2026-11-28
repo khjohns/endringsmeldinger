@@ -203,7 +203,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const varselpunkt = screen
-      .getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+      .getByRole('group', { name: 'Kom varselet i tide?' })
       .closest('section');
     const postpunktet = screen.getByRole('group', { name: /^Oppgjørsformen/ }).closest('section');
     expect(varselpunkt).toHaveClass('aktiv');
@@ -236,19 +236,19 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
     const tekstVed = (spoersmaal: string) =>
       document.getElementById(ved(spoersmaal) ?? '')?.textContent ?? null;
-    expect(tekstVed('Kom varselet om kravet i tide?')).toBe('Velg om varselet kom i tide.');
+    expect(tekstVed('Kom varselet i tide?')).toBe('Velg om varselet kom i tide.');
     expect(tekstVed('Hvor mye av beløpet godkjenner du?')).toBe(
       'Velg hvor mye av beløpet du godkjenner.'
     );
 
     // Beskjeden ved feltet forsvinner når feltet er besvart.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     expect(varselpunkt).not.toHaveClass('aktiv');
     expect(postpunktet).toHaveClass('aktiv');
     expect(punktpanelet.getByRole('listitem', { current: 'step' })).toHaveTextContent(
       /Vederlagsjustering for P1/
     );
-    expect(ved('Kom varselet om kravet i tide?')).toBeNull();
+    expect(ved('Kom varselet i tide?')).toBeNull();
     expect(
       within(
         screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
@@ -285,14 +285,14 @@ describe('Varden med brukerforløpet BF-01', () => {
     ).toBeInTheDocument();
   });
 
-  it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
+  it('etter «Kom for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const beloep = () => screen.getByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' });
     expect(beloep().getAttribute('aria-describedby')).toBeNull();
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
 
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     const forutsetninger = document.getElementById(beloep().getAttribute('aria-describedby')!)!;
     expect(forutsetninger.textContent?.replace(/\s+/g, ' ').trim()).toBe(
       'Gjelder hvis innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem'
@@ -301,10 +301,10 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent',
     });
     expect(document.querySelector(lenke.getAttribute('href')!)).toBe(
-      screen.getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+      screen.getByRole('group', { name: 'Kom varselet i tide?' })
     );
 
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom i tide' }));
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
   });
 
