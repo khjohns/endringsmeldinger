@@ -219,6 +219,9 @@ function svarutkast(
   const v = paaVarselet
     ? ({
         varslet_i_tide: h.varslet_i_tide,
+        ...(h.hovedkrav_varslet_i_tide === undefined
+          ? {}
+          : { hovedkrav_varslet_i_tide: h.hovedkrav_varslet_i_tide }),
         ...(h.godtar_justering === undefined ? {} : { godtar_justering: h.godtar_justering }),
       } as Svarvurdering)
     : vurderinger(spor, h, krav);

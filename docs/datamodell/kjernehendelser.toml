@@ -139,8 +139,12 @@ subsidiært til grunnlaget, leses av den og lagres ikke (#342). `akseptfrist` er
 akseptfristen byggherren satte, en kalenderdag uten virkning i løsningen (HF-U23).
 `bare_varselet: true` er svaret bare på varselet etter § 34.3.3 første ledd eller
 § 34.4 for kravpostene der kravet selv er varselet. Det har kravversjonen i
-`gjelder`, bare standpunktene til varslene og justeringen for postene og ingen
-utregning, og er ikke et svar på kravet (VS-U96 punkt 38 og 39)."""
+`gjelder`, standpunktene til varslene og justeringen for postene og ingen
+utregning, og er ikke et svar på kravet (VS-U96 punkt 38 og 39).
+`vurderinger.hovedkrav_varslet_i_tide` kan brukes i kommandoen for svar på
+det første kjente varselet etter § 34.1.2, også når kravet selv er varselet.
+Verdien lagres som standpunktet `rettidighet` etter § 34.1.2 og gjelder hele
+vederlagskravet (VS-U100)."""
 felt = ["id", "spor", "gjelder", "bare_varselet", "erstatter", "paaberopelse", "akseptfrist", "standpunkter", "utregning", "beslutningsgrunnlag"]
 grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4, HF-U23, VS-U96"
 
