@@ -18,7 +18,7 @@ import {
   type SvarbarVarselhjemmel,
   VARSELSPOR,
 } from '#kjerne/typer.ts';
-import { foerDagen, kalenderdag } from '#kjerne/format/leser.ts';
+import { foerDagen, kalenderdag, registrertDato } from '#kjerne/format/leser.ts';
 import {
   datoenDetBleSendt,
   varseletFoerBrevet as foersteVarselFoerBrevet,
@@ -56,17 +56,19 @@ export type Varselet =
  * Varselet hver kravpost trenger, i rekkefølgen i skjemaet, eller `null` når den ikke trenger et.
  * `krav` er kravversjonene kravet prøves mot, for et krav lagt til sendt før det siste de sendt før
  * det (OV-U118, `kravversjoneneKravetProevesMot`). `sendt` er dagen et krav som legges til, ble
- * sendt, og `null` for et krav fra løsningen: de eldre kravene sendt før det regnes med (OV-U120).
+ * sendt, og `null` for et krav fra løsningen, som sendes dagen `iDag` (OV-U120, OV-U104).
  */
 export function varslenePerKravpost(
   u: Utledning,
   krav: readonly Krav[],
   poster: readonly Kravpostutkast[],
-  sendt: string | null
+  sendt: string | null,
+  iDag = registrertDato({ registrert: new Date().toISOString() })
 ): (Varselet | null)[] {
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
-  const eldreKrav = eldreKravSomVarselFoer(u, sendt);
+  // Et krav fra løsningen sendes i dag, som kommandoen leser det (OV-U104, A1 i #2509).
+  const eldreKrav = eldreKravSomVarselFoer(u, sendt ?? iDag);
   const etter = kravpostvarslene({ innhold: { kravposter: lest } }, krav, eldreKrav);
   const sendtFoer = new Set(eldreKrav.map((k) => k.dokument));
   const iEldre = varslerIEldreKrav(u).filter((v) => sendtFoer.has(v.dokument));

@@ -121,6 +121,28 @@ describe('varselet skjemaet viser når et eldre krav er rettet (MM-U63, OV-U120,
     expect(iSkjemaet(s.u())).toMatchObject({ art: 'gitt', varsel: k3 });
   });
 
+  it('rettes K2 til dagen kravet fra løsningen sendes, er kravet selv varselet, som i brevet (OV-U104)', () => {
+    for (const [dato, art] of [
+      ['2026-10-05', 'kravet'],
+      ['2026-10-04', 'gitt'],
+    ] as const) {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', lagtTil('2026-09-30', 'tilbud'));
+      const k2 = kravet(s.send('TE', lagtTil('2026-09-26', 'regningsarbeid')));
+      s.send('TE', { type: 'retting', gjelder: k2, dato }, true);
+      const u = s.u();
+      const [v] = varslenePerKravpost(
+        u,
+        u.spor.vederlag.krav,
+        [{ ...p1(u), betegnelse: 'P1', beskrivelse: 'Riving' }],
+        null,
+        '2026-10-05'
+      );
+      expect(v, dato).toMatchObject({ art });
+    }
+  });
+
   it('kontrollsak: uten rettingen er K2 varselet', () => {
     const { s, k2 } = medEldreKrav();
     expect(iSkjemaet(s.u())).toMatchObject({ art: 'gitt', varsel: k2 });
