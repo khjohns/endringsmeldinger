@@ -140,7 +140,10 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
 
 **Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (`CLAUDE.md`), på
 nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
-eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
+eller migrasjonene, uansett språk, ellers `medium`. Får PR-en også review fra Codex eller
+Gemini, eller er den bygget av Codex, kjøres `/code-review` på nivå `low`, også når diffen
+rører sikkerheten. Security review kommer i tillegg som før (oppdragsgiver 28.11, «Low for
+alle», #1065). For en diff som bare rører
 `docs/`, skillene og `CLAUDE.md`, avgjør orkestratoren om `/code-review` er verdt
 det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
