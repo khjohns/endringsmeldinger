@@ -49,7 +49,12 @@ import { SPOR } from '#kjerne/typer.ts';
 import type { Korrespondansekategori } from './tekster/typer';
 import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
-import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+import {
+  datoenSomGjelder,
+  detSomRettes,
+  elementenesSpor,
+  type Kjernesakkontekst,
+} from '#lib/kjernesak/kontekst.svelte.ts';
 import type { GjeldendeFristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Snippet } from 'svelte';
 
@@ -527,6 +532,98 @@ const kunnskapsdatoenePerUtledning = new WeakMap<Utledning, Kunnskapsdatoen[]>()
 export const sisteKunnskapsdatoen = (u: Utledning): Kunnskapsdatoen | null =>
   kunnskapsdatoene(u).find((o) => o.siste) ?? null;
 
+/** Én dato for et varsel eller et krav lagt til: datoen TE oppga, eller en retting av den. */
+export interface Rettetdato {
+  dato: string;
+  /** Brevet med varselet eller kravet for datoen TE oppga, ellers brevet med rettingen. */
+  brev: Brevref;
+  retting: boolean;
+}
+
+/**
+ * Datoene for et varsel eller et krav TE har lagt til som korrespondanse (BF-50, U-5): datoen TE
+ * oppga først, så hver retting i rekkefølgen i journalen. Den siste er datoen som gjelder
+ * (`datoenSomGjelder`, MM-U63).
+ */
+export interface Datorettingene {
+  gjelder: string;
+  det: { art: 'varsel'; hjemmel: Varselhjemmel } | { art: 'krav' };
+  /** Brevet med varselet eller kravet. */
+  brev: Brevref;
+  datoene: Rettetdato[];
+}
+
+/**
+ * Datoene for varselet eller kravet `gjelder`, eller `null` når kjernen ikke regner det som lagt
+ * til som korrespondanse (`detSomRettes`, D-1 og D-2 i BF-50).
+ */
+export function datorettingene(u: Utledning, gjelder: string): Datorettingene | null {
+  let kart = datorettingenePerUtledning.get(u);
+  if (!kart) datorettingenePerUtledning.set(u, (kart = new Map()));
+  if (!kart.has(gjelder)) kart.set(gjelder, lesDatorettingene(u, gjelder));
+  return kart.get(gjelder)!;
+}
+
+const datorettingenePerUtledning = new WeakMap<Utledning, Map<string, Datorettingene | null>>();
+
+function lesDatorettingene(u: Utledning, gjelder: string): Datorettingene | null {
+  const d = detSomRettes(u, gjelder);
+  const brev = d ? brevet(u, d.element.dokument) : null;
+  const oppgitt = d ? datoenSomGjelder({ journal: u.journal, rettinger: [] }, d.element) : null;
+  if (!d || !brev || oppgitt === null) return null;
+  const alle = new Map(brevene(u).map((b) => [b.id, b]));
+  return {
+    gjelder,
+    det: d.art === 'varsel' ? { art: 'varsel', hjemmel: d.hjemmel } : { art: 'krav' },
+    brev: ref(brev),
+    datoene: [
+      { dato: oppgitt, brev: ref(brev), retting: false },
+      ...u.rettinger.flatMap((r) => {
+        const b = alle.get(r.dokument);
+        return r.gjelder === gjelder && b ? [{ dato: r.dato, brev: ref(b), retting: true }] : [];
+      }),
+    ],
+  };
+}
+
+/**
+ * Datoen som gjelder for varselet eller kravet `gjelder`, med brevet den kommer fra, når den er
+ * rettet, ellers `null` (U-6, U-10).
+ */
+export const rettetDato = (u: Utledning, gjelder: string): Rettetdato | null => {
+  const d = datorettingene(u, gjelder)?.datoene.at(-1);
+  return d?.retting ? d : null;
+};
+
+/**
+ * Datoene under hvert brev i tråden (U-5 i BF-50): ved brevet med varselet eller kravet hvert
+ * varsel eller krav med en retting eller som TE kan rette (`rettbare`), og ved brevet med en
+ * retting datoen den retter fra og til.
+ */
+export interface Datolinjene {
+  lagtTil: Datorettingene[];
+  retting: { rettingene: Datorettingene; plass: number } | null;
+}
+
+export function datolinjene(u: Utledning, rettbare: readonly string[]): Map<string, Datolinjene> {
+  const ut = new Map<string, Datolinjene>();
+  const linjene = (id: string) => {
+    const l = ut.get(id) ?? { lagtTil: [], retting: null };
+    ut.set(id, l);
+    return l;
+  };
+  const ider = [...new Set([...u.rettinger.map((r) => r.gjelder), ...rettbare])];
+  for (const id of ider) {
+    const r = datorettingene(u, id);
+    if (!r) continue;
+    linjene(r.brev.id).lagtTil.push(r);
+    r.datoene.forEach((d, plass) => {
+      if (d.retting) linjene(d.brev.id).retting = { rettingene: r, plass };
+    });
+  }
+  return ut;
+}
+
 /** Varselet etter § 34.1.3 kjernen tilbyr TE å oppgi datoen for (`oppgi_kunnskapsdato:<id>`). */
 export const kunnskapsdatoTilbudt = (
   tilbudte: readonly { type: string; gjelder: string | null }[]
@@ -702,6 +799,11 @@ export interface Sideprops {
   /** Varselet etter § 34.1.3 kjernen tilbyr TE å oppgi datoen for (`oppgi_kunnskapsdato:<id>`). */
   kunnskapsdatoVarselet?: string | null;
   onkunnskapsdato?: (varselet: string) => void;
+  /** Datoene for varslene og kravene lagt til, og rettingene av dem, per brev (`datolinjene`). */
+  datoene?: ReadonlyMap<string, Datolinjene>;
+  /** Varslene og kravene lagt til som TE kan rette datoen for (`rette_datoen:<id>`, BF-50). */
+  rettbare?: string[];
+  onrett?: (gjelder: string) => void;
   /** Brevene som har en handling ved seg, den brevet svarer på (U-16 i BF-44). */
   handlingerVed?: readonly string[];
   /** Handlingene ved brevet med ID-en. */

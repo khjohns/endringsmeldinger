@@ -760,6 +760,7 @@
           valg={[{ verdi: true, tekst: SKJEMA.kreverTilbud(navnet(p) ?? null) }]}
           bind:verdi={() => v.kreverTilbud || null, (x) => (v.kreverTilbud = x === true)}
           avkrysning
+          valgfri
           lett
         />
       {/if}
@@ -818,7 +819,7 @@
         aktiv={foerstePunkt === '34.1.2'}
         tittel={overskrift('34.1.2') ?? temanavn(svartemaene, '34.1.2')}
       >
-        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
+        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} svaretSendt={sendt} />
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
           liste={iPosten(grunnene)}

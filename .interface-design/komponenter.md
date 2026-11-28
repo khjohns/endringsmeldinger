@@ -13,11 +13,11 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | --- | ---: | --- |
 | [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 6 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
 | [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
-| [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 18 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
+| [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 19 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
 | [`Brevskjema`](../src/lib/components/varden/Brevskjema.svelte) | 5 | Skallet for et skjema som blir et brev (#2119): utkastkortet med linja for korrespondanse lagt til, oppsummeringen av det som mangler, spørsmålene, «Forkast utkast» nederst og høyre kolonne med panelet, sendeknappen og tidslinja, eller brevet ved siden av. |
 | [`Brevsteg`](../src/lib/components/varden/Brevsteg.svelte) | 2 | Stegviseren for skjemaet og brevkontrollen (#2190). |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
-| [`Datobrev`](../src/lib/components/varden/Datobrev.svelte) | 2 | Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A) og datoen etter punkt 34.1.3 (BF-48). |
+| [`Datobrev`](../src/lib/components/varden/Datobrev.svelte) | 3 | Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A), datoen etter punkt 34.1.3 (BF-48) og rettingen av datoen for et varsel eller et krav lagt til (BF-50). |
 | [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 3 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
 | [`Datofelt`](../src/lib/components/varden/Datofelt.svelte) | 6 | Et datofelt i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
 | [`Datolinjer`](../src/lib/components/varden/Datolinjer.svelte) | 2 | Datoene under et brev i tråden på siden for et krav: datoen TE oppgir og avstanden til varselet under brevet med varselet (U-8 i BF-44 og BF-45, uten vurdering av fristen, MM-U50), og akseptfristen over handlingene ved byggherrens svar (U-11, HF-U23 punkt 4). |
@@ -32,7 +32,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Gjelderhvis`](../src/lib/components/varden/Gjelderhvis.svelte) | 6 | «Gjelder hvis» over et spørsmål i svaret: det i et foregående lag som rammer standpunktet, én forutsetning per linje i brevets rekkefølge (oppdragsgiver 30.10, #1391, #1400). |
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
 | [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 5 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
-| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 28 | Knappen i Varden: 6 px radius, minst 44 px høy. |
+| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 29 | Knappen i Varden: 6 px radius, minst 44 px høy. |
 | [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
 | [`Lagttilmerknader`](../src/lib/components/varden/Lagttilmerknader.svelte) | 4 | Det kjernen sier om et krav, et svar eller en aksept lagt til, før det legges til: kravet eller svaret blir ikke gjeldende fordi det er sendt før det siste (OV-U102, OV-U103), og brevene det er sendt samme dag som (OV-U104). |
@@ -42,7 +42,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Melding`](../src/lib/components/varden/Melding.svelte) | 14 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
 | [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
-| [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 5 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |
+| [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 6 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |
 | [`Sendevalg`](../src/lib/components/varden/Sendevalg.svelte) | 2 | Valget øverst i kravskjemaet for vederlaget: kravet, eller «Bare varsle, uten krav» (U-1 i BF-37, U-11 i BF-14). |
 | [`Sitat`](../src/lib/components/varden/Sitat.svelte) | 2 | Et sitat fra et brev utenfor brevet, med etiketten for hva det er: utdraget i tråden og setningen om endringsordren i svarskjemaet for forholdet (#2035). |
 | [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 8 | Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), feltene under (#1925, #2035). |
@@ -50,7 +50,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Stoettekort`](../src/lib/components/varden/Stoettekort.svelte) | 2 | Et lite kort i høyre kolonne i svarskjemaet, under panelet, med det byggherren trenger ved svaret som ikke er en del av brevet: svarene fra forrige brev (VS-U65) og totalentreprenørens dato etter punkt 34.1.3 (U-9 i BF-48). |
 | [`Svarskjema`](../src/lib/components/varden/Svarskjema.svelte) | 6 | Byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist, i skallet for brevskjemaene (`Brevskjema`, #1925, #2009, #2119): skjemaet vurderer, panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3). |
 | [`Tekstomraade`](../src/lib/components/varden/Tekstomraade.svelte) | 10 | Et tekstfelt over flere linjer i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
-| [`Tidslinje`](../src/lib/components/varden/Tidslinje.svelte) | 9 | Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. |
+| [`Tidslinje`](../src/lib/components/varden/Tidslinje.svelte) | 10 | Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. |
 | [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 4 | Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178). |
 | [`Utkaststempel`](../src/lib/components/varden/Utkaststempel.svelte) | 2 | Stempelet i brevhodet mens brevet skrives og kontrolleres (system.md, #2178). |
 | [`Valg`](../src/lib/components/varden/Valg.svelte) | 10 | Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én avkrysning med samme form. |

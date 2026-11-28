@@ -10,7 +10,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import { brevet } from './lesing';
+  import { brevet, rettetDato } from './lesing';
   import { HANDLINGENE, TOMT_SPOR, varselet } from './tekster';
 
   let {
@@ -38,7 +38,14 @@
   {#if varslene.length}
     <ul>
       {#each varslene as v (v.id)}
-        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument), arbeidetI(u, v.id))}</li>
+        <li>
+          {TOMT_SPOR.varselet(
+            v,
+            brevet(u, v.dokument),
+            arbeidetI(u, v.id),
+            rettetDato(u, v.id) ?? undefined
+          )}
+        </li>
       {/each}
     </ul>
   {:else}
