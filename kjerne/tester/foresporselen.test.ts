@@ -570,6 +570,70 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       expect((svaret.utregning as { frister: Data[] }).frister[0].resultat).toBe('avslaatt');
     });
 
+    const subsidiaertTilVarselet = `Subsidiært, hvis ${MOT.varselet('33.4')} ikke fører frem`;
+    it.each([
+      [
+        'standpunktet om at begrunnelsen ikke er et svar',
+        { begrunnelse_ikke_svar: true },
+        'Byggherren gjør gjeldende at totalentreprenørens begrunnelse i brev K201-KOE-017-03 av 4. oktober 2026 ikke er et svar på forespørselen etter punkt 33.6.2 annet ledd.',
+      ],
+      [
+        'kontrollsak: standpunktet om at begrunnelsen ikke kom for sent',
+        { foresporsel_svar_ok: true },
+        'Byggherren gjør ikke gjeldende at totalentreprenørens svar på forespørselen etter punkt 33.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.',
+      ],
+    ])(
+      'KA-U84, VS-U88 punkt 16, LV-U85 punkt 2: etter innsigelsen etter § 33.4 står %s i laget etter den, med lagslinje (VS-U95)',
+      (_n, standpunktet, teksten) => {
+        const { s } = medKravEtterBegrunnelsen();
+        const rad = fristsvar(
+          s,
+          { ...FRIST_FULLT[0], frist_varsel_ok: false, ...standpunktet },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        );
+        const svaret = (rad.data.svar as Data[])[0];
+        const p = (svaret.standpunkter as Data[]).find((x) => x.hjemmel === '33.6.2')!;
+        expect((svaret.beslutningsgrunnlag as Data).virkninger).toContainEqual({
+          standpunkt: p.id,
+          lag: 2,
+        });
+        const punktene = laast(rad);
+        expect(punktene[1]).toMatch(/^1\. Varselet om fristforlengelse[^\n]*\n\nPrinsipalt\n\n/);
+        expect(punktene[2]).toBe(
+          `2. Svaret på forespørselen (punkt\u00a033.6.2)\n\n${subsidiaertTilVarselet}\n\n${teksten}`
+        );
+      }
+    );
+
+    it('LV-U89, LV-U85 punkt 1 og 2: uten innsigelsen etter § 33.4 står standpunktet og spesifiseringen uten lag foran hindringen i første lag', () => {
+      const { s } = medKravEtterBegrunnelsen();
+      const rad = fristsvar(
+        s,
+        { ...ikkeSvar(), vilkar_oppfylt: false },
+        { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      expect(
+        laast(rad)
+          .slice(1, -1)
+          .map((p) => p.split('\n\n').slice(0, 2))
+      ).toEqual([
+        [
+          '1. Varselet om fristforlengelse (punkt 33.4)',
+          expect.stringMatching(/^Byggherren gjør ikke gjeldende/),
+        ],
+        [
+          '2. Svaret på forespørselen (punkt 33.6.2)',
+          expect.stringMatching(/^Byggherren gjør gjeldende at totalentreprenørens begrunnelse/),
+        ],
+        [
+          '3. Spesifiseringen av kravet (punkt 33.6.1)',
+          expect.stringMatching(/^Byggherren gjør ikke gjeldende/),
+        ],
+        ['4. Hindringen', 'Prinsipalt'],
+        ['5. Dagene for frist Sluttfristen', `Subsidiært, hvis ${MOT.hindringen} ikke fører frem`],
+      ]);
+    });
+
     it('VS-U88 punkt 8: standpunktet står i stedet for påberopelsen av at begrunnelsen kom for sent, ikke ved siden av', () => {
       const { s } = medKravEtterBegrunnelsen();
       const brev = (vurderinger: Data) => ({

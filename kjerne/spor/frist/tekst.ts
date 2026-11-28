@@ -146,7 +146,8 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
 
 /**
  * Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34, KA-U78, prototypen
- * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist.
+ * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist. Punktene uten
+ * lag står foran de andre (`punkteneUtenLagFoerst`, LV-U89).
  */
 function temaer(krav: Krav): Tema[] {
   return [
@@ -196,6 +197,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}.`,
   temaer,
+  punkteneUtenLagFoerst: true,
   punktet: (p) => {
     switch (p.art) {
       case 'hindring':
