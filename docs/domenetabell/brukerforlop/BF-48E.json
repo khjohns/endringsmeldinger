@@ -1,0 +1,158 @@
+{
+  "id": "BF-48E",
+  "tittel": "Totalentreprenøren oppgir datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak",
+  "brukerhistorie": "BH har avslått forholdet, og TE har godtatt svaret, så saken er lukket. TE oppgir datoen TE ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, i et eget brev. Brevet godtas, saken står lukket, utfallet endres ikke, og BH kan ta stilling til datoen i et innlegg.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Variant E i bestillingen BF-48.md. TE har påberopt forholdet i brev 1 og krevd vederlaget med den særskilte vederlagsjusteringen i brev 2, uten datoen. BH har avslått forholdet i brev 3, og TE har godtatt svaret i brev 4, så saken er lukket etter GR-U27."
+  },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "produktivitet": 40000,
+      "navn": "K-v1",
+      "belop": 150000
+    },
+    {
+      "handling": "brev",
+      "navn": "D3",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "avslaatt",
+          "utdypning": "Pelelengden følger av grunnundersøkelsen, som totalentreprenøren hadde før kontrakten."
+        }
+      ]
+    },
+    {
+      "handling": "aksept",
+      "spor": "forhold",
+      "navn": "D4"
+    },
+    {
+      "handling": "kunnskapsdato",
+      "navn": "D5",
+      "klar_over_utgiftene": "2026-09-28",
+      "utdypning": "Utgiftene ble kjent da peleriggen sto stille."
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "saken-er-lukket",
+      "etter": 4,
+      "beskrivelse": "TE har godtatt avslaget på forholdet, og saken er lukket. TE har ikke oppgitt datoen.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U27",
+            "VS-U84"
+          ],
+          "forventet": {
+            "forhold_avvist": true,
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U84",
+            "VS-U83"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2099-01-01"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATO_ETTER_BREVET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner «Oppgi datoen» ved varselet i den lukkede saken, og skjemaet sier at saken står lukket og at brevet ikke endrer utfallet.",
+          "kilde": [
+            "VS-U84",
+            "GR-U27",
+            "VS-U86"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "datoen-er-oppgitt-i-en-lukket-sak",
+      "etter": 5,
+      "beskrivelse": "TE har oppgitt 28.09.2026 i brev 5, og saken står lukket.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U84",
+            "GR-U27"
+          ],
+          "forventet": {
+            "forhold_avvist": true,
+            "gjeldende_svar.forhold": "S-g1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:K-v1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U84",
+            "VS-U82"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2026-09-28"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser i kvitteringen, og BH ved varselet, at datoen er oppgitt, at saken står lukket og at utfallet ikke endres. BH kan ta stilling til datoen i et innlegg.",
+          "kilde": [
+            "VS-U84",
+            "GR-U27"
+          ]
+        }
+      ]
+    }
+  ],
+  "bevis_saker": [],
+  "visninger": [
+    "demoruta",
+    "saksruta"
+  ],
+  "endringer": [
+    {
+      "dato": "2026-11-28",
+      "forhold": "#2012",
+      "hva": "Variant E i BF-48 er registrert som eget kjørbart forløp, som BF-02D for BF-02A."
+    }
+  ]
+}
