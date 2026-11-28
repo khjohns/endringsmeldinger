@@ -20,6 +20,7 @@ import {
   SAK,
   linje,
   medGrunnlag,
+  opprettet,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
@@ -102,6 +103,40 @@ async function skjemaet(journal: Journalrad[]) {
 
 const seBrevet = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+
+it('svaret bare på varselet i kravet kan ta stilling etter punkt 34.1.2 (VS-U100)', async () => {
+  const svikt = skrevet([opprettet], 'TE', {
+    type: 'krav',
+    spor: 'forhold',
+    innhold: {
+      hovedkategori: 'svikt',
+      underkategori: 'grunnforhold',
+      klar_over_forholdet: '2026-09-25',
+    },
+    utdypning: 'Grunnforholdene avviker fra grunnundersøkelsen.',
+  });
+  const journal = skrevet(svikt, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { kravposter: [REGNINGSARBEID] },
+  });
+  const sendt = await skjemaet(journal);
+  expect(screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)).toBeInTheDocument();
+  await fireEvent.click(screen.getByRole('radio', { name: /Kom for sent etter punkt\s34\.1\.2/ }));
+  await fireEvent.click(screen.getByRole('button', { name: 'Varselet kom for sent' }));
+  await seBrevet();
+  expect(sendt[0]?.kommando).toMatchObject({
+    type: 'brev',
+    svar: [{
+      gjelder: kravet(journal).id,
+      bare_varselet: true,
+      vurderinger: {
+        hovedkrav_varslet_i_tide: false,
+        kravposter: [{ gjelder: kravet(journal).poster[0], varslet_i_tide: false }],
+      },
+    }],
+  });
+});
 const kommandoen = (k: TilBrevkontrollen) =>
   k.kommando as { type: string; erstatter?: string; svar: unknown };
 const posten = (betegnelse: string) =>

@@ -22,6 +22,7 @@ import { foerDagen, kalenderdag, registrertDato } from '#kjerne/format/leser.ts'
 import {
   datoenDetBleSendt,
   varseletFoerBrevet as foersteVarselFoerBrevet,
+  varseletGjelderOgsaa3412,
   varseletForNyttSvar,
   type Utledning,
 } from '#kjerne/utledning/utled.ts';
@@ -233,6 +234,8 @@ export interface VarseletAlene {
   hjemmel: SvarbarVarselhjemmel;
   /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
   foer: Pick<StandpunktTilVarselet, 'iTide' | 'dokument'> | null;
+  /** `undefined` når svaret ikke kan ta stilling etter § 34.1.2 (VS-U100). */
+  hovedvarseletFoer?: StandpunktTilVarselet | null;
   /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U96 punkt 33). */
   forrigeSvar: string | null;
   /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
@@ -288,6 +291,9 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
   if (!v) return fristvarseletSvaretPaa(u, gjelder);
   return {
     ...v,
+    hovedvarseletFoer: varseletGjelderOgsaa3412(u, v.id, v.hjemmel, null)
+      ? standpunktTilHovedvarseletFoer(u, null)
+      : undefined,
     foer:
       standpunkteneTilVarslene(u, null).find(
         (x) => x.gjelder === v.id && x.hjemmel === v.hjemmel
@@ -374,6 +380,17 @@ export interface VarsleneIVederlagskravet {
   kravversjon: string;
   poster: VarseletIPosten[];
   forrigeSvar: string | null;
+  hovedvarseletFoer?: StandpunktTilVarselet | null;
+}
+
+export function standpunktTilHovedvarseletFoer(
+  u: Utledning,
+  sendt: string | null
+): StandpunktTilVarselet | null {
+  const varselet = foersteVarselFoerBrevet(u, '34.1.2', sendt);
+  return standpunkteneTilVarslene(u, sendt, true).find(
+    (x) => x.hjemmel === '34.1.2' && x.gjelder === varselet
+  ) ?? null;
 }
 
 /**
@@ -404,6 +421,9 @@ export function varsleneIVederlagskravet(
   return {
     kravversjon: gjelder,
     poster,
+    hovedvarseletFoer: varseletGjelderOgsaa3412(u, gjelder, null, null)
+      ? standpunktTilHovedvarseletFoer(u, null)
+      : undefined,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast(iKjedenTilVarslene(gjelder))?.id ?? null,
   };
 }

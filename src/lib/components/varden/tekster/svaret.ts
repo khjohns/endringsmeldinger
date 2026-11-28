@@ -190,6 +190,10 @@ export const innsigelsesordene = (hjemmel: SvarbarVarselhjemmel, ikkeGitt = true
  */
 export const VARSELSVARET = haerdet({
   punktet: (h: SvarbarVarselhjemmel) => `${stor(VARSELNAVNET[h])} (punkt ${h})`,
+  ogsaa3412: 'Varselet gjelder også som varsel om vederlagsjustering etter punkt 34.1.2.',
+  spoersmaal3412: 'Kom varselet etter punkt 34.1.2 i tide?',
+  iTide3412: 'Kom i tide etter punkt 34.1.2',
+  forSent3412: 'Kom for sent etter punkt 34.1.2',
   // #2359: ordene brevet bruker (`TEMAENE_I_SVARET_PAA_VARSELET` i `kjerne/frosset/brevtekst.ts`).
   justeringen: 'Justering av enhetsprisene (punkt 34.3.2)',
   // VS-U77 punkt 31: uten innsigelse trenger byggherren ikke svare.
