@@ -6651,8 +6651,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  const staar = standpunkteneTilVarslene(u, sendt, true).some(',
-        '  const staar = standpunkteneTilVarslene(u, sendt).some(',
+        '  const tidligere = standpunkteneTilVarslene(u, sendt, true);',
+        '  const tidligere = standpunkteneTilVarslene(u, sendt);',
       ],
     ],
     mal: ['et nytt svar lagt til samme dag som svaret det erstatter'],
