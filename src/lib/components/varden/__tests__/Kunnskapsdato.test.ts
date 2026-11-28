@@ -325,7 +325,7 @@ describe('varselet lagt til som korrespondanse (BF-48 variant C, BF-48C)', () =>
     await skriv(FELTET, '2026-10-01');
     await fireEvent.click(screen.getByRole('button', { name: 'Legg til' }));
     expect(screen.getByLabelText(FELTET)).toHaveAccessibleDescription(
-      /Datoen 1\. oktober 2026 er etter datoen det ble sendt, 30\. september 2026\./
+      /Datoen 1\. oktober 2026 er etter datoen korrespondansen ble sendt, 30\. september 2026\./
     );
     const foer = versjonVed(punkt.id, 'BF-48C');
     expect(nyeRader(demosak(), foer)).toHaveLength(0);

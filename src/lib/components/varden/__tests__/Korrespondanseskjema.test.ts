@@ -782,7 +782,7 @@ describe('avsenderen og varslene i korrespondansen lagt til (BF-49)', () => {
     expect(tilServeren).toEqual([]);
     expect(
       screen.getByText(
-        'Datoen 17. oktober 2026 er etter datoen det ble sendt, 16. oktober 2026. Skriv en dato fram til den.',
+        'Datoen 17. oktober 2026 er etter datoen korrespondansen ble sendt, 16. oktober 2026. Skriv en dato fram til den.',
         { selector: 'a' }
       )
     ).toBeInTheDocument();

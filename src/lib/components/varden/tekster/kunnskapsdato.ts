@@ -55,7 +55,7 @@ export const KUNNSKAPSDATO = haerdet({
   hjelp: 'Datoen står i brevet etter varselet.',
   /** U-6: datoen i korrespondanse som alt er sendt, sammenlignet med datoen den ble sendt (VS-U83). */
   etterSendt: (valgt: string, sendt: string) =>
-    `Datoen ${dato(valgt)} er etter datoen det ble sendt, ${dato(sendt)}. Skriv en dato fram til den.`,
+    `Datoen ${dato(valgt)} er etter datoen korrespondansen ble sendt, ${dato(sendt)}. Skriv en dato fram til den.`,
   etterBrevet: (valgt: string, sendes: string) =>
     `Datoen ${dato(valgt)} er etter datoen brevet sendes, ${dato(sendes)}. Skriv en dato fram til den.`,
   fast: (o: Opplysningen | null) =>
