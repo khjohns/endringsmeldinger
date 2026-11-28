@@ -970,7 +970,9 @@ function brevtekstFor(
       sisteKunnskapsdato: sisteKunnskapsdato(u),
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
-      varslerIEldreKrav: varslerIEldreKrav(u),
+      // S-1 i #2509: til det er avgjort, leses påberopelsen mot de eldre kravene etter datoene TE
+      // oppga.
+      varslerIEldreKrav: varslerIEldreKrav({ ...u, rettinger: [] }),
       kravpostvarsler: Object.fromEntries(
         ny.dokument.krav.flatMap((k) =>
           Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, u) ?? {})

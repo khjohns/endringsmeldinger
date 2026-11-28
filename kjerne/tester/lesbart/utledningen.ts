@@ -15,6 +15,7 @@ const SVARET_MED_ID = [
 
 const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
 const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
+const SOM_GJELDER = 'spor/vederlag/utledning.ts:iRekkefoelgenSomGjelder';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
@@ -202,6 +203,9 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
       'utledning/utled.ts:datoenSomGjelder',
+      // MM-U63: hvilket eldre krav som er varselet for en kravpost (A2 i #2509).
+      SOM_GJELDER,
+      `${VARSLER_I_ELDRE_KRAV}.sendt`,
       // LV-U83: datoen som gjelder for varselet i fristkravet.
       'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
@@ -255,15 +259,20 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
   // OV-U120: et krav utenfor rekken som varsel for en kravpost, og standpunktene i svarene før
   // det eldre kravet ble lagt til.
-  ['format/leser.ts', 'rad', 'dokumenterI', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['format/leser.ts', 'kontekst', 'dagenSendt', [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`]],
-  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  ['format/leser.ts', 'rad', 'dokumenterI', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER]],
+  [
+    'format/leser.ts',
+    'kontekst',
+    'dagenSendt',
+    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER],
+  ],
+  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER]],
+  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER]],
   [
     'Krav',
     'relasjon',
     'dokument',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`],
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER],
   ],
   [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
   [
@@ -283,6 +292,12 @@ export const UTLEDNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:kravpostvarslerIBrevet',
       'spor/vederlag/kommando.ts:varselvalgetMangler',
     ],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'iRekkefoelgenSomGjelder',
+    ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
   ],
   // VS-U87 punkt 22 og 23: om kravet ellers ville vært varselet for kravposten.
   [

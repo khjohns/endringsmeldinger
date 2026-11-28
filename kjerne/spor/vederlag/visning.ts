@@ -7,7 +7,7 @@ import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { tilTall } from '../../regler/beloep.ts';
 import type { Vederlagsresultat } from '../../regler/typer.ts';
 import {
-  datoenDetBleSendt,
+  datoenSomGjelder,
   enighetensVirkning,
   standpunktetErSubsidiaert,
   varselEtter3412KrevesIkke,
@@ -105,19 +105,24 @@ const SENKNING_I_VEDERLAGET: Sporssenkning = {
       : null,
 };
 
-/** Varselet i et eldre krav for en kravpost, med dagen brevet med det eldre kravet ble sendt. */
+/**
+ * Varselet i et eldre krav for en kravpost, med datoen som gjelder for det eldre kravet etter TEs
+ * rettinger (MM-U63, A4 i #2509). `rettet` er brevet med rettingen, når datoen er rettet.
+ */
 export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
   sendt: string | null;
+  rettet: string | null;
 }
 
 /**
  * OV-U120, G-18 i BF-49: kravpostene som har et krav utenfor rekken som varsel, med brevet og
- * dagen det ble sendt, så byggherren ser hvilket brev som er varselet for posten (D-15, U-15).
+ * datoen som gjelder for det, så byggherren ser hvilket brev som er varselet for posten (D-15, U-15).
  */
 export function varseleneIEldreKrav(u: Utledning): VarseletIEtEldreKrav[] {
   return varslerIEldreKrav(u).map((v) => {
     const krav = u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === v.dokument)!;
-    return { ...v, sendt: datoenDetBleSendt(u, krav) };
+    const rettet = u.rettinger.filter((r) => r.gjelder === krav.id).at(-1)?.dokument ?? null;
+    return { ...v, sendt: datoenSomGjelder(u, krav), rettet };
   });
 }
 

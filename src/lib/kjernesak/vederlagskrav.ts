@@ -6,6 +6,7 @@
 import { kravposterI, varseletPostenViserTil } from '#kjerne/spor/vederlag/format.ts';
 import {
   eldreKravFoer,
+  iRekkefoelgenSomGjelder,
   kravpostvarslene,
   varslerIEldreKrav,
 } from '#kjerne/spor/vederlag/utledning.ts';
@@ -66,7 +67,9 @@ export function varslenePerKravpost(
 ): (Varselet | null)[] {
   const lest = poster.map((p, i) => ({ ...p, id: p.id ?? `ny-${i}` }));
   // Uten `varsel` sier kjernen om kravet ville vært varselet, før TE oppgir noe for posten.
-  const eldreKrav = eldreKravFoer(u, sendt);
+  // Hvilke eldre krav som står utenfor rekken, leser den oppgitte datoen (A1 i #2509), og hvilket
+  // av dem som er varselet, datoen som gjelder (MM-U63).
+  const eldreKrav = iRekkefoelgenSomGjelder(u, eldreKravFoer(u, sendt));
   const etter = kravpostvarslene({ innhold: { kravposter: lest } }, krav, eldreKrav);
   const sendtFoer = new Set(eldreKrav.map((k) => k.dokument));
   const iEldre = varslerIEldreKrav(u).filter((v) => sendtFoer.has(v.dokument));
