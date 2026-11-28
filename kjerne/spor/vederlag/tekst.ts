@@ -659,7 +659,9 @@ function leddISvaretPaaVarselet(
   return svar.standpunkter.flatMap((s): Linjeledd[] => {
     if (s.art === 'justering') {
       const staar =
-        !svar.standpunkter.some((x) => x.art === 'rettidighet' && x.gjelder === s.gjelder) &&
+        !svar.standpunkter.some(
+          (x) => x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder
+        ) &&
         forSentFoer(s.gjelder);
       const justeringen = {
         tekst: `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`,

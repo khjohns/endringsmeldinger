@@ -373,6 +373,29 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     }
   });
 
+  it('standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen (VS-U96 punkt 36, VS-U100)', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.3.3')))[0].id;
+    s.send('BH', svarPaa(gjelder, '34.3.3', undefined));
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+      svar: svar(
+        'vederlag',
+        gjelder,
+        { hovedkrav_varslet_i_tide: false, godtar_justering: false },
+        {},
+        null
+      ),
+      ...SOM_BREV,
+      sendt: s.journal.at(-1)!.tidsstempel.slice(0, 10),
+      dokumentasjon: [randomUUID()],
+    });
+    expect(s.u().spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag.linje).toContain(
+      'varselet etter punkt\u00a034.3.3 kom for sent, som gjort gjeldende i et tidligere svar'
+    );
+  });
+
   it('et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning (VS-U98, VS-U86 punkt 10)', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', leggTilVarsel('2026-10-02', '34.4')))[0].id;

@@ -8958,6 +8958,18 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['bare standpunkt etter punkt 34.1.2 i svaret på punkt 34.4 gir beskjed om at varselet må besvares'],
   },
+  {
+    id: 'F2529y',
+    feilklasse: 'standpunktet etter punkt 34.1.2 skjuler innsigelsen etter punkt 34.3.3 i linjen',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        "x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder",
+        "x.art === 'rettidighet' && x.gjelder === s.gjelder",
+      ],
+    ],
+    mal: ['standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
