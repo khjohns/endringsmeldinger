@@ -28,7 +28,7 @@ import type {
   Utsagn,
 } from '../../utledning/utled.ts';
 import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
-import { datoEtterRettingene, medRettingeneTil } from '../../utledning/rettingen.ts';
+import { datoEtterRettingene, medRettingeneTil, type Retting } from '../../utledning/rettingen.ts';
 import {
   sisteStandpunktTilVarslene,
   utenStandpunkterForanEldreKrav,
@@ -264,13 +264,27 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
 }
 
 /**
- * De eldre kravene påberopelsen leses mot (`utenStandpunkterForanEldreKrav`). Til S-1 i #2509 er
- * avgjort, leses de etter datoene TE oppga, uten rettingene.
+ * S-1 A i #2509: for hvert svar på vederlaget, de eldre kravene som var varselet da svaret ble
+ * sendt. Alle kravene utenfor rekken i saken regnes med, og rettingene som står før svaret og er
+ * sendt til og med dagen det ble sendt (som `gjaldtVedSvaret` i `utledning/utled.ts`, OV-U98,
+ * OV-U104).
  */
-export const varslerIEldreKravForPaaberopelsen = (
-  u: Utledning,
-  kjentFoer?: string
-): VarselIEtEldreKrav[] => varslerIEldreKrav({ ...u, rettinger: [] }, kjentFoer);
+export function varslerIEldreKravVedSvarene(u: Utledning): Record<string, VarselIEtEldreKrav[]> {
+  const ut: Record<string, VarselIEtEldreKrav[]> = {};
+  if (!u.spor.vederlag.kravUtenforRekken.length) return ut;
+  const foer: Retting[] = [];
+  for (const d of dokumenterI(u.journal)) {
+    for (const s of d.svar.filter((x) => x.spor === 'vederlag')) {
+      const dag = dagenSendt({ id: s.id, dokument: d.id }, d);
+      ut[s.id] = varslerIEldreKrav({
+        ...u,
+        rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)),
+      });
+    }
+    foer.push(...u.rettinger.filter((r) => r.dokument === d.id));
+  }
+  return ut;
+}
 
 /**
  * Hvorfor en kravpost i den nye kravversjonen viser til et varsel den ikke kan vise til, eller
@@ -425,7 +439,8 @@ export const KONTROLLER_I_VEDERLAGET = {
  * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
  * sendt før den dagen (OV-U98, OV-U104), eller til og med den dagen når `medSammeDag` er satt.
  * `kjentFoer` er et brev i saken: da leses bare brevene som var i journalen før det, slik
- * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81).
+ * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81). En påberopelse som sto mot
+ * varselet før en retting, står også mot varselet etter den (S-1 A i #2509).
  */
 export function standpunkteneTilVarslene(
   u: Utledning,
@@ -442,7 +457,9 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  const eldre = varslerIEldreKravForPaaberopelsen(u, kjentFoer);
+  // A3 i #2509: et svar som legges til, leser rettingene sendt til og med dagen det ble sendt.
+  const eldre = varslerIEldreKrav(medRettingeneTil(u, sendt), kjentFoer);
+  const vedSvaret = varslerIEldreKravVedSvarene(u);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)
@@ -450,7 +467,7 @@ export function standpunkteneTilVarslene(
         d.svar
           .filter((s) => medVirkning.has(s.id))
           .map((s) => ({
-            s: utenStandpunkterForanEldreKrav(s, eldre, plass),
+            s: utenStandpunkterForanEldreKrav(s, eldre, plass, vedSvaret[s.id]),
             dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
             paaVarselet: paaVarsler.has(s.id),

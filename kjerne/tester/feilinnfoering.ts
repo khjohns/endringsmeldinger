@@ -7067,7 +7067,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'innsigelsen mot varselet for en kravpost i et svar før det eldre kravet ble lagt til, følger med til det eldre kravet (OV-U120 andre ledd)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['s: utenStandpunkterForanEldreKrav(s, eldre, plass),', 's,']],
+    endringer: [['s: utenStandpunkterForanEldreKrav(s, eldre, plass, vedSvaret[s.id]),', 's,']],
     mal: ['innsigelsen i et svar før brevet ble lagt til, følger ikke med til det eldre kravet'],
   },
   {
@@ -7075,7 +7075,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svarbrevet viser til innsigelsen i et svar før det eldre kravet ble lagt til (OV-U120 andre ledd)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),', 's: x,']],
+    endringer: [['              saken.varslerIEldreKrav,\n', '              [],\n']],
     mal: ['et svar etter brevet viser ikke til innsigelsen før det'],
   },
   {
@@ -8586,6 +8586,38 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['foerDagen(gjaldtVedSvaret(e, k), sendt(k))', 'foerDagen(sendt(e), sendt(k))']],
     mal: ['rettes K2 samme dag som K4 sendes, til den dagen, er K2 ikke sendt før K4'],
+  },
+  {
+    id: 'F2509g',
+    feilklasse:
+      'en påberopelse som sto mot varselet før rettingen, faller bort når rettingen gjør et senere lagt til eldre krav til varselet (S-1 A i #2509)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['(vedSvaret === undefined || foran(vedSvaret, p))', 'true']],
+    mal: [
+      'påberopelsen etter K2 står også mot K3 når K2 rettes til en dag etter K3',
+      'et nytt svar fra løsningen viser til påberopelsen etter K2 også når K3 er varselet etter rettingen',
+    ],
+  },
+  {
+    id: 'F2509h',
+    feilklasse:
+      'et svar lagt til leser en retting sendt etter dagen svaret ble sendt (S-1 A i #2509, OV-U98)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)),', 'rettinger: foer,']],
+    mal: ['et svar lagt til, sendt dagen før rettingen, står mot K2'],
+  },
+  {
+    id: 'F2509i',
+    feilklasse:
+      'et svar som legges til, leser påberopelsen med rettingene sendt etter dagen det ble sendt (A3 i #2509)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'varslerIEldreKrav(medRettingeneTil(u, sendt), kjentFoer)',
+        'varslerIEldreKrav(u, kjentFoer)',
+      ],
+    ],
+    mal: ['et svar som legges til, sendt før rettingene, leser påberopelsen før K2 uten dem'],
   },
 ];
 

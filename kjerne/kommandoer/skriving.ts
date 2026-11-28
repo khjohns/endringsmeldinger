@@ -10,7 +10,8 @@ import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import {
   sisteKunnskapsdato,
   standpunkteneTilVarslene,
-  varslerIEldreKravForPaaberopelsen,
+  varslerIEldreKrav,
+  varslerIEldreKravVedSvarene,
 } from '../spor/vederlag/utledning.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
@@ -970,7 +971,8 @@ function brevtekstFor(
       sisteKunnskapsdato: sisteKunnskapsdato(u),
       subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
       avklartVedFrafall: u.frafalt,
-      varslerIEldreKrav: varslerIEldreKravForPaaberopelsen(u),
+      varslerIEldreKrav: varslerIEldreKrav(u),
+      varslerIEldreKravVedSvaret: varslerIEldreKravVedSvarene(u),
       kravpostvarsler: Object.fromEntries(
         ny.dokument.krav.flatMap((k) =>
           Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, u) ?? {})
