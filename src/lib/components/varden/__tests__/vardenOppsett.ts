@@ -33,10 +33,10 @@ export const demopanel = () =>
 /** BH svarer i Varden som i steg 4, og kommer til brevkontrollen. Gir teksten som vises. */
 export async function bhSvarerIVarden(): Promise<string[]> {
   await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-  await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+  await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
   // #2190: varselet kan begrunnes under punktet før spørsmålene om vederlaget er besvart.
   const varselpunktet = screen
-    .getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+    .getByRole('group', { name: 'Kom varselet i tide?' })
     .closest('section')!;
   await fireEvent.input(
     within(varselpunktet).getByRole('textbox', { name: /Varselet om vederlagsjustering/ }),

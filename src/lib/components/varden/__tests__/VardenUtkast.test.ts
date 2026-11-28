@@ -42,7 +42,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       await kjernesak.last();
       render(Vardensak, { kjernesak, spor });
       await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-      await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+      await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
       const utkastversjon = kjernesak.versjon;
       const avslaget = screen.getAllByRole('button', { name: 'avslaget av forholdet i brev 2' })[0];
       await fireEvent.click(avslaget);
@@ -60,7 +60,7 @@ describe('Varden med brukerforløpet BF-01', () => {
         })
       );
       await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
-      expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+      expect(screen.getByRole('radio', { name: 'Kom for sent' })).toBeChecked();
     }
   );
 
@@ -79,13 +79,13 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     const demosak = aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     const forkast = screen.getByRole('button', { name: 'Forkast utkast' });
 
     await fireEvent.click(forkast);
     const dialogen = within(screen.getByRole('dialog', { name: 'Forkaste utkastet?' }));
     await fireEvent.click(dialogen.getByRole('button', { name: 'Behold utkastet' }));
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).toBeChecked();
     expect(document.activeElement).toBe(forkast);
 
     await fireEvent.click(forkast);
@@ -100,13 +100,13 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
     // Et nytt svar begynner tomt.
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
   });
 
   it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     const panelet = within(
       screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' })
     );
@@ -124,13 +124,13 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(vederlag());
     expect(screen.queryByRole('form')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).toBeChecked();
     const hode = screen.getByRole('heading', { name: /^Svar på krav om vederlagsjustering/ });
     expect(document.activeElement).toBe(hode);
     await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til vederlagsjusteringen' }));
     expect(screen.queryByRole('form')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).toBeChecked();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
 });

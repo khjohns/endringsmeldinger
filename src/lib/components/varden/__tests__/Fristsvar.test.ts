@@ -116,7 +116,7 @@ const vurderingen = (sendt: TilBrevkontrollen[]) =>
   (sendt[0]!.kommando as { svar: { vurderinger: Record<string, unknown> }[] }).svar[0]!.vurderinger;
 
 async function svarPaaHeleKravet(spesifisert: 'Spesifisert i tide' | 'Spesifisert for sent') {
-  await radio('Varslet i tide');
+  await radio('Kom i tide');
   await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
   await radio(spesifisert);
 }
@@ -167,7 +167,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       expect.stringMatching(/^Hindringen/),
       expect.stringMatching(/^Spesifiseringen/),
     ]);
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await radio('Spesifisert i tide');
     await godkjennAlle();
     await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
@@ -186,7 +186,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 
   it('seksjonene bytter ikke plass når byggherren tømmer «Godkjente dager» for å skrive et nytt tall (arbeidsvalg 2 i #2507)', async () => {
     await svarskjemaet(medFristkrav);
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await radio('Spesifisert i tide');
     await radio('Nei, fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet');
     await godkjennAlle();
@@ -201,7 +201,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 
   it('kontrollsak: med hindringen uten lag står seksjonene i skjemaets rekkefølge (LV-U89)', async () => {
     await svarskjemaet(medFristkrav);
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await radio('Spesifisert i tide');
     await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
     await godkjennAlle();
@@ -242,10 +242,10 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 
   it('et besvart fristpunkt får begrunnelse før de andre punktene er besvart (#2190)', async () => {
     await svarskjemaet(medFristkrav);
-    const varselet = screen.getByRole('radio', { name: 'Varslet i tide' });
+    const varselet = screen.getByRole('radio', { name: 'Kom i tide' });
     const punkt = within(varselet.closest('section')!);
     expect(punkt.queryByRole('textbox')).toBeNull();
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     const grunn = punkt.getByRole('textbox', { name: /Varselet om fristforlengelse/ });
     await fireEvent.input(grunn, { target: { value: 'Varselet kom i tide.' } });
     await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
@@ -433,7 +433,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 
   it('innsigelsen om varselet etter punkt 33.4 står én gang over fristene (U-12)', async () => {
     await svarskjemaet(medFristkrav);
-    await radio('Varslet for sent');
+    await radio('Kom for sent');
     expect(
       screen.getByText(
         'For hele kravet. Du gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at kravet er tapt for alle fristene.'
@@ -455,7 +455,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 
   it('med bare varselet for sent står dagene subsidiært etter den innsigelsen alene, mens hindringen og spesifiseringen er ubesvart (OV-U33, S1-A)', async () => {
     await svarskjemaet(medFristkrav);
-    await radio('Varslet for sent');
+    await radio('Kom for sent');
     expect(gjelderHvisForDagene()).toEqual([
       'innsigelsen om at varselet etter punkt\u00a033.4 kom for sent ikke fører frem',
     ]);
@@ -522,7 +522,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     it('når kravet svarer på forespørselen, sendes ikke et svar om spesifiseringen som sto i utkastet fra før (punkt 33.6.2 fjerde ledd)', async () => {
       const valg = reaktiv({ ...tomtFristsvar(), spesifisertITide: false });
       const sendt = await svarskjemaet(medSvarPaaForesporsel, valg);
-      await radio('Varslet i tide');
+      await radio('Kom i tide');
       await radio('Svarte i tide');
       await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
       await fireEvent.input(screen.getByLabelText('Godkjente dager'), {
@@ -539,7 +539,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
 describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS-U95, #2462)', () => {
   const ikkeSvar = () => screen.queryByRole('radio', { name: /^Begrunnelsen er ikke et svar/ });
   const svarPaaResten = async () => {
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
     await radio('Spesifisert i tide');
     await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: '10' } });
@@ -582,7 +582,7 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
     'etter varselet for sent står %s under forespørselen subsidiært etter innsigelsen etter punkt 33.4 (KA-U84, VS-U88 punkt 16)',
     async (_n, valget) => {
       await svarskjemaet(medKravEtterBegrunnelsen);
-      await radio('Varslet for sent');
+      await radio('Kom for sent');
       await fireEvent.click(screen.getByRole('radio', { name: new RegExp(`^${valget}`) }));
       expect(gjelderHvisForForespoerselen()).toEqual([
         'innsigelsen om at varselet etter punkt\u00a033.4 kom for sent ikke fører frem',
@@ -672,7 +672,7 @@ describe('innsigelsen mot varselet etter punkt 33.4 i svaret på fristkravet (VS
     expect(standpunktet().textContent?.trim()).toMatch(
       /^Du har gjort gjeldende i brev.3 at varselet kom for sent\.\s*Svaret gjentar innsigelsen\.$/
     );
-    expect(screen.queryByRole('radio', { name: 'Varslet i tide' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
     await svarPaaResten();
     await seBrevet();
     expect(sendt).toHaveLength(1);
@@ -699,13 +699,13 @@ describe('innsigelsen mot varselet etter punkt 33.4 i svaret på fristkravet (VS
     expect(valg.varselITide).toBeNull();
     cleanup();
     await svarskjemaet(kravEtter(paaVarselet(true)), valg);
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
   });
 
   it('kontrollsak: etter «kom i tide» i svaret på varselet står valget om varselet tomt (S1-A, U-14)', async () => {
     await svarskjemaet(kravEtter(paaVarselet(true)));
     expect(screen.queryByText(/^Du har gjort gjeldende i brev/)).toBeNull();
-    expect(screen.getByRole('radio', { name: 'Varslet i tide' })).not.toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom i tide' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom for sent' })).not.toBeChecked();
   });
 });

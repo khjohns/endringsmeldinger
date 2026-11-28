@@ -35,9 +35,10 @@ export const SKJEMA = haerdet({
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
   varselPunktTittel: 'Varselet om vederlagsjustering',
-  varselSpoersmaal: 'Kom varselet om kravet i tide?',
-  iTide: 'Varslet i tide',
-  forSent: 'Varslet for sent',
+  // #2443: også i svaret på fristen og på varselet som står alene.
+  varselSpoersmaal: 'Kom varselet i tide?',
+  komITide: 'Kom i tide',
+  komForSent: 'Kom for sent',
   klarOver: (d: string, b: Brevref) =>
     `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den
@@ -59,8 +60,6 @@ export const SKJEMA = haerdet({
   kreverTilbud: (post: string | null) =>
     `Krev at totalentreprenøren gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
   varselJusteringSpoersmaal: 'Varselet om justering av enhetsprisene (punkt 34.3.3)',
-  komITide: 'Kom i tide',
-  komForSent: 'Kom for sent',
   // Punkt 34.4: normalsvaret er en setning, unntaket en lenke (prototype v4, VS-U63).
   varselRegning: 'Varselet før regningsarbeidet settes i gang (punkt 34.4).',
   ingenInnsigelse: 'Ingen innsigelse.',
@@ -81,8 +80,7 @@ export const SKJEMA = haerdet({
   // VS-U77 punkt 8 og 30: «i tide» står mot senere kravversjoner.
   varseletITideFoer: (b: Brevref) => `Du har godkjent i ${brevref(b)} at varselet kom i tide.`,
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
-  // Spørsmålene i et punkt med egen overskrift, i svaret på varselet som står alene.
-  varselSpoersmaalKort: 'Kom varselet i tide?',
+  // Spørsmålet i et punkt med egen overskrift, i svaret på varselet som står alene.
   justeringSpoersmaalKort: 'Godtar du justeringen av enhetsprisene?',
   godkjennerJustering: 'Godtar justeringen',
   bestriderJustering: 'Bestrider justeringen',
@@ -248,7 +246,6 @@ export const VARSELSVARET = haerdet({
  * står i `SKJEMA`.
  */
 export const FRISTSVAR = haerdet({
-  varselSpoersmaal: 'Kom varselet i tide?',
   kravSendt: (d: string, b: Brevref) =>
     b.omtale && b.art === 'registrert'
       ? `Kravet om fristforlengelse står i ${b.omtale}.`

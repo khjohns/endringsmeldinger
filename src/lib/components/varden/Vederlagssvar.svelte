@@ -495,7 +495,7 @@
                   : (p.punkt === '34.1.2'
                       ? valg.iTide === null
                         ? []
-                        : [valg.iTide ? SKJEMA.iTide : SKJEMA.forSent]
+                        : [valg.iTide ? SKJEMA.komITide : SKJEMA.komForSent]
                       : post
                         ? leselinje(post)
                         : []
@@ -830,8 +830,8 @@
           spoersmaal={SKJEMA.varselSpoersmaal}
           beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
           valg={[
-            { verdi: true, tekst: SKJEMA.iTide },
-            { verdi: false, tekst: SKJEMA.forSent },
+            { verdi: true, tekst: SKJEMA.komITide },
+            { verdi: false, tekst: SKJEMA.komForSent },
           ]}
           bind:verdi={valg.iTide}
           feil={feil(`${uid}-itide`)}
@@ -929,7 +929,7 @@
         />
         <Valg
           navn={`${uid}-saerskilt-itide`}
-          spoersmaal={SKJEMA.varselSpoersmaalKort}
+          spoersmaal={SKJEMA.varselSpoersmaal}
           beskrevetAv={[
             ...(forutsetningeneForVarselet.length ? [`${uid}-saerskilt-itide-forutsetninger`] : []),
             `${uid}-kunnskapsdato-ved-valget`,

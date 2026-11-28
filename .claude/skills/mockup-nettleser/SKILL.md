@@ -145,7 +145,7 @@ node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] 
 Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01, eller forløpet i `--forlop`
 (BF-01 og BF-04 har kontrollpunktene skriptet bruker): forløpet fra begynnelsen,
 så fra kontrollpunktet der BH har mottatt vederlagskravet. BH svarer i skjemaet med
-«Varslet for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
+«Kom for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
 ser svaret og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
 Det skriver brevtekstene og stopper med exit 1 når brevet ikke har lagene fra standpunktet i
 kontrollpunktet `te-har-mottatt-svaret` og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
