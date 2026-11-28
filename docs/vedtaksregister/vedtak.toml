@@ -18364,7 +18364,7 @@ Forhold oppgitt: presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 o
 Spørsmålene 1–5 i samme framlegg er ført som VS-U99–VS-U103.'''
 valgt = "A"
 svar = '''
-Oppdragsgiver 28.11, ordrett: «Varsel om vederlagsjustering er et villår også for særskilt vederlagsjustering. Det følger logisk at et varsel om særskilt vederlagsjustering også er et varsel om vederlagsjustering. Løsningen må legge det til grunn; hvis TE varsler særskilt men ikke tidligere har varslet så regnes dette også som varsel om vederlagsjustering. Det er tilsvarende som at et sendt krav også regnes som varsel hvis det ikke er tidligere sendt» Og: «Det gjelder også ellers: varsel om regningsarbeid mv regnes også som varsel om vederlagsjustering- helt automatisk» Den framlagte teksten, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+Oppdragsgiver 28.11, ordrett: «Varsel om vederlagsjustering er et villår også for særskilt vederlagsjustering. Det følger logisk at et varsel om særskilt vederlagsjustering også er et varsel om vederlagsjustering. Løsningen må legge det til grunn; hvis TE varsler særskilt men ikke tidligere har varslet så regnes dette også som varsel om vederlagsjustering. Det er tilsvarende som at et sendt krav også regnes som varsel hvis det ikke er tidligere sendt» Og: «Det gjelder også ellers: varsel om regningsarbeid mv regnes også som varsel om vederlagsjustering- helt automatisk» Svaret på framlegget, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
 forhold = [
   { art = "presiserer", vedtak = "ov-u89" },
   { art = "presiserer", vedtak = "ov-u106" },
@@ -18372,7 +18372,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u96" },
 ]
 folge = '''
-Forholdet slik det ble lagt fram, ordrett: «presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».» Alternativet A er vedtaksteksten slik den ble lagt fram til godkjenning; det ble ikke lagt fram andre alternativer. Spørsmålene 1–5 er VS-U99–VS-U103.'''
+Forholdet slik det ble lagt fram, ordrett: «presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».» Alternativet A er vedtaksteksten slik den ble lagt fram til godkjenning; det ble ikke lagt fram andre alternativer. Spørsmålene 1–5 er VS-U99–VS-U103. Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -18411,7 +18411,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u98" },
 ]
 folge = '''
-Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Alternativet B oppga ikke noe forhold. Det forkastede A ville utvidet OV-U89 punkt 3.'''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Alternativet B oppga ikke noe forhold. Det forkastede A ville utvidet OV-U89 punkt 3. Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -18431,6 +18431,7 @@ dato = 2026-11-28
 hvem = "oppdragsgiver"
 kilde = ["runde 11 i #1065", "etter BF-48C"]
 klasse = "vedtak"
+designdel = "Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2"
 sporsmal = '''
 Spørsmål 2 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
 
@@ -18457,7 +18458,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u96" },
 ]
 folge = '''
-Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 32 og 34».'''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 32 og 34». Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -18502,7 +18503,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u98" },
 ]
 folge = '''
-Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. A viser til VS-U87, som er samlet i VS-U96. Det er ikke ført som eget forhold.'''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til VS-U87, som er samlet i VS-U96. Det er ikke ført som eget forhold. Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -18549,7 +18550,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u96" },
 ]
 folge = '''
-Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 22; ordlyden er design».'''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 22; ordlyden er design». Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -18594,7 +18595,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u98" },
 ]
 folge = '''
-Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. A viser til DM-06 og arbeidsvalget i #1290. Det er ikke ført som forhold.'''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til DM-06 og arbeidsvalget i #1290. Det er ikke ført som forhold. Bygges i #2529.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3d1e41a503a390bb66f069e345a85a515302d961b840f93e12923764ab86ea07`
+Kontrollsum (SHA-256 over utdraget visningen leser): `d6e97c251e7fb1047cb73170c579b84772b384a0a44d835794ba42c37e18d5f1`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -2573,7 +2573,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [OV-U89](#ov-u89). Presiserer [OV-U106](#ov-u106). Utvider [VS-U86](#vs-u86). Utvider [VS-U96](#vs-u96). Presisert 28.11 av [VS-U100](#vs-u100). Presisert 28.11 av [VS-U101](#vs-u101). Presisert 28.11 av [VS-U102](#vs-u102). Presisert 28.11 av [VS-U103](#vs-u103). Presisert 28.11 av [VS-U99](#vs-u99). Forholdet slik det ble lagt fram, ordrett: «presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».» Alternativet A er vedtaksteksten slik den ble lagt fram til godkjenning; det ble ikke lagt fram andre alternativer. Spørsmålene 1–5 er VS-U99–VS-U103.
+**Følge:** Presiserer [OV-U89](#ov-u89). Presiserer [OV-U106](#ov-u106). Utvider [VS-U86](#vs-u86). Utvider [VS-U96](#vs-u96). Presisert 28.11 av [VS-U100](#vs-u100). Presisert 28.11 av [VS-U101](#vs-u101). Presisert 28.11 av [VS-U102](#vs-u102). Presisert 28.11 av [VS-U103](#vs-u103). Presisert 28.11 av [VS-U99](#vs-u99). Forholdet slik det ble lagt fram, ordrett: «presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».» Alternativet A er vedtaksteksten slik den ble lagt fram til godkjenning; det ble ikke lagt fram andre alternativer. Spørsmålene 1–5 er VS-U99–VS-U103. Bygges i #2529.
 
 **Regelrader:** —
 
@@ -2587,7 +2587,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Alternativet B oppga ikke noe forhold. Det forkastede A ville utvidet OV-U89 punkt 3.
+**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Alternativet B oppga ikke noe forhold. Det forkastede A ville utvidet OV-U89 punkt 3. Bygges i #2529.
 
 **Regelrader:** —
 
@@ -2601,7 +2601,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [VS-U98](#vs-u98). Utvider [VS-U96](#vs-u96). Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 32 og 34».
+**Følge:** Presiserer [VS-U98](#vs-u98). Utvider [VS-U96](#vs-u96). Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 32 og 34». Bygges i #2529.
 
 **Regelrader:** —
 
@@ -2615,7 +2615,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. A viser til VS-U87, som er samlet i VS-U96. Det er ikke ført som eget forhold.
+**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til VS-U87, som er samlet i VS-U96. Det er ikke ført som eget forhold. Bygges i #2529.
 
 **Regelrader:** —
 
@@ -2629,7 +2629,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [VS-U98](#vs-u98). Utvider [VS-U96](#vs-u96). Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 22; ordlyden er design».
+**Følge:** Presiserer [VS-U98](#vs-u98). Utvider [VS-U96](#vs-u96). Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 22; ordlyden er design». Bygges i #2529.
 
 **Regelrader:** —
 
@@ -2643,7 +2643,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (runde 11 i #1065, etter BF-48C)
 
-**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og svaret slik de ble lagt fram, ordrett. A viser til DM-06 og arbeidsvalget i #1290. Det er ikke ført som forhold.
+**Følge:** Presiserer [VS-U98](#vs-u98). Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til DM-06 og arbeidsvalget i #1290. Det er ikke ført som forhold. Bygges i #2529.
 
 **Regelrader:** —
 
