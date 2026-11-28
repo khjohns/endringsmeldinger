@@ -58,7 +58,6 @@ import {
   kravposteneStrider,
   saerskiltStrider,
   eldreKravFoer,
-  eldreKravSomVarselFoer,
   kravpostvarseletStrider,
   kravpostvarslene,
   kravetVilleVaertVarselet,
@@ -948,7 +947,7 @@ function medVarslene(
  * utenfor rekken kan være varselet (OV-U120).
  */
 const kravpostvarslerIBrevet = (k: Krav, u: Utledning): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, eldreKravSomVarselFoer(u, null));
+  kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken

@@ -201,10 +201,10 @@ export const UTLEDNINGEN: Lesbar[] = [
     'utledning/rettingen.ts',
     'relasjon',
     'medRettingeneTil',
-    // A3 i #2509: et svar som legges til, leser rettingene sendt til og med dagen det ble sendt.
+    // A3 i #2509.
     [ELDRE_KRAV, 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
-  // S-1 A i #2509: de eldre kravene som var varselet da hvert svar ble sendt.
+  // S-1 A i #2509.
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene(vedSvaret)', 'relasjon', '*'],
   [
     'utledning/rettingen.ts',
@@ -304,13 +304,11 @@ export const UTLEDNINGEN: Lesbar[] = [
     'spor/vederlag/utledning.ts',
     'relasjon',
     'eldreKravFoer',
-    ['spor/vederlag/kommando.ts:kravpostsperre', 'spor/vederlag/kommando.ts:varselvalgetMangler'],
-  ],
-  [
-    'spor/vederlag/utledning.ts',
-    'relasjon',
-    'eldreKravSomVarselFoer',
-    ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
+    [
+      'spor/vederlag/kommando.ts:kravpostsperre',
+      'spor/vederlag/kommando.ts:kravpostvarslerIBrevet',
+      'spor/vederlag/kommando.ts:varselvalgetMangler',
+    ],
   ],
   // VS-U87 punkt 22 og 23: om kravet ellers ville vært varselet for kravposten.
   [

@@ -7057,7 +7057,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet for en kravversjon fra løsningen leser bare rekken, så kravet sier at det er varselet for en kravpost et eldre krav er varselet for (OV-U120, VS-U49)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['eldreKravSomVarselFoer(u, null)', '[]']],
+    endringer: [
+      [
+        'kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));',
+        'kravpostvarslene(k, u.spor.vederlag.krav, []);',
+      ],
+    ],
     mal: [
       'har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet',
     ],
@@ -8536,14 +8541,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F2509b',
-    feilklasse:
-      'brevet med en ny kravversjon ordner de eldre kravene etter den oppgitte datoen, ikke datoen som gjelder (MM-U63, OV-U120)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['eldreKravSomVarselFoer(u, null)', 'eldreKravFoer(u, null)']],
-    mal: ['er K3 varselet for P1 i brevet med den neste versjonen'],
-  },
-  {
     id: 'F2509c',
     feilklasse:
       'visningen viser dagen det eldre kravet ble oppgitt sendt, ikke datoen som gjelder (A4 i #2509)',
@@ -8603,7 +8600,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til leser en retting sendt etter dagen svaret ble sendt (S-1 A i #2509, OV-U98)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)),', 'rettinger: foer,']],
+    endringer: [
+      ['rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)) },', 'rettinger: foer },'],
+    ],
     mal: ['et svar lagt til, sendt dagen før rettingen, står mot K2'],
   },
   {
@@ -8618,6 +8617,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et svar som legges til, sendt før rettingene, leser påberopelsen før K2 uten dem'],
+  },
+  {
+    id: 'F2509j',
+    feilklasse:
+      'de eldre kravene da svaret ble sendt, leses med hele saken, ikke som kjernen kjente den da brevet ble sendt (S-1 A i #2509, VS-U81)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['varslerIEldreKravVedSvarene(u, kjentFoer)', 'varslerIEldreKravVedSvarene(u)']],
+    mal: ['med journalen kuttet foran et senere krav som viser til et varsel for P1'],
   },
 ];
 

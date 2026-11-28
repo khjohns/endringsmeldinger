@@ -267,19 +267,22 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
  * S-1 A i #2509: for hvert svar på vederlaget, de eldre kravene som var varselet da svaret ble
  * sendt. Alle kravene utenfor rekken i saken regnes med, og rettingene som står før svaret og er
  * sendt til og med dagen det ble sendt (som `gjaldtVedSvaret` i `utledning/utled.ts`, OV-U98,
- * OV-U104).
+ * OV-U104). Med `kjentFoer` leses bare brevene før det brevet (VS-U81).
  */
-export function varslerIEldreKravVedSvarene(u: Utledning): Record<string, VarselIEtEldreKrav[]> {
+export function varslerIEldreKravVedSvarene(
+  u: Utledning,
+  kjentFoer?: string
+): Record<string, VarselIEtEldreKrav[]> {
   const ut: Record<string, VarselIEtEldreKrav[]> = {};
   if (!u.spor.vederlag.kravUtenforRekken.length) return ut;
   const foer: Retting[] = [];
   for (const d of dokumenterI(u.journal)) {
     for (const s of d.svar.filter((x) => x.spor === 'vederlag')) {
       const dag = dagenSendt({ id: s.id, dokument: d.id }, d);
-      ut[s.id] = varslerIEldreKrav({
-        ...u,
-        rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)),
-      });
+      ut[s.id] = varslerIEldreKrav(
+        { ...u, rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)) },
+        kjentFoer
+      );
     }
     foer.push(...u.rettinger.filter((r) => r.dokument === d.id));
   }
@@ -457,9 +460,9 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  // A3 i #2509: et svar som legges til, leser rettingene sendt til og med dagen det ble sendt.
+  // A3 i #2509.
   const eldre = varslerIEldreKrav(medRettingeneTil(u, sendt), kjentFoer);
-  const vedSvaret = varslerIEldreKravVedSvarene(u);
+  const vedSvaret = varslerIEldreKravVedSvarene(u, kjentFoer);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)

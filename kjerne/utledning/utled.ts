@@ -1182,8 +1182,7 @@ function utledSporene(
   }));
   // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
   // da det ble sendt. Et svar lagt til leser rettingene sendt til og med dagen det oppgir (OV-U98).
-  // Det samme gjelder et krav: hva som var gjeldende, leser datoen som gjaldt den dagen kravet ble
-  // sendt (A1 i #2509, OV-U123 punkt 17).
+  // Også for hva som var gjeldende da et krav ble sendt (A1 i #2509).
   const gjaldtVedSvaret = (
     v: Pick<Krav, 'id' | 'dokument'>,
     svar: Pick<Krav, 'id' | 'dokument'>

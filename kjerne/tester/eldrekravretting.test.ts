@@ -200,8 +200,8 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     kravposter: [{ post: 'P1', oppgjoersform: 'regningsarbeid' }],
     ...h,
   });
-  const K2 = regningsarbeid({ sendt: '2026-09-20', navn: 'K2' });
-  const K3 = regningsarbeid({ sendt: '2026-09-21', navn: 'K3' });
+  const k2 = regningsarbeid({ sendt: '2026-09-20', navn: 'K2' });
+  const k3 = regningsarbeid({ sendt: '2026-09-21', navn: 'K3' });
   const forSent = (h: Data = {}): Handling => ({
     handling: 'brev',
     svar: [{ spor: 'vederlag', kravposter: [{ post: 'P1', varslet_i_tide: false }] }],
@@ -243,34 +243,34 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
   const varselet = (u: Utledning) => varslerIEldreKrav(u).map((v) => v.dokument);
   const brevetMed = (u: Utledning, i: number) => u.spor.vederlag.kravUtenforRekken[i]!.dokument;
 
-  it('påberopelsen etter K2 står også mot K3 når K2 rettes til en dag etter K3', async () => {
-    const u = await saken([regningsarbeid(), K2, forSent(), K3, retting('K2', '2026-09-22')]);
-    expect(varselet(u), 'Forutsetning: K3 er varselet etter rettingen').toEqual([brevetMed(u, 1)]);
+  it('påberopelsen etter k2 står også mot k3 når k2 rettes til en dag etter K3', async () => {
+    const u = await saken([regningsarbeid(), k2, forSent(), k3, retting('K2', '2026-09-22')]);
+    expect(varselet(u), 'Forutsetning: k3 er varselet etter rettingen').toEqual([brevetMed(u, 1)]);
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('et nytt svar fra løsningen viser til påberopelsen etter K2 også når K3 er varselet etter rettingen', async () => {
-    await saken([regningsarbeid(), K2, forSent(), K3, retting('K2', '2026-09-22'), nyttSvar]);
+  it('et nytt svar fra løsningen viser til påberopelsen etter k2 også når k3 er varselet etter rettingen', async () => {
+    await saken([regningsarbeid(), k2, forSent(), k3, retting('K2', '2026-09-22'), nyttSvar]);
     expect(sisteTekst).toContain('jf. innsigelsen');
   });
 
-  it('kontrollsak: det nye svaret viser ikke til en påberopelse før K2 ble lagt til (VS-U96 punkt 37)', async () => {
-    await saken([regningsarbeid(), forSent(), K2, K3, retting('K2', '2026-09-22'), nyttSvar]);
+  it('kontrollsak: det nye svaret viser ikke til en påberopelse før k2 ble lagt til (VS-U96 punkt 37)', async () => {
+    await saken([regningsarbeid(), forSent(), k2, k3, retting('K2', '2026-09-22'), nyttSvar]);
     expect(sisteTekst).toContain('ikke ble gitt eller kom for sent');
     expect(sisteTekst).not.toContain('jf. innsigelsen');
   });
 
-  it('kontrollsak: en påberopelse før K2 ble lagt til, følger ikke med til K3 (VS-U96 punkt 37)', async () => {
-    const u = await saken([regningsarbeid(), forSent(), K2, K3, retting('K2', '2026-09-22')]);
+  it('kontrollsak: en påberopelse før k2 ble lagt til, følger ikke med til k3 (VS-U96 punkt 37)', async () => {
+    const u = await saken([regningsarbeid(), forSent(), k2, k3, retting('K2', '2026-09-22')]);
     expect(staar(u)).toEqual([]);
   });
 
-  it('kontrollsak: rettes K2 og K3 til en dag etter kravet, står påberopelsen før dem igjen mot kravet', async () => {
+  it('kontrollsak: rettes k2 og k3 til en dag etter kravet, står påberopelsen før dem igjen mot kravet', async () => {
     const u = await saken([
       regningsarbeid(),
       forSent(),
-      K2,
-      K3,
+      k2,
+      k3,
       retting('K2', '2026-09-25'),
       retting('K3', '2026-09-25'),
     ]);
@@ -278,12 +278,12 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('et svar som legges til, sendt før rettingene, leser påberopelsen før K2 uten dem (A3 i #2509)', async () => {
+  it('et svar som legges til, sendt før rettingene, leser påberopelsen før k2 uten dem (A3 i #2509)', async () => {
     const u = await saken([
       regningsarbeid(),
       forSent(),
-      K2,
-      K3,
+      k2,
+      k3,
       retting('K2', '2026-09-25'),
       retting('K3', '2026-09-25'),
     ]);
@@ -300,31 +300,55 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     ).toHaveLength(1);
   });
 
-  // K2 rettes 26.09. Svaret lagt til står etter rettingen i saken, og K3 legges til etter svaret.
-  it('et svar lagt til, sendt dagen før rettingen, står mot K2 som var varselet den dagen (OV-U98)', async () => {
+  it('med journalen kuttet foran et senere krav som viser til et varsel for P1, faller påberopelsen før k2 bort som da (VS-U81)', async () => {
+    const v: Handling = {
+      handling: 'varsel',
+      spor: 'vederlag',
+      hjemmel: '34.4',
+      sendt: '2026-09-18',
+      navn: 'V',
+    };
+    const k5 = {
+      handling: 'krav',
+      spor: 'vederlag',
+      kravposter: [{ post: 'P1', oppgjoersform: 'regningsarbeid', varsel: 'V' }],
+      sendt: '2026-09-19',
+    } satisfies Handling;
+    const u = await saken([regningsarbeid(), forSent(), k2, k3, v, k5]);
+    const kuttet = u.spor.vederlag.kravUtenforRekken.at(-1)!.dokument;
+    expect(staar(u), 'Forutsetning: med k5 er ikke noe eldre krav varselet').toHaveLength(1);
+    expect(
+      standpunkteneTilVarslene(u, null, false, kuttet).filter(
+        (x) => x.hjemmel === '34.4' && !x.iTide
+      )
+    ).toEqual([]);
+  });
+
+  // k2 rettes 26.09. Svaret lagt til står etter rettingen i saken, og k3 legges til etter svaret.
+  it('et svar lagt til, sendt dagen før rettingen, står mot k2 som var varselet den dagen (OV-U98)', async () => {
     const u = await saken([
       regningsarbeid(),
-      K2,
+      k2,
       retting('K2', '2026-09-22'),
       forSent({ sendt: '2026-09-25' }),
-      K3,
+      k3,
     ]);
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('kontrollsak: et svar lagt til, sendt samme dag som rettingen, regner den med, og følger ikke med til K3 (OV-U104)', async () => {
+  it('kontrollsak: et svar lagt til, sendt samme dag som rettingen, regner den med, og følger ikke med til k3 (OV-U104)', async () => {
     const u = await saken([
       regningsarbeid(),
-      K2,
+      k2,
       retting('K2', '2026-09-22'),
       forSent({ sendt: '2026-09-26' }),
-      K3,
+      k3,
     ]);
     expect(staar(u)).toEqual([]);
   });
 
   it('kontrollsak: et svar fra løsningen etter rettingen regner den med etter rekkefølgen i saken', async () => {
-    const u = await saken([regningsarbeid(), K2, retting('K2', '2026-09-22'), forSent(), K3]);
+    const u = await saken([regningsarbeid(), k2, retting('K2', '2026-09-22'), forSent(), k3]);
     expect(staar(u)).toEqual([]);
   });
 });
