@@ -110,7 +110,9 @@ const godkjennHele = async () => {
 };
 const seBrevet = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
-const spoersmaalet = () => screen.queryByRole('group', { name: 'Kom varselet om kravet i tide?' });
+// Varselet etter punkt 34.1.2, ikke det særskilte etter punkt 34.1.3, som har samme spørsmål (#2443).
+const spoersmaalet = () =>
+  document.querySelector<HTMLElement>('fieldset[id$="-itide"]:not([id$="saerskilt-itide"])');
 const vurderingen = (sendt: { kommando: Record<string, unknown> }[]) =>
   (sendt[0]!.kommando as { svar: { vurderinger: Record<string, unknown> }[] }).svar[0]!.vurderinger;
 
@@ -134,7 +136,7 @@ describe('varselet etter punkt 34.1.2 i byggherrens svar (#1842)', () => {
     await seBrevet();
     expect(sendt).toHaveLength(0);
     expect(screen.getByRole('link', { name: 'Velg om varselet kom i tide.' })).toBeInTheDocument();
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(vurderingen(sendt)).toMatchObject({ hovedkrav_varslet_i_tide: true });
@@ -166,7 +168,7 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
 
   it('en delvis godkjenning uten beløpet ber om beløpet du godkjenner (KA-U42)', async () => {
     await svarskjemaet(svikt);
-    await radio('Varslet i tide');
+    await radio('Kom i tide');
     await radio('Godkjenner fast sum (punkt\u00a034.2.1)');
     await radio('Deler av beløpet');
     await seBrevet();
@@ -202,7 +204,7 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
 describe('vilkåret i punktene ved skjemaet (#2182, svar B 19.11)', () => {
   it('standpunktene etter innsigelsen om varselet begynner med vilkåret i klarspråk, uten lagnavnet fra brevet', async () => {
     await svarskjemaet(svikt);
-    await radio('Varslet for sent');
+    await radio('Kom for sent');
     await godkjennHele();
     const punktene = screen.getByRole('region', { name: 'Punktene i brevet' });
     const linjer = [...punktene.querySelectorAll('.punktstatus')].map((p) =>
@@ -386,7 +388,7 @@ describe('nytt svar på kravet (`revidere:vederlag`, #2365)', () => {
       screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     ).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Deler av beløpet' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Varslet i tide' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Kom i tide' })).toBeChecked();
     expect(screen.queryByText(/ikke bygget/)).toBeNull();
   });
 });
@@ -501,11 +503,11 @@ describe('svaret på posten etter punkt 34.1.3 annet ledd (#2422, VS-U5)', () =>
     await svarskjemaet(journal);
     const gjelderHvis = () =>
       document.querySelector('[id$="-saerskilt-itide-forutsetninger"]')?.textContent ?? '';
-    await radio('Varslet for sent');
+    await fireEvent.click(punktet('-sp-varsel').getByRole('radio', { name: 'Kom for sent' }));
     await fireEvent.click(iSaerskilt().getByRole('radio', { name: 'Kom for sent' }));
     expect(gjelderHvis()).toMatch(/innsigelsen om at varselet etter punkt\s34\.1\.2 kom for sent/);
     // Kontrollsak: uten innsigelsen etter § 34.1.2 er varselet ikke betinget.
-    await radio('Varslet i tide');
+    await fireEvent.click(punktet('-sp-varsel').getByRole('radio', { name: 'Kom i tide' }));
     expect(gjelderHvis()).toBe('');
   });
 

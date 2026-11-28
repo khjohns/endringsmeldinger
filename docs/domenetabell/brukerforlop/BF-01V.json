@@ -95,7 +95,7 @@
         "start": "svar",
         "handlinger": [
           {
-            "velg": "Varslet for sent"
+            "velg": "Kom for sent"
           },
           {
             "staar": "Hvis varselet kom i tide:"
@@ -360,6 +360,11 @@
       "dato": "2026-11-12",
       "forhold": "#1433, LV-U34, OV-U73, KA-U46",
       "hva": "U-9: begrunnelsen står per punkt i byggherrens svar, og skjemaet har ett felt per punkt og et felt for forbeholdet. Arbeidsvalget A i S-2 gjelder ikke lenger: brevet har nummererte punkter og oversiktstabellen. Kildene har LV-U34, LV-U71 og OV-U73."
+    },
+    {
+      "dato": "2026-11-28",
+      "forhold": "#2443",
+      "hva": "Valget om varselet heter «Kom i tide» og «Kom for sent», som i de andre svarskjemaene. Det forventede resultatet er uendret."
     }
   ]
 }

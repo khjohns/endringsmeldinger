@@ -228,7 +228,10 @@ export const TESTSAKER: Record<string, Testsak> = {
     async iNettleseren({ bh, saksrute, ut }) {
       await bh.goto(saksrute);
       await bh.getByRole('button', { name: 'Svar på kravet' }).click({ timeout: 30_000 });
-      await bh.getByRole('radio', { name: 'Varslet for sent' }).check();
+      await bh
+        .getByRole('group', { name: 'Kom varselet i tide?' })
+        .getByRole('radio', { name: 'Kom for sent' })
+        .check();
       const post = (b: string) =>
         bh.getByRole('listitem').filter({ has: bh.getByRole('heading', { name: new RegExp(`^${b} `) }) });
       const svar = async (b: string, valg: (string | RegExp)[]) => {
@@ -1000,7 +1003,7 @@ export const TESTSAKER: Record<string, Testsak> = {
       const svaret = bh.getByRole('button', { name: 'Svar på kravet' });
       await svaret.waitFor({ timeout: 30_000 });
       await svaret.click();
-      await bh.getByRole('radio', { name: 'Varslet i tide' }).check();
+      await bh.getByRole('radio', { name: 'Kom i tide', exact: true }).check();
       await bh.getByRole('radio', { name: 'Spesifisert i tide' }).check();
       await bh
         .getByRole('radio', { name: 'Ja, fremdriften er hindret, og hindringen skyldes forholdet' })
