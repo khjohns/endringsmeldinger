@@ -77,7 +77,7 @@ export interface VarselIEtEldreKrav {
  * Svaret `s` uten standpunktene til varselet for kravpostene i `varsler` når svaret står før det
  * eldre kravet i journalen (OV-U120 andre ledd). `plass` er plassen til hvert dokument i journalen.
  * `vedSvaret` er de eldre kravene da svaret ble sendt, før en senere retting. Står standpunktet mot
- * varselet etter dem, står det også mot varselet etter rettingen (S-1 A i #2509).
+ * varselet etter dem, står det også mot varselet etter rettingen (MM-U64).
  */
 export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' | 'standpunkter'>>(
   s: T,

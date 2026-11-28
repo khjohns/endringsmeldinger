@@ -67,7 +67,7 @@ export interface Saken {
   varslerIEldreKrav: readonly VarselIEtEldreKrav[];
   /**
    * De eldre kravene som var varselet da hvert svar på vederlaget ble sendt, etter svaret
-   * (`varslerIEldreKravVedSvaret`, S-1 A i #2509).
+   * (`varslerIEldreKravVedSvaret`, MM-U64).
    */
   varslerIEldreKravVedSvaret: Readonly<Record<string, readonly VarselIEtEldreKrav[]>>;
 }
