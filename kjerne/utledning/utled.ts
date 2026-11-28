@@ -1298,7 +1298,7 @@ function utledSporene(
         const vedSvaret = rettingVedSvaret(id, s);
         if (siste === vedSvaret) continue;
         const utsagn = { id, dokument: elementer[id].hendelse };
-        const dato = gjaldtVedSvaret(utsagn, s);
+        const dato = vedSvaret?.dato ?? sendt(utsagn);
         if (dato !== null)
           (datoerVedSvar[s.dokument] ??= []).push({
             gjelder: id,

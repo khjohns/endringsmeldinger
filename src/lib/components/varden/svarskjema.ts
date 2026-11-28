@@ -8,8 +8,9 @@ import type { Innsigelsen } from './svarlagene';
 import { medHardeMellomrom, punkteneMedBegrunnelse } from '#kjerne/frosset/tekst.ts';
 import type { Tema } from '#kjerne/frosset/brevdeler.ts';
 import type { Avsnitt, Spor } from '#kjerne/typer.ts';
-import type { Utledning } from '#kjerne/utledning/utled.ts';
-import { brevet, type Brevet } from './lesing';
+import type { Enkeltvarselhjemmel, Utledning } from '#kjerne/utledning/utled.ts';
+import { varseletFoerBrevet } from '#lib/kjernesak/kontekst.svelte.ts';
+import { brevet, rettetDato, type Brevet } from './lesing';
 import type { Mangel } from './mangler';
 
 /**
@@ -154,3 +155,18 @@ export const kravbrevetI = (u: Utledning, spor: Spor): Brevet =>
  */
 export const kravetSendt = (b: Brevet): string | null =>
   b.sendt ?? (b.art === 'registrert' ? null : b.registrert);
+
+/**
+ * Datoene som er rettet for kravet og for varselet etter `hjemmel`, slik svaret leser dem på
+ * `paaDagen`. Er varselet kravet selv, er det ikke med en gang til (U-6 i BF-50, MM-U63).
+ */
+export function rettedeDatoer(
+  paaDagen: Utledning,
+  kravId: string | undefined,
+  hjemmel: Enkeltvarselhjemmel
+) {
+  const krav = kravId ? rettetDato(paaDagen, kravId) : null;
+  const varselId = varseletFoerBrevet(paaDagen, hjemmel);
+  const varsel = varselId && varselId !== kravId ? rettetDato(paaDagen, varselId) : null;
+  return { krav, varsel };
+}

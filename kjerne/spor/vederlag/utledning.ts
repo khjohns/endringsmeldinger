@@ -198,6 +198,13 @@ export function kravetVilleVaertVarselet(
   );
 }
 
+/** Versjonene i rekken til og med `k`, eller bare `k` når den ikke står i rekken. */
+const rekkenTil = (u: Pick<Utledning, 'spor'>, k: Krav): Krav[] => {
+  const rekke = u.spor.vederlag.krav;
+  const i = rekke.findIndex((v) => v.id === k.id);
+  return i === -1 ? [k] : rekke.slice(0, i + 1);
+};
+
 /**
  * VS-U96 punkt 23: varselet kravposten `post` i kravversjonen `k` viser til. Uten valg i versjonen
  * står valget i den forrige, og `undefined` er at kravet er varselet for posten eller ikke sier noe.
@@ -207,9 +214,7 @@ export function varseletPostenGjelder(
   k: Krav,
   post: string
 ): string | undefined {
-  const sporet = u.spor.vederlag;
-  const i = sporet.krav.findIndex((v) => v.id === k.id);
-  for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
+  for (const v of rekkenTil(u, k).reverse()) {
     const q = kravposterI(v).find((x) => x.id === post);
     if (q?.varsel !== undefined) return varseletPostenViserTil(q);
   }
@@ -229,9 +234,7 @@ export function varseletForKravposten(
 ): string | undefined {
   const egen = varseletPostenGjelder(u, k, post);
   if (egen !== undefined) return egen;
-  const rekke = u.spor.vederlag.krav;
-  const i = rekke.findIndex((v) => v.id === k.id);
-  const gjennom = i === -1 ? [k] : rekke.slice(0, i + 1);
+  const gjennom = rekkenTil(u, k);
   const p = kravposterI(k).find((q) => q.id === post);
   const hjemmel = p && varselhjemmel(p);
   if (!hjemmel) return undefined;

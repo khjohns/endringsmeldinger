@@ -7863,7 +7863,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'kravposten uten valg i den besvarte versjonen regnes ikke med valget i den forrige, så svaret på varselet kan gis etter svaret på kravet (VS-U96 punkt 23 og 33, #2456)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['sporet.krav.slice(0, i + 1).reverse()', '[k]']],
+    endringer: [['rekkenTil(u, k).reverse()', '[k]']],
     mal: ['der kravposten beholder varselet fra den forrige uten valg'],
   },
   {
@@ -8701,7 +8701,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     feilklasse: 'svartråden viser dagens dato for varselet eller kravet (MM-U63, U-7 i BF-50)',
     mal: ['punkt 8: et svar sendt før rettingen står med varselet det gjaldt'],
-    endringer: [['const dato = gjaldtVedSvaret(utsagn, s);', 'const dato = siste.dato;']],
+    endringer: [['const dato = vedSvaret?.dato ?? sendt(utsagn);', 'const dato = siste.dato;']],
   },
   {
     id: 'F2515b',

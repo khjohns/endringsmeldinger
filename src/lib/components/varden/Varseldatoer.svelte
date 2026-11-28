@@ -6,9 +6,9 @@
 -->
 <script lang="ts">
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { medRettingeneTil, varseletFoerBrevet } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { medRettingeneTil } from '#lib/kjernesak/kontekst.svelte.ts';
   import { brevMedElement, klarOverForholdet, rettetDato, type Brevet } from './lesing';
-  import { kravbrevetI, kravetSendt } from './svarskjema';
+  import { kravbrevetI, kravetSendt, rettedeDatoer } from './svarskjema';
   import Datoer from './Datoer.svelte';
   import { RETTING, SKJEMA, kalenderdager } from './tekster';
 
@@ -45,9 +45,11 @@
     const kravId = krav ?? u.spor[spor].gjeldendeKrav?.id;
     const kravbrevet = (kravId ? brevMedElement(u, kravId) : null) ?? kravbrevetI(u, spor);
     const klarOver = klarOverForholdet(u);
-    const kravetRettet = rettet(kravId);
-    const varselId = varseletFoerBrevet(paaDagen, spor === 'frist' ? '33.4' : '34.1.2');
-    const varseletRettet = varselId !== kravId ? rettet(varselId) : null;
+    const { krav: kravetRettet, varsel: varseletRettet } = rettedeDatoer(
+      paaDagen,
+      kravId,
+      spor === 'frist' ? '33.4' : '34.1.2'
+    );
     const kravSendt = kravetRettet?.dato ?? kravetSendt(kravbrevet);
     return [
       ...(klarOver ? [{ tekst: SKJEMA.klarOver(klarOver.dato, klarOver.brev) }] : []),

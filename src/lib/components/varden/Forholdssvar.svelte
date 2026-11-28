@@ -24,7 +24,6 @@
   import {
     kravversjonenPaaDagen,
     medRettingeneTil,
-    varseletFoerBrevet,
     type Kjernesakkontekst,
   } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
@@ -54,18 +53,13 @@
     type Forholdssvarvalg,
   } from './forholdssvar';
   import { kanFrafalle } from '#kjerne/regler/forhold.ts';
-  import {
-    brevene,
-    nyttSvarIUtkastet,
-    rettetDato,
-    standpunktene,
-    underOverskriften,
-  } from './lesing';
+  import { brevene, nyttSvarIUtkastet, standpunktene, underOverskriften } from './lesing';
   import {
     begrunnelserForTemaene,
     kravbrevetI,
     kravetSendt,
     manglene,
+    rettedeDatoer,
     stilt,
     ugyldig,
   } from './svarskjema';
@@ -122,9 +116,7 @@
     const felt = oppgittDato(hovedkategori, underkategori);
     const oppgitt = felt ? innholdIForholdet(krav).datoer[felt] : null;
     const paaDagen = medRettingeneTil(u, lagtTil?.dato || null);
-    const rettetKrav = rettetDato(paaDagen, krav.id);
-    const varselId = varseletFoerBrevet(paaDagen, '32.2');
-    const rettetVarsel = varselId && varselId !== krav.id ? rettetDato(paaDagen, varselId) : null;
+    const { krav: rettetKrav, varsel: rettetVarsel } = rettedeDatoer(paaDagen, krav.id, '32.2');
     const sendt = rettetKrav?.dato ?? kravetSendt(kravbrevet);
     return [
       ...(felt && oppgitt
