@@ -33588,6 +33588,43 @@ navn = "B"
 tekst = '''
 Avsenderens retting av en feil kategori eller et feil varsel etter punkt 9 i samlevedtaket for retting av sendt brev gjelder straks, uten motpartens aksept, også når den gir et varsel en tidligere dato, som for datoene etter MM-U63. Kategorien er hva brevet er registrert som, og etter hvilken bestemmelse, som valget etter OV-U84. Det er ikke hoved- eller underkategorien for forholdet (GR-U1, GR-U22).'''
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U129"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#2527", "spørsmål 3 i runde 12 i #1065"]
+sporsmal = '''
+# Spørsmål 3 (#2527 punkt 1, runde 12)
+Ordlyden i OV-U123 punkt 18 lar totalentreprenøren legge til et varsel etter 34.1.3 «for rigg og drift eller for produktivitet hver for seg». OV-U25 og OV-U89 punkt 5 sier at særskilt varsel etter 34.1.3 bare gjelder økte utgifter ved nedsatt produktivitet og forstyrrelser på annet arbeid, og at rigg og drift ikke har noe særskilt varsel (kontraktsgrunnlaget, Del II pkt. B.2.16). Oppdragsgiver 28.11: «dette må jo være avklart i postene for rigg/drift/produktivitet. Det gjelder forholdet til kontraktsgrunnlaget som regulerer dette anderledes enn kontrakten».
+- A (anbefalt): Ny post som retter punkt 18 etter OV-U25: varselet etter 34.1.3 som kan legges til, gjelder bare nedsatt produktivitet og forstyrrelser på annet arbeid, og rigg og drift har ikke noe eget varsel. OV-U123 står med sin ordlyd og blir rettet av den nye posten.
+- B: Rigg og drift kan også legges til som eget varsel etter 34.1.3 (som punkt 18 står), og OV-U89 punkt 5 rettes i stedet.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «A». Valgt: A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u123" },
+]
+folge = '''
+Retter punkt 18 i [samlevedtaket for brev sendt utenfor løsningen, versjon 2](#samlevedtak-brev-utenfor-2), etter OV-U25 og punkt 5 i OV-U89. Spørsmålet står i #2527, med oppdragsgivers ord 28.11 i kommentaren [7236327597](https://github.com/khjohns/endringsmeldinger/issues/2527#issuecomment-7236327597).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Ny post som retter punkt 18 etter OV-U25: varselet etter 34.1.3 som kan legges til, gjelder bare nedsatt produktivitet og forstyrrelser på annet arbeid, og rigg og drift har ikke noe eget varsel. OV-U123 står med sin ordlyd og blir rettet av den nye posten.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Rigg og drift kan også legges til som eget varsel etter 34.1.3 (som punkt 18 står), og OV-U89 punkt 5 rettes i stedet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "for rigg og drift eller for produktivitet hver for seg"
+utdrag = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 etter = '''
