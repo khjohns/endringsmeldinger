@@ -150,6 +150,17 @@ describe('det første varselet etter punkt 34.1.2 (VS-U98)', () => {
     expect(s.u().forstaatt).toBe(false);
   });
 
+  it('lesingen avviser en ny påberopelse som viser til et eget varsel sendt senere', () => {
+    const s = paaberopt();
+    const foerste = s.send('TE', sendVarsel('34.4'));
+    const eget = s.send('TE', sendVarsel('34.1.2'));
+    s.send('TE', VEDERLAGSKRAV);
+    const rad = svarPaaKravet(s, true);
+    expect(rettidigheten(rad).gjelder).toBe(utsagn(foerste)[0].id);
+    rettidigheten(rad).gjelder = utsagn(eget)[0].id;
+    expect(s.u().forstaatt).toBe(false);
+  });
+
   it('et historisk svar som viser til kravet, står med virkningene det hadde (MM-U50)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.3.3'));

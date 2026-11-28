@@ -1489,13 +1489,15 @@ function kontrollerStandpunktet(
         : [];
     const dagen = (v: Pick<Krav, 'id' | 'dokument'>) => sendt(v, s);
     const tidligste = varseletFoerSvaret(p.hjemmel, [...varslene, ...andreVarsler], krav, foer, dagen);
+    const eldreSvar = s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
     const eget = varslene.find((v) => foer(v.id))?.id;
+    const egetGjelder = (p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget;
     // MM-U50: eldre svar kunne vise til kravet selv om et av de andre varslene kom først.
     const historisk =
       andreVarsler.length > 0 &&
-      s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98 &&
+      eldreSvar &&
       p.gjelder === varseletFoerSvaret(p.hjemmel, varslene, krav, foer, dagen);
-    if (p.gjelder !== tidligste && p.gjelder !== eget && !historisk)
+    if (p.gjelder !== tidligste && !egetGjelder && !historisk)
       ugyldig(
         s.id,
         `påberopelsen etter § ${p.hjemmel} viser til ${p.gjelder}, men varselet før svaret er ${tidligste ?? 'ikke i saken'}`

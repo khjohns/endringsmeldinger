@@ -1498,8 +1498,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== eget && !historisk)',
-        'if (p.gjelder !== tidligste && p.gjelder !== eget && !historisk && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk)',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -4298,7 +4298,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== eget && !historisk)',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk)',
         'if (p.gjelder !== (eget ?? tidligste) && !historisk)',
       ],
     ],
@@ -8759,14 +8759,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2529e',
     feilklasse: 'lesingen tillater at et nytt svar peker til kravet i stedet for varselet (VS-U98)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98 &&', 'true &&']],
+    endringer: [['      eldreSvar &&', '      true &&']],
     mal: ['lesingen avviser en ny påberopelse som feilaktig viser til kravet'],
   },
   {
     id: 'F2529f',
     feilklasse: 'lesingen avviser det historiske svaret som pekte til kravet (MM-U50, VS-U98)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98 &&', 'false &&']],
+    endringer: [['      eldreSvar &&', '      false &&']],
     mal: ['et historisk svar som viser til kravet, står med virkningene det hadde'],
   },
   {
@@ -8835,6 +8835,18 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['svaret på kravet om varselet kom i tide (true) viser til varselet'],
+  },
+  {
+    id: 'F2529m',
+    feilklasse: 'et nytt svar kan peke til et eget varsel som kom senere (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "(p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget",
+        'p.gjelder === eget',
+      ],
+    ],
+    mal: ['lesingen avviser en ny påberopelse som viser til et eget varsel sendt senere'],
   },
 ];
 
