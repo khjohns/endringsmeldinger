@@ -38,6 +38,9 @@
     vist = null,
     smal = false,
     onles,
+    datoene,
+    rettbare = [],
+    onrett,
     onspor,
     handlingerVed = [],
     handling,
@@ -126,6 +129,9 @@
     {vist}
     {smal}
     {onles}
+    {datoene}
+    {rettbare}
+    {onrett}
     {handlingerVed}
     {handling}
     {brevet}

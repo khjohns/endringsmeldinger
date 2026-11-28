@@ -6043,6 +6043,561 @@
       ]
     },
     {
+      "id": "BF-50",
+      "tittel": "Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen",
+      "brukerhistorie": "TE retter datoen for et varsel sendt utenfor løsningen og lagt til som korrespondanse, eller for et krav sendt utenfor løsningen og lagt til med kategorien krav, i et eget brev med henvisning til brevet. Den nye datoen gjelder straks som TEs siste opplysning, også når den er tidligere, uten BHs aksept. BH tar stilling til den nye datoen i et senere svar eller i et innlegg. Begge partene ser datoen som gjelder og de tidligere datoene.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "e79f30cf",
+      "kontrollpunkter": [
+        {
+          "id": "te-har-lagt-til-varselet-og-kravet",
+          "beskrivelse": "TE har lagt til varselet sendt 14.10.2026 og vederlagskravet sendt 20.10.2026.",
+          "versjon": 4,
+          "forstaaelse": [
+            "TE finner «Rett datoen» ved varselet og kravet lagt til, og ser datoen som gjelder med brevet den kommer fra.",
+            "TE ser at en dato før datoen i påberopelsen, eller samme dato som gjelder, stoppes ved feltet med begge datoene.",
+            "TE ser «Rett datoen» bare ved et varsel eller krav lagt til som korrespondanse, ikke ved et varsel sendt fra løsningen, som har serverens dato.",
+            "TE ser at varseldatoen etter punkt 32.2 ikke kan rettes til en dag etter påberopelsen, og at påberopelsen ikke kan rettes til en dag før varselet."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "retting"
+          },
+          "klokke": "2026-10-21T08:04:00.000Z"
+        },
+        {
+          "id": "varseldatoen-er-rettet-til-en-senere-dato",
+          "beskrivelse": "Variant A: TE har rettet varseldatoen til 16.10.2026.",
+          "versjon": 5,
+          "forstaaelse": [
+            "TE ser i brevkontrollen at den nye datoen gjelder straks, og ser den nye datoen ved varselet etter sending.",
+            "TE ser brevet med tittelen med sakens kode, den nye datoen, varselet med henvisningen til brevet og datoen som gjaldt. Ordet «retter» skiller brevet fra korrigeringen av datoen i påberopelsen.",
+            "TE ser at forklaringen er valgfri og står under den faste teksten, og at løsningen ikke tolker den.",
+            "Begge partene ser at brevet med varselet står slik det ble sendt."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "retting"
+          },
+          "klokke": "2026-10-21T08:05:00.000Z"
+        },
+        {
+          "id": "varseldatoen-er-rettet-til-en-tidligere-dato",
+          "beskrivelse": "Variant B: TE har rettet varseldatoen til 10.10.2026.",
+          "versjon": 6,
+          "forstaaelse": [
+            "TE ser at også en tidligere dato gjelder straks, uten byggherrens aksept.",
+            "TE ser ikke at rettingen venter på byggherrens aksept. Den ordningen er opphevet.",
+            "Begge partene ser at varselet med datoen som gjelder, kan bli et annet første varsel enn før."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          },
+          "klokke": "2026-10-21T08:06:00.000Z"
+        },
+        {
+          "id": "kravdatoen-er-rettet",
+          "beskrivelse": "Fristkravet er sendt fra løsningen, og variant C: TE har rettet kravdatoen til 17.10.2026.",
+          "versjon": 8,
+          "forstaaelse": [
+            "Begge partene ser i fristkravet datoen som gjelder for varselet, med rettingen den kommer fra.",
+            "TE ser at kravet lagt til med kategorien krav kan rettes, og at rettingen ikke endrer hvilket krav eller svar som var gjeldende.",
+            "I kravet står varselet med brevet det ble gitt i og datoen som gjelder, og en ny versjon av påberopelsen følger reglene for den."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "retting"
+          },
+          "klokke": "2026-10-21T08:08:00.000Z"
+        },
+        {
+          "id": "varseldatoen-er-rettet-to-ganger",
+          "beskrivelse": "Variant D: TE har rettet varseldatoen på nytt, til 08.10.2026.",
+          "versjon": 9,
+          "forstaaelse": [
+            "Begge partene ser at datoen i den siste rettingen gjelder, og de tidligere datoene med brevene."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          },
+          "klokke": "2026-10-21T08:09:00.000Z"
+        },
+        {
+          "id": "datoen-er-rettet-i-en-lukket-sak",
+          "beskrivelse": "Variant E: saken er lukket etter GR-U27, og TE har rettet varseldatoen til 09.10.2026.",
+          "versjon": 12,
+          "forstaaelse": [
+            "TE ser at rettingen godtas i en lukket sak, og at utfallet ikke endres."
+          ],
+          "neste": null,
+          "klokke": "2026-10-21T08:12:00.000Z"
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000002",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000005",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-02T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-10-01"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «Totalentreprenøren retter datoen for et varsel eller et krav sendt utenfor løsningen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 1. oktober 2026.",
+                "utdypning": "Byggherren påla oss å endre peleplanen i byggemøtet."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-00000000000b",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-21T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000000c",
+                "art": "varsel",
+                "hjemmel": "33.4"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000000d",
+                "hva": "sendt",
+                "dato": "2026-10-14"
+              }
+            ],
+            "korrespondansetype": "brev",
+            "sendemaate": "post",
+            "beskrivelse": "Brevet ble sendt utenfor løsningen.",
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "a66e4f01-0000-4000-8000-000000000007",
+                "filnavn": "a66e4f01-0000-4000-8000-000000000007.pdf",
+                "innhold_sha256": "fdbed1d880408e0f21b2e29f8e4f22e09c74d7e9514977aa8071ce4f1026a06c"
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000013",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-21T08:02:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000014",
+                "spor": "vederlag",
+                "kravposter": [
+                  {
+                    "id": "a66e4f01-0000-4000-8000-000000000015",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "tilbud",
+                    "beloep": 100000
+                  }
+                ]
+              }
+            ],
+            "dokumentasjon": [
+              {
+                "vedlegg_id": "a66e4f01-0000-4000-8000-00000000000e",
+                "filnavn": "a66e4f01-0000-4000-8000-00000000000e.pdf",
+                "innhold_sha256": "c61fc6f04620430fbaf9c13c5f3aa0a2003be1a949f654b1df2182ae8d21cbed"
+              }
+            ],
+            "opplysninger": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000016",
+                "hva": "sendt",
+                "dato": "2026-10-20"
+              }
+            ],
+            "korrespondansetype": "brev",
+            "sendemaate": "post",
+            "beskrivelse": "Brevet ble sendt utenfor løsningen."
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000019",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-21T08:05:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000001a",
+                "art": "retting",
+                "gjelder": "a66e4f01-0000-4000-8000-00000000000c",
+                "dato": "2026-10-16"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-00000000001a",
+                "laast": "Totalentreprenøren retter datoen for varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 14. oktober 2026 til 16. oktober 2026. Datoen som gjaldt, var 14. oktober 2026.",
+                "utdypning": "Varselet ble sendt 16.10.2026, ikke 14.10.2026."
+              }
+            ],
+            "brevtittel": "Retting av varseldatoen i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-00000000001d",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-21T08:06:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000001e",
+                "art": "retting",
+                "gjelder": "a66e4f01-0000-4000-8000-00000000000c",
+                "dato": "2026-10-10"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-00000000001e",
+                "laast": "Totalentreprenøren retter datoen for varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 14. oktober 2026 til 10. oktober 2026. Datoen som gjaldt, var 16. oktober 2026, etter rettingen i brev K201-KOE-017-02 av 21. oktober 2026."
+              }
+            ],
+            "brevtittel": "Retting av varseldatoen i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000022",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 7,
+          "tidsstempel": "2026-10-21T08:07:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000023",
+                "spor": "frist",
+                "frister": [
+                  {
+                    "navn": "Sluttfristen",
+                    "dager": 20,
+                    "id": "a66e4f01-0000-4000-8000-000000000024"
+                  }
+                ]
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000023",
+                "punkt": "33.4",
+                "overskrift": "1. Varselet om fristforlengelse",
+                "laast": "1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i totalentreprenørens brev av 14. oktober 2026. Totalentreprenøren har rettet datoen for varselet til 10. oktober 2026 i brev K201-KOE-017-03 av 21. oktober 2026."
+              },
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000023",
+                "punkt": "frister",
+                "overskrift": "2. Fristforlengelse",
+                "laast": "2. Fristforlengelse\n\nTotalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.\n\nFrist Sluttfristen: 20 dager."
+              },
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000023",
+                "punkt": "begrunnelse",
+                "overskrift": "3. Begrunnelse",
+                "laast": "3. Begrunnelse",
+                "utdypning": "Pelingen tar fire uker lenger."
+              }
+            ],
+            "brevtittel": "Krav om fristforlengelse i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000027",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 8,
+          "tidsstempel": "2026-10-21T08:08:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000028",
+                "art": "retting",
+                "gjelder": "a66e4f01-0000-4000-8000-000000000014",
+                "dato": "2026-10-17"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000028",
+                "laast": "Totalentreprenøren retter datoen for kravet om justering av vederlaget i totalentreprenørens brev av 20. oktober 2026 til 17. oktober 2026. Datoen som gjaldt, var 20. oktober 2026."
+              }
+            ],
+            "brevtittel": "Retting av kravdatoen i sak KOE-17",
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-00000000002b",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 9,
+          "tidsstempel": "2026-10-21T08:09:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000002c",
+                "art": "retting",
+                "gjelder": "a66e4f01-0000-4000-8000-00000000000c",
+                "dato": "2026-10-08"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-00000000002c",
+                "laast": "Totalentreprenøren retter datoen for varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 14. oktober 2026 til 8. oktober 2026. Datoen som gjaldt, var 10. oktober 2026, etter rettingen i brev K201-KOE-017-03 av 21. oktober 2026."
+              }
+            ],
+            "brevtittel": "Retting av varseldatoen i sak KOE-17",
+            "brevnummer": 6,
+            "merking": "K201-KOE-017-06"
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000033",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 10,
+          "tidsstempel": "2026-10-21T08:10:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000034",
+                "spor": "forhold",
+                "gjelder": "a66e4f01-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "a66e4f01-0000-4000-8000-000000000031",
+                    "art": "rettidighet",
+                    "gjelder": "a66e4f01-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "a66e4f01-0000-4000-8000-000000000032",
+                    "art": "forhold",
+                    "resultat": "avslaatt"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: avslått.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "a66e4f01-0000-4000-8000-000000000032",
+                      "lag": 1
+                    }
+                  ],
+                  "uten_virkning": [
+                    "a66e4f01-0000-4000-8000-000000000031"
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000034",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 2. oktober 2026."
+              },
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000034",
+                "punkt": "32.2",
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nByggherren gjør ikke gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent."
+              },
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000034",
+                "punkt": "forhold",
+                "overskrift": "2. Forholdet",
+                "laast": "2. Forholdet\n\nByggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).",
+                "utdypning": "Endringen av peleplanen var avtalt i kontrakten."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 7,
+            "merking": "K201-KOE-017-07",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-000000000037",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 11,
+          "tidsstempel": "2026-10-21T08:11:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-000000000038",
+                "art": "aksept",
+                "gjelder": "a66e4f01-0000-4000-8000-000000000034",
+                "regelversjon": 0
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-000000000038",
+                "laast": "Totalentreprenøren godtar byggherrens svar på påberopelsen av irregulær endring i brev K201-KOE-017-07 av 21. oktober 2026."
+              }
+            ],
+            "brevtittel": "Aksept av svaret i sak KOE-17",
+            "brevnummer": 8,
+            "merking": "K201-KOE-017-08",
+            "deres_ref": [
+              "K201-KOE-017-07"
+            ]
+          }
+        },
+        {
+          "event_id": "a66e4f01-0000-4000-8000-00000000003b",
+          "sak_id": "a66e4f01-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 12,
+          "tidsstempel": "2026-10-21T08:12:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "a66e4f01-0000-4000-8000-00000000003c",
+                "art": "retting",
+                "gjelder": "a66e4f01-0000-4000-8000-00000000000c",
+                "dato": "2026-10-09"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "a66e4f01-0000-4000-8000-00000000003c",
+                "laast": "Totalentreprenøren retter datoen for varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 14. oktober 2026 til 9. oktober 2026. Datoen som gjaldt, var 8. oktober 2026, etter rettingen i brev K201-KOE-017-06 av 21. oktober 2026."
+              }
+            ],
+            "brevtittel": "Retting av varseldatoen i sak KOE-17",
+            "brevnummer": 9,
+            "merking": "K201-KOE-017-09"
+          }
+        }
+      ]
+    },
+    {
       "id": "BF-51",
       "tittel": "Vederlag og frist uten varsel eller krav fra totalentreprenøren",
       "brukerhistorie": "Byggherren har svart på påberopelsen av forholdet. Totalentreprenøren har ikke sendt eller lagt til et varsel eller krav om vederlagsjustering eller fristforlengelse. TE ser at sporene ikke har varsel eller krav, og sender det første varselet eller kravet som hovedvalg. BH ser i saken at TE ikke har sendt eller lagt til et varsel eller krav i sporet, uten at løsningen sier hva som er sendt utenfor den. Når kravene er avgjort og fristsporet fortsatt er tomt, kan TE sende det første fristkravet.",
