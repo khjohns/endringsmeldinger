@@ -7,7 +7,7 @@
 <script lang="ts">
   import Knapp from './Knapp.svelte';
   import type { Datolinjene } from './lesing';
-  import { RETTING } from './tekster';
+  import { RETTING, dato } from './tekster';
 
   let {
     linjene,
@@ -32,8 +32,8 @@
       {#if rettet}
         <p>
           {#if flere}{RETTING.gjelderDet(r.det)}{/if}
-          {RETTING.gjelder(gjelder)}
-          <span class="tidligere">{RETTING.tidligere(r.datoene.slice(0, -1))}</span>
+          {RETTING.gjelder} <b>{dato(gjelder.dato)}</b>.
+          <span class="tidligere">{RETTING.historikken(r.datoene)}</span>
         </p>
       {/if}
       {#if kanRette}
@@ -63,6 +63,10 @@
     flex-direction: column;
     align-items: flex-start;
     row-gap: var(--spacing-1);
+  }
+  .datolinje b {
+    font-weight: 600;
+    color: var(--ink);
   }
   .tidligere {
     display: block;

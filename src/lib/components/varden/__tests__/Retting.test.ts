@@ -142,9 +142,9 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
     // U-5: ved varselet datoen som gjelder og den tidligere, og rettingen som eget brev.
     const varselet = await raden(VARSELET);
-    expect(varselet.tekst).toContain('Datoen som gjelder: 16. oktober 2026, rettet i brev 2.');
+    expect(varselet.tekst).toContain('Datoen som gjelder, er 16. oktober 2026.');
     expect(varselet.tekst).toContain(
-      'Tidligere: 14. oktober 2026, oppgitt da brevet ble lagt til.'
+      'Oppgitt 14. oktober 2026. Rettet til 16. oktober 2026 i brev 2.'
     );
     expect(varselet.li.getByRole('button', { name: /^Rett datoen/ })).toBeTruthy();
     expect((await raden('Retting av varseldatoen')).tekst).toContain(
@@ -156,7 +156,7 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     aapne('varseldatoen-er-rettet-to-ganger', 'BH');
     await tilFristen();
     expect((await raden(VARSELET)).tekst).toContain(
-      'Datoen som gjelder: 8. oktober 2026, rettet i brev 6. Tidligere: 14. oktober 2026, oppgitt da brevet ble lagt til; 16. oktober 2026, rettet i brev 2; 10. oktober 2026, rettet i brev 3.'
+      'Datoen som gjelder, er 8. oktober 2026. Oppgitt 14. oktober 2026. Rettet til 16. oktober 2026 i brev 2, til 10. oktober 2026 i brev 3 og til 8. oktober 2026 i brev 6.'
     );
     expect((await raden('fra 16. oktober 2026 til 10. oktober 2026')).tekst).toContain(
       'Rettet på nytt i brev 6.'
@@ -200,7 +200,9 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     await tilFristen();
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(
-      await screen.findByText('Datoen som gjelder for varselet: 10. oktober 2026, rettet i brev 3.')
+      await screen.findByText(
+        'Datoen som gjelder for varselet, er 10. oktober 2026. Den er rettet i brev 3.'
+      )
     ).toBeTruthy();
   });
 
@@ -211,7 +213,9 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
       await screen.findByRole('button', { name: 'Svar på varselet om fristforlengelse' })
     );
     expect(
-      await screen.findByText('Datoen som gjelder for varselet: 8. oktober 2026, rettet i brev 6.')
+      await screen.findByText(
+        'Datoen som gjelder for varselet, er 8. oktober 2026. Den er rettet i brev 6.'
+      )
     ).toBeTruthy();
   });
 
@@ -222,7 +226,7 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
       await screen.findByRole('button', { name: /^Send krav om fristforlengelse/ })
     );
     expect(
-      await screen.findByText(/^Varselet ble sendt 10\. oktober 2026, rettet i brev 3\./)
+      await screen.findByText(/^Varselet ble sendt 10\. oktober 2026\. Datoen er rettet i brev 3\./)
     ).toBeTruthy();
     const begrunnelse = screen.getByRole('textbox', { name: /^Begrunnelse/ });
     await fireEvent.input(begrunnelse, { target: { value: 'Pelingen tar lengre tid.' } });

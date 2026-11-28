@@ -1,4 +1,4 @@
-import { stor } from '#kjerne/frosset/brevdeler.ts';
+import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
 import type { Varselhjemmel } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
@@ -21,20 +21,26 @@ export const RETTING = haerdet({
   rettNavn: (d: Det) => `Rett datoen for ${hva(d)}`,
   /** Foran linjene når brevet har mer enn ett varsel eller krav med rettet dato. */
   gjelderDet: (d: Det) => `${stor(hva(d))}:`,
-  gjelder: (d: Datoen) => `Datoen som gjelder: ${dato(d.dato)}, ${iBrevet(d)}.`,
-  tidligere: (datoene: readonly Datoen[]) =>
-    `Tidligere: ${datoene.map((d) => `${dato(d.dato)}, ${iBrevet(d)}`).join('; ')}.`,
+  /** Foran datoen som gjelder, som står uthevet etter teksten. */
+  gjelder: 'Datoen som gjelder, er',
+  /** Hver dato i rekkefølge, den opprinnelige først, med brevet den sto i (U-5). */
+  historikken: (datoene: readonly Datoen[]) => {
+    const [oppgitt, ...rettinger] = datoene;
+    return `Oppgitt ${dato(oppgitt!.dato)}. Rettet ${liste(
+      rettinger.map((d) => `til ${dato(d.dato)} i ${brevref(d.brev)}`)
+    )}.`;
+  },
   retter: (d: Det, brev: Brevref, fra: string, til: string) =>
     `Retter datoen for ${hva(d)} i ${brevref(brev)} fra ${dato(fra)} til ${dato(til)}.`,
   rettetIgjen: (b: Brevref) => `Rettet på nytt i ${brevref(b)}.`,
 
   // Svarskjemaet (U-6).
   iSvaret: (d: Datoen, hva: 'varselet' | 'kravet') =>
-    `Datoen som gjelder for ${hva}: ${dato(d.dato)}, ${iBrevet(d)}.`,
+    `Datoen som gjelder for ${hva}, er ${dato(d.dato)}. Den er rettet i ${brevref(d.brev)}.`,
 
   // Kravskjemaet (U-10).
   fast: (d: Datoen, etter: number | null) =>
-    `Varselet ble sendt ${dato(d.dato)}, ${iBrevet(d)}.${etter === null ? '' : ` Det var ${etter} kalenderdager etter at du ble klar over forholdet.`}`,
+    `Varselet ble sendt ${dato(d.dato)}. Datoen er rettet i ${brevref(d.brev)}.${etter === null ? '' : ` Det var ${etter} kalenderdager etter at du ble klar over forholdet.`}`,
   egetBrevLenke: 'Rett datoen i et eget brev',
 
   // Skjemaet (U-2, U-4, U-9).
