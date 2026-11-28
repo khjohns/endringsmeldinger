@@ -144,3 +144,40 @@ describe('et eldre krav rettet til en dag etter kravversjonen som ellers er vars
     expect(varseleneIEldreKrav(u).map((v) => v.dokument)).toEqual([dokumentet(u, k2)]);
   });
 });
+
+describe('hva som var gjeldende, leser datoen som gjaldt den dagen kravet ble sendt (A1 i #2509, OV-U123 punkt 17, OV-U98, OV-U104)', () => {
+  /** P1 som regningsarbeid, der TE sier at kravet er varselet. */
+  const medValg = { ...P1('regningsarbeid'), varsel: { art: 'kravet' } };
+  /** K1 lagt til 30.09 til fast sum og K2 26.09 som regningsarbeid; rettingen sendes 5. oktober. */
+  function medRettingen(dato: string) {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', lagtTil('2026-09-30', P1('tilbud', 50000)));
+    const k2 = kravet(s.send('TE', lagtTil('2026-09-26', P1('regningsarbeid'))));
+    rett(s, k2, dato);
+    return s;
+  }
+
+  it('rettes K2 samme dag som K4 sendes, til den dagen, er K2 ikke sendt før K4, og K4 kan si at kravet er varselet', () => {
+    const s = medRettingen('2026-10-05');
+    expect(s.avvisning('TE', lagtTil('2026-10-05', medValg))).toBeNull();
+    s.send('TE', lagtTil('2026-10-05', medValg));
+    expect(s.u().begrensninger).toEqual([]);
+  });
+
+  it('kontrollsak: rettes K2 til dagen før, er K2 sendt før K4, og varselvalget avvises', () => {
+    const s = medRettingen('2026-10-04');
+    expect(s.avvisning('TE', lagtTil('2026-10-05', medValg))).toMatchObject({
+      regel: 'KRAVPOSTVARSELET',
+      melding: expect.stringContaining('hadde oppgjørsformen i en tidligere kravversjon'),
+    });
+  });
+
+  it('kontrollsak fra #2517: en retting sendt etter dagen K4 ble sendt, regnes ikke med, og varselvalget avvises', () => {
+    const s = medRettingen('2026-10-02');
+    expect(s.avvisning('TE', lagtTil('2026-10-01', medValg))).toMatchObject({
+      regel: 'KRAVPOSTVARSELET',
+      melding: expect.stringContaining('hadde oppgjørsformen i en tidligere kravversjon'),
+    });
+  });
+});

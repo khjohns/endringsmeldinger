@@ -8556,6 +8556,37 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['rettes det eldre kravet selv, vises den nye datoen'],
   },
+  {
+    id: 'F2509d',
+    feilklasse:
+      'kommandoen leser datoen TE først oppga for et eldre krav, ikke datoen som gjaldt den dagen kravet ble sendt (A1 i #2509, OV-U123 punkt 17)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'const rettinger = medRettingeneTil(u, dag).rettinger;',
+        'const rettinger: typeof u.rettinger = [];',
+      ],
+    ],
+    mal: ['rettes K2 samme dag som K4 sendes, til den dagen, er K2 ikke sendt før K4'],
+  },
+  {
+    id: 'F2509e',
+    feilklasse:
+      'kommandoen regner med en retting sendt etter dagen kravet ble sendt (A1 i #2509, OV-U98)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      ['const rettinger = medRettingeneTil(u, dag).rettinger;', 'const rettinger = u.rettinger;'],
+    ],
+    mal: ['kontrollsak fra #2517: en retting sendt etter dagen K4 ble sendt, regnes ikke med'],
+  },
+  {
+    id: 'F2509f',
+    feilklasse:
+      'leseren prøver varselvalget mot datoen TE først oppga for et eldre krav, ikke datoen som gjaldt den dagen kravet ble sendt (A1 i #2509)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['foerDagen(gjaldtVedSvaret(e, k), sendt(k))', 'foerDagen(sendt(e), sendt(k))']],
+    mal: ['rettes K2 samme dag som K4 sendes, til den dagen, er K2 ikke sendt før K4'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

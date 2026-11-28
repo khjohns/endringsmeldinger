@@ -196,6 +196,7 @@ export const UTLEDNINGEN: Lesbar[] = [
   // OV-U98: dagen brevet med rettingen ble sendt, mot dagen et svar lagt til oppgir.
   ['Retting', 'utsagn', 'sendt'],
   ['utledning/rettingen.ts:medRettingeneTil', 'relasjon', 'rettinger'],
+  ['utledning/rettingen.ts', 'relasjon', 'medRettingeneTil', [ELDRE_KRAV]],
   [
     'utledning/rettingen.ts',
     'utsagn',
@@ -203,8 +204,10 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
       'utledning/utled.ts:datoenSomGjelder',
-      // MM-U63: hvilket eldre krav som er varselet for en kravpost (A2 i #2509).
+      // MM-U63: hvilket eldre krav som er varselet for en kravpost (A2 i #2509), og A1: datoen som
+      // gjaldt den dagen kravet ble sendt.
       SOM_GJELDER,
+      ELDRE_KRAV,
       `${VARSLER_I_ELDRE_KRAV}.sendt`,
       // LV-U83: datoen som gjelder for varselet i fristkravet.
       'kommandoer/nyttelast.ts:nyttelastkontroll',

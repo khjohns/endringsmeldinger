@@ -28,7 +28,7 @@ import type {
   Utsagn,
 } from '../../utledning/utled.ts';
 import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
-import { datoEtterRettingene } from '../../utledning/rettingen.ts';
+import { datoEtterRettingene, medRettingeneTil } from '../../utledning/rettingen.ts';
 import {
   sisteStandpunktTilVarslene,
   utenStandpunkterForanEldreKrav,
@@ -115,22 +115,25 @@ const hattFoer = (
 ) => tidligere.some((k) => postenMed(k, p.id, hjemmel) !== undefined);
 
 /**
- * OV-U120: kravene utenfor rekken i vederlaget sendt før dagen `dag`, i rekkefølgen de ble sendt.
- * Uten dag, for et krav fra løsningen, alle.
+ * OV-U120: kravene utenfor rekken i vederlaget sendt før dagen `dag`, i rekkefølgen de ble sendt,
+ * for et krav som legges til nå. Uten dag, for et krav fra løsningen, alle. Datoen er den som
+ * gjaldt den dagen kravet ble sendt, med rettingene sendt til og med den dagen (A1 i #2509,
+ * OV-U123 punkt 17, OV-U98).
  */
 export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
+  const rettinger = medRettingeneTil(u, dag).rettinger;
   return sendtFoer(
     u.spor.vederlag.kravUtenforRekken,
-    (k) => dagenSendt(k, dokumenter.get(k.dokument)!),
+    (k) => datoEtterRettingene(rettinger, k.id, dagenSendt(k, dokumenter.get(k.dokument)!)),
     dag
   );
 }
 
 /**
  * OV-U120: kravene utenfor rekken som kan være varselet for en kravpost i et krav sendt dagen
- * `dag`. Hvilke krav som er sendt før, leser datoen TE oppga (`eldreKravFoer`, OV-U123 punkt 17),
- * og rekkefølgen mellom dem datoen som gjelder etter TEs rettinger (MM-U63, A1 og A2 i #2509).
+ * `dag`. Hvilke krav som er sendt før, leser datoen som gjaldt den dagen (`eldreKravFoer`), og
+ * rekkefølgen mellom dem datoen som gjelder etter alle TEs rettinger (MM-U63, A1 og A2 i #2509).
  */
 export function eldreKravSomVarselFoer(u: Utledning, dag: string | null): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
@@ -201,7 +204,7 @@ export function kravetVilleVaertVarselet(
  * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
  *   vilkår 3 prøvd mot det og `tidligere`.
  * `tidligere` er versjonene før `krav` i rekken, og `eldre` kravene utenfor rekken sendt før `krav`
- * i rekkefølgen de ble sendt (`eldreKravFoer`).
+ * i rekkefølgen etter datoen som gjelder (`eldreKravSomVarselFoer`).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
