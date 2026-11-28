@@ -979,6 +979,71 @@ export const TESTSAKER: Record<string, Testsak> = {
       await bh.setViewportSize({ width: 1440, height: 900 });
     },
   },
+  'fristsvar-rekkefoelgen': {
+    tittel: 'Peling i akse D',
+    formaal:
+      '#2507 (arbeidsvalg 2): seksjonene i byggherrens fristsvar står i brevets rekkefølge med brevets nummer (LV-U89), og fokuset blir på valget når seksjonen flytter seg (WCAG 2.4.3 og 3.2.2).',
+    spor: 'frist',
+    steg: [
+      {
+        handling: 'krav',
+        spor: 'forhold',
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g1',
+        utdypning: 'Byggherren har pålagt flere peler i akse D.',
+      },
+      { handling: 'krav', spor: 'frist', navn: 'K-f1', dager: 20 },
+    ],
+    async iNettleseren({ bh, saksrute, ut }) {
+      await bh.goto(saksrute);
+      const svaret = bh.getByRole('button', { name: 'Svar på kravet' });
+      await svaret.waitFor({ timeout: 30_000 });
+      await svaret.click();
+      await bh.getByRole('radio', { name: 'Varslet i tide' }).check();
+      await bh.getByRole('radio', { name: 'Spesifisert i tide' }).check();
+      await bh
+        .getByRole('radio', { name: 'Ja, fremdriften er hindret, og hindringen skyldes forholdet' })
+        .check();
+      await bh.getByRole('textbox', { name: 'Godkjente dager' }).fill('20');
+      const titlene = () =>
+        bh
+          .locator('h3[id*="-sp-"]')
+          .allTextContents()
+          .then((t: string[]) => t.map((x) => x.trim().replace(/\s+/g, ' ')));
+      console.log(`BH  seksjonene med hindringen uten lag: ${JSON.stringify(await titlene())}`);
+      await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-foer.png`, fullPage: true });
+      const nei = bh.getByRole('radio', { name: /^Nei, fremdriften er ikke hindret/ });
+      await nei.scrollIntoViewIfNeeded();
+      const foer = (await nei.boundingBox())!.y;
+      await nei.focus();
+      await bh.keyboard.press('Space');
+      await bh.locator('h3[id*="-sp-"]').filter({ hasText: /^\s*3\.\s+Hindringen/ }).waitFor();
+      const etter = (await nei.boundingBox())!.y;
+      const fokus = await nei.evaluate((el: Element) => el === document.activeElement);
+      console.log(
+        `BH  seksjonene med hindringen i laget: ${JSON.stringify(await titlene())}, fokus på valget: ${fokus}, flyttet ${Math.round(etter - foer)} px på skjermen`
+      );
+      if (!fokus) throw new Error('Fokuset forsvant da seksjonen flyttet seg');
+      if (Math.abs(etter - foer) > 2) throw new Error('Valget flyttet seg på skjermen');
+      await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-etter.png` });
+      // Med piltasten flytter seksjonen seg tilbake, og fokuset følger valget som er krysset av.
+      await bh.keyboard.press('ArrowUp');
+      await bh.locator('h3[id*="-sp-"]').filter({ hasText: /^\s*2\.\s+Hindringen/ }).waitFor();
+      const ja = bh.getByRole('radio', { name: /^Ja, fremdriften er hindret/ });
+      const fokusJa = await ja.evaluate(
+        (el: Element) => el === document.activeElement && (el as HTMLInputElement).checked
+      );
+      console.log(`BH  etter piltasten: ${JSON.stringify(await titlene())}, fokus på «Ja»: ${fokusJa}`);
+      if (!fokusJa) throw new Error('Fokuset fulgte ikke valget med piltasten');
+      await bh.keyboard.press('ArrowDown');
+      await bh.locator('h3[id*="-sp-"]').filter({ hasText: /^\s*3\.\s+Hindringen/ }).waitFor();
+      await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-etter-hel.png`, fullPage: true });
+      await bh.setViewportSize({ width: 390, height: 844 });
+      await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-390.png`, fullPage: true });
+      await bh.setViewportSize({ width: 1440, height: 900 });
+    },
+  },
   'varsler-i-ett-brev': {
     tittel: 'Graving og fjernvarme ved kum 4',
     formaal:
