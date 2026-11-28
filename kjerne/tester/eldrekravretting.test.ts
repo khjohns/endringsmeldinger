@@ -111,13 +111,14 @@ describe('K2 rettes til en dag etter K3 (MM-U63, OV-U120, #2509)', () => {
 describe('visningen viser datoen som gjelder for det eldre kravet (A4 i #2509, D-15 og U-15 i BF-49)', () => {
   it('rettes det eldre kravet selv, vises den nye datoen', () => {
     const { s, k2 } = medEldreKrav();
-    rett(s, k2, '2026-09-27');
+    const retting = rett(s, k2, '2026-09-27');
     nyVersjon(s);
     const u = s.u();
     expect(varseleneIEldreKrav(u)).toEqual([
       expect.objectContaining({
         dokument: dokumentet(u, k2),
         sendt: '2026-09-27',
+        rettetIDokument: retting.event_id,
       }),
     ]);
   });

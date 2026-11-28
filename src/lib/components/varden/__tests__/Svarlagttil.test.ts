@@ -206,6 +206,20 @@ describe('svaret lagt til med en tidligere dato (D-7, OV-U98)', () => {
 });
 
 describe('varselet i et eldre krav (U-15, D-15, OV-U120)', () => {
+  it('teksten viser datoen som gjelder og viser til rettingen (#2525, MM-U63)', () => {
+    const krav = {
+      id: 'K2',
+      nummer: null,
+      registrert: '2026-10-02',
+      omtale: 'totalentreprenørens brev av 26. september 2026',
+      art: 'registrert',
+    } as const;
+    const retting = { ...krav, id: 'D4', nummer: 4 };
+    expect(LEGG_TIL.varseletErEldreKrav(krav, '2026-09-27', retting, 'P1')).toBe(
+      'Varselet for P1 ble gitt med kravet i totalentreprenørens brev av 26. september 2026. Datoen ble rettet til 27. september 2026 i brev 4.'
+    );
+  });
+
   it('byggherren ser ved kravposten at varselet er det eldre kravet, og får ikke valget om innsigelsen for posten', async () => {
     await vederlagssvaret('bh-svarer-etter-det-eldre-kravet', '2026-10-13');
     expect(

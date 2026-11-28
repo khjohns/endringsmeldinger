@@ -142,16 +142,18 @@
   const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
   // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
   const iEldreKrav = $derived(
-    new Map<string, { b: NonNullable<ReturnType<typeof brevet>>; sendt: string | null }>(
+    new Map(
       varseleneIEldreKrav(medDatoene).flatMap((v) => {
         const b = brevet(u, v.dokument);
-        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt }] as const] : [];
+        const retting = v.rettetIDokument ? brevet(u, v.rettetIDokument) : null;
+        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt, retting }] as const] : [];
       })
     )
   );
   const varseletIEldreKrav = (p: Kravpost) => {
-    const v = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
-    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, navnet(p)) : null;
+    const hjemmel = varselhjemmelFor(p);
+    const v = hjemmel === null ? undefined : iEldreKrav.get(`${p.id} ${hjemmel}`);
+    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, v.retting, navnet(p)) : null;
   };
   // Innsigelsene svaret leses med, for valget etter U-7 i BF-49.
   const innsigelsene = $derived(innsigelseneSomStaar(u, sendt));
