@@ -34,8 +34,11 @@ export const RETTING = haerdet({
     `Retter datoen for ${hva(d)} i ${brevref(brev)} fra ${dato(fra)} til ${dato(til)}.`,
   rettetIgjen: (b: Brevref) => `Rettet på nytt i ${brevref(b)}.`,
 
+  vedSvaret: (d: Det, dag: string, b: Brevref) =>
+    `Da svaret ble sendt, var datoen for ${hva(d)} ${dato(dag)}. Datoen sto i ${brevref(b)}.`,
+
   // Svarskjemaet (U-6).
-  iSvaret: (d: Datoen, hva: 'varselet' | 'kravet') =>
+  iSvaret: (d: Datoen, hva: 'varselet' | 'kravet' | 'påberopelsen') =>
     `Datoen som gjelder for ${hva}, er ${dato(d.dato)}. Den er rettet i ${brevref(d.brev)}.`,
 
   // Kravskjemaet (U-10).
@@ -52,6 +55,8 @@ export const RETTING = haerdet({
     `Rettingen sendes i et eget brev til byggherren. ${stor(brevref(b))} står som det ble lagt til.`,
   straks: 'Den nye datoen gjelder straks som din siste opplysning, også når den er tidligere.',
   lukket: 'Saken står lukket. Brevet endrer ikke utfallet.',
+  endringsordre: (kode: string) =>
+    `Saken inngår i endringsordre ${kode}. Brevet endrer ikke utfallet.`,
   etikett: 'Ny dato',
   datoHjelp: 'Datoen kan ikke være etter dagens dato.',
   forklaring: 'Forklaring',
@@ -75,9 +80,12 @@ export const RETTING = haerdet({
   sendTekst: 'Send brevet til byggherren',
   tilbakeTil: 'utkastet',
   /** U-4: datoen gjelder straks, og i en lukket sak endres ikke utfallet. */
-  kvittering: (d: string, lukket: boolean) =>
+  kvittering: (d: string, lukket: boolean, endringsordre?: string) =>
     [
       `Brevet er sendt til byggherren. ${dato(d)} er nå datoen som gjelder.`,
       ...(lukket ? ['Saken står lukket, og utfallet er det samme.'] : []),
+      ...(endringsordre
+        ? [`Saken inngår i endringsordre ${endringsordre}. Utfallet er det samme.`]
+        : []),
     ].join(' '),
 });

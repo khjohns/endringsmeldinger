@@ -64,6 +64,8 @@ export interface Startjournal {
     beskrivelse: string;
     versjon: number;
     forstaaelse: string[];
+    endringsordre?: string;
+    part?: Part;
     neste: { part: Part; handling: string } | null;
     /** Tidspunktet klokka står på når et steg før kontrollpunktet har latt tid gå (BF-46 G-1). */
     klokke?: string;

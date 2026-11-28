@@ -284,3 +284,77 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     );
   });
 });
+
+describe('datoene i svartråden og svarskjemaene (BF-50)', () => {
+  it('svaret viser datoen ved svaret med rettingsbrevet, og varselet viser datoen som gjelder (U-7, MM-U63)', async () => {
+    aapne('varseldatoen-er-rettet-etter-svaret', 'BH');
+    await tilFristen();
+    const svar = await raden('Svar på krav om fristforlengelse');
+    expect(svar.tekst).toContain(
+      'Da svaret ble sendt, var datoen for varselet etter punkt 33.4 8. oktober 2026. Datoen sto i brev 6.'
+    );
+    expect((await raden(VARSELET)).tekst).toContain('Datoen som gjelder, er 7. oktober 2026.');
+  });
+
+  it.each([
+    [
+      'byggherren-kan-svare-paa-forholdet',
+      /^Irregulær endring/,
+      'Svar på det nye brevet',
+      [/Datoen som gjelder for påberopelsen, er 23\. oktober 2026\. Den er rettet i brev \d+\./],
+    ],
+    [
+      'byggherren-kan-svare-paa-varslene-i-brevet',
+      /^Vederlagsjustering/,
+      'Svar på varslene',
+      [
+        /Datoen som gjelder for varselet, er 16\. oktober 2026\. Den er rettet i brev \d+\./,
+        /Datoen som gjelder for varselet, er 17\. oktober 2026\. Den er rettet i brev \d+\./,
+      ],
+    ],
+    [
+      'byggherren-kan-svare-bare-paa-varslene-i-kravet',
+      /^Vederlagsjustering/,
+      'Svar på varselet om regningsarbeid',
+      [/Datoen som gjelder for varselet, er 25\. oktober 2026\. Den er rettet i brev \d+\./],
+    ],
+    [
+      'byggherren-kan-svare-paa-vederlagskravet',
+      /^Vederlagsjustering/,
+      'Svar på kravet',
+      [
+        /Datoen som gjelder for varselet, er 15\. oktober 2026\. Den er rettet i brev \d+\./,
+        /Datoen som gjelder for varselet, er 16\. oktober 2026\. Den er rettet i brev \d+\./,
+      ],
+    ],
+  ] as const)(
+    '%s viser den rettede datoen med brevet ved valget (U-6)',
+    async (punkt, spor, knapp, datoer) => {
+      aapne(punkt, 'BH');
+      await fireEvent.click(await screen.findByRole('button', { name: spor }));
+      await fireEvent.click(await screen.findByRole('button', { name: knapp }));
+      for (const [i, dato] of datoer.entries()) {
+        if (punkt === 'byggherren-kan-svare-paa-vederlagskravet' && i === 1)
+          await fireEvent.click(await screen.findByRole('button', { name: 'Svar på P2' }));
+        expect(await screen.findByText(dato)).toBeInTheDocument();
+      }
+    }
+  );
+
+  it('brevkontrollen og kvitteringen viser endringsordren som omfatter saken (U-4, EO-U39 punkt 68)', async () => {
+    aapne('saken-inngaar-i-en-endringsordre', 'TE');
+    await tilFristen();
+    await fireEvent.click((await raden(VARSELET)).li.getByRole('button', { name: /^Rett datoen/ }));
+    await skriv('2026-10-16');
+    await seBrevet();
+    await screen.findByRole('article', { name: TITTEL });
+    expect(screen.getByRole('region', { name: 'Sending' })).toHaveTextContent(
+      'Saken inngår i endringsordre EO-03. Brevet endrer ikke utfallet.'
+    );
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send brevet til byggherren' }));
+    await vi.waitFor(() =>
+      expect(kvitteringen()).toContain('Saken inngår i endringsordre EO-03. Utfallet er det samme.')
+    );
+  });
+});

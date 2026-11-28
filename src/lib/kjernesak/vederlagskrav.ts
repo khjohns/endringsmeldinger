@@ -33,6 +33,7 @@ import { svaretsVarsel } from '#kjerne/kommandoer/standpunkter.ts';
 
 /** Om vederlagskravet sendt dagen `sendt` gir det særskilte varselet etter § 34.1.3 (#2425). */
 export { kravetErDetFoersteVarselet } from '#kjerne/spor/vederlag/kommando.ts';
+export { varseletPostenGjelder } from '#kjerne/spor/vederlag/utledning.ts';
 import type { StandpunktTilVarselet } from '#kjerne/frosset/standpunkt.ts';
 import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 

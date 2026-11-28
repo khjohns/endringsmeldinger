@@ -10,7 +10,12 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { datoenSomGjelder, varseletForNyttSvar, type Utledning } from '../utledning/utled.ts';
+import {
+  datoenDetBleSendt,
+  datoenSomGjelder,
+  varseletForNyttSvar,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { laastTekst } from '../kommandoer/skriving.ts';
 import { tilbudte } from '../kommandoer/handlinger.ts';
@@ -216,14 +221,20 @@ describe('datoen som gjelder (MM-U59 punkt 8 og 18, MM-U63, D-3 og D-4 i BF-50)'
         ),
       ],
     });
+    const svaret = s.u().spor.frist.gjeldendeSvar!;
     const rettidighet = () =>
       s.u().spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'rettidighet');
     expect(rettidighet()).toMatchObject({ hjemmel: '33.4', gjelder: krav.id });
+    expect(s.u().datoerVedSvar[svaret.dokument]).toBeUndefined();
     // Kravet rettes til en dag etter varselet, og varselet blir det første for et nytt svar.
     rett(s, krav.id, '2026-10-02');
     expect(s.u().begrensninger).toEqual([]);
     expect(rettidighet()).toMatchObject({ gjelder: krav.id });
     expect(varseletForNyttSvar(s.u(), '33.4')).toBe(varselet);
+    expect(datoenDetBleSendt(s.u(), krav)).toBe('2026-09-30');
+    expect(s.u().datoerVedSvar[svaret.dokument]).toEqual([
+      { gjelder: krav.id, dato: '2026-09-30', dokument: krav.dokument },
+    ]);
   });
 });
 
@@ -256,7 +267,11 @@ describe('et svar lagt til før rettingen (MM-U59 punkt 8, OV-U98)', () => {
       .u()
       .spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'rettidighet');
     expect(rettidighet).toMatchObject({ hjemmel: '33.4', gjelder: varselet });
-    expect(s.u().begrensninger).toEqual([]);
+    const ut = s.u();
+    expect(ut.begrensninger).toEqual([]);
+    expect(ut.datoerVedSvar[ut.spor.frist.gjeldendeSvar!.dokument]).toEqual([
+      { gjelder: varselet, dato: '2026-09-28', dokument: ut.elementer[varselet].hendelse },
+    ]);
   });
 });
 

@@ -196,6 +196,24 @@ export function kravetVilleVaertVarselet(
 }
 
 /**
+ * VS-U96 punkt 23: varselet kravposten `post` i kravversjonen `k` viser til. Uten valg i versjonen
+ * står valget i den forrige, og `undefined` er at kravet er varselet for posten eller ikke sier noe.
+ */
+export function varseletPostenGjelder(
+  u: Pick<Utledning, 'spor'>,
+  k: Krav,
+  post: string
+): string | undefined {
+  const sporet = u.spor.vederlag;
+  const i = sporet.krav.findIndex((v) => v.id === k.id);
+  for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
+    const q = kravposterI(v).find((x) => x.id === post);
+    if (q?.varsel !== undefined) return varseletPostenViserTil(q);
+  }
+  return undefined;
+}
+
+/**
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
  * - VS-U87 punkt 22: kravet er varselet når ingen tidligere versjon har posten med samme
  *   oppgjørsform, justert for enhetspriser.

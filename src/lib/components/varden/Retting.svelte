@@ -27,6 +27,7 @@
     kjernesak,
     u,
     gjelder,
+    endringsordre,
     valg = $bindable({ dato: '', forklaring: '' }),
     onbrevkontroll,
     onforkast,
@@ -35,6 +36,7 @@
     u: Utledning;
     /** Varselet eller kravet kjernen tilbyr handlingen for (`rette_datoen:<id>`). */
     gjelder: string;
+    endringsordre?: string;
     /** Datoen og forklaringen står når TE går til brevkontrollen og tilbake. */
     valg?: Korrigeringsvalg;
     onbrevkontroll: (k: TilBrevkontrollen) => void;
@@ -86,7 +88,11 @@
       ? [{ naar: valg.dato, hva: RETTING.tidslinje(r.det), kilde: RETTING.tidslinjeKilde }]
       : []
   );
-  const virkninger = $derived([RETTING.straks, ...(lukket ? [RETTING.lukket] : [])]);
+  const virkninger = $derived([
+    RETTING.straks,
+    ...(lukket ? [RETTING.lukket] : []),
+    ...(endringsordre ? [RETTING.endringsordre(endringsordre)] : []),
+  ]);
 
   function seBrevet() {
     return flyt.send({

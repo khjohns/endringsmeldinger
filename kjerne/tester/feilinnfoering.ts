@@ -6557,7 +6557,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2177b',
     feilklasse:
       'byggherren kan svare på varselet alene også etter svaret på en kravversjon med en kravpost som gjelder det (VS-U96 punkt 33, #2177, #2456)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    if (q?.varsel !== undefined) return varseletPostenViserTil(q);',
@@ -7862,7 +7862,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2456c',
     feilklasse:
       'kravposten uten valg i den besvarte versjonen regnes ikke med valget i den forrige, så svaret på varselet kan gis etter svaret på kravet (VS-U96 punkt 23 og 33, #2456)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['sporet.krav.slice(0, i + 1).reverse()', '[k]']],
     mal: ['der kravposten beholder varselet fra den forrige uten valg'],
   },
@@ -8341,7 +8341,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'datoen som gjelder, er den i den første rettingen, ikke den siste (MM-U59 punkt 8 og 18, MM-U63)',
     fil: `${K}/utledning/rettingen.ts`,
-    endringer: [['foer(r)).at(-1)?.dato', 'foer(r)).at(0)?.dato']],
+    endringer: [['foer(r)).at(-1)', 'foer(r)).at(0)']],
     mal: ['D-4: datoen som gjelder, er den i den siste rettingen'],
   },
   {
@@ -8400,8 +8400,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/rettingen.ts`,
     endringer: [
       [
-        'r.gjelder === gjelder && foer(r)',
-        "r.gjelder === gjelder && foer(r) && r.dato > (oppgitt ?? '')",
+        'sisteRettingFor(rettinger, gjelder, foer)?.dato ?? oppgitt',
+        "sisteRettingFor(rettinger, gjelder, (r) => (foer?.(r) ?? true) && r.dato > (oppgitt ?? ''))?.dato ?? oppgitt",
       ],
     ],
     mal: ['variant B: en tidligere dato gjelder også straks'],
@@ -8695,6 +8695,20 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['leser journalen før dokumentet ved'],
+  },
+  {
+    id: 'F2515a',
+    fil: `${K}/utledning/utled.ts`,
+    feilklasse: 'svartråden viser dagens dato for varselet eller kravet (MM-U63, U-7 i BF-50)',
+    mal: ['punkt 8: et svar sendt før rettingen står med varselet det gjaldt'],
+    endringer: [['const dato = gjaldtVedSvaret(utsagn, s);', 'const dato = siste.dato;']],
+  },
+  {
+    id: 'F2515b',
+    fil: `${K}/utledning/utled.ts`,
+    feilklasse: 'svartråden viser til brevet som rettet datoen etter svaret (MM-U63, U-7 i BF-50)',
+    mal: ['et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen'],
+    endringer: [['dokument: vedSvaret?.dokument ?? utsagn.dokument,', 'dokument: siste.dokument,']],
   },
 ];
 

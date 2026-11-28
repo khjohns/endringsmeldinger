@@ -22,6 +22,12 @@ export interface Retting {
   sendt: string | null;
 }
 
+export const sisteRettingFor = (
+  rettinger: readonly Retting[],
+  gjelder: string,
+  foer: (retting: Retting) => boolean = () => true
+): Retting | undefined => rettinger.filter((r) => r.gjelder === gjelder && foer(r)).at(-1);
+
 /**
  * Datoen som gjelder for varselet eller kravet `gjelder`: datoen i den siste rettingen, ellers
  * `oppgitt`, datoen TE først oppga. `foer` avgrenser til rettingene før et svar, så et svar står
@@ -31,9 +37,9 @@ export function datoEtterRettingene(
   rettinger: readonly Retting[],
   gjelder: string,
   oppgitt: string | null,
-  foer: (retting: Retting) => boolean = () => true
+  foer?: (retting: Retting) => boolean
 ): string | null {
-  return rettinger.filter((r) => r.gjelder === gjelder && foer(r)).at(-1)?.dato ?? oppgitt;
+  return sisteRettingFor(rettinger, gjelder, foer)?.dato ?? oppgitt;
 }
 
 /**

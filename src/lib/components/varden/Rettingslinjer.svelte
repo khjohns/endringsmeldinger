@@ -5,6 +5,7 @@
   den. Ved brevet med rettingen datoen den retter fra og til, og brevet som rettet den på nytt.
 -->
 <script lang="ts">
+  import Melding from './Melding.svelte';
   import Knapp from './Knapp.svelte';
   import type { Datolinjene } from './lesing';
   import { RETTING, dato } from './tekster';
@@ -55,6 +56,10 @@
     {#if neste}{RETTING.rettetIgjen(neste.brev)}{/if}
   </p>
 {/if}
+
+{#each linjene.vedSvaret as d, i (i)}
+  <Melding art="info" levende={false}>{RETTING.vedSvaret(d.det, d.dato, d.brev)}</Melding>
+{/each}
 
 <style>
   .datolinje {

@@ -335,8 +335,12 @@ export class Kjoering {
       });
       for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
         this.navn.sett(`${h.navn}#${o.hva}`, o.id);
-      for (const x of (rad.data.utsagn ?? []) as { id: string; art: string }[])
-        this.navn.sett(`${h.navn}#${x.art}`, x.id);
+      const utsagn = (rad.data.utsagn ?? []) as { id: string; art: string }[];
+      for (const x of utsagn) {
+        const like = utsagn.filter((y) => y.art === x.art);
+        const nr = like.length > 1 ? like.indexOf(x) + 1 : '';
+        this.navn.sett(`${h.navn}#${x.art}${nr}`, x.id);
+      }
     }
   }
 }
@@ -476,6 +480,10 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
         (x) => x.id === id(hale[0])
       );
       return e ? datoenSomGjelder(u, e) : null;
+    }
+    case 'dato_ved_svar': {
+      const brev = hendelsenMed(id(hale[0]), u);
+      return u.datoerVedSvar[brev]?.find((d) => d.gjelder === id(hale[1]))?.dato ?? null;
     }
     // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U59): TEs opplysninger om datoen,
     // med datoen, og opplysningen som var TEs siste da svaret ble gitt (designdelen).

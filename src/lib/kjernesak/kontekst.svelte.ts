@@ -39,7 +39,11 @@ export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
  * rettingene (MM-U59 punkt 8 og 18, MM-U63), for tråden og skjemaene i Varden (BF-50).
  */
 export { detSomRettes } from '#kjerne/kommandoer/rettingen.ts';
-export { datoenSomGjelder } from '#kjerne/utledning/utled.ts';
+export {
+  datoenDetBleSendt,
+  datoenSomGjelder,
+  varseletFoerBrevet,
+} from '#kjerne/utledning/utled.ts';
 /** Rettingene sendt til og med dagen et svar lagt til oppgir (OV-U98), for svarskjemaet i Varden. */
 export { medRettingeneTil } from '#kjerne/utledning/rettingen.ts';
 /** G-2 i BF-49: feltene med tekst fra løsningen, som et krav og et svar lagt til ikke har (OV-U80). */

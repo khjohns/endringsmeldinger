@@ -151,8 +151,11 @@
     spor,
     nySakLenke,
     sakslenke,
+    endringsordre,
   }: {
     kjernesak: Kjernesakkontekst;
+    /** Koden til endringsordren som omfatter saken (EO-U39 punkt 68). */
+    endringsordre?: string;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
     spor?: Spor;
     /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
@@ -1219,6 +1222,7 @@
       {kjernesak}
       {u}
       {gjelder}
+      {endringsordre}
       bind:valg={utkastene.retting}
       onforkast={() => forkastUtkast('retting')}
       onbrevkontroll={(k) => {
@@ -1231,7 +1235,11 @@
           tilbakeTil: RETTING.tilbakeTil,
           svarerPaa: brevMedUtsagn(u, gjelder),
           henvisning: BREVKONTROLL.viserTil,
-          kvittering: RETTING.kvittering(k.kommando.dato as string, avsluttetAvTe(u)),
+          kvittering: RETTING.kvittering(
+            k.kommando.dato as string,
+            avsluttetAvTe(u),
+            endringsordre
+          ),
           tilbake: { art: 'retting', gjelder },
           utkastet: null,
         });

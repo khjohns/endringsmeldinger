@@ -21,7 +21,12 @@
   } from '#kjerne/spor/forhold/tekst.ts';
   import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    kravversjonenPaaDagen,
+    medRettingeneTil,
+    varseletFoerBrevet,
+    type Kjernesakkontekst,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
     forhaandsvistSvar,
@@ -49,7 +54,13 @@
     type Forholdssvarvalg,
   } from './forholdssvar';
   import { kanFrafalle } from '#kjerne/regler/forhold.ts';
-  import { brevene, nyttSvarIUtkastet, standpunktene, underOverskriften } from './lesing';
+  import {
+    brevene,
+    nyttSvarIUtkastet,
+    rettetDato,
+    standpunktene,
+    underOverskriften,
+  } from './lesing';
   import {
     begrunnelserForTemaene,
     kravbrevetI,
@@ -58,7 +69,7 @@
     stilt,
     ugyldig,
   } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager, SKJEMA } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager, RETTING, SKJEMA } from './tekster';
 
   let {
     kjernesak,
@@ -110,7 +121,11 @@
     const { hovedkategori, underkategori } = kategori(krav);
     const felt = oppgittDato(hovedkategori, underkategori);
     const oppgitt = felt ? innholdIForholdet(krav).datoer[felt] : null;
-    const sendt = kravetSendt(kravbrevet);
+    const paaDagen = medRettingeneTil(u, lagtTil?.dato || null);
+    const rettetKrav = rettetDato(paaDagen, krav.id);
+    const varselId = varseletFoerBrevet(paaDagen, '32.2');
+    const rettetVarsel = varselId && varselId !== krav.id ? rettetDato(paaDagen, varselId) : null;
+    const sendt = rettetKrav?.dato ?? kravetSendt(kravbrevet);
     return [
       ...(felt && oppgitt
         ? [
@@ -123,7 +138,12 @@
             },
           ]
         : []),
-      ...(sendt ? [{ tekst: FORHOLDSSVAR.paaberopelsenSendt(dato(sendt)) }] : []),
+      ...(rettetVarsel ? [{ tekst: RETTING.iSvaret(rettetVarsel, 'varselet') }] : []),
+      ...(rettetKrav
+        ? [{ tekst: RETTING.iSvaret(rettetKrav, 'påberopelsen') }]
+        : sendt
+          ? [{ tekst: FORHOLDSSVAR.paaberopelsenSendt(dato(sendt)) }]
+          : []),
       ...(oppgitt && sendt
         ? [{ tekst: FORHOLDSSVAR.avstand(kalenderdager(oppgitt, sendt)), art: 'avstand' as const }]
         : []),

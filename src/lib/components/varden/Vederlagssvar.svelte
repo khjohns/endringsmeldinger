@@ -14,7 +14,12 @@
     svarpunkteneIVederlaget,
   } from '#kjerne/spor/vederlag/tekst.ts';
   import { FORHOLDET, medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
-  import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    hindrerSvarPaaKravet,
+    medRettingeneTil,
+    varseletFoerBrevet,
+    type Kjernesakkontekst,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning, Vederlagsspoersmaal } from '#kjerne/spor/vederlag/kommando.ts';
   import {
@@ -22,6 +27,7 @@
     innsigelseneSomStaar,
     varseleneIEldreKrav,
     varseletFoer as varseletFoerIdag,
+    varseletPostenGjelder,
     varselhjemmelFor,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -130,11 +136,19 @@
   const krav = $derived(
     kravetSvaretGjelder(u, 'vederlag', sendt).krav ?? u.spor.vederlag.gjeldendeKrav!
   );
+  const medDatoene = $derived(medRettingeneTil(u, sendt));
+  const varseletForPosten = (p: Kravpost) => {
+    const eget = varseletPostenGjelder(u, krav, p.id);
+    const eldre = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
+    const eldreKrav =
+      eldre && u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === eldre.b.id);
+    return eget ?? eldreKrav?.id ?? krav.id;
+  };
   const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
   // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
   const iEldreKrav = $derived(
     new Map<string, { b: NonNullable<ReturnType<typeof brevet>>; sendt: string | null }>(
-      varseleneIEldreKrav(u).flatMap((v) => {
+      varseleneIEldreKrav(medDatoene).flatMap((v) => {
         const b = brevet(u, v.dokument);
         return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt }] as const] : [];
       })
@@ -784,6 +798,7 @@
             punkt={forutsetning}
           />
         {/snippet}
+        <Varseldatoer {u} gjelder={varseletForPosten(p)} svaretSendt={sendt} />
         <Varselstandpunkt
           varselId={`${uid}-varsel-${p.betegnelse}`}
           justeringId={`${uid}-justering-${p.betegnelse}`}
@@ -819,7 +834,13 @@
         aktiv={foerstePunkt === '34.1.2'}
         tittel={overskrift('34.1.2') ?? temanavn(svartemaene, '34.1.2')}
       >
-        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} svaretSendt={sendt} />
+        <Varseldatoer
+          {u}
+          spor="vederlag"
+          krav={krav.id}
+          sendt={SKJEMA.kravSendt}
+          svaretSendt={sendt}
+        />
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
           liste={iPosten(grunnene)}
@@ -922,6 +943,7 @@
         <p class="kunnskapsdato" class:smal={!vedSiden} id={`${uid}-kunnskapsdato-ved-valget`}>
           {KUNNSKAPSDATO.iSvaret(sisteKunnskapsdato)}
         </p>
+        <Varseldatoer {u} gjelder={varseletFoerBrevet(medDatoene, '34.1.3')} svaretSendt={sendt} />
         <Gjelderhvis
           id={`${uid}-saerskilt-itide-forutsetninger`}
           liste={forutsetningeneForVarselet}

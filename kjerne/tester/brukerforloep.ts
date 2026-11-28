@@ -42,6 +42,10 @@ export type Kontrollpunkt = {
   id: string;
   etter: number;
   beskrivelse: string;
+  /** Koden til endringsordren som omfatter demosaken (EO-U39 punkt 68). */
+  endringsordre?: string;
+  /** Siden demoruta åpner kontrollpunktet som. */
+  part?: Part;
   kontrollsett?: { sett: string; med: Record<string, unknown> }[];
   kontroller?: Omit<Kontroll, 'etter'>[];
   /** Det brukeren skal forstå her. Prøves manuelt og i brukertest, ikke i CI. */
@@ -247,6 +251,8 @@ export type Startjournal = {
     /** Saksversjonen ved kontrollpunktet: journalen er radene til og med den. */
     versjon: number;
     forstaaelse: string[];
+    endringsordre?: string;
+    part?: Part;
     /** Parten som handler i neste steg i forløpet, eller `null` etter siste steg. */
     neste: { part: Part; handling: string } | null;
     /**
@@ -290,6 +296,8 @@ export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
         p.etter < steg.length
           ? { part: partFor(steg[p.etter]), handling: steg[p.etter].handling }
           : null,
+      ...(p.part ? { part: p.part } : {}),
+      ...(p.endringsordre ? { endringsordre: p.endringsordre } : {}),
       ...(klokker[i] ? { klokke: klokker[i] } : {}),
     })),
     journal: await bane.journal(),

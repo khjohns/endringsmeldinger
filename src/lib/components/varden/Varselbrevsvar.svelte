@@ -17,6 +17,7 @@
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
+  import Varseldatoer from './Varseldatoer.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
     harStandpunkt,
@@ -362,6 +363,7 @@
         tittel={`${v.nr}. ${VARSELSVARET.punktet(v.hjemmel)}`}
       >
         {#if v.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(v.arbeid)}</p>{/if}
+        <Varseldatoer {u} gjelder={v.id} />
         <Varselstandpunkt
           varselId={`${id}-varsel`}
           justeringId={`${id}-justering`}
