@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `36345ed98a912276314bfc41ba4c6b8f2ba60fc8c7e5b32a40371d42c60c4e23`
+Kontrollsum (SHA-256 over utdraget visningen leser): `ed0f32fca20b49f5a58b7fa032d6344014a4684e008bfaaa4879d66b6da4230e`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4228,7 +4228,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.11, oppdragsgiver (#2527, spørsmål 3 i runde 12 i #1065)
 
-**Følge:** Snevrer inn [OV-U123](#ov-u123). Retter punkt 18 i [samlevedtaket for brev sendt utenfor løsningen, versjon 2](../../plans/vedtak.md#samlevedtak-brev-utenfor-2), etter OV-U25 og punkt 5 i OV-U89. Spørsmålet står i #2527, med oppdragsgivers ord 28.11 i kommentaren [7236327597](https://github.com/khjohns/endringsmeldinger/issues/2527#issuecomment-7236327597).
+**Følge:** Snevrer inn [OV-U123](#ov-u123). Retter punkt 18 i [samlevedtaket for brev sendt utenfor løsningen, versjon 2](../../plans/vedtak.md#samlevedtak-brev-utenfor-2), etter OV-U25. Spørsmålet står i #2527, med oppdragsgivers ord 28.11 i kommentaren [7236327597](https://github.com/khjohns/endringsmeldinger/issues/2527#issuecomment-7236327597).
 
 **Regelrader:** —
 

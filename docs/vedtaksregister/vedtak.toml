@@ -33606,7 +33606,7 @@ forhold = [
   { art = "snevrer inn", vedtak = "ov-u123" },
 ]
 folge = '''
-Retter punkt 18 i [samlevedtaket for brev sendt utenfor løsningen, versjon 2](#samlevedtak-brev-utenfor-2), etter OV-U25 og punkt 5 i OV-U89. Spørsmålet står i #2527, med oppdragsgivers ord 28.11 i kommentaren [7236327597](https://github.com/khjohns/endringsmeldinger/issues/2527#issuecomment-7236327597).'''
+Retter punkt 18 i [samlevedtaket for brev sendt utenfor løsningen, versjon 2](#samlevedtak-brev-utenfor-2), etter OV-U25. Spørsmålet står i #2527, med oppdragsgivers ord 28.11 i kommentaren [7236327597](https://github.com/khjohns/endringsmeldinger/issues/2527#issuecomment-7236327597).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
