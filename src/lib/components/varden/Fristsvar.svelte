@@ -233,22 +233,27 @@
   /** Seksjonene for hele kravet i skjemaets rekkefølge, før brevet gir dem nummer. */
   const skjemaetsRekkefoelge = ['33.4', '33.6.2', 'hindring', 'spesifisering'] as const;
   // Når et valg flytter seksjonen sin, blir fokuset på valget og valget på samme sted på
-  // skjermen (WCAG 2.4.3 og 3.2.2, arbeidsvalg 2 i #2507).
+  // skjermen (WCAG 2.4.3 og 3.2.2, arbeidsvalg 2 i #2507). Valget huskes bare til
+  // oppdateringen etter det, så en endring andre steder flytter ikke siden.
   let sistBrukt: { felt: HTMLElement; topp: number } | null = null;
-  const huskFeltet = (e: Event) => {
-    if (e.target instanceof HTMLElement)
-      sistBrukt = { felt: e.target, topp: e.target.getBoundingClientRect().top };
+  const huskValget = (e: Event) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    const valget = { felt: e.target, topp: e.target.getBoundingClientRect().top };
+    sistBrukt = valget;
+    setTimeout(() => {
+      if (sistBrukt === valget) sistBrukt = null;
+    });
   };
   let forrigeRekkefoelge = '';
-  const tilbakeTilFeltet = (rekkefoelgen: string) => () => {
+  const tilbakeTilValget = (rekkefoelgen: string) => () => {
     if (rekkefoelgen === forrigeRekkefoelge) return;
     forrigeRekkefoelge = rekkefoelgen;
     const s = sistBrukt;
     sistBrukt = null;
     if (!s?.felt.isConnected) return;
     const aktivt = document.activeElement;
-    if (aktivt !== s.felt && (aktivt === null || aktivt === document.body))
-      s.felt.focus({ preventScroll: true });
+    if (aktivt === null || aktivt === document.body) s.felt.focus({ preventScroll: true });
+    else if (aktivt !== s.felt) return;
     const flyttet = s.felt.getBoundingClientRect().top - s.topp;
     if (flyttet) window.scrollBy(0, flyttet);
   };
@@ -807,9 +812,8 @@
     {@const rekkefoelgen = iBrevetsRekkefoelge(skjemaetsRekkefoelge, overskrift)}
     <div
       class="seksjonene"
-      onclickcapture={huskFeltet}
-      onkeydowncapture={huskFeltet}
-      {@attach tilbakeTilFeltet(rekkefoelgen.join())}
+      onchangecapture={huskValget}
+      {@attach tilbakeTilValget(rekkefoelgen.join())}
     >
       {#each rekkefoelgen as punkt (punkt)}
         {@render seksjonene[punkt]()}

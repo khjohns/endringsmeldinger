@@ -1027,6 +1027,17 @@ export const TESTSAKER: Record<string, Testsak> = {
       if (!fokus) throw new Error('Fokuset forsvant da seksjonen flyttet seg');
       if (Math.abs(etter - foer) > 2) throw new Error('Valget flyttet seg på skjermen');
       await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-etter.png` });
+      // Med piltasten flytter seksjonen seg tilbake, og fokuset følger valget som er krysset av.
+      await bh.keyboard.press('ArrowUp');
+      await bh.locator('h3[id*="-sp-"]').filter({ hasText: /^\s*2\.\s+Hindringen/ }).waitFor();
+      const ja = bh.getByRole('radio', { name: /^Ja, fremdriften er hindret/ });
+      const fokusJa = await ja.evaluate(
+        (el: Element) => el === document.activeElement && (el as HTMLInputElement).checked
+      );
+      console.log(`BH  etter piltasten: ${JSON.stringify(await titlene())}, fokus på «Ja»: ${fokusJa}`);
+      if (!fokusJa) throw new Error('Fokuset fulgte ikke valget med piltasten');
+      await bh.keyboard.press('ArrowDown');
+      await bh.locator('h3[id*="-sp-"]').filter({ hasText: /^\s*3\.\s+Hindringen/ }).waitFor();
       await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-etter-hel.png`, fullPage: true });
       await bh.setViewportSize({ width: 390, height: 844 });
       await bh.screenshot({ path: `${ut}/fristsvar-rekkefoelgen-390.png`, fullPage: true });
