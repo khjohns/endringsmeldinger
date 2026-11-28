@@ -132,6 +132,18 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     );
   });
 
+  it('spørsmålet om spesifisert tilbud er merket «Valgfri», som de andre valgfrie spørsmålene (KA-U69, KA-U71, #2511)', async () => {
+    await svarskjemaet();
+    const gruppen = screen.getByRole('group', {
+      name: 'Spesifisert tilbud (punkt\u00a034.2.1), Valgfri',
+    });
+    expect(
+      within(gruppen).getByRole('checkbox', {
+        name: 'Krev at totalentreprenøren gir et spesifisert tilbud for P1',
+      })
+    ).not.toBeChecked();
+  });
+
   it('punkt 34.4 er en setning, og lenken gjør gjeldende at varselet ikke ble gitt eller kom for sent (VS-U63)', async () => {
     const sendt = await svarskjemaet();
     await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
