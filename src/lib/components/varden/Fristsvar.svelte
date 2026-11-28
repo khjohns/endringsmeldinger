@@ -342,7 +342,7 @@
       case '33.4':
         if (varselITide && innsigelsesbrevet)
           return [oppgivelsestekst('33.4', innsigelsesbrevet, true)];
-        return varselITide === null ? [] : [varselITide ? SKJEMA.iTide : SKJEMA.forSent];
+        return varselITide === null ? [] : [varselITide ? SKJEMA.komITide : SKJEMA.komForSent];
       case '33.6.2':
         return valg.begrunnelseIkkeSvar
           ? [FRISTSVAR.begrunnelseIkkeSvar]
@@ -692,11 +692,11 @@
         {:else}
           <Valg
             navn={`${uid}-varsel`}
-            spoersmaal={FRISTSVAR.varselSpoersmaal}
+            spoersmaal={SKJEMA.varselSpoersmaal}
             beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
             valg={[
-              { verdi: true, tekst: SKJEMA.iTide },
-              { verdi: false, tekst: SKJEMA.forSent },
+              { verdi: true, tekst: SKJEMA.komITide },
+              { verdi: false, tekst: SKJEMA.komForSent },
             ]}
             bind:verdi={valg.varselITide}
             feil={feil(`${uid}-varsel`)}

@@ -30,7 +30,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     // S2-A: grunnene fra grunnlaget først, så innsigelsen mot vederlagskravet.
     expect(forutsetningene()).toEqual([
       AVSLAGET,
@@ -70,7 +70,7 @@ describe('Varden med brukerforløpet BF-01', () => {
         .queryAllByRole('listitem')
         .map((li) => li.textContent!.replace(/\s+/g, ' ').trim());
 
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom i tide' }));
     expect(beloepet(), 'forutsetning: uten oppgjørsform spør skjemaet om beløpet').not.toBeNull();
     await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
     await fireEvent.click(
@@ -88,7 +88,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(linjer().some((l) => l.includes('Vederlagsjustering:'))).toBe(true);
   });
 
-  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om at varselet etter punkt 34.1.2 kom for sent etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
+  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om at varselet etter punkt 34.1.2 kom for sent etter «Kom for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -106,15 +106,15 @@ describe('Varden med brukerforløpet BF-01', () => {
     };
     // Nummeret i saken, ikke versjonen i journalen (oppdragsgiver 05.11 i #1631).
     const AVSLAGET = ['avslaget av forholdet i brev 2 ikke fører frem'];
-    const VARSEL = 'Kom varselet om kravet i tide?';
+    const VARSEL = 'Kom varselet i tide?';
     const METODE = 'Oppgjørsformen (punkt\u00a034.2.2)';
 
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual(AVSLAGET);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom i tide' }));
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual(AVSLAGET);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Kom for sent' }));
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual([
       ...AVSLAGET,

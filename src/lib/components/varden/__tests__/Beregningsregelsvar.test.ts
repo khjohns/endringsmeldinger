@@ -73,6 +73,15 @@ async function svarskjemaet() {
 }
 
 const radio = (navn: string) => screen.getByRole('radio', { name: navn });
+// Varselet etter punkt 34.1.2 og varselet for kravposten har de samme valgene (#2443).
+const hovedvarselet = (navn: string) =>
+  within(
+    document.querySelector<HTMLElement>('fieldset[id$="-itide"]:not([id$="saerskilt-itide"])')!
+  ).getByRole('radio', { name: navn });
+const kravpostvarselet = (navn: string) =>
+  screen
+    .queryAllByRole('group', { name: /^Varselet om justering av enhetsprisene/ })
+    .flatMap((g) => within(g).queryAllByRole('radio', { name: navn }))[0];
 const aapne = (post: string) =>
   fireEvent.click(screen.getByRole('button', { name: `Svar på ${post}` }));
 const ferdig = () => fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
@@ -120,11 +129,11 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     ).toContain('Mener enhetspriser (punkt\u00a034.3), krever spesifisert tilbud');
     await aapne('P2');
     await fireEvent.click(radio('Godtar enhetspriser (punkt\u00a034.3)'));
-    expect(radio('Kom i tide').closest('.kort')).not.toHaveClass('stablet');
+    expect(kravpostvarselet('Kom i tide')!.closest('.kort')).not.toHaveClass('stablet');
     expect(radio('Godtar justeringen').closest('.kort')).not.toHaveClass('stablet');
-    await fireEvent.click(radio('Kom i tide'));
+    await fireEvent.click(kravpostvarselet('Kom i tide')!);
     await fireEvent.click(radio('Godtar justeringen'));
-    await fireEvent.click(radio('Varslet i tide'));
+    await fireEvent.click(hovedvarselet('Kom i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
@@ -148,7 +157,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     const sendt = await svarskjemaet();
     await fireEvent.click(radio('Godtar regningsarbeid (punkt\u00a034.4)'));
     expect(screen.getByText('Ingen innsigelse.')).toBeInTheDocument();
-    expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
+    expect(kravpostvarselet('Kom i tide')).toBeUndefined();
     await fireEvent.click(
       screen.getByRole('button', { name: 'Varselet ble ikke gitt eller kom for sent' })
     );
@@ -158,7 +167,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await ferdig();
     await aapne('P2');
     await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
-    await fireEvent.click(radio('Varslet i tide'));
+    await fireEvent.click(hovedvarselet('Kom i tide'));
     await seBrevet();
     // LV-U34: «NS 8407» står bare første gang i brevet.
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
@@ -175,7 +184,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await ferdig();
     await aapne('P2');
     await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
-    await fireEvent.click(radio('Varslet i tide'));
+    await fireEvent.click(hovedvarselet('Kom i tide'));
     await seBrevet();
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
       'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
@@ -188,7 +197,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await ferdig();
     await aapne('P2');
     await fireEvent.click(radio('Godtar enhetspriser (punkt\u00a034.3)'));
-    await fireEvent.click(radio('Varslet i tide'));
+    await fireEvent.click(hovedvarselet('Kom i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(0);
     const mangler = screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' });
@@ -220,7 +229,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
         name: 'standpunktet ditt til oppgjørsformen',
       })
     ).toHaveAttribute('href', expect.stringMatching(/-form-P2$/));
-    await fireEvent.click(radio('Kom for sent'));
+    await fireEvent.click(kravpostvarselet('Kom for sent')!);
     const liste = document.getElementById(
       screen.getByRole('group', { name: justeringen }).getAttribute('aria-describedby')!
     )!;
@@ -263,7 +272,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       expect(within(gruppe).getByRole('radio', { name: 'Kom for sent' })).toHaveFocus()
     );
     // Brevet har ikke noe standpunkt til varselet etter punkt 34.3.3.
-    await fireEvent.click(radio('Varslet i tide'));
+    await fireEvent.click(hovedvarselet('Kom i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).not.toMatch(

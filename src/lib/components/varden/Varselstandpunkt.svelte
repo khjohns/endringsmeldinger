@@ -163,7 +163,7 @@
       {:else}
         <Valg
           navn={varselId}
-          spoersmaal={egetPunkt ? SKJEMA.varselSpoersmaalKort : SKJEMA.varselJusteringSpoersmaal}
+          spoersmaal={egetPunkt ? SKJEMA.varselSpoersmaal : SKJEMA.varselJusteringSpoersmaal}
           valgfri={varselValgfri}
           feil={varselFeil}
           hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}
