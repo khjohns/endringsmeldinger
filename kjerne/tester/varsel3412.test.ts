@@ -484,7 +484,7 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     });
   });
 
-  it('et lagret svar på punkt 34.4 må ha standpunktet til selve varselet', () => {
+  it('et lagret svar på punkt 34.4 må ha standpunktet til selve varselet (VS-U96 punkt 31, VS-U100)', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', sendVarsel('34.4')))[0].id;
     const rad = s.send('BH', svarPaa(gjelder, '34.4', false));
@@ -496,7 +496,13 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     grunnlag.virkninger = (grunnlag.virkninger as Data[]).filter(
       (v) => v.standpunkt === hovedvarselet.id
     );
-    expect(s.u().forstaatt).toBe(false);
+    delete grunnlag.uten_virkning;
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger).toContainEqual({
+      hendelse: rad.event_id,
+      grunn: 'svaret på varselet etter punkt 34.4 har ikke standpunktet til varselet',
+    });
   });
 
   it('etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet', () => {
