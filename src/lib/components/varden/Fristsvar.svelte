@@ -244,10 +244,11 @@
       if (sistBrukt === valget) sistBrukt = null;
     });
   };
-  let forrigeRekkefoelge: (typeof skjemaetsRekkefoelge)[number][] = [];
+  // Ikke reaktiv: rekkefølgen leses når brevet endrer seg, og skrives etter oppdateringen.
+  const forrige: { rekkefoelge: (typeof skjemaetsRekkefoelge)[number][] } = { rekkefoelge: [] };
   const tilbakeTilValget = (rekkefoelgen: (typeof skjemaetsRekkefoelge)[number][]) => () => {
-    if (rekkefoelgen.join() === forrigeRekkefoelge.join()) return;
-    forrigeRekkefoelge = rekkefoelgen;
+    if (rekkefoelgen.join() === forrige.rekkefoelge.join()) return;
+    forrige.rekkefoelge = rekkefoelgen;
     const s = sistBrukt;
     sistBrukt = null;
     if (!s?.felt.isConnected) return;
@@ -812,7 +813,7 @@
     {@const rekkefoelgen = iBrevetsRekkefoelge(
       skjemaetsRekkefoelge,
       overskrift,
-      forrigeRekkefoelge
+      forrige.rekkefoelge
     )}
     <div class="seksjonene" onchangecapture={huskValget} {@attach tilbakeTilValget(rekkefoelgen)}>
       {#each rekkefoelgen as punkt (punkt)}
