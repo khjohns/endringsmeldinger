@@ -274,7 +274,8 @@ export const KRAVFORM_I_VEDERLAGET = {
 function kravpostsperre(
   k: Extract<Kommando, { type: 'krav' }>,
   u: Utledning,
-  sendt: string | null
+  sendt: string | null,
+  dag: string
 ): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
   const { tidligere, andre } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);
@@ -286,7 +287,7 @@ function kravpostsperre(
     { innhold: k.innhold },
     tidligere,
     u.spor.vederlag.kravpostvarsler,
-    eldreKravFoer(u, sendt)
+    eldreKravFoer(u, dag)
   );
   return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
 }
@@ -756,7 +757,8 @@ export function kontrollerKunnskapsdatoen(
 export const NYTTELAST_I_VEDERLAGET = {
   begrunnelse: () => null,
   svarsperre: oppgivelseUtenInnsigelse,
-  kravsperre: (k, u, sendt) => kravpostsperre(k, u, sendt) ?? kunnskapsdatoISperren(k, u, sendt),
+  kravsperre: (k, u, sendt, dag) =>
+    kravpostsperre(k, u, sendt, dag) ?? kunnskapsdatoISperren(k, u, sendt),
   utdypning: () => null,
   oppgittDatoIKravet: () => null,
 } satisfies Sporsnyttelast;
@@ -946,8 +948,12 @@ function medVarslene(
  * Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). Et krav
  * utenfor rekken kan være varselet (OV-U120).
  */
-const kravpostvarslerIBrevet = (k: Krav, u: Utledning): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));
+const kravpostvarslerIBrevet = (
+  k: Krav,
+  u: Utledning,
+  dag: string
+): Record<string, Kravpostvarselet> =>
+  kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, dag));
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken
@@ -998,7 +1004,7 @@ function vedleggVedEtVarsel(hvor: string, varselet?: Dokument) {
  */
 function varselvalgetMangler(
   k: Extract<Kommando, { type: 'krav' }>,
-  { foer: { u } }: Sakssperre
+  { foer: { u }, dag }: Sakssperre
 ): Avvisning | null {
   const sporet = u.spor.vederlag;
   const brukt = new Set(
@@ -1014,7 +1020,7 @@ function varselvalgetMangler(
   );
   if (!ubrukte.length) return null;
   const { tidligere } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);
-  const eldre = eldreKravFoer(u, sendt);
+  const eldre = eldreKravFoer(u, sendt ?? dag);
   for (const [i, p] of kravposterI({ innhold: k.innhold }).entries()) {
     const hjemmel = varselhjemmel(p);
     if (

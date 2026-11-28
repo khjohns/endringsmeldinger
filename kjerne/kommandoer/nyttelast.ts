@@ -96,12 +96,14 @@ export interface Sporsnyttelast {
   svarsperre(s: Svarutkast, krav: Krav, u: Utledning, sendt: string | null): Avvisning | null;
   /**
    * Det i kravet som strider mot kravversjonene før i sporet, eller `null`. `sendt` er dagen et krav
-   * lagt til ble sendt, og `null` for et krav fra løsningen (OV-U118).
+   * lagt til ble sendt, og `null` for et krav fra løsningen (OV-U118). `dag` er dagen kravet sendes
+   * eller ble sendt, også for et krav fra løsningen (OV-U104).
    */
   kravsperre(
     k: Extract<Kommando, { type: 'krav' }>,
     u: Utledning,
-    sendt: string | null
+    sendt: string | null,
+    dag: string
   ): Avvisning | null;
   /** Utdypningen kravet i sporet må ha under den låste teksten (`kravetsUtdypning`), eller `null`. */
   utdypning(k: Extract<Kommando, { type: 'krav' }>, regler: Regelsett): Avvisning | null;
@@ -645,6 +647,7 @@ export function nyttelastkontroll(
   regler: Regelsett,
   svarstandpunkter: Svarstandpunkter,
   sendt: string | null,
+  brevetsDato: string,
   utdypningKreves = true
 ): Avvisning | null {
   // D-13 i BF-49, OV-U123 punkt 23: et krav, svar, aksept eller varsel lagt til retter
@@ -659,7 +662,7 @@ export function nyttelastkontroll(
   }
   switch (k.type) {
     case 'krav': {
-      const sperre = nyttelastI(k.spor).kravsperre(k, u, sendt);
+      const sperre = nyttelastI(k.spor).kravsperre(k, u, sendt, sendt ?? brevetsDato);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

@@ -89,7 +89,7 @@ export function avvisning(
     if (brudd) return brudd;
   }
   return (
-    nyttelastkontroll(k, part, u, regler, svarstandpunkter, sendt, utdypningKreves) ??
+    nyttelastkontroll(k, part, u, regler, svarstandpunkter, sendt, brevetsDato, utdypningKreves) ??
     oppgittDatoEtterBrevet(k, brevetsDato)
   );
 }

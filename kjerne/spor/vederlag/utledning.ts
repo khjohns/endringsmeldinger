@@ -255,8 +255,11 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
     return kravposterI(k).flatMap((p) => {
       const v = varslene[p.id];
       const e = v?.art === 'gitt' ? eldre.get(v.varsel) : undefined;
-      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken.
-      return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))
+      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken,
+      // og vilkår 4 en kravversjon i rekken som er sendt før det eldre kravet etter en retting.
+      return e &&
+        ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id)) &&
+        !krav.some((x) => foerDagen(sendt(x), sendt(e)) && postenMed(x, p.id, varselhjemmel(p)!))
         ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }]
         : [];
     });
@@ -264,7 +267,7 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
 }
 
 /**
- * S-1 A i #2509: for hvert svar på vederlaget, de eldre kravene som var varselet da svaret ble
+ * MM-U64: for hvert svar på vederlaget, de eldre kravene som var varselet da svaret ble
  * sendt. Alle kravene utenfor rekken i saken regnes med, og rettingene som står før svaret og er
  * sendt til og med dagen det ble sendt (som `gjaldtVedSvaret` i `utledning/utled.ts`, OV-U98,
  * OV-U104). Med `kjentFoer` leses bare brevene før det brevet (VS-U81).
@@ -443,7 +446,7 @@ export const KONTROLLER_I_VEDERLAGET = {
  * sendt før den dagen (OV-U98, OV-U104), eller til og med den dagen når `medSammeDag` er satt.
  * `kjentFoer` er et brev i saken: da leses bare brevene som var i journalen før det, slik
  * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81). En påberopelse som sto mot
- * varselet før en retting, står også mot varselet etter den (S-1 A i #2509).
+ * varselet før en retting, står også mot varselet etter den (MM-U64).
  */
 export function standpunkteneTilVarslene(
   u: Utledning,

@@ -301,9 +301,9 @@ export interface Sporsskriving {
   handlingen?(k: Extract<Kommando, { type: 'krav' }>, skriving: Skrivesteg): Utfall | null;
   /**
    * Varselet for hver post i kravet `k` i det nye dokumentet som trenger et, etter postens `id`,
-   * til brevteksten. `u` er saken før dokumentet.
+   * til brevteksten. `u` er saken før dokumentet, og `dag` dagen dokumentet sendes.
    */
-  postvarsler?(k: Krav, u: Utledning): Record<string, Kravpostvarselet>;
+  postvarsler?(k: Krav, u: Utledning, dag: string): Record<string, Kravpostvarselet>;
 }
 
 /**
@@ -339,6 +339,8 @@ export interface Skrivesteg {
  */
 export interface Sakssperre extends LestSak {
   foer: LestSak;
+  /** Dagen kravet sendes eller ble sendt, også for et krav fra løsningen (OV-U104). */
+  dag: string;
   vedKravet: readonly string[];
   oppslag: Vedleggsoppslag;
 }
@@ -751,7 +753,14 @@ function skriv(
   const sperre =
     k.type === 'krav'
       ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
-        iSporet(SKRIVING, k.spor).saksperre?.(k, { lest, u, foer, vedKravet, oppslag: vedlegg }))
+        iSporet(SKRIVING, k.spor).saksperre?.(k, {
+          lest,
+          u,
+          foer,
+          vedKravet,
+          oppslag: vedlegg,
+          dag: (erRegistrering(k) ? kalenderdag(k.sendt) : null) ?? brevetsDato,
+        }))
       : k.type === 'varsel'
         ? kravetErVarselet(k, lestSak, vedlegg)
         : null;
@@ -975,7 +984,9 @@ function brevtekstFor(
       varslerIEldreKravVedSvaret: varslerIEldreKravVedSvarene(u),
       kravpostvarsler: Object.fromEntries(
         ny.dokument.krav.flatMap((k) =>
-          Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, u) ?? {})
+          Object.entries(
+            iSporet(SKRIVING, k.spor).postvarsler?.(k, u, registrertDato(ny.dokument)) ?? {}
+          )
         )
       ),
       // Varslene for sporene brevet har krav i, som kravteksten viser til.

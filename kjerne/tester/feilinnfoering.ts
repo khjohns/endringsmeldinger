@@ -4879,7 +4879,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost krever valget for en annen post i samme krav (VS-U51, VS-U87 punkt 23)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['  { foer: { u } }: Sakssperre', '  { u }: Sakssperre']],
+    endringer: [['  { foer: { u }, dag }: Sakssperre', '  { u, dag }: Sakssperre']],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
   },
   {
@@ -7059,7 +7059,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        'kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, null));',
+        'kravpostvarslene(k, u.spor.vederlag.krav, eldreKravFoer(u, dag));',
         'kravpostvarslene(k, u.spor.vederlag.krav, []);',
       ],
     ],
@@ -7090,7 +7090,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '    u.spor.vederlag.kravpostvarsler,\n    eldreKravFoer(u, sendt)\n',
+        '    u.spor.vederlag.kravpostvarsler,\n    eldreKravFoer(u, dag)\n',
         '    u.spor.vederlag.kravpostvarsler,\n    []\n',
       ],
     ],
@@ -7129,8 +7129,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        'return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))',
-        'return e',
+        '        ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id)) &&',
+        '        true &&',
       ],
     ],
     mal: ['viser P1 i en senere kravversjon til et varsel, står innsigelsen'],
@@ -8587,7 +8587,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2509g',
     feilklasse:
-      'en påberopelse som sto mot varselet før rettingen, faller bort når rettingen gjør et senere lagt til eldre krav til varselet (S-1 A i #2509)',
+      'en påberopelse som sto mot varselet før rettingen, faller bort når rettingen gjør et senere lagt til eldre krav til varselet (MM-U64)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['(vedSvaret === undefined || foran(vedSvaret, p))', 'true']],
     mal: [
@@ -8598,7 +8598,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2509h',
     feilklasse:
-      'et svar lagt til leser en retting sendt etter dagen svaret ble sendt (S-1 A i #2509, OV-U98)',
+      'et svar lagt til leser en retting sendt etter dagen svaret ble sendt (MM-U64, OV-U98)',
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       ['rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)) },', 'rettinger: foer },'],
@@ -8621,10 +8621,44 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F2509j',
     feilklasse:
-      'de eldre kravene da svaret ble sendt, leses med hele saken, ikke som kjernen kjente den da brevet ble sendt (S-1 A i #2509, VS-U81)',
+      'de eldre kravene da svaret ble sendt, leses med hele saken, ikke som kjernen kjente den da brevet ble sendt (MM-U64, VS-U81)',
     fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['varslerIEldreKravVedSvarene(u, kjentFoer)', 'varslerIEldreKravVedSvarene(u)']],
     mal: ['med journalen kuttet foran et senere krav som viser til et varsel for P1'],
+  },
+  {
+    id: 'F2509k',
+    feilklasse:
+      'brevet med et krav fra løsningen regner et eldre krav rettet til samme dag som sendt før kravet (OV-U104, A1 i #2509)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'u.spor.vederlag.krav, eldreKravFoer(u, dag));',
+        'u.spor.vederlag.krav, eldreKravFoer(u, null));',
+      ],
+    ],
+    mal: ['er K2 rettet til dagen kravet sendes, er kravet selv varselet i brevet og i saken'],
+  },
+  {
+    id: 'F2509l',
+    feilklasse:
+      'kommandoen regner et eldre krav rettet til samme dag som sendt før et krav fra løsningen (OV-U104, A1 i #2509)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['    eldreKravFoer(u, dag)\n', '    eldreKravFoer(u, sendt)\n']],
+    mal: ['med et varselvalg for P1 godtas kravet samme dag'],
+  },
+  {
+    id: 'F2509m',
+    feilklasse:
+      'vilkår 4 i OV-U120 leser rekkefølgen i rekken, ikke datoen som gjelder for kravversjonene etter en retting (MM-U63)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '!krav.some((x) => foerDagen(sendt(x), sendt(e)) && postenMed(x, p.id, varselhjemmel(p)!))',
+        'true',
+      ],
+    ],
+    mal: ['rettes K1 til en dag etter K3, er K3 ikke varselet'],
   },
 ];
 

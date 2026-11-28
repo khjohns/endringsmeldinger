@@ -204,7 +204,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     // A3 i #2509.
     [ELDRE_KRAV, 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
-  // S-1 A i #2509.
+  // MM-U64.
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene(vedSvaret)', 'relasjon', '*'],
   [
     'utledning/rettingen.ts',

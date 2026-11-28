@@ -151,6 +151,35 @@ describe('et eldre krav rettet til en dag etter kravversjonen som ellers er vars
   });
 });
 
+describe('vilkår 4 i OV-U120 leser datoen som gjelder for kravversjonene i rekken (MM-U63, A2 i #2509)', () => {
+  /** K1 26.09, K2 28.09 og K4 30.09 i rekken og K3 29.09 utenfor, alle med P1 som regningsarbeid. */
+  function medRekken() {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const k1 = kravet(s.send('TE', lagtTil('2026-09-26', P1('regningsarbeid'))));
+    s.send('TE', lagtTil('2026-09-28', P1('regningsarbeid')));
+    s.send('TE', lagtTil('2026-09-30', P1('regningsarbeid')));
+    s.send('TE', lagtTil('2026-09-29', P1('regningsarbeid')));
+    expect(
+      s.u().spor.vederlag.kravUtenforRekken,
+      'Forutsetning: K3 står utenfor rekken'
+    ).toHaveLength(1);
+    return { s, k1 };
+  }
+
+  it('rettes K1 til en dag etter K3, er K3 ikke varselet, for K2 hadde P1 før K3 ble sendt', () => {
+    const { s, k1 } = medRekken();
+    rett(s, k1, '2026-09-30');
+    expect(s.u().begrensninger).toEqual([]);
+    expect(varseleneIEldreKrav(s.u())).toEqual([]);
+  });
+
+  it('kontrollsak: uten rettingen er K3 heller ikke varselet', () => {
+    const { s } = medRekken();
+    expect(varseleneIEldreKrav(s.u())).toEqual([]);
+  });
+});
+
 describe('hva som var gjeldende, leser datoen som gjaldt den dagen kravet ble sendt (A1 i #2509, OV-U123 punkt 17, OV-U98, OV-U104)', () => {
   /** P1 som regningsarbeid, der TE sier at kravet er varselet. */
   const medValg = { ...P1('regningsarbeid'), varsel: { art: 'kravet' } };
@@ -190,10 +219,10 @@ describe('hva som var gjeldende, leser datoen som gjaldt den dagen kravet ble se
 
 /**
  * Byggherrens påberopelse av at varselet for P1 kom for sent, når en retting gjør et annet eldre
- * krav til varselet (S-1 A i #2509, VS-U96 punkt 37). Forløpet bruker prefikset `krav_irreg`:
+ * krav til varselet (MM-U64, VS-U96 punkt 37). Forløpet bruker prefikset `krav_irreg`:
  * kravet fra løsningen 24.09 (steg 1) har P1 som regningsarbeid, og steg n skrives 23.09 + n dager.
  */
-describe('påberopelsen står også mot det eldre kravet som er varselet etter rettingen (S-1 A i #2509)', () => {
+describe('påberopelsen står også mot det eldre kravet som er varselet etter rettingen (MM-U64)', () => {
   const regningsarbeid = (h: Data = {}): Handling => ({
     handling: 'krav',
     spor: 'vederlag',
@@ -243,29 +272,29 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
   const varselet = (u: Utledning) => varslerIEldreKrav(u).map((v) => v.dokument);
   const brevetMed = (u: Utledning, i: number) => u.spor.vederlag.kravUtenforRekken[i]!.dokument;
 
-  it('påberopelsen etter k2 står også mot k3 når k2 rettes til en dag etter K3', async () => {
+  it('påberopelsen etter K2 står også mot K3 når K2 rettes til en dag etter K3', async () => {
     const u = await saken([regningsarbeid(), k2, forSent(), k3, retting('K2', '2026-09-22')]);
-    expect(varselet(u), 'Forutsetning: k3 er varselet etter rettingen').toEqual([brevetMed(u, 1)]);
+    expect(varselet(u), 'Forutsetning: K3 er varselet etter rettingen').toEqual([brevetMed(u, 1)]);
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('et nytt svar fra løsningen viser til påberopelsen etter k2 også når k3 er varselet etter rettingen', async () => {
+  it('et nytt svar fra løsningen viser til påberopelsen etter K2 også når K3 er varselet etter rettingen', async () => {
     await saken([regningsarbeid(), k2, forSent(), k3, retting('K2', '2026-09-22'), nyttSvar]);
     expect(sisteTekst).toContain('jf. innsigelsen');
   });
 
-  it('kontrollsak: det nye svaret viser ikke til en påberopelse før k2 ble lagt til (VS-U96 punkt 37)', async () => {
+  it('kontrollsak: det nye svaret viser ikke til en påberopelse før K2 ble lagt til (VS-U96 punkt 37)', async () => {
     await saken([regningsarbeid(), forSent(), k2, k3, retting('K2', '2026-09-22'), nyttSvar]);
     expect(sisteTekst).toContain('ikke ble gitt eller kom for sent');
     expect(sisteTekst).not.toContain('jf. innsigelsen');
   });
 
-  it('kontrollsak: en påberopelse før k2 ble lagt til, følger ikke med til k3 (VS-U96 punkt 37)', async () => {
+  it('kontrollsak: en påberopelse før K2 ble lagt til, følger ikke med til K3 (VS-U96 punkt 37)', async () => {
     const u = await saken([regningsarbeid(), forSent(), k2, k3, retting('K2', '2026-09-22')]);
     expect(staar(u)).toEqual([]);
   });
 
-  it('kontrollsak: rettes k2 og k3 til en dag etter kravet, står påberopelsen før dem igjen mot kravet', async () => {
+  it('kontrollsak: rettes K2 og K3 til en dag etter kravet, står påberopelsen før dem igjen mot kravet', async () => {
     const u = await saken([
       regningsarbeid(),
       forSent(),
@@ -278,7 +307,7 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('et svar som legges til, sendt før rettingene, leser påberopelsen før k2 uten dem (A3 i #2509)', async () => {
+  it('et svar som legges til, sendt før rettingene, leser påberopelsen før K2 uten dem (A3 i #2509)', async () => {
     const u = await saken([
       regningsarbeid(),
       forSent(),
@@ -300,7 +329,7 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     ).toHaveLength(1);
   });
 
-  it('med journalen kuttet foran et senere krav som viser til et varsel for P1, faller påberopelsen før k2 bort som da (VS-U81)', async () => {
+  it('med journalen kuttet foran et senere krav som viser til et varsel for P1, faller påberopelsen før K2 bort som da (VS-U81)', async () => {
     const v: Handling = {
       handling: 'varsel',
       spor: 'vederlag',
@@ -316,7 +345,7 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     } satisfies Handling;
     const u = await saken([regningsarbeid(), forSent(), k2, k3, v, k5]);
     const kuttet = u.spor.vederlag.kravUtenforRekken.at(-1)!.dokument;
-    expect(staar(u), 'Forutsetning: med k5 er ikke noe eldre krav varselet').toHaveLength(1);
+    expect(staar(u), 'Forutsetning: med K5 er ikke noe eldre krav varselet').toHaveLength(1);
     expect(
       standpunkteneTilVarslene(u, null, false, kuttet).filter(
         (x) => x.hjemmel === '34.4' && !x.iTide
@@ -325,7 +354,7 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
   });
 
   // k2 rettes 26.09. Svaret lagt til står etter rettingen i saken, og k3 legges til etter svaret.
-  it('et svar lagt til, sendt dagen før rettingen, står mot k2 som var varselet den dagen (OV-U98)', async () => {
+  it('et svar lagt til, sendt dagen før rettingen, står mot K2 som var varselet den dagen (OV-U98)', async () => {
     const u = await saken([
       regningsarbeid(),
       k2,
@@ -336,7 +365,7 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
     expect(staar(u)).toHaveLength(1);
   });
 
-  it('kontrollsak: et svar lagt til, sendt samme dag som rettingen, regner den med, og følger ikke med til k3 (OV-U104)', async () => {
+  it('kontrollsak: et svar lagt til, sendt samme dag som rettingen, regner den med, og følger ikke med til K3 (OV-U104)', async () => {
     const u = await saken([
       regningsarbeid(),
       k2,
@@ -350,5 +379,54 @@ describe('påberopelsen står også mot det eldre kravet som er varselet etter r
   it('kontrollsak: et svar fra løsningen etter rettingen regner den med etter rekkefølgen i saken', async () => {
     const u = await saken([regningsarbeid(), k2, retting('K2', '2026-09-22'), forSent(), k3]);
     expect(staar(u)).toEqual([]);
+  });
+});
+
+/**
+ * Et krav fra løsningen sendt samme dag som en retting av et eldre krav til den dagen (OV-U104,
+ * A1 i #2509). K1 lagt til 30.09 har P1 til fast sum, K2 lagt til 26.09 har P1 som regningsarbeid,
+ * og rettingen og den nye kravversjonen sendes 5. oktober.
+ */
+describe('et krav fra løsningen samme dag som rettingen av et eldre krav til den dagen (OV-U104, A1 i #2509)', () => {
+  function kravetSammeDag(dato: string) {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', lagtTil('2026-09-30', P1('tilbud', 50000)));
+    const k2 = kravet(s.send('TE', lagtTil('2026-09-26', P1('regningsarbeid'))));
+    s.send('TE', { type: 'retting', gjelder: k2, dato }, true);
+    const tekst = nyVersjon(s);
+    expect(s.u().begrensninger).toEqual([]);
+    return { tekst, u: s.u() };
+  }
+
+  it('er K2 rettet til dagen kravet sendes, er kravet selv varselet i brevet og i saken', () => {
+    const { tekst, u } = kravetSammeDag('2026-10-05');
+    expect(tekst).toContain('Kravet er varsel før regningsarbeidet settes i gang');
+    expect(varseleneIEldreKrav(u)).toEqual([]);
+  });
+
+  it('kontrollsak: er K2 rettet til dagen før, er varselet gitt i K2', () => {
+    const { tekst, u } = kravetSammeDag('2026-10-04');
+    expect(tekst).toContain('ble gitt i totalentreprenørens brev av 26. september 2026');
+    expect(varseleneIEldreKrav(u)).toHaveLength(1);
+  });
+
+  it('kontrollsak: med et varselvalg for P1 godtas kravet samme dag, og avvises når K2 er rettet til dagen før', () => {
+    const medValg = {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { kravposter: [{ ...P1('regningsarbeid'), varsel: { art: 'kravet' } }] },
+    };
+    for (const [dato, regel] of [
+      ['2026-10-05', null],
+      ['2026-10-04', 'KRAVPOSTVARSELET'],
+    ] as const) {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', lagtTil('2026-09-30', P1('tilbud', 50000)));
+      const k2 = kravet(s.send('TE', lagtTil('2026-09-26', P1('regningsarbeid'))));
+      s.send('TE', { type: 'retting', gjelder: k2, dato }, true);
+      expect(s.avvist('TE', medValg), dato).toBe(regel);
+    }
   });
 });
