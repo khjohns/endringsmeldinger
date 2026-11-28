@@ -433,3 +433,50 @@ describe('det egne brevet etter at påberopelsen er trukket (BF-48E med trekket,
     );
   });
 });
+
+describe('meldingen under det egne brevet er den som gjaldt da det ble sendt (#2523, MM-U50)', () => {
+  /** Forløpet med stegene i `steg` (nummer i forløpet `fra`) og et kontrollpunkt etter det siste. */
+  async function forloepet(fra: string, steg: (number | 'trekk')[]): Promise<Startjournal> {
+    const BF = finn(fra);
+    return startjournal({
+      ...BF,
+      id: `${fra}-${steg.join('-')}`,
+      steg: steg.map((n) =>
+        n === 'trekk' ? { handling: 'trekk', spor: 'forhold' } : BF.steg![n - 1]
+      ),
+      kontrollpunkter: [
+        { id: 'slutt', etter: steg.length, beskrivelse: '', kontroller: [], forstaaelse: [] },
+      ],
+    } as typeof BF);
+  }
+
+  it('brevet sendt før TE godtok avslaget, sier ikke at saken står lukket (MM-U50, GR-U27, VS-U84)', async () => {
+    // BF-48E: avslaget i brev 3, datoen i brev 4 mens saken er åpen, aksepten i brev 5.
+    aapne('slutt', await forloepet('BF-48E', [1, 2, 3, 5, 4]));
+    await tilVederlaget();
+    expect((await innlegget(4)).tekst).not.toContain('Saken står lukket');
+    // Kontrollsak: brevet etter aksepten står i den lukkede saken.
+    cleanup();
+    aapne('slutt', await forloepet('BF-48E', [1, 2, 3, 4, 5]));
+    await tilVederlaget();
+    expect((await innlegget(5)).tekst).toContain(
+      'Saken står lukket. Brevet endrer ikke utfallet. Byggherren kan ta stilling til datoen i et innlegg.'
+    );
+  });
+
+  it('brevet sendt før TE trakk påberopelsen, sier at svaret står (MM-U50, GR-U5)', async () => {
+    // BF-48: svaret på vederlaget i brev 4, datoene i brev 5 og 6, trekket i brev 7.
+    aapne('slutt', await forloepet('BF-48', [1, 2, 3, 4, 5, 6, 'trekk']));
+    await tilVederlaget();
+    const brevet = (await innlegget(6)).tekst;
+    expect(brevet).not.toContain('Saken står lukket');
+    expect(brevet).toContain(
+      'Svaret i brev 4 endres ikke. Byggherren kan ta stilling til datoen i et senere svar.'
+    );
+    // Kontrollsak: brevet etter trekket står i den lukkede saken (GR-U27).
+    cleanup();
+    aapne('slutt', await forloepet('BF-48', [1, 2, 3, 4, 'trekk', 5]));
+    await tilVederlaget();
+    expect((await innlegget(6)).tekst).toContain('Saken står lukket. Brevet endrer ikke utfallet.');
+  });
+});
