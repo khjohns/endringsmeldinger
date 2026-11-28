@@ -263,28 +263,26 @@
         post: null,
         tekst: varslene.some(besvart) ? null : VARSELSVARET.manglerVarsel,
       },
-      ...varslene.flatMap((v) =>
-        v.hjemmel === '34.3.3' && besvart(v)
-          ? [
-              {
-                felt: `${v.id}-varsel`,
-                post: null,
-                tekst:
-                  varseletISvaret(varselvalget(valg, v.id), v) === null
-                    ? SKJEMA.manglerITide
-                    : null,
-              },
-              {
-                felt: `${v.id}-justering`,
-                post: null,
-                tekst:
-                  varselvalget(valg, v.id).godtarJustering === null
-                    ? SKJEMA.manglerJustering
-                    : null,
-              },
-            ]
-          : []
-      ),
+      ...varslene.flatMap((v) => {
+        if (!besvart(v)) return [];
+        const x = varselvalget(valg, v.id);
+        const omJustering = v.hjemmel === '34.3.3';
+        const omVarselet =
+          omJustering ||
+          ((v.hjemmel === '34.1.3' || v.hjemmel === '34.4') && x.hovedvarseletITide != null);
+        return [
+          {
+            felt: `${v.id}-varsel`,
+            post: null,
+            tekst: omVarselet && varseletISvaret(x, v) === null ? SKJEMA.manglerITide : null,
+          },
+          {
+            felt: `${v.id}-justering`,
+            post: null,
+            tekst: omJustering && x.godtarJustering === null ? SKJEMA.manglerJustering : null,
+          },
+        ];
+      }),
     ])
   );
   // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.

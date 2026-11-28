@@ -146,6 +146,7 @@
         : SKJEMA.ingenInnsigelse}
     </p>
     <Knapp
+      id={varselId}
       variant="lenke"
       iFlukt
       onclick={() => (varsletITide = varsletITide === false ? null : false)}

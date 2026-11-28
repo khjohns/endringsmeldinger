@@ -8946,6 +8946,18 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et tidligere varsel etter punkt 34.1.3 vises med brevet som varslet etter punkt 34.1.2'],
   },
+  {
+    id: 'F2529x',
+    feilklasse: 'flervarselskjemaet etterspør ikke standpunktet til selve varselet (VS-U100)',
+    fil: 'src/lib/components/varden/Varselbrevsvar.svelte',
+    endringer: [
+      [
+        "omJustering ||\n          ((v.hjemmel === '34.1.3' || v.hjemmel === '34.4') && x.hovedvarseletITide != null)",
+        'omJustering',
+      ],
+    ],
+    mal: ['bare standpunkt etter punkt 34.1.2 i svaret på punkt 34.4 gir beskjed om at varselet må besvares'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
@@ -8982,6 +8994,7 @@ function testnavn(): Test[] {
         'kjerne/',
         'sprakprove/kjernelagring/',
         'src/lib/kjernesak/__tests__/eldrekravvarsel.test.ts',
+        'src/lib/components/varden/__tests__/Varselbrevsvar.test.ts',
         // vitest 5 leser filene statisk og ser ikke testene hjelpefunksjonene registrerer.
         '--staticParse=false',
         `--json=${ut}`,
@@ -9155,6 +9168,7 @@ function navnefeil(muterte: { m: Mutasjon; tekst: string }[]): Map<string, strin
   // Tjenestene deler de umuterte filene, så hver fil og hver typedefinisjon leses én gang.
   const register = ts.createDocumentRegistry();
   for (const fil of new Set(muterte.map(({ m }) => m.fil))) {
+    if (fil.endsWith('.svelte')) continue;
     const sti = join(ROT, fil);
     const konfig = ts.findConfigFile(dirname(sti), ts.sys.fileExists);
     const valg = konfig
