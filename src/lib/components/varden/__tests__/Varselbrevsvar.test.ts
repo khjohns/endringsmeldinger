@@ -102,9 +102,7 @@ it.each(['34.1.3', '34.4'] as const)(
         ],
       })
     );
-    await fireEvent.click(
-      raden(1).getByRole('radio', { name: 'Kom for sent etter punkt 34.1.2' })
-    );
+    await fireEvent.click(raden(1).getByRole('radio', { name: 'Kom for sent etter punkt 34.1.2' }));
     await seBrevet();
     expect(sendt).toHaveLength(0);
     const feil = screen.getByRole('link', { name: 'Velg om varselet kom i tide.' });

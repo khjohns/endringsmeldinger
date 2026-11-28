@@ -364,8 +364,7 @@ function tausOmVarselet(svar: Svarinnhold, krav: Krav | null | undefined): Varse
     const [standpunkt] = svar.standpunkter;
     const gjelder = krav?.id ?? ('gjelder' in standpunkt ? standpunkt.gjelder : undefined);
     const hovedvarselet: VarselIKravet[] =
-      gjelder &&
-      !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2')
+      gjelder && !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2')
         ? [{ gjelder, hjemmel: '34.1.2' }]
         : [];
     return hovedvarselet.concat(

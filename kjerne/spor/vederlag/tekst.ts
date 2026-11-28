@@ -666,8 +666,7 @@ function leddISvaretPaaVarselet(
       const staar =
         !svar.standpunkter.some(
           (x) => x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder
-        ) &&
-        forSentFoer(s.gjelder);
+        ) && forSentFoer(s.gjelder);
       const justeringen = {
         tekst: `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`,
         virkning: virkning(s.id),

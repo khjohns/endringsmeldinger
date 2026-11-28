@@ -8921,18 +8921,27 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'innsigelsen etter punkt 34.1.2 gjentas i linjen i varselsvaret (VS-U100)',
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
-      ["    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];\n", ''],
+      [
+        "    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];\n",
+        '',
+      ],
     ],
     mal: ['linjen i varselsvaret nevner standpunktet etter punkt 34.1.2 én gang'],
   },
   {
     id: 'F2529v',
-    feilklasse: 'et varselsvar leser det første kravet selv om det sto etter svaret i journalen (VS-U98)',
+    feilklasse:
+      'et varselsvar leser det første kravet selv om det sto etter svaret i journalen (VS-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));', 'const [foerste] = s.krav.filter(varsler);'],
+      [
+        'const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));',
+        'const [foerste] = s.krav.filter(varsler);',
+      ],
     ],
-    mal: ['et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning'],
+    mal: [
+      'et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning',
+    ],
   },
   {
     id: 'F2529w',
@@ -8956,7 +8965,9 @@ const MUTASJONER: Mutasjon[] = [
         'omJustering',
       ],
     ],
-    mal: ['bare standpunkt etter punkt 34.1.2 i svaret på punkt 34.4 gir beskjed om at varselet må besvares'],
+    mal: [
+      'bare standpunkt etter punkt 34.1.2 i svaret på punkt 34.4 gir beskjed om at varselet må besvares',
+    ],
   },
   {
     id: 'F2529y',
@@ -8968,7 +8979,9 @@ const MUTASJONER: Mutasjon[] = [
         "x.art === 'rettidighet' && x.gjelder === s.gjelder",
       ],
     ],
-    mal: ['standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen'],
+    mal: [
+      'standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen',
+    ],
   },
   {
     id: 'F2529z',
@@ -8980,14 +8993,18 @@ const MUTASJONER: Mutasjon[] = [
         'false',
       ],
     ],
-    mal: ['et nytt svar fra løsningen på punkt 34.3.3 må gjenta eller gi opp den stående innsigelsen etter punkt 34.1.2'],
+    mal: [
+      'et nytt svar fra løsningen på punkt 34.3.3 må gjenta eller gi opp den stående innsigelsen etter punkt 34.1.2',
+    ],
   },
   {
     id: 'F2529aa',
     feilklasse: 'et taust svar lagt til fryses uten den stående innsigelsen etter punkt 34.1.2',
     fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [["[{ gjelder, hjemmel: '34.1.2' }]", "[{ gjelder, hjemmel: '34.1.3' }]"]],
-    mal: ['et nytt svar lagt til som er taust om den stående innsigelsen etter punkt 34.1.2, fryser justeringen subsidiært'],
+    mal: [
+      'et nytt svar lagt til som er taust om den stående innsigelsen etter punkt 34.1.2, fryser justeringen subsidiært',
+    ],
   },
   {
     id: 'F2529ab',
@@ -8995,12 +9012,11 @@ const MUTASJONER: Mutasjon[] = [
       'et nytt svar fra løsningen bare på varselet i kravet er taust om den stående innsigelsen etter punkt 34.1.2',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        "staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide)",
-        'false',
-      ],
+      ["staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide)", 'false'],
     ],
-    mal: ['når kravet selv er varselet, avvises et nytt svar bare på varselet som tier om den stående innsigelsen etter punkt 34.1.2'],
+    mal: [
+      'når kravet selv er varselet, avvises et nytt svar bare på varselet som tier om den stående innsigelsen etter punkt 34.1.2',
+    ],
   },
 ];
 
