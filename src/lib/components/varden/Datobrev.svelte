@@ -1,8 +1,8 @@
 <!--
-  Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A)
-  og datoen etter punkt 34.1.3 (BF-48). Utkastkortet har opplysningen brevet gjelder, hva brevet
-  gjør med saken, datofeltet og forklaringen, og panelet til høyre har hovedlinjene og «Se brevet
-  før sending» over tidslinja. Kalleren lager kommandoen, kontrollerer datoen og sender.
+  Skjemaet for et eget brev der TE oppgir én dato: korrigeringen av datoen i påberopelsen (BF-02A),
+  datoen etter punkt 34.1.3 (BF-48) og rettingen av datoen for et varsel eller et krav lagt til
+  (BF-50). Utkastkortet har opplysningen brevet gjelder, hva brevet gjør med saken, datofeltet og
+  forklaringen, og panelet til høyre har hovedlinjene og «Se brevet før sending» over tidslinja. Kalleren lager kommandoen, kontrollerer datoen og sender.
 -->
 <script lang="ts">
   import { FileText } from 'lucide-svelte';

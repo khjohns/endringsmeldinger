@@ -729,6 +729,21 @@ export function kunnskapsdatoen(v: Korrigeringsvalg, gjelder: string) {
 }
 
 /**
+ * TEs retting av datoen for et varsel eller et krav lagt til som korrespondanse (MM-U59 punkt 8 og
+ * 18, MM-U63). `gjelder` er varselet eller kravet kjernen tilbyr handlingen for
+ * (`rette_datoen:<id>`), og den valgfrie forklaringen er `utdypning` (D-9 i BF-50).
+ */
+export function rettingen(v: Korrigeringsvalg, gjelder: string) {
+  const utdypning = v.forklaring.trim();
+  return {
+    type: 'retting' as const,
+    gjelder,
+    dato: v.dato,
+    ...(utdypning ? { utdypning } : {}),
+  };
+}
+
+/**
  * TEs nye versjon av påberopelsen (BF-10, KA-U52): kategoriene og endringsordren står som i
  * gjeldende versjon (GR-U40 punkt 7), datoen er TEs siste opplysning, også etter en korrigering
  * (MM-U59 punkt 10, #1617), og teksten er utdypningen (S-3 i BF-10). Kjernen avviser en annen

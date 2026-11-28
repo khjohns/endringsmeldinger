@@ -13,8 +13,9 @@
   import type { Spor } from '#kjerne/typer.ts';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
+  import Rettingslinjer from './Rettingslinjer.svelte';
   import Sitat from './Sitat.svelte';
-  import type { Brevet, Brevref, Brevinnholdet } from './lesing';
+  import type { Brevet, Brevref, Brevinnholdet, Datolinjene } from './lesing';
   import { FORHOLDET, INNLEGGET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
 
   let {
@@ -27,6 +28,9 @@
     sammeDag = new Map(),
     venterPaaSvar,
     korrigerbare = [],
+    datoene = new Map(),
+    rettbare = [],
+    onrett,
     lukket = false,
     vist = null,
     smal = false,
@@ -61,6 +65,11 @@
     venterPaaSvar: boolean;
     /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U59 punkt 10). */
     korrigerbare?: string[];
+    /** Datoene for varslene og kravene lagt til, og rettingene av dem, per brev (`datolinjene`). */
+    datoene?: ReadonlyMap<string, Datolinjene>;
+    /** Varslene og kravene kjernen tilbyr TE å rette datoen for (`rette_datoen:<id>`, BF-50). */
+    rettbare?: readonly string[];
+    onrett?: (gjelder: string) => void;
     /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
     lukket?: boolean;
     /** Brevet som vises ved siden av tråden, eller i raden når `smal`. */
@@ -163,7 +172,7 @@
           {hva}<span class="visually-hidden">{TRAADEN.fra(b.avsender)}</span>
         </h4>
       </div>
-      {#if registrert || i || b.art === 'innlegg' || b.vedlegg.length || oeverst || nederst || samme.length}
+      {#if registrert || i || datoene.has(b.id) || b.art === 'innlegg' || b.vedlegg.length || oeverst || nederst || samme.length}
         <div class="innhold">
           {#if oeverst}
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
@@ -173,6 +182,9 @@
             <!-- U-11 og U-12 i BF-49: hvilken registrering den nye retter, og at den gamle er erstattet. -->
             {#if b.retter}<p class="datolinje">{LEGG_TIL.retter(b.retter)}</p>{/if}
             {#if b.rettetAv}<p class="datolinje">{LEGG_TIL.rettet(b.rettetAv)}</p>{/if}
+          {/if}
+          {#if datoene.has(b.id)}
+            <Rettingslinjer linjene={datoene.get(b.id)!} {rettbare} {onrett} />
           {/if}
           {#if samme.length}
             <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(samme)}</Melding>
