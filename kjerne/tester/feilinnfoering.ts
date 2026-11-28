@@ -7385,10 +7385,7 @@ const MUTASJONER: Mutasjon[] = [
       'det nye svaret på varselet etter punkt 34.1.2 eller 34.1.3 sier ikke at det gir opp innsigelsen i det forrige (VS-U87 punkt 33, #2409)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        '    if (merknad) foerst = j.brevet(forrige.dokument);',
-        '    if (merknad) break;',
-      ],
+      ['    if (merknad) foerst = j.brevet(forrige.dokument);', '    if (merknad) break;'],
     ],
     mal: ['et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)'],
   },
@@ -8853,7 +8850,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529o',
-    feilklasse: 'svaret på et eget varsel lagrer bare standpunktet til varselets egen hjemmel (VS-U100)',
+    feilklasse:
+      'svaret på et eget varsel lagrer bare standpunktet til varselets egen hjemmel (VS-U100)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
@@ -8879,17 +8877,13 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F2529q',
     feilklasse: 'innsigelsen etter punkt 34.1.2 får ingen virkning i svaret på varselet (VS-U100)',
     fil: `${K}/spor/vederlag/frysing.ts`,
-    endringer: [
-      [
-        "virkning: heltForSent ? 1 : 'uten_virkning'",
-        "virkning: 'uten_virkning'",
-      ],
-    ],
+    endringer: [["virkning: heltForSent ? 1 : 'uten_virkning'", "virkning: 'uten_virkning'"]],
     mal: ['svaret på det første varselet etter punkt 34.3.3 lagrer begge standpunktene'],
   },
   {
     id: 'F2529r',
-    feilklasse: 'svaret på kravet finner ikke innsigelsen etter punkt 34.1.2 i svaret på varselet (VS-U100)',
+    feilklasse:
+      'svaret på kravet finner ikke innsigelsen etter punkt 34.1.2 i svaret på varselet (VS-U100)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
@@ -8901,14 +8895,18 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529s',
-    feilklasse: 'standpunktet etter punkt 34.1.2 kan gis i et varselsvar etter svaret på kravet (VS-U100, VS-U96 punkt 33)',
+    feilklasse:
+      'standpunktet etter punkt 34.1.2 kan gis i et varselsvar etter svaret på kravet (VS-U100, VS-U96 punkt 33)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['![...svar, ...svarUtenforRekken].some(', '[...svar, ...svarUtenforRekken].some(']],
+    endringer: [
+      ['![...svar, ...svarUtenforRekken].some(', '[...svar, ...svarUtenforRekken].some('],
+    ],
     mal: ['etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet'],
   },
   {
     id: 'F2529t',
-    feilklasse: 'lesingen godtar et svar på varselet etter punkt 34.4 med bare standpunktet etter punkt 34.1.2 (VS-U100)',
+    feilklasse:
+      'lesingen godtar et svar på varselet etter punkt 34.4 med bare standpunktet etter punkt 34.1.2 (VS-U100)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [

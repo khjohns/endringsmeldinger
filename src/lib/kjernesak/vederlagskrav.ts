@@ -388,9 +388,11 @@ export function standpunktTilHovedvarseletFoer(
   sendt: string | null
 ): StandpunktTilVarselet | null {
   const varselet = foersteVarselFoerBrevet(u, '34.1.2', sendt);
-  return standpunkteneTilVarslene(u, sendt, true).find(
-    (x) => x.hjemmel === '34.1.2' && x.gjelder === varselet
-  ) ?? null;
+  return (
+    standpunkteneTilVarslene(u, sendt, true).find(
+      (x) => x.hjemmel === '34.1.2' && x.gjelder === varselet
+    ) ?? null
+  );
 }
 
 /**

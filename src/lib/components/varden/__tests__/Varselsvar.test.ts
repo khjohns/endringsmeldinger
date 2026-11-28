@@ -103,7 +103,9 @@ afterEach(cleanup);
 
 it('det første særskilte varselet kan besvares også etter punkt 34.1.2 (VS-U100)', async () => {
   const sendt = await svarskjemaet(medVarselOmVederlaget('34.1.3'));
-  expect(screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)
+  ).toBeInTheDocument();
   await fireEvent.click(screen.getByRole('radio', { name: /Kom for sent etter punkt\s34\.1\.2/ }));
   await radio('Kom i tide');
   await seBrevet();

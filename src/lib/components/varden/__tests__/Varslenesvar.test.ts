@@ -121,20 +121,24 @@ it('svaret bare på varselet i kravet kan ta stilling etter punkt 34.1.2 (VS-U10
     innhold: { kravposter: [REGNINGSARBEID] },
   });
   const sendt = await skjemaet(journal);
-  expect(screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)
+  ).toBeInTheDocument();
   await fireEvent.click(screen.getByRole('radio', { name: /Kom for sent etter punkt\s34\.1\.2/ }));
   await fireEvent.click(screen.getByRole('button', { name: 'Varselet kom for sent' }));
   await seBrevet();
   expect(sendt[0]?.kommando).toMatchObject({
     type: 'brev',
-    svar: [{
-      gjelder: kravet(journal).id,
-      bare_varselet: true,
-      vurderinger: {
-        hovedkrav_varslet_i_tide: false,
-        kravposter: [{ gjelder: kravet(journal).poster[0], varslet_i_tide: false }],
+    svar: [
+      {
+        gjelder: kravet(journal).id,
+        bare_varselet: true,
+        vurderinger: {
+          hovedkrav_varslet_i_tide: false,
+          kravposter: [{ gjelder: kravet(journal).poster[0], varslet_i_tide: false }],
+        },
       },
-    }],
+    ],
   });
 });
 const kommandoen = (k: TilBrevkontrollen) =>

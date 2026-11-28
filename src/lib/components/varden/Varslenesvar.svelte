@@ -137,9 +137,12 @@
         };
       const s = l.standpunkt;
       return {
-        punkt: s.art === 'rettidighet' && s.hjemmel === '34.1.2'
-          ? '34.1.2'
-          : 'gjelder' in s ? s.gjelder : '',
+        punkt:
+          s.art === 'rettidighet' && s.hjemmel === '34.1.2'
+            ? '34.1.2'
+            : 'gjelder' in s
+              ? s.gjelder
+              : '',
         tekst: standpunkttekst(s, true, undefined, undefined, false, false),
         lag: l.lag,
         vilkaar: l.vilkaar,
@@ -160,7 +163,11 @@
   });
   const hovedvarseletFoer = $derived(
     varslene.hovedvarseletFoer
-      ? { iTide: varslene.hovedvarseletFoer.iTide, brev: brevet(u, varslene.hovedvarseletFoer.dokument), ikkeGitt: false }
+      ? {
+          iTide: varslene.hovedvarseletFoer.iTide,
+          brev: brevet(u, varslene.hovedvarseletFoer.dokument),
+          ikkeGitt: false,
+        }
       : null
   );
   // Brevet har ett punkt per kravpost, med betegnelsen som nøkkel (`brevtekst.ts`).
@@ -246,16 +253,15 @@
       {/if}
     </div>
     {#if hovedvarselet}
-      <Spoersmaal
-        id={`${uid}-sp-hovedvarsel`}
-        tittel={overskrift('34.1.2') ?? hovedvarselet.navn}
-      >
+      <Spoersmaal id={`${uid}-sp-hovedvarsel`} tittel={overskrift('34.1.2') ?? hovedvarselet.navn}>
         <Varselstandpunkt
           varselId={`${uid}-hovedvarsel`}
           justeringId={`${uid}-hovedvarsel-justering`}
           hjemmel="34.1.2"
           foer={hovedvarseletFoer}
-          bind:varsletITide={() => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)}
+          bind:varsletITide={
+            () => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)
+          }
           godtarJustering={null}
           ikkeGitt={false}
           justeringValgfri={true}
@@ -275,7 +281,8 @@
           <Forholdsgrunn grunn={i.grunn} brev={i.brev} {onforholdet} />
         {:else}
           {@const hoved = i.art === 'varsel' && i.hjemmel === '34.1.2'}
-          <a href={`#${hoved ? `${uid}-hovedvarsel` : `${id}-varsel`}${(hoved ? hovedvarseletFoer : p.foer)?.iTide === false ? '-standpunkt' : ''}`}
+          <a
+            href={`#${hoved ? `${uid}-hovedvarsel` : `${id}-varsel`}${(hoved ? hovedvarseletFoer : p.foer)?.iTide === false ? '-standpunkt' : ''}`}
             >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : p.hjemmel)}</a
           >
         {/if}

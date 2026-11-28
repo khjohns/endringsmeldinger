@@ -633,7 +633,9 @@
   {:else if f.innsigelse === '34.1.3'}
     <a href={`#${uid}-saerskilt-itide`}>{innsigelsenOmVarselet('34.1.3')}</a>
   {:else}
-    <a href={`#${uid}-itide${gjentarHovedvarselet ? '-standpunkt' : ''}`}>{innsigelsenOmVarselet('34.1.2')}</a>
+    <a href={`#${uid}-itide${gjentarHovedvarselet ? '-standpunkt' : ''}`}
+      >{innsigelsenOmVarselet('34.1.2')}</a
+    >
   {/if}
 {/snippet}
 

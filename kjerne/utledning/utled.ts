@@ -1518,8 +1518,7 @@ function kontrollerStandpunktet(
       foer,
       dagen
     );
-    const eldreSvar =
-      !ekstraVarselsvar && s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
+    const eldreSvar = !ekstraVarselsvar && s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
     const eget = varslene.find((v) => foer(v.id))?.id;
     const egetGjelder = (p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget;
     // MM-U50: eldre svar kunne vise til kravet selv om et av de andre varslene kom først.

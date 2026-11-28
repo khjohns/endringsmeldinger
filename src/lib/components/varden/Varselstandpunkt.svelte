@@ -169,7 +169,9 @@
           navn={varselId}
           spoersmaal={ogsaa3412
             ? VARSELSVARET.spoersmaal3412
-            : egetPunkt ? SKJEMA.varselSpoersmaal : SKJEMA.varselJusteringSpoersmaal}
+            : egetPunkt
+              ? SKJEMA.varselSpoersmaal
+              : SKJEMA.varselJusteringSpoersmaal}
           valgfri={varselValgfri}
           feil={varselFeil}
           hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}

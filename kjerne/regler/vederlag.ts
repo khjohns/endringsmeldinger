@@ -676,7 +676,8 @@ export function kontrollerHovedvarseletISvaret(
   if (standpunkt === undefined) return;
   if (!gjelderOgsaa3412)
     throw new UgyldigVurdering({
-      hovedkrav_varslet_i_tide: 'standpunktet etter punkt 34.1.2 kan ikke gis i dette svaret på varselet',
+      hovedkrav_varslet_i_tide:
+        'standpunktet etter punkt 34.1.2 kan ikke gis i dette svaret på varselet',
     });
   if (typeof standpunkt !== 'boolean')
     throw new UgyldigVurdering({ hovedkrav_varslet_i_tide: 'er verken true eller false' });

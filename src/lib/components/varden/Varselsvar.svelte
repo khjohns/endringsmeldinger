@@ -100,7 +100,11 @@
   );
   const hovedvarseletFoer = $derived(
     varselet.hovedvarseletFoer
-      ? { iTide: varselet.hovedvarseletFoer.iTide, brev: brevet(u, varselet.hovedvarseletFoer.dokument), ikkeGitt: false }
+      ? {
+          iTide: varselet.hovedvarseletFoer.iTide,
+          brev: brevet(u, varselet.hovedvarseletFoer.dokument),
+          ikkeGitt: false,
+        }
       : null
   );
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
@@ -133,8 +137,12 @@
   const gjelderHvis = (art: 'rettidighet' | 'justering'): Innsigelsen[] =>
     hjemmel === '34.4'
       ? []
-      : (utfylt.find((l) => 'standpunkt' in l && l.standpunkt.art === art &&
-          (l.standpunkt.art !== 'rettidighet' || l.standpunkt.hjemmel === hjemmel))?.vilkaar ?? []);
+      : (utfylt.find(
+          (l) =>
+            'standpunkt' in l &&
+            l.standpunkt.art === art &&
+            (l.standpunkt.art !== 'rettidighet' || l.standpunkt.hjemmel === hjemmel)
+        )?.vilkaar ?? []);
   const varseletGjelderHvis = $derived(gjelderHvis('rettidighet'));
   const justeringenGjelderHvis = $derived(gjelderHvis('justering'));
   const oppgir = $derived(iTide === true && foer?.iTide === false && foer.brev ? foer : null);
@@ -330,7 +338,8 @@
       {:else}
         <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
         {@const hoved = i.art === 'varsel' && i.hjemmel === '34.1.2' && hjemmel !== '34.1.2'}
-        <a href={`#${uid}-${hoved ? 'hovedvarsel' : 'varsel'}${(hoved ? hovedvarseletFoer : foer)?.iTide === false ? '-standpunkt' : ''}`}
+        <a
+          href={`#${uid}-${hoved ? 'hovedvarsel' : 'varsel'}${(hoved ? hovedvarseletFoer : foer)?.iTide === false ? '-standpunkt' : ''}`}
           >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : hjemmel)}</a
         >
       {/if}
@@ -390,7 +399,9 @@
           justeringId={`${uid}-hovedvarsel-justering`}
           hjemmel="34.1.2"
           foer={hovedvarseletFoer}
-          bind:varsletITide={() => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)}
+          bind:varsletITide={
+            () => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)
+          }
           godtarJustering={null}
           ikkeGitt={false}
           justeringValgfri={true}
