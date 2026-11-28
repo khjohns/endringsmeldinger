@@ -76,20 +76,25 @@ export interface VarselIEtEldreKrav {
 /**
  * Svaret `s` uten standpunktene til varselet for kravpostene i `varsler` når svaret står før det
  * eldre kravet i journalen (OV-U120 andre ledd). `plass` er plassen til hvert dokument i journalen.
+ * `vedSvaret` er de eldre kravene da svaret ble sendt, før en senere retting. Står standpunktet mot
+ * varselet etter dem, står det også mot varselet etter rettingen (S-1 A i #2509).
  */
 export function utenStandpunkterForanEldreKrav<T extends Pick<Svar, 'dokument' | 'standpunkter'>>(
   s: T,
   varsler: readonly VarselIEtEldreKrav[],
-  plass: ReadonlyMap<string, number>
+  plass: ReadonlyMap<string, number>,
+  vedSvaret?: readonly VarselIEtEldreKrav[]
 ): T {
-  const gjelderIkke = (p: Standpunkt) =>
+  const foran = (liste: readonly VarselIEtEldreKrav[], p: Standpunkt) =>
     p.art === 'rettidighet' &&
-    varsler.some(
+    liste.some(
       (v) =>
         v.gjelder === p.gjelder &&
         v.hjemmel === p.hjemmel &&
         plass.get(s.dokument)! < plass.get(v.dokument)!
     );
+  const gjelderIkke = (p: Standpunkt) =>
+    foran(varsler, p) && (vedSvaret === undefined || foran(vedSvaret, p));
   return s.standpunkter.some(gjelderIkke)
     ? { ...s, standpunkter: s.standpunkter.filter((p) => !gjelderIkke(p)) }
     : s;

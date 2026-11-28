@@ -65,6 +65,11 @@ export interface Saken {
   utenVirkning: readonly string[];
   /** Kravpostene som har et krav utenfor rekken som varsel (`varslerIEldreKrav`, OV-U120). */
   varslerIEldreKrav: readonly VarselIEtEldreKrav[];
+  /**
+   * De eldre kravene som var varselet da hvert svar på vederlaget ble sendt, etter svaret
+   * (`varslerIEldreKravVedSvaret`, S-1 A i #2509).
+   */
+  varslerIEldreKravVedSvaret: Readonly<Record<string, readonly VarselIEtEldreKrav[]>>;
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */
