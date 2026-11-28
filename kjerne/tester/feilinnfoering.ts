@@ -7057,7 +7057,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet for en kravversjon fra løsningen leser bare rekken, så kravet sier at det er varselet for en kravpost et eldre krav er varselet for (OV-U120, VS-U49)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['iRekkefoelgenSomGjelder(u, eldreKravFoer(u, null))', '[]']],
+    endringer: [['eldreKravSomVarselFoer(u, null)', '[]']],
     mal: [
       'har brevet P1 med regningsarbeid, sier den neste versjonen at varselet ble gitt i brevet',
     ],
@@ -8540,7 +8540,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet med en ny kravversjon ordner de eldre kravene etter den oppgitte datoen, ikke datoen som gjelder (MM-U63, OV-U120)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['iRekkefoelgenSomGjelder(u, eldreKravFoer(u, null))', 'eldreKravFoer(u, null)']],
+    endringer: [['eldreKravSomVarselFoer(u, null)', 'eldreKravFoer(u, null)']],
     mal: ['er K3 varselet for P1 i brevet med den neste versjonen'],
   },
   {
@@ -8554,7 +8554,7 @@ const MUTASJONER: Mutasjon[] = [
         'sendt: datoenSomGjelder({ ...u, rettinger: [] }, krav)',
       ],
     ],
-    mal: ['rettes varselet selv, vises den nye datoen og brevet med rettingen'],
+    mal: ['rettes det eldre kravet selv, vises den nye datoen'],
   },
 ];
 

@@ -359,7 +359,7 @@ describe('et eldre vederlagskrav som varsel for en kravpost (OV-U120)', () => {
     const brevet = u!.spor.vederlag.kravUtenforRekken[0]!.dokument;
     const p1 = kravposterI(u!.spor.vederlag.gjeldendeKrav!)[0]!.id;
     expect(varseleneIEldreKrav(u!)).toEqual([
-      { gjelder: p1, hjemmel: '34.4', dokument: brevet, rettet: null, sendt: '2026-09-21' },
+      { gjelder: p1, hjemmel: '34.4', dokument: brevet, sendt: '2026-09-21' },
     ]);
     expect(journal.some((r) => r.event_id === brevet)).toBe(true);
   });

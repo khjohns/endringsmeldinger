@@ -15,7 +15,7 @@ const SVARET_MED_ID = [
 
 const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
 const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
-const SOM_GJELDER = 'spor/vederlag/utledning.ts:iRekkefoelgenSomGjelder';
+const SOM_GJELDER = 'spor/vederlag/utledning.ts:eldreKravSomVarselFoer';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
@@ -287,16 +287,12 @@ export const UTLEDNINGEN: Lesbar[] = [
     'spor/vederlag/utledning.ts',
     'relasjon',
     'eldreKravFoer',
-    [
-      'spor/vederlag/kommando.ts:kravpostsperre',
-      'spor/vederlag/kommando.ts:kravpostvarslerIBrevet',
-      'spor/vederlag/kommando.ts:varselvalgetMangler',
-    ],
+    ['spor/vederlag/kommando.ts:kravpostsperre', 'spor/vederlag/kommando.ts:varselvalgetMangler'],
   ],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'iRekkefoelgenSomGjelder',
+    'eldreKravSomVarselFoer',
     ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
   ],
   // VS-U87 punkt 22 og 23: om kravet ellers ville vært varselet for kravposten.
@@ -309,7 +305,7 @@ export const UTLEDNINGEN: Lesbar[] = [
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'varslerIEldreKrav',
+    'varslerIEldreKravForPaaberopelsen',
     ['kommandoer/skriving.ts:brevtekstFor'],
   ],
   ['VarselIEtEldreKrav', 'relasjon', 'gjelder hjemmel dokument', ['frosset/standpunkt.ts']],

@@ -107,11 +107,10 @@ const SENKNING_I_VEDERLAGET: Sporssenkning = {
 
 /**
  * Varselet i et eldre krav for en kravpost, med datoen som gjelder for det eldre kravet etter TEs
- * rettinger (MM-U63, A4 i #2509). `rettet` er brevet med rettingen, når datoen er rettet.
+ * rettinger (MM-U63, A4 i #2509).
  */
 export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
   sendt: string | null;
-  rettet: string | null;
 }
 
 /**
@@ -121,8 +120,7 @@ export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
 export function varseleneIEldreKrav(u: Utledning): VarseletIEtEldreKrav[] {
   return varslerIEldreKrav(u).map((v) => {
     const krav = u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === v.dokument)!;
-    const rettet = u.rettinger.filter((r) => r.gjelder === krav.id).at(-1)?.dokument ?? null;
-    return { ...v, sendt: datoenSomGjelder(u, krav), rettet };
+    return { ...v, sendt: datoenSomGjelder(u, krav) };
   });
 }
 

@@ -128,14 +128,14 @@ export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
 }
 
 /**
- * MM-U63, OV-U120: kravene utenfor rekken i `krav` i rekkefølgen etter datoen som gjelder etter
- * TEs rettinger, for å avgjøre hvilket av dem som er varselet for en kravpost (A2 i #2509). Hvilke
- * krav som står utenfor rekken, avgjøres av datoen TE oppga (`eldreKravFoer`, OV-U123 punkt 17).
+ * OV-U120: kravene utenfor rekken som kan være varselet for en kravpost i et krav sendt dagen
+ * `dag`. Hvilke krav som er sendt før, leser datoen TE oppga (`eldreKravFoer`, OV-U123 punkt 17),
+ * og rekkefølgen mellom dem datoen som gjelder etter TEs rettinger (MM-U63, A1 og A2 i #2509).
  */
-export function iRekkefoelgenSomGjelder(u: Utledning, krav: readonly Krav[]): Krav[] {
+export function eldreKravSomVarselFoer(u: Utledning, dag: string | null): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
   return sendtFoer(
-    krav,
+    eldreKravFoer(u, dag),
     (k) => datoEtterRettingene(u.rettinger, k.id, dagenSendt(k, dokumenter.get(k.dokument)!)),
     null
   );
@@ -259,6 +259,15 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
     });
   });
 }
+
+/**
+ * De eldre kravene påberopelsen leses mot (`utenStandpunkterForanEldreKrav`). Til S-1 i #2509 er
+ * avgjort, leses de etter datoene TE oppga, uten rettingene.
+ */
+export const varslerIEldreKravForPaaberopelsen = (
+  u: Utledning,
+  kjentFoer?: string
+): VarselIEtEldreKrav[] => varslerIEldreKrav({ ...u, rettinger: [] }, kjentFoer);
 
 /**
  * Hvorfor en kravpost i den nye kravversjonen viser til et varsel den ikke kan vise til, eller
@@ -430,8 +439,7 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  // S-1 i #2509: til det er avgjort, leses påberopelsen mot de eldre kravene etter datoene TE oppga.
-  const eldre = varslerIEldreKrav({ ...u, rettinger: [] }, kjentFoer);
+  const eldre = varslerIEldreKravForPaaberopelsen(u, kjentFoer);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)
