@@ -244,9 +244,9 @@
       if (sistBrukt === valget) sistBrukt = null;
     });
   };
-  let forrigeRekkefoelge = '';
-  const tilbakeTilValget = (rekkefoelgen: string) => () => {
-    if (rekkefoelgen === forrigeRekkefoelge) return;
+  let forrigeRekkefoelge: (typeof skjemaetsRekkefoelge)[number][] = [];
+  const tilbakeTilValget = (rekkefoelgen: (typeof skjemaetsRekkefoelge)[number][]) => () => {
+    if (rekkefoelgen.join() === forrigeRekkefoelge.join()) return;
     forrigeRekkefoelge = rekkefoelgen;
     const s = sistBrukt;
     sistBrukt = null;
@@ -809,12 +809,12 @@
       hindring: hindringsseksjonen,
       spesifisering: spesifiseringsseksjonen,
     }}
-    {@const rekkefoelgen = iBrevetsRekkefoelge(skjemaetsRekkefoelge, overskrift)}
-    <div
-      class="seksjonene"
-      onchangecapture={huskValget}
-      {@attach tilbakeTilValget(rekkefoelgen.join())}
-    >
+    {@const rekkefoelgen = iBrevetsRekkefoelge(
+      skjemaetsRekkefoelge,
+      overskrift,
+      forrigeRekkefoelge
+    )}
+    <div class="seksjonene" onchangecapture={huskValget} {@attach tilbakeTilValget(rekkefoelgen)}>
       {#each rekkefoelgen as punkt (punkt)}
         {@render seksjonene[punkt]()}
       {/each}

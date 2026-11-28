@@ -184,6 +184,21 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(document.activeElement, 'fokus blir på valget som flyttet seksjonen').toBe(hindret);
   });
 
+  it('seksjonene bytter ikke plass når byggherren tømmer «Godkjente dager» for å skrive et nytt tall (arbeidsvalg 2 i #2507)', async () => {
+    await svarskjemaet(medFristkrav);
+    await radio('Varslet i tide');
+    await radio('Spesifisert i tide');
+    await radio('Nei, fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet');
+    await godkjennAlle();
+    const iBrevet = [/Varselet/, /Spesifiseringen/, /Hindringen/];
+    expect(titlene().slice(0, 3)).toEqual(iBrevet.map((t) => expect.stringMatching(t)));
+    const felt = screen.getAllByLabelText('Godkjente dager')[0]!;
+    await fireEvent.input(felt, { target: { value: '' } });
+    expect(titlene().slice(0, 3), 'mens feltet er tomt').toEqual(
+      iBrevet.map((t) => expect.stringMatching(t))
+    );
+  });
+
   it('kontrollsak: med hindringen uten lag står seksjonene i skjemaets rekkefølge (LV-U89)', async () => {
     await svarskjemaet(medFristkrav);
     await radio('Varslet i tide');

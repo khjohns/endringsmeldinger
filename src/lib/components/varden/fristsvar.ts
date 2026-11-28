@@ -210,12 +210,15 @@ const dagevalget = (vurdert: number | undefined, krevd: number): Dagevalg | null
 /**
  * Seksjonene i skjemaet i brevets rekkefølge (`.interface-design/system.md`: seksjonene er
  * punktene i brevet, med samme nummer; LV-U89). En seksjon med nummer i brevet står på en av
- * plassene til seksjonene med nummer, etter nummeret. En seksjon uten nummer, før brevet kan
- * lages, beholder plassen sin i skjemaets rekkefølge (#2359).
+ * plassene til seksjonene med nummer, etter nummeret. En seksjon uten nummer beholder plassen sin
+ * i skjemaets rekkefølge (#2359). Har ingen seksjon nummer, fordi brevet ikke kan lages mens
+ * byggherren skriver, står seksjonene som sist (`forrige`), så de ikke bytter plass uten at et
+ * valg har endret lagene (arbeidsvalg 2 i #2507).
  */
 export function iBrevetsRekkefoelge<T extends string>(
   punkter: readonly T[],
-  overskrift: (punkt: T) => string | undefined
+  overskrift: (punkt: T) => string | undefined,
+  forrige: readonly T[] = []
 ): T[] {
   const nummeret = (punkt: T) => {
     const n = /^(\d+)\.\s/.exec(overskrift(punkt) ?? '');
@@ -224,6 +227,8 @@ export function iBrevetsRekkefoelge<T extends string>(
   const nummerert = punkter
     .filter((p) => nummeret(p) !== null)
     .sort((a, b) => nummeret(a)! - nummeret(b)!);
+  if (!nummerert.length && punkter.every((p) => forrige.includes(p)))
+    return forrige.filter((p) => punkter.includes(p));
   let neste = 0;
   return punkter.map((p) => (nummeret(p) === null ? p : nummerert[neste++]));
 }

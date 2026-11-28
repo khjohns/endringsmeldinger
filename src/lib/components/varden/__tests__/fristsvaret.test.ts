@@ -251,6 +251,13 @@ describe('seksjonene i brevets rekkefølge (arbeidsvalg 2 i #2507, LV-U89)', () 
     expect(iBrevetsRekkefoelge(punktene, () => undefined)).toEqual([...punktene]);
   });
 
+  it('mens brevet ikke kan lages, står seksjonene som sist, så de ikke bytter plass mens byggherren skriver', () => {
+    const forrige = ['33.4', 'spesifisering', 'hindring'] as const;
+    expect(
+      iBrevetsRekkefoelge(['33.4', 'hindring', 'spesifisering'], () => undefined, forrige)
+    ).toEqual([...forrige]);
+  });
+
   it('en seksjon uten nummer beholder plassen, og de med nummer ordnes på plassene sine', () => {
     expect(
       iBrevetsRekkefoelge(
