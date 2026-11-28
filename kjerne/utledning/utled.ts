@@ -39,6 +39,7 @@ import {
 import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
+import { varslerOgsaaEtter3412 } from '../regler/vederlag.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
 import { hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
@@ -69,7 +70,12 @@ import {
   type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
-import { datoEtterRettingene, sisteRettingFor, type Retting } from './rettingen.ts';
+import {
+  datoEtterRettingene,
+  medRettingeneTil,
+  sisteRettingFor,
+  type Retting,
+} from './rettingen.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdetErAvvistVedEnighet,
@@ -84,6 +90,7 @@ import {
 export type LestVarsel = Extract<Utsagnet, { art: 'varsel' }>;
 /** Hjemlene saken har høyst ett varsel etter (SK-12). */
 export type Enkeltvarselhjemmel = Exclude<Varselhjemmel, Kravpostvarselhjemmel>;
+const REGELVERSJON_VS_U98 = 152;
 
 export interface Svarberegning {
   svar: Svar;
@@ -791,7 +798,7 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   for (const v of d.utsagn) {
     if (v.art !== 'varsel') continue;
     for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken)
-      if (sammenliknesMedVarselet(v.hjemmel, k))
+      if (sammenliknesMedVarselet(v.hjemmel, k, u))
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   const forholdIBrevet = d.svar.some((x) => x.spor === 'forhold');
@@ -830,18 +837,19 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
 }
 
 /**
- * OV-U102: de registrerte varslene i sporet som et krav utenfor rekken sammenliknes med i
- * `varseletFoerSvaret`. Etter § 32.2 sammenliknes de ikke, og etter § 34.1.3 bare for et krav
- * som varsler etter den (`kravSomVarsler`).
+ * OV-U102 og VS-U98: de registrerte varslene som et krav utenfor rekken sammenliknes med
+ * for å finne det første varselet.
  */
 function egneVarsler(u: Utledning, k: Krav): LestVarsel[] {
-  return Object.values(u.spor[k.spor].varsler).filter(
-    (v): v is LestVarsel => v !== undefined && sammenliknesMedVarselet(v.hjemmel, k)
+  const s = u.spor[k.spor];
+  return [...Object.values(s.varsler), ...s.kravpostvarsler].filter(
+    (v): v is LestVarsel => v !== undefined && sammenliknesMedVarselet(v.hjemmel, k, u)
   );
 }
 
-const sammenliknesMedVarselet = (hjemmel: Varselhjemmel, k: Krav): boolean =>
-  datoenSammenliknes(hjemmel) && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k);
+const sammenliknesMedVarselet = (hjemmel: Varselhjemmel, k: Krav, u: Utledning): boolean =>
+  (datoenSammenliknes(hjemmel) && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k)) ||
+  (k.spor === 'vederlag' && varslerOgsaaEtter3412(hjemmel) && !varselEtter3412KrevesIkke(u, null));
 
 /** Etter § 32.2 gjelder det registrerte varselet til #1600 er bygget, uten å sammenlikne datoene. */
 const datoenSammenliknes = (hjemmel: Varselhjemmel): boolean => hjemmel !== '32.2';
@@ -1216,6 +1224,7 @@ function utledSporene(
     besvart,
     bakover,
     gjaldtVedSvaret,
+    regler,
     ugyldig
   );
   kontrollerSvarkjedene(spor, ugyldig);
@@ -1350,6 +1359,7 @@ function kontrollerSvarene(
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
   sendt: GjaldtVedSvaret,
+  regler: Regelsett,
   ugyldig: Ugyldig
 ): void {
   for (const s of alleSvar.values()) {
@@ -1375,9 +1385,13 @@ function kontrollerSvarene(
         s.id,
         'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'
       );
+    for (const p of s.standpunkter) {
+      const ekstraStandpunkt =
+        p.art === 'rettidighet' && p.hjemmel === '34.1.2' && varselet?.hjemmel !== p.hjemmel;
+      if (!varselet || ekstraStandpunkt)
+        kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, regler, ugyldig);
+    }
     if (varselet) continue;
-    for (const p of s.standpunkter)
-      kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, ugyldig);
     const krav = alleKrav.get(s.gjelder);
     if (krav?.spor !== s.spor) continue;
     // VS-U96 punkt 38 og 39: svaret bare på varselet har bare standpunktene til varselet.
@@ -1408,7 +1422,9 @@ function kontrollerSvarPaaVarselet(
   else if (
     s.standpunkter.some((p) =>
       p.art === 'rettidighet'
-        ? p.gjelder !== s.gjelder || p.hjemmel !== varselet.hjemmel
+        ? p.gjelder !== s.gjelder ||
+          (p.hjemmel !== varselet.hjemmel &&
+            !(p.hjemmel === '34.1.2' && varslerOgsaaEtter3412(varselet.hjemmel)))
         : p.art !== 'justering' || p.gjelder !== s.gjelder || varselet.hjemmel !== '34.3.3'
     )
   )
@@ -1419,8 +1435,9 @@ function kontrollerSvarPaaVarselet(
   else if (
     (varselet.hjemmel === '33.4' ||
       varselet.hjemmel === '34.1.2' ||
-      varselet.hjemmel === '34.1.3') &&
-    !s.standpunkter.some((p) => p.art === 'rettidighet')
+      varselet.hjemmel === '34.1.3' ||
+      varselet.hjemmel === '34.4') &&
+    !s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === varselet.hjemmel)
   )
     ugyldig(
       s.id,
@@ -1439,6 +1456,7 @@ function kontrollerStandpunktet(
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
   sendt: GjaldtVedSvaret,
+  regler: Regelsett,
   ugyldig: Ugyldig
 ): void {
   // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
@@ -1457,6 +1475,15 @@ function kontrollerStandpunktet(
       'standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse etter § 33.6.2 annet ledd b før svaret på det første fristkravet'
     );
   if (p.art !== 'rettidighet') return;
+  const ekstraVarselsvar =
+    p.hjemmel === '34.1.2' && (s.bareVarselet || varsler.some((v) => v.id === s.gjelder));
+  if (ekstraVarselsvar) {
+    const paaberopelse = spor.forhold.krav.find((k) => k.id === s.paaberopelse);
+    if (p.gjelder !== s.gjelder || !hjemmelenGjelder('34.1.2', paaberopelse, regler)) {
+      ugyldig(s.id, 'standpunktet etter punkt 34.1.2 gjelder ikke varselet svaret gjelder');
+      return;
+    }
+  }
   // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
   if (p.hjemmel === '33.6.2') {
     if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
@@ -1474,9 +1501,32 @@ function kontrollerStandpunktet(
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const foer = (v: string) => bakover(s.id, v);
     const krav = kravSomVarsler(p.hjemmel, spor[n], foer);
-    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, (v) => sendt(v, s));
+    const andreVarsler =
+      p.hjemmel === '34.1.2' &&
+      hjemmelenGjelder(
+        '34.1.2',
+        spor.forhold.krav.find((k) => k.id === s.paaberopelse),
+        regler
+      )
+        ? varsler.filter((v) => varslerOgsaaEtter3412(v.hjemmel))
+        : [];
+    const dagen = (v: Pick<Krav, 'id' | 'dokument'>) => sendt(v, s);
+    const tidligste = varseletFoerSvaret(
+      p.hjemmel,
+      [...varslene, ...andreVarsler],
+      krav,
+      foer,
+      dagen
+    );
+    const eldreSvar = !ekstraVarselsvar && s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
     const eget = varslene.find((v) => foer(v.id))?.id;
-    if (p.gjelder !== tidligste && p.gjelder !== eget)
+    const egetGjelder = (p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget;
+    // MM-U50: eldre svar kunne vise til kravet selv om et av de andre varslene kom først.
+    const historisk =
+      andreVarsler.length > 0 &&
+      eldreSvar &&
+      p.gjelder === varseletFoerSvaret(p.hjemmel, varslene, krav, foer, dagen);
+    if (p.gjelder !== tidligste && !egetGjelder && !historisk)
       ugyldig(
         s.id,
         `påberopelsen etter § ${p.hjemmel} viser til ${p.gjelder}, men varselet før svaret er ${tidligste ?? 'ikke i saken'}`
@@ -1975,7 +2025,7 @@ export function kravSomVarsler(
   foer: (krav: string) => boolean
 ): readonly Krav[] {
   const varsler = (k: Krav) => varslerEtter(hjemmel, k);
-  const [foerste] = s.krav.filter(varsler);
+  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));
   return [
     ...(foerste ? [foerste] : []),
     ...s.kravUtenforRekken.filter((k) => varsler(k) && foer(k.id)),
@@ -1983,12 +2033,12 @@ export function kravSomVarsler(
 }
 
 /**
- * OV-U102: kravet som ble sendt først. Med samme dato, eller uten dato, gjelder det første i
- * lista, den første kravversjonen.
+ * OV-U102 og VS-U98: det som ble sendt først. Med samme dato, eller uten dato, gjelder det
+ * første i lista.
  */
-function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K | undefined {
+function foerstSendt<K>(elementer: readonly K[], sendt: (k: K) => string | null): K | undefined {
   let foerst: K | undefined;
-  for (const k of krav) {
+  for (const k of elementer) {
     const dato = sendt(k);
     const tidligste = foerst === undefined ? null : sendt(foerst);
     if (foerst === undefined || (dato !== null && tidligste !== null && dato < tidligste))
@@ -2005,6 +2055,7 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
  * påberopelsen det av dem som ble sendt først (VS-U70, VS-U66); med samme dato, eller uten
  * en dato for kravet, det egne varselet. Vilkåret i E3 om en tidligere dato for § 32.2 er ikke
  * bygget (#1600).
+ * VS-U98: etter § 34.1.2 kommer et uttrykkelig varsel først i lista, så de øvrige i journalrekkefølge.
  * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble
  * sendt. Skriveren og valideringen leser det herfra (#496).
  */
@@ -2015,7 +2066,10 @@ export function varseletFoerSvaret(
   foerSvaret: (varsel: string) => boolean,
   sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
 ): string | undefined {
-  const eget = varsler.find((v) => foerSvaret(v.id));
+  const eget = foerstSendt(
+    varsler.filter((v) => foerSvaret(v.id)),
+    sendt
+  );
   const kravet = foerstSendt(krav, sendt);
   if (!eget || !kravet || !datoenSammenliknes(hjemmel)) return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
@@ -2024,15 +2078,15 @@ export function varseletFoerSvaret(
 }
 
 /**
- * Varselet en påberopelse etter hjemmelen gjelder i et svar som skrives nå: hvert varsel
- * står før svaret, og saken har høyst ett per hjemmel (SK-12). Skriveren leser det herfra,
- * så regelen står ett sted (#766).
+ * Varselet en påberopelse etter hjemmelen gjelder i et nytt svar (#766). For et svar lagt til
+ * er `sendt` datoen byggherren har oppgitt.
  */
 export function varseletForNyttSvar(
-  u: Pick<Utledning, 'spor' | 'journal' | 'rettinger'>,
-  hjemmel: Enkeltvarselhjemmel
+  u: Utledning,
+  hjemmel: Enkeltvarselhjemmel,
+  sendt: string | null = null
 ): string {
-  const varsel = varseletFoerBrevet(u, hjemmel);
+  const varsel = varseletFoerBrevet(u, hjemmel, sendt);
   if (varsel === undefined)
     throw new Error(`Et svar kan ikke påberope § ${hjemmel} uten varsel eller krav som varsler.`);
   return varsel;
@@ -2043,17 +2097,45 @@ export function varseletForNyttSvar(
  * `undefined` når saken ikke har noe. Brevteksten for vederlagskravet viser til det (#1824).
  */
 export function varseletFoerBrevet(
-  u: Pick<Utledning, 'spor' | 'journal' | 'rettinger'>,
-  hjemmel: Enkeltvarselhjemmel
+  u: Utledning,
+  hjemmel: Enkeltvarselhjemmel,
+  sendt: string | null = null
 ): string | undefined {
   const s = u.spor[VARSELSPOR[hjemmel]];
   const registrert = s.varsler[hjemmel];
+  const varslene = registrert ? [registrert] : [];
+  if (hjemmel === '34.1.2' && !varselEtter3412KrevesIkke(u, sendt)) {
+    const andre = new Set([s.varsler['34.1.3']?.id, ...s.kravpostvarsler.map((v) => v.id)]);
+    for (const d of dokumenterI(u.journal))
+      for (const v of d.utsagn)
+        if (v.art === 'varsel' && andre.has(v.id) && varslerOgsaaEtter3412(v.hjemmel))
+          varslene.push(v);
+  }
   const krav = kravSomVarsler(hjemmel, s, () => true);
+  const medDatoene = medRettingeneTil(u, sendt);
   return varseletFoerSvaret(
     hjemmel,
-    registrert ? [registrert] : [],
+    varslene,
     krav,
     () => true,
-    (v) => datoenSomGjelder(u, v)
+    (v) => datoenSomGjelder(medDatoene, v)
+  );
+}
+
+/** VS-U100: kan svaret på varselet også ta stilling etter § 34.1.2? */
+export function varseletGjelderOgsaa3412(
+  u: Utledning,
+  gjelder: string,
+  hjemmel: Varselhjemmel | null,
+  sendt: string | null
+): boolean {
+  const { svar, svarUtenforRekken } = u.spor.vederlag;
+  return (
+    (hjemmel === null || varslerOgsaaEtter3412(hjemmel)) &&
+    !varselEtter3412KrevesIkke(u, sendt) &&
+    varseletFoerBrevet(u, '34.1.2', sendt) === gjelder &&
+    ![...svar, ...svarUtenforRekken].some(
+      (s) => sendt === null || !foerDagen(sendt, datoenDetBleSendt(u, s))
+    )
   );
 }

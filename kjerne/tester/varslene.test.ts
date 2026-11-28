@@ -1571,6 +1571,8 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     expect(rettidighet.gjelder).toBe(kravet);
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);
     // Et svar sendt før VS-U70 viste til det egne varselet, og står med det (MM-U50).
+    const ved = (rad.data.svar as Data[]).find((x) => x.spor === 'vederlag')!;
+    (ved.beslutningsgrunnlag as Data).regelversjon = 151;
     rettidighet.gjelder = varselet;
     expect(s.u().forstaatt).toBe(true);
     rettidighet.gjelder = s.krav('forhold');

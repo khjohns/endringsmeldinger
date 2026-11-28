@@ -26,6 +26,7 @@ import {
 import {
   kontroller as kontrollerVederlaget,
   kontrollerInnsigelsenSomStaar,
+  kontrollerHovedvarseletISvaret,
   kontrollerOppgivelsenEtter344,
   kontrollerOppgjoersformen,
   kontrollerSvaretPaaVarselet,
@@ -89,6 +90,7 @@ import {
   kravversjoneneKravetProevesMot,
   kravversjonenPaaDagen,
   varseletFoerBrevet,
+  varseletGjelderOgsaa3412,
   varselEtter3412KrevesIkke,
   varseletForNyttSvar,
   type Utledning,
@@ -120,14 +122,14 @@ import type { Sporsstandpunkter, Svaretsvarsel } from '../../kommandoer/standpun
 type Data = Record<string, unknown>;
 
 /** Standpunktene i vederlaget, i rekkefølgen brevet setter dem (`standpunkter`). */
-export const STANDPUNKTER_I_VEDERLAGET: Sporsstandpunkter = (v, krav, u, nyId) => {
+export const STANDPUNKTER_I_VEDERLAGET: Sporsstandpunkter = (v, krav, u, nyId, sendt) => {
   const ut: Data[] = [];
   // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.
   if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
     ut.push({
       id: nyId(),
       art: 'rettidighet',
-      gjelder: varseletForNyttSvar(u, '34.1.2'),
+      gjelder: varseletForNyttSvar(u, '34.1.2', sendt),
       hjemmel: HJEMMEL.vederlag,
       i_tide: v.hovedkrav_varslet_i_tide,
     });
@@ -466,12 +468,23 @@ export function vurderingeneISvaretBarePaaVarselet(
   const staar = standpunkteneTilVarslene(u, sendt, true);
   const feil = avvisteFelt(() => {
     const v = s.vurderinger as Data;
-    const ukjent = Object.keys(v).filter((f) => f !== 'kravposter');
+    const ukjent = Object.keys(v).filter(
+      (f) => f !== 'kravposter' && f !== 'hovedkrav_varslet_i_tide'
+    );
     if (ukjent.length)
       throw new UgyldigVurdering(
         Object.fromEntries(
           ukjent.map((f) => [f, 'kjernen leser ikke feltet i svaret bare på varselet'])
         )
+      );
+    const gjelderOgsaa3412 = varseletGjelderOgsaa3412(u, krav.id, null, sendt);
+    kontrollerHovedvarseletISvaret(v, gjelderOgsaa3412);
+    if (sendt === null && gjelderOgsaa3412)
+      kontrollerInnsigelsenSomStaar(
+        'varselet',
+        v,
+        staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide),
+        'hovedkrav_varslet_i_tide'
       );
     for (const { post, svar } of postsvarene(v, poster, krav)) {
       const innsigelsenStaar = staar.some(
@@ -533,9 +546,27 @@ export function standpunkterBarePaaVarselet(
   krav: Krav,
   nyId: () => string
 ): Data[] {
-  return postsvarene(v as Data, poster, krav).flatMap(({ post, svar }) =>
-    standpunkterPaaVarselet(svar, { id: post.id, hjemmel: post.hjemmel }, nyId)
-  );
+  return [
+    ...standpunktTilHovedvarselet(v, krav.id, nyId),
+    ...postsvarene(v as Data, poster, krav).flatMap(({ post, svar }) =>
+      standpunkterPaaVarselet(svar, { id: post.id, hjemmel: post.hjemmel }, nyId)
+    ),
+  ];
+}
+
+function standpunktTilHovedvarselet(v: Svarvurdering, gjelder: string, nyId: () => string): Data[] {
+  const iTide = v.hovedkrav_varslet_i_tide;
+  return typeof iTide === 'boolean'
+    ? [
+        {
+          id: nyId(),
+          art: 'rettidighet',
+          gjelder,
+          hjemmel: '34.1.2',
+          i_tide: iTide,
+        },
+      ]
+    : [];
 }
 
 /**
@@ -564,7 +595,7 @@ export function standpunkterPaaVarselet(
 ): Data[] {
   const iTide = (v as Data).varslet_i_tide;
   const godtar = (v as Data).godtar_justering;
-  const ut: Data[] = [];
+  const ut = standpunktTilHovedvarselet(v, varselet.id, nyId);
   if (typeof iTide === 'boolean')
     ut.push({
       id: nyId(),
@@ -597,12 +628,22 @@ export function vurderingeneISvaretPaaVarselet(
   u: Utledning,
   sendt: string | null
 ): Avvisning | null {
-  const staar = standpunkteneTilVarslene(u, sendt, true).some(
+  const tidligere = standpunkteneTilVarslene(u, sendt, true);
+  const staar = tidligere.some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );
+  const gjelderOgsaa3412 = varseletGjelderOgsaa3412(u, varselet.id, varselet.hjemmel, sendt);
+  const v = s.vurderinger as Data;
   const feil = avvisteFelt(() => {
-    kontrollerSvaretPaaVarselet(varselet.hjemmel, s.vurderinger as Data, staar);
-    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);
+    kontrollerSvaretPaaVarselet(varselet.hjemmel, v, staar, 'varselet', gjelderOgsaa3412);
+    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', v, staar);
+    if (sendt === null && gjelderOgsaa3412)
+      kontrollerInnsigelsenSomStaar(
+        'varselet',
+        v,
+        tidligere.some((x) => x.gjelder === varselet.id && x.hjemmel === '34.1.2' && !x.iTide),
+        'hovedkrav_varslet_i_tide'
+      );
   });
   return avvisteVurderinger(feil);
 }
@@ -1402,7 +1443,7 @@ function lagIUtfyllingen(
     produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
   };
   let n = 0;
-  const lagret = STANDPUNKTER_I_VEDERLAGET(utenBeloep, krav, u, () => `utkast-${n++}`);
+  const lagret = STANDPUNKTER_I_VEDERLAGET(utenBeloep, krav, u, () => `utkast-${n++}`, sendt);
   const svar = {
     spor: 'vederlag' as const,
     standpunkter: standpunkterISvaret('vederlag', {

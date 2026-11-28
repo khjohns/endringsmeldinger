@@ -518,7 +518,10 @@ function kontrollerSvaretPaaVarselet(
   // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost etter
   // hverandre. At svaret på et varsel som står alene gjelder ett varsel, kontrollerer utledningen.
   const grupper: { gjelder: string | undefined; arter: string[] }[] = [];
-  for (const s of ut) {
+  const hovedvarselet = ut.filter((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2');
+  if (hovedvarselet.length > 1 || (hovedvarselet.length && ut[0] !== hovedvarselet[0]))
+    throw new Uforstaatt(`${sti}: standpunktet etter punkt 34.1.2 må stå først og høyst én gang`);
+  for (const s of hovedvarselet.length && ut.length > 1 ? ut.slice(1) : ut) {
     const gjelder = 'gjelder' in s ? s.gjelder : undefined;
     if (grupper.at(-1)?.gjelder === gjelder) grupper.at(-1)!.arter.push(s.art);
     else grupper.push({ gjelder, arter: [s.art] });

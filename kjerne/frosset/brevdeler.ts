@@ -359,6 +359,7 @@ export interface Sporsbrevtekst {
    * ikke som for sen varsling.
    */
   rettidighetUtenVarsel?: Partial<Record<Hjemmel, (gjelder: string, j: Journalen) => string>>;
+  varseletISvaret: Partial<Record<Hjemmel, string>>;
   /**
    * Følgen byggherren gjør gjeldende av at varselet etter en bestemmelse i sporet kom for sent, som
    * leddsetningen etter «byggherren gjør gjeldende at varselet kom for sent, og».

@@ -16,9 +16,25 @@ import {
 } from '#kjerne/utledning/utled.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
-import { varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
+import { varseletFoerKravet, varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
 import { SOM_BREV } from '#kjerne/tester/brevet.ts';
-import { PAABEROPELSE, sak } from '#kjerne/tester/brevsak.ts';
+import { KLAR_OVER, PAABEROPELSE, sak } from '#kjerne/tester/brevsak.ts';
+
+it.each(['34.1.3', '34.3.3', '34.4'] as const)(
+  'et tidligere varsel etter punkt %s vises med brevet som varslet etter punkt 34.1.2 (VS-U98)',
+  (hjemmel) => {
+    const s = sak();
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+    });
+    const brevet = s.send('TE', {
+      type: 'send_varsel',
+      varsler: [hjemmel === '34.1.3' ? { hjemmel } : { hjemmel, arbeid: 'Graving ved kum 4' }],
+    });
+    expect(varseletFoerKravet(s.u(), '34.1.2')).toBe(brevet.event_id);
+  }
+);
 
 const medP1 = (oppgjoersform: string): Handling => ({
   handling: 'krav',

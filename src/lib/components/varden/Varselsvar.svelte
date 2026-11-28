@@ -98,6 +98,15 @@
       ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, varselet.foer.dokument),
     }
   );
+  const hovedvarseletFoer = $derived(
+    varselet.hovedvarseletFoer
+      ? {
+          iTide: varselet.hovedvarseletFoer.iTide,
+          brev: brevet(u, varselet.hovedvarseletFoer.dokument),
+          ikkeGitt: false,
+        }
+      : null
+  );
   const utkast = $derived(varselsvaret(utenTekster(valg), varselet, kjernesak.regler));
   const nyttSvarI = (k: Record<string, unknown>) => {
     const etter = kjernesak.forhaandsvist(k);
@@ -128,7 +137,12 @@
   const gjelderHvis = (art: 'rettidighet' | 'justering'): Innsigelsen[] =>
     hjemmel === '34.4'
       ? []
-      : (utfylt.find((l) => 'standpunkt' in l && l.standpunkt.art === art)?.vilkaar ?? []);
+      : (utfylt.find(
+          (l) =>
+            'standpunkt' in l &&
+            l.standpunkt.art === art &&
+            (l.standpunkt.art !== 'rettidighet' || l.standpunkt.hjemmel === hjemmel)
+        )?.vilkaar ?? []);
   const varseletGjelderHvis = $derived(gjelderHvis('rettidighet'));
   const justeringenGjelderHvis = $derived(gjelderHvis('justering'));
   const oppgir = $derived(iTide === true && foer?.iTide === false && foer.brev ? foer : null);
@@ -146,11 +160,11 @@
         };
       const s = l.standpunkt;
       const tekst =
-        s.art === 'rettidighet' && oppgir
+        s.art === 'rettidighet' && s.hjemmel === hjemmel && oppgir
           ? oppgivelsestekst(hjemmel, oppgir.brev!, true, undefined, oppgir.ikkeGitt)
           : standpunkttekst(s, true, undefined, undefined, false, false);
       return {
-        punkt: s.art === 'justering' ? 'justering' : hjemmel,
+        punkt: s.art === 'rettidighet' ? s.hjemmel : 'justering',
         tekst,
         lag: l.lag,
         vilkaar: l.vilkaar,
@@ -170,7 +184,7 @@
       linjer: iPunktet.length ? iPunktet : [{ tekst: foerSvaret, lag: null }],
     };
   };
-  const punkteneForVarselet = $derived(
+  const egnePunkter = $derived(
     hjemmel === '34.4'
       ? [punktet(hjemmel, varselpunktet, SKJEMA.ingenInnsigelse)]
       : hjemmel !== '34.3.3'
@@ -180,6 +194,12 @@
             punktet('justering', VARSELSVARET.justeringen, SKJEMA.ikkeBesvart),
           ]
   );
+  const punkteneForVarselet = $derived([
+    ...(varselet.hovedvarseletFoer !== undefined
+      ? [punktet('34.1.2', VARSELSVARET.punktet('34.1.2'), SKJEMA.ikkeBesvart)]
+      : []),
+    ...egnePunkter,
+  ]);
   const forholdet = $derived(linjer.filter((l) => l.punkt === FORHOLDET));
   const skjemapunkter = $derived([
     ...(forholdet.length
@@ -317,7 +337,9 @@
         <Forholdsgrunn grunn={i.grunn} brev={i.brev} {onforholdet} />
       {:else}
         <!-- En innsigelse som står, er en setning, ikke et valg (`Varselstandpunkt`). -->
-        <a href={`#${uid}-varsel${foer?.iTide === false ? '-standpunkt' : ''}`}
+        {@const hoved = i.art === 'varsel' && i.hjemmel === '34.1.2' && hjemmel !== '34.1.2'}
+        <a
+          href={`#${uid}-${hoved ? 'hovedvarsel' : 'varsel'}${(hoved ? hovedvarseletFoer : foer)?.iTide === false ? '-standpunkt' : ''}`}
           >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : hjemmel)}</a
         >
       {/if}
@@ -367,6 +389,28 @@
     {/snippet}
     <!-- Punktene i brevet, med samme nummer, og blekkstreken ved punktet som venter på svar
        (`system.md`, «Utkastet er brevet mens det skrives»). -->
+    {#if varselet.hovedvarseletFoer !== undefined}
+      <Spoersmaal
+        id={`${uid}-sp-hovedvarsel`}
+        tittel={overskrift('34.1.2') ?? VARSELSVARET.punktet('34.1.2')}
+      >
+        <Varselstandpunkt
+          varselId={`${uid}-hovedvarsel`}
+          justeringId={`${uid}-hovedvarsel-justering`}
+          hjemmel="34.1.2"
+          foer={hovedvarseletFoer}
+          bind:varsletITide={
+            () => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)
+          }
+          godtarJustering={null}
+          ikkeGitt={false}
+          justeringValgfri={true}
+          vis="varselet"
+          ogsaa3412
+        />
+        {@render begrunnelse('34.1.2')}
+      </Spoersmaal>
+    {/if}
     <Spoersmaal
       id={`${uid}-sp-varselet`}
       aktiv={hjemmel !== '34.3.3' && iTide === null}

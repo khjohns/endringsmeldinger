@@ -450,6 +450,13 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   ingenBeloep,
   enigI: 'beløpet',
   trukket: kravetsBeloep,
+  varseletISvaret: {
+    '34.1.2': 'varselet om vederlagsjustering etter NS 8407 punkt 34.1.2',
+    '34.1.3':
+      'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd',
+    '34.3.3': 'varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd',
+    '34.4': 'varselet om regningsarbeid etter NS 8407 punkt 34.4',
+  },
   // VS-U4 og VS-U87 punkt 30 for § 34.3.3, § 34.1.3 tredje ledd.
   foelgenAvSentVarsel: {
     '34.1.3':
@@ -553,7 +560,12 @@ function leddIVederlaget(
   // VS-U81: innsigelsen etter § 34.3.3 fra et svar før, som svaret ikke sier noe om.
   const forSentFoer = (gjelder: string | undefined) =>
     staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === gjelder);
-  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning, forSentFoer);
+  if (svaretGjelderEtVarsel(svar)) {
+    const ledd = leddISvaretPaaVarselet(svar, virkning, forSentFoer);
+    if (staar.some((x) => x.hjemmel === '34.1.2'))
+      ledd.unshift({ tekst: `${SENT_I_LINJEN['34.1.2']} kom for sent${SOM_FOER}`, virkning: 1 });
+    return ledd;
+  }
   const sine: Linjeledd[] = [];
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
@@ -652,8 +664,9 @@ function leddISvaretPaaVarselet(
   return svar.standpunkter.flatMap((s): Linjeledd[] => {
     if (s.art === 'justering') {
       const staar =
-        !svar.standpunkter.some((x) => x.art === 'rettidighet' && x.gjelder === s.gjelder) &&
-        forSentFoer(s.gjelder);
+        !svar.standpunkter.some(
+          (x) => x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder
+        ) && forSentFoer(s.gjelder);
       const justeringen = {
         tekst: `justeringen av enhetsprisene ${s.godtar ? 'godtatt' : 'bestridt'} (punkt 34.3.2)`,
         virkning: virkning(s.id),
@@ -669,6 +682,7 @@ function leddISvaretPaaVarselet(
         : [justeringen];
     }
     if (s.art !== 'rettidighet') return [];
+    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];
     const tekst = !s.iTide
       ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
       : s.hjemmel === '34.4'

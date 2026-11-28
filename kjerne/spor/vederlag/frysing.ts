@@ -70,7 +70,12 @@ function vederlagsvirkninger(
 ): Standpunktsvirkning[] {
   // VS-U81: innsigelsen etter § 34.3.3 fra et svar før, som svaret ikke sier noe om.
   const forSentFoer = new Set(staar.flatMap((x) => (x.hjemmel === '34.3.3' ? [x.gjelder] : [])));
-  if (svaretGjelderEtVarsel(svar)) return virkningerISvaretPaaVarselet(svar, forSentFoer);
+  if (svaretGjelderEtVarsel(svar))
+    return virkningerISvaretPaaVarselet(
+      svar,
+      forSentFoer,
+      staar.some((x) => x.hjemmel === '34.1.2')
+    );
   const sent = (hjemmel: Hjemmel) =>
     svar.standpunkter.some(
       (s) =>
@@ -125,15 +130,24 @@ function vederlagsvirkninger(
  */
 function virkningerISvaretPaaVarselet(
   svar: Svarinnhold,
-  forSentFoer: ReadonlySet<string>
+  forSentFoer: ReadonlySet<string>,
+  hovedinnsigelsenStaar: boolean
 ): Standpunktsvirkning[] {
   // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost.
   const varslene = new Map<string, Standpunkt[]>();
+  const hovedvarselet =
+    svar.standpunkter.length > 1
+      ? svar.standpunkter.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2')
+      : undefined;
+  const heltForSent =
+    hovedinnsigelsenStaar || (hovedvarselet?.art === 'rettidighet' && !hovedvarselet.iTide);
+  const foersteLagForPostene = heltForSent ? 2 : 1;
   for (const s of svar.standpunkter) {
+    if (s === hovedvarselet) continue;
     const gjelder = ('gjelder' in s ? s.gjelder : undefined) ?? '';
     varslene.set(gjelder, [...(varslene.get(gjelder) ?? []), s]);
   }
-  return [...varslene.values()].flatMap((standpunktene) => {
+  const postene = [...varslene.values()].flatMap((standpunktene): Standpunktsvirkning[] => {
     const varselet = standpunktene.find((s) => s.art === 'rettidighet');
     const justeringen = standpunktene.find((s) => s.art === 'justering');
     const lag = lagIKravposten(
@@ -144,15 +158,27 @@ function virkningerISvaretPaaVarselet(
           : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),
         justering: justeringen !== undefined,
       },
-      1
+      foersteLagForPostene
     );
     return standpunktene.map((s) => ({
       standpunkt: s.id,
       art: s.art,
       virkning:
-        s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
+        s.art === 'justering'
+          ? (lag?.justeringen ?? foersteLagForPostene)
+          : (lag?.varselet ?? 'uten_virkning'),
     }));
   });
+  return hovedvarselet
+    ? [
+        {
+          standpunkt: hovedvarselet.id,
+          art: 'rettidighet',
+          virkning: heltForSent ? 1 : 'uten_virkning',
+        },
+        ...postene,
+      ]
+    : postene;
 }
 
 /**
@@ -330,18 +356,28 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
 
 /**
  * Kravpostene i `krav` med et varsel etter § 34.3.3 eller § 34.4 som svaret ikke sier noe om, eller
- * varselet etter § 34.3.3 et svar på varselet som står alene, ikke sier noe om (VS-U79; svaret på
- * varselet etter § 34.4 har alltid standpunktet). Svaret leses der med byggherrens tidligere
- * standpunkt til varselet (VS-U77 punkt 9 og 12, VS-U80).
+ * varslene etter § 34.3.3 og § 34.1.2 et varselsvar ikke sier noe om. Svaret leses med
+ * byggherrens tidligere innsigelse (VS-U77 punkt 9 og 12, VS-U80, spørsmål 2 A i #2529).
  */
 function tausOmVarselet(svar: Svarinnhold, krav: Krav | null | undefined): VarselIKravet[] {
-  if (svaretGjelderEtVarsel(svar))
-    return svar.standpunkter.flatMap((j): VarselIKravet[] =>
-      j.art === 'justering' &&
-      !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.gjelder === j.gjelder)
-        ? [{ gjelder: j.gjelder, hjemmel: '34.3.3' }]
-        : []
+  if (svaretGjelderEtVarsel(svar)) {
+    const [standpunkt] = svar.standpunkter;
+    const gjelder = krav?.id ?? ('gjelder' in standpunkt ? standpunkt.gjelder : undefined);
+    const hovedvarselet: VarselIKravet[] =
+      gjelder && !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2')
+        ? [{ gjelder, hjemmel: '34.1.2' }]
+        : [];
+    return hovedvarselet.concat(
+      svar.standpunkter.flatMap((j): VarselIKravet[] =>
+        j.art === 'justering' &&
+        !svar.standpunkter.some(
+          (s) => s.art === 'rettidighet' && s.hjemmel === '34.3.3' && s.gjelder === j.gjelder
+        )
+          ? [{ gjelder: j.gjelder, hjemmel: '34.3.3' }]
+          : []
+      )
     );
+  }
   if (!krav) return [];
   return kravposterI(krav).flatMap((p) => {
     const hjemmel = varselhjemmel(p);

@@ -15,7 +15,7 @@
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import type { Brevref } from './lesing';
-  import { LEGG_TIL, SKJEMA } from './tekster';
+  import { LEGG_TIL, SKJEMA, VARSELSVARET } from './tekster';
 
   let {
     varselId,
@@ -37,6 +37,7 @@
     beskrevetAvJusteringen,
     etterVarselet,
     etterJusteringen,
+    ogsaa3412 = false,
     vis = 'begge',
   }: {
     /** Navnet på valget om varselet; standpunktet står i `${varselId}-standpunkt`. */
@@ -69,6 +70,8 @@
     /** Begrunnelsen for punktet i brevet, under spørsmålet. */
     etterVarselet?: Snippet;
     etterJusteringen?: Snippet;
+    /** VS-U100. */
+    ogsaa3412?: boolean;
     /** Bare varselet eller bare justeringen, i et punkt med egen overskrift. */
     vis?: 'begge' | 'varselet' | 'justeringen';
   } = $props();
@@ -143,6 +146,7 @@
         : SKJEMA.ingenInnsigelse}
     </p>
     <Knapp
+      id={varselId}
       variant="lenke"
       iFlukt
       onclick={() => (varsletITide = varsletITide === false ? null : false)}
@@ -158,19 +162,24 @@
   {#if vis !== 'justeringen'}
     <div class="betinget">
       {@render foranVarselet?.()}
+      {#if ogsaa3412}<p id={`${varselId}-hjelp`}>{VARSELSVARET.ogsaa3412}</p>{/if}
       {#if staar}
         {@render innsigelsenSomStaar()}
       {:else}
         <Valg
           navn={varselId}
-          spoersmaal={egetPunkt ? SKJEMA.varselSpoersmaal : SKJEMA.varselJusteringSpoersmaal}
+          spoersmaal={ogsaa3412
+            ? VARSELSVARET.spoersmaal3412
+            : egetPunkt
+              ? SKJEMA.varselSpoersmaal
+              : SKJEMA.varselJusteringSpoersmaal}
           valgfri={varselValgfri}
           feil={varselFeil}
           hjelp={foer?.brev ? SKJEMA.varseletITideFoer(foer.brev) : undefined}
-          beskrevetAv={beskrevetAvVarselet}
+          beskrevetAv={ogsaa3412 ? `${varselId}-hjelp` : beskrevetAvVarselet}
           valg={[
-            { verdi: true, tekst: SKJEMA.komITide },
-            { verdi: false, tekst: SKJEMA.komForSent },
+            { verdi: true, tekst: ogsaa3412 ? VARSELSVARET.iTide3412 : SKJEMA.komITide },
+            { verdi: false, tekst: ogsaa3412 ? VARSELSVARET.forSent3412 : SKJEMA.komForSent },
           ]}
           bind:verdi={varsletITide}
           lett

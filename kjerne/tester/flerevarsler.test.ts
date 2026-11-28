@@ -21,6 +21,8 @@ import { SOM_BREV } from './brevet.ts';
 
 const GRAVING = 'Graving ved kum 4';
 const FJERNVARME = 'Omlegging av fjernvarmerøret';
+const OGSAA_VARSEL_3412 =
+  'Dette er også et varsel om vederlagsjustering etter NS 8407 punkt\u00a034.1.2.';
 
 const sendVarsler = (...varsler: Data[]) => ({ type: 'send_varsel', varsler });
 const registrer = (...varsler: Data[]) => ({
@@ -50,7 +52,7 @@ const regningsarbeid = (h: Data = {}) => ({
 });
 
 describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og beslutningsdelen)', () => {
-  it('F-1: to varsler etter punkt 34.4 for to arbeider er ett brev med to utsagn, hvert med arbeidet, og ett nummerert punkt per varsel (U-6, D-1, D-3)', () => {
+  it('F-1: to varsler etter punkt 34.4 for to arbeider er ett brev med to utsagn, hvert med arbeidet, og ett nummerert punkt per varsel (U-6, D-1, D-3, VS-U102)', () => {
     const s = paaberopt();
     const rad = s.send(
       'TE',
@@ -61,7 +63,7 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
       ['34.4', FJERNVARME],
     ]);
     const tekst = (arbeid: string) =>
-      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${arbeid}» som følge av forholdet ${I_SAKEN}.`;
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${arbeid}» som følge av forholdet ${I_SAKEN}. ${OGSAA_VARSEL_3412}`;
     expect(laast(rad)).toEqual([
       `1. Varsel før regningsarbeidet settes i gang (punkt\u00a034.4)\n\n${tekst(GRAVING)}`,
       `2. Varsel før regningsarbeidet settes i gang (punkt\u00a034.4)\n\n${tekst(FJERNVARME)}`,
@@ -131,10 +133,10 @@ describe('flere varsler i ett brev fra løsningen (BF-37, VS-U87 punkt 27 og bes
     );
   });
 
-  it('ett varsel fra løsningen står uten punkt, med arbeidet (VS-U15, VS-U87 punkt 27)', () => {
+  it('ett varsel fra løsningen står uten punkt, med arbeidet (VS-U15, VS-U87 punkt 27, VS-U102)', () => {
     const s = paaberopt();
     expect(laast(s.send('TE', sendVarsler({ hjemmel: '34.4', arbeid: GRAVING })))).toEqual([
-      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${GRAVING}» som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt\u00a034.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «${GRAVING}» som følge av forholdet ${I_SAKEN}. ${OGSAA_VARSEL_3412}`,
     ]);
   });
 });

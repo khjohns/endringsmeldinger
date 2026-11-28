@@ -37,6 +37,7 @@ import { KRAVSKJEMA } from './tekster';
 import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import {
   innsigelseneSomStaar,
+  standpunktTilHovedvarseletFoer,
   varselhjemmelFor,
   type VarseletAlene,
   type VarseletIPosten,
@@ -315,8 +316,12 @@ function vurderingene(
 ): Svarvurdering {
   const poster = kravposterI(krav);
   const krevd = krevdSaerskilt(krav);
+  const innsigelsenStaar =
+    hovedvarselet && sendt === null && standpunktTilHovedvarseletFoer(u, sendt)?.iTide === false;
   return definert({
-    hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
+    hovedkrav_varslet_i_tide: hovedvarselet
+      ? (v.iTide ?? (innsigelsenStaar ? false : undefined))
+      : undefined,
     ...(krevd === null ? {} : saerskiltsvaret(v.saerskilt ?? tomtSaerskilt(), krevd)),
     kravposter: poster.length
       ? poster.map((post) =>
@@ -479,6 +484,7 @@ export function vederlagssvaret(
 /** Det BH har valgt i svaret på et varsel som står alene (VS-U79, VS-U96 punkt 32). */
 export interface Varselsvalg {
   varsletITide: boolean | null;
+  hovedvarseletITide?: boolean | null;
   /** Bare for varselet etter § 34.3.3 (VS-U77 punkt 30). */
   godtarJustering: boolean | null;
   begrunnelser: Record<string, string>;
@@ -506,6 +512,14 @@ export const utfyltVarselsvalg = (v: Varselsvalg, hjemmel: SvarbarVarselhjemmel)
 /** Standpunktet til varselet i svaret på det, regnet som for kravposten (`varseletIValgene`). */
 export const varseletISvaret = (v: Varselsvalg, varselet: VarseletAlene): boolean | null =>
   standpunktetIValget(v.varsletITide, varselet.foer?.iTide === false, varselet.hjemmel === '34.4');
+
+const hovedvarseletISvaret = (
+  v: { hovedvarseletITide?: boolean | null },
+  foer: VarseletAlene['hovedvarseletFoer']
+): boolean | undefined =>
+  foer === undefined
+    ? undefined
+    : (v.hovedvarseletITide ?? (foer?.iTide === false ? false : undefined));
 
 /**
  * BHs svar på et varsel som står alene, eller et nytt svar som erstatter det forrige (VS-U79,
@@ -540,6 +554,7 @@ function svaretPaaVarselet(
     // `standpunkterPaaFristvarselet`).
     vurderinger: definert({
       varslet_i_tide: varseletISvaret(v, varselet) ?? undefined,
+      hovedkrav_varslet_i_tide: hovedvarseletISvaret(v, varselet.hovedvarseletFoer),
       godtar_justering:
         varselet.hjemmel === '34.3.3' ? (v.godtarJustering ?? undefined) : undefined,
     }) as Svarvurdering,
@@ -557,6 +572,7 @@ export const varselvalget = (v: Varselbrevvalg, varsel: string): Varselsvalg =>
 /** Om BH har tatt stilling til varselet i svaret på varslene i brevet. */
 export const harStandpunkt = (v: Varselsvalg, varselet: VarseletAlene): boolean =>
   varseletISvaret(v, varselet) !== null ||
+  (varselet.hovedvarseletFoer !== undefined && v.hovedvarseletITide != null) ||
   (varselet.hjemmel === '34.3.3' && v.godtarJustering !== null);
 
 /**
@@ -603,6 +619,7 @@ export interface Postvarselvalg {
 /** Det BH har valgt i svaret bare på varslene i vederlagskravet, per kravpost (VS-U96 punkt 38). */
 export interface Varslenesvalg {
   poster: Record<string, Postvarselvalg>;
+  hovedvarseletITide?: boolean | null;
   begrunnelser: Record<string, string>;
   forbehold: string;
 }
@@ -648,7 +665,7 @@ export const postenITittelen = (v: Varslenesvalg, poster: readonly VarseletIPost
  */
 export function varslenesvaret(
   v: Varslenesvalg,
-  varslene: Pick<VarsleneIVederlagskravet, 'kravversjon' | 'poster' | 'forrigeSvar'>,
+  varslene: VarsleneIVederlagskravet,
   regler: Regelsett,
   punktene: readonly string[] = []
 ):
@@ -666,7 +683,10 @@ export function varslenesvaret(
     gjelder: varslene.kravversjon,
     bare_varselet: true,
     regelversjon: regler.versjon,
-    vurderinger: { kravposter } as unknown as Svarvurdering,
+    vurderinger: definert({
+      kravposter,
+      hovedkrav_varslet_i_tide: hovedvarseletISvaret(v, varslene.hovedvarseletFoer),
+    }) as unknown as Svarvurdering,
     resultat: {},
     ...utdypningene(v, punktene),
   };

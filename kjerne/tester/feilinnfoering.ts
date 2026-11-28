@@ -835,8 +835,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  const [foerste] = s.krav.filter(varsler);',
-        '  const [foerste] = s.krav.filter(varsler).slice(-1);',
+        '  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));',
+        '  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id)).slice(-1);',
       ],
     ],
     mal: [
@@ -1087,8 +1087,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ',
-        "const omVarselet = `${VARSELET_I_SVARET[p.hjemmel === '32.2' ? '34.1.2' : '32.2']} i ",
+        'const omVarselet = `${varseletISvaret(p.hjemmel)}${annetVarsel} i ',
+        "const omVarselet = `${varseletISvaret(p.hjemmel === '32.2' ? '34.1.2' : '32.2')}${annetVarsel} i ",
       ],
     ],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
@@ -1312,7 +1312,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2'),", 'gjelder: krav.id,']],
+    endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2', sendt),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
   {
@@ -1498,8 +1498,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
-        'if (p.gjelder !== tidligste && p.gjelder !== eget && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk)',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -3790,8 +3790,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;',
-        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(krav.dokument)}`;',
+        'const omVarselet = `${varseletISvaret(p.hjemmel)}${annetVarsel} i ${j.brevet(j.dokumentetTil(gjelder))}`;',
+        'const omVarselet = `${varseletISvaret(p.hjemmel)}${annetVarsel} i ${j.brevet(krav.dokument)}`;',
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
@@ -4298,8 +4298,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
-        'if (p.gjelder !== (eget ?? tidligste))',
+        'if (p.gjelder !== tidligste && !egetGjelder && !historisk)',
+        'if (p.gjelder !== (eget ?? tidligste) && !historisk)',
       ],
     ],
     mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
@@ -6599,7 +6599,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),',
+        '          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(p.hjemmel)),',
         '          vilkaar: null,',
       ],
     ],
@@ -6651,8 +6651,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  const staar = standpunkteneTilVarslene(u, sendt, true).some(',
-        '  const staar = standpunkteneTilVarslene(u, sendt).some(',
+        '  const tidligere = standpunkteneTilVarslene(u, sendt, true);',
+        '  const tidligere = standpunkteneTilVarslene(u, sendt);',
       ],
     ],
     mal: ['et nytt svar lagt til samme dag som svaret det erstatter'],
@@ -6807,8 +6807,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
-        "    if (false) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
+        "    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', v, staar);",
+        "    if (false) kontrollerInnsigelsenSomStaar('varselet', v, staar);",
       ],
     ],
     mal: ['fra løsningen som ikke sier noe om varselet der innsigelsen står, avvises'],
@@ -7385,10 +7385,7 @@ const MUTASJONER: Mutasjon[] = [
       'det nye svaret på varselet etter punkt 34.1.2 eller 34.1.3 sier ikke at det gir opp innsigelsen i det forrige (VS-U87 punkt 33, #2409)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        "    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;",
-        '    break;',
-      ],
+      ['    if (merknad) foerst = j.brevet(forrige.dokument);', '    if (merknad) break;'],
     ],
     mal: ['et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)'],
   },
@@ -7987,7 +7984,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'linja i svaret bare på varselet leser innsigelsen som står, for hele svaret og ikke for kravposten (VS-U96 punkt 36 og 38, #2456)',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [["x.art === 'rettidighet' && x.gjelder === s.gjelder", "x.art === 'rettidighet'"]],
+    endringer: [
+      [
+        "x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder",
+        "x.art === 'rettidighet' && x.hjemmel === '34.3.3'",
+      ],
+    ],
     mal: ['linja leser innsigelsen som står, for justeringen til hver kravpost'],
   },
   {
@@ -8349,8 +8351,13 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'det første varselet leses av datoen først oppgitt, ikke datoen som gjelder etter rettingen (MM-U59 punkt 8 og 18, VS-U86)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    (v) => datoenSomGjelder(u, v)\n', '    (v) => datoenDetBleSendt(u, v)\n']],
-    mal: ['det første varselet skifter når varselet rettes'],
+    endringer: [
+      ['(v) => datoenSomGjelder(medDatoene, v)', '(v) => datoenDetBleSendt(medDatoene, v)'],
+    ],
+    mal: [
+      'det første varselet skifter når varselet rettes',
+      'rettingen av et kravpostvarsel endrer hvilket varsel som kommer først i nye svar',
+    ],
   },
   {
     id: 'F1309d',
@@ -8478,12 +8485,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til, oppgitt sendt før rettingen, leser rettingen når det skrives (MM-U59 punkt 8, OV-U98)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      [
-        'medRettingeneTil(u, erRegistrering(k) ? kalenderdag(k.sendt) : null)',
-        'medRettingeneTil(u, null)',
-      ],
-    ],
+    endringer: [['medRettingeneTil(u, sendt)', 'medRettingeneTil(u, null)']],
     mal: ['et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen'],
   },
   {
@@ -8514,12 +8516,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet med rettingen sier ikke hvilket arbeid varselet gjelder (VS-U87 punkt 27, U-3 i BF-50)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        ': `${VARSELET_I_SVARET[hjemmel]} for arbeidet «${arbeid}»`;',
-        ': VARSELET_I_SVARET[hjemmel];',
-      ],
-    ],
+    endringer: [[': `${omtale} for arbeidet «${arbeid}»`;', ': omtale;']],
     mal: [
       'brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse',
     ],
@@ -8717,6 +8714,315 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['er første versjon varselet for posten i den neste'],
     endringer: [['v ? foerste.id : undefined', 'v ? k.id : undefined']],
   },
+  {
+    id: 'F2529a',
+    feilklasse: 'et av de tre varslene faller ut som kandidat etter punkt 34.1.2 (VS-U98)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        "  hjemmel === '34.1.3' || hjemmel === '34.3.3' || hjemmel === '34.4';",
+        "  hjemmel === '34.1.3' || hjemmel === '34.3.3';",
+      ],
+    ],
+    mal: ['et sendt varsel etter punkt 34.4 er kandidat'],
+  },
+  {
+    id: 'F2529b',
+    feilklasse: 'kravet vinner over varselet med samme dato (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['kravetSendt < varselet ? kravet.id', 'kravetSendt <= varselet ? kravet.id']],
+    mal: ['et varsel etter punkt 34.3.3 lagt til samme dag som kravet, går foran kravet'],
+  },
+  {
+    id: 'F2529c',
+    feilklasse: 'varselet som står sist i journalen vinner ved lik dato (VS-U98, #2529)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['varslene.push(v);', 'varslene.unshift(v);']],
+    mal: ['det første varselet i journalen vinner ved lik dato mellom de tre varslene'],
+  },
+  {
+    id: 'F2529d',
+    feilklasse:
+      'det første registrerte varselet vinner også når et senere registrert varsel har tidligere dato (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'const eget = foerstSendt(\n    varsler.filter((v) => foerSvaret(v.id)),\n    sendt\n  );',
+        'const eget = varsler.find((v) => foerSvaret(v.id));',
+      ],
+    ],
+    mal: ['varselet med tidligst dato vinner også når det legges til sist'],
+  },
+  {
+    id: 'F2529e',
+    feilklasse: 'lesingen tillater at et nytt svar peker til kravet i stedet for varselet (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      eldreSvar &&', '      true &&']],
+    mal: ['lesingen avviser en ny påberopelse som feilaktig viser til kravet'],
+  },
+  {
+    id: 'F2529f',
+    feilklasse: 'lesingen avviser det historiske svaret som pekte til kravet (MM-U50, VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      eldreSvar &&', '      false &&']],
+    mal: ['et historisk svar som viser til kravet, står med virkningene det hadde'],
+  },
+  {
+    id: 'F2529g',
+    feilklasse: 'et av de tre varslene er kandidat også ved endring (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "  if (hjemmel === '34.1.2' && !varselEtter3412KrevesIkke(u, sendt)) {",
+        "  if (hjemmel === '34.1.2') {",
+      ],
+    ],
+    mal: ['ved endring teller ikke varselet etter punkt 34.4 etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529h',
+    feilklasse:
+      'et eldre krav legges til uten å merke lik dato med et eksisterende kravpostvarsel (VS-U98, OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'return [...Object.values(s.varsler), ...s.kravpostvarsler].filter(',
+        'return Object.values(s.varsler).filter(',
+      ],
+    ],
+    mal: ['et eldre krav med samme dato som varselet etter punkt 34.3.3 merkes'],
+  },
+  {
+    id: 'F2529i',
+    feilklasse:
+      'et kravpostvarsel legges til uten å merke lik dato med et eksisterende eldre krav (VS-U98, OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      if (sammenliknesMedVarselet(v.hjemmel, k, u))',
+        '      if (!erKravpostvarselhjemmel(v.hjemmel) && sammenliknesMedVarselet(v.hjemmel, k, u))',
+      ],
+    ],
+    mal: ['et varsel etter punkt 34.4 lagt til med samme dato som et eldre krav merkes'],
+  },
+  {
+    id: 'F2529j',
+    feilklasse:
+      'brevet med det særskilte varselet sier ikke at det også varsler etter punkt 34.1.2 (VS-U102)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['...(ogsaa3412', '...(ogsaa3412 && false']],
+    mal: ['et sendt varsel etter punkt 34.1.3 er kandidat, og brevet sier det'],
+  },
+  {
+    id: 'F2529k',
+    feilklasse: 'brevet sier at varselet også gjelder etter punkt 34.1.2 ved endring (VS-U102)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "varslerOgsaaEtter3412(hjemmel) && hjemmelenGjelder('34.1.2', saken.paaberopelse, regler)",
+        "varslerOgsaaEtter3412(hjemmel) && (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler) || true)",
+      ],
+    ],
+    mal: ['ved endring teller ikke varselet etter punkt 34.1.3 etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529l',
+    feilklasse: 'svaret på kravet utelater hvilket varsel som gjelder etter punkt 34.1.2 (VS-U98)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '${varseletISvaret(p.hjemmel)}${annetVarsel} i ',
+        '${varseletISvaret(p.hjemmel)}${annetVarsel.slice(0, 0)} i ',
+      ],
+    ],
+    mal: ['svaret på kravet om varselet kom i tide (true) viser til varselet'],
+  },
+  {
+    id: 'F2529m',
+    feilklasse: 'et nytt svar kan peke til et eget varsel som kom senere (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ["(p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget", 'p.gjelder === eget'],
+    ],
+    mal: ['lesingen avviser en ny påberopelse som viser til et eget varsel sendt senere'],
+  },
+  {
+    id: 'F2529n',
+    feilklasse: 'et svar på et senere varsel kan ta stilling etter punkt 34.1.2 (VS-U100)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['  if (!gjelderOgsaa3412)', '  if (!gjelderOgsaa3412 && false)']],
+    mal: ['standpunktet avvises ved svikt når varselet ikke kan besvares etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529o',
+    feilklasse:
+      'svaret på et eget varsel lagrer bare standpunktet til varselets egen hjemmel (VS-U100)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'const ut = standpunktTilHovedvarselet(v, varselet.id, nyId);',
+        'const ut = standpunktTilHovedvarselet({}, varselet.id, nyId);',
+      ],
+    ],
+    mal: ['svaret på det første varselet etter punkt 34.1.3 lagrer begge standpunktene'],
+  },
+  {
+    id: 'F2529p',
+    feilklasse: 'svaret bare på kravpostvarselet utelater standpunktet til hele kravet (VS-U100)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '...standpunktTilHovedvarselet(v, krav.id, nyId),',
+        '...standpunktTilHovedvarselet({}, krav.id, nyId),',
+      ],
+    ],
+    mal: ['svaret bare på kravpostvarselet kan påberope punkt 34.1.2 mot hele kravet'],
+  },
+  {
+    id: 'F2529q',
+    feilklasse: 'innsigelsen etter punkt 34.1.2 får ingen virkning i svaret på varselet (VS-U100)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [["virkning: heltForSent ? 1 : 'uten_virkning'", "virkning: 'uten_virkning'"]],
+    mal: ['svaret på det første varselet etter punkt 34.3.3 lagrer begge standpunktene'],
+  },
+  {
+    id: 'F2529r',
+    feilklasse:
+      'svaret på kravet finner ikke innsigelsen etter punkt 34.1.2 i svaret på varselet (VS-U100)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'const kravpost = erKravpostvarselhjemmel(p.hjemmel);',
+        "if (p.hjemmel === '34.1.2' && paaVarselet) continue;\n      const kravpost = erKravpostvarselhjemmel(p.hjemmel);",
+      ],
+    ],
+    mal: ['svaret på hele kravet viser til innsigelsen fra varselet og kan gi den opp'],
+  },
+  {
+    id: 'F2529s',
+    feilklasse:
+      'standpunktet etter punkt 34.1.2 kan gis i et varselsvar etter svaret på kravet (VS-U100, VS-U96 punkt 33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['![...svar, ...svarUtenforRekken].some(', '[...svar, ...svarUtenforRekken].some('],
+    ],
+    mal: ['etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet'],
+  },
+  {
+    id: 'F2529t',
+    feilklasse:
+      'lesingen godtar et svar på varselet etter punkt 34.4 med bare standpunktet etter punkt 34.1.2 (VS-U100)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "varselet.hjemmel === '34.1.3' ||\n      varselet.hjemmel === '34.4') &&",
+        "varselet.hjemmel === '34.1.3') &&",
+      ],
+    ],
+    mal: ['et lagret svar på punkt 34.4 må ha standpunktet til selve varselet'],
+  },
+  {
+    id: 'F2529u',
+    feilklasse: 'innsigelsen etter punkt 34.1.2 gjentas i linjen i varselsvaret (VS-U100)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        "    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];\n",
+        '',
+      ],
+    ],
+    mal: ['linjen i varselsvaret nevner standpunktet etter punkt 34.1.2 én gang'],
+  },
+  {
+    id: 'F2529v',
+    feilklasse:
+      'et varselsvar leser det første kravet selv om det sto etter svaret i journalen (VS-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));',
+        'const [foerste] = s.krav.filter(varsler);',
+      ],
+    ],
+    mal: [
+      'et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning',
+    ],
+  },
+  {
+    id: 'F2529w',
+    feilklasse: 'skjemaet viser ikke brevet med varselet som også gjelder punkt 34.1.2 (VS-U98)',
+    fil: 'src/lib/kjernesak/vederlagskrav.ts',
+    endringer: [
+      [
+        'u.elementer[varsel]?.hendelse',
+        'u.spor.vederlag.krav.find((k) => k.id === varsel)?.dokument',
+      ],
+    ],
+    mal: ['et tidligere varsel etter punkt 34.1.3 vises med brevet som varslet etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529x',
+    feilklasse: 'flervarselskjemaet etterspør ikke standpunktet til selve varselet (VS-U100)',
+    fil: 'src/lib/components/varden/Varselbrevsvar.svelte',
+    endringer: [
+      [
+        "omJustering ||\n          ((v.hjemmel === '34.1.3' || v.hjemmel === '34.4') && x.hovedvarseletITide != null)",
+        'omJustering',
+      ],
+    ],
+    mal: [
+      'bare standpunkt etter punkt 34.1.2 i svaret på punkt 34.4 gir beskjed om at varselet må besvares',
+    ],
+  },
+  {
+    id: 'F2529y',
+    feilklasse: 'standpunktet etter punkt 34.1.2 skjuler innsigelsen etter punkt 34.3.3 i linjen',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        "x.art === 'rettidighet' && x.hjemmel === '34.3.3' && x.gjelder === s.gjelder",
+        "x.art === 'rettidighet' && x.gjelder === s.gjelder",
+      ],
+    ],
+    mal: [
+      'standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen',
+    ],
+  },
+  {
+    id: 'F2529z',
+    feilklasse: 'et nytt svar fra løsningen er taust om den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "tidligere.some((x) => x.gjelder === varselet.id && x.hjemmel === '34.1.2' && !x.iTide)",
+        'false',
+      ],
+    ],
+    mal: [
+      'et nytt svar fra løsningen på punkt 34.3.3 må gjenta eller gi opp den stående innsigelsen etter punkt 34.1.2',
+    ],
+  },
+  {
+    id: 'F2529aa',
+    feilklasse: 'et taust svar lagt til fryses uten den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [["[{ gjelder, hjemmel: '34.1.2' }]", "[{ gjelder, hjemmel: '34.1.3' }]"]],
+    mal: [
+      'et nytt svar lagt til som er taust om den stående innsigelsen etter punkt 34.1.2, fryser justeringen subsidiært',
+    ],
+  },
+  {
+    id: 'F2529ab',
+    feilklasse:
+      'et nytt svar fra løsningen bare på varselet i kravet er taust om den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ["staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide)", 'false'],
+    ],
+    mal: [
+      'når kravet selv er varselet, avvises et nytt svar bare på varselet som tier om den stående innsigelsen etter punkt 34.1.2',
+    ],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
@@ -8752,6 +9058,8 @@ function testnavn(): Test[] {
         'list',
         'kjerne/',
         'sprakprove/kjernelagring/',
+        'src/lib/kjernesak/__tests__/eldrekravvarsel.test.ts',
+        'src/lib/components/varden/__tests__/Varselbrevsvar.test.ts',
         // vitest 5 leser filene statisk og ser ikke testene hjelpefunksjonene registrerer.
         '--staticParse=false',
         `--json=${ut}`,
@@ -8925,6 +9233,7 @@ function navnefeil(muterte: { m: Mutasjon; tekst: string }[]): Map<string, strin
   // Tjenestene deler de umuterte filene, så hver fil og hver typedefinisjon leses én gang.
   const register = ts.createDocumentRegistry();
   for (const fil of new Set(muterte.map(({ m }) => m.fil))) {
+    if (fil.endsWith('.svelte')) continue;
     const sti = join(ROT, fil);
     const konfig = ts.findConfigFile(dirname(sti), ts.sys.fileExists);
     const valg = konfig
@@ -9085,7 +9394,10 @@ const maalfilene = new Map(
     new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)),
   ])
 );
-const filerFor = (m: Mutasjon) => (utvalg ? [...maalfilene.get(m)!] : undefined);
+const filerFor = (m: Mutasjon) => {
+  const filer = [...maalfilene.get(m)!];
+  return utvalg || filer.some((f) => f.startsWith('src/')) ? filer : undefined;
+};
 // Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
 // slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
 const tung = (m: Mutasjon) =>

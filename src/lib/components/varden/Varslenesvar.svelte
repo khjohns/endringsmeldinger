@@ -137,7 +137,12 @@
         };
       const s = l.standpunkt;
       return {
-        punkt: 'gjelder' in s ? s.gjelder : '',
+        punkt:
+          s.art === 'rettidighet' && s.hjemmel === '34.1.2'
+            ? '34.1.2'
+            : 'gjelder' in s
+              ? s.gjelder
+              : '',
         tekst: standpunkttekst(s, true, undefined, undefined, false, false),
         lag: l.lag,
         vilkaar: l.vilkaar,
@@ -146,6 +151,25 @@
     })
   );
   const forholdet = $derived(linjer.filter((l) => l.punkt === FORHOLDET));
+  const hovedvarselet = $derived.by(() => {
+    if (varslene.hovedvarseletFoer === undefined) return null;
+    const svar = linjer.filter((l) => l.punkt === '34.1.2');
+    return {
+      punkt: '34.1.2',
+      navn: VARSELSVARET.punktet('34.1.2'),
+      besvart: svar.length > 0,
+      linjer: svar.length ? svar : [{ tekst: SKJEMA.ikkeBesvart, lag: null }],
+    };
+  });
+  const hovedvarseletFoer = $derived(
+    varslene.hovedvarseletFoer
+      ? {
+          iTide: varslene.hovedvarseletFoer.iTide,
+          brev: brevet(u, varslene.hovedvarseletFoer.dokument),
+          ikkeGitt: false,
+        }
+      : null
+  );
   // Brevet har ett punkt per kravpost, med betegnelsen som nøkkel (`brevtekst.ts`).
   const postpunktene = $derived(
     varslene.poster.map((p) => {
@@ -162,6 +186,7 @@
     ...(forholdet.length
       ? [{ punkt: FORHOLDET, navn: SKJEMA.forholdspunktet, linjer: forholdet }]
       : []),
+    ...(hovedvarselet ? [hovedvarselet] : []),
     ...postpunktene,
   ]);
   const besvart = (p: VarseletIPosten) =>
@@ -214,7 +239,7 @@
   {linjer}
   {virkninger}
   {mangler}
-  begrunnelserISkjemaet={postpunktene}
+  begrunnelserISkjemaet={hovedvarselet ? [hovedvarselet, ...postpunktene] : postpunktene}
   {skjemapunkter}
   {onbrevkontroll}
   {onforkast}
@@ -227,6 +252,25 @@
         <p class="feilmelding" id={`${uid}-poster`} tabindex="-1">{feil(`${uid}-poster`)}</p>
       {/if}
     </div>
+    {#if hovedvarselet}
+      <Spoersmaal id={`${uid}-sp-hovedvarsel`} tittel={overskrift('34.1.2') ?? hovedvarselet.navn}>
+        <Varselstandpunkt
+          varselId={`${uid}-hovedvarsel`}
+          justeringId={`${uid}-hovedvarsel-justering`}
+          hjemmel="34.1.2"
+          foer={hovedvarseletFoer}
+          bind:varsletITide={
+            () => valg.hovedvarseletITide ?? null, (x) => (valg.hovedvarseletITide = x)
+          }
+          godtarJustering={null}
+          ikkeGitt={false}
+          justeringValgfri={true}
+          vis="varselet"
+          ogsaa3412
+        />
+        {@render begrunnelse('34.1.2')}
+      </Spoersmaal>
+    {/if}
     {#each varslene.poster as p (p.post.id)}
       {@const id = `${uid}-${p.post.id}`}
       {@const v = postvarselvalget(valg, p.post.id)}
@@ -236,7 +280,9 @@
         {#if i.art === 'grunn'}
           <Forholdsgrunn grunn={i.grunn} brev={i.brev} {onforholdet} />
         {:else}
-          <a href={`#${id}-varsel${p.foer?.iTide === false ? '-standpunkt' : ''}`}
+          {@const hoved = i.art === 'varsel' && i.hjemmel === '34.1.2'}
+          <a
+            href={`#${hoved ? `${uid}-hovedvarsel` : `${id}-varsel`}${(hoved ? hovedvarseletFoer : p.foer)?.iTide === false ? '-standpunkt' : ''}`}
             >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : p.hjemmel)}</a
           >
         {/if}

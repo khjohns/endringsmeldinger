@@ -101,6 +101,21 @@ const svaret = (k: TilBrevkontrollen) =>
 
 afterEach(cleanup);
 
+it('det første særskilte varselet kan besvares også etter punkt 34.1.2 (VS-U100)', async () => {
+  const sendt = await svarskjemaet(medVarselOmVederlaget('34.1.3'));
+  expect(
+    screen.getByText(/Varselet gjelder også som varsel om vederlagsjustering/)
+  ).toBeInTheDocument();
+  await fireEvent.click(screen.getByRole('radio', { name: /Kom for sent etter punkt\s34\.1\.2/ }));
+  await radio('Kom i tide');
+  await seBrevet();
+  expect(sendt).toHaveLength(1);
+  expect(svaret(sendt[0]!)).toMatchObject({
+    type: 'brev',
+    svar: [{ vurderinger: { hovedkrav_varslet_i_tide: false, varslet_i_tide: true } }],
+  });
+});
+
 describe('svaret på varselet etter punkt 34.3.3 som står alene (VS-U77 punkt 30, VS-U79)', () => {
   it('justeringen må besvares før brevet lages, og svaret gjelder varselet uten resultat', async () => {
     const journal = medVarsel('34.3.3');

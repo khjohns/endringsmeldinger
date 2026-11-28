@@ -25,6 +25,7 @@
   import {
     erSvarPaaVarsel,
     innsigelseneSomStaar,
+    standpunktTilHovedvarseletFoer,
     varseleneIEldreKrav,
     varseletFoer as varseletFoerIdag,
     varseletForKravposten,
@@ -142,16 +143,18 @@
   const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
   // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
   const iEldreKrav = $derived(
-    new Map<string, { b: NonNullable<ReturnType<typeof brevet>>; sendt: string | null }>(
+    new Map(
       varseleneIEldreKrav(medDatoene).flatMap((v) => {
         const b = brevet(u, v.dokument);
-        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt }] as const] : [];
+        const retting = v.rettetIDokument ? brevet(u, v.rettetIDokument) : null;
+        return b ? [[`${v.gjelder} ${v.hjemmel}`, { b, sendt: v.sendt, retting }] as const] : [];
       })
     )
   );
   const varseletIEldreKrav = (p: Kravpost) => {
-    const v = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
-    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, navnet(p)) : null;
+    const hjemmel = varselhjemmelFor(p);
+    const v = hjemmel === null ? undefined : iEldreKrav.get(`${p.id} ${hjemmel}`);
+    return v ? LEGG_TIL.varseletErEldreKrav(v.b, v.sendt, v.retting, navnet(p)) : null;
   };
   // Innsigelsene svaret leses med, for valget etter U-7 i BF-49.
   const innsigelsene = $derived(innsigelseneSomStaar(u, sendt));
@@ -441,6 +444,9 @@
       : null
   );
   const hovedvarselet = $derived(stilt(lagene, 'hovedkrav_varslet_i_tide'));
+  const hovedvarseletFoer = $derived(standpunktTilHovedvarseletFoer(u, sendt));
+  const gjentarHovedvarselet = $derived(!lagtTil && hovedvarseletFoer?.iTide === false);
+  const hovedvarseletITide = $derived(valg.iTide ?? (gjentarHovedvarselet ? false : null));
   // Punktene i brevet skjemaet har spørsmål for: varselet etter § 34.1.2 og ett per kravpost
   // (LV-U78).
   const svartemaene = $derived(
@@ -456,7 +462,7 @@
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(svartemaene, (punkt) => {
       if (!lagene) return false;
-      if (punkt === '34.1.2') return hovedvarselet && valg.iTide !== null;
+      if (punkt === '34.1.2') return hovedvarselet && !ubesvart(lagene, 'hovedkrav_varslet_i_tide');
       const feil = [...lagene.ubesvart, ...lagene.ugyldig];
       if (punkt === SAERSKILT)
         return (
@@ -502,9 +508,9 @@
                 p.punkt === SAERSKILT
                   ? saerskiltlinje()
                   : (p.punkt === '34.1.2'
-                      ? valg.iTide === null
+                      ? hovedvarseletITide === null
                         ? []
-                        : [valg.iTide ? SKJEMA.komITide : SKJEMA.komForSent]
+                        : [hovedvarseletITide ? SKJEMA.komITide : SKJEMA.komForSent]
                       : post
                         ? leselinje(post)
                         : []
@@ -627,7 +633,9 @@
   {:else if f.innsigelse === '34.1.3'}
     <a href={`#${uid}-saerskilt-itide`}>{innsigelsenOmVarselet('34.1.3')}</a>
   {:else}
-    <a href={`#${uid}-itide`}>{innsigelsenOmVarselet('34.1.2')}</a>
+    <a href={`#${uid}-itide${gjentarHovedvarselet ? '-standpunkt' : ''}`}
+      >{innsigelsenOmVarselet('34.1.2')}</a
+    >
   {/if}
 {/snippet}
 
@@ -841,17 +849,31 @@
           liste={iPosten(grunnene)}
           punkt={forutsetning}
         />
-        <Valg
-          navn={`${uid}-itide`}
-          spoersmaal={SKJEMA.varselSpoersmaal}
-          beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
-          valg={[
-            { verdi: true, tekst: SKJEMA.komITide },
-            { verdi: false, tekst: SKJEMA.komForSent },
-          ]}
-          bind:verdi={valg.iTide}
-          feil={feil(`${uid}-itide`)}
-        />
+        {#if !lagtTil && hovedvarseletFoer?.iTide === false}
+          <Varselstandpunkt
+            varselId={`${uid}-itide`}
+            justeringId={`${uid}-itide-justering`}
+            hjemmel="34.1.2"
+            foer={{ iTide: false, brev: brevet(u, hovedvarseletFoer.dokument), ikkeGitt: false }}
+            bind:varsletITide={valg.iTide}
+            godtarJustering={null}
+            ikkeGitt={false}
+            justeringValgfri={true}
+            vis="varselet"
+          />
+        {:else}
+          <Valg
+            navn={`${uid}-itide`}
+            spoersmaal={SKJEMA.varselSpoersmaal}
+            beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
+            valg={[
+              { verdi: true, tekst: SKJEMA.komITide },
+              { verdi: false, tekst: SKJEMA.komForSent },
+            ]}
+            bind:verdi={valg.iTide}
+            feil={feil(`${uid}-itide`)}
+          />
+        {/if}
         {@render begrunnelse('34.1.2')}
       </Spoersmaal>
     {/if}

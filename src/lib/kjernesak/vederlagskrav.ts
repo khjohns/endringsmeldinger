@@ -22,7 +22,7 @@ import { foerDagen, kalenderdag, registrertDato } from '#kjerne/format/leser.ts'
 import {
   datoenDetBleSendt,
   varseletFoerBrevet as foersteVarselFoerBrevet,
-  varseletForNyttSvar,
+  varseletGjelderOgsaa3412,
   type Utledning,
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
@@ -147,25 +147,12 @@ export function varslerUtenKravpost(u: Utledning, sendt: string | null = null): 
 }
 
 /**
- * Brevet med varselet etter § 34.1.2 eller § 34.1.3 som et nytt krav følger etter: det
- * registrerte varselet eller det første kravet som varslet (OV-U5, OV-U89), eller `null` når det
- * nye kravet er varselet.
+ * Brevet med varselet etter § 34.1.2 eller § 34.1.3 som et nytt krav følger etter
+ * (OV-U5, OV-U89, VS-U98), eller `null` når det nye kravet er varselet.
  */
 export function varseletFoerKravet(u: Utledning, hjemmel: '34.1.2' | '34.1.3'): string | null {
-  const s = u.spor.vederlag;
-  const registrert = s.varsler[hjemmel];
-  if (!registrert && !s.krav.length) return null;
-  try {
-    const id = varseletForNyttSvar(u, hjemmel);
-    return registrert?.id === id
-      ? registrert.dokument
-      : (s.krav.find((k) => k.id === id)?.dokument ?? null);
-  } catch (feil) {
-    // Ingen tidligere krav varslet etter hjemmelen, som § 34.1.3 uten den særskilte posten.
-    // Alle andre feil er programfeil og skal ikke vises som at kravet er varselet.
-    if (feil instanceof Error && feil.message.startsWith('Et svar kan ikke påberope')) return null;
-    throw feil;
-  }
+  const varsel = foersteVarselFoerBrevet(u, hjemmel);
+  return varsel === undefined ? null : (u.elementer[varsel]?.hendelse ?? null);
 }
 
 /** Varselet kravposten trenger, etter oppgjørsformen (`varselhjemmel` i kjernen), eller `null`. */
@@ -233,6 +220,8 @@ export interface VarseletAlene {
   hjemmel: SvarbarVarselhjemmel;
   /** Byggherrens siste standpunkt til varselet i svarene på det, slik kjernen leser det. */
   foer: Pick<StandpunktTilVarselet, 'iTide' | 'dokument'> | null;
+  /** `undefined` når svaret ikke kan ta stilling etter § 34.1.2 (VS-U100). */
+  hovedvarseletFoer?: StandpunktTilVarselet | null;
   /** Byggherrens forrige svar på varselet, som et nytt svar erstatter (VS-U96 punkt 33). */
   forrigeSvar: string | null;
   /** VS-U87 punkt 27: arbeidet varselet gjelder (U-8 i BF-37). */
@@ -288,6 +277,9 @@ export function varseletSvaretPaa(u: Utledning, gjelder: string): VarseletAlene 
   if (!v) return fristvarseletSvaretPaa(u, gjelder);
   return {
     ...v,
+    hovedvarseletFoer: varseletGjelderOgsaa3412(u, v.id, v.hjemmel, null)
+      ? standpunktTilHovedvarseletFoer(u, null)
+      : undefined,
     foer:
       standpunkteneTilVarslene(u, null).find(
         (x) => x.gjelder === v.id && x.hjemmel === v.hjemmel
@@ -374,6 +366,19 @@ export interface VarsleneIVederlagskravet {
   kravversjon: string;
   poster: VarseletIPosten[];
   forrigeSvar: string | null;
+  hovedvarseletFoer?: StandpunktTilVarselet | null;
+}
+
+export function standpunktTilHovedvarseletFoer(
+  u: Utledning,
+  sendt: string | null
+): StandpunktTilVarselet | null {
+  const varselet = foersteVarselFoerBrevet(u, '34.1.2', sendt);
+  return (
+    standpunkteneTilVarslene(u, sendt, true).find(
+      (x) => x.hjemmel === '34.1.2' && x.gjelder === varselet
+    ) ?? null
+  );
 }
 
 /**
@@ -404,6 +409,9 @@ export function varsleneIVederlagskravet(
   return {
     kravversjon: gjelder,
     poster,
+    hovedvarseletFoer: varseletGjelderOgsaa3412(u, gjelder, null, null)
+      ? standpunktTilHovedvarseletFoer(u, null)
+      : undefined,
     forrigeSvar: u.spor.vederlag.svarPaaVarsler.findLast(iKjedenTilVarslene(gjelder))?.id ?? null,
   };
 }

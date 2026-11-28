@@ -141,7 +141,11 @@ export const svaretGjelder = (s: Pick<Svar, 'spor' | 'standpunkter' | 'bareVarse
   s.spor === 'frist' && svaretGjelderFristvarselet(s)
     ? SVARET_GJELDER['33.4']
     : s.bareVarselet &&
-        new Set(s.standpunkter.map((p) => ('gjelder' in p ? p.gjelder : undefined))).size > 1
+        new Set(
+          s.standpunkter.flatMap((p) =>
+            'gjelder' in p && (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') ? [p.gjelder] : []
+          )
+        ).size > 1
       ? VARSLENE_I_VEDERLAGSKRAVET
       : SVARET_GJELDER[svaretGjelderEtVarsel(s) ? varseletsHjemmel(s) : s.spor];
 
@@ -163,7 +167,9 @@ export const iBrevetsRekkefoelge = <S extends Pick<Svar, 'spor'>>(svar: readonly
  * § 34.3.3.
  */
 const varseletsHjemmel = (s: Pick<Svar, 'standpunkter'>): Vederlagsvarselhjemmel => {
-  const p = s.standpunkter.find((x) => x.art === 'rettidighet');
+  const p = s.standpunkter.find(
+    (x) => x.art === 'rettidighet' && (x.hjemmel !== '34.1.2' || s.standpunkter.length === 1)
+  );
   return p?.art === 'rettidighet' && erVederlagsvarselhjemmel(p.hjemmel) ? p.hjemmel : '34.3.3';
 };
 

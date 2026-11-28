@@ -30,7 +30,9 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/forhold/kommando.ts:varseletEtter322',
       // OV-U89 punkt 13: påberopelsesversjonene der § 34.1.2 ikke krever varsel.
       'utledning/utled.ts:utledSporene',
+      'utledning/utled.ts:kontrollerStandpunktet',
       'frosset/frysing.ts:beslutningsgrunnlag',
+      'frosset/brevtekst.ts:utsagnstekst',
       'spor/vederlag/frysing.ts',
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',
@@ -391,7 +393,11 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
     ],
   ],
-  ['regler/vederlag.ts:kontrollerInnsigelsenSomStaar', 'utsagn', 'varslet_i_tide'],
+  [
+    'regler/vederlag.ts:kontrollerInnsigelsenSomStaar',
+    'utsagn',
+    'varslet_i_tide hovedkrav_varslet_i_tide',
+  ],
   // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
   // de ble sendt.
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil paaVarselet'],
@@ -495,6 +501,13 @@ export const UTREGNINGEN: Lesbar[] = [
     'utsagn',
     'varslet_i_tide godtar_justering',
   ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerHovedvarseletISvaret',
+    ['spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet'],
+  ],
+  ['regler/vederlag.ts:kontrollerHovedvarseletISvaret', 'utsagn', 'hovedkrav_varslet_i_tide'],
   [
     'spor/vederlag/format.ts',
     'predikat',

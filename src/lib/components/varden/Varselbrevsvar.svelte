@@ -119,8 +119,12 @@
   const gjelderHvis = (v: VarseletAlene, art: 'rettidighet' | 'justering'): Innsigelsen[] =>
     v.hjemmel === '34.4'
       ? []
-      : ((utfylt.get(v.id) ?? []).find((l) => 'standpunkt' in l && l.standpunkt.art === art)
-          ?.vilkaar ?? []);
+      : ((utfylt.get(v.id) ?? []).find(
+          (l) =>
+            'standpunkt' in l &&
+            l.standpunkt.art === art &&
+            (l.standpunkt.art !== 'rettidighet' || l.standpunkt.hjemmel === v.hjemmel)
+        )?.vilkaar ?? []);
 
   const foerI = (v: VarseletAlene) =>
     v.foer && {
@@ -128,6 +132,14 @@
       brev: brevet(u, v.foer.dokument),
       ikkeGitt: spor === 'vederlag' && !erSvarPaaVarsel(u, v.foer.dokument),
     };
+  const hovedvarseletFoerI = (v: VarseletAlene) =>
+    v.hovedvarseletFoer
+      ? {
+          iTide: v.hovedvarseletFoer.iTide,
+          brev: brevet(u, v.hovedvarseletFoer.dokument),
+          ikkeGitt: false,
+        }
+      : null;
   const besvart = (v: VarseletAlene) => harStandpunkt(varselvalget(valg, v.id), v);
   // I panelet uten nummeret fra totalentreprenørens brev, som ikke er nummeret i svaret (system.md).
   const navnet = (v: VarseletAlene, navn = VARSELSVARET.punktet(v.hjemmel)) =>
@@ -149,13 +161,19 @@
       const foer = foerI(v);
       const oppgir =
         s.art === 'rettidighet' &&
+        s.hjemmel === v.hjemmel &&
         varseletISvaret(varselvalget(valg, v.id), v) === true &&
         foer?.iTide === false &&
         foer.brev
           ? foer
           : null;
       return {
-        punkt: s.art === 'justering' ? `${v.id}-justering` : v.id,
+        punkt:
+          s.art === 'justering'
+            ? `${v.id}-justering`
+            : s.art === 'rettidighet' && s.hjemmel !== v.hjemmel
+              ? `${v.id}-hovedvarsel`
+              : v.id,
         tekst: oppgir
           ? oppgivelsestekst(v.hjemmel, oppgir.brev!, true, undefined, oppgir.ikkeGitt)
           : standpunkttekst(s, true, undefined, undefined, false, false),
@@ -184,6 +202,15 @@
       ? [{ punkt: FORHOLDET, navn: SKJEMA.forholdspunktet, linjer: forholdet }]
       : []),
     ...varslene.flatMap((v) => [
+      ...(v.hovedvarseletFoer !== undefined
+        ? [
+            {
+              punkt: `${v.id}-hovedvarsel`,
+              navn: VARSELSVARET.punktet('34.1.2'),
+              linjer: iPunktet(`${v.id}-hovedvarsel`, SKJEMA.ikkeBesvart),
+            },
+          ]
+        : []),
       {
         punkt: v.id,
         navn: navnet(v),
@@ -203,15 +230,23 @@
   ]);
   /** Punktene i brevet svaret på varselet `v` har en begrunnelse i, som kjernen skriver dem. */
   const punkteneFor = (v: VarseletAlene): string[] => [
+    ...(linjer.some((l) => l.punkt === `${v.id}-hovedvarsel`) ? ['34.1.2'] : []),
     ...(linjer.some((l) => l.punkt === v.id) ? [v.hjemmel] : []),
     ...(linjer.some((l) => l.punkt === `${v.id}-justering`) ? ['justering'] : []),
   ];
   // Begrunnelsen og forbeholdet står ved hvert varsel, så skjemaet har ingen felt for punktene
   // i brevet som deler nøkkel mellom svarene (LV-U71).
   const begrunnelserISkjemaet = $derived(
-    [...new Set([FORHOLDET, ...varslene.flatMap((v) => [v.hjemmel, 'justering'])])].map(
-      (punkt) => ({ punkt, navn: punkt, besvart: false })
-    )
+    [
+      ...new Set([
+        FORHOLDET,
+        ...varslene.flatMap((v) => [
+          v.hjemmel,
+          'justering',
+          ...(v.hovedvarseletFoer !== undefined ? ['34.1.2'] : []),
+        ]),
+      ]),
+    ].map((punkt) => ({ punkt, navn: punkt, besvart: false }))
   );
   const tekster = $derived({
     begrunnelser: {},
@@ -228,28 +263,26 @@
         post: null,
         tekst: varslene.some(besvart) ? null : VARSELSVARET.manglerVarsel,
       },
-      ...varslene.flatMap((v) =>
-        v.hjemmel === '34.3.3' && besvart(v)
-          ? [
-              {
-                felt: `${v.id}-varsel`,
-                post: null,
-                tekst:
-                  varseletISvaret(varselvalget(valg, v.id), v) === null
-                    ? SKJEMA.manglerITide
-                    : null,
-              },
-              {
-                felt: `${v.id}-justering`,
-                post: null,
-                tekst:
-                  varselvalget(valg, v.id).godtarJustering === null
-                    ? SKJEMA.manglerJustering
-                    : null,
-              },
-            ]
-          : []
-      ),
+      ...varslene.flatMap((v) => {
+        if (!besvart(v)) return [];
+        const x = varselvalget(valg, v.id);
+        const omJustering = v.hjemmel === '34.3.3';
+        const omVarselet =
+          omJustering ||
+          ((v.hjemmel === '34.1.3' || v.hjemmel === '34.4') && x.hovedvarseletITide != null);
+        return [
+          {
+            felt: `${v.id}-varsel`,
+            post: null,
+            tekst: omVarselet && varseletISvaret(x, v) === null ? SKJEMA.manglerITide : null,
+          },
+          {
+            felt: `${v.id}-justering`,
+            post: null,
+            tekst: omJustering && x.godtarJustering === null ? SKJEMA.manglerJustering : null,
+          },
+        ];
+      }),
     ])
   );
   // VS-U77 punkt 30 og 31: svaret på varselet gir ingen enighet og ikke noe sammenfall.
@@ -310,13 +343,16 @@
       {@const id = `${uid}-${v.id}`}
       {@const x = varselvalget(valg, v.id)}
       {@const foer = foerI(v)}
+      {@const hovedvarseletFoer = hovedvarseletFoerI(v)}
       {@const varseletGjelderHvis = gjelderHvis(v, 'rettidighet')}
       {@const justeringenGjelderHvis = gjelderHvis(v, 'justering')}
       {#snippet vilkaaret(i: Innsigelsen)}
         {#if i.art === 'grunn'}
           <Forholdsgrunn grunn={i.grunn} brev={i.brev} {onforholdet} />
         {:else}
-          <a href={`#${id}-varsel${foer?.iTide === false ? '-standpunkt' : ''}`}
+          {@const hoved = i.art === 'varsel' && i.hjemmel === '34.1.2' && v.hjemmel !== '34.1.2'}
+          <a
+            href={`#${id}-${hoved ? 'hovedvarsel' : 'varsel'}${(hoved ? hovedvarseletFoer : foer)?.iTide === false ? '-standpunkt' : ''}`}
             >{innsigelsenOmVarselet(i.art === 'varsel' ? i.hjemmel : v.hjemmel)}</a
           >
         {/if}
@@ -364,6 +400,23 @@
       >
         {#if v.arbeid}<p class="dempet">{VARSELSVARET.arbeidet(v.arbeid)}</p>{/if}
         <Varseldatoer {u} gjelder={v.id} />
+        {#if v.hovedvarseletFoer !== undefined}
+          <Varselstandpunkt
+            varselId={`${id}-hovedvarsel`}
+            justeringId={`${id}-hovedvarsel-justering`}
+            hjemmel="34.1.2"
+            foer={hovedvarseletFoer}
+            bind:varsletITide={
+              () => x.hovedvarseletITide ?? null, (y) => oppdater(v.id, { hovedvarseletITide: y })
+            }
+            godtarJustering={null}
+            ikkeGitt={false}
+            justeringValgfri={true}
+            vis="varselet"
+            ogsaa3412
+          />
+          {@render begrunnelsen('34.1.2', VARSELSVARET.punktet('34.1.2'))}
+        {/if}
         <Varselstandpunkt
           varselId={`${id}-varsel`}
           justeringId={`${id}-justering`}

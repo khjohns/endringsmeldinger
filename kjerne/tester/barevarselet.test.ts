@@ -264,7 +264,11 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
   });
 
   it('linja leser innsigelsen som står, for justeringen til hver kravpost (punkt 36 og 38, VS-U81)', () => {
-    const { s, krav, poster } = medVederlagskravet([REGNINGSARBEID, JUSTERT]);
+    const { s, krav, poster } = medVederlagskravet([
+      REGNINGSARBEID,
+      JUSTERT,
+      { ...JUSTERT, beskrivelse: 'Spunting' },
+    ]);
     s.send(
       'BH',
       brev('vederlag', krav, {
@@ -273,7 +277,7 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
     );
     expect(s.u().spor.vederlag.svarPaaVarsler).toHaveLength(1);
     const [forrige] = s.u().spor.vederlag.svarPaaVarsler;
-    // Et svar lagt til som ikke sier noe om varselet for P2, men har standpunktet for P1.
+    // Svaret lagt til tier om varselet for P2 og sier at varselet etter § 34.3.3 for P3 kom i tide.
     s.send('BH', {
       type: 'revisjon',
       erstatter: forrige.id,
@@ -281,6 +285,7 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
         kravposter: [
           { gjelder: poster[0], varslet_i_tide: false },
           { gjelder: poster[1], godtar_justering: true },
+          { gjelder: poster[2], varslet_i_tide: true, godtar_justering: false },
         ],
       }),
       sendt: s.journal.at(-1)!.tidsstempel.slice(0, 10),
@@ -288,9 +293,9 @@ describe('svaret bare på varselet etter punkt 34.3.3 og 34.4 per kravpost (VS-U
       beskrivelse: 'Svar på varselet',
       dokumentasjon: [randomUUID()],
     });
-    expect(s.u().spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag.linje).toContain(
-      'kom for sent, som gjort gjeldende i et tidligere svar'
-    );
+    const { linje } = s.u().spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag;
+    expect(linje).toContain('kom for sent, som gjort gjeldende i et tidligere svar');
+    expect(linje).toContain('varselet etter punkt\u00a034.3.3 kom i tide');
   });
 
   it('en kravpost uten varselplikt eller som viser til et varsel i saken, er ikke med (punkt 38 og 23)', () => {

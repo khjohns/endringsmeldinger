@@ -38,7 +38,7 @@ export const REGELSETTET: Lesbar[] = [
   [
     'regler/vederlag.ts',
     'regelsett',
-    'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
+    'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt varslerOgsaaEtter3412',
   ],
   ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['spor/vederlag/frysing.ts']],
   // Vurderingen av beløpet er en av verdiene i regelsettet.

@@ -17,6 +17,7 @@ import {
   SAK,
   linje,
   medGrunnlag,
+  opprettet,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
@@ -78,6 +79,41 @@ const raden = (nr: number) =>
   );
 
 afterEach(cleanup);
+
+it.each(['34.1.3', '34.4'] as const)(
+  'bare standpunkt etter punkt 34.1.2 i svaret på punkt %s gir beskjed om at varselet må besvares (VS-U100)',
+  async (hjemmel) => {
+    const medSvikt = skrevet([opprettet], 'TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        klar_over_forholdet: '2026-09-25',
+      },
+      utdypning: 'Fjell der grunnundersøkelsen viste løsmasser.',
+    });
+    const sendt = await svarskjemaet(
+      skrevet(medSvikt, 'TE', {
+        type: 'send_varsel',
+        varsler: [
+          hjemmel === '34.4' ? { hjemmel, arbeid: GRAVING } : { hjemmel },
+          { hjemmel: '34.4', arbeid: FJERNVARME },
+        ],
+      })
+    );
+    await fireEvent.click(
+      raden(1).getByRole('radio', { name: 'Kom for sent etter punkt\u00a034.1.2' })
+    );
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    const feil = screen.queryByRole('link', { name: 'Velg om varselet kom i tide.' });
+    expect(feil).not.toBeNull();
+    const felt = feil!.getAttribute('href')!.slice(1);
+    expect(document.getElementById(felt)).toBeInTheDocument();
+    expect(felt).toMatch(/-varsel$/);
+  }
+);
 
 describe('byggherrens svar på to varsler i samme brev (M-5 og U-8 i BF-37, #2451)', () => {
   it('skjemaet har én rad per varsel, med arbeidet under navnet (U-8)', async () => {

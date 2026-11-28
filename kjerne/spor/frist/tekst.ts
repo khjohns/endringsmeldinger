@@ -189,6 +189,10 @@ function foresporselenTil(gjelder: string, j: Journalen): string {
 }
 
 export const BREVTEKSTEN_I_FRISTEN = {
+  varseletISvaret: {
+    '33.4': 'varselet om fristforlengelse etter NS 8407 punkt 33.4',
+    '33.6.2': 'totalentreprenørens svar på forespørselen etter NS 8407 punkt 33.6.2',
+  },
   svaretGjelder: () => `kravet om ${KRAVET_OM}`,
   krav: fristkravtekst,
   // KA-U33: kravet begrunner antallet dager.

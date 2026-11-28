@@ -12,10 +12,14 @@ import {
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
-import type { Oppgjoersform, Vederlagsvarselhjemmel } from '../typer.ts';
+import type { Oppgjoersform, Varselhjemmel, Vederlagsvarselhjemmel } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
+
+/** VS-U98: disse varslene kan også gjelde etter § 34.1.2. */
+export const varslerOgsaaEtter3412 = (hjemmel: Varselhjemmel): boolean =>
+  hjemmel === '34.1.3' || hjemmel === '34.3.3' || hjemmel === '34.4';
 
 /** Byggherrens vurdering av beløpet i én post, og det krevde beløpet (KA-U57 (c)). */
 interface Postbeloep {
@@ -622,15 +626,19 @@ export function kontrollerSvaretPaaVarselet(
   hjemmel: Vederlagsvarselhjemmel,
   v: Record<string, unknown>,
   innsigelsenStaar: boolean,
-  navn = 'varselet'
+  navn = 'varselet',
+  gjelderOgsaa3412 = false
 ): void {
-  const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide' && f !== 'godtar_justering');
+  const ukjent = Object.keys(v).filter(
+    (f) => f !== 'varslet_i_tide' && f !== 'godtar_justering' && f !== 'hovedkrav_varslet_i_tide'
+  );
   if (ukjent.length)
     throw new UgyldigVurdering(
       Object.fromEntries(
         ukjent.map((f) => [`${navn}.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
       )
     );
+  kontrollerHovedvarseletISvaret(v, gjelderOgsaa3412);
   // VS-U87 punkt 32.
   if (hjemmel === '34.1.2' || hjemmel === '34.1.3') {
     if (v.godtar_justering != null)
@@ -659,21 +667,38 @@ export function kontrollerSvaretPaaVarselet(
   kontrollerOppgivelsenEtter344(navn, v, post, innsigelsenStaar);
 }
 
+/** VS-U100: standpunktet etter § 34.1.2 gjelder hele vederlagskravet. */
+export function kontrollerHovedvarseletISvaret(
+  v: { hovedkrav_varslet_i_tide?: unknown },
+  gjelderOgsaa3412: boolean
+): void {
+  const standpunkt = v.hovedkrav_varslet_i_tide;
+  if (standpunkt === undefined) return;
+  if (!gjelderOgsaa3412)
+    throw new UgyldigVurdering({
+      hovedkrav_varslet_i_tide:
+        'standpunktet etter punkt 34.1.2 kan ikke gis i dette svaret på varselet',
+    });
+  if (typeof standpunkt !== 'boolean')
+    throw new UgyldigVurdering({ hovedkrav_varslet_i_tide: 'er verken true eller false' });
+}
+
 /**
  * VS-U80, VS-U77 punkt 9 første setning: et svar fra løsningen viser til byggherrens innsigelse
  * mot varselet for kravposten fra et tidligere svar og gjentar den, eller gir den opp
  * uttrykkelig. `innsigelsenStaar` er at byggherrens siste standpunkt til varselet før svaret
  * gjorde den gjeldende. Et svar lagt til kan være taust og leses da med innsigelsen (VS-U81), så
- * kontrollen gjelder bare et svar fra løsningen. Feilen står på `<navn>.varslet_i_tide`.
+ * kontrollen gjelder bare et svar fra løsningen. Feilen står på `<navn>.<felt>`.
  */
 export function kontrollerInnsigelsenSomStaar(
   navn: string,
-  p: { varslet_i_tide?: unknown },
-  innsigelsenStaar: boolean
+  p: { varslet_i_tide?: unknown; hovedkrav_varslet_i_tide?: unknown },
+  innsigelsenStaar: boolean,
+  felt: 'varslet_i_tide' | 'hovedkrav_varslet_i_tide' = 'varslet_i_tide'
 ): void {
-  if (innsigelsenStaar && p.varslet_i_tide == null)
+  if (innsigelsenStaar && p[felt] == null)
     throw new UgyldigVurdering({
-      [`${navn}.varslet_i_tide`]:
+      [`${navn}.${felt}`]:
         'mangler: byggherren har gjort gjeldende i et tidligere svar at varselet kom for sent, så svaret må gjenta innsigelsen eller gi den opp',
     });
 }

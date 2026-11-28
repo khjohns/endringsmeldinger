@@ -15,6 +15,7 @@ import {
   type Utledning,
 } from '../../utledning/utled.ts';
 import type { Enighetsvirkning, Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
+import { sisteRettingFor } from '../../utledning/rettingen.ts';
 import {
   beloepeneILagene,
   fasteBeloepIKravet,
@@ -111,6 +112,7 @@ const SENKNING_I_VEDERLAGET: Sporssenkning = {
  */
 export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
   sendt: string | null;
+  rettetIDokument?: string;
 }
 
 /**
@@ -120,7 +122,12 @@ export interface VarseletIEtEldreKrav extends VarselIEtEldreKrav {
 export function varseleneIEldreKrav(u: Utledning): VarseletIEtEldreKrav[] {
   return varslerIEldreKrav(u).map((v) => {
     const krav = u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === v.dokument)!;
-    return { ...v, sendt: datoenSomGjelder(u, krav) };
+    const retting = sisteRettingFor(u.rettinger, krav.id);
+    return {
+      ...v,
+      sendt: datoenSomGjelder(u, krav),
+      ...(retting ? { rettetIDokument: retting.dokument } : {}),
+    };
   });
 }
 

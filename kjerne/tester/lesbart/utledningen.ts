@@ -79,6 +79,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     'journal',
     [
       'utledning/utled.ts:datoenDetBleSendt',
+      'utledning/utled.ts:varseletFoerBrevet',
       // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
       'utledning/utled.ts:akseptenStrider',
       'spor/frist/utledning.ts:fristkravErFremmet',
@@ -125,6 +126,15 @@ export const UTLEDNINGEN: Lesbar[] = [
     'relasjon',
     'varseletForNyttSvar',
     ['spor/frist/kommando.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
+  ],
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'varseletGjelderOgsaa3412',
+    [
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
+    ],
   ],
   // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
   // VS-U85: det egne utsagnet om kunnskapsdatoen viser til det første varselet etter § 34.1.3.
@@ -208,7 +218,11 @@ export const UTLEDNINGEN: Lesbar[] = [
     'relasjon',
     'medRettingeneTil',
     // A3 i #2509.
-    [ELDRE_KRAV, 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+    [
+      ELDRE_KRAV,
+      'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
+      'utledning/utled.ts:varseletFoerBrevet',
+    ],
   ],
   // MM-U64.
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene(vedSvaret)', 'relasjon', '*'],
