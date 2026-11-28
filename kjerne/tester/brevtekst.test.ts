@@ -778,6 +778,7 @@ describe('vedleggene står i teksten (A4)', () => {
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
     varslerIEldreKrav: [],
+    varslerIEldreKravVedSvaret: {},
     kravpostvarsler: {},
     utenVirkning: [],
     varsletFoer: {},

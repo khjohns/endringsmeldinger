@@ -1182,6 +1182,7 @@ function utledSporene(
   }));
   // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
   // da det ble sendt. Et svar lagt til leser rettingene sendt til og med dagen det oppgir (OV-U98).
+  // Også for hva som var gjeldende da et krav ble sendt (A1 i #2509).
   const gjaldtVedSvaret = (
     v: Pick<Krav, 'id' | 'dokument'>,
     svar: Pick<Krav, 'id' | 'dokument'>
@@ -1195,8 +1196,8 @@ function utledSporene(
   for (const n of SPOR) {
     const eldre = (k: Krav) =>
       spor[n].kravUtenforRekken
-        .filter((e) => bakover(k.id, e.id) && foerDagen(sendt(e), sendt(k)))
-        .sort((a, b) => (sendt(a) ?? '').localeCompare(sendt(b) ?? ''));
+        .filter((e) => bakover(k.id, e.id) && foerDagen(gjaldtVedSvaret(e, k), sendt(k)))
+        .sort((a, b) => (gjaldtVedSvaret(a, k) ?? '').localeCompare(gjaldtVedSvaret(b, k) ?? ''));
     kontrollerI(n).kravene(spor[n].krav, varsler, bakover, ugyldig, eldre);
   }
   kontrollerSvarene(

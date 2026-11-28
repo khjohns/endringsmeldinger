@@ -3,8 +3,8 @@
  * samlevedtaket for retting av sendt brev, MM-U59, og MM-U63): rettingen gjelder
  * straks som TEs siste opplysning, også når datoen er tidligere. Datoen som gjelder, er premiss for
  * nye svar og for hvilket varsel eller krav som er det første varselet løsningen kjenner (VS-U86).
- * Hvilket krav eller svar som var gjeldende, avgjøres av datoen TE oppga, og rettingen endrer det
- * ikke (punkt 18, OV-U123 punkt 17).
+ * Hvilket krav eller svar som var gjeldende, avgjøres av datoen som gjaldt den dagen det ble sendt,
+ * og en senere retting endrer det ikke (punkt 18, OV-U123 punkt 17, A1 i #2509).
  */
 
 import { foerDagen } from '../format/leser.ts';

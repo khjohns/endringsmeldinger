@@ -995,7 +995,12 @@ function innsigelsenFoer(
         d.svar
           .filter((x) => x.spor === 'vederlag' && !saken.utenVirkning.includes(x.id))
           .map((x) => ({
-            s: utenStandpunkterForanEldreKrav(x, saken.varslerIEldreKrav, plass),
+            s: utenStandpunkterForanEldreKrav(
+              x,
+              saken.varslerIEldreKrav,
+              plass,
+              saken.varslerIEldreKravVedSvaret[x.id]
+            ),
             dag: dagenSendt({ id: x.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
             paaVarselet: erSvarPaaVarselet(x, j),

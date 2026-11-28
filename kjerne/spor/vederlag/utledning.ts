@@ -28,6 +28,7 @@ import type {
   Utsagn,
 } from '../../utledning/utled.ts';
 import { dagenSendt, dokumenterI, erRegistrert, foerDagen } from '../../format/leser.ts';
+import { datoEtterRettingene, medRettingeneTil, type Retting } from '../../utledning/rettingen.ts';
 import {
   sisteStandpunktTilVarslene,
   utenStandpunkterForanEldreKrav,
@@ -114,15 +115,32 @@ const hattFoer = (
 ) => tidligere.some((k) => postenMed(k, p.id, hjemmel) !== undefined);
 
 /**
- * OV-U120: kravene utenfor rekken i vederlaget sendt før dagen `dag`, i rekkefølgen de ble sendt.
- * Uten dag, for et krav fra løsningen, alle.
+ * OV-U120: kravene utenfor rekken i vederlaget sendt før dagen `dag`, i rekkefølgen de ble sendt,
+ * for et krav som legges til nå. Uten dag, for et krav fra løsningen, alle. Datoen er den som
+ * gjaldt den dagen kravet ble sendt, med rettingene sendt til og med den dagen (A1 i #2509,
+ * OV-U123 punkt 17, OV-U98).
  */
 export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
+  const rettinger = medRettingeneTil(u, dag).rettinger;
   return sendtFoer(
     u.spor.vederlag.kravUtenforRekken,
-    (k) => dagenSendt(k, dokumenter.get(k.dokument)!),
+    (k) => datoEtterRettingene(rettinger, k.id, dagenSendt(k, dokumenter.get(k.dokument)!)),
     dag
+  );
+}
+
+/**
+ * OV-U120: kravene utenfor rekken som kan være varselet for en kravpost i et krav sendt dagen
+ * `dag`. Hvilke krav som er sendt før, leser datoen som gjaldt den dagen (`eldreKravFoer`), og
+ * rekkefølgen mellom dem datoen som gjelder etter alle TEs rettinger (MM-U63, A1 og A2 i #2509).
+ */
+export function eldreKravSomVarselFoer(u: Utledning, dag: string | null): Krav[] {
+  const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
+  return sendtFoer(
+    eldreKravFoer(u, dag),
+    (k) => datoEtterRettingene(u.rettinger, k.id, dagenSendt(k, dokumenter.get(k.dokument)!)),
+    null
   );
 }
 
@@ -186,7 +204,7 @@ export function kravetVilleVaertVarselet(
  * - OV-U120: ellers det første kravet i `eldre` med posten og samme varselhjemmel, med
  *   vilkår 3 prøvd mot det og `tidligere`.
  * `tidligere` er versjonene før `krav` i rekken, og `eldre` kravene utenfor rekken sendt før `krav`
- * i rekkefølgen de ble sendt (`eldreKravFoer`).
+ * i rekkefølgen etter datoen som gjelder (`eldreKravSomVarselFoer`).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
@@ -211,7 +229,8 @@ export function kravpostvarslene(
 /**
  * OV-U120: kravpostene som har et krav utenfor rekken som varsel, for hver kravversjon i rekken
  * som ellers ville vært varselet for posten (`kravpostvarslene`). Bare brevene i `u.journal` før
- * brevet `kjentFoer` leses, slik kjernen kjente saken da (VS-U81).
+ * brevet `kjentFoer` leses, med rettingene i dem, slik kjernen kjente saken da (VS-U81). Kravene
+ * sammenlignes med datoen som gjelder etter rettingene (MM-U63, A2 i #2509).
  */
 export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEldreKrav[] {
   const alle = [...dokumenterI(u.journal)];
@@ -223,7 +242,9 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
   const krav = u.spor.vederlag.krav.filter(kjent);
   const kravUtenforRekken = u.spor.vederlag.kravUtenforRekken.filter(kjent);
   if (!kravUtenforRekken.length) return [];
-  const sendt = (k: Krav) => dagenSendt(k, dokumenter[plass.get(k.dokument)!]);
+  const rettinger = u.rettinger.filter(kjent);
+  const sendt = (k: Krav) =>
+    datoEtterRettingene(rettinger, k.id, dagenSendt(k, dokumenter[plass.get(k.dokument)!]));
   const eldre = new Map(kravUtenforRekken.map((k) => [k.id, k]));
   return krav.flatMap((k, i) => {
     const varslene = kravpostvarslene(
@@ -234,12 +255,41 @@ export function varslerIEldreKrav(u: Utledning, kjentFoer?: string): VarselIEtEl
     return kravposterI(k).flatMap((p) => {
       const v = varslene[p.id];
       const e = v?.art === 'gitt' ? eldre.get(v.varsel) : undefined;
-      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken.
-      return e && ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id))
+      // OV-U120 vilkår 3 gjelder også kravversjonene etter `k` og de andre kravene utenfor rekken,
+      // og vilkår 4 en kravversjon i rekken som er sendt før det eldre kravet etter en retting.
+      return e &&
+        ![...krav, ...kravUtenforRekken].some((x) => viserTilEtVarsel(x, p.id)) &&
+        !krav.some((x) => foerDagen(sendt(x), sendt(e)) && postenMed(x, p.id, varselhjemmel(p)!))
         ? [{ gjelder: p.id, hjemmel: varselhjemmel(p)!, dokument: e.dokument }]
         : [];
     });
   });
+}
+
+/**
+ * MM-U64: for hvert svar på vederlaget, de eldre kravene som var varselet da svaret ble
+ * sendt. Alle kravene utenfor rekken i saken regnes med, og rettingene som står før svaret og er
+ * sendt til og med dagen det ble sendt (som `gjaldtVedSvaret` i `utledning/utled.ts`, OV-U98,
+ * OV-U104). Med `kjentFoer` leses bare brevene før det brevet (VS-U81).
+ */
+export function varslerIEldreKravVedSvarene(
+  u: Utledning,
+  kjentFoer?: string
+): Record<string, VarselIEtEldreKrav[]> {
+  const ut: Record<string, VarselIEtEldreKrav[]> = {};
+  if (!u.spor.vederlag.kravUtenforRekken.length) return ut;
+  const foer: Retting[] = [];
+  for (const d of dokumenterI(u.journal)) {
+    for (const s of d.svar.filter((x) => x.spor === 'vederlag')) {
+      const dag = dagenSendt({ id: s.id, dokument: d.id }, d);
+      ut[s.id] = varslerIEldreKrav(
+        { ...u, rettinger: foer.filter((r) => !foerDagen(dag, r.sendt)) },
+        kjentFoer
+      );
+    }
+    foer.push(...u.rettinger.filter((r) => r.dokument === d.id));
+  }
+  return ut;
 }
 
 /**
@@ -395,7 +445,8 @@ export const KONTROLLER_I_VEDERLAGET = {
  * (`sisteStandpunktTilVarslene`). Et svar lagt til, sendt på dagen `sendt`, leser bare svarene
  * sendt før den dagen (OV-U98, OV-U104), eller til og med den dagen når `medSammeDag` er satt.
  * `kjentFoer` er et brev i saken: da leses bare brevene som var i journalen før det, slik
- * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81).
+ * kjernen kjente dem da brevet ble sendt eller lagt til (VS-U81). En påberopelse som sto mot
+ * varselet før en retting, står også mot varselet etter den (MM-U64).
  */
 export function standpunkteneTilVarslene(
   u: Utledning,
@@ -412,7 +463,9 @@ export function standpunkteneTilVarslene(
     kjentFoer === undefined ? dokumenter.length : dokumenter.findIndex((d) => d.id === kjentFoer);
   if (slutt === -1) throw new Error(`Brevet ${kjentFoer} er ikke i saken.`);
   const plass = new Map(dokumenter.map((d, i) => [d.id, i]));
-  const eldre = varslerIEldreKrav(u, kjentFoer);
+  // A3 i #2509.
+  const eldre = varslerIEldreKrav(medRettingeneTil(u, sendt), kjentFoer);
+  const vedSvaret = varslerIEldreKravVedSvarene(u, kjentFoer);
   return sisteStandpunktTilVarslene(
     dokumenter
       .slice(0, slutt)
@@ -420,7 +473,7 @@ export function standpunkteneTilVarslene(
         d.svar
           .filter((s) => medVirkning.has(s.id))
           .map((s) => ({
-            s: utenStandpunkterForanEldreKrav(s, eldre, plass),
+            s: utenStandpunkterForanEldreKrav(s, eldre, plass, vedSvaret[s.id]),
             dag: dagenSendt({ id: s.id, dokument: d.id }, d) ?? '',
             lagtTil: erRegistrert(d.opplysninger),
             paaVarselet: paaVarsler.has(s.id),

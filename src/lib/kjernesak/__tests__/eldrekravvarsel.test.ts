@@ -17,6 +17,8 @@ import {
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
 import { varslenePerKravpost } from '#lib/kjernesak/vederlagskrav.ts';
+import { SOM_BREV } from '#kjerne/tester/brevet.ts';
+import { PAABEROPELSE, sak } from '#kjerne/tester/brevsak.ts';
 
 const medP1 = (oppgjoersform: string): Handling => ({
   handling: 'krav',
@@ -73,5 +75,65 @@ describe('varselet skjemaet viser når et eldre krav er lagt til (OV-U120)', () 
     const u = await saken([], true);
     const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null);
     expect(v).toMatchObject({ art: 'gitt', varsel: u.spor.vederlag.kravUtenforRekken[0]!.id });
+  });
+});
+
+describe('varselet skjemaet viser når et eldre krav er rettet (MM-U63, OV-U120, A2 i #2509)', () => {
+  const lagtTil = (sendt: string, oppgjoersform: string) => ({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        {
+          betegnelse: 'P1',
+          beskrivelse: 'Riving',
+          oppgjoersform,
+          ...(oppgjoersform === 'tilbud' ? { beloep: 50000 } : {}),
+        },
+      ],
+    },
+    sendt,
+    ...SOM_BREV,
+    dokumentasjon: [crypto.randomUUID()],
+  });
+  const kravet = (rad: { data: Record<string, unknown> }) =>
+    (rad.data.krav as { id: string }[])[0]!.id;
+  /** K1 lagt til 30.09 med P1 til fast sum, og K2 26.09 og K3 28.09 med P1 som regningsarbeid. */
+  function medEldreKrav() {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', lagtTil('2026-09-30', 'tilbud'));
+    const k2 = kravet(s.send('TE', lagtTil('2026-09-26', 'regningsarbeid')));
+    const k3 = kravet(s.send('TE', lagtTil('2026-09-28', 'regningsarbeid')));
+    return { s, k2, k3 };
+  }
+  const iSkjemaet = (u: Utledning) =>
+    varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null)[0];
+
+  it('rettes K2 til en dag etter K3, er K3 varselet, som i brevet', () => {
+    const { s, k2, k3 } = medEldreKrav();
+    s.send('TE', { type: 'retting', gjelder: k2, dato: '2026-09-29' });
+    expect(iSkjemaet(s.u())).toMatchObject({ art: 'gitt', varsel: k3 });
+  });
+
+  it('rettes K2 til dagen kravet fra løsningen sendes, er kravet selv varselet, som i brevet (OV-U104)', () => {
+    for (const [dato, art] of [
+      ['2026-10-05', 'kravet'],
+      ['2026-10-04', 'gitt'],
+    ] as const) {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', lagtTil('2026-09-30', 'tilbud'));
+      const k2 = kravet(s.send('TE', lagtTil('2026-09-26', 'regningsarbeid')));
+      s.send('TE', { type: 'retting', gjelder: k2, dato }, true);
+      const u = s.u();
+      const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null, '2026-10-05');
+      expect(v, dato).toMatchObject({ art });
+    }
+  });
+
+  it('kontrollsak: uten rettingen er K2 varselet', () => {
+    const { s, k2 } = medEldreKrav();
+    expect(iSkjemaet(s.u())).toMatchObject({ art: 'gitt', varsel: k2 });
   });
 });

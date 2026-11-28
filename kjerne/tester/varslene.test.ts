@@ -1039,6 +1039,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       varslerIEldreKrav: [],
+      varslerIEldreKravVedSvaret: {},
       kravpostvarsler: {},
       utenVirkning: [],
       varsletFoer: {},
