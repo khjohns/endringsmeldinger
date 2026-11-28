@@ -1020,7 +1020,7 @@ function varselvalgetMangler(
   );
   if (!ubrukte.length) return null;
   const { tidligere } = kravversjoneneKravetProevesMot(u, 'vederlag', sendt);
-  const eldre = eldreKravFoer(u, sendt ?? dag);
+  const eldre = eldreKravFoer(u, dag);
   for (const [i, p] of kravposterI({ innhold: k.innhold }).entries()) {
     const hjemmel = varselhjemmel(p);
     if (

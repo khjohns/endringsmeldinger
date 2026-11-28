@@ -153,11 +153,11 @@ describe('et eldre krav rettet til en dag etter kravversjonen som ellers er vars
 
 describe('vilkår 4 i OV-U120 leser datoen som gjelder for kravversjonene i rekken (MM-U63, A2 i #2509)', () => {
   /** K1 26.09, K2 28.09 og K4 30.09 i rekken og K3 29.09 utenfor, alle med P1 som regningsarbeid. */
-  function medRekken() {
+  function medRekken(k2 = P1('regningsarbeid')) {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const k1 = kravet(s.send('TE', lagtTil('2026-09-26', P1('regningsarbeid'))));
-    s.send('TE', lagtTil('2026-09-28', P1('regningsarbeid')));
+    s.send('TE', lagtTil('2026-09-28', k2));
     s.send('TE', lagtTil('2026-09-30', P1('regningsarbeid')));
     s.send('TE', lagtTil('2026-09-29', P1('regningsarbeid')));
     expect(
@@ -166,12 +166,19 @@ describe('vilkår 4 i OV-U120 leser datoen som gjelder for kravversjonene i rekk
     ).toHaveLength(1);
     return { s, k1 };
   }
+  const k3 = (s: Sak) => s.u().spor.vederlag.kravUtenforRekken[0]!.dokument;
 
   it('rettes K1 til en dag etter K3, er K3 ikke varselet, for K2 hadde P1 før K3 ble sendt', () => {
     const { s, k1 } = medRekken();
     rett(s, k1, '2026-09-30');
     expect(s.u().begrensninger).toEqual([]);
     expect(varseleneIEldreKrav(s.u())).toEqual([]);
+  });
+
+  it('kontrollsak: har K2 P1 til fast sum, er K3 varselet for P1 i K1 etter rettingen', () => {
+    const { s, k1 } = medRekken(P1('tilbud', 50000));
+    rett(s, k1, '2026-09-30');
+    expect(varseleneIEldreKrav(s.u()).map((v) => v.dokument)).toEqual([k3(s)]);
   });
 
   it('kontrollsak: uten rettingen er K3 heller ikke varselet', () => {
