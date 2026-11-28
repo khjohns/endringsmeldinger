@@ -1,0 +1,207 @@
+{
+  "id": "BF-48C",
+  "tittel": "Totalentreprenøren legger til det særskilte varselet etter punkt 34.1.3 som korrespondanse, med datoen utgiftene ble kjent",
+  "brukerhistorie": "TE har varslet særskilt justering etter punkt 34.1.3 annet ledd i en e-post utenfor løsningen, og e-posten oppga når TE ble klar over at økte utgifter ville påløpe. TE legger til varselet som korrespondanse og oppgir datoen fra e-posten. Begge partene ser datoen ved varselet som TEs siste opplysning, og vederlagskravet etter det har ikke datoen.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Variant C i bestillingen BF-48.md. TE har påberopt forholdet i brev 1, og BH har godkjent det i brev 2. TE legger til et særskilt varsel etter punkt 34.1.3 sendt med e-post, og krever så vederlaget med den særskilte vederlagsjusteringen."
+  },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "utdypning": "Byggherren er enig i at forholdet er en svikt i prosjekteringen."
+        }
+      ]
+    },
+    {
+      "handling": "varsel",
+      "spor": "vederlag",
+      "hjemmel": "34.1.3",
+      "sendt": "2026-09-30",
+      "korrespondansetype": "e_post",
+      "klar_over_utgiftene": "2026-09-28",
+      "navn": "V1"
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "produktivitet": 40000,
+      "navn": "K-v1",
+      "belop": 150000
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-skal-legge-til-varselet",
+      "etter": 2,
+      "beskrivelse": "Forholdet er godkjent. TE har varslet særskilt justering etter punkt 34.1.3 i en e-post utenfor løsningen, og varselet er ikke lagt til.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "VS-U86"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": "S-g1",
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U83"
+          ],
+          "prov": {
+            "handling": "varsel",
+            "spor": "vederlag",
+            "hjemmel": "34.1.3",
+            "sendt": "2026-09-30",
+            "korrespondansetype": "e_post",
+            "klar_over_utgiftene": "2026-10-01"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATO_ETTER_BREVET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner feltet for datoen når kategorien i korrespondanseskjemaet er et særskilt varsel etter punkt 34.1.3, og ser at det er valgfritt.",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ]
+        },
+        {
+          "tekst": "TE ser at en dato etter datoen e-posten ble sendt, stoppes ved feltet.",
+          "kilde": [
+            "VS-U83"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-lagt-til-varselet",
+      "etter": 3,
+      "beskrivelse": "TE har lagt til varselet sendt med e-post 30.09.2026, med datoen 28.09.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag",
+                "oppgi_kunnskapsdato:V1#varsel"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2026-09-28"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge ser 28.09.2026 ved varselet som TEs siste opplysning, og at den står i e-posten som er lagt til.",
+          "kilde": [
+            "VS-U86",
+            "VS-U82"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-mottatt-kravet",
+      "etter": 4,
+      "beskrivelse": "TE har krevd 150 000 kr og 40 000 kr i særskilt vederlagsjustering i brev 4. Varselet etter punkt 34.1.3 er gitt før, så kravet har ikke datoen.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U85",
+            "VS-U86"
+          ],
+          "forventet": {
+            "gjeldende_krav.vederlag": "K-v1",
+            "handlinger.TE": {
+              "inneholder": [
+                "oppgi_kunnskapsdato:V1#varsel"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U85"
+          ],
+          "prov": {
+            "handling": "kunnskapsdato",
+            "klar_over_utgiftene": "2026-09-28"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser 28.09.2026 ved varselet i tråden og i svarskjemaet ved valget om varselet etter punkt 34.1.3.",
+          "kilde": [
+            "VS-U86"
+          ]
+        }
+      ]
+    }
+  ],
+  "bevis_saker": [],
+  "visninger": [
+    "demoruta",
+    "saksruta"
+  ],
+  "endringer": [
+    {
+      "dato": "2026-11-28",
+      "forhold": "#2012",
+      "hva": "Variant C i BF-48 er registrert som eget kjørbart forløp, som BF-02D for BF-02A."
+    }
+  ]
+}
