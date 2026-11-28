@@ -760,6 +760,7 @@
           valg={[{ verdi: true, tekst: SKJEMA.kreverTilbud(navnet(p) ?? null) }]}
           bind:verdi={() => v.kreverTilbud || null, (x) => (v.kreverTilbud = x === true)}
           avkrysning
+          valgfri
           lett
         />
       {/if}
