@@ -470,6 +470,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Svardelen): Brevp
     ledd,
     fra,
     temaene: sporet.temaer(krav, t, regler),
+    utenLagFoerst: sporet.punkteneUtenLagFoerst === true,
     innledning: innledningen(s, krav, t),
     oversikten,
   });
@@ -496,12 +497,14 @@ function punkteneISvaret(
     ledd,
     fra,
     temaene,
+    utenLagFoerst = false,
     innledning,
     oversikten,
   }: {
     ledd: Svarledd[];
     fra: ReturnType<typeof forholdetsLag>;
     temaene: Tema[];
+    utenLagFoerst?: boolean;
     innledning: string;
     oversikten: Oversikten | null;
   }
@@ -516,7 +519,8 @@ function punkteneISvaret(
     throw new KanIkkeUttrykkes(
       `standpunktet i punktet ${utenTema.punkt} har ikke noe tema i svaret`
     );
-  const punkter: Tema[] = temaene.filter((tema) => ledd.some((l) => l.punkt === tema.punkt));
+  const iBrevet = temaene.filter((tema) => ledd.some((l) => l.punkt === tema.punkt));
+  const punkter: Tema[] = utenLagFoerst ? medPunkteneUtenLagFoerst(iBrevet, ledd) : iBrevet;
   if (oversikten) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
 
   // LV-U79, LV-U34: lagslinjen nevner innsigelsene i det nærmeste laget foran som rammer standpunktet.
@@ -569,6 +573,20 @@ function punkteneISvaret(
   }
   brevpunkter.push(...akseptfristpunktet(s));
   return brevpunkter;
+}
+
+/**
+ * Forholdets punkt, så punktene der hvert standpunkt er uten lag, og så de andre, hver gruppe i
+ * temaenes rekkefølge (LV-U89, LV-U85 punkt 1 og 2).
+ */
+function medPunkteneUtenLagFoerst(punkter: Tema[], ledd: Svarledd[]): Tema[] {
+  const utenLag = (tema: Tema) =>
+    tema.punkt !== FORHOLDET && ledd.every((l) => l.punkt !== tema.punkt || l.plass === null);
+  return [
+    ...punkter.filter((tema) => tema.punkt === FORHOLDET),
+    ...punkter.filter(utenLag),
+    ...punkter.filter((tema) => tema.punkt !== FORHOLDET && !utenLag(tema)),
+  ];
 }
 
 /** Temaene i svaret på et varsel som står alene (VS-U96 punkt 30–32). */

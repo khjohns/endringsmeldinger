@@ -146,7 +146,8 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
 
 /**
  * Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34, KA-U78, prototypen
- * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist.
+ * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist. Punktene uten
+ * lag står foran de andre (`punkteneUtenLagFoerst`, LV-U89).
  */
 function temaer(krav: Krav): Tema[] {
   return [
@@ -196,6 +197,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}.`,
   temaer,
+  punkteneUtenLagFoerst: true,
   punktet: (p) => {
     switch (p.art) {
       case 'hindring':
@@ -222,7 +224,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */
 export const STANDPUNKTENE_I_FRISTEN = {
-  // VS-U95: uten utledet virkning, så teksten sier ingen følge. Ordlyden er design.
+  // VS-U95: standpunktet åpner ikke et lag, så teksten sier ingen følge. Ordlyden er design.
   ikke_svar: (p, _krav, _s, j) =>
     `byggherren gjør gjeldende at totalentreprenørens begrunnelse i ${j.brevet(j.dokumentetTil(p.gjelder))} ikke er et svar på forespørselen etter NS 8407 punkt 33.6.2 annet ledd.`,
   // KA-U81: ett standpunkt, og teksten nevner begge vilkårene. Ordlyden er design.
