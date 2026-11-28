@@ -155,11 +155,12 @@ export function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: strin
       throw feil;
     }
   };
-  const send = (part: Part, kommando: Data): Journalrad => {
+  /** `sammeDag`: det neste brevet sendes samme dag (OV-U104). */
+  const send = (part: Part, kommando: Data, sammeDag = false): Journalrad => {
     const utfall = prov(part, kommando);
     if (!utfall.godtatt)
       expect.fail(`Forutsetning: kommandoen ble avvist: ${JSON.stringify(utfall.avvisning)}`);
-    dag++;
+    if (!sammeDag) dag++;
     journal.push(...utfall.hendelser);
     return utfall.hendelser.at(-1)!;
   };

@@ -321,7 +321,10 @@ export const KOMMANDOENE: Lesbar[] = [
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['Registrering', 'kommando', 'sendt', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   // VS-U87 punkt 23: valget av varsel prøves mot saken før handlingen.
-  ['Sakssperre', 'kommando', 'foer', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
+  ['Sakssperre', 'kommando', 'foer dag', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
+  // OV-U104, A1 i #2509: dagen et krav fra løsningen sendes, for de eldre kravene sendt før det.
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:skriv']],
+  ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:brevtekstFor']],
   ['LestSak', 'kommando', 'u', ['spor/vederlag/kommando.ts:varselvalgetMangler']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
   // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59), OV-U98: et svar lagt til står med

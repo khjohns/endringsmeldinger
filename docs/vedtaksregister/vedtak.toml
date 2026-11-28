@@ -18341,6 +18341,274 @@ tekst = '''
 Som A, med rettelsene oppdragsgiver gir per punkt eller E-punkt.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U98"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmålet kom uoppfordret fra oppdragsgiver 28.11 etter BF-48C i runde 11 i #1065. Gangen, ordrett slik orkestratoren førte den:
+
+Spørsmålet fra oppdragsgiver: «BF 48C. TE kan sende varsel om særskilt vederlagsjustering uten at dette samtidig regnes som varsel om vederlagsjustering. Er det riktig da?»
+Orkestratoren svarte at det er vedtatt og bygget slik (OV-U27 m.fl.), og spurte om et designissue.
+Svaret, ordrett: «Varsel om vederlagsjustering er et villår også for særskilt vederlagsjustering. Det følger logisk at et varsel om særskilt vederlagsjustering også er et varsel om vederlagsjustering. Løsningen må legge det til grunn; hvis TE varsler særskilt men ikke tidligere har varslet så regnes dette også som varsel om vederlagsjustering. Det er tilsvarende som at et sendt krav også regnes som varsel hvis det ikke er tidligere sendt»
+
+Oppdragsgivers andre melding, ordrett: «Det gjelder også ellers: varsel om regningsarbeid mv regnes også som varsel om vederlagsjustering- helt automatisk»
+
+### Lagt fram 28.11 (orkestratoren, i tekst, etter to kontroller)
+
+Vedtaksteksten (til godkjenning): «Når varslingsplikten etter punkt 34.1.2 gjelder, regnes varselet etter punkt 34.1.3, varselet etter punkt 34.3.3 første ledd og varselet etter punkt 34.4 også som varsel etter punkt 34.1.2. Det skjer automatisk, når totalentreprenøren ikke har varslet etter punkt 34.1.2 med samme eller en tidligere dato. Det gjelder også et slikt varsel som er sendt utenfor løsningen og lagt til. Regelen er den samme som for vederlagskravet (punkt 8 i samlevedtaket for varslingsdatoen). Har den første kravversjonen i vederlaget samme dato som et av de tre varslene, er varselet totalentreprenørens første kjente varsel etter punkt 34.1.2, ikke kravet. Gjør byggherren gjeldende at varselet etter punkt 34.1.2 kom for sent eller i tide, gjelder påberopelsen det første kjente varselet (punkt 10 der). Et svar byggherren alt har gitt, står med virkningen det hadde. Totalentreprenøren kan fortsatt legge til et varsel etter punkt 34.1.2 sendt utenfor løsningen, også med en tidligere dato (punkt 18 i samlevedtaket for brev sendt utenfor løsningen). Varselet etter punkt 30.2 annet ledd regnes ikke med, fordi løsningen ikke leser det (OV-U108). Gjelder saken en endring, der punkt 34.1.2 ikke krever varsel, regnes varslene ikke som varsel etter punkt 34.1.2. Løsningen avgjør ikke om varselet kom i tide.»
+Forhold oppgitt: presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».
+
+Spørsmålene 1–5 i samme framlegg er ført som VS-U99–VS-U103.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Varsel om vederlagsjustering er et villår også for særskilt vederlagsjustering. Det følger logisk at et varsel om særskilt vederlagsjustering også er et varsel om vederlagsjustering. Løsningen må legge det til grunn; hvis TE varsler særskilt men ikke tidligere har varslet så regnes dette også som varsel om vederlagsjustering. Det er tilsvarende som at et sendt krav også regnes som varsel hvis det ikke er tidligere sendt» Og: «Det gjelder også ellers: varsel om regningsarbeid mv regnes også som varsel om vederlagsjustering- helt automatisk» Svaret på framlegget, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u89" },
+  { art = "presiserer", vedtak = "ov-u106" },
+  { art = "utvider", vedtak = "vs-u86" },
+  { art = "utvider", vedtak = "vs-u96" },
+]
+folge = '''
+Forholdet slik det ble lagt fram, ordrett: «presiserer OV-U89 punkt 12 og OV-U106; utvider VS-U86 punkt 8 og 10 og VS-U96 punkt 21–22. «34.3.3 første ledd» er med fordi oppdragsgiver skrev «mv».» Alternativet A er vedtaksteksten slik den ble lagt fram til godkjenning; det ble ikke lagt fram andre alternativer. Spørsmålene 1–5 er VS-U99–VS-U103. Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når varslingsplikten etter punkt 34.1.2 gjelder, regnes varselet etter punkt 34.1.3, varselet etter punkt 34.3.3 første ledd og varselet etter punkt 34.4 også som varsel etter punkt 34.1.2. Det skjer automatisk, når totalentreprenøren ikke har varslet etter punkt 34.1.2 med samme eller en tidligere dato. Det gjelder også et slikt varsel som er sendt utenfor løsningen og lagt til. Regelen er den samme som for vederlagskravet (punkt 8 i samlevedtaket for varslingsdatoen). Har den første kravversjonen i vederlaget samme dato som et av de tre varslene, er varselet totalentreprenørens første kjente varsel etter punkt 34.1.2, ikke kravet. Gjør byggherren gjeldende at varselet etter punkt 34.1.2 kom for sent eller i tide, gjelder påberopelsen det første kjente varselet (punkt 10 der). Et svar byggherren alt har gitt, står med virkningen det hadde. Totalentreprenøren kan fortsatt legge til et varsel etter punkt 34.1.2 sendt utenfor løsningen, også med en tidligere dato (punkt 18 i samlevedtaket for brev sendt utenfor løsningen). Varselet etter punkt 30.2 annet ledd regnes ikke med, fordi løsningen ikke leser det (OV-U108). Gjelder saken en endring, der punkt 34.1.2 ikke krever varsel, regnes varslene ikke som varsel etter punkt 34.1.2. Løsningen avgjør ikke om varselet kom i tide.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "VS-U99"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
+
+1. Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene?
+   A: Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).
+   B (anbefalt): Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.
+2. Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2?
+   A (anbefalt): Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).
+   B: Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).
+3. Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot?
+   A (anbefalt): Ja, i samme registrering og med samme dato, som VS-U87.
+   B: Nei, varselet etter 34.1.2 avvises.
+4. Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2?
+   A (anbefalt): Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).
+   B: Nei, det vises bare i visningen og i svarskjemaet.
+5. Regnes det begrunnede varselet etter 34.2.2 annet ledd med?
+   A (anbefalt): Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).
+   B: Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: B.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u98" },
+]
+folge = '''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Alternativet B oppga ikke noe forhold. Det forkastede A ville utvidet OV-U89 punkt 3. Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene? Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene? Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "VS-U100"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+designdel = "Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2"
+sporsmal = '''
+Spørsmål 2 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
+
+1. Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene?
+   A: Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).
+   B (anbefalt): Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.
+2. Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2?
+   A (anbefalt): Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).
+   B: Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).
+3. Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot?
+   A (anbefalt): Ja, i samme registrering og med samme dato, som VS-U87.
+   B: Nei, varselet etter 34.1.2 avvises.
+4. Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2?
+   A (anbefalt): Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).
+   B: Nei, det vises bare i visningen og i svarskjemaet.
+5. Regnes det begrunnede varselet etter 34.2.2 annet ledd med?
+   A (anbefalt): Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).
+   B: Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u98" },
+  { art = "utvider", vedtak = "vs-u96" },
+]
+folge = '''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 32 og 34». Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2? Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2? Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U101"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 3 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
+
+1. Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene?
+   A: Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).
+   B (anbefalt): Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.
+2. Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2?
+   A (anbefalt): Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).
+   B: Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).
+3. Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot?
+   A (anbefalt): Ja, i samme registrering og med samme dato, som VS-U87.
+   B: Nei, varselet etter 34.1.2 avvises.
+4. Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2?
+   A (anbefalt): Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).
+   B: Nei, det vises bare i visningen og i svarskjemaet.
+5. Regnes det begrunnede varselet etter 34.2.2 annet ledd med?
+   A (anbefalt): Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).
+   B: Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u98" },
+]
+folge = '''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til VS-U87, som er samlet i VS-U96. Det er ikke ført som eget forhold. Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot? Ja, i samme registrering og med samme dato, som VS-U87.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot? Nei, varselet etter 34.1.2 avvises.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U102"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+designdel = "ordlyden i brevet"
+sporsmal = '''
+Spørsmål 4 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
+
+1. Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene?
+   A: Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).
+   B (anbefalt): Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.
+2. Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2?
+   A (anbefalt): Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).
+   B: Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).
+3. Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot?
+   A (anbefalt): Ja, i samme registrering og med samme dato, som VS-U87.
+   B: Nei, varselet etter 34.1.2 avvises.
+4. Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2?
+   A (anbefalt): Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).
+   B: Nei, det vises bare i visningen og i svarskjemaet.
+5. Regnes det begrunnede varselet etter 34.2.2 annet ledd med?
+   A (anbefalt): Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).
+   B: Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u98" },
+  { art = "utvider", vedtak = "vs-u96" },
+]
+folge = '''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. Forholdet slik det sto i A: «utvider VS-U96 punkt 22; ordlyden er design». Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2? Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2? Nei, det vises bare i visningen og i svarskjemaet.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U103"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["runde 11 i #1065", "etter BF-48C"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 5 i framlegget 28.11 til VS-U98, i runde 11 i #1065. Spørsmålene ble lagt fram i tekst, ordrett:
+
+1. Kan TE likevel sende et uttrykkelig varsel etter 34.1.2 fra løsningen etter et av de tre varslene?
+   A: Nei, det avvises slik det gjør etter kravet (utvider OV-U89 punkt 3).
+   B (anbefalt): Ja. Påberopelsen gjelder fortsatt det første kjente varselet; etter kravet avvises det som før.
+2. Kan BH i svaret på et av de tre varslene også ta stilling etter 34.1.2?
+   A (anbefalt): Ja, når varselet er det første kjente varselet etter 34.1.2. Svarskjemaet viser at varselet også regnes som varsel etter 34.1.2, og påberopelsen står mot hele kravet (utvider VS-U96 punkt 32 og 34).
+   B: Nei, BH tar stilling etter 34.1.2 først i svaret på kravet (snevrer inn VS-U96 punkt 32).
+3. Ett brev lagt til med både varselet etter 34.1.2 og et av de tre varslene: tas begge imot?
+   A (anbefalt): Ja, i samme registrering og med samme dato, som VS-U87.
+   B: Nei, varselet etter 34.1.2 avvises.
+4. Skal brevet med et av de tre varslene si at det også regnes som varsel etter 34.1.2?
+   A (anbefalt): Ja, når varslingsplikten etter 34.1.2 gjelder (utvider VS-U96 punkt 22; ordlyden er design).
+   B: Nei, det vises bare i visningen og i svarskjemaet.
+5. Regnes det begrunnede varselet etter 34.2.2 annet ledd med?
+   A (anbefalt): Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).
+   B: Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Som anbefalt tekst ja, 1B 2A 3A 4A 5A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u98" },
+]
+folge = '''
+Alternativene er spørsmålet og alternativet slik de ble lagt fram, ordrett. A viser til DM-06 og arbeidsvalget i #1290. Det er ikke ført som forhold. Bygges i #2529.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Regnes det begrunnede varselet etter 34.2.2 annet ledd med? Nei, fordi løsningen ikke leser det (DM-06, arbeidsvalget i #1290).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Regnes det begrunnede varselet etter 34.2.2 annet ledd med? Ja; da må det lagres som et varsel løsningen leser, med en ny handling etter OV-U97.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
