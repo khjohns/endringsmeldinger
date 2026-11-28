@@ -228,6 +228,12 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     expect(
       await screen.findByText(/^Varselet ble sendt 10\. oktober 2026\. Datoen er rettet i brev 3\./)
     ).toBeTruthy();
+    // Påminnelsen ved det første kravet viser datoen som gjelder i egen setning (U-5).
+    expect(
+      screen.getByText(
+        /^Varsel etter punkt\s33\.4 i totalentreprenørens brev av 14\. oktober 2026\. Datoen som gjelder, er 10\. oktober 2026\. Den er rettet i brev 3\.$/
+      )
+    ).toBeTruthy();
     const begrunnelse = screen.getByRole('textbox', { name: /^Begrunnelse/ });
     await fireEvent.input(begrunnelse, { target: { value: 'Pelingen tar lengre tid.' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Rett datoen i et eget brev' }));

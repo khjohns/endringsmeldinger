@@ -27,12 +27,12 @@ export const TOMT_SPOR = haerdet({
     rettet?: { dato: string; brev: Brevref }
   ) =>
     `Varsel etter ${punkt(v.hjemmel)}${b ? ` i ${brevref(b)}` : ''}${
+      !rettet && v.sendt ? `, sendt ${dato(v.sendt)}${v.oppgitt ? ' (datoen er oppgitt)' : ''}` : ''
+    }${arbeid ? `: ${arbeid}` : ''}.${
       rettet
-        ? `, sendt ${dato(rettet.dato)} (datoen er rettet i ${brevref(rettet.brev)})`
-        : v.sendt
-          ? `, sendt ${dato(v.sendt)}${v.oppgitt ? ' (datoen er oppgitt)' : ''}`
-          : ''
-    }${arbeid ? `: ${arbeid}` : ''}.`,
+        ? ` Datoen som gjelder, er ${dato(rettet.dato)}. Den er rettet i ${brevref(rettet.brev)}.`
+        : ''
+    }`,
   ingenVarsel: (spor: Kravspor) =>
     `Saken har ikke et varsel om ${KRAVET[spor]}. Er varselet sendt på annen måte, kan du legge det til med datoen det ble sendt.`,
 });

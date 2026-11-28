@@ -39,6 +39,7 @@
       {#if kanRette}
         <Knapp
           variant="lenke"
+          iFlukt
           aria-label={RETTING.rettNavn(r.det)}
           onclick={() => onrett?.(r.gjelder)}>{RETTING.rett}</Knapp
         >
@@ -70,8 +71,5 @@
   }
   .tidligere {
     display: block;
-  }
-  .datolinje :global(.knapp) {
-    margin-left: calc(-1 * var(--spacing-2));
   }
 </style>

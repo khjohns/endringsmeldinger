@@ -862,10 +862,9 @@
           {/if}
         </p>
         {#if kanRette && varselId}
-          <div>
-            <Knapp variant="lenke" onclick={() => onrett?.(varselId)}>{RETTING.egetBrevLenke}</Knapp
-            >
-          </div>
+          <Knapp variant="lenke" iFlukt onclick={() => onrett?.(varselId)}
+            >{RETTING.egetBrevLenke}</Knapp
+          >
         {/if}
       {:else if utenfor}
         <p class="status">{FRISTKRAV.gittFoer}.</p>
