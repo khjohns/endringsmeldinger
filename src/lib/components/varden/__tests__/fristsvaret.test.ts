@@ -15,6 +15,7 @@ import {
   godkjenteDager,
   godkjenteDagerIFeltet,
   heleDager,
+  iBrevetsRekkefoelge,
   skrivGodkjenteDager,
   tomFrist,
   tomtFristsvar,
@@ -216,5 +217,46 @@ describe('nytt svar fylt ut fra svaret det erstatter (`valgFraFristsvaret`)', ()
     expect(() =>
       skrevet(journal, 'BH', { type: 'revisjon', erstatter: svar.id, svar: nytt.svar[0] })
     ).not.toThrow();
+  });
+});
+
+describe('seksjonene i brevets rekkefølge (arbeidsvalg 2 i #2507, LV-U89)', () => {
+  const punktene = ['33.4', '33.6.2', 'hindring', 'spesifisering'] as const;
+  const med = (navn: Record<string, string>) => (p: string) => navn[p];
+
+  it('følger nummeret i brevet når spesifiseringen uten lag står foran hindringen', () => {
+    expect(
+      iBrevetsRekkefoelge(
+        punktene,
+        med({
+          '33.4': '1.\u00a0Varselet',
+          '33.6.2': '2.\u00a0Svaret',
+          spesifisering: '3.\u00a0Spesifiseringen',
+          hindring: '4.\u00a0Hindringen',
+        })
+      )
+    ).toEqual(['33.4', '33.6.2', 'spesifisering', 'hindring']);
+  });
+
+  it('kontrollsak: brevet i skjemaets rekkefølge gir skjemaets rekkefølge', () => {
+    expect(
+      iBrevetsRekkefoelge(
+        punktene,
+        med({ '33.4': '1. A', '33.6.2': '2. B', hindring: '3. C', spesifisering: '4. D' })
+      )
+    ).toEqual([...punktene]);
+  });
+
+  it('før brevet kan lages, står seksjonene i skjemaets rekkefølge (#2359)', () => {
+    expect(iBrevetsRekkefoelge(punktene, () => undefined)).toEqual([...punktene]);
+  });
+
+  it('en seksjon uten nummer beholder plassen, og de med nummer ordnes på plassene sine', () => {
+    expect(
+      iBrevetsRekkefoelge(
+        punktene,
+        med({ '33.4': '1. A', spesifisering: '2. D', hindring: '3. C' })
+      )
+    ).toEqual(['33.4', '33.6.2', 'spesifisering', 'hindring']);
   });
 });

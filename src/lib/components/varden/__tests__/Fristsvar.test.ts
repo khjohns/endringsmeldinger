@@ -152,6 +152,51 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     }
   );
 
+  // Arbeidsvalg 2 i #2507: seksjonene står i brevets rekkefølge, med brevets nummer (LV-U89).
+  const godkjennAlle = () =>
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Godkjenn dagene som krevd for alle fristene' })
+    );
+  const titlene = () =>
+    [...document.querySelectorAll('h3[id*="-sp-"]')].map((h) => h.textContent?.trim() ?? '');
+
+  it('seksjonene står i brevets rekkefølge med brevets nummer når spesifiseringen uten lag står foran hindringen (LV-U89)', async () => {
+    await svarskjemaet(medFristkrav);
+    expect(titlene().slice(0, 3), 'før brevet: skjemaets rekkefølge uten nummer').toEqual([
+      expect.stringMatching(/^Varselet/),
+      expect.stringMatching(/^Hindringen/),
+      expect.stringMatching(/^Spesifiseringen/),
+    ]);
+    await radio('Varslet i tide');
+    await radio('Spesifisert i tide');
+    await godkjennAlle();
+    await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+    const hindret = screen.getByRole('radio', {
+      name: /^Nei, fremdriften er ikke hindret/,
+    });
+    hindret.focus();
+    await fireEvent.click(hindret);
+    expect(titlene().slice(0, 3)).toEqual([
+      expect.stringMatching(/^1\.\s+Varselet/),
+      expect.stringMatching(/^2\.\s+Spesifiseringen/),
+      expect.stringMatching(/^3\.\s+Hindringen/),
+    ]);
+    expect(document.activeElement, 'fokus blir på valget som flyttet seksjonen').toBe(hindret);
+  });
+
+  it('kontrollsak: med hindringen uten lag står seksjonene i skjemaets rekkefølge (LV-U89)', async () => {
+    await svarskjemaet(medFristkrav);
+    await radio('Varslet i tide');
+    await radio('Spesifisert i tide');
+    await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+    await godkjennAlle();
+    expect(titlene().slice(0, 3)).toEqual([
+      expect.stringMatching(/^1\.\s+Varselet/),
+      expect.stringMatching(/^2\.\s+Hindringen/),
+      expect.stringMatching(/^3\.\s+Spesifiseringen/),
+    ]);
+  });
+
   it('spørsmålet om hindringen og valgene nevner begge vilkårene (KA-U81)', async () => {
     await svarskjemaet(medFristkrav);
     expect(

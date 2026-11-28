@@ -43,6 +43,7 @@
     godkjenteDager,
     heleDager,
     fristvalget,
+    iBrevetsRekkefoelge,
     godkjenteDagerIFeltet,
     skrivGodkjenteDager,
     tomFrist,
@@ -229,6 +230,28 @@
   $effect.pre(() => {
     if (!spesifiseringen) valg.spesifisertITide = null;
   });
+  /** Seksjonene for hele kravet i skjemaets rekkefølge, før brevet gir dem nummer. */
+  const skjemaetsRekkefoelge = ['33.4', '33.6.2', 'hindring', 'spesifisering'] as const;
+  // Når et valg flytter seksjonen sin, blir fokuset på valget og valget på samme sted på
+  // skjermen (WCAG 2.4.3 og 3.2.2, arbeidsvalg 2 i #2507).
+  let sistBrukt: { felt: HTMLElement; topp: number } | null = null;
+  const huskFeltet = (e: Event) => {
+    if (e.target instanceof HTMLElement)
+      sistBrukt = { felt: e.target, topp: e.target.getBoundingClientRect().top };
+  };
+  let forrigeRekkefoelge = '';
+  const tilbakeTilFeltet = (rekkefoelgen: string) => () => {
+    if (rekkefoelgen === forrigeRekkefoelge) return;
+    forrigeRekkefoelge = rekkefoelgen;
+    const s = sistBrukt;
+    sistBrukt = null;
+    if (!s?.felt.isConnected) return;
+    const aktivt = document.activeElement;
+    if (aktivt !== s.felt && (aktivt === null || aktivt === document.body))
+      s.felt.focus({ preventScroll: true });
+    const flyttet = s.felt.getBoundingClientRect().top - s.topp;
+    if (flyttet) window.scrollBy(0, flyttet);
+  };
   const hindringslagene = $derived(forutsetninger((x) => x.art === 'hindring'));
   const spesifiseringslagene = $derived(forutsetninger((x) => x.art === 'spesifisering'));
   const foresporselslagene = $derived(
@@ -638,134 +661,160 @@
       {/if}
     {/snippet}
 
-    <Spoersmaal
-      id={`${uid}-sp-varsel`}
-      aktiv={foersteSporsmaal === 'frist_varsel_ok'}
-      tittel={overskrift('33.4') ?? temanavn(temaene, '33.4')}
-    >
-      <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} svaretSendt={sendt} />
-      <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
-      {#if innsigelsen}
-        <Varselstandpunkt
-          varselId={`${uid}-varsel`}
-          justeringId={`${uid}-justering`}
-          hjemmel="33.4"
-          foer={{ iTide: false, brev: innsigelsesbrevet, ikkeGitt: false }}
-          bind:varsletITide={valg.varselITide}
-          godtarJustering={null}
-          ikkeGitt={false}
-          justeringValgfri
-          vis="varselet"
-        />
-      {:else}
-        <Valg
-          navn={`${uid}-varsel`}
-          spoersmaal={FRISTSVAR.varselSpoersmaal}
-          beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
-          valg={[
-            { verdi: true, tekst: SKJEMA.iTide },
-            { verdi: false, tekst: SKJEMA.forSent },
-          ]}
-          bind:verdi={valg.varselITide}
-          feil={feil(`${uid}-varsel`)}
-        />
+    <!-- Seksjonene for hele kravet står i brevets rekkefølge, med brevets nummer (LV-U89,
+         arbeidsvalg 2 i #2507). -->
+    {#snippet varselseksjonen()}
+      <Spoersmaal
+        id={`${uid}-sp-varsel`}
+        aktiv={foersteSporsmaal === 'frist_varsel_ok'}
+        tittel={overskrift('33.4') ?? temanavn(temaene, '33.4')}
+      >
+        <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} svaretSendt={sendt} />
+        <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
+        {#if innsigelsen}
+          <Varselstandpunkt
+            varselId={`${uid}-varsel`}
+            justeringId={`${uid}-justering`}
+            hjemmel="33.4"
+            foer={{ iTide: false, brev: innsigelsesbrevet, ikkeGitt: false }}
+            bind:varsletITide={valg.varselITide}
+            godtarJustering={null}
+            ikkeGitt={false}
+            justeringValgfri
+            vis="varselet"
+          />
+        {:else}
+          <Valg
+            navn={`${uid}-varsel`}
+            spoersmaal={FRISTSVAR.varselSpoersmaal}
+            beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
+            valg={[
+              { verdi: true, tekst: SKJEMA.iTide },
+              { verdi: false, tekst: SKJEMA.forSent },
+            ]}
+            bind:verdi={valg.varselITide}
+            feil={feil(`${uid}-varsel`)}
+          />
+        {/if}
+        {@render begrunnelse('33.4')}
+      </Spoersmaal>
+    {/snippet}
+    {#snippet foresporselsseksjonen()}
+      {#if foresporselen}
+        <Spoersmaal
+          id={`${uid}-sp-foresporsel`}
+          aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
+          tittel={overskrift('33.6.2') ?? temanavn(temaene, '33.6.2')}
+        >
+          <Gjelderhvis
+            id={`${uid}-foresporsel-forutsetninger`}
+            liste={foresporselslagene}
+            punkt={forutsetning}
+          />
+          <Valg
+            navn={`${uid}-foresporsel`}
+            spoersmaal={ikkeSvarKanVelges
+              ? FRISTSVAR.begrunnelseSpoersmaal
+              : FRISTSVAR.foresporselSpoersmaal}
+            beskrevetAv={foresporselslagene.length
+              ? `${uid}-foresporsel-forutsetninger`
+              : undefined}
+            valg={[
+              { verdi: true, tekst: FRISTSVAR.foresporselITide },
+              { verdi: false, tekst: FRISTSVAR.foresporselForSent },
+              ...(ikkeSvarKanVelges
+                ? [
+                    {
+                      verdi: 'ikke_svar' as const,
+                      tekst: FRISTSVAR.begrunnelseIkkeSvar,
+                      forklaring: FRISTSVAR.begrunnelseIkkeSvarForklaring(begrunnelsesbrevet),
+                    },
+                  ]
+                : []),
+            ]}
+            bind:verdi={foresporselsvalget, velgForesporselen}
+            feil={feil(`${uid}-foresporsel`)}
+          />
+          {@render begrunnelse('33.6.2')}
+        </Spoersmaal>
       {/if}
-      {@render begrunnelse('33.4')}
-    </Spoersmaal>
-
-    {#if foresporselen}
+    {/snippet}
+    {#snippet hindringsseksjonen()}
       <Spoersmaal
-        id={`${uid}-sp-foresporsel`}
-        aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
-        tittel={overskrift('33.6.2') ?? temanavn(temaene, '33.6.2')}
+        id={`${uid}-sp-hindring`}
+        aktiv={foersteSporsmaal === 'vilkar_oppfylt'}
+        tittel={overskrift('hindring') ?? FRISTSVAR.hindringTittel}
+        hjemmel={[hindringPunkt]}
       >
+        <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
         <Gjelderhvis
-          id={`${uid}-foresporsel-forutsetninger`}
-          liste={foresporselslagene}
+          id={`${uid}-hindret-forutsetninger`}
+          liste={hindringslagene}
           punkt={forutsetning}
         />
         <Valg
-          navn={`${uid}-foresporsel`}
-          spoersmaal={ikkeSvarKanVelges
-            ? FRISTSVAR.begrunnelseSpoersmaal
-            : FRISTSVAR.foresporselSpoersmaal}
-          beskrevetAv={foresporselslagene.length ? `${uid}-foresporsel-forutsetninger` : undefined}
+          navn={`${uid}-hindret`}
+          spoersmaal={FRISTSVAR.hindringSpoersmaal}
+          beskrevetAv={hindringslagene.length
+            ? `${uid}-hindret-forutsetninger ${uid}-hindret-hjelp`
+            : `${uid}-hindret-hjelp`}
           valg={[
-            { verdi: true, tekst: FRISTSVAR.foresporselITide },
-            { verdi: false, tekst: FRISTSVAR.foresporselForSent },
-            ...(ikkeSvarKanVelges
-              ? [
-                  {
-                    verdi: 'ikke_svar' as const,
-                    tekst: FRISTSVAR.begrunnelseIkkeSvar,
-                    forklaring: FRISTSVAR.begrunnelseIkkeSvarForklaring(begrunnelsesbrevet),
-                  },
-                ]
-              : []),
+            { verdi: true, tekst: FRISTSVAR.hindret },
+            { verdi: false, tekst: FRISTSVAR.ikkeHindret },
           ]}
-          bind:verdi={foresporselsvalget, velgForesporselen}
-          feil={feil(`${uid}-foresporsel`)}
+          bind:verdi={valg.hindret}
+          feil={feil(`${uid}-hindret`)}
+          stablet
         />
-        {@render begrunnelse('33.6.2')}
+        {@render begrunnelse('hindring')}
       </Spoersmaal>
-    {/if}
-
-    <Spoersmaal
-      id={`${uid}-sp-hindring`}
-      aktiv={foersteSporsmaal === 'vilkar_oppfylt'}
-      tittel={overskrift('hindring') ?? FRISTSVAR.hindringTittel}
-      hjemmel={[hindringPunkt]}
+    {/snippet}
+    {#snippet spesifiseringsseksjonen()}
+      {#if spesifiseringen}
+        <Spoersmaal
+          id={`${uid}-sp-spesifisering`}
+          aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
+          tittel={overskrift('spesifisering') ?? temanavn(temaene, 'spesifisering')}
+        >
+          <Gjelderhvis
+            id={`${uid}-spesifisert-forutsetninger`}
+            liste={spesifiseringslagene}
+            punkt={forutsetning}
+          />
+          <Valg
+            navn={`${uid}-spesifisert`}
+            spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
+            beskrevetAv={spesifiseringslagene.length
+              ? `${uid}-spesifisert-forutsetninger`
+              : undefined}
+            valg={[
+              { verdi: true, tekst: FRISTSVAR.spesifisertITide },
+              { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
+            ]}
+            bind:verdi={valg.spesifisertITide}
+            feil={feil(`${uid}-spesifisert`)}
+          />
+          {@render begrunnelse('spesifisering')}
+        </Spoersmaal>
+      {/if}
+    {/snippet}
+    {@const seksjonene = {
+      '33.4': varselseksjonen,
+      '33.6.2': foresporselsseksjonen,
+      hindring: hindringsseksjonen,
+      spesifisering: spesifiseringsseksjonen,
+    }}
+    {@const rekkefoelgen = iBrevetsRekkefoelge(skjemaetsRekkefoelge, overskrift)}
+    <div
+      class="seksjonene"
+      onclickcapture={huskFeltet}
+      onkeydowncapture={huskFeltet}
+      {@attach tilbakeTilFeltet(rekkefoelgen.join())}
     >
-      <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
-      <Gjelderhvis
-        id={`${uid}-hindret-forutsetninger`}
-        liste={hindringslagene}
-        punkt={forutsetning}
-      />
-      <Valg
-        navn={`${uid}-hindret`}
-        spoersmaal={FRISTSVAR.hindringSpoersmaal}
-        beskrevetAv={hindringslagene.length
-          ? `${uid}-hindret-forutsetninger ${uid}-hindret-hjelp`
-          : `${uid}-hindret-hjelp`}
-        valg={[
-          { verdi: true, tekst: FRISTSVAR.hindret },
-          { verdi: false, tekst: FRISTSVAR.ikkeHindret },
-        ]}
-        bind:verdi={valg.hindret}
-        feil={feil(`${uid}-hindret`)}
-        stablet
-      />
-      {@render begrunnelse('hindring')}
-    </Spoersmaal>
-
-    {#if spesifiseringen}
-      <Spoersmaal
-        id={`${uid}-sp-spesifisering`}
-        aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
-        tittel={overskrift('spesifisering') ?? temanavn(temaene, 'spesifisering')}
-      >
-        <Gjelderhvis
-          id={`${uid}-spesifisert-forutsetninger`}
-          liste={spesifiseringslagene}
-          punkt={forutsetning}
-        />
-        <Valg
-          navn={`${uid}-spesifisert`}
-          spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
-          beskrevetAv={spesifiseringslagene.length
-            ? `${uid}-spesifisert-forutsetninger`
-            : undefined}
-          valg={[
-            { verdi: true, tekst: FRISTSVAR.spesifisertITide },
-            { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
-          ]}
-          bind:verdi={valg.spesifisertITide}
-          feil={feil(`${uid}-spesifisert`)}
-        />
-        {@render begrunnelse('spesifisering')}
-      </Spoersmaal>
-    {/if}
+      {#each rekkefoelgen as punkt (punkt)}
+        {@render seksjonene[punkt]()}
+      {/each}
+    </div>
 
     <Spoersmaal
       id={`${uid}-sp-dager`}
@@ -805,6 +854,9 @@
 </Svarskjema>
 
 <style>
+  .seksjonene {
+    display: contents;
+  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;

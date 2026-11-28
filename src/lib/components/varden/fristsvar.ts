@@ -206,3 +206,24 @@ export function valgFraFristsvaret(svar: Svar, krav: Krav): Fristsvarvalg {
 /** Valget for dagene byggherren vurderte, av `krevd` dager. */
 const dagevalget = (vurdert: number | undefined, krevd: number): Dagevalg | null =>
   vurdert === undefined ? null : vurdert === krevd ? 'alle' : vurdert === 0 ? 'avslaatt' : 'deler';
+
+/**
+ * Seksjonene i skjemaet i brevets rekkefølge (`.interface-design/system.md`: seksjonene er
+ * punktene i brevet, med samme nummer; LV-U89). En seksjon med nummer i brevet står på en av
+ * plassene til seksjonene med nummer, etter nummeret. En seksjon uten nummer, før brevet kan
+ * lages, beholder plassen sin i skjemaets rekkefølge (#2359).
+ */
+export function iBrevetsRekkefoelge<T extends string>(
+  punkter: readonly T[],
+  overskrift: (punkt: T) => string | undefined
+): T[] {
+  const nummeret = (punkt: T) => {
+    const n = /^(\d+)\.\s/.exec(overskrift(punkt) ?? '');
+    return n ? Number(n[1]) : null;
+  };
+  const nummerert = punkter
+    .filter((p) => nummeret(p) !== null)
+    .sort((a, b) => nummeret(a)! - nummeret(b)!);
+  let neste = 0;
+  return punkter.map((p) => (nummeret(p) === null ? p : nummerert[neste++]));
+}
