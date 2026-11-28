@@ -224,7 +224,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */
 export const STANDPUNKTENE_I_FRISTEN = {
-  // VS-U95: uten utledet virkning, så teksten sier ingen følge. Ordlyden er design.
+  // VS-U95: standpunktet åpner ikke et lag, så teksten sier ingen følge. Ordlyden er design.
   ikke_svar: (p, _krav, _s, j) =>
     `byggherren gjør gjeldende at totalentreprenørens begrunnelse i ${j.brevet(j.dokumentetTil(p.gjelder))} ikke er et svar på forespørselen etter NS 8407 punkt 33.6.2 annet ledd.`,
   // KA-U81: ett standpunkt, og teksten nevner begge vilkårene. Ordlyden er design.
