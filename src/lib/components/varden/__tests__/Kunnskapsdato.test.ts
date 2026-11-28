@@ -17,6 +17,7 @@ import {
   kjoerBrukerforloep,
   kontrollpunkt,
   somForloep,
+  startjournal,
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
@@ -378,6 +379,55 @@ describe('det egne brevet i en lukket sak (BF-48 variant E, BF-48E)', () => {
     const [rad] = nyeRader(demosak(), foer);
     k.registrer(BF.steg![4], [rad]);
     await kontrollerEtter(somForloep(BF), 5, k, paastand);
+    await vi.waitFor(() =>
+      expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
+    );
+  });
+});
+
+describe('det egne brevet etter at påberopelsen er trukket (BF-48E med trekket, #2514)', () => {
+  it('TE oppgir datoen etter trekket, og skjemaet, brevkontrollen og kvitteringen sier at saken står lukket (GR-U27, GR-U5, VS-U84)', async () => {
+    // BF-48E med trekket av påberopelsen i stedet for avslaget og aksepten.
+    const BF = finn('BF-48E');
+    const steg = (h: string, spor: string) =>
+      BF.steg!.find((x) => x.handling === h && 'spor' in x && x.spor === spor)!;
+    const sj = await startjournal({
+      ...BF,
+      id: 'BF-48E-trekk',
+      steg: [
+        steg('krav', 'forhold'),
+        steg('krav', 'vederlag'),
+        { handling: 'trekk', spor: 'forhold' },
+      ],
+      kontrollpunkter: [
+        {
+          id: 'paaberopelsen-er-trukket',
+          etter: 3,
+          beskrivelse: 'Totalentreprenøren har trukket påberopelsen.',
+          kontroller: [],
+          forstaaelse: [],
+        },
+      ],
+    } as typeof BF);
+    const demosak = aapne('paaberopelsen-er-trukket', sj);
+    await tilVederlaget();
+    await fireEvent.click(
+      (await innlegget(2)).li.getByRole('button', {
+        name: 'Oppgi datoen du ble klar over at utgiftene ville påløpe',
+      })
+    );
+    const skjema = within(screen.getByRole('form'));
+    expect(skjema.getByText('Saken står lukket. Brevet endrer ikke utfallet.')).toBeTruthy();
+    await skriv(FELTET, '2026-09-28');
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    await screen.findByRole('article', { name: TITTEL });
+    expect(screen.getByRole('region', { name: 'Sending' }).textContent).toContain(
+      'Saken står lukket. Brevet endrer ikke utfallet.'
+    );
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send brevet til byggherren' }));
+    const foer = sj.kontrollpunkter[0]!.versjon;
+    await vi.waitFor(() => expect(nyeRader(demosak(), foer)).toHaveLength(1));
     await vi.waitFor(() =>
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );

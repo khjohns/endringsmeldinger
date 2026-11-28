@@ -6,7 +6,7 @@
   oppdragsgiver 06.11). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { avsluttetAvTe, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -50,7 +50,7 @@
     while (o.forrige) o = o.forrige;
     return o.brev;
   });
-  const lukket = $derived(u.forholdAvvist);
+  const lukket = $derived(avsluttetAvTe(u));
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes('forhold')));
 
   // Dagens dato i Oslo, som datofeltet ikke kan gå forbi (U-3).

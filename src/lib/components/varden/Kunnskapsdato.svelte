@@ -6,7 +6,7 @@
   (`Korrigering.svelte`, U-5). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { avsluttetAvTe, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -45,7 +45,7 @@
     const s = u.spor.vederlag.gjeldendeSvar;
     return s ? (brevene(u).find((b) => b.id === s.dokument) ?? null) : null;
   });
-  const lukket = $derived(u.forholdAvvist);
+  const lukket = $derived(avsluttetAvTe(u));
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes('vederlag')));
 
   // Dagens dato i Oslo, som datofeltet ikke kan gå forbi (U-6).
