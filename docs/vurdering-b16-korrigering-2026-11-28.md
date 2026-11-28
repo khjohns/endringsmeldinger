@@ -163,4 +163,47 @@ som bruk av innlegget når svarene er ført.
 
 ## Svarene
 
-Ikke stilt ennå.
+Orkestratoren la spørsmålene fram 28.11 som spørsmål 2–4 i runde 11 i #1065, etter S-1 i #2509 som
+spørsmål 1. Spørsmål 1 her er spørsmål 2 der, spørsmål 2 her er spørsmål 3, og spørsmål 3 her er
+spørsmål 4.
+
+### Svaret, ordrett
+
+> 2: bakgrunnen nevner at en part må godta. Jeg trodde dette var fjernet nå, senest i går? Eller er i
+> vedtak ført ennå? Svaret er uansett: før retting er bygd, sender partene bare innlegg.
+>
+> 3: Innlegg går ikke gjennom godkjenning. Her må man begrense litt hva som er tenkt rettet. Krav og
+> svar på krav sendes som nye revisjoner eller oppdateres (BH oppdaterer sitt svar før TE har svart på
+> første svar). Eventuelt kan man kalle dette å rette men gjelder retting da kun er felt eller også
+> flere felt? Mulig dette er klart og jeg ikke har helt oversikt.
+>
+> Eksemplene i 4 ser riktig ut.
+
+### Orkestratorens forklaring
+
+Orkestratoren forklarte at MM-U63 lot aksepten i punkt 9 stå, og at alt løsningen leser i et krav
+eller svar, ett eller flere felt, endres med ny kravversjon eller nytt svar (punkt 6), som går gjennom
+godkjenningen. Orkestratoren fører svarene som spørsmål 1 A, spørsmål 2 A og spørsmål 3 ja.
+
+### Oppfølgingsspørsmål 2b, ordrett
+
+> Skal aksepten i punkt 9 også fjernes nå, slik den ble for datoene? A (anbefalt): nei, nå ikke. Den
+> tas når punkt 9 bygges, slik MM-U63 sier. Ingenting før første ekte sak trenger svaret. B: ja. Da
+> gjelder også en retting av kategorien eller varselet straks, uten motpartens aksept. Det blir et nytt
+> vedtak, som endrer punkt 9 og OV-U84.
+
+Svaret, ordrett:
+
+> 2b B. Men hva menes med "kategori"?
+
+Orkestratoren forklarte at «kategori» i punkt 9 betyr hva brevet er registrert som (varsel, krav,
+svar, innlegg, etter hvilken bestemmelse), som valget i OV-U84, og ikke kategorien for forholdet.
+
+### Utfallet
+
+- Spørsmål 1: A.
+- Spørsmål 2: A.
+- Spørsmål 3: ja.
+- Oppfølgingsspørsmål 2b: B.
+
+Vedtakene føres i en egen vedtaks-PR av orkestratoren.
