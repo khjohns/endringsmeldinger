@@ -108,12 +108,7 @@ describe('varselet skjemaet viser når et eldre krav er rettet (MM-U63, OV-U120,
     return { s, k2, k3 };
   }
   const iSkjemaet = (u: Utledning) =>
-    varslenePerKravpost(
-      u,
-      u.spor.vederlag.krav,
-      [{ ...p1(u), betegnelse: 'P1', beskrivelse: 'Riving' }],
-      null
-    )[0];
+    varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null)[0];
 
   it('rettes K2 til en dag etter K3, er K3 varselet, som i brevet', () => {
     const { s, k2, k3 } = medEldreKrav();
@@ -132,13 +127,7 @@ describe('varselet skjemaet viser når et eldre krav er rettet (MM-U63, OV-U120,
       const k2 = kravet(s.send('TE', lagtTil('2026-09-26', 'regningsarbeid')));
       s.send('TE', { type: 'retting', gjelder: k2, dato }, true);
       const u = s.u();
-      const [v] = varslenePerKravpost(
-        u,
-        u.spor.vederlag.krav,
-        [{ ...p1(u), betegnelse: 'P1', beskrivelse: 'Riving' }],
-        null,
-        '2026-10-05'
-      );
+      const [v] = varslenePerKravpost(u, u.spor.vederlag.krav, [p1(u)], null, '2026-10-05');
       expect(v, dato).toMatchObject({ art });
     }
   });
