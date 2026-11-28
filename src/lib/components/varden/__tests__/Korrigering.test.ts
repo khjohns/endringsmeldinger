@@ -8,13 +8,14 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, type Demosak } from '#lib/kjernesak/demosak.ts';
+import { finnForloep, type Demosak, type Startjournal } from '#lib/kjernesak/demosak.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
   finn,
   kjoerBrukerforloep,
   kontrollpunkt,
   somForloep,
+  startjournal,
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
@@ -313,5 +314,61 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(KORRIGERING.kvittering('2026-09-20', 'paalegg_mottatt', false, false)).toBe(
       'Korrigeringen er sendt til byggherren. 20. september 2026 er nå din siste opplysning om når pålegget ble mottatt. Påberopelsen står som den ble sendt.'
     );
+  });
+});
+
+describe('meldingen under korrigeringen er den som gjaldt da den ble sendt (#2523, MM-U50)', () => {
+  /** BF-02-forløpet med stegene i `steg` (nummer i BF-02D) og et kontrollpunkt etter det siste. */
+  async function forloepet(steg: (number | 'trekk')[], fra = 'BF-02D'): Promise<Startjournal> {
+    const BF = finn(fra);
+    return startjournal({
+      ...BF,
+      id: `${fra}-${steg.join('-')}`,
+      steg: steg.map((n) =>
+        n === 'trekk' ? { handling: 'trekk', spor: 'forhold' } : BF.steg![n - 1]
+      ),
+      kontrollpunkter: [
+        { id: 'slutt', etter: steg.length, beskrivelse: '', kontroller: [], forstaaelse: [] },
+      ],
+    } as typeof BF);
+  }
+  function vis(sj: Startjournal) {
+    render(Demoforloep, { forloep: sj, punkt: 'slutt', onpunkt: () => {}, onstart: () => {} });
+  }
+
+  it('korrigeringen sendt før TE godtok avslaget, sier at svaret står (MM-U50, GR-U27)', async () => {
+    // BF-02D: avslaget i brev 2, korrigeringen i brev 3 mens saken er åpen, aksepten i brev 4.
+    vis(await forloepet([1, 2, 4, 3]));
+    await tilForholdet();
+    const korrigeringen = await innlegget(3);
+    expect(
+      korrigeringen.getByText(
+        'Svaret i brev 2 endres ikke. Byggherren kan ta stilling til den nye datoen i et senere svar.'
+      )
+    ).toBeTruthy();
+    expect(korrigeringen.queryByText(/^Saken står lukket/)).toBeNull();
+    // Kontrollsak: korrigeringen etter aksepten står i den lukkede saken.
+    cleanup();
+    vis(await forloepet([1, 2, 3, 4]));
+    await tilForholdet();
+    expect((await innlegget(4)).getByText(/^Saken står lukket\. Korrigeringen/)).toBeTruthy();
+  });
+
+  it('korrigeringen sendt før TE trakk påberopelsen, sier at svaret står (MM-U50, GR-U5)', async () => {
+    // BF-02A: svaret i brev 2, korrigeringen i brev 3 mens saken er åpen, trekket i brev 4.
+    vis(await forloepet([1, 2, 3, 'trekk'], 'BF-02A'));
+    await tilForholdet();
+    const korrigeringen = await innlegget(3);
+    expect(korrigeringen.queryByText(/^Saken står lukket/)).toBeNull();
+    expect(
+      korrigeringen.getByText(
+        'Svaret i brev 2 endres ikke. Byggherren kan ta stilling til den nye datoen i et senere svar.'
+      )
+    ).toBeTruthy();
+    // Kontrollsak: korrigeringen etter trekket står i den lukkede saken (GR-U27).
+    cleanup();
+    vis(await forloepet([1, 2, 'trekk', 3], 'BF-02A'));
+    await tilForholdet();
+    expect((await innlegget(4)).getByText(/^Saken står lukket\. Korrigeringen/)).toBeTruthy();
   });
 });
