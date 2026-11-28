@@ -43,6 +43,30 @@
       "produktivitet": 40000,
       "navn": "K-v1",
       "belop": 150000
+    },
+    {
+      "handling": "brev",
+      "navn": "D5",
+      "svar": [
+        {
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "kravposter": [
+            {
+              "post": "P1",
+              "vurdering": "godkjent"
+            }
+          ],
+          "produktivitet": {
+            "vurdering": "delvis",
+            "godkjent_belop": 30000,
+            "varslet_i_tide": false,
+            "begrenset_belop": 10000
+          },
+          "utdypning": "Byggherren gjør gjeldende at det særskilte varselet kom for sent.",
+          "varslet_i_tide": true
+        }
+      ]
     }
   ],
   "kontrollpunkter": [
@@ -187,6 +211,33 @@
           "tekst": "BH ser 28.09.2026 ved varselet i tråden og i svarskjemaet ved valget om varselet etter punkt 34.1.3.",
           "kilde": [
             "VS-U86"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-svart-paa-kravet",
+      "etter": 5,
+      "beskrivelse": "Byggherren har svart på vederlagskravet og tatt stilling til begge varslingsspørsmålene.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "VS-U98"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.gjelder": "V1#varsel",
+            "standpunkt.S-v1.rettidighet.iTide": true
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Svaret på vederlagskravet viser til det særskilte varselet som det første varselet etter punkt 34.1.2.",
+          "kilde": [
+            "VS-U98"
           ]
         }
       ]
