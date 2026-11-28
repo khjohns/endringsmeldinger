@@ -1,20 +1,28 @@
 /**
  * Datoen TE ble klar over at utgiftene etter punkt 34.1.3 annet ledd ville påløpe, i Varden
  * (#2012), med brukerforløpet BF-48 og kjernen i minnet: datoen i vederlagskravet (variant B),
- * det egne brevet som oppgir eller endrer den (variant D), datoen i tråden og i svarskjemaet.
+ * det egne brevet som oppgir eller endrer den (variant D), varselet lagt til som korrespondanse
+ * (variant C, BF-48C), det egne brevet i en lukket sak (variant E, BF-48E), datoen i tråden og i
+ * svarskjemaet.
  * Kontrollene ved kontrollpunktene er forløpets, med kilde (`kontrollerEtter`). Forventningene i
  * visningen viser til U-punktene i bestillingen `docs/domenetabell/brukerforlop/BF-48.md`.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, type Demosak } from '#lib/kjernesak/demosak.ts';
+import {
+  finnForloep,
+  medGjeldendeRegelversjon,
+  type Demosak,
+  type Startjournal,
+} from '#lib/kjernesak/demosak.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
   finn,
   kjoerBrukerforloep,
   kontrollpunkt,
   somForloep,
+  startjournal,
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
@@ -25,10 +33,10 @@ const FELTET = /^Når ble du klar over at utgiftene ville påløpe\?/;
 // Mellomrommet foran nummeret i den frosne tittelen kan være hardt (språkfila).
 const TITTEL = /^Når utgiftene etter punkt\s34\.1\.3 ble kjent i sak KOE-17$/;
 
-function aapne(punkt: string) {
+function aapne(punkt: string, forloep: Startjournal = finnForloep('BF-48')!) {
   let demosak: Demosak | null = null;
   render(Demoforloep, {
-    forloep: finnForloep('BF-48')!,
+    forloep,
     punkt,
     onpunkt: () => {},
     onstart: (d: Demosak) => (demosak = d),
@@ -36,8 +44,8 @@ function aapne(punkt: string) {
   return () => demosak!;
 }
 
-const versjonVed = (punkt: string) =>
-  finnForloep('BF-48')!.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
+const versjonVed = (punkt: string, id = 'BF-48') =>
+  finnForloep(id)!.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
 const nyeRader = (demosak: Demosak, etter: number): Journalrad[] =>
   demosak.journal().filter((r) => r.versjon > etter);
 const kvitteringen = () =>
@@ -73,6 +81,7 @@ beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Ing
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe('TE oppgir datoen etter punkt 34.1.3 i Varden (BF-48)', () => {
@@ -292,5 +301,131 @@ describe('datoen i vederlagskravet (BF-48 variant B)', () => {
     await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til vederlagsjusteringen' }));
     await fireEvent.click(await screen.findByRole('button', { name: /^Oppdater kravet/ }));
     expect(screen.getByRole('textbox', { name: /Forbehold/ })).toHaveValue('Forbeholdet står.');
+  });
+});
+
+describe('varselet lagt til som korrespondanse (BF-48 variant C, BF-48C)', () => {
+  it('TE legger til e-posten med datoen, og datoen står ved varselet som den siste opplysningen (VS-U86 punkt 12, U-1, U-4, U-6, U-7)', async () => {
+    const BF = finn('BF-48C');
+    const punkt = kontrollpunkt(BF, 'te-skal-legge-til-varselet');
+    const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });
+    const demosak = aapne(punkt.id, finnForloep('BF-48C')!);
+    bane.journal = async () => demosak().journal();
+    await tilVederlaget();
+    await fireEvent.click(await screen.findByRole('button', { name: 'Legg til korrespondanse' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'E-post' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Totalentreprenøren' }));
+    await skriv('Datoen det ble sendt', '2026-09-30');
+    // Kontrollsummen i demoruta regnes i nettleseren; jsdom har ikke en som tar fila.
+    vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new ArrayBuffer(32));
+    const fil = new File(['%PDF-1.4'], 'varsel.pdf', { type: 'application/pdf' });
+    await fireEvent.change(document.querySelector('input[type=file]')!, {
+      target: { files: [fil] },
+    });
+    await fireEvent.click(screen.getByRole('radio', { name: 'Et varsel' }));
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: /^Varsel om særskilt vederlagsjustering/ })
+    );
+    await skriv('Kort beskrivelse av korrespondansen', 'E-post med særskilt varsel');
+    // U-6, VS-U83: en dato etter datoen e-posten ble sendt, stoppes ved feltet.
+    await skriv(FELTET, '2026-10-01');
+    await fireEvent.click(screen.getByRole('button', { name: 'Legg til' }));
+    expect(screen.getByLabelText(FELTET)).toHaveAccessibleDescription(
+      /Datoen 1\. oktober 2026 er etter .*30\. september 2026\./
+    );
+    const foer = versjonVed(punkt.id, 'BF-48C');
+    expect(nyeRader(demosak(), foer)).toHaveLength(0);
+
+    await skriv(FELTET, '2026-09-28');
+    await fireEvent.click(screen.getByRole('button', { name: 'Legg til' }));
+    await vi.waitFor(() => expect(nyeRader(demosak(), foer)).toHaveLength(1));
+    const [rad] = nyeRader(demosak(), foer);
+    expect(rad.aktor_rolle).toBe('TE');
+    k.registrer(BF.steg![2], [rad]);
+    await kontrollerEtter(somForloep(BF), 3, k, paastand);
+
+    // U-4, U-7: datoen står ved varselet i tråden, med handlingen for det egne brevet.
+    const varselet = within((await traaden()).getAllByRole('listitem')[0]);
+    expect(tekst((await traaden()).getAllByRole('listitem')[0])).toContain(
+      'Klar over at utgiftene ville påløpe 28. september 2026, ifølge totalentreprenøren.'
+    );
+    expect(varselet.getByRole('button', { name: /^Endre datoen/ })).toBeTruthy();
+  });
+});
+
+describe('det egne brevet i en lukket sak (BF-48 variant E, BF-48E)', () => {
+  it('TE oppgir datoen etter at avslaget er godtatt, og skjemaet, brevkontrollen og kvitteringen sier at saken står lukket (VS-U84, GR-U27)', async () => {
+    const BF = finn('BF-48E');
+    const punkt = kontrollpunkt(BF, 'saken-er-lukket');
+    const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });
+    const demosak = aapne(punkt.id, finnForloep('BF-48E')!);
+    bane.journal = async () => demosak().journal();
+    await tilVederlaget();
+    await fireEvent.click(
+      (await innlegget(2)).li.getByRole('button', {
+        name: 'Oppgi datoen du ble klar over at utgiftene ville påløpe',
+      })
+    );
+    const skjema = within(screen.getByRole('form'));
+    expect(skjema.getByText('Saken står lukket. Brevet endrer ikke utfallet.')).toBeTruthy();
+    await skriv(FELTET, '2026-09-28');
+    await fireEvent.input(screen.getByRole('textbox', { name: 'Forklaring, Valgfri' }), {
+      target: { value: 'Utgiftene ble kjent da peleriggen sto stille.' },
+    });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    await screen.findByRole('article', { name: TITTEL });
+    expect(screen.getByRole('region', { name: 'Sending' }).textContent).toContain(
+      'Saken står lukket. Brevet endrer ikke utfallet. Byggherren kan ta stilling til datoen i et innlegg.'
+    );
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send brevet til byggherren' }));
+    const foer = versjonVed(punkt.id, 'BF-48E');
+    await vi.waitFor(() => expect(nyeRader(demosak(), foer)).toHaveLength(1));
+    const [rad] = nyeRader(demosak(), foer);
+    k.registrer(BF.steg![4], [rad]);
+    await kontrollerEtter(somForloep(BF), 5, k, paastand);
+    await vi.waitFor(() =>
+      expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
+    );
+  });
+
+  it('skjemaet sier at saken står lukket også når TE har trukket påberopelsen (GR-U27, VS-U84)', async () => {
+    // Som BF-48E, men TE trekker påberopelsen i stedet for å godta avslaget. Trekket er ikke
+    // bygget i Varden ennå, så saken lages av kjernen i minnet.
+    const BF = finn('BF-48E');
+    const trukket = {
+      ...BF,
+      steg: [...BF.steg!.slice(0, 2), { handling: 'trekk', spor: 'forhold', navn: 'D3' }],
+      kontrollpunkter: [
+        {
+          id: 'paaberopelsen-er-trukket',
+          etter: 3,
+          beskrivelse: 'TE har trukket påberopelsen.',
+          kontroller: [
+            {
+              rolle: 'forutsetning' as const,
+              kilde: ['GR-U27'],
+              forventet: {
+                'trukket.forhold': true,
+                forhold_avvist: false,
+                'handlinger.TE': { inneholder: ['oppgi_kunnskapsdato:K-v1'] },
+              },
+            },
+          ],
+          forstaaelse: [],
+        },
+      ],
+    };
+    await kjoerBrukerforloep(trukket, { paastand });
+    aapne('paaberopelsen-er-trukket', medGjeldendeRegelversjon(await startjournal(trukket)));
+    await tilVederlaget();
+    await fireEvent.click(
+      (await innlegget(2)).li.getByRole('button', {
+        name: 'Oppgi datoen du ble klar over at utgiftene ville påløpe',
+      })
+    );
+    expect(
+      within(screen.getByRole('form')).getByText('Saken står lukket. Brevet endrer ikke utfallet.')
+    ).toBeTruthy();
   });
 });
