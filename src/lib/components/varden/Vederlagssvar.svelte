@@ -27,7 +27,7 @@
     innsigelseneSomStaar,
     varseleneIEldreKrav,
     varseletFoer as varseletFoerIdag,
-    varseletPostenGjelder,
+    varseletForKravposten,
     varselhjemmelFor,
   } from '#lib/kjernesak/vederlagskrav.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -137,13 +137,8 @@
     kravetSvaretGjelder(u, 'vederlag', sendt).krav ?? u.spor.vederlag.gjeldendeKrav!
   );
   const medDatoene = $derived(medRettingeneTil(u, sendt));
-  const varseletForPosten = (p: Kravpost) => {
-    const eget = varseletPostenGjelder(u, krav, p.id);
-    const eldre = iEldreKrav.get(`${p.id} ${varselhjemmelFor(p)}`);
-    const eldreKrav =
-      eldre && u.spor.vederlag.kravUtenforRekken.find((k) => k.dokument === eldre.b.id);
-    return eget ?? eldreKrav?.id ?? krav.id;
-  };
+  const varseletForPosten = (p: Kravpost) =>
+    varseletForKravposten(medDatoene, krav, p.id) ?? krav.id;
   const varseletFoer = (u: Utledning, post: Kravpost) => varseletFoerIdag(u, post, sendt);
   // U-15 i BF-49, OV-U120: kravpostene der et eldre krav er varselet, med brevet.
   const iEldreKrav = $derived(

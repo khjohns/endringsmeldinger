@@ -8710,6 +8710,13 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et svar lagt til, oppgitt sendt før rettingen, står med varselet som gjaldt den dagen'],
     endringer: [['dokument: vedSvaret?.dokument ?? utsagn.dokument,', 'dokument: siste.dokument,']],
   },
+  {
+    id: 'F2515c',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    feilklasse: 'varselet for en kravpost er versjonen som viderefører posten (VS-U87 punkt 22)',
+    mal: ['er første versjon varselet for posten i den neste'],
+    endringer: [['v ? foerste.id : undefined', 'v ? k.id : undefined']],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

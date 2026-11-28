@@ -17,6 +17,7 @@ const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
 const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
 const SOM_GJELDER = 'spor/vederlag/utledning.ts:eldreKravSomVarselFoer';
 const VED_SVARENE = 'spor/vederlag/utledning.ts:varslerIEldreKravVedSvarene';
+const FOR_KRAVPOSTEN = 'spor/vederlag/utledning.ts:varseletForKravposten';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
@@ -236,7 +237,13 @@ export const UTLEDNINGEN: Lesbar[] = [
     'spor/vederlag/utledning.ts',
     'relasjon',
     'varseletPostenGjelder',
-    ['spor/vederlag/kommando.ts', 'utledning/utled.ts:utledSporene'],
+    ['spor/vederlag/kommando.ts'],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'varseletForKravposten',
+    ['utledning/utled.ts:utledSporene'],
   ],
   ['utledning/utled.ts:kontrollerRettingene(elementer)', 'relasjon', '*'],
   [
@@ -291,21 +298,37 @@ export const UTLEDNINGEN: Lesbar[] = [
     'format/leser.ts',
     'rad',
     'dokumenterI',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE],
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
   ],
   [
     'format/leser.ts',
     'kontekst',
     'dagenSendt',
-    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER, VED_SVARENE],
+    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
   ],
-  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
-  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
+  [
+    'Utledning',
+    'utsagn',
+    'journal',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
+  ],
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
+  ],
   [
     'Krav',
     'relasjon',
     'dokument',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER],
+    [
+      ELDRE_KRAV,
+      VARSLER_I_ELDRE_KRAV,
+      `${VARSLER_I_ELDRE_KRAV}.sendt`,
+      SOM_GJELDER,
+      FOR_KRAVPOSTEN,
+    ],
   ],
   [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
   [
@@ -315,7 +338,13 @@ export const UTLEDNINGEN: Lesbar[] = [
     ['spor/vederlag/utledning.ts:sendtFoer'],
   ],
   [`${VARSLER_I_ELDRE_KRAV}(varslene)`, 'relasjon', '*', [VARSLER_I_ELDRE_KRAV]],
-  ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV]],
+  ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV, FOR_KRAVPOSTEN]],
+  [
+    `${FOR_KRAVPOSTEN}(kravpostvarslene(foerste, tidligere, eldre))`,
+    'relasjon',
+    '*',
+    [FOR_KRAVPOSTEN],
+  ],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',

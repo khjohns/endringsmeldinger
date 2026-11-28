@@ -120,7 +120,10 @@ const hattFoer = (
  * gjaldt den dagen kravet ble sendt, med rettingene sendt til og med den dagen (A1 i #2509,
  * OV-U123 punkt 17, OV-U98).
  */
-export function eldreKravFoer(u: Utledning, dag: string | null): Krav[] {
+export function eldreKravFoer(
+  u: Pick<Utledning, 'journal' | 'rettinger' | 'spor'>,
+  dag: string | null
+): Krav[] {
   const dokumenter = new Map([...dokumenterI(u.journal)].map((d) => [d.id, d]));
   const rettinger = medRettingeneTil(u, dag).rettinger;
   return sendtFoer(
@@ -211,6 +214,34 @@ export function varseletPostenGjelder(
     if (q?.varsel !== undefined) return varseletPostenViserTil(q);
   }
   return undefined;
+}
+
+/**
+ * VS-U87 punkt 22 og OV-U120: varselet for kravposten `post` i kravet `k`, som `kravpostvarslene`
+ * leser det i den første versjonen i rekken med posten. Viser en versjon til et varsel
+ * (`varseletPostenGjelder`), er det varselet. Ellers er det den første versjonen i rekken, eller
+ * varselet i et krav utenfor rekken. `undefined` er at kravet ikke sier noe om varselet.
+ */
+export function varseletForKravposten(
+  u: Pick<Utledning, 'journal' | 'rettinger' | 'spor'>,
+  k: Krav,
+  post: string
+): string | undefined {
+  const egen = varseletPostenGjelder(u, k, post);
+  if (egen !== undefined) return egen;
+  const rekke = u.spor.vederlag.krav;
+  const i = rekke.findIndex((v) => v.id === k.id);
+  const gjennom = i === -1 ? [k] : rekke.slice(0, i + 1);
+  const p = kravposterI(k).find((q) => q.id === post);
+  const hjemmel = p && varselhjemmel(p);
+  if (!hjemmel) return undefined;
+  const foerste = gjennom.find((v) => postenMed(v, post, hjemmel));
+  if (!foerste) return undefined;
+  const dokument = [...dokumenterI(u.journal)].find((d) => d.id === foerste.dokument);
+  const eldre = eldreKravFoer(u, dokument ? dagenSendt(foerste, dokument) : null);
+  const tidligere = gjennom.slice(0, gjennom.indexOf(foerste));
+  const v = kravpostvarslene(foerste, tidligere, eldre)[post];
+  return v?.art === 'gitt' ? v.varsel : v ? foerste.id : undefined;
 }
 
 /**

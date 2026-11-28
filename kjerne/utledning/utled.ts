@@ -34,7 +34,7 @@ import {
   kontrollerKunnskapsdatoene,
   opplysningerOmKunnskapsdatoen,
   sisteKunnskapsdato,
-  varseletPostenGjelder,
+  varseletForKravposten,
 } from '../spor/vederlag/utledning.ts';
 import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -1287,7 +1287,7 @@ function utledSporene(
           if (p.art !== 'rettidighet') return [];
           const varsel =
             krav && s.spor === 'vederlag' && erKravpostvarselhjemmel(p.hjemmel)
-              ? varseletPostenGjelder({ spor }, krav, p.gjelder)
+              ? varseletForKravposten({ journal, rettinger: rettingene, spor }, krav, p.gjelder)
               : undefined;
           return [varsel ?? p.gjelder];
         }),
