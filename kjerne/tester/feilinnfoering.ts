@@ -8934,6 +8934,18 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning'],
   },
+  {
+    id: 'F2529w',
+    feilklasse: 'skjemaet viser ikke brevet med varselet som også gjelder punkt 34.1.2 (VS-U98)',
+    fil: 'src/lib/kjernesak/vederlagskrav.ts',
+    endringer: [
+      [
+        'u.elementer[varsel]?.hendelse',
+        'u.spor.vederlag.krav.find((k) => k.id === varsel)?.dokument',
+      ],
+    ],
+    mal: ['et tidligere varsel etter punkt 34.1.3 vises med brevet som varslet etter punkt 34.1.2'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */
@@ -8969,6 +8981,7 @@ function testnavn(): Test[] {
         'list',
         'kjerne/',
         'sprakprove/kjernelagring/',
+        'src/lib/kjernesak/__tests__/eldrekravvarsel.test.ts',
         // vitest 5 leser filene statisk og ser ikke testene hjelpefunksjonene registrerer.
         '--staticParse=false',
         `--json=${ut}`,
@@ -9302,7 +9315,10 @@ const maalfilene = new Map(
     new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)),
   ])
 );
-const filerFor = (m: Mutasjon) => (utvalg ? [...maalfilene.get(m)!] : undefined);
+const filerFor = (m: Mutasjon) => {
+  const filer = [...maalfilene.get(m)!];
+  return utvalg || filer.some((f) => f.startsWith('src/')) ? filer : undefined;
+};
 // Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
 // slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
 const tung = (m: Mutasjon) =>

@@ -23,7 +23,6 @@ import {
   datoenDetBleSendt,
   varseletFoerBrevet as foersteVarselFoerBrevet,
   varseletGjelderOgsaa3412,
-  varseletForNyttSvar,
   type Utledning,
 } from '#kjerne/utledning/utled.ts';
 import { standpunkteneTilVarslene } from '#kjerne/spor/vederlag/utledning.ts';
@@ -148,25 +147,12 @@ export function varslerUtenKravpost(u: Utledning, sendt: string | null = null): 
 }
 
 /**
- * Brevet med varselet etter § 34.1.2 eller § 34.1.3 som et nytt krav følger etter: det
- * registrerte varselet eller det første kravet som varslet (OV-U5, OV-U89), eller `null` når det
- * nye kravet er varselet.
+ * Brevet med varselet etter § 34.1.2 eller § 34.1.3 som et nytt krav følger etter
+ * (OV-U5, OV-U89, VS-U98), eller `null` når det nye kravet er varselet.
  */
 export function varseletFoerKravet(u: Utledning, hjemmel: '34.1.2' | '34.1.3'): string | null {
-  const s = u.spor.vederlag;
-  const registrert = s.varsler[hjemmel];
-  if (!registrert && !s.krav.length) return null;
-  try {
-    const id = varseletForNyttSvar(u, hjemmel);
-    return registrert?.id === id
-      ? registrert.dokument
-      : (s.krav.find((k) => k.id === id)?.dokument ?? null);
-  } catch (feil) {
-    // Ingen tidligere krav varslet etter hjemmelen, som § 34.1.3 uten den særskilte posten.
-    // Alle andre feil er programfeil og skal ikke vises som at kravet er varselet.
-    if (feil instanceof Error && feil.message.startsWith('Et svar kan ikke påberope')) return null;
-    throw feil;
-  }
+  const varsel = foersteVarselFoerBrevet(u, hjemmel);
+  return varsel === undefined ? null : (u.elementer[varsel]?.hendelse ?? null);
 }
 
 /** Varselet kravposten trenger, etter oppgjørsformen (`varselhjemmel` i kjernen), eller `null`. */
