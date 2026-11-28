@@ -676,6 +676,7 @@ function leddISvaretPaaVarselet(
         : [justeringen];
     }
     if (s.art !== 'rettidighet') return [];
+    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];
     const tekst = !s.iTide
       ? `${SENT_I_LINJEN[s.hjemmel]} kom for sent`
       : s.hjemmel === '34.4'

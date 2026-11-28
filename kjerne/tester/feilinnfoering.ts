@@ -8916,6 +8916,15 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et lagret svar på punkt 34.4 må ha standpunktet til selve varselet'],
   },
+  {
+    id: 'F2529u',
+    feilklasse: 'innsigelsen etter punkt 34.1.2 gjentas i linjen i varselsvaret (VS-U100)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      ["    if (s.hjemmel === '34.1.2' && !s.iTide && typeof virkning(s.id) === 'number') return [];\n", ''],
+    ],
+    mal: ['linjen i varselsvaret nevner standpunktet etter punkt 34.1.2 én gang'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

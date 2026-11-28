@@ -362,6 +362,17 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     }
   );
 
+  it('linjen i varselsvaret nevner standpunktet etter punkt 34.1.2 én gang (VS-U100)', () => {
+    for (const iTide of [false, true]) {
+      const s = paaberopt();
+      const gjelder = utsagn(s.send('TE', sendVarsel('34.1.3')))[0].id;
+      s.send('BH', svarPaa(gjelder, '34.1.3', iTide));
+      const { linje } = s.u().spor.vederlag.svarPaaVarsler[0].beslutningsgrunnlag;
+      const tekst = `varselet etter punkt\u00a034.1.2 kom ${iTide ? 'i tide' : 'for sent'}`;
+      expect(linje.split(tekst)).toHaveLength(2);
+    }
+  });
+
   it('standpunktet etter punkt 34.1.2 må være en boolsk verdi', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', sendVarsel('34.1.3')))[0].id;
