@@ -51,7 +51,7 @@ import type { Korrespondansekategori } from './tekster/typer';
 import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import {
-  datoenSomGjelder,
+  datoenDetBleSendt,
   detSomRettes,
   elementenesSpor,
   type Kjernesakkontekst,
@@ -87,7 +87,8 @@ export interface Brevet {
   deresRef: string[];
   /**
    * Omtalen av brevet slik brevteksten gir den: «brev K201-KOE-017-03 av 2. oktober 2026», eller
-   * «totalentreprenørens e-post av …» for registrert korrespondanse (LV-U44, LV-U45).
+   * «totalentreprenørens e-post av …» for registrert korrespondanse uten merking (LV-U45).
+   * Har avsenderen oppgitt merkingen, bruker omtalen den (LV-U44, LV-U45).
    */
   omtale: string | null;
   /** Tittelen som ble frosset med brevet (MM-U3, MM-U50), eller `null` når brevet ikke har en. */
@@ -570,7 +571,7 @@ const datorettingenePerUtledning = new WeakMap<Utledning, Map<string, Datorettin
 function lesDatorettingene(u: Utledning, gjelder: string): Datorettingene | null {
   const d = detSomRettes(u, gjelder);
   const brev = d ? brevet(u, d.element.dokument) : null;
-  const oppgitt = d ? datoenSomGjelder({ journal: u.journal, rettinger: [] }, d.element) : null;
+  const oppgitt = d ? datoenDetBleSendt(u, d.element) : null;
   if (!d || !brev || oppgitt === null) return null;
   const alle = new Map(brevene(u).map((b) => [b.id, b]));
   return {
@@ -603,13 +604,14 @@ export const rettetDato = (u: Utledning, gjelder: string): Rettetdato | null => 
  */
 export interface Datolinjene {
   lagtTil: Datorettingene[];
+  vedSvaret: { det: Datorettingene['det']; dato: string; brev: Brevref }[];
   retting: { rettingene: Datorettingene; plass: number } | null;
 }
 
 export function datolinjene(u: Utledning, rettbare: readonly string[]): Map<string, Datolinjene> {
   const ut = new Map<string, Datolinjene>();
-  const linjene = (id: string) => {
-    const l = ut.get(id) ?? { lagtTil: [], retting: null };
+  const linjene = (id: string): Datolinjene => {
+    const l = ut.get(id) ?? { lagtTil: [], retting: null, vedSvaret: [] };
     ut.set(id, l);
     return l;
   };
@@ -621,6 +623,13 @@ export function datolinjene(u: Utledning, rettbare: readonly string[]): Map<stri
     r.datoene.forEach((d, plass) => {
       if (d.retting) linjene(d.brev.id).retting = { rettingene: r, plass };
     });
+  }
+  for (const [svarbrev, datoer] of Object.entries(u.datoerVedSvar)) {
+    for (const d of datoer) {
+      const r = datorettingene(u, d.gjelder);
+      const b = brevet(u, d.dokument);
+      if (r && b) linjene(svarbrev).vedSvaret.push({ det: r.det, dato: d.dato, brev: ref(b) });
+    }
   }
   return ut;
 }

@@ -17,6 +17,7 @@ const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
 const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
 const SOM_GJELDER = 'spor/vederlag/utledning.ts:eldreKravSomVarselFoer';
 const VED_SVARENE = 'spor/vederlag/utledning.ts:varslerIEldreKravVedSvarene';
+const FOR_KRAVPOSTEN = 'spor/vederlag/utledning.ts:varseletForKravposten';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
@@ -192,7 +193,12 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Utledning', 'utsagn', 'rettinger'],
   ['Retting', 'relasjon', 'id gjelder'],
   // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
-  ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor', VED_SVARENE]],
+  [
+    'Retting',
+    'relasjon',
+    'dokument',
+    ['kommandoer/skriving.ts:brevtekstFor', VED_SVARENE, 'utledning/utled.ts:utledSporene'],
+  ],
   ['Retting', 'utsagn', 'dato'],
   // OV-U98: dagen brevet med rettingen ble sendt, mot dagen et svar lagt til oppgir.
   ['Retting', 'utsagn', 'sendt'],
@@ -211,7 +217,6 @@ export const UTLEDNINGEN: Lesbar[] = [
     'utsagn',
     'datoEtterRettingene',
     [
-      'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
       'utledning/utled.ts:datoenSomGjelder',
       // MM-U63: hvilket eldre krav som er varselet for en kravpost (A2 i #2509), og A1: datoen som
       // gjaldt den dagen kravet ble sendt.
@@ -221,6 +226,24 @@ export const UTLEDNINGEN: Lesbar[] = [
       // LV-U83: datoen som gjelder for varselet i fristkravet.
       'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
+  ],
+  [
+    'utledning/rettingen.ts',
+    'relasjon',
+    'sisteRettingFor',
+    ['utledning/utled.ts:utledSporene', 'utledning/utled.ts:utledSporene.rettingVedSvaret'],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'varseletPostenGjelder',
+    ['spor/vederlag/kommando.ts'],
+  ],
+  [
+    'spor/vederlag/utledning.ts',
+    'relasjon',
+    'varseletForKravposten',
+    ['utledning/utled.ts:utledSporene'],
   ],
   ['utledning/utled.ts:kontrollerRettingene(elementer)', 'relasjon', '*'],
   [
@@ -275,21 +298,37 @@ export const UTLEDNINGEN: Lesbar[] = [
     'format/leser.ts',
     'rad',
     'dokumenterI',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE],
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
   ],
   [
     'format/leser.ts',
     'kontekst',
     'dagenSendt',
-    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER, VED_SVARENE],
+    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
   ],
-  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
-  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
+  [
+    'Utledning',
+    'utsagn',
+    'journal',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
+  ],
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE, FOR_KRAVPOSTEN],
+  ],
   [
     'Krav',
     'relasjon',
     'dokument',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER],
+    [
+      ELDRE_KRAV,
+      VARSLER_I_ELDRE_KRAV,
+      `${VARSLER_I_ELDRE_KRAV}.sendt`,
+      SOM_GJELDER,
+      FOR_KRAVPOSTEN,
+    ],
   ],
   [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
   [
@@ -299,7 +338,13 @@ export const UTLEDNINGEN: Lesbar[] = [
     ['spor/vederlag/utledning.ts:sendtFoer'],
   ],
   [`${VARSLER_I_ELDRE_KRAV}(varslene)`, 'relasjon', '*', [VARSLER_I_ELDRE_KRAV]],
-  ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV]],
+  ['Kravpostvarselet', 'relasjon', 'art varsel', [VARSLER_I_ELDRE_KRAV, FOR_KRAVPOSTEN]],
+  [
+    `${FOR_KRAVPOSTEN}(kravpostvarslene(foerste, tidligere, eldre))`,
+    'relasjon',
+    '*',
+    [FOR_KRAVPOSTEN],
+  ],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',

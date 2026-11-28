@@ -39,7 +39,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Linjefelt`](../src/lib/components/varden/Linjefelt.svelte) | 7 | Et felt i skjemaene med labelen over, hjelpeteksten under labelen, feltet med enheten og feilmeldingen under (system.md, «Feltene står under hverandre», #1925). |
 | [`Maalrad`](../src/lib/components/varden/Maalrad.svelte) | 2 | Én rad på målestokken i kortet «Kravet og svaret» (BF-44 og BF-45, U-2): navnet og verdien, og målet under, åpent for kravet og fylt for et lag i svaret. |
 | [`Manglene`](../src/lib/components/varden/Manglene.svelte) | 3 | Oppsummeringen øverst i et krav- eller svarskjema av det som mangler før brevet kan lages, med en lenke til hvert felt (MM-U32). |
-| [`Melding`](../src/lib/components/varden/Melding.svelte) | 14 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
+| [`Melding`](../src/lib/components/varden/Melding.svelte) | 15 | Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»). |
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
 | [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
 | [`Sendeknapp`](../src/lib/components/varden/Sendeknapp.svelte) | 6 | Primærknappen i et skjema, med sendehindringen under (system.md, «En knapp er aldri sperret», #2118). |
@@ -57,5 +57,5 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Valgfri`](../src/lib/components/varden/Valgfri.svelte) | 4 | Teksten i en label eller et spørsmål over et valgfritt felt, med «Valgfri» til høyre på linja (system.md, «Et valgfritt felt har «Valgfri» til høyre», oppdragsgiver 16.11). |
 | [`Vardensak`](../src/lib/components/varden/Vardensak.svelte) | 3 | Varden: eksperimentell saksvisning (#1331, konseptet i docs/design/konsept-varden/). |
 | [`Vardenskall`](../src/lib/components/varden/Vardenskall.svelte) | 2 | Skallet i Varden: panelet til venstre som et saksomslag, med innholdet kalleren gir øverst og avsenderen nederst (panel B i `vederlagsoversikt.html`, #1899), og arbeidsflaten med topplinja. |
-| [`Varseldatoer`](../src/lib/components/varden/Varseldatoer.svelte) | 2 | Datoene ved spørsmålet om varselet i svarskjemaet: når TE ble klar over forholdet, når kravet ble sendt og avstanden mellom dem. |
+| [`Varseldatoer`](../src/lib/components/varden/Varseldatoer.svelte) | 4 | Datoene ved spørsmålet om varselet i svarskjemaet: når TE ble klar over forholdet, når kravet ble sendt og avstanden mellom dem. |
 | [`Varselstandpunkt`](../src/lib/components/varden/Varselstandpunkt.svelte) | 5 | Byggherrens standpunkt til et varsel etter punkt 34.3.3 eller 34.4, og til justeringen etter punkt 34.3.3, i svaret på kravposten og i svaret på et varsel som står alene (designdelen i VS-U77: samme svarskjema). |

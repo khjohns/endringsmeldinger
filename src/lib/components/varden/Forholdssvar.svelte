@@ -21,7 +21,11 @@
   } from '#kjerne/spor/forhold/tekst.ts';
   import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    kravversjonenPaaDagen,
+    medRettingeneTil,
+    type Kjernesakkontekst,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
     forhaandsvistSvar,
@@ -55,10 +59,11 @@
     kravbrevetI,
     kravetSendt,
     manglene,
+    rettedeDatoer,
     stilt,
     ugyldig,
   } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager, SKJEMA } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager, RETTING, SKJEMA } from './tekster';
 
   let {
     kjernesak,
@@ -110,7 +115,9 @@
     const { hovedkategori, underkategori } = kategori(krav);
     const felt = oppgittDato(hovedkategori, underkategori);
     const oppgitt = felt ? innholdIForholdet(krav).datoer[felt] : null;
-    const sendt = kravetSendt(kravbrevet);
+    const paaDagen = medRettingeneTil(u, lagtTil?.dato || null);
+    const { krav: rettetKrav, varsel: rettetVarsel } = rettedeDatoer(paaDagen, krav.id, '32.2');
+    const sendt = rettetKrav?.dato ?? kravetSendt(kravbrevet);
     return [
       ...(felt && oppgitt
         ? [
@@ -123,7 +130,12 @@
             },
           ]
         : []),
-      ...(sendt ? [{ tekst: FORHOLDSSVAR.paaberopelsenSendt(dato(sendt)) }] : []),
+      ...(rettetVarsel ? [{ tekst: RETTING.iSvaret(rettetVarsel, 'varselet') }] : []),
+      ...(rettetKrav
+        ? [{ tekst: RETTING.iSvaret(rettetKrav, 'påberopelsen') }]
+        : sendt
+          ? [{ tekst: FORHOLDSSVAR.paaberopelsenSendt(dato(sendt)) }]
+          : []),
       ...(oppgitt && sendt
         ? [{ tekst: FORHOLDSSVAR.avstand(kalenderdager(oppgitt, sendt)), art: 'avstand' as const }]
         : []),

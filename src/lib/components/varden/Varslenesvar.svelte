@@ -20,6 +20,7 @@
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
+  import Varseldatoer from './Varseldatoer.svelte';
   import Varselstandpunkt from './Varselstandpunkt.svelte';
   import {
     kravetIKortform,
@@ -261,6 +262,7 @@
         tittel={overskrift(p.post.betegnelse) ?? `${p.post.betegnelse} ${p.post.beskrivelse}`}
       >
         <p class="dempet">{kravetIKortform(p.post)}</p>
+        <Varseldatoer {u} gjelder={varslene.kravversjon} />
         <Varselstandpunkt
           varselId={`${id}-varsel`}
           justeringId={`${id}-justering`}

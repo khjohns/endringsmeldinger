@@ -100,6 +100,119 @@
     },
     {
       "handling": "brev",
+      "navn": "B-fristsvar",
+      "svar": [
+        {
+          "spor": "frist",
+          "navn": "S-f1",
+          "varsel_i_tide": false,
+          "spesifisering_i_tide": true,
+          "hindring": true,
+          "dager": 12,
+          "utdypning": "Byggherren mener varselet kom for sent. Peling på kritisk linje gir subsidiært 12 dager."
+        }
+      ]
+    },
+    {
+      "handling": "tiden_gaar",
+      "til": "2026-10-26"
+    },
+    {
+      "handling": "retting",
+      "navn": "R6",
+      "gjelder": "V1#varsel",
+      "dato": "2026-10-07"
+    },
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "endring",
+      "underkategori": "irregulaer_endring",
+      "dato": "2026-10-01",
+      "sendt": "2026-10-22",
+      "navn": "K-g2",
+      "korrespondansetype": "e_post"
+    },
+    {
+      "handling": "retting",
+      "navn": "R7",
+      "gjelder": "K-g2",
+      "dato": "2026-10-23"
+    },
+    {
+      "handling": "varsel",
+      "spor": "vederlag",
+      "sendt": "2026-10-18",
+      "navn": "V2",
+      "korrespondansetype": "e_post",
+      "varsler": [
+        {
+          "hjemmel": "34.3.3",
+          "arbeid": "Justering av enhetspris for spunting"
+        },
+        {
+          "hjemmel": "34.4",
+          "arbeid": "Regningsarbeid for omlegging av grøfta"
+        }
+      ]
+    },
+    {
+      "handling": "retting",
+      "navn": "R8",
+      "gjelder": "V2#varsel1",
+      "dato": "2026-10-16"
+    },
+    {
+      "handling": "retting",
+      "navn": "R9",
+      "gjelder": "V2#varsel2",
+      "dato": "2026-10-17"
+    },
+    {
+      "handling": "varsel",
+      "spor": "vederlag",
+      "sendt": "2026-10-19",
+      "navn": "V3",
+      "hjemmel": "34.1.3",
+      "korrespondansetype": "e_post"
+    },
+    {
+      "handling": "retting",
+      "navn": "R10",
+      "gjelder": "V3#varsel",
+      "dato": "2026-10-15"
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "sendt": "2026-10-24",
+      "navn": "K-v2",
+      "produktivitet": 40000,
+      "korrespondansetype": "e_post",
+      "kravposter": [
+        {
+          "post": "P1",
+          "belop": 100000
+        },
+        {
+          "oppgjoersform": "enhetspriser",
+          "justert": true,
+          "varsel": "V2#varsel1"
+        },
+        {
+          "oppgjoersform": "regningsarbeid",
+          "varsel": "kravet"
+        }
+      ]
+    },
+    {
+      "handling": "retting",
+      "navn": "R11",
+      "gjelder": "K-v2",
+      "dato": "2026-10-25"
+    },
+    {
+      "handling": "brev",
       "navn": "D11",
       "svar": [
         {
@@ -365,8 +478,225 @@
       ]
     },
     {
-      "id": "datoen-er-rettet-i-en-lukket-sak",
+      "id": "saken-inngaar-i-en-endringsordre",
+      "etter": 5,
+      "beskrivelse": "Demoen viser saken som omfattet av endringsordre EO-03.",
+      "endringsordre": "EO-03",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "EO-U39",
+            "MM-U63"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "rette_datoen:V1#varsel"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE retter varseldatoen og ser i brevkontrollen og kvitteringen at saken inngår i EO-03 og at utfallet står.",
+          "kilde": [
+            "EO-U39",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fristkravet-er-besvart-foer-rettingen",
+      "etter": 11,
+      "beskrivelse": "BH har svart på fristkravet med varseldatoen 08.10.2026.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U50",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-08",
+            "dato_ved_svar.S-f1.V1#varsel": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser svaret i tråden før den neste rettingen.",
+          "kilde": [
+            "MM-U50",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "varseldatoen-er-rettet-etter-svaret",
+      "part": "BH",
       "etter": 13,
+      "beskrivelse": "TE har rettet datoen til 07.10.2026 etter byggherrens svar på fristkravet.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U50",
+            "MM-U63"
+          ],
+          "forventet": {
+            "dato_som_gjelder.V1#varsel": "2026-10-07",
+            "dato_ved_svar.S-f1.V1#varsel": "2026-10-08"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Ved svaret står 08.10.2026 med brevet datoen kom fra. Ved varselet står den nye datoen.",
+          "kilde": [
+            "MM-U50",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "byggherren-kan-svare-paa-forholdet",
+      "part": "BH",
+      "etter": 15,
+      "beskrivelse": "TE har lagt til en oppdatert påberopelse og rettet datoen.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:forhold"
+              ]
+            },
+            "dato_som_gjelder.K-g2": "2026-10-23"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH åpner svaret på forholdet og ser datoen som gjelder for påberopelsen, med brevet den kommer fra.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "byggherren-kan-svare-paa-varslene-i-brevet",
+      "part": "BH",
+      "etter": 18,
+      "beskrivelse": "TE har lagt til et brev med to varsler og rettet datoen for hvert av dem.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:V2#varsel1",
+                "svare:V2#varsel2"
+              ]
+            },
+            "dato_som_gjelder.V2#varsel1": "2026-10-16",
+            "dato_som_gjelder.V2#varsel2": "2026-10-17"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH åpner svaret på varselbrevet og ser hver rettet dato ved valget for varselet den gjelder.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "byggherren-kan-svare-paa-vederlagskravet",
+      "part": "BH",
+      "etter": 21,
+      "beskrivelse": "Vederlagskravet har særskilt justering og kravposter med varsler som har fått rettet dato.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:vederlag"
+              ]
+            },
+            "dato_som_gjelder.V3#varsel": "2026-10-15",
+            "dato_som_gjelder.V2#varsel1": "2026-10-16"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH åpner svaret på vederlagskravet og ser datoen som gjelder ved varselet etter punkt 34.1.3 og ved varslene i kravpostene.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "byggherren-kan-svare-bare-paa-varslene-i-kravet",
+      "part": "BH",
+      "etter": 22,
+      "beskrivelse": "TE har lagt til et nytt vederlagskrav og rettet datoen. Kravet er varselet for en av postene.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ],
+          "forventet": {
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:K-v2"
+              ]
+            },
+            "dato_som_gjelder.K-v2": "2026-10-25"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH åpner svaret bare på varslene og ser den rettede datoen for kravet ved valget for posten.",
+          "kilde": [
+            "MM-U59",
+            "MM-U63"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "datoen-er-rettet-i-en-lukket-sak",
+      "etter": 25,
       "beskrivelse": "Variant E: saken er lukket etter GR-U27, og TE har rettet varseldatoen til 09.10.2026.",
       "kontroller": [
         {

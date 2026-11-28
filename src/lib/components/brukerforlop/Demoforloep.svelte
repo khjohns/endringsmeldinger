@@ -55,7 +55,7 @@
   const kontrollpunkt = $derived(forloep.kontrollpunkter.find((p) => p.id === punkt)!);
   const neste = $derived(kontrollpunkt.neste);
   /** Siden som handler i neste steg, så forløpet kan fortsette uten å bytte side. */
-  const startside = (): Part => neste?.part ?? 'TE';
+  const startside = (): Part => kontrollpunkt.part ?? neste?.part ?? 'TE';
 
   type Kjernesak = ReturnType<typeof lagKjernesak>;
 
@@ -158,6 +158,7 @@
       kontrakt={DEMOKONTRAKT}
       {kvittering}
       spor={aapen.spor}
+      endringsordre={kontrollpunkt.endringsordre}
       saksliste="/demo"
       {nySakLenke}
     />

@@ -55,6 +55,7 @@ import { erKalenderdato, erObjekt, feilI, objekt } from '../../format/skjema.ts'
 import { UgyldigVurdering } from '../../regler/feil.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
+  varseletPostenGjelder,
   kravposteneStrider,
   saerskiltStrider,
   eldreKravFoer,
@@ -337,20 +338,6 @@ export function hindrerSvaretPaaVarselet(
         ? `${ikke} en kravversjon med den særskilte vederlagsjusteringen. Byggherren tar stilling til varselet i svaret på vederlagskravet.`
         : `${ikke} en kravversjon med en kravpost som gjelder det. Byggherren tar stilling til varselet i svaret på kravposten.`
   );
-}
-
-/**
- * VS-U96 punkt 23: varselet kravposten `post` i kravversjonen `k` viser til. Uten valg i versjonen
- * står valget i den forrige, og `undefined` er at kravet er varselet for posten eller ikke sier noe.
- */
-function varseletPostenGjelder(u: Utledning, k: Krav, post: string): string | undefined {
-  const sporet = u.spor.vederlag;
-  const i = sporet.krav.findIndex((v) => v.id === k.id);
-  for (const v of i === -1 ? [k] : sporet.krav.slice(0, i + 1).reverse()) {
-    const q = kravposterI(v).find((x) => x.id === post);
-    if (q?.varsel !== undefined) return varseletPostenViserTil(q);
-  }
-  return undefined;
 }
 
 /** VS-U96 punkt 38: en kravpost i kravversjonen der kravet selv er varselet. */

@@ -394,7 +394,12 @@ function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn
         ...(p.varsel === 'kravet'
           ? { varsel: { art: 'kravet' } }
           : typeof p.varsel === 'string'
-            ? { varsel: { art: 'gitt', varsel: navn?.id(`${p.varsel}#varsel`) } }
+            ? {
+                varsel: {
+                  art: 'gitt',
+                  varsel: navn?.id(p.varsel.includes('#') ? p.varsel : `${p.varsel}#varsel`),
+                },
+              }
             : typeof p.varsel === 'object' && p.varsel !== null
               ? {
                   varsel: {

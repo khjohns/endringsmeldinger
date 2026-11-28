@@ -34,6 +34,7 @@ import {
   kontrollerKunnskapsdatoene,
   opplysningerOmKunnskapsdatoen,
   sisteKunnskapsdato,
+  varseletForKravposten,
 } from '../spor/vederlag/utledning.ts';
 import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -68,7 +69,7 @@ import {
   type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
-import { datoEtterRettingene, type Retting } from './rettingen.ts';
+import { datoEtterRettingene, sisteRettingFor, type Retting } from './rettingen.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdetErAvvistVedEnighet,
@@ -247,6 +248,12 @@ export interface RegistrertBrev {
   ikkeFyltUt: IkkeFyltUt | null;
 }
 
+export interface DatoVedSvar {
+  gjelder: string;
+  dato: string;
+  dokument: string;
+}
+
 export interface Utledning {
   versjon: number;
   regelversjon: number;
@@ -278,6 +285,8 @@ export interface Utledning {
    * som gjelder, står i `datoenSomGjelder`.
    */
   rettinger: Retting[];
+  /** U-7 i BF-50: dato og kilde ved svarbrevet, når datoen ble rettet etter svaret. */
+  datoerVedSvar: Record<string, DatoVedSvar[]>;
   /**
    * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
@@ -376,6 +385,7 @@ function tom(
     datoopplysninger: [],
     kunnskapsdatoer: [],
     rettinger: [],
+    datoerVedSvar: {},
     utenVirkning: [],
     spor: tommeSpor(),
     forholdAvklart: false,
@@ -1183,16 +1193,14 @@ function utledSporene(
   // Punkt 19 i samlevedtaket for retting av sendt brev (MM-U59): svaret står med datoen som gjaldt
   // da det ble sendt. Et svar lagt til leser rettingene sendt til og med dagen det oppgir (OV-U98).
   // Også for hva som var gjeldende da et krav ble sendt (A1 i #2509).
-  const gjaldtVedSvaret = (
-    v: Pick<Krav, 'id' | 'dokument'>,
-    svar: Pick<Krav, 'id' | 'dokument'>
-  ): string | null =>
-    datoEtterRettingene(
+  const rettingVedSvaret = (gjelder: string, svar: Pick<Svar, 'id' | 'dokument'>) =>
+    sisteRettingFor(
       rettingene,
-      v.id,
-      sendt(v),
+      gjelder,
       (r) => bakover(svar.id, r.id) && !foerDagen(sendt(svar), r.sendt)
     );
+  const gjaldtVedSvaret: GjaldtVedSvaret = (v, svar) =>
+    rettingVedSvaret(v.id, svar)?.dato ?? sendt(v);
   for (const n of SPOR) {
     const eldre = (k: Krav) =>
       spor[n].kravUtenforRekken
@@ -1269,6 +1277,37 @@ function utledSporene(
     (id) => plass.get(id)!.versjon
   );
   settSubsidiaer(spor, svar);
+  const datoerVedSvar: Utledning['datoerVedSvar'] = {};
+  if (rettingene.length) {
+    for (const s of svareneSomKontrolleres.values()) {
+      const krav = alleKrav.get(s.gjelder);
+      const gjelder = new Set([
+        s.gjelder,
+        ...s.standpunkter.flatMap((p) => {
+          if (p.art !== 'rettidighet') return [];
+          const varsel =
+            krav && s.spor === 'vederlag' && erKravpostvarselhjemmel(p.hjemmel)
+              ? varseletForKravposten({ journal, rettinger: rettingene, spor }, krav, p.gjelder)
+              : undefined;
+          return [varsel ?? p.gjelder];
+        }),
+      ]);
+      for (const id of gjelder) {
+        const siste = sisteRettingFor(rettingene, id);
+        if (!siste) continue;
+        const vedSvaret = rettingVedSvaret(id, s);
+        if (siste === vedSvaret) continue;
+        const utsagn = { id, dokument: elementer[id].hendelse };
+        const dato = vedSvaret?.dato ?? sendt(utsagn);
+        if (dato !== null)
+          (datoerVedSvar[s.dokument] ??= []).push({
+            gjelder: id,
+            dato,
+            dokument: vedSvaret?.dokument ?? utsagn.dokument,
+          });
+      }
+    }
+  }
   return {
     ...tom(journal, regler, begrensninger),
     forstaatt: true,
@@ -1277,6 +1316,7 @@ function utledSporene(
     datoopplysninger,
     kunnskapsdatoer: kunnskapsopplysninger,
     rettinger: rettingene,
+    datoerVedSvar,
     utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
     opplysninger: opplysninger.map((o) => ({ opplysning: o })),
     spor,
