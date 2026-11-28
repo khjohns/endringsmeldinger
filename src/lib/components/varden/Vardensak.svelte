@@ -5,7 +5,11 @@
   visning: brevteksten, handlingene og avvisningene kommer fra kjernen.
 -->
 <script lang="ts">
-  import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    akseptfristen,
+    avsluttetAvTe,
+    type Kjernesakkontekst,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import { VARSELSPOR, type Spor, type Svar } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { page } from '$app/state';
@@ -1165,7 +1169,7 @@
           kvittering: KORRIGERING.kvittering(
             (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
             k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
-            u.forholdAvvist,
+            avsluttetAvTe(u),
             !!u.spor.forhold.gjeldendeSvar
           ),
           tilbake: { art: 'korrigering', gjelder },
@@ -1197,7 +1201,7 @@
           henvisning: BREVKONTROLL.viserTil,
           kvittering: KUNNSKAPSDATO.kvittering(
             k.kommando.klar_over_utgiftene as string,
-            u.forholdAvvist,
+            avsluttetAvTe(u),
             !!u.spor.vederlag.gjeldendeSvar
           ),
           tilbake: { art: 'kunnskapsdato', gjelder },
@@ -1227,7 +1231,7 @@
           tilbakeTil: RETTING.tilbakeTil,
           svarerPaa: brevMedUtsagn(u, gjelder),
           henvisning: BREVKONTROLL.viserTil,
-          kvittering: RETTING.kvittering(k.kommando.dato as string, u.forholdAvvist),
+          kvittering: RETTING.kvittering(k.kommando.dato as string, avsluttetAvTe(u)),
           tilbake: { art: 'retting', gjelder },
           utkastet: null,
         });

@@ -298,9 +298,9 @@ export function lagttilmangler(
     ...(v.kategori === null ? { kategori: LEGG_TIL.kategorienMangler } : {}),
     ...(v.kategori === 'aksept' && v.svar === null ? { svar: LEGG_TIL.svaretMangler } : {}),
     ...(v.kategori === 'varsel' && !v.varsler.length ? { varsler: LEGG_TIL.varsleneMangler } : {}),
-    // U-6 i BF-48, VS-U83: datoen i varselet er ikke etter datoen brevet ble sendt.
+    // U-6 i BF-48, VS-U83: datoen i varselet er ikke etter datoen korrespondansen ble sendt.
     ...(v.kategori === 'varsel' && klarOver && dato && klarOver > dato
-      ? { klarOver: KUNNSKAPSDATO.etterBrevet(klarOver, dato) }
+      ? { klarOver: KUNNSKAPSDATO.etterSendt(klarOver, dato) }
       : {}),
   };
 }

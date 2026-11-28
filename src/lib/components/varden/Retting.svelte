@@ -6,9 +6,12 @@
   brevet og avviser det den ikke godtar, også en dato før påberopelsen (D-7).
 -->
 <script lang="ts">
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { RETTINGSTITTEL } from '#kjerne/frosset/brevtittel.ts';
-  import { elementenesSpor } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    avsluttetAvTe,
+    elementenesSpor,
+    type Kjernesakkontekst,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -43,7 +46,7 @@
   // Kalleren viser skjemaet bare når kjernen tilbyr handlingen, og da finnes datoene.
   const r = $derived(datorettingene(u, gjelder)!);
   const gjeldende = $derived(r.datoene.at(-1)!);
-  const lukket = $derived(u.forholdAvvist);
+  const lukket = $derived(avsluttetAvTe(u));
   const alle = $derived(brevene(u));
   const spor = $derived(elementenesSpor(u).get(gjelder) ?? 'forhold');
   const sporbrev = $derived(alle.filter((b) => b.spor.includes(spor)));

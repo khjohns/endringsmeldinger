@@ -7631,8 +7631,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
-        "      // VS-U95: standpunktet om at begrunnelsen ikke er et svar, har ingen virkning.\n      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });",
-        '      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });\n      lag++;\n      etterInnsigelseOmTap = true;',
+        "      const virkning = etterInnsigelseOmTap ? iLaget() : 'uten_virkning';\n      ut.push({ standpunkt: s.id, art: s.art, virkning });\n    } else if (s.art === 'oppgjoersform'",
+        "      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });\n      lag++;\n      etterInnsigelseOmTap = true;\n    } else if (s.art === 'oppgjoersform'",
       ],
     ],
     mal: ['VS-U95, VS-U88 punkt 8 og 9: standpunktet står i svaret på det første kravet'],
@@ -8522,6 +8522,30 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       'brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse',
+    ],
+  },
+  {
+    id: 'F2507a',
+    feilklasse:
+      'standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2, står uten lag også etter en innsigelse etter § 33.4 (KA-U84, VS-U95)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "      const virkning = etterInnsigelseOmTap ? iLaget() : 'uten_virkning';\n      ut.push({ standpunkt: s.id, art: s.art, virkning });\n    } else if (s.art === 'oppgjoersform'",
+        "      const virkning = 'uten_virkning';\n      ut.push({ standpunkt: s.id, art: s.art, virkning });\n    } else if (s.art === 'oppgjoersform'",
+      ],
+    ],
+    mal: ['etter innsigelsen etter § 33.4 står standpunktet om at begrunnelsen ikke er et svar'],
+  },
+  {
+    id: 'F2507b',
+    feilklasse:
+      'punktene uten lag i fristsvaret står i temaenes rekkefølge mellom punktene med lag (LV-U89, LV-U85 punkt 2)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['utenLagFoerst ? medPunkteneUtenLagFoerst(iBrevet, ledd) : iBrevet;', 'iBrevet;']],
+    mal: [
+      'uten innsigelsen etter § 33.4 står standpunktet og spesifiseringen uten lag foran hindringen',
+      'nevner hjemmelen etter § 32.2-preklusjonen',
     ],
   },
   {

@@ -233,7 +233,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav svaretGjelder utdypningensPunkt innledning temaer punktet vilkaaret posten rettidighetUtenVarsel foelgenAvSentVarsel oversikt ingenBeloep',
+    'krav svaretGjelder utdypningensPunkt innledning temaer punkteneUtenLagFoerst punktet vilkaaret posten rettidighetUtenVarsel foelgenAvSentVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
@@ -426,7 +426,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'frosset/brevtekst.ts:punkteneISvaret',
     'brevtekst',
-    'ledd fra temaene innledning oversikten',
+    'ledd fra temaene utenLagFoerst innledning oversikten',
     ['frosset/brevtekst.ts'],
   ],
   [

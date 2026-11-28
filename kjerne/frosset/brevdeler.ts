@@ -336,6 +336,11 @@ export interface Sporsbrevtekst {
   /** Punktene i byggherrens svar, i brevets rekkefølge (LV-U34, LV-U78). */
   temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
   /**
+   * Punktene der hvert standpunkt er uten lag, står etter forholdets punkt og foran de andre
+   * punktene, i temaenes rekkefølge innbyrdes (LV-U89, LV-U85 punkt 1 og 2).
+   */
+  punkteneUtenLagFoerst?: true;
+  /**
    * Punktet et standpunkt i svaret står i (LV-U34, LV-U78), eller `undefined` når sporet ikke har et eget
    * punkt for det. Et standpunkt om rettidighet står da i punktet for bestemmelsen, og et annet
    * avvises (`punktetFor`).

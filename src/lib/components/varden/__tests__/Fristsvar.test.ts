@@ -510,6 +510,26 @@ describe('standpunktet om at begrunnelsen ikke er et svar etter punkt 33.6.2 (VS
     expect(v).not.toHaveProperty('foresporsel_svar_ok');
   });
 
+  const gjelderHvisForForespoerselen = () =>
+    [...document.querySelectorAll('[id$="-foresporsel-forutsetninger"] li')].map((li) =>
+      li.textContent?.trim()
+    );
+
+  it.each([
+    ['standpunktet', 'Begrunnelsen er ikke et svar'],
+    ['kontrollsak: «Svarte i tide»', 'Svarte i tide'],
+  ])(
+    'etter varselet for sent står %s under forespørselen subsidiært etter innsigelsen etter punkt 33.4 (KA-U84, VS-U88 punkt 16)',
+    async (_n, valget) => {
+      await svarskjemaet(medKravEtterBegrunnelsen);
+      await radio('Varslet for sent');
+      await fireEvent.click(screen.getByRole('radio', { name: new RegExp(`^${valget}`) }));
+      expect(gjelderHvisForForespoerselen()).toEqual([
+        'innsigelsen om at varselet etter punkt\u00a033.4 kom for sent ikke fører frem',
+      ]);
+    }
+  );
+
   it('kontrollsak: «Svarte for sent» etter valget sender `foresporsel_svar_ok` og ikke standpunktet', async () => {
     const sendt = await svarskjemaet(medKravEtterBegrunnelsen);
     await svarPaaResten();
