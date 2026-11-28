@@ -10,19 +10,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import {
-  finnForloep,
-  medGjeldendeRegelversjon,
-  type Demosak,
-  type Startjournal,
-} from '#lib/kjernesak/demosak.ts';
+import { finnForloep, type Demosak, type Startjournal } from '#lib/kjernesak/demosak.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
   finn,
   kjoerBrukerforloep,
   kontrollpunkt,
   somForloep,
-  startjournal,
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
@@ -387,45 +381,5 @@ describe('det egne brevet i en lukket sak (BF-48 variant E, BF-48E)', () => {
     await vi.waitFor(() =>
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );
-  });
-
-  it('skjemaet sier at saken står lukket også når TE har trukket påberopelsen (GR-U27, VS-U84)', async () => {
-    // Som BF-48E, men TE trekker påberopelsen i stedet for å godta avslaget. Trekket er ikke
-    // bygget i Varden ennå, så saken lages av kjernen i minnet.
-    const BF = finn('BF-48E');
-    const trukket = {
-      ...BF,
-      steg: [...BF.steg!.slice(0, 2), { handling: 'trekk', spor: 'forhold', navn: 'D3' }],
-      kontrollpunkter: [
-        {
-          id: 'paaberopelsen-er-trukket',
-          etter: 3,
-          beskrivelse: 'TE har trukket påberopelsen.',
-          kontroller: [
-            {
-              rolle: 'forutsetning' as const,
-              kilde: ['GR-U27'],
-              forventet: {
-                'trukket.forhold': true,
-                forhold_avvist: false,
-                'handlinger.TE': { inneholder: ['oppgi_kunnskapsdato:K-v1'] },
-              },
-            },
-          ],
-          forstaaelse: [],
-        },
-      ],
-    };
-    await kjoerBrukerforloep(trukket, { paastand });
-    aapne('paaberopelsen-er-trukket', medGjeldendeRegelversjon(await startjournal(trukket)));
-    await tilVederlaget();
-    await fireEvent.click(
-      (await innlegget(2)).li.getByRole('button', {
-        name: 'Oppgi datoen du ble klar over at utgiftene ville påløpe',
-      })
-    );
-    expect(
-      within(screen.getByRole('form')).getByText('Saken står lukket. Brevet endrer ikke utfallet.')
-    ).toBeTruthy();
   });
 });

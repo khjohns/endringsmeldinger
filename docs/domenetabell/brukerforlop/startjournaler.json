@@ -4554,7 +4554,7 @@
     },
     {
       "id": "BF-48E",
-      "tittel": "Totalentreprenøren endrer datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak",
+      "tittel": "Totalentreprenøren oppgir datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak",
       "brukerhistorie": "BH har avslått forholdet, og TE har godtatt svaret, så saken er lukket. TE oppgir datoen TE ble klar over at økte utgifter etter punkt 34.1.3 annet ledd ville påløpe, i et eget brev. Brevet godtas, saken står lukket, utfallet endres ikke, og BH kan ta stilling til datoen i et innlegg.",
       "aktoerer": {
         "TE": {
@@ -4603,7 +4603,7 @@
           "refererer_til_event_id": null,
           "format": 1,
           "data": {
-            "sakstittel": "Totalentreprenøren endrer datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak",
+            "sakstittel": "Totalentreprenøren oppgir datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak",
             "sakstype": "standard"
           }
         },
@@ -4631,7 +4631,7 @@
             "brevtekst": [
               {
                 "gjelder": "16fac83f-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Totalentreprenøren endrer datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Totalentreprenøren oppgir datoen utgiftene etter punkt 34.1.3 ble kjent, i en lukket sak» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
               }
             ],
