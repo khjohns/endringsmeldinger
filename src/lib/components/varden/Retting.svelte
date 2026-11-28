@@ -8,6 +8,7 @@
 <script lang="ts">
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { RETTINGSTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import { elementenesSpor } from '#lib/kjernesak/kontekst.svelte.ts';
   import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -44,7 +45,7 @@
   const gjeldende = $derived(r.datoene.at(-1)!);
   const lukket = $derived(u.forholdAvvist);
   const alle = $derived(brevene(u));
-  const spor = $derived(alle.find((b) => b.id === r.brev.id)?.spor[0] ?? 'forhold');
+  const spor = $derived(elementenesSpor(u).get(gjelder) ?? 'forhold');
   const sporbrev = $derived(alle.filter((b) => b.spor.includes(spor)));
 
   // Dagens dato i Oslo, som datofeltet ikke kan gå forbi (U-9).

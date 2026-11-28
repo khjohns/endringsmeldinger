@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { medRettingeneTil } from '#lib/kjernesak/kontekst.svelte.ts';
   import { klarOverForholdet, rettetDato, type Brevet } from './lesing';
   import { kravbrevetI, kravetSendt } from './svarskjema';
   import Datoer from './Datoer.svelte';
@@ -15,16 +16,23 @@
     u,
     spor,
     sendt,
+    svaretSendt = null,
   }: {
     u: Utledning;
     spor: 'vederlag' | 'frist';
     /** Linjen om når kravet ble sendt, med sporets ord. */
     sendt: (dato: string, brev: Brevet) => string;
+    /**
+     * Dagen et svar lagt til oppgir at det ble sendt. Da gjelder rettingene sendt til og med den
+     * dagen, som kjernen leser svaret med (OV-U98, punkt 8 i MM-U59).
+     */
+    svaretSendt?: string | null;
   } = $props();
 
   const kravbrevet = $derived(kravbrevetI(u, spor));
   const klarOver = $derived(klarOverForholdet(u));
-  const rettet = (id: string | undefined) => (id ? rettetDato(u, id) : null);
+  const paaDagen = $derived(medRettingeneTil(u, svaretSendt));
+  const rettet = (id: string | undefined) => (id ? rettetDato(paaDagen, id) : null);
   const kravetRettet = $derived(rettet(u.spor[spor].gjeldendeKrav?.id));
   const varseletRettet = $derived(
     rettet(u.spor[spor].varsler[spor === 'frist' ? '33.4' : '34.1.2']?.id)

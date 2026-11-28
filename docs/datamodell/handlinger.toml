@@ -217,7 +217,7 @@ tilstander = "Ingen. Rettingen av varseldatoen og kravdatoen gjelder straks, ogs
 status = "naa"
 noekler = ["korrigere:*", "oppgi_kunnskapsdato:*", "rette_datoen:*"]
 kommandoer = ["korrigering", "kunnskapsdato", "retting"]
-skjema = ["korrigere:*", "oppgi_kunnskapsdato:*"]
+skjema = ["korrigere:*", "oppgi_kunnskapsdato:*", "rette_datoen:*"]
 mangler = "Ingenting for punkt 8, 10, 12 og 18. Varden åpner skjemaene for korrigeringen, kunnskapsdatoen og rettingen fra handlingen ved datoen i tråden, utenfor `skjemaene` (BF-02A, BF-48, BF-50)."
 
 [[handling]]

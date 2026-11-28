@@ -40,6 +40,8 @@ export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
  */
 export { detSomRettes } from '#kjerne/kommandoer/rettingen.ts';
 export { datoenSomGjelder } from '#kjerne/utledning/utled.ts';
+/** Rettingene sendt til og med dagen et svar lagt til oppgir (OV-U98), for svarskjemaet i Varden. */
+export { medRettingeneTil } from '#kjerne/utledning/rettingen.ts';
 /** G-2 i BF-49: feltene med tekst fra løsningen, som et krav og et svar lagt til ikke har (OV-U80). */
 export { KRAVTEKSTENE, SVARTEKSTENE } from '#kjerne/kommandoer/kommando.ts';
 

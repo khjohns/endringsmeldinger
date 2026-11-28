@@ -19,6 +19,10 @@ import {
 } from '#kjerne/tester/brukerforloep.ts';
 import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
+import Varseldatoer from '#lib/components/varden/Varseldatoer.svelte';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
 
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
 const FORKLARING = 'Varselet ble sendt 16.10.2026, ikke 14.10.2026.';
@@ -217,6 +221,24 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
         'Datoen som gjelder for varselet, er 8. oktober 2026. Den er rettet i brev 6.'
       )
     ).toBeTruthy();
+  });
+
+  it('et svar lagt til viser datoen som gjaldt dagen svaret oppgir, uten rettingene sendt etter (U-6, OV-U98)', async () => {
+    // BF-50 til fristkravet: varselet er rettet to ganger 21.10.2026.
+    const steg = finn('BF-50').steg!.slice(0, 8) as Handling[];
+    const k = await kjoer(
+      { id: 'bf50-svar-lagt-til', rader: [], start: null, steg, kontroller: [] },
+      minnebane({ sakstittel: 'Peleplanen' })
+    );
+    const u = await k.utledning();
+    const sendt = (d: string) => `Kravet ble sendt ${d}.`;
+    const linja = 'Datoen som gjelder for varselet, er 10. oktober 2026. Den er rettet i brev 3.';
+    render(Varseldatoer, { u, spor: 'frist', sendt });
+    expect(screen.getByText(linja)).toBeTruthy();
+    cleanup();
+    render(Varseldatoer, { u, spor: 'frist', sendt, svaretSendt: '2026-10-20' });
+    expect(screen.queryByText(linja)).toBeNull();
+    expect(screen.queryByText(/Datoen som gjelder for varselet/)).toBeNull();
   });
 
   it('kravskjemaet viser varseldatoen som gjelder, og lenken til rettingen beholder utkastet (U-10)', async () => {
