@@ -48,7 +48,7 @@ merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en
 
 ## Modellen
 
-Modellene og innsatsen for review og sparring er valgt av oppdragsgiver. Standardinnsatsen
+Modellene og innsatsen for review og sparring er valgt av oppdragsgiver 24.11. Standardinnsatsen
 i katalogen er `low`, så modellen og innsatsen settes alltid i kommandoen
 (`$MODELL` og `$INNSATS`).
 
