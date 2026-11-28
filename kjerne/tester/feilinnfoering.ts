@@ -835,8 +835,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  const [foerste] = s.krav.filter(varsler);',
-        '  const [foerste] = s.krav.filter(varsler).slice(-1);',
+        '  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id));',
+        '  const [foerste] = s.krav.filter((k) => varsler(k) && foer(k.id)).slice(-1);',
       ],
     ],
     mal: [
