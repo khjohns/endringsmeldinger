@@ -592,9 +592,10 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
           { resultat: 'avslaatt', godkjent_dager: 0 }
         );
         const svaret = (rad.data.svar as Data[])[0];
-        const p = (svaret.standpunkter as Data[]).find((x) => x.hjemmel === '33.6.2')!;
+        const p = (svaret.standpunkter as Data[]).find((x) => x.hjemmel === '33.6.2');
+        expect(p, 'svaret har standpunktet etter § 33.6.2').toBeDefined();
         expect((svaret.beslutningsgrunnlag as Data).virkninger).toContainEqual({
-          standpunkt: p.id,
+          standpunkt: p!.id,
           lag: 2,
         });
         const punktene = laast(rad);
