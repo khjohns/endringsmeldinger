@@ -17,13 +17,14 @@
 import { sakensKode } from './tekst.ts';
 import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
+import { varslerOgsaaEtter3412 } from '../regler/vederlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   sisteStandpunktTilVarslene,
   utenStandpunkterForanEldreKrav,
   type StandpunktTilVarselet,
 } from './standpunkt.ts';
-import { etikett, iSporet, laget } from './byggeklosser.ts';
+import { etikett, hjemmelenGjelder, iSporet, laget } from './byggeklosser.ts';
 import { iBrevetsRekkefoelge, svaretGjelder } from './brevtittel.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { tilTall } from '../regler/beloep.ts';
@@ -87,6 +88,7 @@ import {
   erKravpostvarselhjemmel,
   erSvarbarVarselhjemmel,
   erVederlagsvarselhjemmel,
+  VARSELSPOR,
 } from '../typer.ts';
 import type {
   Avsnitt,
@@ -284,10 +286,10 @@ export function lagBrevtekst(
         {
           punkt: VARSELPUNKTET,
           overskrift: VARSELNAVN[uttrykkbar(u.hjemmel)],
-          avsnitt: [utsagnstekst(u, t)],
+          avsnitt: [utsagnstekst(u, t, regler)],
         },
       ]);
-    else legg(u.id, utsagnstekst(u, t));
+    else legg(u.id, utsagnstekst(u, t, regler));
   for (const o of nytt.opplysninger) legg(o.id, opplysningstekst(o, nytt.avsender, j));
   // LV-U81, GR-U34, 4 A i #2337. Linjen med vedleggene står etter, som i hvert brev (A4).
   if (omForholdet && !forbeholdene.length) forbeholdene.push({ s: omForholdet.s });
@@ -835,7 +837,7 @@ function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
   const ut: Fastholdt[] = [];
   if (preklusjonen)
     ut.push({
-      hva: `at ${VARSELET_I_SVARET['32.2']} i ${j.brevet(j.dokumentetTil(preklusjonen.gjelder))} kom for sent, jf. innsigelsen i ${j.brevet(preklusjonen.dokument)}`,
+      hva: `at ${varseletISvaret('32.2')} i ${j.brevet(j.dokumentetTil(preklusjonen.gjelder))} kom for sent, jf. innsigelsen i ${j.brevet(preklusjonen.dokument)}`,
       varslene: [preklusjonen.gjelder],
     });
 
@@ -851,7 +853,7 @@ function innsigelseneIForesporselen(t: Tekst): Fastholdt[] {
   }
   if (etter334)
     ut.push({
-      hva: `at ${VARSELET_I_SVARET['33.4']} i ${j.brevet(j.dokumentetTil(etter334.gjelder))} kom for sent, jf. innsigelsen i ${j.brevet(etter334.dokument)}`,
+      hva: `at ${varseletISvaret('33.4')} i ${j.brevet(j.dokumentetTil(etter334.gjelder))} kom for sent, jf. innsigelsen i ${j.brevet(etter334.dokument)}`,
       varslene: [etter334.gjelder],
     });
   return ut;
@@ -905,16 +907,12 @@ const utenVarsel = (p: Extract<Standpunkt, { art: 'rettidighet' }>, sporet: Spor
   sporet.rettidighetUtenVarsel?.[p.hjemmel];
 
 /** Varselet et standpunkt om rettidighet i svaret gjelder (LV-U34). */
-const VARSELET_I_SVARET: Record<Hjemmel, string> = {
-  '32.2': 'totalentreprenørens varsel etter NS 8407 punkt 32.2',
-  '33.4': 'varselet om fristforlengelse etter NS 8407 punkt 33.4',
-  '33.6.2': 'totalentreprenørens svar på forespørselen etter NS 8407 punkt 33.6.2',
-  '34.1.2': 'varselet om vederlagsjustering etter NS 8407 punkt 34.1.2',
-  '34.1.3':
-    'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd',
-  '34.3.3': 'varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd',
-  '34.4': 'varselet om regningsarbeid etter NS 8407 punkt 34.4',
-};
+function varseletISvaret(hjemmel: Hjemmel): string {
+  const spor = hjemmel === '33.6.2' ? 'frist' : VARSELSPOR[hjemmel];
+  const omtale = brevtekstI(spor).varseletISvaret[hjemmel];
+  if (!omtale) throw new KanIkkeUttrykkes(`rettidigheten etter § ${hjemmel} har ingen brevtekst`);
+  return omtale;
+}
 
 /**
  * Standpunktet om rettidighet i svaret (LV-U4 punkt 5, OV-U28,
@@ -932,7 +930,7 @@ function rettidighetstekst(
   if (erKravpostvarselhjemmel(p.hjemmel))
     return varseltekst(
       p,
-      `${VARSELET_I_SVARET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`,
+      `${varseletISvaret(p.hjemmel)} for ${kravpostenI(krav, p.gjelder).betegnelse}`,
       kravposterI(krav),
       { j, saken, nytt },
       bareVarselet
@@ -945,7 +943,15 @@ function rettidighetstekst(
   const foer = iSvaret?.dokument ?? paaberopelsenFoerIFristen(p, { j, saken, nytt });
   const brevet = foer ? j.brevet(foer) : null;
   const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
-  const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
+  const e = j.element(gjelder);
+  const annetVarsel =
+    p.hjemmel === '34.1.2' &&
+    e.art === 'utsagn' &&
+    e.utsagn.art === 'varsel' &&
+    varslerOgsaaEtter3412(e.utsagn.hjemmel)
+      ? ` (${omtalenAvVarselet(e.utsagn.hjemmel, e.utsagn.arbeid)})`
+      : '';
+  const omVarselet = `${varseletISvaret(p.hjemmel)}${annetVarsel} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide)
     return forSentMedFoelgen(
       sporet,
@@ -1098,14 +1104,15 @@ function beskriv(id: string, j: Journalen): string {
 function omtalenAvDetSomRettes(id: string, j: Journalen): string {
   const e = j.element(id);
   // VS-U87 punkt 27: arbeidet skiller varslene etter samme bestemmelse i samme brev.
-  if (e.art === 'utsagn' && e.utsagn.art === 'varsel') {
-    const { hjemmel, arbeid } = e.utsagn;
-    return arbeid === undefined
-      ? VARSELET_I_SVARET[hjemmel]
-      : `${VARSELET_I_SVARET[hjemmel]} for arbeidet «${arbeid}»`;
-  }
+  if (e.art === 'utsagn' && e.utsagn.art === 'varsel')
+    return omtalenAvVarselet(e.utsagn.hjemmel, e.utsagn.arbeid);
   if (e.art === 'krav') return brevtekstI(e.krav.spor).svaretGjelder(e.krav);
   throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
+}
+
+function omtalenAvVarselet(hjemmel: Varselhjemmel, arbeid?: string): string {
+  const omtale = varseletISvaret(hjemmel);
+  return arbeid === undefined ? omtale : `${omtale} for arbeidet «${arbeid}»`;
 }
 
 /**
@@ -1151,7 +1158,7 @@ function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
 }
 
 /** LV-U4 punkt 3 og 6–13, og VS-U15 og KA-U22 ordrett, og innlegget etter MM-U47 punkt 2. */
-function utsagnstekst(u: Utsagn, t: Tekst): string {
+function utsagnstekst(u: Utsagn, t: Tekst, regler: Regelsett): string {
   const { j, saken, nytt, sak } = t;
   const part = PART[nytt.avsender];
   switch (u.art) {
@@ -1162,9 +1169,14 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
       // 27: arbeidet står i varselet.
       const datoen = u.klar_over_utgiftene ? [kunnskapsdatoTekst(u.klar_over_utgiftene)] : [];
       const arbeidet = u.arbeid === undefined ? '' : ` for arbeidet «${u.arbeid}»`;
+      const ogsaa3412 =
+        varslerOgsaaEtter3412(hjemmel) && hjemmelenGjelder('34.1.2', saken.paaberopelse, regler);
       if (bareVarsler(nytt))
         return [
           `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]}${arbeidet} som følge av forholdet i ${sak}.`,
+          ...(ogsaa3412
+            ? ['Dette er også et varsel om vederlagsjustering etter NS 8407 punkt 34.1.2.']
+            : []),
           ...datoen,
         ].join(' ');
       throw new KanIkkeUttrykkes('et varsel i et brev fra løsningen står alene i brevet (VS-U15)');
@@ -1219,7 +1231,7 @@ function utsagnstekst(u: Utsagn, t: Tekst): string {
       const tidligere = saken.sisteKunnskapsdato;
       return [
         `Totalentreprenøren oppgir nå ${klarOverUtgiftene(u.klar_over_utgiftene)}.`,
-        `Opplysningen gjelder ${VARSELET_I_SVARET['34.1.3']} i ${j.brevet(j.dokumentetTil(u.gjelder))}.`,
+        `Opplysningen gjelder ${varseletISvaret('34.1.3')} i ${j.brevet(j.dokumentetTil(u.gjelder))}.`,
         ...(tidligere
           ? [
               `I ${j.brevet(tidligere.dokument)} oppga totalentreprenøren ${norskDato(tidligere.dato)}.`,

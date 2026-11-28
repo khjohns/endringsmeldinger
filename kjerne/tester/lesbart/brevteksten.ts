@@ -233,7 +233,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav svaretGjelder utdypningensPunkt innledning temaer punkteneUtenLagFoerst punktet vilkaaret posten rettidighetUtenVarsel foelgenAvSentVarsel oversikt ingenBeloep',
+    'krav svaretGjelder utdypningensPunkt innledning temaer punkteneUtenLagFoerst punktet vilkaaret posten rettidighetUtenVarsel varseletISvaret foelgenAvSentVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
@@ -360,8 +360,14 @@ export const BREVTEKSTEN: Lesbar[] = [
   [
     'Saken',
     'relasjon',
-    'varsletFoer paaberopelse',
+    'varsletFoer',
     ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts'],
+  ],
+  [
+    'Saken',
+    'relasjon',
+    'paaberopelse',
+    ['spor/vederlag/tekst.ts', 'frosset/brevtekst.ts:utsagnstekst'],
   ],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],

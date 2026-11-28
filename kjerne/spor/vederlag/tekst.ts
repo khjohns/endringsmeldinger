@@ -450,6 +450,13 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   ingenBeloep,
   enigI: 'beløpet',
   trukket: kravetsBeloep,
+  varseletISvaret: {
+    '34.1.2': 'varselet om vederlagsjustering etter NS 8407 punkt 34.1.2',
+    '34.1.3':
+      'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd',
+    '34.3.3': 'varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd',
+    '34.4': 'varselet om regningsarbeid etter NS 8407 punkt 34.4',
+  },
   // VS-U4 og VS-U87 punkt 30 for § 34.3.3, § 34.1.3 tredje ledd.
   foelgenAvSentVarsel: {
     '34.1.3':

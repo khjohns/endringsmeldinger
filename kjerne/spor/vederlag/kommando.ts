@@ -120,14 +120,14 @@ import type { Sporsstandpunkter, Svaretsvarsel } from '../../kommandoer/standpun
 type Data = Record<string, unknown>;
 
 /** Standpunktene i vederlaget, i rekkefølgen brevet setter dem (`standpunkter`). */
-export const STANDPUNKTER_I_VEDERLAGET: Sporsstandpunkter = (v, krav, u, nyId) => {
+export const STANDPUNKTER_I_VEDERLAGET: Sporsstandpunkter = (v, krav, u, nyId, sendt) => {
   const ut: Data[] = [];
   // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.
   if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
     ut.push({
       id: nyId(),
       art: 'rettidighet',
-      gjelder: varseletForNyttSvar(u, '34.1.2'),
+      gjelder: varseletForNyttSvar(u, '34.1.2', sendt),
       hjemmel: HJEMMEL.vederlag,
       i_tide: v.hovedkrav_varslet_i_tide,
     });
@@ -1402,7 +1402,7 @@ function lagIUtfyllingen(
     produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
   };
   let n = 0;
-  const lagret = STANDPUNKTER_I_VEDERLAGET(utenBeloep, krav, u, () => `utkast-${n++}`);
+  const lagret = STANDPUNKTER_I_VEDERLAGET(utenBeloep, krav, u, () => `utkast-${n++}`, sendt);
   const svar = {
     spor: 'vederlag' as const,
     standpunkter: standpunkterISvaret('vederlag', {

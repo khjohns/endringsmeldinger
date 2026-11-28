@@ -723,12 +723,8 @@ function skriv(
   ) => {
     // Punkt 8 i samlevedtaket for retting av sendt brev (MM-U59): et svar lagt til står med
     // datoen som gjaldt dagen det oppgir (OV-U98).
-    const lagret = standpunkter(
-      s,
-      krav,
-      medRettingeneTil(u, erRegistrering(k) ? kalenderdag(k.sendt) : null),
-      kontekst.nyId
-    );
+    const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
+    const lagret = standpunkter(s, krav, medRettingeneTil(u, sendt), kontekst.nyId, sendt);
     bygde.set(s, { standpunkter: lagret, utregning, paaberopelse });
     try {
       return standpunkterISvaret(s.spor, { standpunkter: lagret, utregning });

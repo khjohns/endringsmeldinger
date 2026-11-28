@@ -245,6 +245,7 @@ export const paaberopelsenAvForholdet = (paaberopelse: Krav): string =>
   paaberopelsenAv(navnetPaaForholdet(paaberopelse)).toLowerCase();
 
 export const BREVTEKSTEN_I_FORHOLDET = {
+  varseletISvaret: { '32.2': 'totalentreprenørens varsel etter NS 8407 punkt 32.2' },
   // LV-U41, aksepten: «svar på <påberopelsen>», bestemt form som i trekket.
   svaretGjelder: (krav) => `påberopelsen av ${navnetPaaForholdet(krav).toLowerCase()}`,
   krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],

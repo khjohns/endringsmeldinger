@@ -32,7 +32,8 @@ export type Sporsstandpunkter = (
   v: Svarvurdering,
   krav: Krav,
   u: Utledning,
-  nyId: () => string
+  nyId: () => string,
+  sendt?: string | null
 ) => Data[];
 
 /** Varselet som står alene, et svar gjelder (VS-U79, VS-U87 punkt 30–32). */
@@ -79,7 +80,8 @@ export function standpunkter(
   s: Svarutkast,
   maal: Krav | Svaretsvarsel | VarsleneIKravet,
   u: Utledning,
-  nyId: () => string
+  nyId: () => string,
+  sendt: string | null
 ): Data[] {
   if ('poster' in maal) {
     const krav = u.spor.vederlag.krav.find((k) => k.id === maal.krav)!;
@@ -89,7 +91,7 @@ export function standpunkter(
     return maal.hjemmel === '33.4'
       ? standpunkterPaaFristvarselet(s.vurderinger, maal, nyId)
       : standpunkterPaaVarselet(s.vurderinger, maal, nyId);
-  return iSporet(STANDPUNKTER, s.spor)(s.vurderinger, maal, u, nyId);
+  return iSporet(STANDPUNKTER, s.spor)(s.vurderinger, maal, u, nyId, sendt);
 }
 
 /** Standpunktene i hvert spor. */

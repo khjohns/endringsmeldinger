@@ -79,6 +79,7 @@ export const UTLEDNINGEN: Lesbar[] = [
     'journal',
     [
       'utledning/utled.ts:datoenDetBleSendt',
+      'utledning/utled.ts:varseletFoerBrevet',
       // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
       'utledning/utled.ts:akseptenStrider',
       'spor/frist/utledning.ts:fristkravErFremmet',
@@ -208,7 +209,11 @@ export const UTLEDNINGEN: Lesbar[] = [
     'relasjon',
     'medRettingeneTil',
     // A3 i #2509.
-    [ELDRE_KRAV, 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+    [
+      ELDRE_KRAV,
+      'spor/vederlag/utledning.ts:standpunkteneTilVarslene',
+      'utledning/utled.ts:varseletFoerBrevet',
+    ],
   ],
   // MM-U64.
   ['spor/vederlag/utledning.ts:standpunkteneTilVarslene(vedSvaret)', 'relasjon', '*'],

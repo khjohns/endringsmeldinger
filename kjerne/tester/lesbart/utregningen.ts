@@ -30,7 +30,9 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/forhold/kommando.ts:varseletEtter322',
       // OV-U89 punkt 13: påberopelsesversjonene der § 34.1.2 ikke krever varsel.
       'utledning/utled.ts:utledSporene',
+      'utledning/utled.ts:kontrollerStandpunktet',
       'frosset/frysing.ts:beslutningsgrunnlag',
+      'frosset/brevtekst.ts:utsagnstekst',
       'spor/vederlag/frysing.ts',
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',

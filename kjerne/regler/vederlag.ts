@@ -12,10 +12,14 @@ import {
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
-import type { Oppgjoersform, Vederlagsvarselhjemmel } from '../typer.ts';
+import type { Oppgjoersform, Varselhjemmel, Vederlagsvarselhjemmel } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
+
+/** VS-U98: disse varslene kan også gjelde etter § 34.1.2. */
+export const varslerOgsaaEtter3412 = (hjemmel: Varselhjemmel): boolean =>
+  hjemmel === '34.1.3' || hjemmel === '34.3.3' || hjemmel === '34.4';
 
 /** Byggherrens vurdering av beløpet i én post, og det krevde beløpet (KA-U57 (c)). */
 interface Postbeloep {
