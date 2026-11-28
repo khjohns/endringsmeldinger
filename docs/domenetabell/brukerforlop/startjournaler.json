@@ -2393,19 +2393,19 @@
                 "gjelder": "a77d5b1e-0000-4000-8000-000000000010",
                 "punkt": "varsel",
                 "overskrift": "1. Varsel før regningsarbeidet settes i gang (punkt 34.4)",
-                "laast": "1. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Ekstra graving i grøften ved kum 4» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+                "laast": "1. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Ekstra graving i grøften ved kum 4» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»). Dette er også et varsel om vederlagsjustering etter NS 8407 punkt 34.1.2."
               },
               {
                 "gjelder": "a77d5b1e-0000-4000-8000-000000000011",
                 "punkt": "varsel",
                 "overskrift": "2. Varsel før regningsarbeidet settes i gang (punkt 34.4)",
-                "laast": "2. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Omlegging av fjernvarmerør langs fasade nord» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+                "laast": "2. Varsel før regningsarbeidet settes i gang (punkt 34.4)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid for arbeidet «Omlegging av fjernvarmerør langs fasade nord» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»). Dette er også et varsel om vederlagsjustering etter NS 8407 punkt 34.1.2."
               },
               {
                 "gjelder": "a77d5b1e-0000-4000-8000-000000000012",
                 "punkt": "varsel",
                 "overskrift": "3. Varsel om justering av enhetsprisene (punkt 34.3.3)",
-                "laast": "3. Varsel om justering av enhetsprisene (punkt 34.3.3)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene for arbeidet «Økte mengder sprengstein i byggegropen, post 03.21» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»)."
+                "laast": "3. Varsel om justering av enhetsprisene (punkt 34.3.3)\n\nTotalentreprenøren varsler etter NS 8407 punkt 34.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene for arbeidet «Økte mengder sprengstein i byggegropen, post 03.21» som følge av forholdet i sak KOE-17 («TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder»). Dette er også et varsel om vederlagsjustering etter NS 8407 punkt 34.1.2."
               }
             ],
             "brevnummer": 3,
@@ -4331,6 +4331,18 @@
           "forstaaelse": [
             "BH ser 28.09.2026 ved varselet i tråden og i svarskjemaet ved valget om varselet etter punkt 34.1.3."
           ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          }
+        },
+        {
+          "id": "bh-har-svart-paa-kravet",
+          "beskrivelse": "Byggherren har svart på vederlagskravet og tatt stilling til begge varslingsspørsmålene.",
+          "versjon": 6,
+          "forstaaelse": [
+            "Svaret på vederlagskravet viser til det særskilte varselet som det første varselet etter punkt 34.1.2."
+          ],
           "neste": null
         }
       ],
@@ -4519,7 +4531,7 @@
                 "gjelder": "14fac519-0000-4000-8000-000000000019",
                 "punkt": "34.1.2",
                 "overskrift": "1. Varselet om vederlagsjustering",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+                "laast": "1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i totalentreprenørens e-post av 30. september 2026."
               },
               {
                 "gjelder": "14fac519-0000-4000-8000-000000000019",
@@ -4548,6 +4560,168 @@
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
             "brevnummer": 3,
             "merking": "K201-KOE-017-03"
+          }
+        },
+        {
+          "event_id": "14fac519-0000-4000-8000-000000000027",
+          "sak_id": "14fac519-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-01T08:08:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "14fac519-0000-4000-8000-000000000028",
+                "spor": "vederlag",
+                "gjelder": "14fac519-0000-4000-8000-000000000019",
+                "paaberopelse": "14fac519-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "14fac519-0000-4000-8000-000000000022",
+                    "art": "rettidighet",
+                    "gjelder": "14fac519-0000-4000-8000-000000000013",
+                    "hjemmel": "34.1.2",
+                    "i_tide": true
+                  },
+                  {
+                    "id": "14fac519-0000-4000-8000-000000000023",
+                    "art": "oppgjoersform",
+                    "gjelder": "14fac519-0000-4000-8000-00000000001a",
+                    "hjemmel": "34.2.2",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "14fac519-0000-4000-8000-000000000024",
+                    "art": "beloep",
+                    "beloep": 150000,
+                    "gjelder": "14fac519-0000-4000-8000-00000000001a"
+                  },
+                  {
+                    "id": "14fac519-0000-4000-8000-000000000025",
+                    "art": "rettidighet",
+                    "gjelder": "14fac519-0000-4000-8000-000000000013",
+                    "hjemmel": "34.1.3",
+                    "i_tide": false,
+                    "begrenset_beloep": 10000
+                  },
+                  {
+                    "id": "14fac519-0000-4000-8000-000000000026",
+                    "art": "beloep",
+                    "beloep": 30000,
+                    "saerskilt": "produktivitet"
+                  }
+                ],
+                "utregning": {
+                  "resultat": "delvis_godkjent",
+                  "godkjent_beloep": 160000,
+                  "poster": [
+                    {
+                      "gjelder": "14fac519-0000-4000-8000-00000000001a",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 150000
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 150000
+                        }
+                      ]
+                    },
+                    {
+                      "saerskilt": "produktivitet",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 10000
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 30000
+                        }
+                      ]
+                    }
+                  ],
+                  "subsidiaert_resultat": "delvis_godkjent",
+                  "subsidiaert_godkjent_beloep": 180000
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 0,
+                  "linje": "Byggherrens standpunkt: godkjent med 150 000 kr for justeringen ellers, prinsipalt begrenset etter punkt 34.1.3 til 10 000 kr, subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd).",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "14fac519-0000-4000-8000-000000000025",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "14fac519-0000-4000-8000-000000000026",
+                      "lag": 2
+                    }
+                  ],
+                  "upaavirket": [
+                    "14fac519-0000-4000-8000-000000000023",
+                    "14fac519-0000-4000-8000-000000000024"
+                  ],
+                  "uten_virkning": [
+                    "14fac519-0000-4000-8000-000000000022"
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-03 av 1. oktober 2026. Beløpene i brevet er eks. mva."
+              },
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "34.1.2",
+                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
+                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nByggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 (varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd) i totalentreprenørens e-post av 30. september 2026 kom for sent."
+              },
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "P1",
+                "overskrift": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)",
+                "laast": "2. Vederlagsjustering for P1 Kravposten i bevis-saken (punkt 34.1.2)\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 150 000 kr."
+              },
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "produktivitet",
+                "overskrift": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
+                "laast": "3. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i totalentreprenørens e-post av 30. september 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner etter dette 10 000 kr av de krevde 40 000 kr. Totalentreprenøren oppgir å ha blitt klar over at utgiftene ville påløpe 28. september 2026.\n\nSubsidiært, hvis innsigelsen mot varselet etter punkt 34.1.3 ikke fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
+              },
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "oversikt",
+                "overskrift": "4. Oversikt",
+                "laast": "4. Oversikt\n\nPost\tKrevd\tPrinsipalt\tSubsidiært\nVederlagsjustering\t150 000 kr\t150 000 kr\t150 000 kr\nSærskilt vederlagsjustering\t40 000 kr\t10 000 kr\t30 000 kr\nSum\t190 000 kr\t160 000 kr\t180 000 kr",
+                "poster": [
+                  "P1",
+                  "produktivitet"
+                ]
+              },
+              {
+                "gjelder": "14fac519-0000-4000-8000-000000000028",
+                "punkt": "forbehold",
+                "overskrift": "5. Forbehold",
+                "laast": "5. Forbehold",
+                "utdypning": "Byggherren gjør gjeldende at det særskilte varselet kom for sent."
+              }
+            ],
+            "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04",
+            "deres_ref": [
+              "K201-KOE-017-03"
+            ]
           }
         }
       ]

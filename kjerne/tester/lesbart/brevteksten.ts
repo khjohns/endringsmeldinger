@@ -357,12 +357,7 @@ export const BREVTEKSTEN: Lesbar[] = [
   // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
   ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['spor/vederlag/tekst.ts']],
   ['Kravpostvarselet', 'relasjon', 'art varsel', ['spor/vederlag/tekst.ts']],
-  [
-    'Saken',
-    'relasjon',
-    'varsletFoer',
-    ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts'],
-  ],
+  ['Saken', 'relasjon', 'varsletFoer', ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts']],
   [
     'Saken',
     'relasjon',

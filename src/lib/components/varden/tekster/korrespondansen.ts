@@ -214,7 +214,12 @@ export const LEGG_TIL = haerdet({
     `Varselet${post ? ` for ${post}` : ''} kom for sent, som gjort gjeldende i et tidligere svar (${brevref(b)}).`,
   /** U-15 i BF-49, OV-U120: et eldre krav er varselet for kravposten. */
   // Språkfila, «Varselet i kravet»: hvor varselet ble gitt, ikke at kravet er varselet.
-  varseletErEldreKrav: (b: Brevref, sendt: string | null, retting: Brevref | null, post?: string) => {
+  varseletErEldreKrav: (
+    b: Brevref,
+    sendt: string | null,
+    retting: Brevref | null,
+    post?: string
+  ) => {
     const datoITeksten = sendt && b.nummer !== null && !retting ? `, sendt ${dato(sendt)}` : '';
     const rettet =
       sendt && retting ? ` Datoen ble rettet til ${dato(sendt)} i ${brevref(retting)}.` : '';

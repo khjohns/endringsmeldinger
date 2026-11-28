@@ -74,21 +74,27 @@ function svarPaaKravet(s: ReturnType<typeof sak>, iTide: boolean) {
 }
 
 describe('det første varselet etter punkt 34.1.2 (VS-U98)', () => {
-  it.each(HJEMLER)('et sendt varsel etter punkt %s er kandidat, og brevet sier det (VS-U102)', (h) => {
-    const s = paaberopt();
-    const rad = s.send('TE', sendVarsel(h));
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
-    expect(laast(rad).join(' ')).toContain(OGSAA);
-    expect(s.u().spor.vederlag.varsler['34.1.2']).toBeUndefined();
-  });
+  it.each(HJEMLER)(
+    'et sendt varsel etter punkt %s er kandidat, og brevet sier det (VS-U102)',
+    (h) => {
+      const s = paaberopt();
+      const rad = s.send('TE', sendVarsel(h));
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
+      expect(laast(rad).join(' ')).toContain(OGSAA);
+      expect(s.u().spor.vederlag.varsler['34.1.2']).toBeUndefined();
+    }
+  );
 
-  it.each(HJEMLER)('et varsel etter punkt %s lagt til samme dag som kravet, går foran kravet', (h) => {
-    const s = paaberopt();
-    s.send('TE', VEDERLAGSKRAV);
-    const rad = s.send('TE', leggTilVarsel('2026-10-03', h));
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
-    expect(rad.data.brevtekst).toBeUndefined();
-  });
+  it.each(HJEMLER)(
+    'et varsel etter punkt %s lagt til samme dag som kravet, går foran kravet',
+    (h) => {
+      const s = paaberopt();
+      s.send('TE', VEDERLAGSKRAV);
+      const rad = s.send('TE', leggTilVarsel('2026-10-03', h));
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
+      expect(rad.data.brevtekst).toBeUndefined();
+    }
+  );
 
   it('det første varselet i journalen vinner ved lik dato mellom de tre varslene', () => {
     const s = paaberopt();
@@ -126,18 +132,21 @@ describe('det første varselet etter punkt 34.1.2 (VS-U98)', () => {
     }
   );
 
-  it.each([true, false])('svaret på kravet om varselet kom i tide (%s) viser til varselet', (iTide) => {
-    const s = paaberopt();
-    const varsel = s.send('TE', sendVarsel('34.4'));
-    s.send('TE', VEDERLAGSKRAV);
-    s.send('TE', { ...VEDERLAGSKRAV, innhold: tilbud(130000) });
-    const rad = svarPaaKravet(s, iTide);
-    expect(rettidigheten(rad)).toMatchObject({ gjelder: utsagn(varsel)[0].id, i_tide: iTide });
-    expect(laast(rad).join(' ')).toContain(
-      `varselet om regningsarbeid etter punkt\u00a034.4 for arbeidet «${ARBEIDET}»`
-    );
-    expect(s.u().forstaatt).toBe(true);
-  });
+  it.each([true, false])(
+    'svaret på kravet om varselet kom i tide (%s) viser til varselet',
+    (iTide) => {
+      const s = paaberopt();
+      const varsel = s.send('TE', sendVarsel('34.4'));
+      s.send('TE', VEDERLAGSKRAV);
+      s.send('TE', { ...VEDERLAGSKRAV, innhold: tilbud(130000) });
+      const rad = svarPaaKravet(s, iTide);
+      expect(rettidigheten(rad)).toMatchObject({ gjelder: utsagn(varsel)[0].id, i_tide: iTide });
+      expect(laast(rad).join(' ')).toContain(
+        `varselet om regningsarbeid etter punkt\u00a034.4 for arbeidet «${ARBEIDET}»`
+      );
+      expect(s.u().forstaatt).toBe(true);
+    }
+  );
 
   it('lesingen avviser en ny påberopelse som feilaktig viser til kravet', () => {
     const s = paaberopt();
@@ -196,12 +205,15 @@ describe('det første varselet etter punkt 34.1.2 (VS-U98)', () => {
     expect(varseletFoerBrevet(u, '34.1.2')).toBe(utsagn(varsel)[0].id);
   });
 
-  it.each(HJEMLER)('ved endring teller ikke varselet etter punkt %s etter punkt 34.1.2 (VS-U102)', (h) => {
-    const s = paaberopt('endring');
-    const rad = s.send('TE', sendVarsel(h));
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBeUndefined();
-    expect(laast(rad).join(' ')).not.toContain(OGSAA);
-  });
+  it.each(HJEMLER)(
+    'ved endring teller ikke varselet etter punkt %s etter punkt 34.1.2 (VS-U102)',
+    (h) => {
+      const s = paaberopt('endring');
+      const rad = s.send('TE', sendVarsel(h));
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBeUndefined();
+      expect(laast(rad).join(' ')).not.toContain(OGSAA);
+    }
+  );
 });
 
 describe('datoen for et krav utenfor rekken (VS-U98, OV-U102, OV-U104)', () => {
@@ -218,32 +230,41 @@ describe('datoen for et krav utenfor rekken (VS-U98, OV-U102, OV-U104)', () => {
     expect(varseletFoerBrevet(u, '34.1.2')).toBe(utsagn(varsel)[0].id);
   });
 
-  it.each(HJEMLER)('et varsel etter punkt %s lagt til med samme dato som et eldre krav merkes', (h) => {
-    const s = paaberopt();
-    s.send('TE', VEDERLAGSKRAV);
-    const krav = s.send('TE', eldreKrav('2026-10-02'));
-    const varsel = s.send('TE', leggTilVarsel('2026-10-02', h));
-    expect(s.u().sendtSammeDag).toContainEqual({
-      element: utsagn(varsel)[0].id,
-      med: (krav.data.krav as Data[])[0].id,
-    });
-  });
+  it.each(HJEMLER)(
+    'et varsel etter punkt %s lagt til med samme dato som et eldre krav merkes',
+    (h) => {
+      const s = paaberopt();
+      s.send('TE', VEDERLAGSKRAV);
+      const krav = s.send('TE', eldreKrav('2026-10-02'));
+      const varsel = s.send('TE', leggTilVarsel('2026-10-02', h));
+      expect(s.u().sendtSammeDag).toContainEqual({
+        element: utsagn(varsel)[0].id,
+        med: (krav.data.krav as Data[])[0].id,
+      });
+    }
+  );
 });
 
 describe('eget varsel og varsel lagt til (VS-U99, VS-U101)', () => {
-  it.each(HJEMLER)('et eget varsel kan sendes etter varselet etter punkt %s før kravet (VS-U99)', (h) => {
-    const s = paaberopt();
-    const rad = s.send('TE', sendVarsel(h));
-    s.send('TE', sendVarsel('34.1.2'));
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
-  });
+  it.each(HJEMLER)(
+    'et eget varsel kan sendes etter varselet etter punkt %s før kravet (VS-U99)',
+    (h) => {
+      const s = paaberopt();
+      const rad = s.send('TE', sendVarsel(h));
+      s.send('TE', sendVarsel('34.1.2'));
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(utsagn(rad)[0].id);
+    }
+  );
 
-  it.each(HJEMLER)('etter kravet avvises et eget varsel også når punkt %s er varslet (VS-U99)', (h) => {
-    const s = paaberopt();
-    s.send('TE', sendVarsel(h));
-    s.send('TE', VEDERLAGSKRAV);
-    expect(s.avvist('TE', sendVarsel('34.1.2'))).toBe('VEDERLAGSKRAV_SENDT');
-  });
+  it.each(HJEMLER)(
+    'etter kravet avvises et eget varsel også når punkt %s er varslet (VS-U99)',
+    (h) => {
+      const s = paaberopt();
+      s.send('TE', sendVarsel(h));
+      s.send('TE', VEDERLAGSKRAV);
+      expect(s.avvist('TE', sendVarsel('34.1.2'))).toBe('VEDERLAGSKRAV_SENDT');
+    }
+  );
 
   it.each(HJEMLER)('ett brev lagt til bevarer punkt %s og 34.1.2 med samme dato (VS-U101)', (h) => {
     const s = paaberopt();
@@ -263,17 +284,20 @@ describe('eget varsel og varsel lagt til (VS-U99, VS-U101)', () => {
 });
 
 describe('korrespondanse som kjernen ikke leser som varsel (VS-U98, VS-U103)', () => {
-  it.each(['30.2', '34.2.2'])('et brev om punkt %s regnes ikke som varselet etter punkt 34.1.2', (h) => {
-    const s = paaberopt();
-    s.send('TE', {
-      type: 'registrert_brev',
-      ...SOM_BREV,
-      beskrivelse: `Varsel etter punkt ${h} annet ledd`,
-      sendt: '2026-10-02',
-      dokumentasjon: [randomUUID()],
-    });
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBeUndefined();
-    s.send('TE', VEDERLAGSKRAV);
-    expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(s.krav('vederlag'));
-  });
+  it.each(['30.2', '34.2.2'])(
+    'et brev om punkt %s regnes ikke som varselet etter punkt 34.1.2',
+    (h) => {
+      const s = paaberopt();
+      s.send('TE', {
+        type: 'registrert_brev',
+        ...SOM_BREV,
+        beskrivelse: `Varsel etter punkt ${h} annet ledd`,
+        sendt: '2026-10-02',
+        dokumentasjon: [randomUUID()],
+      });
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBeUndefined();
+      s.send('TE', VEDERLAGSKRAV);
+      expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(s.krav('vederlag'));
+    }
+  );
 });

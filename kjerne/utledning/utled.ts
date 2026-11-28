@@ -70,7 +70,12 @@ import {
   type IkkeFyltUt,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
-import { datoEtterRettingene, medRettingeneTil, sisteRettingFor, type Retting } from './rettingen.ts';
+import {
+  datoEtterRettingene,
+  medRettingeneTil,
+  sisteRettingFor,
+  type Retting,
+} from './rettingen.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdetErAvvistVedEnighet,
@@ -844,9 +849,7 @@ function egneVarsler(u: Utledning, k: Krav): LestVarsel[] {
 
 const sammenliknesMedVarselet = (hjemmel: Varselhjemmel, k: Krav, u: Utledning): boolean =>
   (datoenSammenliknes(hjemmel) && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k)) ||
-  (k.spor === 'vederlag' &&
-    varslerOgsaaEtter3412(hjemmel) &&
-    !varselEtter3412KrevesIkke(u, null));
+  (k.spor === 'vederlag' && varslerOgsaaEtter3412(hjemmel) && !varselEtter3412KrevesIkke(u, null));
 
 /** Etter § 32.2 gjelder det registrerte varselet til #1600 er bygget, uten å sammenlikne datoene. */
 const datoenSammenliknes = (hjemmel: Varselhjemmel): boolean => hjemmel !== '32.2';
@@ -1484,11 +1487,21 @@ function kontrollerStandpunktet(
     const krav = kravSomVarsler(p.hjemmel, spor[n], foer);
     const andreVarsler =
       p.hjemmel === '34.1.2' &&
-      hjemmelenGjelder('34.1.2', spor.forhold.krav.find((k) => k.id === s.paaberopelse), regler)
+      hjemmelenGjelder(
+        '34.1.2',
+        spor.forhold.krav.find((k) => k.id === s.paaberopelse),
+        regler
+      )
         ? varsler.filter((v) => varslerOgsaaEtter3412(v.hjemmel))
         : [];
     const dagen = (v: Pick<Krav, 'id' | 'dokument'>) => sendt(v, s);
-    const tidligste = varseletFoerSvaret(p.hjemmel, [...varslene, ...andreVarsler], krav, foer, dagen);
+    const tidligste = varseletFoerSvaret(
+      p.hjemmel,
+      [...varslene, ...andreVarsler],
+      krav,
+      foer,
+      dagen
+    );
     const eldreSvar = s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
     const eget = varslene.find((v) => foer(v.id))?.id;
     const egetGjelder = (p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget;
@@ -2037,7 +2050,10 @@ export function varseletFoerSvaret(
   foerSvaret: (varsel: string) => boolean,
   sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
 ): string | undefined {
-  const eget = foerstSendt(varsler.filter((v) => foerSvaret(v.id)), sendt);
+  const eget = foerstSendt(
+    varsler.filter((v) => foerSvaret(v.id)),
+    sendt
+  );
   const kravet = foerstSendt(krav, sendt);
   if (!eget || !kravet || !datoenSammenliknes(hjemmel)) return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];

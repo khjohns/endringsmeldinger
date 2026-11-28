@@ -8514,12 +8514,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet med rettingen sier ikke hvilket arbeid varselet gjelder (VS-U87 punkt 27, U-3 i BF-50)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        ': `${omtale} for arbeidet «${arbeid}»`;',
-        ': omtale;',
-      ],
-    ],
+    endringer: [[': `${omtale} for arbeidet «${arbeid}»`;', ': omtale;']],
     mal: [
       'brevet nevner arbeidet når brevet med varselet har flere varsler etter samme bestemmelse',
     ],
@@ -8745,7 +8740,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529d',
-    feilklasse: 'det første registrerte varselet vinner også når et senere registrert varsel har tidligere dato (VS-U98)',
+    feilklasse:
+      'det første registrerte varselet vinner også når et senere registrert varsel har tidligere dato (VS-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -8783,7 +8779,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529h',
-    feilklasse: 'et eldre krav legges til uten å merke lik dato med et eksisterende kravpostvarsel (VS-U98, OV-U102)',
+    feilklasse:
+      'et eldre krav legges til uten å merke lik dato med et eksisterende kravpostvarsel (VS-U98, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -8795,7 +8792,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529i',
-    feilklasse: 'et kravpostvarsel legges til uten å merke lik dato med et eksisterende eldre krav (VS-U98, OV-U102)',
+    feilklasse:
+      'et kravpostvarsel legges til uten å merke lik dato med et eksisterende eldre krav (VS-U98, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -8807,7 +8805,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F2529j',
-    feilklasse: 'brevet med det særskilte varselet sier ikke at det også varsler etter punkt 34.1.2 (VS-U102)',
+    feilklasse:
+      'brevet med det særskilte varselet sier ikke at det også varsler etter punkt 34.1.2 (VS-U102)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['...(ogsaa3412', '...(ogsaa3412 && false']],
     mal: ['et sendt varsel etter punkt 34.1.3 er kandidat, og brevet sier det'],
@@ -8841,10 +8840,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et nytt svar kan peke til et eget varsel som kom senere (VS-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        "(p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget",
-        'p.gjelder === eget',
-      ],
+      ["(p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget", 'p.gjelder === eget'],
     ],
     mal: ['lesingen avviser en ny påberopelse som viser til et eget varsel sendt senere'],
   },
