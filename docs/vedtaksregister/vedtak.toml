@@ -33023,6 +33023,303 @@ tekst = '''
 ett punkt per frist med samme mønster som vederlaget (frarådet av begge verktøyene, fordi varselet, forespørselen, hindringen og spesifiseringen gjelder hele kravet)'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U64"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#2509", "runde 11 i #1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1 i runde 11 i #1065, stilt i tekst 28.11 som S-1 i kartleggingen for #2509. Ordrett:
+
+## S-1. Byggherrens påberopelse når rettingen gjør et annet brev til varselet for kravposten
+
+**Bakgrunn.** Eksempelet bygger på scenarioet i issuet:
+1. Totalentreprenøren har sendt vederlagskravet K1 den 15.10. I K1 har kravposten P1
+   regningsarbeid.
+2. Totalentreprenøren har lagt til to eldre vederlagskrav med P1, K2 (10.10) og K3 (12.10).
+   K2 er varselet for P1.
+3. Byggherren påberoper i svaret S at varselet for P1 kom for sent.
+4. Totalentreprenøren retter så datoen for K2 til 14.10. Etter MM-U63 er K3 nå det første
+   varselet for P1.
+
+Spørsmålet er om påberopelsen i S står mot K3. Det gjelder i to tilfeller:
+- (a) S ble sendt eller lagt til etter at K2 ble lagt til, men før K3 ble lagt til.
+- (b) S ble sendt eller lagt til etter at begge var lagt til.
+
+Spørsmålet oppstår også i tre andre forløp:
+- Totalentreprenøren retter datoen for K3 til en dag før 10.10. Rettingen er da til
+  totalentreprenørens fordel, men den gjelder straks.
+- Totalentreprenøren retter både K2 og K3 til en dag etter 15.10. Da er K1 selv varselet.
+- K1 er lagt til, og totalentreprenøren retter datoen for K1 til en dag før 10.10. Da er K1
+  selv varselet.
+
+En påberopelse i et svar S0 sendt før K2 ble lagt til, gjaldt K1. Den fulgte ikke med til K2
+(VS-U96 punkt 37). Den er ikke med i spørsmålet. Alternativene gjelder bare en påberopelse som
+sto mot det brevet som var varselet før rettingen.
+
+I dag leser løsningen den oppgitte datoen, så K2 er fortsatt varselet. Påberopelsen står da i
+både (a) og (b). Når A2 er bygget, gir sammenligningen som står i dag, C nedenfor: (a) faller
+bort og (b) står. Sammenligningen ser på om svaret står før eller etter K3 i saken.
+
+**Belegg.**
+- MM-U63: rettingen gjelder straks uten byggherrens aksept. Den siste opplysningen er premiss
+  for hvilket varsel eller krav som er det første varselet. Et svar byggherren alt har gitt,
+  står med virkningen det hadde. En påberopelse byggherren alt har fremsatt, bevares med
+  tidspunktet.
+- VS-U96 punkt 37 (OV-U120 s2–s4): en påberopelse i et svar sendt fra eller lagt til i
+  løsningen før det eldre kravet ble lagt til, står med virkningen den hadde, gjelder varselet
+  den viste til og følger ikke med til det eldre kravet. For svar etterpå regnes det eldre kravet
+  med.
+- OV-U123 punkt 15 (OV-U102): datoen for et krav utenfor rekken regnes med når løsningen avgjør
+  hvilket varsel som kom først.
+- MM-U50 punkt 1.
+- VS-U96 punkt 9, 10 og 34: påberopelsen står og gjentas som utgangspunkt til byggherren
+  uttrykkelig gir den opp.
+- VS-U96 punkt 31 (VS-U63): oppgivelsen etter punkt 34.4.
+- OV-U98: datoen avsenderen oppgir, er datoen for utsagnet.
+- NS 8407 punkt 34.3.3 og 34.4: varselet for kravposten.
+- NS 8407 punkt 5: byggherrens påberopelse av at et varsel kom for sent.
+
+I tilfelle (a) peker vedtakene hver sin vei. Etter MM-U63 bevares påberopelsen. Etter VS-U96
+punkt 37 følger den ikke med til et eldre krav som ble lagt til etter svaret.
+
+**Alternativene.**
+
+Innledningen er lik i alle tre: «Gjør totalentreprenørens retting av datoen for et krav sendt
+utenfor løsningen at et annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4,
+et annet krav sendt før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv,
+…». En setning er også lik i alle tre: «Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken.» Den følger A3 (OV-U98 og OV-U104).
+
+- **A.** «Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et
+  annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt
+  før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens
+  påberopelse av at varselet for kravposten kom for sent, også mot det brevet som nå er
+  varselet, med tidspunktet den ble fremsatt. Det gjelder når påberopelsen sto mot det brevet
+  som var varselet før rettingen. Det gjelder også når påberopelsen står i et svar sendt fra eller
+  lagt til i løsningen før det brevet som nå er varselet, ble lagt til. Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken. Byggherren kan gi opp påberopelsen eller ta stilling til den nye datoen i et senere
+  svar. Løsningen avgjør ikke om påberopelsen holder.»
+  Forhold: presiserer MM-U63 («bevares med tidspunktet») for en retting som gjør et annet brev
+  til varselet. Snevrer inn VS-U96 punkt 37 (OV-U120 s2–s4): punktet gjelder ikke når brevet
+  blir varselet for kravposten ved en retting av datoen. I tråd med VS-U96 punkt 9, 10 og 34 og
+  OV-U98.
+
+- **B.** «Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et
+  annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt
+  før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens
+  påberopelse av at varselet for kravposten kom for sent, med virkningen den hadde og gjelder
+  det brevet den sto mot før rettingen. Den følger ikke med til det brevet som nå er varselet.
+  Byggherren tar stilling til det i et senere svar. Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken.»
+  Forhold: utvider VS-U96 punkt 37 (OV-U120 s2–s4) til en retting av datoen, med MM-U50 punkt 1
+  som grunnlag. Snevrer inn MM-U63: «bevares med tidspunktet» gjelder ikke mot det brevet som
+  nå er varselet, i (a) eller (b). I tråd med OV-U98.
+
+- **C.** «Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et
+  annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt
+  før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens
+  påberopelse av at varselet for kravposten kom for sent, også mot det brevet som nå er
+  varselet, med tidspunktet den ble fremsatt. Det gjelder når påberopelsen sto mot det brevet
+  som var varselet før rettingen, og svaret ble sendt fra eller lagt til i løsningen etter at det
+  brevet som nå er varselet, ble lagt til. Ble svaret sendt fra eller lagt til i løsningen før
+  det brevet ble lagt til, gjelder påberopelsen det brevet den sto mot, og den følger ikke med.
+  Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken. Byggherren kan ta stilling til den nye datoen i et senere svar.»
+  Forhold: utvider VS-U96 punkt 37 (OV-U120 s2–s4) til et brev som blir varselet ved en retting
+  av datoen. Snevrer inn MM-U63 for (a): «bevares med tidspunktet» gjelder ikke der. Presiserer
+  MM-U63 for (b). I tråd med OV-U98.
+
+**Anbefaling: A.**
+
+- **MM-U63.** Kjernen i vedtaket er at rettingen gjelder uten byggherrens aksept, og at byggherren
+  ikke taper det som alt er fremsatt («bevares med tidspunktet»). B lar byggherren tape
+  påberopelsen i (a) og (b), og C i (a). I begge tilfellene skyldes tapet en opplysning
+  byggherren ikke har godtatt.
+- **B og C belønner en uriktig dato.** Totalentreprenøren kan rette K2 til en senere dag eller
+  K3 til en tidligere. Da må byggherren påberope på nytt. Etter punkt 5 må en påberopelse
+  fremsettes uten ugrunnet opphold, så den nye påberopelsen kan møtes med at den kom for sent.
+  Under B forsvinner påberopelsen ved rettingen. Den kommer tilbake hvis totalentreprenøren angrer
+  og retter datoen tilbake. Under C skjer det samme i (a). Under A står påberopelsen stabilt
+  gjennom rettingene.
+- **Skillet i C følger tidspunktet registreringen ble gjort.** Byggherren mottok K3 da det ble
+  sendt, uavhengig av når det ble lagt til. Det er en antakelse om saksgangen, ikke et belegg.
+- **A tar ikke fra totalentreprenøren noe.** Løsningen avgjør ikke om påberopelsen holder
+  (MM-U50 punkt 6), og byggherren kan gi den opp.
+- **Prisen ved A** er at VS-U96 punkt 37 snevres inn. Et eldre krav som legges til, og et brev
+  som blir varselet ved en retting, behandles da ulikt.
+
+**Hva valget styrer.**
+- Om byggherrens påberopelse av for sent varsel for kravposten står mot det brevet som er
+  varselet etter rettingen.
+- Om et senere svar fra løsningen viser til påberopelsen og gjentar den som utgangspunkt
+  (VS-U96 punkt 9).
+- Om et svar som ikke sier noe om varselet, leses med påberopelsen.
+- Hva byggherrens brev sier at byggherren står ved.
+- Om byggherren kan gi opp påberopelsen for varselet etter punkt 34.4 (VS-U96 punkt 31).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «1A,» Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "mm-u63" },
+  { art = "snevrer inn", vedtak = "vs-u96" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A, ordrett: «presiserer MM-U63 («bevares med tidspunktet») for en retting som gjør et annet brev til varselet. Snevrer inn VS-U96 punkt 37 (OV-U120 s2–s4): punktet gjelder ikke når brevet blir varselet for kravposten ved en retting av datoen. I tråd med VS-U96 punkt 9, 10 og 34 og OV-U98.» Punkt 37 i VS-U96 samler OV-U120. Bygges i #2509.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens påberopelse av at varselet for kravposten kom for sent, også mot det brevet som nå er varselet, med tidspunktet den ble fremsatt. Det gjelder når påberopelsen sto mot det brevet som var varselet før rettingen. Det gjelder også når påberopelsen står i et svar sendt fra eller lagt til i løsningen før det brevet som nå er varselet, ble lagt til. Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken. Byggherren kan gi opp påberopelsen eller ta stilling til den nye datoen i et senere svar. Løsningen avgjør ikke om påberopelsen holder.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens påberopelse av at varselet for kravposten kom for sent, med virkningen den hadde og gjelder det brevet den sto mot før rettingen. Den følger ikke med til det brevet som nå er varselet. Byggherren tar stilling til det i et senere svar. Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Gjør totalentreprenørens retting av datoen for et krav sendt utenfor løsningen at et annet brev blir varselet for en kravpost etter punkt 34.3.3 eller 34.4, et annet krav sendt før totalentreprenørens siste krav i sporet eller kravversjonen i sporet selv, står byggherrens påberopelse av at varselet for kravposten kom for sent, også mot det brevet som nå er varselet, med tidspunktet den ble fremsatt. Det gjelder når påberopelsen sto mot det brevet som var varselet før rettingen, og svaret ble sendt fra eller lagt til i løsningen etter at det brevet som nå er varselet, ble lagt til. Ble svaret sendt fra eller lagt til i løsningen før det brevet ble lagt til, gjelder påberopelsen det brevet den sto mot, og den følger ikke med. Om et svar som er lagt til i løsningen, er sendt før rettingen, regnes etter dagen det ble sendt. Et svar sendt fra løsningen regnes etter rekkefølgen i saken. Byggherren kan ta stilling til den nye datoen i et senere svar.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U65"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#276", "runde 11 i #1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2 i runde 11 i #1065, stilt i tekst 28.11. Det er spørsmål 1 i vurderingen for #276 (docs/vurdering-b16-korrigering-2026-11-28.md, PR #2512), ordrett:
+
+### Spørsmål 1. Hvordan rettes en feil kategori eller et feil varsel før den fullstendige rettingsflyten er bygget?
+
+**Bakgrunn.** Punkt 9 sier at avsenderen retter en feil kategori eller et feil varsel etter punkt 1–5,
+og at en retting som gir et varsel en tidligere dato, gjelder først når motparten godtar den. MM-U63
+lot punkt 9 og OV-U84 stå. Et eksempel: totalentreprenøren sendte et varsel etter en annen bestemmelse
+enn den totalentreprenøren mente. Totalentreprenøren kan straks sende et nytt varsel etter riktig
+bestemmelse, med dagens dato. Vil totalentreprenøren at det første varselet skal gjelde etter riktig
+bestemmelse, gir det varselet en tidligere dato, og det må byggherren godta. For et brev lagt til er
+den midlertidige veien å legge det til på nytt (OV-U99 punkt 2).
+
+**Alternativer (i vedtaksform):**
+
+- **A (anbefalt).** Før den fullstendige rettingsflyten etter punkt 1–7 er bygget, retter avsenderen
+  en feil kategori eller et feil varsel etter punkt 9 med et innlegg med henvisning til brevet. Det
+  gjelder også et brev lagt til, når en ny registrering ville gitt varselet en tidligere dato etter
+  samme bestemmelse. Motparten godtar eller avviser rettingen i et innlegg. Løsningen bruker
+  fortsatt kategorien og varselet i det første brevet, også når rettingen er i motpartens favør og
+  når motparten har godtatt den. Løsningen sier ikke at rettingen er godtatt, og avgjør ikke hva som
+  gjelder mellom partene. En retting i motpartens favør kan i stedet sendes som et nytt varsel eller
+  en ny registrering, der det er en handling i løsningen. *Forhold: snevrer inn punkt 4, 5 og 9 for
+  det løsningen leser, til den fullstendige rettingsflyten er bygget; presiserer punkt 2 (det nye
+  brevet er et innlegg); i tråd med MM-U47 punkt 2–6.*
+- **B.** Rettingen av en feil kategori eller et feil varsel etter punkt 9 bygges før første ekte sak,
+  med motpartens godtakelse i løsningen. *Forhold: utvider det som bygges før første ekte sak etter
+  beslutningsdelen i samlevedtaket for retting av sendt brev. Godtakelsen er en ny handling og krever
+  et vedtak etter [OV-U97](plans/vedtak.md#ov-u97). Den er en akseptmodell som MM-U63 opphevet for
+  datoene etter punkt 8 og 18, men som punkt 9 beholdt.*
+
+**Anbefaling: A.** Ingenting nytt må bygges, og henvisningen knytter originalen og rettingen sammen.
+Det er en antakelse at en retting til en tidligere dato etter punkt 9 blir sjelden i første ekte sak,
+fordi totalentreprenøren kan sende et nytt varsel straks. Kostnaden er at visningen kan vise en dato
+eller en rekkefølge partene er enige om er feil. Etter A godtar byggherren i et innlegg, og om det går
+gjennom godkjenningen, avgjøres i spørsmål 2.
+
+**Hva valget styrer:** om punkt 9 må bygges før første ekte sak.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «2: bakgrunnen nevner at en part må godta. Jeg trodde dette var fjernet nå, senest i går? Eller er i vedtak ført ennå? Svaret er uansett: før retting er bygd, sender partene bare innlegg.» Orkestratoren førte svaret i tekst som A («2 fører som A»), i samme melding som oppfølgingsspørsmålet 2b ([MM-U67](#mm-u67)). Valgt: A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "mm-u59" },
+  { art = "presiserer", vedtak = "mm-u59" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A, ordrett: «snevrer inn punkt 4, 5 og 9 for det løsningen leser, til den fullstendige rettingsflyten er bygget; presiserer punkt 2 (det nye brevet er et innlegg); i tråd med MM-U47 punkt 2–6.» «Punkt» er punktene i samlevedtaket for retting av sendt brev, versjon 4 ([MM-U59](#samlevedtak-retting-4)). Spørsmålet i svaret om aksepten er besvart med oppfølgingsspørsmålet 2b, som er [MM-U67](#mm-u67). Bygges i #276.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Før den fullstendige rettingsflyten etter punkt 1–7 er bygget, retter avsenderen en feil kategori eller et feil varsel etter punkt 9 med et innlegg med henvisning til brevet. Det gjelder også et brev lagt til, når en ny registrering ville gitt varselet en tidligere dato etter samme bestemmelse. Motparten godtar eller avviser rettingen i et innlegg. Løsningen bruker fortsatt kategorien og varselet i det første brevet, også når rettingen er i motpartens favør og når motparten har godtatt den. Løsningen sier ikke at rettingen er godtatt, og avgjør ikke hva som gjelder mellom partene. En retting i motpartens favør kan i stedet sendes som et nytt varsel eller en ny registrering, der det er en handling i løsningen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Rettingen av en feil kategori eller et feil varsel etter punkt 9 bygges før første ekte sak, med motpartens godtakelse i løsningen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U66"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#276", "runde 11 i #1065"]
+klasse = "design"
+bindende_i = ["mm-u59", "mm-u63", "mm-u47", "ov-u18", "eo-u39", "ov-u115", "mm-u65", "gfk-u33"]
+sporsmal = '''
+Spørsmål 4 i runde 11 i #1065, stilt i tekst 28.11. Det er spørsmål 3 i vurderingen for #276 (docs/vurdering-b16-korrigering-2026-11-28.md, PR #2512), ordrett:
+
+### Spørsmål 3. Eksemplene
+
+Eksemplene med feil dato, metode og referanse i «Ferdig når» i #276, med veien etter vedtakene og de
+anbefalte svarene. Oppdragsgiver kan svare «ja» eller rette enkeltrader.
+
+| Eksempel | Veien | Belegg |
+| --- | --- | --- |
+| Totalentreprenøren oppga feil dato for et varsel sendt utenfor løsningen | Rettingen etter punkt 8, som gjelder straks | MM-U63 |
+| Totalentreprenøren oppga feil dato i kravet for når arbeidet ble utført | Innlegg med henvisning til kravet. Løsningen avgjør ikke om det er en retting eller en utdyping. Totalentreprenøren kan også sende en ny kravversjon, som krever et nytt svar fra byggherren | Punkt 13 og 15 |
+| Byggherren oppga feil dato for en befaring i begrunnelsen | Innlegg med henvisning til svaret | Punkt 15; spørsmål 2 |
+| Totalentreprenøren ga tilbud om fast sum for en kravpost, men mente regningsarbeid | Ny kravversjon. Oppgjørsformen er en del av kravposten | Punkt 6; [samlevedtaket for vederlagsmetoden](plans/vedtak.md#samlevedtak-vederlagsmetoden-3) |
+| Byggherren tok feil standpunkt til oppgjørsformen | Nytt svar, gjennom godkjenningen som andre svar | Punkt 6 og 7 |
+| Feil oppgjørsform i en KOE-sak en endringsordre omfatter | En ny kravversjon og et nytt svar avvises. Innlegg | Punkt 6; punkt 12–13 i samlevedtaket for endringsordren; MM-U47 punkt 5 |
+| Totalentreprenøren viste til feil tegning eller feil brev i kravet | Innlegg med henvisning til kravet | Punkt 15 |
+| Totalentreprenøren varslet etter feil bestemmelse | Nytt varsel etter riktig bestemmelse, eller innlegg etter spørsmål 1 | Punkt 9; spørsmål 1 |
+| Et brev sendt utenfor løsningen er lagt til i feil sak | Retting etter OV-U18 | OV-U18 |
+| Et innlegg viser til feil brev | Nytt innlegg med henvisning til riktig brev | MM-U47 punkt 2 |
+
+**Anbefaling: ja.** Eksempelforløpene føres som bevis-saker etter svaret 17.10 (punkt 13 i
+kommentaren i #276).'''
+valgt = "ja"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «Eksemplene i 4 ser riktig ut.» Orkestratoren førte svaret i tekst som ja («4 som ja»). Valgt: ja.'''
+folge = '''
+Alternativet ja er tabellen i spørsmålet, med cellene ordrett satt sammen til setninger: eksemplet, veien og belegget i parentes. «Spørsmål 1» og «spørsmål 2» i belegget er spørsmålene i vurderingen for #276, ført som [MM-U65](#mm-u65) og [GFK-U33](#gfk-u33). Klassen er design: hver vei står i et vedtak i belegget. Eksempelforløpene føres som bevis-saker etter svaret 17.10 (punkt 13 i kommentaren i #276), som anbefalingen sa.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Eksemplene med feil dato, metode og referanse i «Ferdig når» i #276 går disse veiene. Totalentreprenøren oppga feil dato for et varsel sendt utenfor løsningen: rettingen etter punkt 8, som gjelder straks (MM-U63). Totalentreprenøren oppga feil dato i kravet for når arbeidet ble utført: innlegg med henvisning til kravet. Løsningen avgjør ikke om det er en retting eller en utdyping. Totalentreprenøren kan også sende en ny kravversjon, som krever et nytt svar fra byggherren (punkt 13 og 15). Byggherren oppga feil dato for en befaring i begrunnelsen: innlegg med henvisning til svaret (punkt 15; spørsmål 2). Totalentreprenøren ga tilbud om fast sum for en kravpost, men mente regningsarbeid: ny kravversjon. Oppgjørsformen er en del av kravposten (punkt 6; samlevedtaket for vederlagsmetoden). Byggherren tok feil standpunkt til oppgjørsformen: nytt svar, gjennom godkjenningen som andre svar (punkt 6 og 7). Feil oppgjørsform i en KOE-sak en endringsordre omfatter: en ny kravversjon og et nytt svar avvises. Innlegg (punkt 6; punkt 12–13 i samlevedtaket for endringsordren; MM-U47 punkt 5). Totalentreprenøren viste til feil tegning eller feil brev i kravet: innlegg med henvisning til kravet (punkt 15). Totalentreprenøren varslet etter feil bestemmelse: nytt varsel etter riktig bestemmelse, eller innlegg etter spørsmål 1 (punkt 9; spørsmål 1). Et brev sendt utenfor løsningen er lagt til i feil sak: retting etter OV-U18 (OV-U18). Et innlegg viser til feil brev: nytt innlegg med henvisning til riktig brev (MM-U47 punkt 2).'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "MM-U67"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#276", "runde 11 i #1065"]
+klasse = "vedtak"
+sporsmal = '''
+Oppfølgingsspørsmål 2b i runde 11 i #1065, stilt i tekst 28.11 etter svaret på spørsmål 2 ([MM-U65](#mm-u65)), ordrett: «Skal aksepten i punkt 9 også fjernes nå, slik den ble for datoene? A (anbefalt): nei, nå ikke. Den tas når punkt 9 bygges, slik MM-U63 sier. Ingenting før første ekte sak trenger svaret. B: ja. Da gjelder også en retting av kategorien eller varselet straks, uten motpartens aksept. Det blir et nytt vedtak, som endrer punkt 9 og OV-U84.»'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «2b B. Men hva menes med "kategori"?» Orkestratoren forklarte, ordrett: ««kategori» i punkt 9 betyr hva brevet er registrert som (varsel, krav, svar, innlegg, etter hvilken bestemmelse), som valget i OV-U84. Ikke hoved- eller underkategorien for forholdet, som ikke kan endres (GR-U1, GR-U22).»'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u59" },
+  { art = "snevrer inn", vedtak = "mm-u59" },
+  { art = "endrer", vedtak = "ov-u84" },
+]
+folge = '''
+Alternativ B ble lagt fram bare som et sammendrag, ordrett: «ja. Da gjelder også en retting av kategorien eller varselet straks, uten motpartens aksept. Det blir et nytt vedtak, som endrer punkt 9 og OV-U84.» Vedtaksteksten er skrevet etter svaret, fra sammendraget og forklaringen av «kategori». Forklaringen orkestratoren ga, nevnte innlegg blant kategoriene. De vedtatte kategoriene er dokumentasjon, varsel, krav og svar (OV-U80, OV-U123 punkt 2), og vedtaksteksten følger dem. Forholdene: endrer punkt 9 i samlevedtaket for retting av sendt brev, versjon 4 ([MM-U59](#samlevedtak-retting-4)): «En retting som gir et varsel en tidligere dato, gjelder først når motparten godtar den» faller, og «et svar motparten alt har gitt, står med virkningen det hadde» står. Snevrer inn punkt 5 der («gjelder når motparten godtar den») for en retting etter punkt 9, som MM-U63 for datoene etter punkt 8 og 18, og designdelen der («vises som et tilbud til motparten har godtatt den») for en slik retting. Endrer OV-U84: i setningen «Er det alt satt en dato for et varsel etter samme bestemmelse, er et valg som gir varselet en tidligere dato, en retting etter OV-U11, og den gjelder først når motparten godtar den.» faller «og den gjelder først når motparten godtar den». Setningen i OV-U80 om det samme er samlet i punkt 9. MM-U63 sa i følgen at punkt 9 og OV-U84 sto for aksepten. Til den fullstendige rettingsflyten er bygget, gjelder MM-U65.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+nei, nå ikke. Den tas når punkt 9 bygges, slik MM-U63 sier. Ingenting før første ekte sak trenger svaret.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Avsenderens retting av en feil kategori eller et feil varsel etter punkt 9 i samlevedtaket for retting av sendt brev gjelder straks, uten motpartens aksept, også når den gir et varsel en tidligere dato, som for datoene etter MM-U63. Kategorien er hva brevet er registrert som, og etter hvilken bestemmelse, som valget etter OV-U84. Det er ikke hoved- eller underkategorien for forholdet (GR-U1, GR-U22).'''
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 etter = '''
@@ -34626,6 +34923,70 @@ Et svar i KOE-saken som er en endringsordre, har alltid to underskrifter: den so
 navn = "7 B"
 tekst = '''
 Et svar i KOE-saken som er en endringsordre, følger fullmakten som andre svar i KOE-saken. Kan verdien ikke regnes, kan den som har ubegrenset fullmakt, sende det alene med én underskrift. Forhold: avgjør det GR-U42 punkt 2 lot stå; EO-U39 punkt 3 gjelder bare endringsordren i en EO-sak.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U33"
+dato = 2026-11-28
+hvem = "oppdragsgiver"
+kilde = ["#276", "runde 11 i #1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 3 i runde 11 i #1065, stilt i tekst 28.11. Det er spørsmål 2 i vurderingen for #276 (docs/vurdering-b16-korrigering-2026-11-28.md, PR #2512), ordrett:
+
+### Spørsmål 2. Går byggherrens innlegg gjennom godkjenningen?
+
+**Bakgrunn.** Punkt 7 sier ordrett: «En retting fra byggherren går gjennom godkjenningen etter
+fullmakten som et svar med det innholdet rettingen gir, også når rettingen er et tilbud til
+byggherrens fordel. Et nytt svar etter punkt 6 går gjennom godkjenningen som andre svar.» MM-U26
+forkastet 17.10 at bare en retting i motpartens favør går gjennom godkjenningen. Det er ikke vedtatt
+om byggherrens innlegg går gjennom godkjenningen. I dag går ingen sending gjennom den (U8). Løsningen
+kan ikke skille et innlegg som retter, fra andre innlegg, og spørsmålet gjelder derfor alle
+byggherrens innlegg. Innlegget bærer også en godtakelse etter spørsmål 1 A og, etter beslutningsdelen
+i MM-U47, innsigelsen etter punkt 5 i NS 8407 og påberopt passivitet. Løsningen leser ikke innlegget,
+så verdien fullmakten regnes av, kan ikke regnes. Da kan bare den som har ubegrenset fullmakt, sende
+alene, og alle andre trenger hele kjeden (punkt 10 i [samlevedtaket for verdien](plans/vedtak.md#samlevedtak-verdien)).
+
+**Alternativer:**
+
+- **A (anbefalt).** Byggherrens innlegg går ikke gjennom godkjenningen. En retting fra byggherren
+  som endrer noe løsningen leser i svaret, som standpunktet, oppgjørsformen, beløpet, dagene eller
+  bestemmelsen byggherren påberoper, sendes som et nytt svar etter punkt 6 og går gjennom
+  godkjenningen som andre svar. *Forhold: snevrer inn punkt 7, første setning, til den fullstendige
+  rettingsflyten er bygget; tar for et innlegg med en retting til byggherrens fordel opp igjen
+  alternativet MM-U26 forkastet 17.10.*
+- **B.** Byggherrens innlegg går gjennom godkjenningen etter fullmakten. Fordi verdien ikke kan
+  regnes, kan den som har ubegrenset fullmakt, sende innlegget alene, og alle andre trenger hele
+  kjeden. *Forhold: i tråd med punkt 7 og punkt 10 i samlevedtaket for verdien; utvider det som går
+  gjennom godkjenningen.*
+
+**Anbefaling: A.** Godkjenningen er byggherrens interne kontroll av hva byggherren binder seg til, og
+det byggherren binder seg til i løsningen, står i svaret. Kostnaden bærer byggherren: en saksbehandler
+kan i et innlegg godta en retting, frafalle en innsigelse eller skrive noe som i realiteten er et nytt
+standpunkt, uten at godkjenneren har sett det. Totalentreprenøren kan ikke se om et innlegg fra
+byggherren er godkjent. Ved B må den som har ubegrenset fullmakt, eller hele kjeden, behandle hvert
+innlegg, også en ren utdyping.
+
+**Hva valget styrer:** om innlegget må kunne gå gjennom godkjenningen før første ekte sak.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.11, ordrett: «3: Innlegg går ikke gjennom godkjenning. Her må man begrense litt hva som er tenkt rettet. Krav og svar på krav sendes som nye revisjoner eller oppdateres (BH oppdaterer sitt svar før TE har svart på første svar). Eventuelt kan man kalle dette å rette men gjelder retting da kun er felt eller også flere felt? Mulig dette er klart og jeg ikke har helt oversikt.» Orkestratoren førte svaret i tekst som A med ordene i svaret («3 fører som A med ordene i svaret»). Valgt: A.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "mm-u59" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A, ordrett: «snevrer inn punkt 7, første setning, til den fullstendige rettingsflyten er bygget; tar for et innlegg med en retting til byggherrens fordel opp igjen alternativet MM-U26 forkastet 17.10.» «Punkt 7» og «punkt 6» er punktene i samlevedtaket for retting av sendt brev, versjon 4 ([MM-U59](#samlevedtak-retting-4)). MM-U26 er opphevet 25.11 av MM-U59. Orkestratorens forklaring til spørsmålet i svaret står i vurderingen for #276, avsnittet «Orkestratorens forklaring». Bygges i #276.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherrens innlegg går ikke gjennom godkjenningen. En retting fra byggherren som endrer noe løsningen leser i svaret, som standpunktet, oppgjørsformen, beløpet, dagene eller bestemmelsen byggherren påberoper, sendes som et nytt svar etter punkt 6 og går gjennom godkjenningen som andre svar.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherrens innlegg går gjennom godkjenningen etter fullmakten. Fordi verdien ikke kan regnes, kan den som har ubegrenset fullmakt, sende innlegget alene, og alle andre trenger hele kjeden.'''
 forkastet = true
 
 [[gruppe]]
