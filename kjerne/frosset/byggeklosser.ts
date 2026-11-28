@@ -231,8 +231,9 @@ export function virkningerIForholdetOgFristen(
       if (virker && (s.hjemmel === '33.4' || s.hjemmel === '33.6.2')) etterInnsigelseOmTap = true;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'ikke_svar') {
-      // VS-U95: standpunktet om at begrunnelsen ikke er et svar, har ingen virkning.
-      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
+      // VS-U95: standpunktet åpner ikke et lag. KA-U84, VS-U88 punkt 16: etter § 33.4 står det i laget.
+      const virkning = etterInnsigelseOmTap ? iLaget() : 'uten_virkning';
+      ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'oppgjoersform' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {

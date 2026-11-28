@@ -232,7 +232,9 @@
   const hindringslagene = $derived(forutsetninger((x) => x.art === 'hindring'));
   const spesifiseringslagene = $derived(forutsetninger((x) => x.art === 'spesifisering'));
   const foresporselslagene = $derived(
-    forutsetninger((x) => x.art === 'rettidighet' && x.hjemmel === '33.6.2')
+    forutsetninger(
+      (x) => x.art === 'ikke_svar' || (x.art === 'rettidighet' && x.hjemmel === '33.6.2')
+    )
   );
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;

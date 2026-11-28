@@ -865,13 +865,14 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     // OV-U32, LV-U34: forholdet fra det tidligere svaret står i et eget punkt, og dagene i laget etter.
-    // LV-U85 punkt 11: hindringen står i samme lag som dagene; varselet i tide står uten lag (OV-U42).
+    // LV-U85 punkt 11: hindringen står i samme lag som dagene. LV-U89, LV-U85 punkt 1 og 2: varselet
+    // og spesifiseringen uten lag står etter forholdet og foran hindringen.
     expect(laast(rad)).toEqual([
       INNLEDNING_FRIST,
       '1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt\u00a032.2 kom for sent.',
       '2. Varselet om fristforlengelse (punkt\u00a033.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter punkt\u00a033.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
-      HINDRET(3).replace('\n\n', `\n\n${subsidiaert(MOT.varselet('32.2'))}\n\n`),
-      `4. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\n${SPESIFISERING_JA}`,
+      `3. Spesifiseringen av kravet (punkt\u00a033.6.1)\n\n${SPESIFISERING_JA}`,
+      HINDRET(4).replace('\n\n', `\n\n${subsidiaert(MOT.varselet('32.2'))}\n\n`),
       `5. Dagene for frist Sluttfristen\n\n${subsidiaert(MOT.varselet('32.2'))}\n\nFor frist Sluttfristen godkjenner byggherren 20 dager.`,
       '6. Forbehold',
     ]);
@@ -900,9 +901,23 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
           e.startsWith('regel_endret')
         )
       ).toEqual([]);
-      // OV-U42: varselet etter § 33.4 i tide står fortsatt uten lag.
-      expect(punktene[n - 1]).toMatch(
-        /^\d+\. Varselet om fristforlengelse[^\n]*\n\nByggherren gjør ikke/
+      // OV-U42, LV-U89, LV-U85 punkt 1 og 2: varselet etter § 33.4 og spesifiseringen i tide står
+      // uten lag foran hindringen i laget. Uten lag står hindringen i temaenes rekkefølge.
+      const temaene = punktene
+        .map((p) => p.split('\n')[0].replace(/^\d+\. /, ''))
+        .filter((p) => /^(Varselet|Spesifiseringen|Hindringen)/.test(p));
+      expect(temaene).toEqual(
+        lagslinje
+          ? [
+              'Varselet om fristforlengelse (punkt\u00a033.4)',
+              'Spesifiseringen av kravet (punkt\u00a033.6.1)',
+              'Hindringen',
+            ]
+          : [
+              'Varselet om fristforlengelse (punkt\u00a033.4)',
+              'Hindringen',
+              'Spesifiseringen av kravet (punkt\u00a033.6.1)',
+            ]
       );
     }
   );
