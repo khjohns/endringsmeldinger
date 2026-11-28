@@ -26,7 +26,8 @@
 {#each linjene.lagtTil as r (r.gjelder)}
   {@const gjelder = r.datoene.at(-1)!}
   {@const rettet = r.datoene.length > 1}
-  {#if rettet || (onrett && rettbare.includes(r.gjelder))}
+  {@const kanRette = !!onrett && rettbare.includes(r.gjelder)}
+  {#if rettet || kanRette}
     <div class="datolinje">
       {#if rettet}
         <p>
@@ -35,11 +36,11 @@
           <span class="tidligere">{RETTING.tidligere(r.datoene.slice(0, -1))}</span>
         </p>
       {/if}
-      {#if onrett && rettbare.includes(r.gjelder)}
+      {#if kanRette}
         <Knapp
           variant="lenke"
           aria-label={RETTING.rettNavn(r.det)}
-          onclick={() => onrett(r.gjelder)}>{RETTING.rett}</Knapp
+          onclick={() => onrett?.(r.gjelder)}>{RETTING.rett}</Knapp
         >
       {/if}
     </div>

@@ -55,7 +55,7 @@
   import {
     brevMedUtsagn,
     brevene,
-    datoenSomGjelderMedBrev,
+    rettetDato,
     datoerISporet,
     fristtabellen,
     klarOverForholdet,
@@ -164,8 +164,7 @@
   );
   // Varseldatoen står fast, med datoen som gjelder etter en retting (U-10 i BF-50, LV-U83).
   const varselId = $derived(u.spor.frist.varsler['33.4']?.id ?? u.spor.frist.krav[0]?.id ?? null);
-  const varseldatoen = $derived(varselId ? datoenSomGjelderMedBrev(u, varselId) : null);
-  const varseletRettet = $derived(varseldatoen?.retting ? varseldatoen : null);
+  const varseletRettet = $derived(varselId ? rettetDato(u, varselId) : null);
   const kanRette = $derived(
     !!varselId && !!onrett && kjernesak.handlinger.includes(`rette_datoen:${varselId}`)
   );

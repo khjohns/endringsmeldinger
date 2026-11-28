@@ -43,8 +43,9 @@
   const r = $derived(datorettingene(u, gjelder)!);
   const gjeldende = $derived(r.datoene.at(-1)!);
   const lukket = $derived(u.forholdAvvist);
-  const spor = $derived(brevene(u).find((b) => b.id === r.brev.id)?.spor[0] ?? 'forhold');
-  const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes(spor)));
+  const alle = $derived(brevene(u));
+  const spor = $derived(alle.find((b) => b.id === r.brev.id)?.spor[0] ?? 'forhold');
+  const sporbrev = $derived(alle.filter((b) => b.spor.includes(spor)));
 
   // Dagens dato i Oslo, som datofeltet ikke kan gå forbi (U-9).
   const idag = dagensDato();
@@ -66,7 +67,7 @@
   const flyt = sendeflyt(() => kjernesak, `${uid}-hindring`);
   const visDatofeil = $derived(flyt.forsoekt ? datofeil : null);
 
-  const gyldig = $derived(!!valg.dato && !datofeil);
+  const gyldig = $derived(!datofeil);
   const linjer = $derived(
     gyldig
       ? [

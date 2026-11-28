@@ -41,6 +41,7 @@
     handlingerISporet,
     innleggSomViserTil,
     kravposterUtenFastBeloep,
+    datolinjene,
     kunnskapsdatoTilbudt,
     leveringene,
     type Brevet,
@@ -201,6 +202,7 @@
   const rettbare = $derived(
     kjernesak.tilbudte.flatMap((h) => (h.type === 'rette_datoen' && h.gjelder ? [h.gjelder] : []))
   );
+  const datoene = $derived(datolinjene(u, rettbare));
   // Datoen etter § 34.1.3 oppgis ved varselet i brevtråden, ikke i lista (U-4 i BF-48).
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
   const menyvalg = $derived(
@@ -618,6 +620,7 @@
       {onkorriger}
       {kunnskapsdatoVarselet}
       {onkunnskapsdato}
+      {datoene}
       {rettbare}
       {onrett}
       {handlingerVed}

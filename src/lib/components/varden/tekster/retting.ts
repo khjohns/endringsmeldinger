@@ -29,8 +29,8 @@ export const RETTING = haerdet({
   rettetIgjen: (b: Brevref) => `Rettet på nytt i ${brevref(b)}.`,
 
   // Svarskjemaet (U-6).
-  iSvaret: (d: Datoen) => `Datoen som gjelder for varselet: ${dato(d.dato)}, ${iBrevet(d)}.`,
-  kravetISvaret: (d: Datoen) => `Datoen som gjelder for kravet: ${dato(d.dato)}, ${iBrevet(d)}.`,
+  iSvaret: (d: Datoen, hva: 'varselet' | 'kravet') =>
+    `Datoen som gjelder for ${hva}: ${dato(d.dato)}, ${iBrevet(d)}.`,
 
   // Kravskjemaet (U-10).
   fast: (d: Datoen, etter: number | null) =>

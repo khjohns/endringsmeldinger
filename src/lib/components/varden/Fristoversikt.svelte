@@ -20,7 +20,6 @@
     klarOverForholdet,
     oppfoelgingene,
     type Brevet,
-    datolinjene,
     type Sideprops,
     sendtSammeDag,
   } from './lesing';
@@ -35,6 +34,7 @@
     vist = null,
     smal = false,
     onles,
+    datoene,
     rettbare = [],
     onrett,
     onspor,
@@ -101,7 +101,7 @@
     {vist}
     {smal}
     {onles}
-    datoene={datolinjene(u, rettbare)}
+    {datoene}
     {rettbare}
     {onrett}
     {handlingerVed}
