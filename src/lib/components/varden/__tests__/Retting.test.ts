@@ -204,6 +204,17 @@ describe('TE retter datoen for et varsel eller et krav lagt til, i Varden (BF-50
     ).toBeTruthy();
   });
 
+  it('svaret på varselet alene viser datoen som gjelder for varselet, med brevet den kommer fra (U-6)', async () => {
+    aapne('varseldatoen-er-rettet-to-ganger', 'BH');
+    await tilFristen();
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Svar på varselet om fristforlengelse' })
+    );
+    expect(
+      await screen.findByText('Datoen som gjelder for varselet: 8. oktober 2026, rettet i brev 6.')
+    ).toBeTruthy();
+  });
+
   it('kravskjemaet viser varseldatoen som gjelder, og lenken til rettingen beholder utkastet (U-10)', async () => {
     aapne('varseldatoen-er-rettet-til-en-tidligere-dato', 'TE');
     await tilFristen();

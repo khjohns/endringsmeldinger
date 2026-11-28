@@ -36,13 +36,14 @@
     varseletISvaret,
     type Varselsvalg,
   } from './kommandoer';
-  import { brevMedUtsagn, brevene, brevet, standpunktene } from './lesing';
+  import { brevMedUtsagn, brevene, brevet, datoenSomGjelderMedBrev, standpunktene } from './lesing';
   import type { Innsigelsen } from './svarlagene';
   import { manglene } from './svarskjema';
   import {
     grunntekst,
     HANDLINGENE,
     leselinjene,
+    RETTING,
     SKJEMA,
     SVARSKJEMA,
     VARSELSVARET,
@@ -86,6 +87,11 @@
 
   const hjemmel = $derived(varselet.hjemmel);
   const spor = $derived(VARSELSPOR[hjemmel]);
+  // U-6 i BF-50: datoen som gjelder for varselet etter en retting, med brevet den kommer fra.
+  const rettet = $derived.by(() => {
+    const d = datoenSomGjelderMedBrev(u, varselet.id);
+    return d?.retting ? d : null;
+  });
   // Brevet svaret gjelder: kravversjonen når kravet selv er varselet (VS-U96 punkt 38).
   const varselbrevet = $derived(brevMedUtsagn(u, varselet.kravversjon ?? varselet.id));
   const foer = $derived(
@@ -320,6 +326,7 @@
       {/if}
     {/snippet}
     {#snippet foranVarselet()}
+      {#if rettet}<p class="rettet">{RETTING.iSvaret(rettet)}</p>{/if}
       <Gjelderhvis
         id={`${uid}-varsel-forutsetninger`}
         liste={varseletGjelderHvis}
@@ -384,6 +391,10 @@
 </Svarskjema>
 
 <style>
+  .rettet {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;

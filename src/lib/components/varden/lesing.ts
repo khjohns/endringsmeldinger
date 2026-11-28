@@ -47,10 +47,14 @@ import type {
 } from '#kjerne/typer.ts';
 import { SPOR } from '#kjerne/typer.ts';
 import type { Korrespondansekategori } from './tekster/typer';
-import { datoenSomGjelder, type Utledning, type Utsagn } from '#kjerne/utledning/utled.ts';
-import { detSomRettes } from '#kjerne/kommandoer/rettingen.ts';
+import type { Utledning, Utsagn } from '#kjerne/utledning/utled.ts';
 import type { Betegnelse } from '#kjerne/utledning/visning.ts';
-import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+import {
+  datoenSomGjelder,
+  detSomRettes,
+  elementenesSpor,
+  type Kjernesakkontekst,
+} from '#lib/kjernesak/kontekst.svelte.ts';
 import type { GjeldendeFristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Snippet } from 'svelte';
 
