@@ -393,7 +393,11 @@ export const UTREGNINGEN: Lesbar[] = [
       'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
     ],
   ],
-  ['regler/vederlag.ts:kontrollerInnsigelsenSomStaar', 'utsagn', 'varslet_i_tide'],
+  [
+    'regler/vederlag.ts:kontrollerInnsigelsenSomStaar',
+    'utsagn',
+    'varslet_i_tide hovedkrav_varslet_i_tide',
+  ],
   // OV-U98: svarene med standpunktet til varselet etter § 34.3.3 og § 34.4 leses i rekkefølgen
   // de ble sendt.
   ['frosset/standpunkt.ts:sisteStandpunktTilVarslene', 'relasjon', 's dag lagtTil paaVarselet'],

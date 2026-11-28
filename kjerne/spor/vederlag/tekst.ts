@@ -560,7 +560,12 @@ function leddIVederlaget(
   // VS-U81: innsigelsen etter § 34.3.3 fra et svar før, som svaret ikke sier noe om.
   const forSentFoer = (gjelder: string | undefined) =>
     staar.some((x) => x.hjemmel === '34.3.3' && x.gjelder === gjelder);
-  if (svaretGjelderEtVarsel(svar)) return leddISvaretPaaVarselet(svar, virkning, forSentFoer);
+  if (svaretGjelderEtVarsel(svar)) {
+    const ledd = leddISvaretPaaVarselet(svar, virkning, forSentFoer);
+    if (staar.some((x) => x.hjemmel === '34.1.2'))
+      ledd.unshift({ tekst: `${SENT_I_LINJEN['34.1.2']} kom for sent${SOM_FOER}`, virkning: 1 });
+    return ledd;
+  }
   const sine: Linjeledd[] = [];
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med

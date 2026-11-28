@@ -6807,8 +6807,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
-        "    if (false) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);",
+        "    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', v, staar);",
+        "    if (false) kontrollerInnsigelsenSomStaar('varselet', v, staar);",
       ],
     ],
     mal: ['fra løsningen som ikke sier noe om varselet der innsigelsen står, avvises'],
@@ -8969,6 +8969,38 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['standpunktet etter punkt 34.1.2 i et svar lagt til skjuler ikke den stående innsigelsen etter punkt 34.3.3 i linjen'],
+  },
+  {
+    id: 'F2529z',
+    feilklasse: 'et nytt svar fra løsningen er taust om den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "tidligere.some((x) => x.gjelder === varselet.id && x.hjemmel === '34.1.2' && !x.iTide)",
+        'false',
+      ],
+    ],
+    mal: ['et nytt svar fra løsningen på punkt 34.3.3 må gjenta eller gi opp den stående innsigelsen etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529aa',
+    feilklasse: 'et taust svar lagt til fryses uten den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [["[{ gjelder, hjemmel: '34.1.2' }]", "[{ gjelder, hjemmel: '34.1.3' }]"]],
+    mal: ['et nytt svar lagt til som er taust om den stående innsigelsen etter punkt 34.1.2, fryser justeringen subsidiært'],
+  },
+  {
+    id: 'F2529ab',
+    feilklasse:
+      'et nytt svar fra løsningen bare på varselet i kravet er taust om den stående innsigelsen etter punkt 34.1.2',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide)",
+        'false',
+      ],
+    ],
+    mal: ['når kravet selv er varselet, avvises et nytt svar bare på varselet som tier om den stående innsigelsen etter punkt 34.1.2'],
   },
 ];
 

@@ -477,7 +477,15 @@ export function vurderingeneISvaretBarePaaVarselet(
           ukjent.map((f) => [f, 'kjernen leser ikke feltet i svaret bare på varselet'])
         )
       );
-    kontrollerHovedvarseletISvaret(v, varseletGjelderOgsaa3412(u, krav.id, null, sendt));
+    const gjelderOgsaa3412 = varseletGjelderOgsaa3412(u, krav.id, null, sendt);
+    kontrollerHovedvarseletISvaret(v, gjelderOgsaa3412);
+    if (sendt === null && gjelderOgsaa3412)
+      kontrollerInnsigelsenSomStaar(
+        'varselet',
+        v,
+        staar.some((x) => x.gjelder === krav.id && x.hjemmel === '34.1.2' && !x.iTide),
+        'hovedkrav_varslet_i_tide'
+      );
     for (const { post, svar } of postsvarene(v, poster, krav)) {
       const innsigelsenStaar = staar.some(
         (x) => x.gjelder === post.id && x.hjemmel === post.hjemmel && !x.iTide
@@ -620,18 +628,22 @@ export function vurderingeneISvaretPaaVarselet(
   u: Utledning,
   sendt: string | null
 ): Avvisning | null {
-  const staar = standpunkteneTilVarslene(u, sendt, true).some(
+  const tidligere = standpunkteneTilVarslene(u, sendt, true);
+  const staar = tidligere.some(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );
+  const gjelderOgsaa3412 = varseletGjelderOgsaa3412(u, varselet.id, varselet.hjemmel, sendt);
+  const v = s.vurderinger as Data;
   const feil = avvisteFelt(() => {
-    kontrollerSvaretPaaVarselet(
-      varselet.hjemmel,
-      s.vurderinger as Data,
-      staar,
-      'varselet',
-      varseletGjelderOgsaa3412(u, varselet.id, varselet.hjemmel, sendt)
-    );
-    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);
+    kontrollerSvaretPaaVarselet(varselet.hjemmel, v, staar, 'varselet', gjelderOgsaa3412);
+    if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', v, staar);
+    if (sendt === null && gjelderOgsaa3412)
+      kontrollerInnsigelsenSomStaar(
+        'varselet',
+        v,
+        tidligere.some((x) => x.gjelder === varselet.id && x.hjemmel === '34.1.2' && !x.iTide),
+        'hovedkrav_varslet_i_tide'
+      );
   });
   return avvisteVurderinger(feil);
 }

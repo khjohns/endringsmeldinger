@@ -688,16 +688,17 @@ export function kontrollerHovedvarseletISvaret(
  * mot varselet for kravposten fra et tidligere svar og gjentar den, eller gir den opp
  * uttrykkelig. `innsigelsenStaar` er at byggherrens siste standpunkt til varselet før svaret
  * gjorde den gjeldende. Et svar lagt til kan være taust og leses da med innsigelsen (VS-U81), så
- * kontrollen gjelder bare et svar fra løsningen. Feilen står på `<navn>.varslet_i_tide`.
+ * kontrollen gjelder bare et svar fra løsningen. Feilen står på `<navn>.<felt>`.
  */
 export function kontrollerInnsigelsenSomStaar(
   navn: string,
-  p: { varslet_i_tide?: unknown },
-  innsigelsenStaar: boolean
+  p: { varslet_i_tide?: unknown; hovedkrav_varslet_i_tide?: unknown },
+  innsigelsenStaar: boolean,
+  felt: 'varslet_i_tide' | 'hovedkrav_varslet_i_tide' = 'varslet_i_tide'
 ): void {
-  if (innsigelsenStaar && p.varslet_i_tide == null)
+  if (innsigelsenStaar && p[felt] == null)
     throw new UgyldigVurdering({
-      [`${navn}.varslet_i_tide`]:
+      [`${navn}.${felt}`]:
         'mangler: byggherren har gjort gjeldende i et tidligere svar at varselet kom for sent, så svaret må gjenta innsigelsen eller gi den opp',
     });
 }

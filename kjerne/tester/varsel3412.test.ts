@@ -396,6 +396,72 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     );
   });
 
+  it.each(HJEMLER)(
+    'et nytt svar fra løsningen på punkt %s må gjenta eller gi opp den stående innsigelsen etter punkt 34.1.2 (oppdragsgiver 28.11, spørsmål 2 A i #2529)',
+    (h) => {
+      const s = paaberopt();
+      const gjelder = utsagn(s.send('TE', sendVarsel(h)))[0].id;
+      s.send('BH', svarPaa(gjelder, h, false));
+      const nyttSvar = (iTide: boolean | undefined) => ({
+        type: 'revisjon',
+        erstatter: s.u().spor.vederlag.svarPaaVarsler.at(-1)!.id,
+        svar: svarPaa(gjelder, h, iTide).svar[0],
+      });
+      expect(s.avvisning('BH', nyttSvar(undefined))).toMatchObject({
+        regel: 'UGYLDIG_VURDERING',
+        melding: expect.stringContaining('varselet.hovedkrav_varslet_i_tide: mangler'),
+      });
+      s.send('BH', nyttSvar(false));
+      expect(standpunkteneTilVarslene(s.u(), null)).toContainEqual(
+        expect.objectContaining({ gjelder, hjemmel: '34.1.2', iTide: false })
+      );
+      s.send('BH', nyttSvar(true));
+      expect(standpunkteneTilVarslene(s.u(), null)).toContainEqual(
+        expect.objectContaining({ gjelder, hjemmel: '34.1.2', iTide: true })
+      );
+    }
+  );
+
+  it('et nytt svar lagt til som er taust om den stående innsigelsen etter punkt 34.1.2, fryser justeringen subsidiært (oppdragsgiver 28.11, spørsmål 2 A i #2529)', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.3.3')))[0].id;
+    const foerste = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          gjelder,
+          { hovedkrav_varslet_i_tide: false, varslet_i_tide: true, godtar_justering: true },
+          {},
+          null
+        ),
+      ],
+    });
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+      svar: svar('vederlag', gjelder, { godtar_justering: false }, {}, null),
+      ...SOM_BREV,
+      sendt: '2026-10-05',
+      dokumentasjon: [randomUUID()],
+    });
+    const u = s.u();
+    const { linje, virkninger } = u.spor.vederlag.svarPaaVarsler.at(-1)!.beslutningsgrunnlag;
+    expect(u.forstaatt).toBe(true);
+    expect(virkninger).toMatchObject([{ art: 'justering', virkning: 2 }]);
+    expect(linje).toContain(
+      'prinsipalt varselet etter punkt\u00a034.1.2 kom for sent, som gjort gjeldende i et tidligere svar, subsidiært justeringen'
+    );
+    expect(standpunkteneTilVarslene(u, null)).toContainEqual(
+      expect.objectContaining({
+        gjelder,
+        hjemmel: '34.1.2',
+        iTide: false,
+        dokument: foerste.event_id,
+      })
+    );
+  });
+
   it('et tidligere datert første krav lagt til etter varselsvaret lar svaret stå med samme virkning (VS-U98, VS-U86 punkt 10)', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', leggTilVarsel('2026-10-02', '34.4')))[0].id;
@@ -482,6 +548,40 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     );
     expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
     expect(laast(rad).join(' ')).toContain('Varselet om vederlagsjustering (punkt\u00a034.1.2)');
+  });
+
+  it('når kravet selv er varselet, avvises et nytt svar bare på varselet som tier om den stående innsigelsen etter punkt 34.1.2 (oppdragsgiver 28.11, spørsmål 2 A i #2529)', () => {
+    const s = paaberopt();
+    s.send('TE', {
+      ...VEDERLAGSKRAV,
+      innhold: { kravposter: [{ beskrivelse: ARBEIDET, oppgjoersform: 'regningsarbeid' }] },
+    });
+    const krav = s.u().spor.vederlag.gjeldendeKrav!;
+    const [post] = kravposterI(krav);
+    const svarBarePaaVarselet = (iTide?: boolean) => ({
+      ...svar(
+        'vederlag',
+        krav.id,
+        {
+          ...(iTide === undefined ? {} : { hovedkrav_varslet_i_tide: iTide }),
+          kravposter: [{ gjelder: post.id, varslet_i_tide: false }],
+        },
+        {},
+        null
+      ),
+      bare_varselet: true,
+    });
+    s.send('BH', { type: 'brev', svar: [svarBarePaaVarselet(false)] });
+    expect(
+      s.avvisning('BH', {
+        type: 'revisjon',
+        erstatter: s.u().spor.vederlag.svarPaaVarsler[0].id,
+        svar: svarBarePaaVarselet(),
+      })
+    ).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining('varselet.hovedkrav_varslet_i_tide: mangler'),
+    });
   });
 
   it('svaret på hele kravet viser til innsigelsen fra varselet og kan gi den opp', () => {
