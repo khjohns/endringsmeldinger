@@ -8684,6 +8684,18 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['rettes K1 til en dag etter K3, er K3 ikke varselet'],
   },
+  {
+    id: 'F2523a',
+    feilklasse: 'lukkingen ved et sendt brev leses av hele journalen (MM-U50, GR-U27)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'plass !== -1 && avsluttetAvTe(utled(u.journal.slice(0, plass), regler))',
+        'plass !== -1 && avsluttetAvTe(utled(u.journal, regler))',
+      ],
+    ],
+    mal: ['leser journalen før dokumentet ved'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

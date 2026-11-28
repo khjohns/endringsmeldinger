@@ -5,6 +5,7 @@
   (#1898) og «Tilknyttede krav». Brevtråden er den samme som på sidene for kravene.
 -->
 <script lang="ts">
+  import { avsluttetAvTe, avsluttetAvTeFoer } from '#lib/kjernesak/kontekst.svelte.ts';
   import Brevtraad from './Brevtraad.svelte';
   import Sporside from './Sporside.svelte';
   import TilknyttedeKrav from './TilknyttedeKrav.svelte';
@@ -21,6 +22,7 @@
 
   let {
     u,
+    regler,
     betegnelser,
     korrigerbare = [],
     vist = null,
@@ -72,7 +74,8 @@
     {onrett}
     {korrigerbare}
     {onkorriger}
-    lukket={u.forholdAvvist}
+    lukketNaa={avsluttetAvTe(u)}
+    lukketVed={(id) => avsluttetAvTeFoer(u, id, regler)}
     {handlingerVed}
     {handling}
     {brevet}

@@ -610,6 +610,7 @@
     {@render utkast?.()}
     <Side
       {u}
+      regler={kjernesak.regler}
       {betegnelser}
       {fristtabell}
       vist={visesId}

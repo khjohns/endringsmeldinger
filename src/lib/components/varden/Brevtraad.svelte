@@ -31,7 +31,8 @@
     datoene = new Map(),
     rettbare = [],
     onrett,
-    lukket = false,
+    lukketNaa = false,
+    lukketVed,
     vist = null,
     smal = false,
     onles,
@@ -70,8 +71,10 @@
     /** Varslene og kravene kjernen tilbyr TE å rette datoen for (`rette_datoen:<id>`, BF-50). */
     rettbare?: readonly string[];
     onrett?: (gjelder: string) => void;
-    /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
-    lukket?: boolean;
+    /** Saken er lukket nå, når handlingen «Korriger datoen» tilbys (MM-U51). */
+    lukketNaa?: boolean;
+    /** Saken var lukket da brevet ble sendt (MM-U50, GR-U27). */
+    lukketVed?: (brev: string) => boolean;
     /** Brevet som vises ved siden av tråden, eller i raden når `smal`. */
     vist?: string | null;
     /** Under 1181 px står brevet i raden, ikke i høyre kolonne (U-16). */
@@ -246,13 +249,13 @@
                 >{FORHOLDET.sisteOpplysningVedSvaret(i.sisteOpplysningVedSvaret)}</Melding
               >
             {/if}
-            {#if i.opplysning && !i.opplysning.korrigering && lukket && onkorriger && korrigerbare.includes(i.opplysning.id)}
+            {#if i.opplysning && !i.opplysning.korrigering && lukketNaa && onkorriger && korrigerbare.includes(i.opplysning.id)}
               <!-- Under brevet, ikke i det parten skrev (oppdragsgiver 06.11, #1646). -->
               <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>
             {/if}
             {#if i.opplysning?.korrigering}
               {@const staar = FORHOLDET.korrigeringenStaar(
-                lukket,
+                lukketVed?.(b.id) ?? false,
                 brev.slice(0, n).findLast((x) => x.art === 'svar' && x.spor.includes('forhold')) ??
                   null
               )}

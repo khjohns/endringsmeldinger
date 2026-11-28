@@ -28,6 +28,7 @@ import {
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
 import { datoForDokumentet } from '#kjerne/format/leser.ts';
+import type { Regelsett } from '#kjerne/regler/regelsett.ts';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
@@ -780,6 +781,7 @@ export const fristtabellen = (
 /** Det sidene for forholdet, vederlaget og fristen får fra `Sporlesing` (oppsett B, #1997). */
 export interface Sideprops {
   u: Utledning;
+  regler?: Regelsett;
   /** Lenkene i hodet til tråden: «Send innlegg» og «Legg til korrespondanse» (BF-03, OV-U80). */
   traadlenkene?: Snippet;
   /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */

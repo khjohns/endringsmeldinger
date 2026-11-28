@@ -9,7 +9,7 @@
  * er endret etter enigheten (MM-U3 (opphevet av MM-U50)).
  */
 
-import type { Regelsett } from '../regler/regelsett.ts';
+import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import {
   dagenSendt,
@@ -51,6 +51,7 @@ import {
   kraveneErAvgjort,
   sporetErLukket,
   svarIkkeGodtatt,
+  utled,
   venterPaaSvar,
   vurdertVedRegistreringen,
   type Enighet,
@@ -232,6 +233,16 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
  */
 export const avsluttetAvTe = (u: Utledning): boolean =>
   u.forstaatt && (sporetErLukket(u) || u.spor.forhold.trukket);
+
+/** Om TE hadde avsluttet saken før dokumentet i journalen (MM-U50, GR-U27). */
+export function avsluttetAvTeFoer(
+  u: Utledning,
+  dokumentId: string,
+  regler: Regelsett = GJELDENDE_REGLER
+): boolean {
+  const plass = u.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === dokumentId);
+  return plass !== -1 && avsluttetAvTe(utled(u.journal.slice(0, plass), regler));
+}
 
 /**
  * Kravet i sporet står: saken er forstått og ikke avsluttet av TE, og kravet er ikke trukket

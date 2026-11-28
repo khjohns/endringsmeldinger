@@ -18,7 +18,7 @@
     opplysningene,
     varselbrev,
     vedSvaret,
-    lukket,
+    lukketVed,
     onkunnskapsdato,
   }: {
     b: Brevet;
@@ -33,8 +33,8 @@
      * `null` når TE ikke hadde oppgitt datoen, og `undefined` for et brev uten svar i vederlaget.
      */
     vedSvaret: string | null | undefined;
-    /** Saken er lukket etter GR-U27, så brevet endrer ikke utfallet (VS-U84). */
-    lukket: boolean;
+    /** Saken var lukket da brevet ble sendt (MM-U50, GR-U27). */
+    lukketVed: (brev: string) => boolean;
     /** TE oppgir eller endrer datoen, når kjernen tilbyr det (`oppgi_kunnskapsdato`). */
     onkunnskapsdato?: () => void;
   } = $props();
@@ -57,7 +57,7 @@
   const staar = $derived(
     iBrevet?.egen && iBrevet.siste
       ? KUNNSKAPSDATO.staar(
-          lukket,
+          lukketVed(b.id),
           traad
             .slice(0, plass(b.id))
             .findLast((x) => x.art === 'svar' && x.spor.includes('vederlag')) ?? null

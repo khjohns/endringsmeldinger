@@ -10,13 +10,22 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { dokumenterI } from '../format/leser.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { forlengelseneISaken } from '../spor/frist/utledning.ts';
 import { enighetensVirkning, sporetErLukket } from '../utledning/utled.ts';
-import { forseringKanVelges, saksbetegnelse } from '../utledning/visning.ts';
+import {
+  avsluttetAvTe,
+  avsluttetAvTeFoer,
+  forseringKanVelges,
+  saksbetegnelse,
+} from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
-import { medKravpostIder } from './klient.ts';
+import { minnebane } from './bane.ts';
+import { finn, somForloep } from './brukerforloep.ts';
+import { medKravpostIder, type Handling } from './klient.ts';
+import { kjoer } from './kjoerer.ts';
 import {
   type Data,
   FRIST_FULLT,
@@ -136,5 +145,43 @@ describe('TE godtar et svar som påberoper at forholdet er varslet for sent (HF-
     expect(u.preklusjonGodtatt).toBe(false);
     expect(u.forholdAvvist).toBe(false);
     expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
+  });
+});
+
+describe('Lukkingen ved et sendt brev (MM-U50, GR-U27, #2523)', () => {
+  const forloep = somForloep(finn('BF-02D'));
+  const forhistorie = forloep.steg.slice(0, -2);
+  const aksept = forloep.steg.at(-2)!;
+  const korrigering = forloep.steg.at(-1)!;
+  const trekk: Handling = { handling: 'trekk', spor: 'forhold' };
+
+  it.each([
+    { lukking: 'godtatt avslag', steg: aksept },
+    { lukking: 'trekk av påberopelsen', steg: trekk },
+  ])('leser journalen før dokumentet ved $lukking', async ({ steg }) => {
+    const k = await kjoer(
+      {
+        ...forloep,
+        steg: [
+          ...forhistorie,
+          korrigering,
+          steg,
+          { ...korrigering, navn: 'D5', dato: '2026-09-19' },
+        ],
+        kontroller: [],
+      },
+      minnebane()
+    );
+    const u = await k.utledning();
+    const dokumenter = [...dokumenterI(u.journal)];
+    const brevFoer = dokumenter.at(-3)!;
+    const brevetSomLukket = dokumenter.at(-2)!;
+    const brevEtter = dokumenter.at(-1)!;
+
+    expect(avsluttetAvTe(u), 'forutsetning: saken er lukket').toBe(true);
+    expect(avsluttetAvTeFoer(u, brevFoer.id)).toBe(false);
+    expect(avsluttetAvTeFoer(u, brevetSomLukket.id)).toBe(false);
+    expect(avsluttetAvTeFoer(u, brevEtter.id)).toBe(true);
+    expect(avsluttetAvTeFoer(u, 'ukjent dokument')).toBe(false);
   });
 });

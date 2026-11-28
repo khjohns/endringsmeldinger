@@ -59,8 +59,8 @@ export { svaretGjaldt } from '#kjerne/utledning/utled.ts';
 
 /** Akseptfristen i byggherrens gjeldende svar så lenge TE kan godta det (HF-U23), for Varden (#2120). */
 export { akseptfristen } from '#kjerne/utledning/visning.ts';
-/** For skjemaene og kvitteringene i Varden (GR-U27, #2514). */
-export { avsluttetAvTe } from '#kjerne/utledning/visning.ts';
+/** Lukkingen nå og ved et sendt brev, for Varden (GR-U27, MM-U50). */
+export { avsluttetAvTe, avsluttetAvTeFoer } from '#kjerne/utledning/visning.ts';
 
 /** Om TE kan anse byggherrens avslag som pålegg om forsering, for Varden (FO-U1, #2120). */
 export { forseringKanVelges } from '#kjerne/utledning/visning.ts';
