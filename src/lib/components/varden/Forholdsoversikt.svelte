@@ -14,6 +14,7 @@
     forholdetISaken,
     brevinnholdene,
     oppfoelgingene,
+    datolinjene,
     type Sideprops,
     sendtSammeDag,
   } from './lesing';
@@ -26,6 +27,8 @@
     vist = null,
     smal = false,
     onles,
+    rettbare = [],
+    onrett,
     onspor,
     onkorriger,
     handlingerVed = [],
@@ -64,6 +67,9 @@
     {vist}
     {smal}
     {onles}
+    datoene={datolinjene(u, rettbare)}
+    {rettbare}
+    {onrett}
     {korrigerbare}
     {onkorriger}
     lukket={u.forholdAvvist}

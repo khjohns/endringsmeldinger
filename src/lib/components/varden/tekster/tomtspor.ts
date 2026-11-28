@@ -17,11 +17,21 @@ export const TOMT_SPOR = haerdet({
   varslene: (spor: Kravspor) => `Varsler om ${KRAVET[spor]} i saken`,
   /**
    * Et varsel i sporet med brevet og dagen det ble sendt, herfra eller oppgitt (OV-U5), og arbeidet
-   * etter VS-U87 punkt 27.
+   * etter VS-U87 punkt 27. Etter en retting står datoen som gjelder, med brevet med rettingen
+   * (U-5 i BF-50).
    */
-  varselet: (v: VarselISporet, b: Brevref | null, arbeid?: string) =>
+  varselet: (
+    v: VarselISporet,
+    b: Brevref | null,
+    arbeid?: string,
+    rettet?: { dato: string; brev: Brevref }
+  ) =>
     `Varsel etter ${punkt(v.hjemmel)}${b ? ` i ${brevref(b)}` : ''}${
-      v.sendt ? `, sendt ${dato(v.sendt)}${v.oppgitt ? ' (datoen er oppgitt)' : ''}` : ''
+      rettet
+        ? `, sendt ${dato(rettet.dato)} (datoen er rettet i ${brevref(rettet.brev)})`
+        : v.sendt
+          ? `, sendt ${dato(v.sendt)}${v.oppgitt ? ' (datoen er oppgitt)' : ''}`
+          : ''
     }${arbeid ? `: ${arbeid}` : ''}.`,
   ingenVarsel: (spor: Kravspor) =>
     `Saken har ikke et varsel om ${KRAVET[spor]}. Er varselet sendt på annen måte, kan du legge det til med datoen det ble sendt.`,

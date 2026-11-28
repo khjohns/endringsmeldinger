@@ -78,6 +78,7 @@
     utkast,
     onkorriger,
     onkunnskapsdato,
+    onrett,
     onakseptbrev,
     onpaanytt,
     nySak,
@@ -100,6 +101,8 @@
     onkorriger?: (opplysning: string) => void;
     /** TE oppgir eller endrer kunnskapsdatoen for varselet etter § 34.1.3 (BF-48). */
     onkunnskapsdato?: (varselet: string) => void;
+    /** TE retter datoen for et varsel eller et krav lagt til (U-1 i BF-50). */
+    onrett?: (gjelder: string) => void;
     /** Aksepten til brevkontrollen, med virkningen slik kjernen regner den. */
     onakseptbrev: (k: TilBrevkontrollen) => void;
     /** Parten legger dokumentasjonen fra egen side til på nytt med valget (U-12 i BF-49). */
@@ -193,6 +196,10 @@
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
   const korrigerbare = $derived(
     kjernesak.tilbudte.flatMap((h) => (h.type === 'korrigere' && h.gjelder ? [h.gjelder] : []))
+  );
+  // Datoen rettes ved varselet eller kravet i brevtråden, ikke i lista (U-1 i BF-50).
+  const rettbare = $derived(
+    kjernesak.tilbudte.flatMap((h) => (h.type === 'rette_datoen' && h.gjelder ? [h.gjelder] : []))
   );
   // Datoen etter § 34.1.3 oppgis ved varselet i brevtråden, ikke i lista (U-4 i BF-48).
   const kunnskapsdatoVarselet = $derived(kunnskapsdatoTilbudt(kjernesak.tilbudte));
@@ -611,6 +618,8 @@
       {onkorriger}
       {kunnskapsdatoVarselet}
       {onkunnskapsdato}
+      {rettbare}
+      {onrett}
       {handlingerVed}
       handling={vedBrevene}
       brevet={lestBrevet}

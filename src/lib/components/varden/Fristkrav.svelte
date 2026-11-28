@@ -55,6 +55,7 @@
   import {
     brevMedUtsagn,
     brevene,
+    datoenSomGjelderMedBrev,
     datoerISporet,
     fristtabellen,
     klarOverForholdet,
@@ -63,6 +64,7 @@
     FRISTKRAV,
     HOVEDLINJER,
     LEGG_TIL,
+    RETTING,
     SKJEMA,
     brevref,
     dagensDato,
@@ -84,6 +86,7 @@
     onavbrudd,
     onendre = () => {},
     onlagttil = () => {},
+    onrett,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -98,6 +101,8 @@
      * påminnelsen ved det første kravet, så kravet TE har begynt på, står som utkast (U-3 i BF-51).
      */
     onregistrert: (kravetStaar: boolean) => void;
+    /** TE retter varseldatoen i et eget brev, og utkastet står (U-10 i BF-50). */
+    onrett?: (gjelder: string) => void;
     /** Brevet leses ved siden av skjemaet, så panelet til venstre felles inn (system.md). */
     onvedsiden?: (vedSiden: boolean) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
@@ -156,6 +161,13 @@
   // (`varselVedKravet` i kjernen). Uten noen av dem er dette kravet varselet (U-6).
   const varselbrev = $derived(
     brevMed(u.spor.frist.varsler['33.4']?.dokument ?? u.spor.frist.krav[0]?.dokument)
+  );
+  // Varseldatoen står fast, med datoen som gjelder etter en retting (U-10 i BF-50, LV-U83).
+  const varselId = $derived(u.spor.frist.varsler['33.4']?.id ?? u.spor.frist.krav[0]?.id ?? null);
+  const varseldatoen = $derived(varselId ? datoenSomGjelderMedBrev(u, varselId) : null);
+  const varseletRettet = $derived(varseldatoen?.retting ? varseldatoen : null);
+  const kanRette = $derived(
+    !!varselId && !!onrett && kjernesak.handlinger.includes(`rette_datoen:${varselId}`)
   );
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
@@ -836,13 +848,26 @@
         {#if utenfor}{@render varselUtenfor()}{/if}
       {:else if varselbrev}
         <p class="status">
-          {FRISTKRAV.varseletSendt(
-            varselbrev,
-            klarOver
-              ? kalenderdager(klarOver.dato, varselbrev.sendt ?? varselbrev.registrert)
-              : null
-          )}
+          {#if varseletRettet}
+            {RETTING.fast(
+              varseletRettet,
+              klarOver ? kalenderdager(klarOver.dato, varseletRettet.dato) : null
+            )}
+          {:else}
+            {FRISTKRAV.varseletSendt(
+              varselbrev,
+              klarOver
+                ? kalenderdager(klarOver.dato, varselbrev.sendt ?? varselbrev.registrert)
+                : null
+            )}
+          {/if}
         </p>
+        {#if kanRette && varselId}
+          <div>
+            <Knapp variant="lenke" onclick={() => onrett?.(varselId)}>{RETTING.egetBrevLenke}</Knapp
+            >
+          </div>
+        {/if}
       {:else if utenfor}
         <p class="status">{FRISTKRAV.gittFoer}.</p>
         <p class="dempet">{FRISTKRAV.gittFoerHjelp}</p>

@@ -10,7 +10,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import { brevet } from './lesing';
+  import { brevet, datoenSomGjelderMedBrev } from './lesing';
   import { HANDLINGENE, TOMT_SPOR, varselet } from './tekster';
 
   let {
@@ -27,6 +27,11 @@
     onregistrer?: () => void;
   } = $props();
   const uid = $props.id();
+  // Etter en retting står datoen som gjelder (U-5 i BF-50).
+  const rettet = (id: string) => {
+    const d = datoenSomGjelderMedBrev(u, id);
+    return d?.retting ? d : undefined;
+  };
 
   const varslene = $derived(varsleneISporet(u, spor));
   let ikkeBygget = $state(false);
@@ -38,7 +43,7 @@
   {#if varslene.length}
     <ul>
       {#each varslene as v (v.id)}
-        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument), arbeidetI(u, v.id))}</li>
+        <li>{TOMT_SPOR.varselet(v, brevet(u, v.dokument), arbeidetI(u, v.id), rettet(v.id))}</li>
       {/each}
     </ul>
   {:else}

@@ -210,7 +210,7 @@ navn = "Retting av datoene i et sendt brev"
 part = "TE"
 spor = ["forhold", "vederlag", "frist"]
 kilde = ["MM-U59", "OV-U98", "OV-U99"]
-finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen etter punkt 34.1.3 (punkt 12) finnes. Kjernen tilbyr, godtar og skriver rettingen av varseldatoen og kravdatoen (punkt 8 og 18, BF-50), men Varden har ikke skjemaet ennå."
+finnes = "Delvis. Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen etter punkt 34.1.3 (punkt 12) finnes. Rettingen av varseldatoen og kravdatoen (punkt 8 og 18, BF-50) finnes i kjernen og i Varden."
 form = "Strukturert. Den manuelle korrigeringsprosessen tar andre rettinger."
 naar = "Nå for datoene i beslutningsdelen i MM-U59."
 tilstander = "Ingen. Rettingen av varseldatoen og kravdatoen gjelder straks, også til en tidligere dato (MM-U63)."
@@ -218,7 +218,7 @@ status = "naa"
 noekler = ["korrigere:*", "oppgi_kunnskapsdato:*", "rette_datoen:*"]
 kommandoer = ["korrigering", "kunnskapsdato", "retting"]
 skjema = ["korrigere:*", "oppgi_kunnskapsdato:*"]
-mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18): skjemaet i Varden (BF-50, #1309). Korrigeringen av datoen i påberopelsen (punkt 10) og kunnskapsdatoen etter punkt 34.1.3 (punkt 12, VS-U82, #2424) er bygget, og Varden åpner skjemaene utenfor `skjemaene`."
+mangler = "Ingenting for punkt 8, 10, 12 og 18. Varden åpner skjemaene for korrigeringen, kunnskapsdatoen og rettingen fra handlingen ved datoen i tråden, utenfor `skjemaene` (BF-02A, BF-48, BF-50)."
 
 [[handling]]
 id = "U8"
