@@ -547,14 +547,15 @@ export function standpunkterBarePaaVarselet(
 }
 
 function standpunktTilHovedvarselet(v: Svarvurdering, gjelder: string, nyId: () => string): Data[] {
-  return typeof v.hovedkrav_varslet_i_tide === 'boolean'
+  const iTide = v.hovedkrav_varslet_i_tide;
+  return typeof iTide === 'boolean'
     ? [
         {
           id: nyId(),
           art: 'rettidighet',
           gjelder,
           hjemmel: '34.1.2',
-          i_tide: v.hovedkrav_varslet_i_tide,
+          i_tide: iTide,
         },
       ]
     : [];

@@ -8906,6 +8906,18 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['![...svar, ...svarUtenforRekken].some(', '[...svar, ...svarUtenforRekken].some(']],
     mal: ['etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet'],
   },
+  {
+    id: 'F2529t',
+    feilklasse: 'lesingen godtar et svar på varselet etter punkt 34.4 med bare standpunktet etter punkt 34.1.2 (VS-U100)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "varselet.hjemmel === '34.1.3' ||\n      varselet.hjemmel === '34.4') &&",
+        "varselet.hjemmel === '34.1.3') &&",
+      ],
+    ],
+    mal: ['et lagret svar på punkt 34.4 må ha standpunktet til selve varselet'],
+  },
 ];
 
 /** En kopi av arbeidstreet. */

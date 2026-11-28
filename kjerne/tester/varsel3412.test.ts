@@ -354,6 +354,21 @@ describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => 
     });
   });
 
+  it('et lagret svar på punkt 34.4 må ha standpunktet til selve varselet', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.4')))[0].id;
+    const rad = s.send('BH', svarPaa(gjelder, '34.4', false));
+    expect(s.u().forstaatt).toBe(true);
+    const lagret = (rad.data.svar as Data[])[0];
+    const [hovedvarselet] = lagret.standpunkter as Data[];
+    lagret.standpunkter = [hovedvarselet];
+    const grunnlag = lagret.beslutningsgrunnlag as Data;
+    grunnlag.virkninger = (grunnlag.virkninger as Data[]).filter(
+      (v) => v.standpunkt === hovedvarselet.id
+    );
+    expect(s.u().forstaatt).toBe(false);
+  });
+
   it('etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet', () => {
     const s = paaberopt();
     const gjelder = utsagn(s.send('TE', sendVarsel('34.4')))[0].id;

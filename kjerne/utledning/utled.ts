@@ -1435,7 +1435,8 @@ function kontrollerSvarPaaVarselet(
   else if (
     (varselet.hjemmel === '33.4' ||
       varselet.hjemmel === '34.1.2' ||
-      varselet.hjemmel === '34.1.3') &&
+      varselet.hjemmel === '34.1.3' ||
+      varselet.hjemmel === '34.4') &&
     !s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === varselet.hjemmel)
   )
     ugyldig(
@@ -1474,13 +1475,11 @@ function kontrollerStandpunktet(
       'standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse etter § 33.6.2 annet ledd b før svaret på det første fristkravet'
     );
   if (p.art !== 'rettidighet') return;
-  if (p.hjemmel === '34.1.2') {
-    const egetVarsel = varsler.find((v) => v.id === s.gjelder);
-    if (
-      (s.bareVarselet || egetVarsel) &&
-      (p.gjelder !== s.gjelder ||
-        !hjemmelenGjelder('34.1.2', spor.forhold.krav.find((k) => k.id === s.paaberopelse), regler))
-    ) {
+  const ekstraVarselsvar =
+    p.hjemmel === '34.1.2' && (s.bareVarselet || varsler.some((v) => v.id === s.gjelder));
+  if (ekstraVarselsvar) {
+    const paaberopelse = spor.forhold.krav.find((k) => k.id === s.paaberopelse);
+    if (p.gjelder !== s.gjelder || !hjemmelenGjelder('34.1.2', paaberopelse, regler)) {
       ugyldig(s.id, 'standpunktet etter punkt 34.1.2 gjelder ikke varselet svaret gjelder');
       return;
     }
@@ -1519,7 +1518,8 @@ function kontrollerStandpunktet(
       foer,
       dagen
     );
-    const eldreSvar = s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
+    const eldreSvar =
+      !ekstraVarselsvar && s.beslutningsgrunnlag.regelversjon < REGELVERSJON_VS_U98;
     const eget = varslene.find((v) => foer(v.id))?.id;
     const egetGjelder = (p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget;
     // MM-U50: eldre svar kunne vise til kravet selv om et av de andre varslene kom først.
