@@ -8745,8 +8745,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'foerstSendt(varsler.filter((v) => foerSvaret(v.id)), sendt)',
-        'varsler.find((v) => foerSvaret(v.id))',
+        'const eget = foerstSendt(\n    varsler.filter((v) => foerSvaret(v.id)),\n    sendt\n  );',
+        'const eget = varsler.find((v) => foerSvaret(v.id));',
       ],
     ],
     mal: ['varselet med tidligst dato vinner også når det legges til sist'],

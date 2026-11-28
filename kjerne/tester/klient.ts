@@ -701,7 +701,8 @@ export function radFor(
       { spor, vurderinger: v } as Svarutkast,
       krav,
       u,
-      () => navn.nyId()
+      () => navn.nyId(),
+      null
     );
     const svar: Record<string, unknown> = {
       id: navn.ta(s.navn),
