@@ -6599,7 +6599,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),',
+        '          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(p.hjemmel)),',
         '          vilkaar: null,',
       ],
     ],
@@ -7386,8 +7386,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;",
-        '    break;',
+        '    if (merknad) foerst = j.brevet(forrige.dokument);',
+        '    if (merknad) break;',
       ],
     ],
     mal: ['et nytt svar gir opp innsigelsen uttrykkelig (punkt 32 og 33)'],
@@ -8843,6 +8843,68 @@ const MUTASJONER: Mutasjon[] = [
       ["(p.hjemmel !== '34.1.2' || eldreSvar) && p.gjelder === eget", 'p.gjelder === eget'],
     ],
     mal: ['lesingen avviser en ny påberopelse som viser til et eget varsel sendt senere'],
+  },
+  {
+    id: 'F2529n',
+    feilklasse: 'et svar på et senere varsel kan ta stilling etter punkt 34.1.2 (VS-U100)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['  if (!gjelderOgsaa3412)', '  if (!gjelderOgsaa3412 && false)']],
+    mal: ['standpunktet avvises ved svikt når varselet ikke kan besvares etter punkt 34.1.2'],
+  },
+  {
+    id: 'F2529o',
+    feilklasse: 'svaret på et eget varsel lagrer bare standpunktet til varselets egen hjemmel (VS-U100)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'const ut = standpunktTilHovedvarselet(v, varselet.id, nyId);',
+        'const ut = standpunktTilHovedvarselet({}, varselet.id, nyId);',
+      ],
+    ],
+    mal: ['svaret på det første varselet etter punkt 34.1.3 lagrer begge standpunktene'],
+  },
+  {
+    id: 'F2529p',
+    feilklasse: 'svaret bare på kravpostvarselet utelater standpunktet til hele kravet (VS-U100)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '...standpunktTilHovedvarselet(v, krav.id, nyId),',
+        '...standpunktTilHovedvarselet({}, krav.id, nyId),',
+      ],
+    ],
+    mal: ['svaret bare på kravpostvarselet kan påberope punkt 34.1.2 mot hele kravet'],
+  },
+  {
+    id: 'F2529q',
+    feilklasse: 'innsigelsen etter punkt 34.1.2 får ingen virkning i svaret på varselet (VS-U100)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        "virkning: heltForSent ? 1 : 'uten_virkning'",
+        "virkning: 'uten_virkning'",
+      ],
+    ],
+    mal: ['svaret på det første varselet etter punkt 34.3.3 lagrer begge standpunktene'],
+  },
+  {
+    id: 'F2529r',
+    feilklasse: 'svaret på kravet finner ikke innsigelsen etter punkt 34.1.2 i svaret på varselet (VS-U100)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'const kravpost = erKravpostvarselhjemmel(p.hjemmel);',
+        "if (p.hjemmel === '34.1.2' && paaVarselet) continue;\n      const kravpost = erKravpostvarselhjemmel(p.hjemmel);",
+      ],
+    ],
+    mal: ['svaret på hele kravet viser til innsigelsen fra varselet og kan gi den opp'],
+  },
+  {
+    id: 'F2529s',
+    feilklasse: 'standpunktet etter punkt 34.1.2 kan gis i et varselsvar etter svaret på kravet (VS-U100, VS-U96 punkt 33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['![...svar, ...svarUtenforRekken].some(', '[...svar, ...svarUtenforRekken].some(']],
+    mal: ['etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet'],
   },
 ];
 

@@ -498,6 +498,13 @@ export const UTREGNINGEN: Lesbar[] = [
     'varslet_i_tide godtar_justering',
   ],
   [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerHovedvarseletISvaret',
+    ['spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet'],
+  ],
+  ['regler/vederlag.ts:kontrollerHovedvarseletISvaret', 'utsagn', 'hovedkrav_varslet_i_tide'],
+  [
     'spor/vederlag/format.ts',
     'predikat',
     'svaretGjelderEtVarsel',

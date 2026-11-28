@@ -626,15 +626,19 @@ export function kontrollerSvaretPaaVarselet(
   hjemmel: Vederlagsvarselhjemmel,
   v: Record<string, unknown>,
   innsigelsenStaar: boolean,
-  navn = 'varselet'
+  navn = 'varselet',
+  gjelderOgsaa3412 = false
 ): void {
-  const ukjent = Object.keys(v).filter((f) => f !== 'varslet_i_tide' && f !== 'godtar_justering');
+  const ukjent = Object.keys(v).filter(
+    (f) => f !== 'varslet_i_tide' && f !== 'godtar_justering' && f !== 'hovedkrav_varslet_i_tide'
+  );
   if (ukjent.length)
     throw new UgyldigVurdering(
       Object.fromEntries(
         ukjent.map((f) => [`${navn}.${f}`, 'kjernen leser ikke feltet i svaret på varselet'])
       )
     );
+  kontrollerHovedvarseletISvaret(v, gjelderOgsaa3412);
   // VS-U87 punkt 32.
   if (hjemmel === '34.1.2' || hjemmel === '34.1.3') {
     if (v.godtar_justering != null)
@@ -661,6 +665,21 @@ export function kontrollerSvaretPaaVarselet(
         'mangler: svaret på varselet etter punkt 34.4 har bare standpunktet til varselet',
     });
   kontrollerOppgivelsenEtter344(navn, v, post, innsigelsenStaar);
+}
+
+/** VS-U100: standpunktet etter § 34.1.2 gjelder hele vederlagskravet. */
+export function kontrollerHovedvarseletISvaret(
+  v: { hovedkrav_varslet_i_tide?: unknown },
+  gjelderOgsaa3412: boolean
+): void {
+  const standpunkt = v.hovedkrav_varslet_i_tide;
+  if (standpunkt === undefined) return;
+  if (!gjelderOgsaa3412)
+    throw new UgyldigVurdering({
+      hovedkrav_varslet_i_tide: 'standpunktet etter punkt 34.1.2 kan ikke gis i dette svaret på varselet',
+    });
+  if (typeof standpunkt !== 'boolean')
+    throw new UgyldigVurdering({ hovedkrav_varslet_i_tide: 'er verken true eller false' });
 }
 
 /**

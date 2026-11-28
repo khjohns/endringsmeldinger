@@ -622,11 +622,11 @@ function svarpunkterPaaVarselet(s: Svar, t: Tekst, nr: Svardelen): Brevpunkt[] {
     ...s.standpunkter.map((p): Svarledd => {
       if (p.art === 'rettidighet')
         return {
-          punkt: hjemmel,
+          punkt: p.hjemmel,
           plass: plassen(p.id),
-          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(hjemmel)),
+          vilkaar: p.iTide ? null : helt(INNSIGELSEN_MOT.varselet(p.hjemmel)),
           tekst: stor(
-            erKravpostvarselhjemmel(hjemmel)
+            erKravpostvarselhjemmel(p.hjemmel)
               ? varseltekst(p, 'varselet', [], t)
               : rettidighetIVarselet(p, s, j)
           ),
@@ -664,8 +664,11 @@ function rettidighetIVarselet(
   let foerst: string | undefined;
   for (let id = s.erstatter; id; ) {
     const forrige = j.svar(id);
-    if (!forrige.standpunkter.some((x) => x.art === 'rettidighet' && !x.iTide)) break;
-    foerst = j.brevet(forrige.dokument);
+    const merknad = forrige.standpunkter.find(
+      (x) => x.art === 'rettidighet' && x.hjemmel === p.hjemmel && x.gjelder === p.gjelder
+    );
+    if (merknad?.art === 'rettidighet' && merknad.iTide) break;
+    if (merknad) foerst = j.brevet(forrige.dokument);
     id = forrige.erstatter;
   }
   if (p.iTide)

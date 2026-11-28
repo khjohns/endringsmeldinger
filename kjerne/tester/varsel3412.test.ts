@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { datoenDetBleSendt, varseletFoerBrevet } from '../utledning/utled.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
+import { standpunkteneTilVarslene } from '../spor/vederlag/utledning.ts';
 import {
   KLAR_OVER,
   PAABEROPELSE,
@@ -300,4 +302,113 @@ describe('korrespondanse som kjernen ikke leser som varsel (VS-U98, VS-U103)', (
       expect(varseletFoerBrevet(s.u(), '34.1.2')).toBe(s.krav('vederlag'));
     }
   );
+});
+
+describe('standpunkt etter punkt 34.1.2 i svaret på varselet (VS-U100)', () => {
+  const svarPaa = (gjelder: string, h: Hjemmel, iTide: unknown) => ({
+    type: 'brev',
+    svar: [{
+      ...svar('vederlag', gjelder, {
+        hovedkrav_varslet_i_tide: iTide,
+        varslet_i_tide: false,
+        ...(h === '34.3.3' ? { godtar_justering: true } : {}),
+      }, {}, null),
+    }],
+  });
+
+  it.each(HJEMLER)('svaret på det første varselet etter punkt %s lagrer begge standpunktene', (h) => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel(h)))[0].id;
+    const rad = s.send('BH', svarPaa(gjelder, h, false));
+    const u = s.u();
+    const lagret = u.spor.vederlag.svarPaaVarsler[0];
+    expect(u.forstaatt).toBe(true);
+    expect(lagret.standpunkter).toEqual(expect.arrayContaining([
+      expect.objectContaining({ art: 'rettidighet', hjemmel: '34.1.2', gjelder, iTide: false }),
+      expect.objectContaining({ art: 'rettidighet', hjemmel: h, gjelder, iTide: false }),
+    ]));
+    expect(lagret.beslutningsgrunnlag.virkninger[0]).toMatchObject({
+      standpunkt: lagret.standpunkter[0].id, virkning: 1,
+    });
+    expect(laast(rad).join('\n')).toContain('Varselet om vederlagsjustering (punkt\u00a034.1.2)');
+    expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
+  });
+
+  it.each(['svikt', 'endring'] as const)('standpunktet avvises ved %s når varselet ikke kan besvares etter punkt 34.1.2', (h) => {
+    const s = paaberopt(h);
+    if (h === 'svikt') s.send('TE', sendVarsel('34.1.2'));
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.1.3')))[0].id;
+    expect(s.avvisning('BH', svarPaa(gjelder, '34.1.3', false))).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining('hovedkrav_varslet_i_tide'),
+    });
+    expect(s.avvist('BH', svarPaa(gjelder, '34.1.3', undefined))).toBeNull();
+  });
+
+  it('standpunktet etter punkt 34.1.2 må være en boolsk verdi', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.1.3')))[0].id;
+    expect(s.avvisning('BH', svarPaa(gjelder, '34.1.3', 'nei'))).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining('er verken true eller false'),
+    });
+  });
+
+  it('etter svaret på hele kravet avvises punkt 34.1.2 i et svar på kravpostvarselet', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.4')))[0].id;
+    s.send('TE', VEDERLAGSKRAV);
+    svarPaaKravet(s, true);
+    expect(s.avvisning('BH', svarPaa(gjelder, '34.4', false))).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining('hovedkrav_varslet_i_tide'),
+    });
+    expect(s.avvist('BH', svarPaa(gjelder, '34.4', undefined))).toBeNull();
+  });
+
+  it('svaret bare på kravpostvarselet kan påberope punkt 34.1.2 mot hele kravet', () => {
+    const s = paaberopt();
+    s.send('TE', {
+      ...VEDERLAGSKRAV,
+      innhold: { kravposter: [{ beskrivelse: ARBEIDET, oppgjoersform: 'regningsarbeid' }] },
+    });
+    const krav = s.u().spor.vederlag.gjeldendeKrav!;
+    const [post] = kravposterI(krav);
+    const kommando = {
+      type: 'brev',
+      svar: [
+        {
+          ...svar('vederlag', krav.id, {
+            hovedkrav_varslet_i_tide: false,
+            kravposter: [{ gjelder: post.id, varslet_i_tide: false }],
+          }, {}, null),
+          bare_varselet: true,
+        },
+      ],
+    };
+    const rad = s.send('BH', kommando);
+    const u = s.u();
+    expect(rettidigheten(rad)).toMatchObject({ gjelder: krav.id, i_tide: false });
+    expect(u.spor.vederlag.svarPaaVarsler[0].standpunkter).toContainEqual(
+      expect.objectContaining({ hjemmel: '34.4', gjelder: post.id })
+    );
+    expect(standpunkteneTilVarslene(u, null)).toContainEqual(
+      expect.objectContaining({ hjemmel: '34.1.2', gjelder: krav.id, iTide: false })
+    );
+    expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
+    expect(laast(rad).join(' ')).toContain('Varselet om vederlagsjustering (punkt\u00a034.1.2)');
+  });
+
+  it('svaret på hele kravet viser til innsigelsen fra varselet og kan gi den opp', () => {
+    const s = paaberopt();
+    const gjelder = utsagn(s.send('TE', sendVarsel('34.4')))[0].id;
+    const foer = s.send('BH', svarPaa(gjelder, '34.4', false));
+    s.send('TE', VEDERLAGSKRAV);
+    const rad = svarPaaKravet(s, true);
+    expect(laast(rad).join(' ')).toContain('gir opp innsigelsen i brev K201-KOE-017-03');
+    expect(standpunkteneTilVarslene(s.u(), null)).toContainEqual(
+      expect.objectContaining({ hjemmel: '34.1.2', gjelder, iTide: true })
+    );
+    expect(s.u().spor.vederlag.svarPaaVarsler[0].dokument).toBe(foer.event_id);
+  });
 });

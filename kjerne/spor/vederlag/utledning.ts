@@ -429,7 +429,12 @@ function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
  */
 function kontrollerVarslenePaaPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
   const poster = new Map(kravposterI(krav).map((p) => [p.id, p]));
-  for (const p of s.standpunkter) {
+  const omKravpostene = s.standpunkter.filter(
+    (p) => p.art !== 'rettidighet' || p.hjemmel !== '34.1.2'
+  );
+  if (!omKravpostene.length)
+    ugyldig(s.id, 'svaret bare på varselet mangler standpunktet til varselet for en kravpost');
+  for (const p of omKravpostene) {
     if (!(p.art === 'justering' || (p.art === 'rettidighet' && erKravpostvarselhjemmel(p.hjemmel))))
       ugyldig(
         s.id,

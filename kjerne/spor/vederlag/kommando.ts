@@ -26,6 +26,7 @@ import {
 import {
   kontroller as kontrollerVederlaget,
   kontrollerInnsigelsenSomStaar,
+  kontrollerHovedvarseletISvaret,
   kontrollerOppgivelsenEtter344,
   kontrollerOppgjoersformen,
   kontrollerSvaretPaaVarselet,
@@ -89,6 +90,7 @@ import {
   kravversjoneneKravetProevesMot,
   kravversjonenPaaDagen,
   varseletFoerBrevet,
+  varseletGjelderOgsaa3412,
   varselEtter3412KrevesIkke,
   varseletForNyttSvar,
   type Utledning,
@@ -466,13 +468,16 @@ export function vurderingeneISvaretBarePaaVarselet(
   const staar = standpunkteneTilVarslene(u, sendt, true);
   const feil = avvisteFelt(() => {
     const v = s.vurderinger as Data;
-    const ukjent = Object.keys(v).filter((f) => f !== 'kravposter');
+    const ukjent = Object.keys(v).filter(
+      (f) => f !== 'kravposter' && f !== 'hovedkrav_varslet_i_tide'
+    );
     if (ukjent.length)
       throw new UgyldigVurdering(
         Object.fromEntries(
           ukjent.map((f) => [f, 'kjernen leser ikke feltet i svaret bare på varselet'])
         )
       );
+    kontrollerHovedvarseletISvaret(v, varseletGjelderOgsaa3412(u, krav.id, null, sendt));
     for (const { post, svar } of postsvarene(v, poster, krav)) {
       const innsigelsenStaar = staar.some(
         (x) => x.gjelder === post.id && x.hjemmel === post.hjemmel && !x.iTide
@@ -533,9 +538,26 @@ export function standpunkterBarePaaVarselet(
   krav: Krav,
   nyId: () => string
 ): Data[] {
-  return postsvarene(v as Data, poster, krav).flatMap(({ post, svar }) =>
-    standpunkterPaaVarselet(svar, { id: post.id, hjemmel: post.hjemmel }, nyId)
-  );
+  return [
+    ...standpunktTilHovedvarselet(v, krav.id, nyId),
+    ...postsvarene(v as Data, poster, krav).flatMap(({ post, svar }) =>
+      standpunkterPaaVarselet(svar, { id: post.id, hjemmel: post.hjemmel }, nyId)
+    ),
+  ];
+}
+
+function standpunktTilHovedvarselet(v: Svarvurdering, gjelder: string, nyId: () => string): Data[] {
+  return typeof v.hovedkrav_varslet_i_tide === 'boolean'
+    ? [
+        {
+          id: nyId(),
+          art: 'rettidighet',
+          gjelder,
+          hjemmel: '34.1.2',
+          i_tide: v.hovedkrav_varslet_i_tide,
+        },
+      ]
+    : [];
 }
 
 /**
@@ -564,7 +586,7 @@ export function standpunkterPaaVarselet(
 ): Data[] {
   const iTide = (v as Data).varslet_i_tide;
   const godtar = (v as Data).godtar_justering;
-  const ut: Data[] = [];
+  const ut = standpunktTilHovedvarselet(v, varselet.id, nyId);
   if (typeof iTide === 'boolean')
     ut.push({
       id: nyId(),
@@ -601,7 +623,13 @@ export function vurderingeneISvaretPaaVarselet(
     (x) => x.gjelder === varselet.id && x.hjemmel === varselet.hjemmel && !x.iTide
   );
   const feil = avvisteFelt(() => {
-    kontrollerSvaretPaaVarselet(varselet.hjemmel, s.vurderinger as Data, staar);
+    kontrollerSvaretPaaVarselet(
+      varselet.hjemmel,
+      s.vurderinger as Data,
+      staar,
+      'varselet',
+      varseletGjelderOgsaa3412(u, varselet.id, varselet.hjemmel, sendt)
+    );
     if (sendt === null) kontrollerInnsigelsenSomStaar('varselet', s.vurderinger as Data, staar);
   });
   return avvisteVurderinger(feil);

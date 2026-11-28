@@ -129,11 +129,18 @@ function virkningerISvaretPaaVarselet(
 ): Standpunktsvirkning[] {
   // VS-U96 punkt 38: svaret bare på varselet i kravet har standpunktene for hver kravpost.
   const varslene = new Map<string, Standpunkt[]>();
+  const hovedvarselet =
+    svar.standpunkter.length > 1
+      ? svar.standpunkter.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2')
+      : undefined;
+  const heltForSent = hovedvarselet?.art === 'rettidighet' && !hovedvarselet.iTide;
+  const foersteLagForPostene = heltForSent ? 2 : 1;
   for (const s of svar.standpunkter) {
+    if (s === hovedvarselet) continue;
     const gjelder = ('gjelder' in s ? s.gjelder : undefined) ?? '';
     varslene.set(gjelder, [...(varslene.get(gjelder) ?? []), s]);
   }
-  return [...varslene.values()].flatMap((standpunktene) => {
+  const postene = [...varslene.values()].flatMap((standpunktene): Standpunktsvirkning[] => {
     const varselet = standpunktene.find((s) => s.art === 'rettidighet');
     const justeringen = standpunktene.find((s) => s.art === 'justering');
     const lag = lagIKravposten(
@@ -144,15 +151,27 @@ function virkningerISvaretPaaVarselet(
           : justeringen?.art === 'justering' && forSentFoer.has(justeringen.gjelder),
         justering: justeringen !== undefined,
       },
-      1
+      foersteLagForPostene
     );
     return standpunktene.map((s) => ({
       standpunkt: s.id,
       art: s.art,
       virkning:
-        s.art === 'justering' ? (lag?.justeringen ?? 1) : (lag?.varselet ?? 'uten_virkning'),
+        s.art === 'justering'
+          ? (lag?.justeringen ?? foersteLagForPostene)
+          : (lag?.varselet ?? 'uten_virkning'),
     }));
   });
+  return hovedvarselet
+    ? [
+        {
+          standpunkt: hovedvarselet.id,
+          art: 'rettidighet',
+          virkning: heltForSent ? 1 : 'uten_virkning',
+        },
+        ...postene,
+      ]
+    : postene;
 }
 
 /**
@@ -338,7 +357,9 @@ function tausOmVarselet(svar: Svarinnhold, krav: Krav | null | undefined): Varse
   if (svaretGjelderEtVarsel(svar))
     return svar.standpunkter.flatMap((j): VarselIKravet[] =>
       j.art === 'justering' &&
-      !svar.standpunkter.some((s) => s.art === 'rettidighet' && s.gjelder === j.gjelder)
+      !svar.standpunkter.some(
+        (s) => s.art === 'rettidighet' && s.hjemmel === '34.3.3' && s.gjelder === j.gjelder
+      )
         ? [{ gjelder: j.gjelder, hjemmel: '34.3.3' }]
         : []
     );

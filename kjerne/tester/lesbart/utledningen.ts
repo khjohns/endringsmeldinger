@@ -127,6 +127,15 @@ export const UTLEDNINGEN: Lesbar[] = [
     'varseletForNyttSvar',
     ['spor/frist/kommando.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'varseletGjelderOgsaa3412',
+    [
+      'spor/vederlag/kommando.ts:vurderingeneISvaretPaaVarselet',
+      'spor/vederlag/kommando.ts:vurderingeneISvaretBarePaaVarselet',
+    ],
+  ],
   // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
   // VS-U85: det egne utsagnet om kunnskapsdatoen viser til det første varselet etter § 34.1.3.
   [

@@ -1385,9 +1385,13 @@ function kontrollerSvarene(
         s.id,
         'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'
       );
+    for (const p of s.standpunkter) {
+      const ekstraStandpunkt =
+        p.art === 'rettidighet' && p.hjemmel === '34.1.2' && varselet?.hjemmel !== p.hjemmel;
+      if (!varselet || ekstraStandpunkt)
+        kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, regler, ugyldig);
+    }
     if (varselet) continue;
-    for (const p of s.standpunkter)
-      kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, regler, ugyldig);
     const krav = alleKrav.get(s.gjelder);
     if (krav?.spor !== s.spor) continue;
     // VS-U96 punkt 38 og 39: svaret bare på varselet har bare standpunktene til varselet.
@@ -1418,7 +1422,9 @@ function kontrollerSvarPaaVarselet(
   else if (
     s.standpunkter.some((p) =>
       p.art === 'rettidighet'
-        ? p.gjelder !== s.gjelder || p.hjemmel !== varselet.hjemmel
+        ? p.gjelder !== s.gjelder ||
+          (p.hjemmel !== varselet.hjemmel &&
+            !(p.hjemmel === '34.1.2' && varslerOgsaaEtter3412(varselet.hjemmel)))
         : p.art !== 'justering' || p.gjelder !== s.gjelder || varselet.hjemmel !== '34.3.3'
     )
   )
@@ -1430,7 +1436,7 @@ function kontrollerSvarPaaVarselet(
     (varselet.hjemmel === '33.4' ||
       varselet.hjemmel === '34.1.2' ||
       varselet.hjemmel === '34.1.3') &&
-    !s.standpunkter.some((p) => p.art === 'rettidighet')
+    !s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === varselet.hjemmel)
   )
     ugyldig(
       s.id,
@@ -1468,6 +1474,17 @@ function kontrollerStandpunktet(
       'standpunktet om at begrunnelsen ikke er et svar, viser ikke til en begrunnelse etter § 33.6.2 annet ledd b før svaret på det første fristkravet'
     );
   if (p.art !== 'rettidighet') return;
+  if (p.hjemmel === '34.1.2') {
+    const egetVarsel = varsler.find((v) => v.id === s.gjelder);
+    if (
+      (s.bareVarselet || egetVarsel) &&
+      (p.gjelder !== s.gjelder ||
+        !hjemmelenGjelder('34.1.2', spor.forhold.krav.find((k) => k.id === s.paaberopelse), regler))
+    ) {
+      ugyldig(s.id, 'standpunktet etter punkt 34.1.2 gjelder ikke varselet svaret gjelder');
+      return;
+    }
+  }
   // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
   if (p.hjemmel === '33.6.2') {
     if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
@@ -2103,5 +2120,23 @@ export function varseletFoerBrevet(
     krav,
     () => true,
     (v) => datoenSomGjelder(medDatoene, v)
+  );
+}
+
+/** VS-U100: kan svaret på varselet også ta stilling etter § 34.1.2? */
+export function varseletGjelderOgsaa3412(
+  u: Utledning,
+  gjelder: string,
+  hjemmel: Varselhjemmel | null,
+  sendt: string | null
+): boolean {
+  const { svar, svarUtenforRekken } = u.spor.vederlag;
+  return (
+    (hjemmel === null || varslerOgsaaEtter3412(hjemmel)) &&
+    !varselEtter3412KrevesIkke(u, sendt) &&
+    varseletFoerBrevet(u, '34.1.2', sendt) === gjelder &&
+    ![...svar, ...svarUtenforRekken].some(
+      (s) => sendt === null || !foerDagen(sendt, datoenDetBleSendt(u, s))
+    )
   );
 }
