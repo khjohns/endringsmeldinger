@@ -193,6 +193,10 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 
 ## Kontrollen
 
+Claude bruker også denne kontrollen når Codex bygger. Byggeprofilen står i
+[codex-skillen](../codex/SKILL.md#bygging). Hvem som pusher og åpner utkastet, står i
+[verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
+
 - Hent commitene med `git fetch "$KLON" <gren>`, og se forfatteren og `--stat`.
 - **Testene i klonen og i hovedkopien** er den raske kjøringen i
   [miljø-skillen, «Rask kjøring under arbeidet»](../miljo/SKILL.md#rask-kjøring-under-arbeidet),
@@ -214,7 +218,8 @@ legges fram slik [vedtaksskillen](../vedtak/SKILL.md) sier.
   kallet eller søket, og kommentaren eller PR-en sier hva som er kontrollert.
 - Kontroller helst i en ny, liten økt. Hvert kall leser hele konteksten, og oppsettet av
   `agy` fyller den.
-- PR-en sier at endringen er skrevet av Gemini og kontrollert av Claude, og viser sjekkene.
+- PR-en oppgir hvilket verktøy som skrev endringen, hvem som kontrollerte den og
+  resultatene fra sjekkene.
 
 ## Funn fra `/code-review`
 

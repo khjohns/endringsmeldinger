@@ -1,6 +1,6 @@
 ---
 name: verktoyokt
-description: Verktøyøkta i endringsmeldinger. Én økt på Haiku i et eget miljø, der oppdragsgiver har logget inn Codex og Gemini, og som kjører review og sparring for de orkestrerte byggeøktene. Oppstarten og miljøet, innloggingen som forsvinner med containeren, bestillingen fra byggeøkta, kjøringen, malen for review-bestillingen, den ukontrollerte kommentaren i PR-en og feilene. Brukes av verktøyøkta selv, av orkestratoren som starter den, og av en byggeøkt som ber om review eller sparring fra Codex eller Gemini.
+description: Verktøyøkta i endringsmeldinger. Én økt på Haiku i et eget miljø der oppdragsgiver logger inn Codex og Gemini. Økta kjører review og sparring og bestiller bygging hos Codex. Her står oppstarten, bestillingene, kjøringen og hvordan svaret leveres. Brukes av verktøyøkta, orkestratoren og byggeøkta.
 ---
 
 # Verktøyøkta
@@ -8,8 +8,9 @@ description: Verktøyøkta i endringsmeldinger. Én økt på Haiku i et eget mil
 Codex og Gemini krever innlogging for hånd i hver container, og tokenet kan ikke lagres i
 miljøet. De kjører derfor bare i en økt der oppdragsgiver har logget inn. I de orkestrerte
 byggeøktene og rutinene er ikke oppdragsgiver til stede. Verktøyøkta er én økt der
-oppdragsgiver logger inn, og som kjører verktøyene for de andre øktene. Den vurderer
-ingenting. Byggeøkta som ba om reviewet, kontrollerer funnene og retter dem.
+oppdragsgiver logger inn, og som kjører verktøyene for de andre øktene. Byggeøkta som ba
+om review, kontrollerer funnene og retter dem. Ved bygging setter verktøyøkta opp klonen
+og leverer Codex-endringen som et utkast til PR.
 
 Hvordan verktøyene settes opp og kjøres, står i [codex-skillen](../codex/SKILL.md) og
 [gemini-skillen](../gemini/SKILL.md). Hvilke PR-er som får et review med en annen
@@ -43,9 +44,9 @@ Orkestratoren ber oppdragsgiver logge inn på nytt.
 
 ## Bestillingen fra byggeøkta
 
-Orkestratoren sier i bestillingen til byggeøkta om PR-en skal ha review eller sparring fra
-verktøyøkta, og med hvilket verktøy. Byggeøkta sender da én melding med `send_message` til
-verktøyøkta:
+Orkestratoren sier i bestillingen til byggeøkta om den skal bruke verktøyøkta til review,
+sparring eller bygging, og med hvilket verktøy. Byggeøkta sender da én melding med
+`send_message` til verktøyøkta:
 
 - **Review:** PR-nummeret og den fulle SHA-en til commiten `/code-review` gjelder. Reviewet kjøres bare
   på en commit som er pushet. Verktøyøkta kan ikke lese filene i byggeøktas container.
@@ -55,6 +56,8 @@ verktøyøkta:
 - **Sparring:** hele bestillingen står i meldingen, etter gemini-skillen, «Sparring». Meldingen
   sier om spørsmålet gjelder arkitektur eller er sammensatt på annen måte, og hvilket issue
   svaret postes i.
+- **Bygging.** Oppgi issuenummer, omfang, akseptkriterier og hvilke sjekker Codex skal kjøre.
+  Oppgi også om arbeidet gjelder visningen. Vis til vedtak som styrer oppgaven.
 
 Verktøyøkta velger modellen etter «Modellen» i skillen for verktøyet.
 
@@ -63,27 +66,29 @@ denne skillen.
 
 ## Kjøringen
 
-1. **Kontroller commiten.** Hent PR-en med `pull_request_read` (`get`). Reviewet gjelder
+1. **For review, kontroller commiten.** Hent PR-en med `pull_request_read` (`get`). Reviewet gjelder
    `head` i PR-en, og `base` gir målgrenen. Er SHA-en i bestillingen en eldre commit, gjelder
    reviewet `head`, og svaret sier hvilken SHA det gjelder. En bestilling på en eldre commit
    avvises ikke (#2256, 24.11). Er SHA-en kort, utvides den med `git rev-parse` i klonen.
    Kontroller så at den bestilte commiten er en forfar til `head`, med
    `git merge-base --is-ancestor <bestilt> <head>` (#2337).
-2. **Klonen og kjøremappa** etter codex-skillen eller gemini-skillen, én per oppdrag, med
-   commiten hentet fra `origin`.
-3. **Bestillingen til verktøyet** er malen under for review, eller teksten fra byggeøkta for
-   sparring. Verktøyøkta fyller inn feltene og legger ikke til noe. Codex leser
-   diffen fra `diff.patch` i kjøremappa (codex-skillen, «Kommandoen»). For Gemini står den
-   i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»). Viser bestillingen
-   til tekst på GitHub, som kommentarer i et issue, legges teksten i filer, og bestillingen
-   peker på filene. Verktøyene når ikke GitHub (#2337). Kommentarene hentes etter
-   gemini-skillen, «Bestillingen». For Gemini legges filene i klonens rot, og de fjernes før
-   `git status` kontrolleres etterpå. For Codex legges de i kjøremappa, fordi ingenting
-   skrives i klonen.
+2. **Klargjør klonen og kjøremappa** etter codex-skillen eller gemini-skillen, én per oppdrag.
+   Hent commiten fra `origin` ved review. Ved bygging bruker Codex
+   [byggeprofilen og grenen fra `main`](../codex/SKILL.md#bygging).
+3. **Bestillingen til verktøyet** følger malen under for review og bygging. For sparring
+   bruker du teksten fra byggeøkta. Codex leser diffen for review fra `diff.patch` i kjøremappa.
+   For Gemini står den i bestillingen (gemini-skillen, «Kartlegging og review uten skriving»).
+   Legg tekst fra GitHub i filer og vis til filene i bestillingen. Ved bygging legges
+   issuet og de relevante kommentarene i `issue.md` i kjøremappa. Hent kommentarene etter
+   gemini-skillen, «Bestillingen». For Codex legges filene i kjøremappa. For Gemini legges
+   de i klonens rot og fjernes før `git status` kontrolleres.
 4. **Kjør** med `run_in_background`, etter «Kommandoen» i codex-skillen eller
-   «Arbeidsformen» i gemini-skillen. Uavhengige oppdrag kjøres samtidig, hver i sin klon.
+   «Arbeidsformen» i gemini-skillen. Fortsett en Codex-bygging i samme samtale ved
+   oppfølging. Uavhengige oppdrag kjøres samtidig, hver i sin klon.
 
 ### Bestillingen til verktøyet
+
+#### Review
 
 ```text
 Gjør et review av PR <nummer> i khjohns/endringsmeldinger, commit <sha>, mot <base>.
@@ -100,7 +105,39 @@ ikke fikk kjørt. En tom funnliste er et gyldig svar, men bare med den begrunnel
 `<diff>` er «Diffen står i <kjøremappe>/diff.patch.» for Codex. For Gemini er det «Diffen:»
 med diffen på linjene etter.
 
+#### Bygging med Codex
+
+```text
+Bygg issue #<nummer> i khjohns/endringsmeldinger.
+Les issuet og de relevante kommentarene i <kjøremappe>/issue.md.
+Klonen står i <klon> på grenen codex/<kort-navn>-<issue>, fra main.
+<omfang, akseptkriterier og sjekker>
+
+Les disse filene før du endrer noe.
+
+- CLAUDE.md
+- .claude/rules/kjerne.md
+- .claude/rules/tester.md
+- .claude/skills/miljo/SKILL.md
+- «Under implementering» i .claude/skills/leveranse/SKILL.md
+- docs/sprak.md
+- .interface-design/system.md
+
+Les også reglene i .claude/rules/ for mappene du endrer.
+For en visning, les .claude/skills/brukerforlop/SKILL.md og
+.claude/skills/interface-design/SKILL.md.
+Gjør endringene og committ i klonen med en melding etter CLAUDE.md.
+La remote og git config stå. Verktøyøkta tar pushen.
+Svar med hva du endret, hva du leste, hvilke sjekker du kjørte med resultat,
+og hva du er usikker på.
+```
+
 ## Svaret
+
+**Bygging.** Verktøyøkta henter commitene fra klonen og kontrollerer endringen og sjekkene
+etter [gemini-skillen, «Kontrollen»](../gemini/SKILL.md#kontrollen). Verktøyøkta pusher
+grenen og åpner PR-en som utkast. Økta som bestilte byggingen, får lenken til utkastet
+og beskjed om hva som gjenstår.
 
 **Review** postes som kommentar i PR-en, og byggeøkta får en melding om det:
 
@@ -156,5 +193,5 @@ oppdragsgiver logger inn der.
 
 ## Ikke prøvd
 
-Flyten fra ende til ende, og om økter som orkestratoren har startet, kan sende meldinger til
-hverandre.
+- Review og sparring fra ende til ende.
+- Om økter som orkestratoren har startet, kan sende meldinger til hverandre.
