@@ -643,7 +643,7 @@
       aktiv={foersteSporsmaal === 'frist_varsel_ok'}
       tittel={overskrift('33.4') ?? temanavn(temaene, '33.4')}
     >
-      <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
+      <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} svaretSendt={sendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
       {#if innsigelsen}
         <Varselstandpunkt

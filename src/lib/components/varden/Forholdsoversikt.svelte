@@ -26,6 +26,9 @@
     vist = null,
     smal = false,
     onles,
+    datoene,
+    rettbare = [],
+    onrett,
     onspor,
     onkorriger,
     handlingerVed = [],
@@ -64,6 +67,9 @@
     {vist}
     {smal}
     {onles}
+    {datoene}
+    {rettbare}
+    {onrett}
     {korrigerbare}
     {onkorriger}
     lukket={u.forholdAvvist}
