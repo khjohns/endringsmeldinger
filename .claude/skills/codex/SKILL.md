@@ -1,6 +1,6 @@
 ---
 name: codex
-description: Codex (OpenAI) gjennom `codex exec` i en skyøkt i endringsmeldinger, for review og sparring med en annen modellfamilie. Oppsettet (verter, installasjon, innlogging), kommandoen med tillatelsesprofil som bare lar Codex lese klonen og kjøremappa, skjemaet, hva som er prøvd og ikke, og forskjellene fra gemini-skillen. Brukes når verktøyøkta, en orkestrator eller en direkte økt vil ha et review eller sparring av Codex, i en økt der oppdragsgiver har logget inn.
+description: Codex (OpenAI) gjennom `codex exec` i en skyøkt i endringsmeldinger. Oppsett, tillatelsesprofiler for review, sparring og bygging, bestilling og oppfølging i samme samtale. Brukes når oppdragsgiver har logget inn i verktøyøkta eller en direkte økt.
 ---
 
 # Codex i skyøkta
@@ -10,8 +10,8 @@ Arbeidsformen, kontrollen og håndteringen av funn er de samme som for Gemini. D
 «Funn fra `/code-review`») og bare der. Hvilke PR-er som får et review med en annen
 modellfamilie, står i
 [leveranseskillen](../leveranse/SKILL.md#review-og-funn) («Review med en annen
-modellfamilie»). Hvordan en orkestrert byggeøkt får et review fra en økt der oppdragsgiver
-har logget inn, står i [verktøyøkt-skillen](../verktoyokt/SKILL.md). Her står det som er
+modellfamilie»). Hvordan en orkestrert byggeøkt bestiller review, sparring eller bygging,
+står i [verktøyøkt-skillen](../verktoyokt/SKILL.md). Her står det som er
 annerledes for Codex. Codex er ikke en del av løsningen. Det Codex sier, er en påstand til
 Claude har kontrollert det.
 
@@ -19,6 +19,7 @@ Claude har kontrollert det.
 
 - **Review** av en PR, mot en commit som er pushet. Byggeøkta installerer ingenting.
 - **Sparring** i et viktig spørsmål, med reglene i gemini-skillen, «Sparring».
+- **Bygging** av et issue på en egen gren i en klon fra `main`.
 
 Passer ikke: det samme som for Gemini (tolkning av NS 8407, vedtak, saksdata, nøkler, push og
 merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en PR.
@@ -47,19 +48,23 @@ merge). Codex har heller ikke GitHub-tilgang og kan ikke skrive kommentarer i en
 
 ## Modellen
 
-Valgt av oppdragsgiver 24.11. Standardinnsatsen i katalogen er `low`, så modellen og
-innsatsen settes alltid i kommandoen (`$MODELL` og `$INNSATS`).
+Modellene og innsatsen for review og sparring er valgt av oppdragsgiver 24.11. Standardinnsatsen
+i katalogen er `low`, så modellen og innsatsen settes alltid i kommandoen
+(`$MODELL` og `$INNSATS`).
 
 | Oppgave | Modell | Innsats |
 | --- | --- | --- |
 | Review | `gpt-6.2-sol` | `high` |
 | Sparring | `gpt-6.2-sol` | `medium` |
 | Sparring om arkitektur og andre sammensatte spørsmål | `gpt-6.2-astra` | `high` |
+| Bygging | `gpt-6.2-sol` | `medium` |
 
 En nyere Sol eller Astra kan brukes når den står i `codex debug models`. Modellen og
 innsatsen står i kommentaren med svaret.
 
 ## Kommandoen
+
+### Review og sparring
 
 Samme klon, git-identitet og `env -i` som i gemini-skillen. Klonen settes på commiten med
 `git fetch`, fra hovedkopien eller fra `origin` i verktøyøkta. Hver kjøring får en egen mappe i
@@ -97,10 +102,9 @@ Sparring som kan få oppfølging, kjøres uten `--ephemeral` (se «Oppfølging i
 - **Kontroller profilen før kallet.** Kjør `codex debug prompt-input` med de to `-c`-flaggene
   for profilen fra blokken, og se at profilen `review` er valgt. `prompt-input` avviser `-m`,
   `--ephemeral`, `--output-schema` og `-o`, som bare `codex exec` tar. Prøvd 25.11 med blokken
-  over (#2256). Loggen er ikke et
-  bevis, for den viser `sandbox: read-only` både med og uten profilen. Kopier hele kallet, og
-  samle ikke flaggene i en variabel. I #2337 falt `-c 'default_permissions="review"'` ut på den
-  måten.
+  over (#2256). Loggen viser `sandbox: read-only` både med og uten profilen. Kopier hele kallet
+  med alle flaggene. Det gjelder også `resume`. En variabel med flaggene kan miste
+  `-c 'default_permissions="review"'` (#2337).
 - **`< /dev/null` er påkrevd.** Med `run_in_background` har kommandoen en åpen stdin-pipe, og
   Codex står og venter på den («Reading additional input from stdin...», tom logg).
 - **Skjemaet** (`--output-schema`) må være strengt: `additionalProperties: false` og alle
@@ -144,28 +148,66 @@ Sparring som kan få oppfølging, kjøres uten `--ephemeral` (se «Oppfølging i
   ti minutter og 144 000 tokens. Et review av denne skillen i prøven av verktøyøkta tok 43
   sekunder og 55 000 tokens.
 - Kontroller `git status --porcelain` i klonen og i hovedkopien etterpå. Det skal være likt.
-- **Oppfølging i samme samtale.** `codex exec resume <id>` er prøvd og virker, og `-o` virker med den. Id-en står i loggen som «session id» (#2256).
-  Etter en kjøring med `--ephemeral` kan samtalen ikke fortsettes (#2337).
+
+### Bygging
+
+Lag klonen fra `main` etter «Arbeidsformen» i gemini-skillen. Bruk en egen git-identitet og
+opprett grenen `codex/<kort-navn>-<issue>` før kallet. Legg bestillingen, svaret og loggen i
+`$KJOERING`.
+
+Bruk absolutte stier. Sett `$NODE_MAPPE` til Node-installasjonen og `$HOVEDKOPI` til hovedkopien
+av repoet. Opprett en egen tmp-mappe i scratchpad og sett `$TMPDIR` til den. Bruk
+`node_modules`-lenken etter «Arbeidsformen» i gemini-skillen.
+
+Profilen `bygg` gir lesetilgang til systemmappene (`:minimal`), installasjonene av Codex og
+Node, hovedkopiens `node_modules` og kjøremappa. Den gir skrivetilgang til klonen, klonens
+`.git` og tmp-mappa. Git trenger den egne skrivetilgangen til `.git` for å committe. Bruk
+`env -i` og utelat `--sandbox` og `--ephemeral`. Profilen er prøvd i #2532. Skriving utenfor
+de skrivbare mappene og lesing av `~/.gemini` ble avvist i kontrollkjøringen.
+
+```bash
+cd "$KLON" && env -i HOME="$HOME" PATH="$NODE_MAPPE/bin:$PATH" TERM=xterm TMPDIR="$TMPDIR" \
+  HTTPS_PROXY="$HTTPS_PROXY" https_proxy="$https_proxy" NO_PROXY="$NO_PROXY" no_proxy="$no_proxy" \
+  SSL_CERT_FILE="$SSL_CERT_FILE" NODE_EXTRA_CA_CERTS="$NODE_EXTRA_CA_CERTS" \
+  timeout 1500 "$CODEX_MAPPE/node_modules/.bin/codex" exec \
+  -m "$MODELL" -c "model_reasoning_effort=\"$INNSATS\"" \
+  -c 'default_permissions="bygg"' \
+  -c "permissions.bygg.filesystem={\":minimal\"=\"read\",\"$CODEX_MAPPE\"=\"read\",\"$NODE_MAPPE\"=\"read\",\"$HOVEDKOPI/node_modules\"=\"read\",\"$KLON\"=\"write\",\"$KLON/.git\"=\"write\",\"$TMPDIR\"=\"write\",\"$KJOERING\"=\"read\"}" \
+  -o "$KJOERING/svar.md" "$(cat "$KJOERING/bestilling.md")" \
+  < /dev/null > "$KJOERING/codex.log" 2>&1
+```
+
+Kontroller at `bygg` er valgt med `codex debug prompt-input` og de to profilflaggene.
+Kontroller `git status --porcelain` og commitene i klonen etterpå. Sammenlign
+`git status --porcelain` i hovedkopien før og etter.
+
+### Oppfølging i samme samtale
+
+Bruk `codex exec resume <id>` med sesjons-ID-en fra «session id» i loggen. Ved bygging
+kopierer du hele byggekallet og bytter `exec` til `exec resume <id>`. Behold `-o` og alle
+`-c`-flaggene, også de to for `bygg`. Kopier hvert flagg i sin helhet.
+Ikke samle flaggene i en variabel. Bruk oppfølgingen som bestilling. En samtale som ble
+kjørt med `--ephemeral`, kan ikke fortsettes.
 
 ## Bestillingen
 
-Malen for et review står i
-[verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-til-verktøyet), også når Codex
-kjøres utenfor verktøyøkta. For Codex gjelder i tillegg at diffen ligger i
-`$KJOERING/diff.patch`, at bestillingen viser til den absolutte stien, og at Codex kan lese
-klonen og kjøremappa, ikke resten av scratchpad. Codex kjører hver kommando i `bash -lc`.
+Malene for review og bygging står i
+[verktøyøkt-skillen](../verktoyokt/SKILL.md#bestillingen-til-verktøyet). Bruk dem også
+utenfor verktøyøkta. Codex laster verken `CLAUDE.md` eller `.claude/`, og repoet har ingen
+`AGENTS.md`. Ta derfor med filnavnene fra
+[leselista i byggebestillingen](../verktoyokt/SKILL.md#bygging-med-codex). Legg issuet og
+de relevante kommentarene i kjøremappa. Ved review viser bestillingen til den absolutte
+stien til `$KJOERING/diff.patch`. Codex kjører hver kommando i `bash -lc`.
 
 ## Svaret
 
-Svaret er ukontrollert til Claude har vurdert det etter gemini-skillen, «Kontrollen». Det
-postes etter [verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
+Claude kontrollerer svaret etter gemini-skillen, «Kontrollen». Leveringen står i
+[verktøyøkt-skillen, «Svaret»](../verktoyokt/SKILL.md#svaret).
 
 ## Ikke prøvd
 
-- At profilen sperrer lesing utenfor klonen i en kjøring med `codex exec`. Sperren er prøvd
-  med `codex sandbox`. Med `codex exec` er bare reviewet prøvd, i prøven av verktøyøkta
-  (0.172.0).
-- Bygging og commit i en klon med `workspace-write`, og testkommandoene med
-  `node_modules`-lenke.
+- Kontroll av lesesperren med profilen `review` i `codex exec`.
+- En større PR med profilen `bygg`.
+- Testkommandoene i byggeprofilen med lesetilgang til hovedkopiens `node_modules`.
 - Om en `.codex/`-mappe i klonen kan endre sandkassen eller tillatelsene.
 - Oppfølging med `codex exec resume` av en sparring som er kjørt uten `--ephemeral`.
