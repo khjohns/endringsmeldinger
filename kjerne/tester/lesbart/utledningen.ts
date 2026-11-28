@@ -15,6 +15,8 @@ const SVARET_MED_ID = [
 
 const ELDRE_KRAV = 'spor/vederlag/utledning.ts:eldreKravFoer';
 const VARSLER_I_ELDRE_KRAV = 'spor/vederlag/utledning.ts:varslerIEldreKrav';
+const SOM_GJELDER = 'spor/vederlag/utledning.ts:eldreKravSomVarselFoer';
+const VED_SVARENE = 'spor/vederlag/utledning.ts:varslerIEldreKravVedSvarene';
 
 export const UTLEDNINGEN: Lesbar[] = [
   // Utledningen (utled.ts).
@@ -190,11 +192,20 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['Utledning', 'utsagn', 'rettinger'],
   ['Retting', 'relasjon', 'id gjelder'],
   // D-9 i BF-50 og LV-U83: brevet med den siste rettingen, som brevteksten viser til.
-  ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Retting', 'relasjon', 'dokument', ['kommandoer/skriving.ts:brevtekstFor', VED_SVARENE]],
   ['Retting', 'utsagn', 'dato'],
   // OV-U98: dagen brevet med rettingen ble sendt, mot dagen et svar lagt til oppgir.
   ['Retting', 'utsagn', 'sendt'],
   ['utledning/rettingen.ts:medRettingeneTil', 'relasjon', 'rettinger'],
+  [
+    'utledning/rettingen.ts',
+    'relasjon',
+    'medRettingeneTil',
+    // A3 i #2509.
+    [ELDRE_KRAV, 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
+  ],
+  // MM-U64.
+  ['spor/vederlag/utledning.ts:standpunkteneTilVarslene(vedSvaret)', 'relasjon', '*'],
   [
     'utledning/rettingen.ts',
     'utsagn',
@@ -202,6 +213,11 @@ export const UTLEDNINGEN: Lesbar[] = [
     [
       'utledning/utled.ts:utledSporene.gjaldtVedSvaret',
       'utledning/utled.ts:datoenSomGjelder',
+      // MM-U63: hvilket eldre krav som er varselet for en kravpost (A2 i #2509), og A1: datoen som
+      // gjaldt den dagen kravet ble sendt.
+      SOM_GJELDER,
+      ELDRE_KRAV,
+      `${VARSLER_I_ELDRE_KRAV}.sendt`,
       // LV-U83: datoen som gjelder for varselet i fristkravet.
       'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
@@ -255,15 +271,25 @@ export const UTLEDNINGEN: Lesbar[] = [
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
   // OV-U120: et krav utenfor rekken som varsel for en kravpost, og standpunktene i svarene før
   // det eldre kravet ble lagt til.
-  ['format/leser.ts', 'rad', 'dokumenterI', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['format/leser.ts', 'kontekst', 'dagenSendt', [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`]],
-  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
-  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV]],
+  [
+    'format/leser.ts',
+    'rad',
+    'dokumenterI',
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE],
+  ],
+  [
+    'format/leser.ts',
+    'kontekst',
+    'dagenSendt',
+    [ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER, VED_SVARENE],
+  ],
+  ['Utledning', 'utsagn', 'journal', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
+  ['Dokument', 'relasjon', 'id', [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, SOM_GJELDER, VED_SVARENE]],
   [
     'Krav',
     'relasjon',
     'dokument',
-    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`],
+    [ELDRE_KRAV, VARSLER_I_ELDRE_KRAV, `${VARSLER_I_ELDRE_KRAV}.sendt`, SOM_GJELDER],
   ],
   [`${VARSLER_I_ELDRE_KRAV}.kjent`, 'relasjon', 'dokument', [`${VARSLER_I_ELDRE_KRAV}.kjent`]],
   [
@@ -294,7 +320,7 @@ export const UTLEDNINGEN: Lesbar[] = [
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'varslerIEldreKrav',
+    'varslerIEldreKrav varslerIEldreKravVedSvarene',
     ['kommandoer/skriving.ts:brevtekstFor'],
   ],
   ['VarselIEtEldreKrav', 'relasjon', 'gjelder hjemmel dokument', ['frosset/standpunkt.ts']],
@@ -304,5 +330,10 @@ export const UTLEDNINGEN: Lesbar[] = [
     'utenStandpunkterForanEldreKrav',
     ['frosset/brevtekst.ts:innsigelsenFoer', 'spor/vederlag/utledning.ts:standpunkteneTilVarslene'],
   ],
-  ['Saken', 'relasjon', 'varslerIEldreKrav', ['frosset/brevtekst.ts:innsigelsenFoer']],
+  [
+    'Saken',
+    'relasjon',
+    'varslerIEldreKrav varslerIEldreKravVedSvaret varslerIEldreKravVedSvaret.*',
+    ['frosset/brevtekst.ts:innsigelsenFoer'],
+  ],
 ];
